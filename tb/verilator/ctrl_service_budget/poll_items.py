@@ -118,8 +118,20 @@ PLANTS = {
     # group whose notice goes to every registered controller passes the AECP item's stated cost
     'notice-fan-out-as-it-was': ('aecp/aecp.c', FAN_NOW, FAN_BEFORE, 'aecp-fanout', 'none'),
     # the old cost of an SRP record's comparisons (#665: StreamIDs and MACs compared by same()): each StreamID and MAC
-    # compared through memcmp, so the group with the heaviest SRP record passes its retry's stated cost
+    # compared through memcmp, so the group with the heaviest SRP record makes its record dearer than this image's
+    # unplanted one (REFERENCE_CONTROLS)
     'srp-compared-by-memcmp': ('srp/srp_mbx.c', SAME_NOW, SAME_BEFORE, 'notice-every-2', 'answering-every-port'),
 }
+#: The controls held to a stated cost: each must make the STATED line of its words in its group.
 CONTROLS = {'polls-rebuild-in-the-base': "a pass's polls base of", 'polls-rebuild-twice': 'a rebuild item of',
-            'notice-fan-out-as-it-was': 'a aecp item of', 'srp-compared-by-memcmp': "an SRP record's apply of"}
+            'notice-fan-out-as-it-was': 'a aecp item of'}
+#: The controls held to this image's own unplanted measurement instead (#665): each stated cost is the larger of a
+#: new measurement and the committed table's, so an image that makes the work cheaper leaves the stated cost above
+#: both the cut and its reversal, and a control held to it escapes. Each such control runs its group twice in one
+#: run, on the planted build and on this tree's unplanted one (run.reference_run), and is caught where the planted
+#: heaviest instance of its kind (poll_grade.held's, here poll_grade.RECORD, an SRP record's own apply) is dearer
+#: than the unplanted one by more than REFERENCE_MARGIN_PERCENT, with no refusal in either run (run.reference_verdict).
+REFERENCE_CONTROLS = {'srp-compared-by-memcmp': 'record'}
+#: The margin: the 5 % a stated cost carries over the measurement it is stated from (poll_grade.py), so a reversal
+#: within it would pass a cost restated from this image's own measurement of the group.
+REFERENCE_MARGIN_PERCENT = 5

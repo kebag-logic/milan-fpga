@@ -29,6 +29,11 @@
 //                        STOP_STREAMING response dropped
 //
 //   Vmilan_dp_twin_sp <capture.json> [--plant NAME]
+//
+// With --srptx SCENARIO it runs the split build's SRP transmit path instead
+// (#867, srptx.hpp) and writes what srptx_grade.py grades:
+//   Vmilan_dp_twin_sp --srptx wire|hold|licence <capture.json> [--ms N]
+//                     [--peer-leave-all-ms N]   (licence only)
 
 #include <cstdint>
 #include <cstdio>
@@ -56,6 +61,7 @@ extern "C" {
 }
 #undef _Static_assert
 #include "twin.hpp"
+#include "srptx.hpp"
 
 namespace {
 
@@ -67,6 +73,14 @@ constexpr unsigned kGuard = 4096;
 //! and the most service passes one millisecond takes.
 constexpr unsigned kSettle = 64;
 constexpr unsigned kPasses = 400;
+//! --srptx (#867): after a millisecond's service the RTL runs until neither the
+//! MAC nor the bench's receive side has moved a beat for kDrainIdle datapath
+//! cycles since the last TX commit, past ctl_tx_mux's 512-cycle gap and the
+//! path's latency, then the loop is serviced again and drained again. So a
+//! committed frame leaves at its RTL time inside the millisecond, and a
+//! received one is taken, answered and sent inside it; at most kDrainMax.
+constexpr std::uint64_t kDrainIdle = 2048;
+constexpr std::uint64_t kDrainMax = 50000;
 
 class SplitHalf {
  public:
@@ -81,6 +95,11 @@ class SplitHalf {
     void mac_rx(const twin::Frame& f) { rx_q_.push_back(f); }
     bool quiet() const { return rx_q_.empty() && tx_cur_.empty(); }
     std::uint32_t ms() const { return ms_; }
+    //! The modeled time in us: the tick's millisecond, then 2.5 ns a bench unit since it (srptx.hpp)
+    double now_us() const { return ms_ * 1000.0 + static_cast<double>(u_ - u_tick_) * 0.0025; }
+    const Vtb_split_top* dut() const { return d_; }
+    void tx_committed() { tx_active_dp_ = dp_; }
+    void drain();
     void capture(twin::Capture* cap) { cap_ = cap; }
     unsigned host_timeouts() const { return host_timeouts_; }
     std::string& console() { return console_; }
@@ -103,7 +122,11 @@ class SplitHalf {
 
     Vtb_split_top* d_;
     std::uint64_t u_ = 0;
+    std::uint64_t u_tick_ = 0;
+    double first_us_ = 0;
     std::uint64_t dp_ = 0;
+    std::uint64_t tx_active_dp_ = 0;
+    std::uint64_t rx_active_dp_ = 0;
     std::uint32_t ms_ = 0;
     Fires fires_{};
     bool rx_fire_ = false;
@@ -158,6 +181,7 @@ void SplitHalf::dp_edge() {
 
 void SplitHalf::rx_drive() {
     const bool busy = !rx_q_.empty();
+    if (busy) rx_active_dp_ = dp_;
     const twin::Frame* f = busy ? &rx_q_.front() : nullptr;
     std::uint64_t data = 0;
     std::uint32_t keep = 0;
@@ -172,7 +196,9 @@ void SplitHalf::rx_drive() {
 }
 
 void SplitHalf::tx_take() {
+    if (d_->tx_tvalid) tx_active_dp_ = dp_;
     if (!d_->tx_tvalid || !d_->tx_tready) return;
+    if (tx_cur_.empty()) first_us_ = now_us();
     for (unsigned i = 0; i < 8; ++i)
         if (d_->tx_tkeep & (1u << i)) tx_cur_.push_back(static_cast<std::uint8_t>(d_->tx_tdata >> (8 * i)));
     if (!d_->tx_tlast) return;
@@ -187,7 +213,18 @@ void SplitHalf::tx_take() {
     } else if (cap_ != nullptr) {
         cap_->stream_frame(ms_);
     }
+    if (cap_ != nullptr && srptx::mac_frame(tx_cur_, first_us_, &answer)) {
+        rx_q_.push_back(answer);
+        cap_->applied.push_back({ms_, "MSRP Listener Ready JoinIn for source 0, the peer answering a LeaveAll", answer});
+    }
     tx_cur_.clear();
+}
+
+void SplitHalf::drain() {
+    const std::uint64_t until = dp_ + kDrainMax;
+    while (dp_ < until && (d_->tx_tvalid || !tx_cur_.empty() || !rx_q_.empty() || dp_ - tx_active_dp_ < kDrainIdle ||
+                           dp_ - rx_active_dp_ < kDrainIdle))
+        dp_cycles(64);
 }
 
 void SplitHalf::dp_cycles(unsigned n) {
@@ -277,10 +314,16 @@ std::uint32_t SplitHalf::axi_read(std::uint16_t addr) {
     throw std::runtime_error("AXI read response timeout");
 }
 
+//! The tick: the millisecond that ends is checked against 1 ms of RTL time
+//! (srptx.hpp), and the MAC refuses every beat while a hold is in force.
 void SplitHalf::tick_ms() {
+    if (ms_ > 0)
+        srptx::rec().intra_ms_max_us = std::max(srptx::rec().intra_ms_max_us, now_us() - ms_ * 1000.0);
+    u_tick_ = u_;
     d_->ms_tick_p_i = 1;
     sys(1);
     ++ms_;
+    d_->tx_tready = srptx::held(ms_) ? 0 : 1;
     nvm_fmodel_advance_us(1000);
 }
 
@@ -322,15 +365,21 @@ void millisecond(SplitHalf& half, const std::vector<twin::Stimulus>& stim, std::
     while (*next < stim.size() && stim[*next].ms <= half.ms()) {
         half.mac_rx(stim[*next].frame);
         cap->applied.push_back({half.ms(), stim[*next].what, stim[*next].frame});
+        srptx::applied(stim[*next].what);
         ++*next;
     }
     half.tick_ms();
     half.sys(kSettle);
-    for (unsigned pass = 0; pass < kPasses; ++pass) {
-        const unsigned owed = ctrl_loop_service(&ctrl_plat.app.loop);
-        if (owed == 0 && half.quiet()) break;
-        half.sys(kSettle);
+    const unsigned rounds = srptx::rec().on && !srptx::held(half.ms()) ? 2 : 1;
+    for (unsigned round = 0; round < rounds; ++round) {
+        for (unsigned pass = 0; pass < kPasses; ++pass) {
+            const unsigned owed = ctrl_loop_service(&ctrl_plat.app.loop);
+            if (owed == 0 && half.quiet()) break;
+            half.sys(kSettle);
+        }
+        if (rounds == 2) half.drain();
     }
+    srptx::sample(half.dut());
 }
 
 //! The first Talker message's first vector (IEEE 802.1Q-2018 10.8.1.2: each
@@ -382,11 +431,15 @@ bool plant(const std::string& name, twin::Capture* cap) {
 
 // mbx_hal.h on KL_mbx's host port
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t byte_offset) {
-    return current()->host(byte_offset, false, 0);
+    const std::uint32_t v = current()->host(byte_offset, false, 0);
+    srptx::hal_read(byte_offset, v);
+    return v;
 }
 
 extern "C" void mbx_hal_write32(std::uint32_t byte_offset, std::uint32_t value) {
+    srptx::hal_write(byte_offset, value);
     (void)current()->host(byte_offset, true, value);
+    if (srptx::rec().on && srptx::tx_head(byte_offset)) current()->tx_committed();
 }
 
 extern "C" void mbx_hal_wait(void) {}
@@ -407,7 +460,72 @@ extern "C" void ctrl_plat_io_write32(std::uintptr_t address, std::uint32_t value
     }
 }
 
+//! The --srptx run (srptx.hpp): the scenario's stimulus on the split half
+//! from reset, recorded at lwSRP's boundary, its timers, the mailbox and the MAC.
+int srptx_main(const std::string& name, const char* path, std::uint32_t run_ms) {
+    if (name != "wire" && name != "hold" && name != "licence") {
+        std::fprintf(stderr, "FAIL --srptx takes wire, hold or licence, not %s\n", name.c_str());
+        return 2;
+    }
+    if (name != "licence" && srptx::rec().peer_leave_all_ms != srptx::kPeerLeaveAllMs) {
+        std::fprintf(stderr, "FAIL --peer-leave-all-ms moves the licence scenario's peer LeaveAll, not %s's\n",
+                     name.c_str());
+        return 2;
+    }
+    auto ctx = std::make_unique<VerilatedContext>();
+    const auto dut = std::make_unique<Vtb_split_top>(ctx.get());
+    SplitHalf half(dut.get());
+    current() = &half;
+    srptx::Recorder& r = srptx::rec();
+    r.ms = [] { return current()->ms(); };
+    r.us = [] { return current()->now_us(); };
+    static Env env;
+    r.talker_sid = twin::kEntityMac << 16 | env.streams[0].unique_id;
+    const std::vector<twin::Stimulus> stim = srptx::scenario(name);
+    if (run_ms) r.run_ms = run_ms;
+    twin::Capture cap;
+    r.on = true;
+    half.reset();
+    half.capture(&cap);
+    const ctrl_plat_stage stage = ctrl_plat_boot(&env.env);
+    if (stage != CTRL_PLAT_READY) {
+        std::fprintf(stderr, "FAIL the platform stopped its boot at stage %d: %s\n", static_cast<int>(stage),
+                     half.console().c_str());
+        return 2;
+    }
+    std::size_t next = 0;
+    while (half.ms() < r.run_ms) millisecond(half, stim, &next, &cap);
+    half.drain();
+    r.on = false;
+    dut->final();
+    if (!srptx::write(path, cap.applied)) {
+        std::fprintf(stderr, "FAIL the capture %s was not written\n", path);
+        return 2;
+    }
+    std::printf("srptx %s: %zu control frames, %zu MRPDUs from lwSRP, %u sent by the adapter, %u host timeouts, %u ms\n",
+                name.c_str(), r.mac.size(), r.lib.size(), ctrl_plat.srp.transmitted, half.host_timeouts(), r.run_ms);
+    return half.host_timeouts() == 0 && r.layout_error.empty() ? 0 : 1;
+}
+
+//! --srptx SCENARIO CAPTURE, then each option with its value: --ms N, --peer-leave-all-ms N.
+bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
+    if (argc < 4 || argc % 2 != 0 || std::strcmp(argv[1], "--srptx") != 0) return false;
+    for (int k = 4; k < argc; k += 2) {
+        const bool ms = std::strcmp(argv[k], "--ms") == 0;
+        if (!ms && std::strcmp(argv[k], "--peer-leave-all-ms") != 0) return false;
+        const auto value = static_cast<std::uint32_t>(std::stoul(argv[k + 1]));
+        if (ms) {
+            *run_ms = value;
+        } else {
+            srptx::rec().peer_leave_all_ms = value;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
+    std::uint32_t run_ms = 0;
+    if (srptx_args(argc, argv, &run_ms)) return srptx_main(argv[2], argv[3], run_ms);
     const std::string planted = argc == 4 && std::strcmp(argv[2], "--plant") == 0 ? argv[3] : "";
     if (argc != 2 && planted.empty()) {
         std::fprintf(stderr, "usage: %s <capture.json> [--plant NAME]\n", argv[0]);

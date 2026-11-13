@@ -267,8 +267,8 @@ extern "C" {
 // 8x8/2if, the point THE DRAIN's sum binds: one record of SRP's burst, the
 // first registration of a burst and a centisecond's consumers.
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 900u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 405u : 1215u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 430u : 1215u)
 #define CTRL_LOOP_SRP_RECORD_US 123u
 #define CTRL_LOOP_SRP_FIRST_US 400u
 #define CTRL_LOOP_TICK_US 430u

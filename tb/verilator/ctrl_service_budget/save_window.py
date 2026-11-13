@@ -77,14 +77,25 @@ SECOND_MS = DIRTY_MS + 35
 OFFSET_MS = 0.2
 
 
-#: The record header of look-ahead the stage holds past the container (nvm_shape.h, NVM_STAGE_BYTES).
-REC_HDR = 8
+def rec_hdr() -> int:
+    """The record header of look-ahead the stage holds past the container (nvm_shape.h, NVM_STAGE_BYTES),
+    NVM_REC_HDR, read from nvm_shape.h through the layout's own name for it, so a format whose record header
+    changes restates the container: KLJ3's NVM3_REC_HDR, 10 bytes (nvm_layout3.h), where KLJ2's was 8."""
+    nvm = Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl_nvm'
+    name = re.search(r'#define NVM_REC_HDR\s+(\w+)', (nvm / 'nvm_shape.h').read_text()).group(1)
+    if re.fullmatch(r'\d+u?', name):
+        return int(name.rstrip('u'))
+    values = [m.group(1) for h in sorted(nvm.glob('*.h'))
+              for m in [re.search(rf'#define {name}\s+(\d+)u?\b', h.read_text())] if m]
+    if len(values) != 1:
+        raise RuntimeError(f'NVM_REC_HDR is {name}, defined {len(values)} times in ctrl_nvm')
+    return int(values[0])
 
 
 def container(build: dict) -> int:
     """An image's saved-state container length, NVM_IMG_LEN: its stage, nvm_stage, less that look-ahead."""
     symbols = Path(build['elf']).with_name('symbols.txt').read_text().splitlines()
-    return next(int(line.split()[1], 16) for line in symbols if line.split()[-1] == 'nvm_stage') - REC_HDR
+    return next(int(line.split()[1], 16) for line in symbols if line.split()[-1] == 'nvm_stage') - rec_hdr()
 
 
 def step_age() -> int:

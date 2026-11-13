@@ -4,7 +4,7 @@
 """The split placement's firmware memory (#640 M8a): plan, rules, banks, link and SoC build.
 
 `ctrl_memory.py` is the map and its checks; `milan_soc.CtrlMemory` is the
-block RAM the SoC builds from them. This file grades seven things:
+block RAM the SoC builds from them. This file grades nine things:
 
   1. BANKS. For every need up to past the budget, the banks are powers of two
      of whole RAMB18 granules, largest first, and hold the need with less than
@@ -57,17 +57,19 @@ block RAM the SoC builds from them. This file grades seven things:
      rule or a property, and must turn its arm red with a named failure. A
      mutant is graded only against an arm that passed unmutated in the same
      run, so a failure of the environment is never counted as a kill.
+     ctrl_memory_mutant.py rebuilds each mutant and puts it in place.
+  8. THE OUT-OF-CONTEXT MAPPER's override and its mutants,
+     ctrl_memory_ledger.mapper_arms.
+  9. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region
+     pieces the split export hands the CPU.
 --build-only compiles and links the reset-entry probe for the boundary capture.
 It requires RV32, runs no suites and plants no defects.
 
 """
 from __future__ import annotations
 
-import __future__
-import ast
 import contextlib
 import importlib.abc
-import inspect
 import json
 import os
 import re
@@ -76,9 +78,8 @@ import struct
 import subprocess
 import sys
 import tempfile
-import textwrap
 import types
-from collections.abc import Callable, Generator, Iterator
+from collections.abc import Callable, Generator
 from functools import partial
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -95,6 +96,8 @@ sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
 import ctrl_memory  # noqa: E402
 from ctrl_memory_elf import poke, splice, truncate, write_elf  # noqa: E402
 import ctrl_memory_ledger as ledgers  # noqa: E402
+import ctrl_memory_decode as decode  # noqa: E402
+from ctrl_memory_mutant import mutated, patched  # noqa: E402
 from ctrl_memory_probe import link  # noqa: E402
 import fw_rv32  # noqa: E402
 import milan_soc  # noqa: E402
@@ -107,9 +110,9 @@ RAM = ctrl_memory.RAM.origin
 LARGEST_NEED = 112_208
 #: The words of the power-of-two window the SoC decodes for a 224 KiB region (adr[29:16] in the export).
 WINDOW = (1 << (ctrl_memory.BUDGET_BYTES - 1).bit_length()) // 4
-#: The shipping 1x1 shape, which stages 3,344 bytes; the 8x8 shape stages 13,264.
+#: The shipping 1x1 shape, which stages 3,454 bytes; the 8x8 shape stages 13,594 (KLJ3, #823).
 SOC_CONFIG = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
-STAGE_1X1, STAGE_8X8 = 3344, 13264
+STAGE_1X1, STAGE_8X8 = 3454, 13594
 PAIRING = "--ctrl-mailbox and --ctrl-firmware go together"
 MODULES = {"ctrl_memory": ctrl_memory, "milan_soc": milan_soc}
 
@@ -227,13 +230,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with a tile of .text more and of .bss less, still 56 RAMB36, then a
-    granule of .text more per half tile past 56 (or of .bss less per half tile under it). Each region holds 56 tiles
-    and the good image's rom a few, so a case reaches past the platform's 60.5 (#895)."""
-    halves = round(2 * (case.tiles - 56))
+    """A ledger case written: the good image with two tiles of .text more and of .bss less, still 56 RAMB36, then
+    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 61.0, half a tile past the
+    platform's 60.5."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + (2 + max(halves, 0)) * GRANULE,
-                                  bss=BUDGET_BSS + (min(halves, 0) - 2) * GRANULE))
+                                  text=GOOD.text + 4 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 4) * GRANULE))
 
 
 def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
@@ -652,6 +654,7 @@ def soc_child(spec_path: Path) -> int:
         result.update(rc=1, rule=exc.rule, refusal=str(exc))
     except Exception as exc:     # any other failure is recorded as itself, never as a refusal
         result.update(rc=1, error=f"{type(exc).__name__}: {exc}")
+    result["cpu_regions"] = decode.generator_rows()
     Path(spec["result"]).write_text(json.dumps(result))
     return 0
 
@@ -702,6 +705,7 @@ def split_export(problems: list[str], result: dict[str, Any], firmware: Path) ->
           f"the Builder writes the SoC headers once, without the firmware make inputs ({result.get('includes')})")
     check(problems, "libmilan_baremetal" not in told.get("packages", ["?"])
           and not (out / "software/libmilan_baremetal").exists(), "the split build adds no shipping firmware")
+    decode.export_check(problems, result)
 
 
 def soc_arms(problems: list[str], tmp: Path, mutation: list[str] | None = None) -> None:
@@ -760,6 +764,7 @@ PROPERTIES = {
     "stage in main": "main() runs the staging check before any export",
     "pairing": "--ctrl-mailbox and --ctrl-firmware are refused apart",
     "no shipping firmware": "the split build adds no shipping firmware library",
+    **decode.PROPERTIES,
 }
 
 _CHECKS = ("ctrl_memory", "check_map")
@@ -852,38 +857,8 @@ MUTANTS = tuple(Mutant(*row) for row in (
     ("shipping firmware linked", "no shipping firmware", "milan_soc", "main",
      'if args.software_profile == "baremetal" and not args.ctrl_mailbox:', 'if args.software_profile == "baremetal":',
      "soc"),
+    *decode.MUTANTS,
 ))
-
-
-def mutated(owner: types.ModuleType, name: str, old: str, new: str) -> Any:
-    """`owner.name` rebuilt from its own source with `old` replaced by `new`, which must match once.
-
-    The text compiled is the module's own definition of `name` and nothing else:
-    it must parse to exactly that one definition, and it runs in the module's
-    own namespace, so the rebuilt object sees every other name as it was.
-    """
-    source = textwrap.dedent(inspect.getsource(getattr(owner, name)))
-    if source.count(old) != 1:
-        raise LookupError(f"{owner.__name__}.{name}: the edit matches {source.count(old)} times, not once")
-    edited_source = source.replace(old, new)
-    tree = ast.parse(edited_source)
-    if [getattr(node, "name", None) for node in tree.body] != [name]:
-        raise LookupError(f"{owner.__name__}.{name}: the edited source is not one definition of {name}")
-    scope: dict[str, Any] = {}
-    exec(compile(edited_source, f"<mutant of {owner.__name__}.{name}>", "exec",
-                 flags=__future__.annotations.compiler_flag, dont_inherit=True), vars(owner), scope)
-    return scope[name]
-
-
-@contextlib.contextmanager
-def patched(owner: object, name: str, value: object) -> Iterator[None]:
-    """Replace `owner.name` for the duration of one mutant."""
-    original = getattr(owner, name)
-    setattr(owner, name, value)
-    try:
-        yield
-    finally:
-        setattr(owner, name, original)
 
 
 def doc_rules() -> list[tuple[str, str, str]]:
@@ -915,7 +890,7 @@ def mutant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
     Only an arm in `green`, one that passed unmutated in this run, grades a
     mutant: a failure the arm shows anyway is no evidence that the mutant is caught.
     """
-    arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms}
+    arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms, "decode": decode.arms}
     for n, m in enumerate(MUTANTS):
         if m.arm not in green:
             check(problems, False, f"MUTANT '{m.name}' ({m.target}) is not graded: the {m.arm} arm fails unmutated")
@@ -973,7 +948,8 @@ def main() -> int:
         green: set[str] = set()
         for key, label, arm in (("banks", "banks", bank_arms), ("checks", "rules", partial(check_arms, tmp=tmp)),
                                 ("sim", "simulation", sim_arms), ("link", "link", partial(link_arms, tmp=tmp)),
-                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc"))):
+                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc")),
+                                ("decode", "CPU decode", decode.arms)):
             before = len(problems)
             outcomes[key] = run_arm(problems, label, arm)
             if len(problems) == before:
@@ -981,6 +957,8 @@ def main() -> int:
         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
         run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
         run_arm(problems, "planted ledgers", partial(ledger_plant_arms, tmp=tmp, green=green))
+        run_arm(problems, "out-of-context mapper", partial(ledgers.mapper_arms, check=check, tmp=tmp, write=partial(
+            ledger_elf, tmp), rebuild=partial(mutated, ledgers.mapper(), "main")))
     for problem in problems:
         print(f"FAIL: {problem}", file=sys.stderr)
     print(f"test_ctrl_memory: {len(problems)} failure(s)")

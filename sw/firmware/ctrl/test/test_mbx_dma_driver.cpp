@@ -41,9 +41,14 @@
 //       completion kept, and the frame sent again goes;
 //   T6  fan_end keeps a completion only for a walk that reached its last
 //       recipient: after a frame lost mid-walk, the walk's fan_end keeps
-//       none, and the resumed walk's end keeps the notice's one.
+//       none, and the resumed walk's end keeps the notice's one;
+//   T7  fan_end of a whole walk whose completion queue is full is
+//       AECP_FAN_REFUSED only once its last frame is committed: a refusal
+//       means the frame before it was delivered (aecp.h), so the notice
+//       resumes past its last recipient, sends no frame and keeps its one
+//       completion when the queue has room (IEEE 1722.1-2021 7.5.2).
 //
-// T5 and T6 link the adapter alone, over this driver and the window's HAL
+// T5 to T7 link the adapter alone, over this driver and the window's HAL
 // (mbx_plat_mmio.c): the AECP core and the loop it calls are stubs below,
 // since only its fan port is under test.
 
@@ -433,6 +438,33 @@ TEST_F(MbxDma, T6AWalkLeftOwedKeepsNoCompletion) {
     EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_TAKEN) << "T6 and the resumed walk ends at its last recipient";
     EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == 1u && m.completions[0].cookie == 7u)
         << "T6 keeping exactly one completion, the notice's, once the resumed walk ends";
+}
+
+TEST_F(MbxDma, T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted) {
+    const std::uint16_t head = 100;
+    const std::uint32_t record = MBX_TX_HDR_WORDS + 15u;   // a 60-byte frame
+    open(0, head);
+    static aecp_mbx m;
+    static const aecp_ports environment{};
+    aecp_config cfg{};
+    cfg.interfaces = 1;
+    ASSERT_TRUE(aecp_mbx_init(&m, &cfg, &environment, 0));
+    alignas(4) static std::uint8_t first[64], second[64];
+    for (std::uint32_t i = 0; i < sizeof first; ++i) first[i] = pattern(i), second[i] = pattern(i + 9u);
+    mover.memory = {{first, sizeof first}, {second, sizeof second}};
+    const auto committed = [] { return at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)); };
+    m.completion_count = AECP_MBX_COMPLETIONS;   // every completion slot held by an earlier notice
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T7 a notice's frame is started";
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T7 and its last";
+    EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_REFUSED)
+        << "T7 fan_end of a whole walk with the completion queue full refuses";
+    EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == AECP_MBX_COMPLETIONS)
+        << "T7 the last frame is committed before REFUSED, and no completion is kept";
+    m.completion_count = AECP_MBX_COMPLETIONS - 1u;   // one slot freed
+    EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_TAKEN) << "T7 the notice resumed past its last recipient ends";
+    EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == AECP_MBX_COMPLETIONS &&
+                m.completions[(m.completion_head + AECP_MBX_COMPLETIONS - 1u) % AECP_MBX_COMPLETIONS].cookie == 7u)
+        << "T7 sending no frame again and keeping the notice's one completion";
 }
 
 }  // namespace

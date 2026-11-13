@@ -37,6 +37,7 @@ Usage:
   python3 sw/builder/endstation_builder.py <cfg.yaml> -o <outdir>
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-fragment
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-rtl
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --placement split
 
 The product software contract is cacheless RV32 bare metal with the fabric
 plane as the sole gPTP owner. Configurations outside that contract are refused
@@ -46,6 +47,7 @@ before any output is written.
 import argparse
 import ast
 import hashlib
+import importlib.util
 import json
 import re
 import runpy
@@ -2711,9 +2713,9 @@ def nvm_name_capacity() -> tuple[int, str]:
     return int(m.group(1)), f"{shown}:{line}"
 
 
-def _adp_name_entries(overlay):
-    """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
-    the saved-state backend's NAME capacity (nvm_name_capacity)."""
+def aem_name_count(overlay: dict[str, Any]) -> int:
+    """SET_NAME/GET_NAME entries this exact AEM model needs: one per named
+    descriptor, two for ENTITY."""
     # The semantic name table covers the descriptor types named by
     # gen_aem_store.build_model(). ENTITY contributes two entries while each
     # other instance contributes one. Derive the capacity from the overlay's
@@ -2732,8 +2734,13 @@ def _adp_name_entries(overlay):
     if missing_name_counts:
         raise ConfigError("AEM overlay lacks descriptor counts for named "
                           f"types: {', '.join(missing_name_counts)}")
-    aem_name_entries = 1 + sum(int(descriptor_counts[name])
-                               for name in named_types)
+    return 1 + sum(int(descriptor_counts[name]) for name in named_types)
+
+
+def _adp_name_entries(overlay):
+    """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
+    the saved-state backend's NAME capacity (nvm_name_capacity)."""
+    aem_name_entries = aem_name_count(overlay)
     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
     # refuses it above the NAME block only at elaboration (#652).
     capacity, where = nvm_name_capacity()
@@ -2746,6 +2753,69 @@ def _adp_name_entries(overlay):
             f"elaboration. The model is {aem_name_entries - capacity} over: "
             f"remove named descriptors (streams, clusters or clock sources)")
     return aem_name_entries
+
+
+#: The split placement's record space, layout 3 (#823 decision 1). Its one
+#: declaration is the header of the split placement's saved-state store, which
+#: its codec compiles; the builder reads every block's capacity from it through
+#: scripts/nvm_layout3.py and restates none. The all-fabric checks above keep
+#: reading KL_nvm_backend.sv: the two placements refuse at their own bounds.
+NVM_LAYOUT3_H = ROOT / "sw" / "firmware" / "ctrl_nvm" / "nvm_layout3.h"
+_LAYOUT3_SPEC = importlib.util.spec_from_file_location(
+    "nvm_layout3", ROOT / "scripts" / "nvm_layout3.py")
+_layout3 = sys.modules.get("nvm_layout3")
+if _layout3 is None:
+    _layout3 = importlib.util.module_from_spec(_LAYOUT3_SPEC)
+    sys.modules["nvm_layout3"] = _layout3
+    _LAYOUT3_SPEC.loader.exec_module(_layout3)
+#: block -> the descriptor type it holds one record per; a block absent here
+#: holds one record (CFG_IDX, SUID) or the model's writable names (NAME).
+_SPLIT_COUNTED = {
+    "RATE": "AUDIO_UNIT", "CLKSRC": "CLOCK_DOMAIN", "MCR": "CLOCK_DOMAIN",
+    "BINDING": "STREAM_INPUT", "FMT_IN": "STREAM_INPUT",
+    "FMT_OUT": "STREAM_OUTPUT", "PT_OFS": "STREAM_OUTPUT",
+    "MAPS_IN": "STREAM_PORT_INPUT", "MAPS_OUT": "STREAM_PORT_OUTPUT",
+}
+
+
+def nvm_split_capacity() -> Any:
+    """The layout 3 record space as NVM_LAYOUT3_H declares it: every block's
+    first id, capacity and `path:line`. A declaration the reader cannot read
+    refuses, because a capacity this cannot read is not one it may assume."""
+    try:
+        return _layout3.read(NVM_LAYOUT3_H)
+    except (_layout3.LayoutError, OSError) as exc:
+        raise ConfigError(f"the split placement's record space: {exc}") from exc
+
+
+def emit_nvm_split(overlay: dict[str, Any]) -> dict[str, Any]:
+    """The builder's split output: this model's saved-state record space under
+    layout 3, written as nvm_split.json beside the overlay. Every block holds
+    the model's count of its group, and a count over its block refuses the
+    model, naming the count, the capacity and the declaration line. The split
+    placement's saved-state store is built from this file (its host bench,
+    nvm_bench.py, and sw/litex/milan_soc.py --ctrl-mailbox) and its codec
+    refuses the same counts at compile time from the same declaration."""
+    space = nvm_split_capacity()
+    dc = overlay["descriptor_counts"]
+    blocks = []
+    for b in space.blocks:
+        if b.group == "NAME":
+            count = aem_name_count(overlay)
+        elif b.group in _SPLIT_COUNTED:
+            count = int(dc[_SPLIT_COUNTED[b.group]])
+        else:
+            count = 1
+        if count > b.cap:
+            raise ConfigError(
+                f"this AEM model has {count} {b.group} records and the split "
+                f"placement's layout 3 holds {b.cap} (ids {b.base} to {b.last}, "
+                f"{b.where}): the F1 store would refuse this shape at compile "
+                f"time. The model is {count - b.cap} over")
+        blocks.append({"group": b.group, "first_id": b.base, "capacity": b.cap,
+                       "count": count, "declared_at": b.where})
+    return {"layout": space.layout, "id_space": space.id_space,
+            "declaration": space.header, "blocks": blocks}
 
 
 def _adp_dyn_in_geometry(cfg, overlay):
@@ -4446,6 +4516,18 @@ def ctrl_firmware_path(cfg: dict[str, Any]) -> str:
     return f"sw/builder/out/{cfg['name']}/{CTRL_FIRMWARE_ELF}"
 
 
+def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
+    """The placement recipe (#665 S9): a loaded config at `placement`, every other key unchanged.
+
+    A split image is built from a shipped config file as it stands: the
+    recipe sets control.placement and nothing else, so the result is what
+    the same file stating `control: {placement: split}` loads to (gate 23o).
+    The shape, the identity and the argv's other flags are the config's."""
+    if placement not in CONTROL_PLACEMENTS:
+        raise ConfigError(f"placement recipe '{placement}' is not one of {', '.join(CONTROL_PLACEMENTS)}")
+    return {**cfg, "control": {"placement": placement}}
+
+
 def load_config(path: str) -> dict[str, Any]:
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -5897,19 +5979,24 @@ class BuildArtifacts:
     est: dict
     plan: str
     sweep: str
+    nvm_split: dict
 
 
-def _derive_artifacts(config_path):
-    """The whole derivation pipeline for one config. Writes NOTHING: every
-    artifact below is in memory, so a config that cannot be built fails
-    before any file has been touched."""
+def _derive_artifacts(config_path, placement=None):
+    """The whole derivation pipeline for one config, at the placement
+    recipe's `placement` when one is given (with_placement). Writes NOTHING:
+    every artifact below is in memory, so a config that cannot be built
+    fails before any file has been touched."""
     cfg = load_config(config_path)
+    if placement is not None:
+        cfg = with_placement(cfg, placement)
     argv = emit_soc_argv(cfg)
     overlay = emit_aem_overlay(cfg)
     lwsrp = emit_lwsrp_table(cfg)
     lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
     csr_svh = emit_csr_defaults_svh(cfg)
     adp_svh = emit_adp_shape_svh(cfg, overlay)
+    nvm_split = emit_nvm_split(overlay)
     # The ROM consumer does not yet express every overlay the builder can
     # emit (a shape with no CRF sink has no AEM_CRF_FMTS_C table). That is a
     # real limit, not a reason to fail every OTHER artifact: record it and
@@ -5933,7 +6020,8 @@ def _derive_artifacts(config_path):
         cfg=cfg, argv=argv, overlay=overlay, lwsrp=lwsrp,
         lwsrp_svh=lwsrp_svh, csr_svh=csr_svh, adp_svh=adp_svh,
         aem_rom=aem_rom, aem_rom_why=aem_rom_why, iparams=iparams,
-        shape=shape, marks=marks, est=est, plan=plan, sweep=sweep)
+        shape=shape, marks=marks, est=est, plan=plan, sweep=sweep,
+        nvm_split=nvm_split)
 
 
 def _write_artifact_dir(art, outdir):
@@ -6002,7 +6090,12 @@ def _write_artifact_dir(art, outdir):
     with open(p_shape, "w") as f:
         json.dump(art.shape, f, indent=1)
         f.write("\n")
+    p_nvm_split = d / "nvm_split.json"
+    with open(p_nvm_split, "w") as f:
+        json.dump(art.nvm_split, f, indent=1)
+        f.write("\n")
     return d, dict(soc_params=str(p_soc), aem_overlay=str(p_ovl),
+                   nvm_split=str(p_nvm_split),
                    build_plan=str(p_plan), lwsrp_table=str(p_srp),
                    lwsrp_svh=str(p_srp_svh), csr_defaults_svh=str(p_csr_svh),
                    adp_shape_svh=str(p_adp_svh), platform_shape=str(p_shape),
@@ -6065,10 +6158,21 @@ def _write_shape_copies(art, d, write_rtl, write_fragment):
 
 def build(config_path: str, outdir: str | None = None,
           write_rtl: bool = False,
-          write_fragment: bool | None = None) -> dict[str, Any]:
-    """Run the full pipeline for one config. Returns dict with the emitted
-    paths + in-memory artifacts (for tests)."""
-    art = _derive_artifacts(config_path)
+          write_fragment: bool | None = None,
+          placement: str | None = None) -> dict[str, Any]:
+    """Run the full pipeline for one config, at the placement recipe's
+    `placement` when one is given. Returns dict with the emitted paths +
+    in-memory artifacts (for tests).
+
+    The split recipe writes its artifacts beside the config's own, under
+    OUTDIR/<config-stem>/, where its argv's --ctrl-firmware already points,
+    and takes no tracked ownership: the shape include and the sweep fragment
+    stay the all-fabric build's until the flip (#665 S13), so a sweep or a
+    named recipe never builds the split by accident (gate 23o)."""
+    if placement == "split" and (write_rtl or write_fragment):
+        raise ConfigError("the split recipe writes no tracked file: --write-rtl and --write-fragment "
+                          "stay with the config's all-fabric build until the flip (#665 S13)")
+    art = _derive_artifacts(config_path, placement)
     cfg = art.cfg
     d, out = _write_artifact_dir(art, outdir)
     p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
@@ -6078,7 +6182,8 @@ def build(config_path: str, outdir: str | None = None,
                  csr_defaults_svh=out["csr_defaults_svh"],
                  adp_shape_svh=out["adp_shape_svh"],
                  cfg_adp_shape_svh=p_cfg_adp,
-                 platform_shape=out["platform_shape"], sweep_opts=p_sweep)
+                 platform_shape=out["platform_shape"], sweep_opts=p_sweep,
+                 nvm_split=out["nvm_split"])
     if out["gptp_ucode"] is not None:
         paths["gptp_ucode"] = out["gptp_ucode"]
     # The TRACKED RTL header: exactly one config (the DEPLOYED shape, marked
@@ -6118,7 +6223,7 @@ def build(config_path: str, outdir: str | None = None,
                 adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
                 aem_rom_unsupported=art.aem_rom_why,
                 interface_params=art.iparams, platform=art.shape,
-                paths=paths)
+                nvm_split=art.nvm_split, paths=paths)
 
 
 def main() -> None:
@@ -6143,10 +6248,15 @@ def main() -> None:
                          "milan_csr.sv and milan_datapath.sv `include that "
                          "file, so without it a build inherits whatever shape "
                          "was last committed")
+    ap.add_argument("--placement", choices=CONTROL_PLACEMENTS, default=None,
+                    help="the placement recipe (#665): build this config at "
+                         "control.placement PLACEMENT, its shape unchanged; "
+                         "split writes no tracked file")
     args = ap.parse_args()
     try:
         r = build(args.config, args.outdir, write_rtl=args.write_rtl,
-                  write_fragment=(True if args.write_fragment else None))
+                  write_fragment=(True if args.write_fragment else None),
+                  placement=args.placement)
     except ConfigError as e:
         sys.exit(f"CONFIG ERROR: {e}")
     n_planned = sum(1 for m in r["marks"] if m[1].startswith("planned"))

@@ -68,6 +68,11 @@ def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
         raise RuntimeError(f"the boot SoC does not place the flash port's devices as the split SoC does: {deviations}")
 
 
+#: The platform image's ledgered points (ctrl_memory.LEDGERED), each named only at its own point: the boot SoC plans
+#: that point's image to the override's tiles, as the image's own link does (run.image), and every other to 56.
+PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
+
+
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
     """Export the boot SoC's Verilog and csr.csv; return the native build's inputs."""
     addresses = split_soc.fixture_addresses(flash_map)
@@ -94,7 +99,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         if hasattr(soc.cpu, 'cpu_clk'):
             raise RuntimeError(f'the split CPU has a clock of its own beside {soc.cpu_cd}: it runs on the bus clock')
         cpu_hz = soc.cpu_clk_freq
-        milan_soc.add_ctrl_memory(soc, elf)
+        with split_soc.ledgered_plan(PLATFORM_LEDGERED.get((shape, n_if))):
+            milan_soc.add_ctrl_memory(soc, elf)
         for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         split_soc.add_devices(soc, platform, addresses, contract, n_if)

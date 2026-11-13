@@ -3,8 +3,10 @@
 //
 // dma_main.cpp - the split placement's record mover, KL_mbx_dma, on its own
 // (#665, owner decision 2026-10-29): its host port answered by a model of
-// KL_mbx's (one request a cycle, the answer the cycle after, a write with a
-// partial strobe refused), its DMA port by an AXI4 memory with seeded random
+// KL_mbx's as merged (#870: one request, none until its answer; a register
+// read answered two cycles after its request, a ring read or any write the
+// cycle after; a write with a partial strobe refused), its DMA port by an AXI4
+// memory with seeded random
 // stalls on every channel and an address range that answers with an error,
 // and the CPU's port driven as KL_mbx_wb drives it (one request, then wait
 // for its answer).
@@ -50,7 +52,13 @@
 //   D10 every length the 12-bit field takes moves as D1 to D3 say, 4092 to
 //       4095 included (1024 words, the ring's wrap crossed), in both
 //       directions; after each, a CPU access gets its own word and a later
-//       transfer moves its bytes (#665).
+//       transfer moves its bytes (#665);
+//   D11 a CPU register read, which KL_mbx answers two cycles after its
+//       request (#870), completes with its own word at that answer and not
+//       before, alone, held behind a transfer and in the cycle a transfer
+//       starts; a CPU ring read still completes the cycle after its request;
+//       and no request reaches the port while one awaits its answer, the
+//       answer's cycle included.
 
 #include <algorithm>
 #include <cstdint>
@@ -71,6 +79,17 @@ constexpr std::uint32_t kMemBytes = 0x4000u;
 constexpr std::uint32_t kErrBase = 0x10003000u;    // a range of memory that answers SLVERR
 constexpr std::uint32_t kErrBytes = 0x40u;     // one line
 constexpr std::uint32_t kErrWord = 0x10003800u;    // one word at a line's start that answers SLVERR
+// The reads KL_mbx answers from a ring, the cycle after their request: the
+// event ring (KL_mbx_pkg's 64 words at word 0x100) and the bench's two rings,
+// which stand for its receive rings (kAecp and kLarge below); every other read
+// is the register multiplexer's, answered two cycles after its request (#870)
+constexpr std::uint32_t kRingReads[][2] = {{0x100, 0x140}, {0x400, 0x600}, {0x1000, 0x1800}};
+bool ring_read(std::uint32_t word) {
+    for (const auto& r : kRingReads) {
+        if (word >= r[0] && word < r[1]) return true;
+    }
+    return false;
+}
 
 //! A small deterministic generator, so a failure replays exactly.
 struct Rng {
@@ -118,9 +137,9 @@ class Bench {
     //! One clock: drive this cycle's inputs from the models, sample the
     //! outputs (which may depend on them), then rise.
     void step() {
-        d_->host_ack_i = ack_next_ ? 1 : 0;
+        d_->host_ack_i = due_ == 1 ? 1 : 0;
         // a cycle with no answer carries noise, so data taken from it is never a word the ring holds
-        d_->host_rdata_i = ack_next_ ? rdata_next_ : 0xA5000000u ^ static_cast<std::uint32_t>(cycles);
+        d_->host_rdata_i = due_ == 1 ? rdata_next_ : 0xA5000000u ^ static_cast<std::uint32_t>(cycles);
         drive_axi();
         d_->clk_i = 0;
         d_->eval();
@@ -147,7 +166,7 @@ class Bench {
         d_->axi_bvalid_i = 0;
         d_->axi_arready_i = 0;
         d_->axi_rvalid_i = 0;
-        ack_next_ = false;
+        due_ = 0;
         aw_q_.clear();
         b_q_.clear();
         r_q_.clear();
@@ -195,6 +214,14 @@ class Bench {
         return ~0u;
     }
 
+    //! The cycles from a CPU access's request to its answer, as cpu() makes it, and its read data.
+    std::uint32_t cpu_timed(bool we, std::uint32_t addr, unsigned& took) {
+        const std::uint64_t at = cycles;
+        const std::uint32_t got = cpu(we, addr, 0);
+        took = static_cast<unsigned>(cycles - at - 1);
+        return got;
+    }
+
     bool busy() const { return d_->busy_o != 0; }
     bool err() const { return d_->err_o != 0; }
     VKL_mbx_dma* dut() { return d_; }
@@ -217,8 +244,11 @@ class Bench {
         prev_addr_ = d_->host_addr_o;
         prev_we_ = d_->host_we_o != 0;
         prev_wdata_ = d_->host_wdata_o;
-        ack_next_ = false;
+        // a request is in flight from its request to its answer, the answer's cycle included
+        const bool waiting = due_ > 0;
+        if (due_ > 0) --due_;
         if (!d_->host_req_o) return;
+        check_.that("D11 no request reaches the port while one awaits its answer", !waiting);
         const std::uint32_t addr = d_->host_addr_o;
         const bool we = d_->host_we_o != 0;
         // the CPU's requests are the ones the mover passes or holds; a ring access of the mover's is not
@@ -235,7 +265,7 @@ class Bench {
         } else {
             rdata_next_ = ring[addr];
         }
-        ack_next_ = true;
+        due_ = (!we && !ring_read(addr)) ? 2u : 1u;
     }
 
     bool in_mem(std::uint32_t a) const { return a >= kMemBase && a < kMemBase + kMemBytes; }
@@ -353,7 +383,7 @@ class Bench {
     std::uint32_t prev_addr_ = 0;
     std::uint32_t prev_wdata_ = 0;
     std::uint32_t cpu_rdata_ = 0;
-    bool ack_next_ = false;
+    unsigned due_ = 0;              // cycles to the answer of the request in flight: 1 answers in the next step
     std::uint32_t rdata_next_ = 0;
     bool rerr_seen_ = false;        // the current transfer took an errored read beat
     bool berr_seen_ = false;        // the current transfer took an error write response
@@ -632,6 +662,42 @@ void reset_during(Bench& b, milan::tb::Checker& check) {
     check.that("D8 after a reset the port is the CPU's", b.cpu(false, 2, 0) == 0x77777777u);
 }
 
+void two_cycle(Bench& b, milan::tb::Checker& check) {
+    // KL_mbx answers a register read two cycles after its request and a ring read the cycle after (#870)
+    b.ring[4] = 0x4E6F7721u;
+    b.ring[kBase + 9] = 0x52696E67u;
+    unsigned took = 0;
+    std::uint32_t got = b.cpu_timed(false, 4, took);
+    check.that("D11 a CPU register read is answered two cycles after its request, with its own word",
+               took == 2 && got == 0x4E6F7721u);
+    got = b.cpu_timed(false, kBase + 9, took);
+    check.that("D11 a CPU ring read is answered the cycle after its request, with its own word",
+               took == 1 && got == 0x52696E67u);
+    // held behind a transfer, and in the cycle a transfer starts: each register read gets its own word
+    for (bool to_ring : {false, true}) {
+        b.ring[4] = 0x0FF1CE00u + (to_ring ? 1u : 0u);
+        b.start(kBase, kMask, 11, kMemBase + 0x300, 256, to_ring);
+        b.step();
+        b.step();
+        check.that("D11 a CPU register read held behind a transfer gets its own word",
+                   b.cpu(false, 4, 0) == 0x0FF1CE00u + (to_ring ? 1u : 0u));
+        check.that("D11 that transfer ended first", !b.busy());
+        fill_ring(b, kAecp, 48);
+        for (std::uint32_t i = 0; i < kMemBytes; ++i) b.mem[i] = to_ring ? pattern(i + 48) : kGuard;
+        b.ring[4] = 0x5EC0DD00u + (to_ring ? 1u : 0u);
+        b.start(kBase, kMask, 0, kMemBase + 0x100, 48, to_ring);
+        check.that("D11 a CPU register read in the cycle a transfer starts gets its own word",
+                   b.cpu(false, 4, 0) == 0x5EC0DD00u + (to_ring ? 1u : 0u));
+        check.that("D11 that transfer ends", b.wait_idle());
+        bool own = true;
+        for (std::uint32_t k = 0; k < 48; ++k) {
+            const std::uint8_t ring = ring_byte(b, kBase, kMask, 0, k);
+            own = own && (to_ring ? ring == b.mem[0x100 + k] : b.mem[0x100 + k] == ring);
+        }
+        check.that("D11 a transfer started in the cycle of a CPU register read moves its own bytes", own);
+    }
+}
+
 void back_to_back(Bench& b, milan::tb::Checker& check) {
     b.stall = 0;
     b.read_cycles.clear();
@@ -656,6 +722,7 @@ int main(int argc, char** argv) {
     refusals(b, check);
     errors(b, check);
     reset_during(b, check);
+    two_cycle(b, check);
     back_to_back(b, check);
     std::printf("bursts %u, cycles %llu\n", b.bursts, static_cast<unsigned long long>(b.cycles));
     return check.report();

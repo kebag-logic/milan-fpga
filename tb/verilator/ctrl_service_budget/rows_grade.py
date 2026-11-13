@@ -335,8 +335,22 @@ def unsourced(root: Path, points: tuple[str, ...] = POINTS) -> list[str]:
     return out
 
 
-#: The windows, in ms, at which rule_findings holds the method's arrival rules: under, at and over each row's bound.
+#: The windows, in ms, at which rule_findings holds the method's arrival rules at every point: under, at and over each
+#: row's bound, each on SRP's 2 ms refill grid (rule_windows adds a point's windows off it).
 RULE_WINDOWS = (5.0, 20.0, 58.0, 90.0, 125.0, 345.0)
+#: How far either side of an SRP refill rule_windows sets its two boundary windows, in us: a window off by more than
+#: this counts an SRP record ahead of R4's record more or fewer than the rule there.
+BOUNDARY_US = 1
+
+
+def rule_windows(root: Path, point: str, inputs: Inputs) -> tuple[float, ...]:
+    """The windows at which rule_findings holds a point's arrival rules: RULE_WINDOWS; each solved row's W at the
+    point, off SRP's refill grid; and BOUNDARY_US either side of R4's bound plus R4's own record, the window at which
+    the SRP refill at that bound is the first R4's record no longer precedes, so a window shortened or lengthened by
+    a record or more counts one SRP record fewer or more there (#665)."""
+    solved = [w for row, (w, _) in rows(root, point, inputs=inputs).items() if row in SOLVED and w is not None]
+    edge = BOUNDS['R4'] + inputs.c['record.aecp'] / 1000
+    return (*RULE_WINDOWS, *solved, edge - BOUNDARY_US / 1000, edge + BOUNDARY_US / 1000)
 
 
 def rule_findings(root: Path, points: tuple[str, ...] = POINTS, texts: dict | None = None) -> list[str]:
@@ -347,7 +361,7 @@ def rule_findings(root: Path, points: tuple[str, ...] = POINTS, texts: dict | No
     for point in points:
         inputs = point_inputs(root, point)
         c, rate, tick = inputs.c, inputs.rate, inputs.tick_ms
-        for w in RULE_WINDOWS:
+        for w in rule_windows(root, point, inputs):
             d = demand('R4', inputs, w)
             passes = round(d['passes'] / (c['events_none'] + c['base']))
             got, rule = round(d.get('item.retained', 0) / c['item.retained']), min(passes, math.floor(w / tick) + 2)

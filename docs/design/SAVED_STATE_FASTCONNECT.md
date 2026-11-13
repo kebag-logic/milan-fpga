@@ -98,7 +98,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 - **[2. What the two ends actually look like](#2-what-the-two-ends-actually-look-like)** -- The port offers a per-record region with `ERASE_REGION` and an eight-bit record id; the media offers 64 KiB erase blocks, two of them. Three ways they fail to compose, including the one round 1 missed: the record id is a capacity, not just an address width.
 - **[3. The decision](#3-the-decision)** -- One image, promoted A/B, media owned by firmware through the LiteSPI master that already exists. Three measured reasons rather than a preference, with reason 1 re-measured after the namespace correction.
 - **[4. The record allocation contract](#4-the-record-allocation-contract)** -- The BLOCKER round 1 missed: 292 records at the 2026-08 8x8 shape against 256 ids, and the banked allocation proposed to bring it to 87. Then the reversal: #259 shrank that shape to a conformant 164, and nothing had persisted or decoded a bank, so the allocation is the donor's own F07.8 rule, one record per item group and index, DECIDED, and the amendment request is withdrawn. Plus the gate that builds the image and reads it back.
-- **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** -- The two reserved slots and why `journal` is raw rather than a filesystem, plus the rule a reflash must obey. Cited by `milan_soc.py` as the map's single source of truth, and 5.1 re-derives every citation of this page at this head: zero unresolved, because the five RTL comments round 2 left stale are repaired against the register map.
+- **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** -- The three reserved slots, `journal_klj3`, `journal` and `user`, and why both journals are raw rather than a filesystem, plus the rule a reflash must obey. Cited by `milan_soc.py` as the map's single source of truth, and 5.1 re-derives every citation of this page at this head: zero unresolved, because the five RTL comments round 2 left stale are repaired against the register map.
 - **[6. The record image format: KLJ2](#6-the-record-image-format-klj2)** -- A new versioned container, not KLJ1 carried forward: byte-level field widths, the endianness seam between the little-endian container and the big-endian records, the exact CRC coverage, the identity and shape binding, and a twelve-row acceptance order with a verdict code per failure, including the rule that refuses a CRC-clean image which omits a mandatory record.
 - **[7. Durability: the A/B contract](#7-durability-the-ab-contract)** -- The write and read rules in full, and the property they buy: at every instant of a commit at least one slot holds a complete image whose CRC closes.
 - **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, with no CSR data window), with the measured slack behind both. Then the area, MEASURED: a before/after pair OOC-mapped at both shapes and DRIVEN against a byte-exact image, bounded at 781 LUT-equivalents and 280 FF, and calibrated against three blocks already in the tree.
@@ -115,7 +115,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 
 | Piece | State | Evidence |
 |---|---|---|
-| The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
+| The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal_klj3` at `0xE4_0000`, 640 KiB, the split placement's (#823); `journal` at `0xEE_0000`, 128 KiB; and `user` at `0xF0_0000`, 1 MiB |
 | The processor frames and streams two record classes | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owned BINDING records through manager 0 of `KL_pp_nvm_mgr_arb` and manager 1 was tied idle. Since processor `d352bbaa` ([PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132), adopted by #70 lane 2) manager 1 is the D3 writer, `KL_aecp_nvm_writer`, which writes and restores the scalar records: configuration index, sampling rates, clock sources, both stream formats and presentation offsets |
 | A manager for every other persisted item | **Landed** for the maps (#637); names not adopted by the parent; SUID none | The parent's map writer in `hdl/milan/milan_datapath.sv` writes and restores records `0x60`/`0x70` through the device-face arbiter of `KL_pp_shadow.sv` (D3 section 18.4); the processor writes names since pin `ead80360`, and the parent's lane 3 has not adopted them; nothing serializes the SUID |
 | The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
@@ -540,7 +540,8 @@ the retired flash-partition emitter derived the same
 
 | Offset | Size | Slot | Written by |
 |---|---|---|---|
-| `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw | the persistence writer only |
+| `0xE4_0000` | 640 KiB | **`journal_klj3`** -- 2 x 320 KiB slots of five erase blocks, slot A and slot B, raw: the split placement's KLJ3 | the split placement's store only (`sw/firmware/ctrl_nvm`) |
+| `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw: the all-fabric placement's KLJ2 | the all-fabric persistence writer only |
 | `0xF0_0000` | 1 MiB | `user` -- writable region, unclaimed today | no current product owner |
 
 `journal` is raw and filesystem-free on purpose. Each slot is exactly one erase
@@ -550,6 +551,11 @@ before any mount -- which is where a fast connect wants to happen. A reflash
 must not erase either slot: a gateware update that silently wipes saved bindings
 is worse than having none, because the entity then comes back unbound
 *sometimes*.
+
+`journal_klj3` is the same design at the split placement's size (#823).
+Each of its slots is five erase blocks, and a commit erases every block its container spans.
+The split's store writes only there.
+It reads the two headers of `journal` and never writes it, so a rollback to an all-fabric image finds that journal intact.
 
 **Board applicability.** The AX7101 has the reservation. A board without it gets
 no journal, and the degradation is part of the design: no journal, no replay,
@@ -610,6 +616,9 @@ and belongs with #236 and #224; the table above is a hand-run substitute, and
 the next person to move a section in this page has to re-run that grep by hand.
 
 ## 6. The record image format: KLJ2
+
+This section is the all-fabric placement's format, which that placement keeps.
+The split placement's store writes KLJ3 over layout 3 instead, in its own journal (#823): [the 32x32 format page](SAVED_STATE_FORMAT_32X32.md), sections 2 and 5.
 
 The deleted page's `KLJ1` v1 is **not** carried forward, and the round-1 claim
 that it was is withdrawn. It cannot be carried forward: its records were six

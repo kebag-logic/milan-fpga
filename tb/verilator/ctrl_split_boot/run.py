@@ -197,10 +197,13 @@ def image(out: Path, name: str, point: tuple[str, int], maps: ImageMaps, archive
     """The platform image of one point (shape, interfaces) against one map, from the checkout's tree or a
     planted copy."""
     shape, n_if = point
+    sys.path.insert(0, str(HERE))
+    from boot_soc import PLATFORM_LEDGERED   # the point's own override, where the ledger names one
+    ledgered = PLATFORM_LEDGERED.get(point)
     run([sys.executable, '-B', str(FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
          str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(maps.csr_csv),
          '--flash-map', str(maps.flash_map), '--output', str(out / name), '--libc', str(archives[0]),
-         '--compiler-runtime', str(archives[1]),
+         '--compiler-runtime', str(archives[1]), *([] if ledgered is None else ['--ledgered-point', ledgered]),
          *([] if source is None else ['--ctrl-source', str(source)])], out / f'{name}.log', cwd=ROOT)
     return out / name / 'ctrl_app.elf'
 

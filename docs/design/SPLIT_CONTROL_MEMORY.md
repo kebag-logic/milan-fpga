@@ -11,10 +11,10 @@ No BIOS ROM or BIOS SRAM is built there.
 
 ## Contents
 
-- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
+- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, why each region spans the whole budget, and how the CPU decodes them exactly.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
 - **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the two ledgered images' named overrides, and the three planted controls.
-- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
+- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and why it builds no DDR3 and no processor memory bridge.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points for the size fixture and the target platform, the platform's added bytes by part, mapped out of context, and the ledger rows, with the largest point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
@@ -35,12 +35,45 @@ No BIOS ROM or BIOS SRAM is built there.
 
 Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
 `add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
-Every other region keeps its origin and size: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+The other regions are `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`, as in the all-fabric image.
+The split image has no `main_ram`: it builds no DDR3 and no integrated main RAM (decision D4, [section 4](#4-boot-console-and-diagnostics)).
 The split CPU sees `spiflash` uncached and not executable ([section 9](#9-the-cpus-data-cache)).
 
 Each region spans the whole 224 KiB budget.
 The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
 Both shipped shapes elaborate the same CPU netlist.
+
+### The CPU's region decode
+
+The pinned VexiiRiscv generator checks each fetch and load against each region it is handed through SpinalHDL's `AddressMapping.terms`.
+That splits a region into aligned power-of-two terms, one mask compare each.
+A region based at 0 is the exception: it is taken whole, as the one term `(address & ~(size - 1)) == 0`, which is exactly the region only when the size is a power of two.
+So the 224 KiB `rom` at 0 became `(address & 0xfffc8000) == 0`, which leaves out every address with bit 15 set.
+The 224 KiB `sram` at 0x1000_0000 was already exact, as terms of 128, 64 and 32 KiB.
+So no split image could boot: the first fetch or load above 0x8000 took an access fault and the core restarted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
+
+`add_ctrl_memory` therefore hands the generator each region as its aligned power-of-two pieces (`milan_soc.exact_cpu_decode`, `ctrl_memory.cpu_regions`).
+Both `rom` and `sram` become 128 KiB at the origin, 64 KiB at origin + 0x2_0000 and 32 KiB at origin + 0x3_0000 (`ctrl_memory.decode_pieces`).
+Each piece is an aligned power of two, which one mask compare decodes exactly, at 0 as anywhere else, and together the pieces are exactly [origin, origin + 224 KiB).
+So handing the generator aligned pieces makes every region exact, without depending on how it decomposes a region.
+Each piece keeps its region's mode and bus, and a region that is already an aligned power of two is handed over as itself.
+The SoC's own bus regions, its decoder, `csr.csv` and `regions.ld` keep the whole regions.
+`CtrlMemory`'s banks are unchanged.
+The split is made in the CPU's own netlist-naming step, so the netlist's name and its decode both follow the pieces.
+After LiteX's finalize the build is refused by name, instead of building a decode other than the pieces, in two re-pinned LiteX shapes.
+One is a LiteX whose VexiiRiscv stops calling that step.
+The other leaves the generator a region list other than that step's aligned power-of-two pieces, on the CPU or its classes: a list collected again after naming, say, or kept on the instance.
+The pinned LiteX runs the generator inside that finalize, so the second refusal names the netlist the build may have cached under the pieces' name, for removal.
+At a LiteX or generator re-pin, run the two checks the [re-pin procedure](../../sw/litex/patches/README.md) names, since no workflow runs the region-decode simulation.
+No generator patch is carried. The all-fabric SoC does not call `add_ctrl_memory`, so its regions, which are powers of two, and its CPU netlist are unchanged.
+
+[`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) grades the pieces against a search over every aligned split, and the hookup on a stand-in CPU.
+It also requires the split export to hand the generator the pieces.
+The [region-decode simulation](../../tb/verilator/ctrl_region_decode/README.md) runs the generated CPU.
+It fetches and loads at the last word of each region and at each seam between pieces.
+It also fetches and loads one word past each region's end, where the access must fault before the bus.
+It reads the netlist's own fetch and load decode at every 32-bit address against the SoC's regions.
+Each of its two planted decodes, the single mask and the power-of-two cover, fails checks it names.
 
 [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld) links the firmware into these regions.
 It includes `regions.ld`, which `ctrl_memory.py regions` writes.
@@ -91,22 +124,24 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
 | `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
-| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
+| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ3 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821).
+Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821, and the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)).
 Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,352 B | 60.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.0 |
 
-The platform's entry is 60.0 RAMB36, cap 60.5, since SRP's Talker declarations follow each source's validity (#895, the ruling of 2026-11-12, issuecomment-6824623445, maintainer-delegated): it is the same named point owed to lane S14, which owes 60.0 - 56 = 4.0 RAMB36, 16,384 B of cold code moved to flash ([section 5](#5-fit)).
-
-The size fixture's entry is 58.5 RAMB36, its cap under the same ruling (#895, issuecomment-6824623445): the fixture's image there plans 58.0, and the CPU budget harness's `answering-every-port` arm, that image with its test port, plans 58.5, 48 B of `sram` past the 112,640 B that 58.0 holds ([section 5](#5-fit)). It was 58.0 before, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds.
+The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+The owner's caps are 58.5 for the size fixture's point, which its entry now holds, and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.0 and 60.5.
+SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at every point; their images at this branch's head are planned in [section 5](#5-fit).
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -117,6 +152,7 @@ A change to that struct changes the size, so the override refuses the image unti
 Only a point's own measurement names its override, through `ctrl_memory.py plan --ledgered-point`, `ctrl_srp_image.py --ledgered-point` or `ctrl_plat_image.py --ledgered-point`.
 The product SoC build names none: `add_ctrl_memory` plans with no override, so every product SoC build is still held to 56 RAMB36.
 The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md) names the size fixture's for that point only, for its image and its SoC plan (`build.py`, `LEDGERED_POINTS`).
+The platform image's ledger gate, [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py), links the platform's image at every point and names the platform's override at its point only ([section 6](#6-reproduce)).
 `budget` refuses either override on any other image, the other override's image among them, and refuses its point past its tiles.
 `rom`'s contents are the load segments' file bytes and nothing else.
 So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
@@ -155,6 +191,9 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
 - a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
 
+That run printed KLJ2 stage sizes, as `c20ed894` linked them.
+Section 5 gives both formats' stage sizes.
+
 ## 4. Boot console and diagnostics
 
 The split image loses:
@@ -164,24 +203,27 @@ The split image loses:
 - the shipping firmware's UART commands, because `libmilan_baremetal` is not linked.
 
 It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
-It also keeps the `ppmem` observer and every Milan CSR.
+It also keeps every Milan CSR.
 Any console in the split image is the control firmware's.
 The [target platform](../../sw/firmware/ctrl/plat/README.md#the-console) brings one, under decision D6 (#665): `milan_status` and `milan_gettime` in `milan_baremetal.c`'s lines, and one boot banner.
 It also writes the CSR initialisation `milan_baremetal.c` writes for the same shape ([the CSR window](../../sw/firmware/ctrl/plat/README.md#the-csr-window)).
 
-The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
-Only the `rom` and `sram` region sizes differ.
+The split builds no DDR3 (#665 S9, decision D4).
+The placement switch removed `KL_pp_shadow` from the split datapath, so no processor memory master remains.
+`--ctrl-mailbox` therefore builds neither DDR3 nor integrated main RAM, nor the three processor memory bridges and their `ppmem` observer.
+The bridges' window still binds the datapath's `PP_DESC_BASE_P` and `PP_RESP_BASE_P`, which the split datapath does not read, and places the build's descriptor image.
+`--full` builds the MAC and the flash there, and `--ctrl-mailbox --with-dram` is refused.
+The all-fabric build is unchanged: its 21 export files are byte for byte the base's, apart from the run's timestamps, the checkout and output paths, and LiteX's comment-only hierarchy tree.
 
-DDR3 stays instantiated under `--ctrl-mailbox` at this base.
-`KL_pp_shadow` is still instantiated, and its three processor memory masters reach the window in `main_ram`.
-With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
-Those masters are therefore refused safely, as before DDR3 training.
-The placement switch (#665) removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
+The CSR map loses the `ddrphy`, `sdram` and `ppmem` banks, so the banks LiteX allocates after `ddrphy` move down.
+The flash map the platform image links against is generated from the split export's `csr.csv` ([section 6](#6-reproduce)), so it follows them.
+The identity gate refuses a split image that carries a `main_ram` region, a `ddrphy` or `sdram` bank or `ddram` pads ([the split image's identity](MAILBOX_SPLIT.md#the-split-images-identity)).
 
 ## 5. Fit
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
-It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
+It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` and the lwSRP pool.
+The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
 It links the firmware of `e493dccd` against its base `e76a755a`, with one runtime for both:
@@ -220,7 +262,15 @@ Together they would leave 119,672 B, still 57.5.
 The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
 The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412739248), then a tile and a half (#665, 6425357821).
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
-The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
+**The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
+The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
+
+- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move;
+- the size fixture's image may plan 58.0, capped at 58.5;
+- every other point, including every 1x1/1if point, stays at or under 56.
+
+S14 is the first lane after the flip.
+`ctrl_memory.LEDGERED` holds the platform's entry at 60.0 and the size fixture's at 58.5, its cap, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
@@ -236,6 +286,20 @@ It links the merged firmware of `51fa5f18` against the branch before the merge, 
 The merge adds 6,264 to 6,376 B of `rom` and 336 B of `sram` at each point, the face writer's.
 Each point plans half a tile under S1's own ledger above, and the largest a whole tile, because the branch's compactions (sections 11 to 13) are in both.
 These figures are planned, not mapped.
+
+**The split's KLJ3 format (#823).** The size fixture was linked again at its base `a9d69c77` and with KLJ3, one runtime for both:
+
+| Point | Base `rom` / `sram`, B | KLJ3 `rom` / `sram`, B | Delta, B | RAMB36, base to KLJ3 |
+|---|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 104,448 / 46,272 | 105,160 / 46,624 | +712 / +352 | 37.0 to 37.5 |
+| 1x1, two interfaces | 106,032 / 57,648 | 106,744 / 58,016 | +712 / +368 | 40.5 to 41.0 |
+| 8x8, one interface | 118,168 / 86,848 | 118,872 / 87,424 | +704 / +576 | 50.5 to 51.0 |
+| 8x8, two interfaces (largest) | 119,824 / 113,008 | 120,536 / 113,584 | +712 / +576 | 57.5 to 57.5 |
+
+The `sram` delta is the stage's two bytes a record and the store's open bits, 36 words per array.
+Every point stays within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
+The target platform's image was not linked again; its `ctrl_plat` is unchanged.
+
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
 Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
 
@@ -254,7 +318,7 @@ That is a cut of 4,216 B from the platform's 5,224 B of `rom`.
 The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, owed to lane S14 under decision D3: the boot and the CSR policy are cold code, which D3 moves to flash.
 It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
 Every other point stays within 56 RAMB36.
-The flip (S13) needs 56 RAMB36 or fewer at every point, with S14 merged.
+For the flip the owner's decision of 2026-11-12 (above) ledgers this point at 60.0, as ROM debt owed to S14.
 
 At this branch's head the two images are built alike, RV32IM with the record mover and the word-wide primitives (`ctrl_plat_image.py` takes `ctrl_srp_image.py`'s split flags and audits), and the branch's compactions are in both:
 
@@ -270,16 +334,16 @@ THE STEP (`ctrl_loop.h`, section 13) and SRP's one build a pass add 336 to 424 B
 THE STEP's age limit, SRP's turn read before the poll's visits and the store's walk-free mark add 152 to 224 B of `rom` and up to 16 B of `sram` at each point (#665, 2026-11-03); only the platform's 1x1 two-interface image takes half a tile more, 41.5, its `rom` 216 B past the 110,592 B, 54 banks of 2 KiB, that it filled exactly.
 `ctrl_plat` is 20,288 B at the largest point and 20,096 B before this branch's merge of the tsn-c-stack pin move (its 152 B in `app`, the struct padded to its 64-byte alignment); the ledger last named 19,968 B, a size the struct had already outgrown at round 27's head (20,096 B measured there), and 19,960 B before the age limit's two fields, 19,944 B before THE STEP's four fields and 21,240 B when the ledger above named it, so the ledger names the new size, as it requires when that struct changes. Its size at each point is measured in the composed build by `ctrl_plat_image.py`: 17,472, 19,008, 18,112 and 20,288 B (`ctrl_memory_ledger.py`).
 
-At this branch's head, the merge of the pin move (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
+At round 29's head (`b2d39235`), the merge of the pin move's round 2 head (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
 |---|---:|---:|---:|---:|---:|
 | 1x1, one interface (shipping) | 107,896 / 45,552 | 38.0 | 112,968 / 46,512 | 39.5 | 17,472 |
 | 1x1, two interfaces | 109,600 / 56,944 | 41.0 | 114,696 / 57,968 | 43.0 | 19,008 |
 | 8x8, one interface | 121,440 / 86,416 | 51.5 | 126,560 / 87,392 | 52.5 | 18,112 |
-| 8x8, two interfaces (largest) | 123,112 / 112,576 | 58.0, ledgered | 128,264 / 113,568 | **59.5, over its 59.0** | 20,288 |
+| 8x8, two interfaces (largest) | 123,112 / 112,576 | 58.0, ledgered | 128,264 / 113,568 | 59.5, within its 60.0 | 20,288 |
 
-With SRP's Talker declarations following each source's validity (#895: a source declares only while MAAP holds its destination and a probe of the last 15 s or a registered Listener asks for it, withdraws when that lapses, and holds a changed destination two LeaveAllTime periods), at this branch's head, which merges #810's round 29 head, planned the same way:
+With SRP's Talker declarations following each source's validity (#895: a source declares only while MAAP holds its destination and a probe of the last 15 s or a registered Listener asks for it, withdraws when that lapses, and holds a changed destination two LeaveAllTime periods), at #895's round 2 head (`18300f6e`), which merged #810's round 29 head, planned the same way:
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
 |---|---:|---:|---:|---:|---:|
@@ -288,11 +352,11 @@ With SRP's Talker declarations following each source's validity (#895: a source 
 | 8x8, one interface | 122,400 / 86,464 | 51.5 | 127,504 / 87,456 | 53.0 | 18,176 |
 | 8x8, two interfaces (largest) | 124,136 / 112,624 | 58.0, ledgered 58.5 | 129,288 / 113,632 | 60.0, ledgered | 20,352 |
 
-Against #810's round 29 head (`b2d39235`, the table above), each image linked at both commits from the same runtime archives and split SoC exports, the declarations add 944 to 1,064 B of `rom` (the most at both 1x1 two-interface images) and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, with 16 B of `sram` to spare; its `answering-every-port` arm holds 124,444 B of `rom` and 112,688 B of `sram`, 58.5 tiles, within the 58.5 its entry now ledgers (below). The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
+Against #810's round 29 head (`b2d39235`, the table above), each image linked at both commits from the same runtime archives and split SoC exports, the declarations add 944 to 1,064 B of `rom` (the most at both 1x1 two-interface images) and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces held 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, with 16 B of `sram` to spare; its `answering-every-port` arm held 124,444 B of `rom` and 112,688 B of `sram`, 58.5 tiles, within the 58.5 its entry ledgered there. The platform's image at that point planned 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry ledgered there (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
 
 Before #895, the size fixture's 8x8 image with two interfaces held 123,112 B of `rom` in 124,928, 58.0 tiles, 1,816 B before its next granule, within the 58.0 its entry now ledgers ([section 3](#3-named-refusals)).
-**The platform's image at that point plans 59.5 tiles against the 59.0 its entry ledgers** (ruling 6505997821): its `rom` needs 128,264 B, 1,288 B past the 126,976 of its banks at 59.0, and so does this branch's head before the merge (127,664 B) and round 27's (127,544 B). Every link of that image since round 27 was refused first by a stale `ctrl_plat` size, so its tiles were not read, and no gate links the platform image with its override. The ledger stays 59.0 until a ruling names another; the image is refused at its tiles, by name.
-The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture with a test port that answers every notice ([section 13](#the-polls-by-source)), is the image nearest its ledger: its build was refused once its `rom` passed 122,880 B, the granule past which the plan would take 58.0 tiles against the 57.5 then ledgered ([section 3](#3-named-refusals)) (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 5). With the entry at 58.0 the granule is 124,928 B.
+The platform's image at that point plans 59.5 tiles, within the 60.0 its entry ledgers by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) (above): its `rom` needs 128,264 B in 129,024, 1,288 B past the 126,976 of its banks at the 59.0 of ruling 6505997821, and so did this branch's head before the merge (127,664 B) and round 27's (127,544 B). Every link of that image since round 27 was refused first by a stale `ctrl_plat` size, so its tiles were not read, and no gate linked the platform image with its override. [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) now does, at every point: it links the platform's image against the split SoC's own maps with the override its point takes, and grades each image against the ledger, each check apart so that a stale key does not hide a plan past its tiles: the link, the image's `ctrl_plat` against `ctrl_memory_ledger.py`'s record and its override's key, and its plan against its override's tiles or the 56-RAMB36 budget, with every override of the platform's image linked at a point. Seven planted ledgers must each be refused as they require: a stale key, a plan past its tiles, both at once, a stale record, the budget under a point's plan, the override not taken and an override no point links ([section 6](#6-reproduce)).
+The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture with a test port that answers every notice ([section 13](#the-polls-by-source)), is the image nearest its ledger: its build was refused once its `rom` passed 122,880 B, the granule past which the plan would take 58.0 tiles against the 57.5 then ledgered ([section 3](#3-named-refusals)) (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 5). With the entry at 58.0 the granule is 124,928 B; at 58.5, the cap, the point's `rom` and `sram` banks are 124,928 and 114,688 B, and any further growth at that point is a STOP (below).
 
 | Image | Arm's `rom`, B | Margin to the granule, B |
 |---|---:|---:|
@@ -385,10 +449,39 @@ Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1
 One plan moves: the fixture's 1x1 with two interfaces needs 56 B of `rom` past its three banks (106,496 B), so it takes a fourth of 2,048 B and plans 41.0, accepted (#665 issuecomment-6807277620; the owner's firmware block-RAM limit, 224 KB, covers it).
 Every other bank of both images is the one it was at `70936b77`; the platform image keeps 42.0 at that point.
 The `rom` growth past the kept command is its redelivery, the ACMP adapter's poll taking the records waiting behind it (`acmp_mbx.h`, THE KEPT COMMAND).
-The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the loop the redelivery serves, and the core's walk marks and owed-bound state.
+The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the adapter's pointer to the loop it attached to (the redelivery takes records in that loop's buffer), and the core's walk marks and owed-bound state.
 `__lshrdi3` leaves every image (tsn-c-stack#27).
 The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
 The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+
+On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's branch merged it (its round 4 head, `8bc1dfc0`) and planned both images again at all four points, at `0fb66211` and with that merge, without this branch's record commits:
+Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 105,696 (+528) / 46,784 (+160) | 37.5 | 110,760 (+488) / 47,680 (+144) | 39.5 (was 39.0) | 18,584 (+152) |
+| 1x1, two interfaces | 107,264 (+512) / 58,160 (+144) | 41.0 | 112,352 (+440) / 59,104 (+160) | 42.0 | 20,080 (+152) |
+| 8x8, one interface | 119,400 (+520) / 87,568 (+144) | 51.0 | 124,504 (+488) / 88,480 (+144) | 52.5 | 19,240 (+152) |
+| 8x8, two interfaces (largest) | 121,064 (+520) / 113,728 (+144) | 58.0 (was 57.5), ledgered | 126,208 (+448) / 114,672 (+160) | 59.0, ledgered | 21,392 (+152) |
+
+Two plans move against `0fb66211`.
+The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+On that branch both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and its own `ctrl_plat`, 21,392 B at the largest point.
+The smallest margins at that merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override held there.
+
+**At this branch's head, the merge of the pin move's round 4 head `8bc1dfc0` into this branch** (round 30), planned the same way from both images built alike at the four points, the platform's by [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) against each shape's own split export, one runtime for both:
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 108,600 / 45,920 | 38.5 | 113,672 / 46,880 | 39.5 | 17,472 |
+| 1x1, two interfaces | 110,304 / 57,312 | 41.0 | 115,400 / 58,336 | 43.0 | 19,008 |
+| 8x8, one interface | 122,136 / 87,008 | 51.5 | 127,256 / 87,984 | 53.0 | 18,112 |
+| 8x8, two interfaces (largest) | 123,808 / 113,168 | 58.5, its ledger's cap | 128,960 / 114,160 | 59.5, within its 60.0 | 20,288 |
+
+Both images carry the KLJ3 stage, so both overrides are keyed on `nvm_stage` of 13,594 B, and `ctrl_plat` is this branch's struct, unchanged by the merge at every point (`ctrl_memory_ledger.py`).
+The KLJ3 hot path's `nvm_any` is a count the compiler inlines, so it leaves the split link script's hot list, in both its copies (`ctrl_split_hot.txt`, `ctrl_split.ld`): a hot-list name with no section refuses the link.
+**The size fixture's 8x8 image with two interfaces plans 58.5 RAMB36, the cap of the owner's decision, and its entry ledgers 58.5** (the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP): its `rom` needs 123,808 B in 124,928, as at round 29's head (123,112 B in the same banks), and its `sram` 113,168 B, 528 B past the 112,640 B of the 55 granules round 29's 112,576 B filled, so `sram` takes a 56th granule. The KLJ3 stage and the store's open bits add the `sram` (#823's own table: +576 B at that point); neither side plans past 58.0 alone, the pin move's branch because its `rom` (121,064 B) takes one granule fewer. The half tile is ROM debt owed to S14 on top of the 58.0 allowance: 528 B of `sram` past 55 granules, which a firmware cut (928 B of `rom` or 528 B of `sram`) would recover, a design change outside a sync round. The cap is now fully used: any further growth at that point, a granule of either region, is a STOP. Every other point of both images is within its ledger, the platform's largest within its 60.0 and every other point within 56; S14, the first lane after the flip, owes both 8x8 points with two interfaces.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
@@ -402,12 +495,13 @@ Link the image with the fixture, then plan it:
 python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
   --interfaces 2 --with-aecp --layout split --ledgered-point 8x8-two-interfaces --output "$OUT" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
-python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
+python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
   --ledgered-point 8x8-two-interfaces
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it past 56 RAMB36.
+Without `--ledgered-point`, both refuse it, past the 56-RAMB36 budget.
+At this branch's head the image plans 58.5 RAMB36, its entry's tiles and the owner's cap ([section 5](#5-fit)); half a tile more is refused under its override too.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
@@ -418,18 +512,30 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
   --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
 
-It names the platform's own override, and is refused at 59.0 RAMB36 without it or with the fixture's.
+It names the platform's own override, under which it plans 59.5 RAMB36, within the 60.0 ledgered; without it, or with the fixture's, it is refused.
 Its report (`$OUT/size.json`) holds the plan and the five largest `.bss` objects, with `ctrl_plat` counted by member.
+
+Link the platform's image at all four points against the ledger, each against its shape's own split SoC export and flash map, then grade the seven planted ledgers on the images it linked:
+
+```sh
+python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir "$OUT" --self-test
+```
+
+It prints a `POINT` line for each point, a `CONTROL` line for each planted ledger and `plat_ledger: PASS` when every point passes; `--controls` grades the planted ledgers alone on a finished run, and `--regrade` grades its images again.
 
 `ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
 
 Map the regions out of context with the LiteX interpreter and Vivado:
 
 ```sh
-python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf"
+python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf" --ledgered s8i2=platform-8x8-two-interfaces
 cd "$MAP"
 vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
 ```
+
+The mapper refuses an image past 56 RAMB36, as the SoC build does.
+`--ledgered TAG=POINT` plans the image named by its tag at that ledgered point's tiles, so the ledger can map the target platform's largest point (#665 S9).
+It is refused on any other image, and on a tag that names no image.
 
 Build a split SoC by adding `--ctrl-mailbox --ctrl-firmware "$OUT/ctrl_app.elf"` to a shipping export.
 
@@ -454,12 +560,14 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
 | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
 | Data cache | none when this cache was chosen; [section 9](#9-the-cpus-data-cache) adds one | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost was mostly byte-loop stores to `sram`, which the firmware removed first. |
 
-Every executable region is cacheable: `rom`, `sram` and, while DDR3 is built, `main_ram`.
-The flash window was too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
+Every executable region is cacheable: `rom` and `sram`. The split builds no `main_ram`.
+The flash window was cacheable too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
-The non-power-of-two `rom` and `sram` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) is therefore the same with and without the cache, and stays #791's.
+The non-power-of-two `rom` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) was therefore the same with and without the cache.
+Its fix, the region pieces of [section 1](#the-cpus-region-decode), is the generator's region list, which the cache does not change.
+The table below was measured on the CPU netlist before that fix; the fix changes only the region compare terms, and has not been mapped out of context.
 
 Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads:
 
@@ -1039,6 +1147,8 @@ The host suite's every-alignment tests cover each new step, and six planted defe
 ### The record mover
 
 [`KL_mbx_dma`](../../hdl/milan/mailbox/KL_mbx_dma.sv) sits on the mailbox's host port between `KL_mbx_wb` and `KL_mbx` and masters the CPU's coherent DMA port.
+It keeps that port's rule, one request and none until its answer, and holds the port for a CPU request from its issue to its answer, which `KL_mbx` gives one cycle after the request or, for a register read, two (#870, `dev-soft-core` `3ba76ae7`); its own requests are ring reads and writes, answered the cycle after.
+Until round 30 it took a CPU request's answer to be the next cycle's, so at the merge of `0fb66211` the CPU's mailbox ID and CAPS reads were never answered and the firmware stopped at boot ("mailbox contract mismatch"); the mover's bench now answers register reads two cycles late (D11) and plants the one-cycle routing (`cpu-answer-one-cycle`).
 - A receive move reads a chunk of ring words into a 16-word buffer, then writes it to memory as one AXI4 burst.
 - A transmit move reads a burst from memory and writes each beat to the ring.
 - A burst never crosses a 64-byte line.
@@ -1512,8 +1622,8 @@ The store owes a step each centisecond, and the loop takes one at least every th
 
 after its change.
 1,000 ms is DR2a's first-dirty window; S is its steps from the first after that window to durable: the step that starts the capture, one for each changed record and one that finds none left, the seal's 256-byte stretches of the container less its trailer, the erase and its wait, the blank check's 128-byte read-backs, each page's issue and its wait, and the verify's read-backs; 10 ms covers the change's own pass and the passes between a tick and the aged step it triggers.
-A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of the descriptor it names), so at 8x8/2if, a 13,256-byte container, S = 1 + 3 + 52 + 2 + 104 + 104 + 104 = 370 and T ≤ 12,110 ms; at 1x1, 3,336 bytes, S = 102 and T ≤ 4,070 ms; each further changed record adds one step, 30 ms (`nvm_store.h`, `save_window.bound_ms`).
-A change marked while a save is in flight, once its capture has passed the change's record, waits for the rest of that save first, so a change's worst case is longer: 22,150 ms at 8x8/2if and 6,070 ms at 1x1 ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
+A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of the descriptor it names), so at 8x8/2if, KLJ3's 13,584-byte container since the merge of `dev-soft-core` `0fb66211` (13,256 bytes in KLJ2), S = 1 + 3 + 54 + 2 + 107 + 108 + 107 = 382 and T ≤ 12,470 ms; at 1x1, 3,444 bytes (3,336 in KLJ2), S = 102 and T ≤ 4,070 ms; each further changed record adds one step, 30 ms (`nvm_store.h`, `save_window.bound_ms`).
+A change marked while a save is in flight, once its capture has passed the change's record, waits for the rest of that save first, so a change's worst case is longer: 22,870 ms at 8x8/2if and 6,070 ms at 1x1 ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
 That is on the harness's flash model, which has no busy time: a part's erase adds at most its erase time, and each page program at most its program time (the next subsection gives the product part's figure).
 The owner's 0.5 s ([#823](https://github.com/kebag-logic/milan-fpga/issues/823)) applies to the firmware writer of the append-only design through this same step; this image states its own worst case and does not meet 0.5 s.
 
@@ -1725,7 +1835,7 @@ The worst is a change marked just after the capture took the first record it nam
 
 > T ≤ max(1,000 ms, (S<sub>f</sub> - 2) × 3 × 10 ms) + S × 3 × 10 ms + 10 ms
 
-after it. For a SET_NAME of the entity beside another's save in flight, S<sub>f</sub> = S = 370 at 8x8/2if and T ≤ 22,150 ms; 102 at 1x1 and T ≤ 6,070 ms; each further record of either save adds 30 ms (`nvm_store.h`, `save_window.bound_ms`).
+after it. For a SET_NAME of the entity beside another's save in flight, S<sub>f</sub> = S = 382 at 8x8/2if and T ≤ 22,870 ms; 102 at 1x1 and T ≤ 6,070 ms; each further record of either save adds 30 ms (`nvm_store.h`, `save_window.bound_ms`).
 `save-second` stages it: under a grandmaster change as every pass starts, a SET_NAME just after a step, then 1,035 ms later and one step on, once the capture has started and taken the entity's first name, a SET_NAME of the entity to another value.
 `save_grade.save_time` times the second from its mark to durable in the save after the first, and refuses it unless it came after the first's first-dirty window and before the first save's erase:
 
@@ -2080,9 +2190,12 @@ A window opened from idle still takes no aged step among its records at this hea
 ### The queued notices at stated costs, and the first notice
 
 A stated cost is an upper bound: a notice's, a round's cold start's and a pass given whole's are each the most measured over every instance plus 5 %, rounded up to 5 us, and the CPU budget harness fails a round or a pass over its stated cost (#665); a refused attempt's, `AECP_ATTEMPT_US` (34 us), is held by the round check and not restated.
-THE RETRY's round is admitted at `AECP_ROUND_COLD_US` once and `AECP_NOTICE_US` a notice, the line over every round measured: 85 and 255 us at 1x1/1if, 165 and 365 us at 8x8/2if (`aecp_mbx.h`).
+THE RETRY's round is admitted at `AECP_ROUND_COLD_US` once and `AECP_NOTICE_US` a notice, the line over every round measured: 85 and 255 us at 1x1/1if, 185 and 365 us at 8x8/2if (`aecp_mbx.h`).
+The cold start at 8x8/2if is the one exception to the 5 %, by the [maintainer-delegated decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6842347916). It is 185 us, 2.7 % over the most measured, 180.16 us: a round of no notice beside two refused attempts in the `answering-every-port` arm, on the image that merged `dev-soft-core` `0fb66211`, where it was 165 us.
+185 us is the most THE RETRY's search holds the first notice to 22 ms at (`AECP_QUEUED_FIRST_MS`). At 186 us its binding pass, a build of one carrying a round's cold start, five refused attempts and a notice beside THE SHARE's margin, is over THE SHARE, which it fills exactly at 185: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us.
+The exception expires at the 8x8/2if flip: [#890](https://github.com/kebag-logic/milan-fpga/issues/890) closes only with a measured cold start of at most 176.1 us, or on a new owner decision.
 [`round_grade.py`](../../tb/verilator/ctrl_service_budget/round_grade.py) holds every round, its `round_of` span, to those costs and `AECP_ATTEMPT_US` a refused attempt, its notices and attempts counted from the calls inside it.
-A pass given whole to an aged step, a build of both of an interface's MRPDUs or a build of one is stated at 975, 900 and 405 us at 1x1/1if, and 1,030, 1,995 and 1,215 us at 8x8/2if (`ctrl_loop.h`; [`whole_grade.py`](../../tb/verilator/ctrl_service_budget/whole_grade.py) holds each). The build of both is SRP's declarations of every stream after a link comes up, the `srp` group's: 85,420 CPU cycles at 1x1/1if and 189,591 at 8x8/2if.
+A pass given whole to an aged step, a build of both of an interface's MRPDUs or a build of one is stated at 975, 1,010 and 430 us at 1x1/1if, and 1,030, 1,995 and 1,215 us at 8x8/2if (`ctrl_loop.h`; [`whole_grade.py`](../../tb/verilator/ctrl_service_budget/whole_grade.py) holds each). At 1x1/1if the two builds are restated by the rule on the image that merged `dev-soft-core` `0fb66211`, whose heaviest are 96,033 and 40,700 CPU cycles (900 and 405 us before). The build of both is SRP's declarations of every stream after a link comes up, the `srp` group's: 96,033 CPU cycles at 1x1/1if on that image (85,420 before) and 189,591 at 8x8/2if.
 At those costs a round's own pass carries seven notices at 1x1/1if and four at 8x8/2if.
 
 THE RETRY's search (`ctrl_retry_search.py`) counts a queue with at most all but one of a round's ports refusing: a port's attempt is a window read, which answers for every notice it serves or for none, and every port serves a notice, so a queue has a port answering.
@@ -2131,9 +2244,9 @@ python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
 ```
 
-Decision D's tier bounds bind each point's flip, not this merge (the round 28 ruling, item 4), and the flip check holds them: the rows by every source, [`rows_grade.py`](../../tb/verilator/ctrl_service_budget/rows_grade.py), at 1x1/1if and at 8x8/2if, R4 at tier 1's 20 ms, R5 and R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms. R4 (the AECP channel's last record of its burst beside the composed burst, every notice queued), R5 (SRP's last record of its burst, a link change on every interface) and R6 (SRP's last record of the composed burst, every notice queued) are round 22's method: the smallest window W in which the record's own work and every source's arrival bound, each at its stated cost at this tree's pin, fit, with what precedes the record THE DRAIN as `ctrl_loop.h` states it and the grandmaster event bounded by its 802.1AS-2011 intervals, as the load's term is. The queued notices are `aecp_mbx.h`'s stated bounds, `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`, which the loop search (`ctrl_retry_search.py`) holds the loop to. The flip at 1x1/1if must pass the check at that point; 8x8/2if's flip waits on #890. At this head, at 1x1/1if, R4 is 66.77 ms by every source, 46.77 over tier 1's 20 ms, its largest terms SRP's records ahead of AECP's (16.90 ms, THE DRAIN's channel first), the other channels' records (10.86 ms) and AECP's owed frames (7.14 ms), the retained retries 2.08 ms: a finding for the flip, which cannot pass at 1x1/1if with THE DRAIN as built; the tier rows are #894's, which itemises every term at both points first. R5 is 36.24 ms and R6 28.92 ms, within SRP's 90; the first queued notice is held at 20 ms, its bound, and the last at 22 ms, within 125. At 8x8/2if R4 is 347.69 ms, R5 144.53 and R6 136.15 ms, and the first queued notice is stated at 22 ms against tier 1's 20.
+Decision D's tier bounds bind each point's flip, not this merge (the round 28 ruling, item 4), and the flip check holds them: the rows by every source, [`rows_grade.py`](../../tb/verilator/ctrl_service_budget/rows_grade.py), at 1x1/1if and at 8x8/2if, R4 at tier 1's 20 ms, R5 and R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms. R4 (the AECP channel's last record of its burst beside the composed burst, every notice queued), R5 (SRP's last record of its burst, a link change on every interface) and R6 (SRP's last record of the composed burst, every notice queued) are round 22's method: the smallest window W in which the record's own work and every source's arrival bound, each at its stated cost at this tree's pin, fit, with what precedes the record THE DRAIN as `ctrl_loop.h` states it and the grandmaster event bounded by its 802.1AS-2011 intervals, as the load's term is. The queued notices are `aecp_mbx.h`'s stated bounds, `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`, which the loop search (`ctrl_retry_search.py`) holds the loop to. The flip at 1x1/1if must pass the check at that point; 8x8/2if's flip waits on #890. At this head, at 1x1/1if, R4 is 74.83 ms by every source, 54.83 over tier 1's 20 ms, its largest terms SRP's records ahead of AECP's (19.32 ms, THE DRAIN's channel first), the other channels' records (10.97 ms), each pass's own cost (8.74 ms) and AECP's owed frames (7.98 ms), the retained retries 2.52 ms (round 29's head: 66.12 ms): a finding for the flip, which cannot pass at 1x1/1if with THE DRAIN as built; the tier rows are #894's, which itemises every term at both points first. R5 is 38.25 ms and R6 33.65 ms, within SRP's 90; the first queued notice is held at 20 ms, its bound, and the last at 22 ms, within 125. At 8x8/2if R4 is 377.98 ms, R5 148.68 and R6 139.23 ms, and the first queued notice is stated at 22 ms against tier 1's 20.
 
-**The rules the rows hold** (#665: two findings on round 28's head, which charged SRP's retained retry once a pass and counted SRP's records ahead of R4's over W less AECP's whole burst, so its 1x1/1if R4 was 73.02 ms). SRP's retained retry is at most one a centisecond (`srp_mbx.c`: the poll spends `retry_spent`, the centisecond's consumer gives it back), so a window of W ms holds one before its first centisecond and one after each of the floor(W / 10) + 1 it holds, and no more than its passes (`rows_grade.retained_retries`). SRP's records are THE DRAIN's first, so every one that arrives before R4's record is taken precedes it: they are counted over W less that record's own work alone (`srp_window`). A record lwSRP's pool refuses for storage is retained, and while it waits no other SRP record is taken, each such record up to `SRP_RX_RETRY_MS` (1,000 ms): SRP's storage rule, not the CPU's service. So SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage, and count neither that hold nor the retry; R4's record is AECP's, which no SRP record holds, and a refusal of SRP's costs it the retries, which it counts (`RETAINED_ROWS`). With the hold counted, each of the 31 SRP records ahead of R5's or R6's, refused in turn, would hold it 1,000 ms, no W under 2,000 ms. The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted (`EXCLUDED`, held against the contract's event types): no group stages them, so no cost of theirs is stated, and the method charges stated costs alone; the notices they mark are counted, in THE RETRY's rounds and the counters' holdoff among the timers, and their own dispatch is #894's to stage. `rows_grade.rule_findings` holds each rule against the tree at six windows, and the flip self-test plants the earlier rules, each refused by name and each moving R4 the way it would. An independent re-derivation, every count written apart from `rows_grade.py` and the headers' constants read from a compiled probe of them, gives the same W at both points to the hundredth. On round 28's costs the corrected rules give 1x1/1if's R4 59.19 ms; counted with one retry fewer, none before the window's first centisecond, it is 58.18 ms with SRP's arrivals over W less R4's record and 58.94 ms with them over the whole W. On the pin move's merge it was 66.12 ms, and 65.86 ms with one retry fewer, either window; with SRP's Talker declarations (#895, below) it is 66.77 ms.
+**The rules the rows hold** (#665: two findings on round 28's head, which charged SRP's retained retry once a pass and counted SRP's records ahead of R4's over W less AECP's whole burst, so its 1x1/1if R4 was 73.02 ms). SRP's retained retry is at most one a centisecond (`srp_mbx.c`: the poll spends `retry_spent`, the centisecond's consumer gives it back), so a window of W ms holds one before its first centisecond and one after each of the floor(W / 10) + 1 it holds, and no more than its passes (`rows_grade.retained_retries`). SRP's records are THE DRAIN's first, so every one that arrives before R4's record is taken precedes it: they are counted over W less that record's own work alone (`srp_window`). A record lwSRP's pool refuses for storage is retained, and while it waits no other SRP record is taken, each such record up to `SRP_RX_RETRY_MS` (1,000 ms): SRP's storage rule, not the CPU's service. So SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage, and count neither that hold nor the retry; R4's record is AECP's, which no SRP record holds, and a refusal of SRP's costs it the retries, which it counts (`RETAINED_ROWS`). With the hold counted, each of the 31 SRP records ahead of R5's or R6's, refused in turn, would hold it 1,000 ms, no W under 2,000 ms. The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted (`EXCLUDED`, held against the contract's event types): no group stages them, so no cost of theirs is stated, and the method charges stated costs alone; the notices they mark are counted, in THE RETRY's rounds and the counters' holdoff among the timers, and their own dispatch is #894's to stage. `rows_grade.rule_findings` holds each rule against the tree at each point's windows (`rule_windows`): six under, at and over the rows' bounds, each on SRP's 2 ms refill grid; each solved row's W at the point, off it; and a microsecond either side of R4's 20 ms bound plus R4's own record, the window at which the refill at 20 ms is the first R4's record no longer precedes. The flip self-test plants the earlier rules, each refused by name and each moving R4 the way it would, and SRP's arrivals counted over W less two records of AECP (#665: a finding on round 29's head, which no window on the grid saw): an error of one record, which moves no row at this head (1x1/1if's R4 stays 74.83 ms) and which a rule finding refuses: on round 29's costs at the window a microsecond past 20 ms plus R4's record, 41 SRP records ahead there against the rule's 42, and on this head's at R5's own W at 1x1/1if, 38.25 ms, 50 SRP records ahead against the rule's 51. At 1x1/1if's R4, 74.83 ms, W less one record and W less two both hold 37 refills of SRP's (74.625 and 74.42 ms over 2 ms). An independent re-derivation, every count written apart from `rows_grade.py` and the headers' constants read from a compiled probe of them, gives the same W at both points to the hundredth. On round 28's costs the corrected rules give 1x1/1if's R4 59.19 ms; counted with one retry fewer, none before the window's first centisecond, it is 58.18 ms with SRP's arrivals over W less R4's record and 58.94 ms with them over the whole W. On round 29's costs it was 66.12 ms, and 65.86 ms with one retry fewer, either window; on this head's it is 74.83 ms, and 74.55 ms with one retry fewer, either window.
 
 Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`) or a protocol timer, times its stated cost. The gate reads each timer from the tree, so a changed constant changes the load, and it fails a term with no source in its term list. A pass's own cost, its events' fixed part and its polls' base, is no source; the gate reports it beside the load.
 
@@ -2171,17 +2284,17 @@ The costs #32 moves, stated, us (pin, then with #32):
 | an ACMP record (`record.acmp`) | 280, 265 | 440, 305 | 980, 425 |
 | an ADP record (`record.adp`) | 105, 100 | 240, 125 | 735, 270 |
 | ACMP's timer slot (`event.ACMP`) | 185, 170 | 350, 210 | 845, 330 |
-| ACMP's owed frame (`item.acmp`) | 120, 120 | 185, 165 | 665, 105 |
-| the polls' base (`base`) | 155, 155 | 280, 285 | 590, 570 |
+| ACMP's owed frame (`item.acmp`) | 120, 125 | 185, 165 | 665, 105 |
+| the polls' base (`base`) | 205, 205 | 325, 325 | 590, 570 |
 
-ACMP's owed frame and the polls' base are `poll_grade.py`'s stated costs in the first column at 1x1/1if and 8x8/2if. With #32, a TICK event measured 75 us at 8x8/2if (30 at the pin), and every other cost moved by 10 us or less. On the merge of the pin move both columns are measured on the same legs (the pin carries #32), and the ACMP adapter's redelivery of a kept command and the records behind it, which a poll that sends an owed frame now runs (`acmp_mbx.c`), raises ACMP's owed frame: 11,359 CPU cycles at its heaviest at 1x1/1if (`backlog-owed`; the pin move measured 10,974), so `poll_grade.py` states it 120 us there (65 before) and the second column 120 (35); at 8x8/2if 15,477 cycles, under `poll_grade.py`'s 185 us, and 165 us with #32 (40).
+ACMP's owed frame and the polls' base are `poll_grade.py`'s stated costs in the first column at 1x1/1if and 8x8/2if. With #32, a TICK event measured 75 us at 8x8/2if (30 at the pin), and every other cost moved by 10 us or less. On the merge of the pin move both columns are measured on the same legs (the pin carries #32), and the ACMP adapter's redelivery of a kept command and the records behind it, which a poll that sends an owed frame now runs (`acmp_mbx.c`), raises ACMP's owed frame: 11,359 CPU cycles at its heaviest at 1x1/1if (`backlog-owed`; the pin move measured 10,974), so `poll_grade.py` states it 120 us there (65 before) and the second column 120 (35); at 8x8/2if 15,477 cycles, under `poll_grade.py`'s 185 us, and 165 us with #32 (40). On the merge of `dev-soft-core` `0fb66211` (round 30), the polls' base is 205 us at 1x1/1if and 325 at 8x8/2if in both columns (19,159 and 30,659 cycles at their heaviest), and ACMP's owed frame with #32 125 us at 1x1/1if (11,552 cycles).
 
 **Two cuts, AECP's owed frame and SRP's record** (the [round 26 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6779973927), items 2 and 3), each found by tracing the 8x8/2if image's committed PCs (`BUDGET_TRACE_FROM`, `BUDGET_TRACE_AFTER`): the split CPU commits an instruction that uses the result of the one before about 5 cycles after it, a window or CSR access in about 14 and a data miss in 50 to 80, so the cost of a path is its dependent chains and its calls.
 
 - A notice to the registered controllers took 805 cycles a recipient at 8x8/2if: the mailbox driver's record (`mbx_tx_begin` and `mbx_tx_commit`, 45 %), the loop's index arithmetic (a divide, a modulo, a multiply-add and `used()` a recipient) and three put helpers' calls a recipient (27 %). The notice is now built once and each recipient's frame only addressed (IEEE 1722.1-2021 7.5.2 and 9.3; Milan v1.2 5.4.5.1 sets the recipients): its destination MAC, its interface's source MAC, its `controller_entity_id` and its `sequence_id` stored byte by byte from the registration (`aecp.c`, `address`), the walk stepping through each interface's used registrations by their mask (`fan_out`). A recipient takes 639 cycles. Rewriting the driver's record path as well (a record repeating the one moving, or one record function shared) never moved it, 630 to 654 cycles, so it is unchanged. The heaviest notice measured: 270 us at 8x8/2if (340 before) and 210 at 1x1/1if (225).
 - An SRP record's StreamID and MAC comparisons, in the receive filter, the indications and the registrar walk, went through `memcmp`, 184 cycles for most calls of an equality test (the adapter's 19 calls 4,808 cycles in the heaviest 8x8/2if record at `3a1d14c2`'s image): its alignment checks and the byte loop that orders a difference. They now go through `same` (`srp_mbx.c`), which stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2). From the first byte it was dearer than `memcmp`, since the sources' StreamIDs share their first six bytes. A pool block's link is read and written as the pointer it holds (`ctrl_pool.c`, through [`plat/ctrl_cc.h`](../../sw/firmware/ctrl/plat/ctrl_cc.h)'s `ctrl_cc_ptr_load` and `ctrl_cc_ptr_store`, `memcpy` where the compiler takes no GNU attribute), not through two `memcpy` calls. The heaviest SRP record measured: 365 us at 8x8/2if (405 before), in the `answering-every-port` arm (34,361 cycles; arm A's heaviest with #32 is 350 us), and 250 at 1x1/1if (250 before: the arm's record, 23,645 cycles, states the same). Its retained retry is stated at the same cost. By where each instruction's code lives (the image's link map), lwSRP's code is 19,511 of that record's 34,361 cycles and this tree's 14,850: SRP's adapter 7,725 (the receive filter, the indications, the registrar walk's callback and `same`), the copies, fills and compares lwSRP and the adapter call (`ctrl_mem.c`, 5,509, of which `memcmp` through lwSRP's attribute compare 1,891) and the pool 1,518.
 
-Each cut has a planted defect that restores the old cost, run by the harness on the group that stages it, and each must print `STATED` there: `notice-fan-out-as-it-was` (the old fan-out, with the lost frame's report the fan port gives since round 28) on `aecp-fanout`, held to `poll_grade.py`'s AECP item, and `srp-compared-by-memcmp` on `notice-every-2` in the `answering-every-port` arm, held to the SRP record check. That check is new: each SRP record's own apply (`apply_receive` outside the polls) is held to its retained retry's stated cost, since the retry repeats that apply (`poll_grade.RECORD`).
+Each cut has a planted defect that restores the old cost, run by the harness on the group that stages it: `notice-fan-out-as-it-was` (the old fan-out, with the lost frame's report the fan port gives since round 28) on `aecp-fanout`, which must print `STATED` there, held to `poll_grade.py`'s AECP item; and `srp-compared-by-memcmp` on `notice-every-2` in the `answering-every-port` arm. Each SRP record's own apply (`apply_receive` outside the polls) is held to its retained retry's stated cost, since the retry repeats that apply (`poll_grade.RECORD`). The SRP cut's control is held to this image's own unplanted record of the same group instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2): the run measures the group on the planted build and on this tree's unplanted image, and the control is caught only where the planted heaviest SRP record apply is more than 5 % dearer, the 5 % a stated cost carries over its measurement ([the harness README](../../tb/verilator/ctrl_service_budget/README.md#controls-and-self-test), `poll_items.REFERENCE_CONTROLS`). A stated cost is the larger of a new measurement and the committed table's, so an image that makes the record cheaper leaves 365 us above both the cut and its reversal; no stated cost is lowered.
 
 The costs at 1x1/1if and 8x8/2if are measured on the gate's own legs (round 26), every group of arm A and of the `answering-every-port` arm (the harness traces each pass's parts, `poll_items.PART_SPANS`), with #32's on arm A's groups but the save windows. Every cost but the three the cuts move, an SRP record, its retained retry and a notice, is the larger of that measurement and the committed table's, and in the second column the larger of its measurement, the committed second column's and, for a cost the walk does not move, the first column's. 32x32/2if is not measured again: its row is round 25's.
 
@@ -2193,11 +2306,13 @@ The costs at 1x1/1if and 8x8/2if are measured on the gate's own legs (round 26),
 
 **A failed record move, reported for its own record** (the round 28 ruling, item 2). The record mover holds ERR until its next accepted start (`plat/mbx_dma.h`), and the commit waited on it for every record, so after one failed move a record the word loop wrote was refused too, on every channel, until another move cleared the flag; and in a notice's fan-out, whose commit of recipient n is made by recipient n + 1's `mbx_tx_begin`, recipient n's failed move was reported against n + 1: n was counted sent, its sequence_id spent, and never sent again, and `fan_end` discarded the last frame's result. A TX record now holds whether the mover carries it, and its commit judges that move and no other (`mbx.c`); a record whose move failed is not committed and is reported for itself: `mbx_tx_commit` is false, and `mbx_tx_begin`, which commits the record before its own, is `MBX_STATUS_LOST` and starts nothing (`mbx.h`). The AECP fan port reports it for its frame (`AECP_FAN_LOST`, from the next `fan` or from `fan_end`, which keeps no completion for a lost last frame), and the notice resumes at that recipient at the sequence_id it did not have (IEEE 1722.1-2021 7.5.2; `aecp.c`, `fan_out`). The image grows by 112 to 120 B: arm A 122,440 B at 8x8/2if (122,328 before) and 107,232 B at 1x1/1if (107,112), the `answering-every-port` arm 122,748 B at 8x8/2if (122,636), each within its ledger; with tsn-c-stack #32 arm A's 8x8/2if image was 122,896 B, 58 RAMB36 against the 57.5 then ledgered for 8x8, two interfaces, so that column's 8x8/2if leg did not build at round 28's head. At this branch's merge of the pin move, which carries #32, arm A's 8x8/2if image is 123,112 B and the `answering-every-port` arm's 123,420 B, and the size fixture's entry ledgers 58.0, whose `rom` holds 124,928 B ([section 3](#3-named-refusals), [section 5](#5-fit)).
 
-**A refusal is not a loss, and a notice's completion waits for its whole walk** (#665: two findings on round 28's head). `AECP_FAN_REFUSED` means the frame before the refused one was delivered and `AECP_FAN_LOST` that it was not, and only a loss resumes the notice at the frame before (`aecp.c`, `fan_out`): a ring with no room for a frame resumes at that frame's own recipient, and a completion queue with no room leaves the notice owed past its last recipient, so no recipient is sent it twice at one sequence_id (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1). No test told the two apart; `Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain` now refuses both of the planted defects that take a refusal for a loss (`fan-end-refused-taken-as-lost`, `refused-mid-fan-after-a-taken-frame-taken-as-lost`). And `fan_end` kept the notice's completion at the end of every walk, so a walk that broke at a recipient, lost or refused there, kept one while its notice was still owed, and a counter notice's holdoff could start from the partial walk's departure (Milan v1.2 5.4.5.2). It now keeps one only for a walk that reached its last recipient (`whole`, `aecp_mbx.c`; the contract in `aecp.h`), and the resumed walk's end keeps the notice's one: driver test T6 and the core test's completion count hold it, each refusing a plant that restores the old rule (`mover-fan-end-keeps-a-completion-for-a-walk-left-owed`, `notice-completion-kept-for-a-walk-left-owed`).
+**A refusal is not a loss, and a notice's completion waits for its whole walk** (#665: two findings on round 28's head). `AECP_FAN_REFUSED` means the frame before the refused one was delivered and `AECP_FAN_LOST` that it was not, and only a loss resumes the notice at the frame before (`aecp.c`, `fan_out`): a ring with no room for a frame resumes at that frame's own recipient, and a completion queue with no room leaves the notice owed past its last recipient, so no recipient is sent it twice at one sequence_id (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1). No test told the two apart; `Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain` now refuses both of the planted defects that take a refusal for a loss (`fan-end-refused-taken-as-lost`, `refused-mid-fan-after-a-taken-frame-taken-as-lost`). And `fan_end` kept the notice's completion at the end of every walk, so a walk that broke at a recipient, lost or refused there, kept one while its notice was still owed, and a counter notice's holdoff could start from the partial walk's departure (Milan v1.2 5.4.5.2). It now keeps one only for a walk that reached its last recipient (`whole`, `aecp_mbx.c`; the contract in `aecp.h`), and the resumed walk's end keeps the notice's one: driver test T6 and the core test's completion count hold it, each refusing a plant that restores the old rule (`mover-fan-end-keeps-a-completion-for-a-walk-left-owed`, `notice-completion-kept-for-a-walk-left-owed`). Driver test T7 holds the adapter to the refusal's meaning (#665: a suggestion on round 29's head): a whole walk's `fan_end` with the completion queue full is `AECP_FAN_REFUSED` only once its last frame is committed, and the notice resumed past its last recipient sends no frame and keeps its one completion; the plant that checks the queue before the commit (`mover-fan-end-refuses-before-the-last-frame-is-committed`) is refused by it.
 
 **Portable C** (item 5). The AECP response buffer is aligned by C11's `_Alignas(64)`, and the firmware's two GNU attributes, `noinline` for SRP's `same`, `reclaim` and `build_mrpdu` and `may_alias` for the pool's link, sit behind `CTRL_CC_GNU` in [`plat/ctrl_cc.h`](../../sw/firmware/ctrl/plat/ctrl_cc.h), with a portable fallback (no `noinline`, `memcpy` for the link). The change alone builds 8x8/2if arm A's three images byte-identical to round 27's and replays its `control` group byte for byte, so it moves no cost.
 
-**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). **`srp-compared-by-memcmp` escapes**: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. Restating that cost from this image's measurement would refuse the plant, but lowers a stated cost against the table rule, so it waits for a ruling.
+**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image against their stated costs: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). `srp-compared-by-memcmp` escaped its stated cost here: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. So it is held to this image's own unplanted record instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2; `poll_items.REFERENCE_CONTROLS`), with no stated cost lowered: one run measures the group on the planted build and on the unplanted image, and the plant must make the heaviest SRP record more than 5 % dearer. On round 29's composed image, at round 30's `ef913ca4`, whose firmware is round 29's, it is caught: 35,908 cycles planted against 32,866 unplanted, 9.3 % dearer (`CONTROL srp-compared-by-memcmp caught`). At the merge of the pin move's round 4 head the 8x8 size fixture with two interfaces planned 58.5 RAMB36 against its 58.0, which refused its 8x8/2if builds; the ruling on that STOP ledgers it at 58.5 ([section 5](#5-fit)), and round 30 re-grades the composed image (next).
+
+**The re-grade on the merge of `dev-soft-core` `0fb66211`** (round 30, #665). At 8x8/2if each leg ran on a fresh build at `6c284a97`, whose image states a round's cold start at 185 us: every group of arm A and of the `answering-every-port` arm, and arm B's `aecp` group. At 1x1/1if they ran at `da1869a3`, whose image is `6c284a97`'s byte for byte (its ELF and its `objcopy -O binary` identical, and a sample group's log identical on a fresh build), and are graded on that build. The harness had first to follow KLJ3: its flash device takes writes only in the flash map's journal, 640 KiB at `0xe40000`, and a save's container is the stage less KLJ3's 10-byte record header. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if, round 29's seven, the owed rows at 62.68 to 65.05 ms and 61.95 to 63.59 ms; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (257,719 at 8x8/2if, 166,045 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,829.6 ms of 22,870, `save-starved` 12,447.0 of 12,470; 1x1/1if 6,030.3 of 6,070 and 4,048.8 of 4,070). The merge moves measured costs: `KL_mbx` answers a register read a cycle later (`3ba76ae7`), KLJ3 changes the store, and the hot list loses `nvm_any`; they are not separated. Three firmware-stated costs were under their measurement, and the [ruling on the third STOP](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6842347916) restates them: `CTRL_LOOP_BUILD_PASS_US` 900 to 1,010 us and `CTRL_LOOP_BUILD_ONE_PASS_US` 405 to 430 at 1x1/1if (96,033 and 40,700 cycles), by the rule, and `AECP_ROUND_COLD_US` 165 to 185 at 8x8/2if, the margin exception above (the dearest round, of no notice beside two refused attempts, implies 180.16 us). Every other cost is the larger of this measurement and the committed table's: `poll_grade.py`'s polls' base 155 to 205 us at 1x1/1if and 280 to 325 at 8x8/2if, its walk 20 to 35 at 1x1/1if and its rebuild 630 to 690 at 8x8/2if; at 1x1/1if an SRP record and its retained retry 260 to 280, a centisecond's consumers 130 to 150, AECP's timer slot 60 to 65, a TICK 40 to 45 and a grandmaster event 35 to 40, and with #32 ACMP's owed frame 120 to 125; at 8x8/2if AECP's timer slot 100 to 110, and a TICK 40 to 85 at the pin and 75 to 85 with #32. Every round and every pass given whole on the fresh 8x8/2if build is within its stated cost. The four cost controls are caught on it (`6c284a97`): `notice-fan-out-as-it-was` an AECP item of 31,933 cycles against its 27,000, `polls-rebuild-in-the-base` a polls base of 74,295 against 28,000 (32,500 restated), `polls-rebuild-twice` a rebuild item of 109,171 against 63,000 (69,000 restated), and `srp-compared-by-memcmp` 34,551 cycles planted against 30,989 unplanted, 11.5 % dearer.
 
 **SRP's Talker declarations, measured** (#895). Each leg ran on a clean clone of this branch's firmware as it stands at its head: every group of arm A and of the `answering-every-port` arm, the `valid-destinations` arm's two groups (a probe declares each source and the probe window's end withdraws it; a range MAAP loses to a peer's ANNOUNCE withdraws it) and arm B's `aecp` group, at both points. 0 refusals; arm A's 7 misses of 945 probe instances (4 of 87 paths) at 1x1/1if and of 996 (4 of 136) at 8x8/2if are the merge's seven, the rows tsn-c-stack #26 holds; the `answering-every-port` arm 0 of 280 and 0 of 736; no work pass over the share (the heaviest 173,458 cycles, `notice-every-5` at 8x8/2if); no pass over its stated cost. The composition hands each interface's DA gate to SRP every pass (`ctrl_app_srp.c`), within the polls' base, whose most is 15,078 CPU cycles at 1x1/1if and 27,578 at 8x8/2if, 422 under `poll_grade.py`'s 155 and 280 us each; a centisecond's consumers count each held source down, at most 9,618 cycles at 1x1/1if and 19,439 at 8x8/2if, under the 130 and 510 us stated. By the gate's rule, each cost the larger of this measurement and the committed table's; against #810's round 29 tables that moves MAAP's record 90 to 115 us at 1x1/1if and 130 to 150 at 8x8/2if, a range lost to a peer's ANNOUNCE, which restarts the core, in both columns; AECP's timer slot at 1x1/1if 60 to 65 and a TICK at 8x8/2if 40 to 45 at the pin; with tsn-c-stack #32 the polls' base 155 to 160 and 285 to 290, and at 1x1/1if ACMP's owed frame 120 to 125 and the registrar walk 20 to 25 (its most 1,987 cycles, 13 under `poll_grade.py`'s 20 us). The load moves by 0.001 to 0.003 at both points and no row of the flip check changes its verdict.
 
@@ -2207,24 +2322,24 @@ At this head (`load_grade.py --check` and `flip_grade.py --check`; the stated co
 
 | Point | Load at the pin | Load with tsn-c-stack #32 (owed to the pin move) | Ceiling | Compute for 0.70 | Its three largest terms with tsn-c-stack #32 | A pass's own cost, us |
 |---|---:|---:|---:|---:|---|---:|
-| 1x1/1if | 0.488 | 0.486 | 0.70, both columns | 1.00x | `srp` 0.156, `rec.acmp` 0.053, `ticks` 0.047 | 185 |
-| 8x8/2if | **0.817** | 0.768 | the flip check, 0.70 at the pin | 1.10x (1.17x at the pin) | `srp` 0.219, `item.acmp` 0.063, `item.aecp` 0.062 | 320 |
-| 32x32/2if | 2.150 | 1.659 | reported: the more-compute image, #872 | 2.37x | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
+| 1x1/1if | 0.501 | 0.499 | 0.70, both columns | 1.00x | `srp` 0.168, `rec.acmp` 0.053, `ticks` 0.048 | 230 |
+| 8x8/2if | **0.822** | 0.770 | the flip check, 0.70 at the pin | 1.10x (1.17x at the pin) | `srp` 0.219, `item.acmp` 0.063, `item.aecp` 0.062 | 355 |
+| 32x32/2if | 2.151 | 1.660 | reported: the more-compute image, #872 | 2.37x | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
 
-The load gate holds 1x1/1if in both columns: at the pin 0.488, 0.212 under its ceiling, and with tsn-c-stack #32 0.486, 0.214 under it (0.486 and 0.483 on the pin move's merge, before SRP's Talker declarations; round 28: 0.463 and 0.450; the redelivery's ACMP item and an SRP record's 260 us move it). The flip check holds 8x8/2if at the pin, 0.817, **0.117 over**, and fails at this head; with tsn-c-stack #32 it is 0.768, **0.068 over** (0.767 on the pin move's merge, its own figure; 0.719 at round 28's head, before the redelivery). Each of these alone closes the latter (`load_grade.load` at 0.70, each other cost held):
+The load gate holds 1x1/1if in both columns: at the pin 0.501, 0.199 under its ceiling, and with tsn-c-stack #32 0.499, 0.201 under it (round 29: 0.486 and 0.483; the merge's polls' base, an SRP record's 280 us and a centisecond's 150 move it; round 28: 0.463 and 0.450). The flip check holds 8x8/2if at the pin, 0.822, **0.122 over**, and fails at this head; with tsn-c-stack #32 it is 0.770, **0.070 over** (0.767 at round 29's head; 0.719 at round 28's, before the redelivery), the pin move's own figure. Each of these alone closes the latter (`load_grade.load` at 0.70, each other cost held):
 
-- an SRP record, at whose cost its retry is stated, from 365 to 251 us (-31.2 %); or SRP's refill from 2 to 2.89 ms, its burst of 32 unchanged and its sustained rate 500 to 346 records a second;
-- AECP's refill from 5 to 13.83 ms (16 a burst; 200 to 72 records a second); a notice's cost alone cannot;
-- ACMP's refill from 5 to 18.31 ms (16 a burst; 200 to 55 a second); an ACMP record's cost alone cannot;
+- an SRP record, at whose cost its retry is stated, from 365 to 248 us (-32.1 %); or SRP's refill from 2 to 2.92 ms, its burst of 32 unchanged and its sustained rate 500 to 342 records a second;
+- AECP's refill from 5 to 14.54 ms (16 a burst; 200 to 69 records a second); a notice's cost alone cannot;
+- ACMP's refill from 5 to 19.76 ms (16 a burst; 200 to 51 a second); an ACMP record's cost alone cannot;
 - ADP's or MAAP's refill alone cannot;
 - or 1.10x the compute.
 
-#32 takes ACMP's records, its owed frame and its timer slot's expiries from 0.186 to 0.140 at 8x8/2if at this head (0.093 before the redelivery, whose owed frame is 165 us there with #32 against 40), and from 0.637 to 0.186 at 32x32/2if. **32x32/2if is 0.959 over**, reported: there SRP's channel (0.519, an SRP record 865 us) and THE TRANSMIT's builds (a build of both of an interface's MRPDUs 10,810 us) with their owed MRPDUs, stated at a build of one's cost (7,485 us), together 0.449, lead it, and #32 moves neither.
+#32 takes ACMP's records, its owed frame and its timer slot's expiries from 0.186 to 0.140 at 8x8/2if at this head (0.093 before the redelivery, whose owed frame is 165 us there with #32 against 40), and from 0.637 to 0.186 at 32x32/2if. **32x32/2if is 0.960 over**, reported: there SRP's channel (0.519, an SRP record 865 us) and THE TRANSMIT's builds (a build of both of an interface's MRPDUs 10,810 us) with their owed MRPDUs, stated at a build of one's cost (7,485 us), together 0.449, lead it, and #32 moves neither.
 
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
-- **With the CPU on `sys` at 100 MHz** every row the CPU decides and every pass fits at both points, a save in progress, both links changing at once and every receive channel held at its refill rate through a whole save, with no pass empty or not, included, a save's windows opened with the step's age at its limit, so an aged step among their records, included, and every channel's burst composed under input that leaves no pass empty included, with the least margin at this head an AECP record's: 6.246 ms in the `answering-every-port` arm (13.754 ms, `notice-burst-2`) and 8.973 ms in arm A (11.027 ms, the last released under the composed load, a save's verify window opened at the age limit) at 8x8/2if, and at 1x1/1if 9.080 ms in the arm (10.920 ms, `notice-burst-4`) and 11.006 ms in arm A (round 29's legs, on the composed image; round 28's were 4.018, 6.515, 8.349 and 10.434 ms and round 26's 2.228, 6.532, 8.027 and 10.306 ms; [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class) the earlier heads' record, with `notice_window.py`'s `answering-later` arm, which round 26 does not run).
+- **With the CPU on `sys` at 100 MHz** every row the CPU decides and every pass fits at both points, a save in progress, both links changing at once and every receive channel held at its refill rate through a whole save, with no pass empty or not, included, a save's windows opened with the step's age at its limit, so an aged step among their records, included, and every channel's burst composed under input that leaves no pass empty included, with arm A's least margin at this head an AECP record's, by round 30's legs on the image that merged `dev-soft-core` `0fb66211`: at most 8.162 ms at 8x8/2if (11.838 ms, group `backlog-adp@program-aged2-7`, instance `service.aecp.last.if1`, the last released under the composed load, a save's program window opened at the age limit) and at most 9.992 ms at 1x1/1if (10.008 ms, group `backlog-adp@verify-aged2-5`, instance `service.aecp.last.if0`, a save's verify window opened at the age limit), each the least of the windows opened at the age limit, which the re-grade prints. Round 30 did not re-derive arm A's least over all its rows, nor the `answering-every-port` arm's least at either point: its re-grades print no table of rows. Round 29's legs, on the composed image before that merge, gave 6.246 ms in the `answering-every-port` arm (13.754 ms, `notice-burst-2`) and 8.973 ms in arm A at 8x8/2if, and 9.080 ms in the arm (10.920 ms, `notice-burst-4`) and 11.006 ms in arm A at 1x1/1if (round 28's were 4.018, 6.515, 8.349 and 10.434 ms and round 26's 2.228, 6.532, 8.027 and 10.306 ms; [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class) the earlier heads' record, with `notice_window.py`'s `answering-later` arm, which round 26 does not run).
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's at `715589c` is merged here (PR #892), its hot-list runtime entry removed from both lists; lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
@@ -2232,9 +2347,9 @@ The load gate holds 1x1/1if in both columns: at the pin 0.488, 0.212 under its c
 - **A change-notice retry** is taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst holds one, and a notice whose port answers is committed within 18 ms of the answer under any input, inside its 20 ms (`aecp.h`): 12.30 to 13.51 ms at both points under input that leaves no pass empty ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). Each notice owed ahead of it costs it its own round and the pass that sends it.
 - **SRP's MRPDU build is a pass class of its own** (THE TRANSMIT in `ctrl_loop.h`), taken only in a pass that took no record, at most one event and no centisecond, or once held past its age in a pass of its own, within `CTRL_LOOP_TX_MS`, 44 ms, so every participant's MRPDU is sent within the 200 ms JoinTime. A pass that dispatches a centisecond takes one record of a channel (THE TICK's cap).
 - **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
-- **The margins at this head** (round 29's legs, every group of arm A and of the `answering-every-port` arm, on the composed image): the rows' least above; on the share, the heaviest work pass is 186,522 cycles at 8x8/2if (`srp`, arm A), 13,478 under it, and 168,216 at 1x1/1if (`notice-every-3`, the `answering-every-port` arm), 31,784 under (round 28's image: 192,237 and 160,618). Round 26's image gave 193,609 cycles at 8x8/2if, 99 cycles short of the 6,490 the round 16 ruling asks of every pass class ([issuecomment-6634982529](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529), item 2): the margin there moves with the image, so the round 28 ruling (item 3) defers it to the 8x8/2if flip under #890, whose owner decision of 2026-11-11 sets that point's flip ceiling to 0.75; 1x1/1if keeps it. The classes at the struct-ends layout were not measured again. A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
+- **The margins at this head** (round 30's legs, every group of arm A and of the `answering-every-port` arm, on the image that merged `dev-soft-core` `0fb66211`): arm A's least AECP-record margins in its windows opened at the age limit above, 8.162 ms at 8x8/2if and 9.992 ms at 1x1/1if; on the share, the heaviest work pass is 183,244 cycles at 8x8/2if (`notice-burst-2`, the `answering-every-port` arm), 16,756 under it, and 166,127 at 1x1/1if (`notice-every-6`, the same arm), 33,873 under (round 29's image: 186,522 and 168,216; round 28's: 192,237 and 160,618). Round 26's image gave 193,609 cycles at 8x8/2if, 99 cycles short of the 6,490 the round 16 ruling asks of every pass class ([issuecomment-6634982529](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529), item 2): the margin there moves with the image, so the round 28 ruling (item 3) defers it to the 8x8/2if flip under #890, whose owner decision of 2026-11-11 sets that point's flip ceiling to 0.75; 1x1/1if keeps it. The classes at the struct-ends layout were not measured again. A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
-- **The long-window load is over its 0.70 ceiling at 8x8/2if**, 0.817 at the pin, which the flip check holds and which fails at this head, and 0.768 in the column with tsn-c-stack #32 (0.719 before the pin move's redelivery); within it at 1x1/1if, 0.488 at the pin and 0.486 in the second column, which the load gate holds for merge in both columns (the round 27 ruling, item 4; the round 28 ruling, item 1). 32x32/2if is reported, not held: the more-compute image, #872, 1.659 with #32 (2.150), 2.37x the compute for 0.70 ([above](#the-long-window-load)). SRP's retained retry is bounded by its source, at most once a centisecond and only once the pool or an attribute changed, AECP's owed frame is charged by what each source sends, and a notice is built once and addressed per recipient. Decision D's tier bounds bind each point's flip and the flip check holds them: at 1x1/1if R4 by every source is 66.77 ms against tier 1's 20 ms, a finding for the flip and #894's, and R5, R6 and the queued notices fit; at 8x8/2if every solved row and the first queued notice miss, with #890 and #894 ([above](#the-long-window-load)).
+- **The long-window load is over its 0.70 ceiling at 8x8/2if**, 0.822 at the pin, which the flip check holds and which fails at this head, and 0.770 in the column with tsn-c-stack #32 (0.719 before the pin move's redelivery); within it at 1x1/1if, 0.501 at the pin and 0.499 in the second column, which the load gate holds for merge in both columns (the round 27 ruling, item 4; the round 28 ruling, item 1). 32x32/2if is reported, not held: the more-compute image, #872, 1.660 with #32 (2.151), 2.37x the compute for 0.70 ([above](#the-long-window-load)). SRP's retained retry is bounded by its source, at most once a centisecond and only once the pool or an attribute changed, AECP's owed frame is charged by what each source sends, and a notice is built once and addressed per recipient. Decision D's tier bounds bind each point's flip and the flip check holds them: at 1x1/1if R4 by every source is 74.83 ms against tier 1's 20 ms, a finding for the flip and #894's, and R5, R6 and the queued notices fit; at 8x8/2if every solved row and the first queued notice miss, with #890 and #894 ([above](#the-long-window-load)).
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
 ## 14. The 32x32 estimate

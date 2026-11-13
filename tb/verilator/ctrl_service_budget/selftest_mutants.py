@@ -9,6 +9,7 @@ mutant is a function returning the patches it applies.
 """
 from __future__ import annotations
 
+import argparse
 import dataclasses
 import hashlib
 import json
@@ -25,6 +26,7 @@ import load_grade
 import mrpdu_grade
 import notice_window
 import poll_grade
+import poll_items
 import round_grade
 import rows_grade
 import run
@@ -791,6 +793,21 @@ MUTANTS: dict[str, Patches] = {
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(2))],
     'polls: in bus cycles, not CPU time': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    'polls: a reference control held to no margin': lambda: [patch.object(poll_items, 'REFERENCE_MARGIN_PERCENT', 0)],
+    'polls: a reference control read against its own planted run': lambda: [patch.object(
+        run, 'reference_verdict', lambda args, results, refusals, reference, f=run.reference_verdict: f(
+            args, results, refusals, (results, reference[1])))],
+    "polls: a reference control's refusals ignored": lambda: [patch.object(
+        run, 'reference_verdict', lambda args, results, refusals, reference, f=run.reference_verdict: f(
+            args, results, [], (reference[0], [])))],
+    "polls: a reference control's other run without its variant": lambda: [patch.object(
+        run, 'reference_run', lambda args, where, shape, n, f=run.reference_run: f(
+            argparse.Namespace(**{**vars(args), 'variant': 'none'}), where, shape, n))],
+    "polls: a reference control's other run in the planted build's place": lambda: [patch.object(
+        run, 'reference_run', lambda args, where, shape, n, f=run.reference_run: f(args, where.parent, shape, n))],
+    "polls: the SRP record cut's control held to its stated cost": lambda: [
+        patch.dict(build.REFERENCE_CONTROLS, clear=True),
+        patch.dict(build.POLL_CONTROLS, {'srp-compared-by-memcmp': "an SRP record's apply of"})],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],
