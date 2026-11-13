@@ -53,9 +53,9 @@ SWAP_LEAVE = ("                if ((i->talkers & bit) != 0u && admitted != was) 
 ENTRY_GUARD = ("bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_t base)\n"
                "{\n    if (!enter(m)) {\n        return false;\n    }\n")
 #: the withdrawal's Leave and what lwSRP's answer makes of the source, as srp_mbx.c holds them.
-LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value) "
-         "!= 0) {\n                done = false;\n            } else {\n                i->talkers &= ~bit;\n"
-         "                m->held_cs[n] = SRP_REDECLARE_CS;\n            }\n")
+LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : "
+         "MSRP_ATTR_TYPE_TALKER_FAILED,&value) != 0) {\n                done = false;\n            } else {\n"
+         "                i->talkers &= ~bit;\n                m->held_cs[n] = SRP_REDECLARE_CS;\n            }\n")
 FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],"
         "app->maap.ifs[interface].core.base);\n")
 
@@ -115,8 +115,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
                              "MSRP_ATTR_TYPE_TALKER_FAILED"),
           "an admission lost swaps the Advertise to Talker Failed in place"),
         d("talker-withdrawal-leaves-an-advertise-only", ADMIT,
-          "            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value) "
-          "!= 0) {\n",
+          "            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : "
+          "MSRP_ATTR_TYPE_TALKER_FAILED,&value) != 0) {\n",
           "            if (mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_TALKER_ADV,&value) != 0) {\n",
           "a lapse withdraws a Talker Failed too"),
         d("talker-refused-swap-takes-the-new-type", ADMIT,
