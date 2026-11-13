@@ -1,0 +1,48 @@
+Note: Google Test filter = Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:573: Failure
+Expected equality of these values:
+  pub_of(model,0).talker_decl&1u
+    Which is: 0
+  1u
+    Which is: 1
+a withdrawal lwSRP refused keeps the source declared
+
+  [FAIL] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt: a withdrawal lwSRP refused keeps the source declared
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:574: Failure
+Value of: adapter.ifs[0].sources_owed
+  Actual: false
+Expected: true
+a withdrawal lwSRP refused is owed again
+
+  [FAIL] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt: a withdrawal lwSRP refused is owed again
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:575: Failure
+Expected equality of these values:
+  adapter.held_cs[0]
+    Which is: 2022
+  0u
+    Which is: 0
+no hold-off starts at a Leave lwSRP refused
+
+  [FAIL] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt: no hold-off starts at a Leave lwSRP refused
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:583: Failure
+Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+the refused withdrawal's Leave leaves once lwSRP takes it
+
+  [FAIL] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt: the refused withdrawal's Leave leaves once lwSRP takes it
+[  FAILED  ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt (0 ms)
+[----------] 1 test from Talker (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
