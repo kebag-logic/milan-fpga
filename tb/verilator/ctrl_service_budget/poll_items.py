@@ -13,9 +13,13 @@ ITEMS = {'withdraw': ('srp_mbx:reset_interface', None), 'rebuild': ('srp_mbx:ope
          'walk': ('mrp_attr_visit', None), 'reclaim': ('mrp_reclaim', None),
          'retained': ('srp_mbx:apply_receive', None), 'mrpdu': ('srp_mbx:build_mrpdu', None),
          'acmp': ('acmp_mbx:on_poll', 'acmp'), 'aecp': ('aecp:transmit', 'aecp')}
+#: ACMP's offers (#908): each call of acmp_rx, an ACMP record offered to the core, by the adapter's handler (acmp_mbx.c
+#: on_frame, a record of the ring the loop or THE KEPT COMMAND's redelivery took) or by the redelivery's re-offer of
+#: the kept record (redeliver). An ACMP item is its owed frame's send, less the offers nested in it (poll_grade).
+OFFER, HANDLER = 'acmp_rx', 'acmp_mbx:on_frame'
 #: build.SPAN_SYMBOLS' entries for them: a global by its symbol, a static function as (module, function).
 SPANS = tuple(tuple(label.split(':')) if ':' in label else label
-              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values())))
+              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values()), OFFER))
 #: A pass's parts (#665: the cuts' stated costs): each channel's record and event handler, each module's
 #: poll and the centisecond's dispatch as build.SPAN_SYMBOLS' entries, and each event taken and record dispatched as
 #: build.CALL_SYMBOLS', which cut a pass into them; the load gate's stated costs are measured from them (load_grade.py).
@@ -120,10 +124,17 @@ PLANTS = {
     # compared through memcmp, so the group with the heaviest SRP record makes its record dearer than this image's
     # unplanted one (REFERENCE_CONTROLS)
     'srp-compared-by-memcmp': ('srp/srp_mbx.c', SAME_NOW, SAME_BEFORE, 'notice-every-2', 'answering-every-port'),
+    # THE KEPT COMMAND redelivered after every poll, not only after one that sent an owed frame (#908): while the
+    # egress holds ACMP's frames the kept record is offered and declined in every pass, past the declines' bound of
+    # two a send and one (poll_grade.DECLINES), so the group that keeps a command passes it
+    'acmp-redelivered-every-poll': ('acmp/acmp_mbx.c', '\tif (m->acmp.owed_count < owed) {\n\t\tredeliver(m);\n',
+                                    '\tif (m->acmp.owed_count <= owed) {\n\t\tredeliver(m);\n', 'backlog-owed',
+                                    'none'),
 }
 #: The controls held to a stated cost: each must make the STATED line of its words in its group.
 CONTROLS = {'polls-rebuild-in-the-base': "a pass's polls base of", 'polls-rebuild-twice': 'a rebuild item of',
-            'notice-fan-out-as-it-was': 'a aecp item of'}
+            'notice-fan-out-as-it-was': 'a aecp item of',
+            'acmp-redelivered-every-poll': 'declined ACMP offers, over their bound'}
 #: The controls held to this image's own unplanted measurement instead (#665): each stated cost is the larger of a
 #: new measurement and the committed table's, so an image that makes the work cheaper leaves the stated cost above
 #: both the cut and its reversal, and a control held to it escapes. Each such control runs its group twice in one

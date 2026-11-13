@@ -154,9 +154,14 @@ def stated_misses(results: list[dict]) -> list[str]:
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
             [f"{g['group']}: " + ("a pass's polls base of " if o['kind'] == 'base' else
                                   "an SRP record's apply of " if o['kind'] == poll_grade.RECORD else
+                                  "a declined ACMP offer of " if o['kind'] == poll_grade.DECLINED else
+                                  "a kept ACMP command's accepted offer of " if o['kind'] == poll_grade.KEPT else
                                   f"a {o['kind']} item of ")
              + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
-             for g in results for o in g['passes'].get('polls', {}).get('over', [])] +
+             for g in results for o in g['passes'].get('polls', {}).get('over', []) if o['kind'] != poll_grade.DECLINES]
+            + [f"{g['group']}: {o['cycles']} declined ACMP offers, over their bound of two a sent owed frame and one "
+               f"({o['sends']} sent)" for g in results for o in g['passes'].get('polls', {}).get('over', [])
+               if o['kind'] == poll_grade.DECLINES] +
             [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
              f"stated slice {g['passes']['slices']['limit']:,}"
              for g in results for o in g['passes'].get('slices', {}).get('over', [])])

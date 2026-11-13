@@ -2372,6 +2372,26 @@ The largest legal notice's costs are measured: the CPU budget harness's `aecp-la
 
 At 8x8/2if the size fixture's image, at the merge of #810's `084cf7a8`, is 125,200 B of rom, 59.0 RAMB36, and the platform's 60.0: the ledger names both there, the fixture's at the 59.0 of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and the platform's within its cap of 60.5 ([section 5](#5-fit)). The owed-notice queue is compiled out where `AECP_MBX_OWED_SLOTS` is 0. At 1x1/1if the size fixture's image is 110,400 B of rom and 55,152 B of sram, 40.5 RAMB36, its 552 B slots included.
 
+### The polls' base and ACMP's item ([#908](https://github.com/kebag-logic/milan-fpga/issues/908))
+
+#810's last re-measure raised several stated costs of the control loop at 1x1/1if without attributing them, two of them the polls' base, 155 to 205 us, and ACMP's owed frame, 35 to 120 us (125 with tsn-c-stack #32), and at those costs the last queued notice and txL were over their bounds (above).
+
+**ACMP's item, itemised** (#908, lever a).
+Since THE KEPT COMMAND's redelivery (`acmp_mbx.c`), the poll that sends an owed frame also offers the kept record to the core and hands the records behind it to their handler, and the item was the whole poll.
+On this branch's head before the levers, `backlog-owed`, the one group that stages owed ACMP frames, measured that poll at 12,259 CPU cycles at 1x1/1if, over its stated 12,000, and at 15,558 at 8x8/2if.
+Each of those offers is an ACMP record's (`acmp_rx`), which the testbench now traces, so the item is the send alone and the offers are their own (`poll_grade.py`):
+
+- **The item**, the poll less the offers nested in it: at most 4,744 and 6,134 cycles, stated at 50 and 65 us.
+- **A declined offer** is held to its own cost wherever it runs: at most 1,589 and 1,550 cycles, 20 us at both points. An offer is declined exactly when the next offer is the kept record's re-offer, since a declined record is kept and no later record is taken while it is.
+- **An accepted offer** is its command's handling, once a command, which the rows charge at the record's arrival. The kept record's accepted re-offer is held to the ACMP record's stated cost (at most 6,209 and 8,196 cycles).
+
+The declined offers are at most two a sent owed frame and one, in any window: each re-offer follows its own send, and a command is first declined only once the one kept before it was accepted, which takes a send.
+The harness holds that bound over each log, and refuses a planted redelivery after every poll by it (`acmp-redelivered-every-poll`).
+The rows and the load charge the declines so (`rows_grade.acmp_items`, `item.acmp_declined`), and the flip check refuses a model that counts them once a send.
+At 32x32/2if the item stays the whole poll, as measured there.
+
+At these costs, by every source at 1x1/1if, txL is 46.58 ms at the 8 ms pace and the last queued notice 135.64 ms (47.25 and 137.79 before), and the load is 0.499 at the pin. 8x8/1if's load, derived from 8x8/2if's stated costs at one interface's constants and counts, is 0.696 (0.727 before).
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).

@@ -306,7 +306,7 @@ def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
     out.update({'item.retained': (rows_grade.retained_retries(w_ms, passes, tick_ms) if fix.retained else min(
         passes, srp_in)) * c['item.retained']} if not fix.retained or row in rows_grade.RETAINED_ROWS else {})
     out['item.mrpdu'] = min(passes, 2 * count_b) * c['item.mrpdu']
-    out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
+    out.update(rows_grade.acmp_items(min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']), c))
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * c['item.aecp']
     if link:
         out['item.withdraw'] = n_if * c['item.withdraw']
@@ -477,7 +477,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     else:
         out['item.walk'] = min(passes * n_if, n_if * (ticks + count_b)) * c['item.walk']
         out['item.reclaim'] = min(2 * n_if * passes, 2 * (srp_in + count_b)) * c['item.reclaim']
-    out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
+    out.update(rows_grade.acmp_items(min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']), c))
     # AECP's owed frames, R4L's and txL's each the largest legal notice (LONG_NOTICE_US)
     each = max(c['item.aecp'], c['item.aecp.long']) if row in LONG_ROWS else c['item.aecp']
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * each

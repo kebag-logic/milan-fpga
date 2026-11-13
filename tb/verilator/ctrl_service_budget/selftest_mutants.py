@@ -816,7 +816,26 @@ MUTANTS: dict[str, Patches] = {
     'polls: an item after the polls is theirs': lambda: [patch.object(
         poll_grade, 'sections', lambda traced, f=poll_grade.sections: [(s, e + 10_000, ss) for s, e, ss in f(traced)])],
     'polls: an item nested in another is counted twice': lambda: [patch.object(
-        poll_grade, 'outermost', lambda found: [(kind, e - s) for s, e, kind in found])],
+        poll_grade, 'outermost', lambda found: [(kind, s, e - s) for s, e, kind in found])],
+    "polls: an ACMP item carries the redelivery's offers (earlier rule)": lambda: [patch.object(
+        poll_grade, 'offers',
+        lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: f(traced) if start < 0 else [])],
+    'polls: no offer is the kept record\'s re-offer, so none is told declined': lambda: [patch.object(
+        poll_grade, 'offers', lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: [
+            (s, c, False, ss) for s, c, _, ss in f(traced, start, end)])],
+    'polls: no declined ACMP offer is held to its cost': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.DECLINED]))(f(log, n)))],
+    "polls: no kept command's accepted offer is held to its cost": lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.KEPT]))(f(log, n)))],
+    "polls: a kept command's accepted offer held to the send's cost, not the record's": lambda: [patch.object(
+        poll_grade, 'record_us', lambda interfaces: poll_grade.stated_us(interfaces)['acmp'])],
+    'polls: the declined offers held to no bound': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.DECLINES]))(f(log, n)))],
+    'polls: the declined offers held to three a send': lambda: [patch.object(
+        poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(2))],
     'polls: in bus cycles, not CPU time': lambda: [patch.object(

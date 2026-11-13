@@ -288,6 +288,15 @@ def rule_controls(root: Path) -> list[str]:
         moved = longer is None or (w is not None and held is not None and (w > held if longer else w < held))
         if not refused or not moved:
             escaped.append(name)
+    # ACMP's declined offers counted once a send (#908): the rule is two a send and one, which the rows count
+    saved = planted_rule('acmp_items', lambda sends, c: {'item.acmp': sends * c['item.acmp'],
+                                                         'item.acmp_declined': (sends + 1) * c['item.acmp_declined']})
+    try:
+        refused = any('declined ACMP offers at' in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
+    finally:
+        planted_rule('acmp_items', saved)
+    if not refused:
+        escaped.append("ACMP's declined offers counted once a send")
     # a retained record's retry counted in SRP's own rows, which are solved with no record refused for storage
     saved = planted_rule('RETAINED_ROWS', ('R4', 'R5', 'R6'))
     try:
@@ -340,7 +349,8 @@ def row_control_names(root: Path) -> tuple[str, ...]:
 #: The arrival rules' controls rule_controls() plants, in its order.
 RULE_CONTROLS = ('the arrival rules not held at this head', 'the retained retry counted once a pass',
                  "SRP's arrivals cut by AECP's whole burst", "SRP's arrivals cut by two records of AECP",
-                 'a retained retry in an SRP row', 'a retry rule the tree does not state',
+                 "ACMP's declined offers counted once a send", 'a retained retry in an SRP row',
+                 'a retry rule the tree does not state',
                  'a datapath event neither counted nor excluded')
 
 

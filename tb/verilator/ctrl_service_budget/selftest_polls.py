@@ -81,12 +81,14 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
     kinds = [k for k in LABELS]
     one, two = poll_grade.stated_us(1), poll_grade.stated_us(2)
-    out = [("each point's polls costs are stated, every item's, a long notice's and the base's, the 8x8/2if base "
-            "dearer than the 1x1/1if's", sorted(one) == sorted(two) == sorted(['base', *kinds, poll_grade.LONG]) and
+    out = [("each point's polls costs are stated, every item's, a long notice's, a declined ACMP offer's and the "
+            "base's, the 8x8/2if base dearer than the 1x1/1if's",
+            sorted(one) == sorted(two) == sorted(['base', *kinds, poll_grade.LONG, poll_grade.DECLINED]) and
             all(one.values()) and
             all(two.values()) and two['base'] > one['base'], str((one, two))),
-           ("the testbench traces a pass's first and last firmware poll and every heavy item",
-            {FIRST, LAST, *LABELS.values()} <= {traced_label(n) for n in build.SPAN_SYMBOLS} and
+           ("the testbench traces a pass's first and last firmware poll, every heavy item and ACMP's offers",
+            {FIRST, LAST, *LABELS.values(), 'acmp_rx', 'acmp_mbx:on_frame'} <=
+            {traced_label(n) for n in build.SPAN_SYMBOLS} and
             {k: v[0] for k, v in poll_grade.ITEMS.items()} == LABELS, '')]
     every = tuple((k, limit(k) // 4, False) for k in kinds)
     at, over = held(limit('base'), every), held(limit('base') + 1, every)
@@ -136,7 +138,7 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                               record_share_findings=True)
     out.append(("a pass's base over its stated cost fails a run whatever findings it records",
                 run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, ''))
-    return out + long_checks(held, limit) + reference_checks()
+    return out + long_checks(held, limit) + offer_checks(synthetic, sys_hz, cpu_hz) + reference_checks()
 
 
 def long_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Check]:
@@ -174,6 +176,66 @@ def long_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Ch
     return out
 
 
+def offer_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
+    """ACMP's item is its send, the offers THE KEPT COMMAND's redelivery nests in it subtracted from it and from the
+    base; an offer is declined exactly when the next is the kept record's re-offer, held to its own cost; the kept
+    record's accepted re-offer is held to the ACMP record's; the declines are at most two a send and one (#908)."""
+    ratio, acmp = sys_hz // cpu_hz, scenario.CH['acmp']
+    limit = lambda kind: poll_grade.stated_us(1)[kind] * cpu_hz // 1_000_000
+    kept_limit = poll_grade.record_us(1) * cpu_hz // 1_000_000
+    span = lambda at, cycles, label: f'SPAN {ratio * at} {at} {cycles} 00002000 {label}'
+
+    def graded(item: int, nested: tuple = (), before: tuple = (), after: tuple = ()) -> dict:
+        """One pass's polls at one interface, base 1,000 cycles, its ACMP item `item` CPU cycles committing a frame,
+        the offers nested in it, and handler offers before the polls and offers after them: each (cycles, the kept
+        record's re-offer?)."""
+        lines, at = [], 1_000
+        for cycles, kept in before:
+            lines.append(span(at, cycles, poll_items.OFFER if kept else poll_items.HANDLER))
+            at += cycles + 10
+        start = 10_000
+        lines += [span(start, 50, FIRST), span(start + 60, item, LABELS['acmp']),
+                  f'TXC {ratio * (start + 65)} {acmp} 0']
+        inner = start + 70
+        for cycles, kept in nested:
+            lines.append(span(inner, cycles, poll_items.OFFER if kept else poll_items.HANDLER))
+            inner += cycles + 1
+        end = start + 60 + item + 1_000 - 50 - 10 - 40
+        lines.append(span(end, 40, LAST))
+        at = end + 500
+        for cycles, kept in after:
+            lines.append(span(at, cycles, poll_items.OFFER if kept else poll_items.HANDLER))
+            at += cycles + 10
+        lines.insert(0, f'PASS 1 {ratio * (start - 10)} {start - 10} {end - start + 520 + 10 * ratio} instr=10 '
+                        f'store_mbx=1 W {ratio * start}:1:0')
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, 1)['passes']['polls']
+
+    item, kept, rec = limit('acmp') + 4_000, (3_000, True), (2_000, False)
+    split = graded(item, (kept, rec))
+    out = [('an ACMP item is its send: the kept record\'s re-offer and the records the redelivery hands to their '
+            'handler are subtracted from it and from the base',
+            split['heaviest']['acmp'] == item - 5_000 and split['heaviest']['base'] == 1_000 and
+            not [o for o in split['over'] if o['kind'] in ('acmp', 'base')], str(split))]
+    told = graded(limit('acmp') + 5_000, (kept, rec), before=((limit(poll_grade.DECLINED), False),), after=(rec,))
+    out.append(('an offer the kept record\'s re-offer follows is declined and held to its own cost, and the kept '
+                'record\'s re-offer the next record follows is accepted and held to the ACMP record\'s',
+                told['heaviest'][poll_grade.DECLINED] == limit(poll_grade.DECLINED) and
+                told['heaviest'][poll_grade.KEPT] == 3_000 and told['over'] == [], str(told)))
+    dear = graded(limit('acmp') + kept_limit + 2_001, ((kept_limit + 1, True), rec),
+                  before=((limit(poll_grade.DECLINED) + 1, False),))
+    named = run.stated_misses([dict(group='o', passes=dict(polls=dear))])
+    out.append(('a declined ACMP offer over its stated cost, and a kept command\'s accepted offer over the ACMP '
+                'record\'s, are named, with the cost each passed',
+                named == [f"o: a declined ACMP offer of {limit(poll_grade.DECLINED) + 1:,} CPU cycles, over its "
+                          f"stated {limit(poll_grade.DECLINED):,}",
+                          f"o: a kept ACMP command's accepted offer of {kept_limit + 1:,} CPU cycles, over its stated "
+                          f"{kept_limit:,}"], str(named)))
+    tight = graded(limit('acmp'), before=((100, False), (100, True)), after=((100, True), (100, True), (100, True)))
+    bound = run.stated_misses([dict(group='d', passes=dict(polls=tight))])
+    out.append(('declined ACMP offers over two a sent owed frame and one are refused, named with the sends',
+                bound == ['d: 4 declined ACMP offers, over their bound of two a sent owed frame and one (1 sent)'],
+                str(bound)))
+    return out
 
 
 def reference_checks() -> list[Check]:

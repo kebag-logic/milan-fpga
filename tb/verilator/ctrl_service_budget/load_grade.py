@@ -42,7 +42,11 @@ The terms (per millisecond):
                  mailbox.yaml counters_changed), in THE RETRY's rounds, each a round's own at its stated costs
                  (aecp_mbx.h: AECP_ROUND_COLD_US and AECP_NOTICE_US, which round_grade.py holds every round to).
   item.acmp      ACMP's owed frame: one an ACMP record, one an ADP record (a bound talker's ENTITY_AVAILABLE, Milan
-                 v1.2 5.6.4.1) and one a sink's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26: ACMP_TMR_NO_RESP_MS).
+                 v1.2 5.6.4.1) and one a sink's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26: ACMP_TMR_NO_RESP_MS);
+                 its send less the offers THE KEPT COMMAND's redelivery nests in it, whose accepted ones are ACMP's
+                 records, a command once (rec.acmp, #908).
+  item.acmp_declined  ACMP's declined offers (acmp_mbx.c: a command acmp_rx declines is kept and offered again
+                 after a send): at most two an owed frame sent, so twice item.acmp's rate (poll_grade.py, #908).
   ticks          a TICK a centisecond (mailbox.yaml tick_ms), each its consumers at the larger of their measured and
                  their stated cost (ctrl_loop.h, CTRL_LOOP_TICK_US).
   item.walk      an interface's registrar walk, at most one an interface a centisecond of lwSRP's timers, and one a
@@ -137,7 +141,8 @@ STATED_US = {
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
-                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp.notice': 350,
+                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.acmp_declined': 0,
+                  'item.aecp.notice': 350,
                   'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 135,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
 #: The stated costs with tsn-c-stack#32 at the pin (a scratch build of this tree's image whose stack is the pin with the
@@ -161,16 +166,17 @@ STATED_US_DONOR = {
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 65, 'event.TICK': 45,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
-                'item.mrpdu': 430, 'item.acmp': 125, 'item.walk': 35, 'build': 1010, 'build_one': 430, 'step': 975},
+                'item.mrpdu': 430, 'item.acmp': 50, 'item.walk': 35, 'build': 1010, 'build_one': 430, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 325, 'item.reclaim': 40, 'item.retained': 365,
-                'item.mrpdu': 1215, 'item.acmp': 165, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
+                'item.mrpdu': 1215, 'item.acmp': 65, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,
-                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 105, 'item.aecp.notice': 350,
+                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 105, 'item.acmp_declined': 0,
+                  'item.aecp.notice': 350,
                   'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 140,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
 #: The column stated() and the controls read by default: the donor's, the load the pin move owes.
@@ -194,7 +200,7 @@ ADP_LEAST_VALID_MS = 2000
 #: 0, 11.5.2.2) and an announce receipt timeout (announceReceiptTimeout 3 intervals, 10.7.3.2).
 GM_INTERVALS_MS = (1000, 1000, 3000)
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
-ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk')
+ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
 HEADER_COSTS = ('CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_STEP_PASS_US')
 #: The retained receive's retry rule (#665), each part as the tree states it, read with
@@ -304,7 +310,9 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     out['item.aecp'] = record_frame / refill['aecp'] + n_if * s['registrations'] * c['item.aecp.probe'] / probe
     out['notices'] = s['counter_descriptors'] * (h['AECP_ROUND_COLD_US'] + h['AECP_NOTICE_US']) / k['holdoff_ms']
     no_resp = h['ACMP_TMR_NO_RESP_MS']
-    out['item.acmp'] = c['item.acmp'] * (1 / refill['acmp'] + 1 / refill['adp'] + n_if * s['sinks_per_if'] / no_resp)
+    sends = 1 / refill['acmp'] + 1 / refill['adp'] + n_if * s['sinks_per_if'] / no_resp
+    out['item.acmp'] = c['item.acmp'] * sends
+    out['item.acmp_declined'] = c['item.acmp_declined'] * 2 * sends
     out['ticks'] = (c['event.TICK'] + max(c['centisecond'], h['CTRL_LOOP_TICK_US'])) / k['tick_ms']
     out['item.walk'] = c['item.walk'] * (n_if / k['tick_ms'] + n_builds / join_ms)
     out['builds'] = builds / join_ms
