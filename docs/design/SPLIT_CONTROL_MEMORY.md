@@ -713,6 +713,17 @@ It then required one control hart: in the split placement it is RV32IM, with a 4
 [The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeated that wording.
 The owner amended it again on 2026-10-29 for a larger instruction cache ([section 13](#13-the-larger-fetch-l1-and-the-record-mover)).
 
+### SRP's state and the store's, apart
+
+Being direct-mapped, the cache holds one line a set, so two objects that each pass reads evict each other where their lines share sets.
+SRP's state and the saved-state store's are two such objects: every pass's polls read SRP's interfaces and the store's status.
+After KLJ3 grew the store's state (`nvm_store.c`'s `nvm`, 296 to 552 B), its nine lines fell on the sets of SRP's state's first nine, and the polls' heaviest base grew about 4,400 cycles on unchanged instructions ([section 13](#the-polls-base-and-acmps-item-908)).
+So [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld) opens `.bss` with SRP's state and then the store's (#908).
+Laid out one after the other, 62 lines between them, they share no set.
+The size fixture links SRP's state as its own object (`image_srp`), and [`ctrl_hot.py`](../../sw/firmware/ctrl/test/ctrl_hot.py)'s SETS rule holds both the script's order and, from each image's link map, that the two share no set but a line they both hold.
+Its self-test plants the two lines dropped, swapped, and the sets shared.
+The platform image keeps SRP's state inside `ctrl_plat`, so the first pattern places nothing there and the store's state opens `.bss`; its sets there are not measured, as no platform image is.
+
 ## 10. The CPU clock the composed rows need
 
 The owner kept this cache and contract 2.2's admission, and asked for the split CPU clock that brings every composed row within T_svc, measured before the product clock is set ([decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6474448683)).

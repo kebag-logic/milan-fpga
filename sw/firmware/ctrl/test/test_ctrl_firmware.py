@@ -81,10 +81,12 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            with ACMP and SRP at one and two interfaces; every generated AEM
            image, mailbox completion ordering, latency and debug guards;
   hot      ctrl_hot.py: the split link script's hot list is the order
-           plat/ctrl_split_hot.txt records with its traces, and the gate's
-           self-test refuses each of its named planted defects by its own
-           rule (#665). ctrl_srp_image.py applies the gate to every split
-           image it links, its link map naming each entry's section.
+           plat/ctrl_split_hot.txt records with its traces, its .bss opens
+           with SRP's state and then the store's, which share no line set
+           of the data cache (#908), and the gate's self-test refuses each
+           of its named planted defects by its own rule (#665).
+           ctrl_srp_image.py applies the gate to every split image it
+           links, its link map naming each entry's section.
            image, mailbox completion ordering, latency and debug guards.
   plat, platboot, platrv32, plattrace
            the split platform (plat_arms.py): its CSR window, console and MMIO

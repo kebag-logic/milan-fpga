@@ -247,6 +247,14 @@ SECTIONS
 	.bss (NOLOAD) : ALIGN(4)
 	{
 		_fbss = .;
+		/* SRP's state, then the store's (#908): every pass's polls read both, and
+		 * laid out one after the other they share no line set of the 8 KiB
+		 * direct-mapped data cache. Where they did, each pass refilled the
+		 * lines one evicted from the other. A pattern that matches no section
+		 * (the platform image keeps SRP's state in ctrl_plat) places nothing;
+		 * ctrl_hot.py's SETS rule holds the order and the linked sets. */
+		*(.bss.image_srp)
+		*-nvm_store.o(.bss.nvm)
 		*(.bss .bss.* .sbss .sbss.* COMMON)
 		. = ALIGN(4);
 		_ebss = .;
