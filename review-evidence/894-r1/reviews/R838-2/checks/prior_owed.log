@@ -1,0 +1,51 @@
+mutant=False rc=0
+Note: Google Test filter = Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Queued
+[ RUN      ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+[       OK ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed (0 ms)
+[----------] 1 test from Queued (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== AECP core: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+mutant=True rc=1
+Note: Google Test filter = Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Queued
+[ RUN      ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+$REVIEWS/r838-2-894/sw/firmware/ctrl/test/test_aecp.cpp:1734: Failure
+Value of: a.locked&&a.notify
+  Actual: false
+Expected: true
+and runs no lock expiry beside it
+
+  [FAIL] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed: and runs no lock expiry beside it
+$REVIEWS/r838-2-894/sw/firmware/ctrl/test/test_aecp.cpp:1738: Failure
+Expected equality of these values:
+  order
+    Which is: { 16, 16, 1, 1, 1 }
+  (std::vector<unsigned>{16u,16u,44u,44u,1u,1u,1u})
+    Which is: { 16, 16, 44, 44, 1, 1, 1 }
+the queue's notice, the longer one, then the lock's expiry to every controller
+
+  [FAIL] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed: the queue's notice, the longer one, then the lock's expiry to every controller
+[  FAILED  ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed (0 ms)
+[----------] 1 test from Queued (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+PASS: baseline passes; the earlier missing assertion now catches its planted defect.

@@ -1,0 +1,46 @@
+Command: python3 -B $REVIEWS/894-r838-2-packet/probe_join.py $REVIEWS/r838-2-894
+{
+  "1191": {
+    "count": 1,
+    "shortest": 191.0,
+    "longest": 191.0,
+    "over": []
+  },
+  "1241": {
+    "count": 1,
+    "shortest": 241.0,
+    "longest": 241.0,
+    "over": [
+      {
+        "ms": 241.0,
+        "who": "if0 MSRP",
+        "end_sys": 124100000
+      }
+    ]
+  },
+  "1289": {
+    "count": 1,
+    "shortest": 289.0,
+    "longest": 289.0,
+    "over": [
+      {
+        "ms": 289.0,
+        "who": "if0 MSRP",
+        "end_sys": 128900000
+      }
+    ]
+  },
+  "1291": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": []
+  },
+  "1500": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": []
+  }
+}
+REPRODUCED: 291 ms and 500 ms intervals disappear beyond the 100 ms build horizon.

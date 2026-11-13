@@ -1,0 +1,399 @@
+{
+  "point": "1x1/1if",
+  "cost_table_us": {
+    "record.srp": 280,
+    "record.aecp": 235,
+    "record.acmp": 280,
+    "record.adp": 105,
+    "record.maap": 90,
+    "event.ADP": 115,
+    "event.ACMP": 185,
+    "event.MAAP": 165,
+    "event.AECP": 65,
+    "event.TICK": 45,
+    "event.GM": 40,
+    "centisecond": 150,
+    "events_none": 30,
+    "item.retained": 280,
+    "item.aecp.notice": 210,
+    "item.aecp.response": 60,
+    "item.aecp.probe": 60,
+    "base": 205,
+    "item.reclaim": 25,
+    "item.mrpdu": 725,
+    "item.acmp": 50,
+    "item.walk": 35,
+    "item.acmp_declined": 20,
+    "build": 1010,
+    "build_one": 725,
+    "step": 975,
+    "item.withdraw": 90,
+    "item.rebuild": 290,
+    "item.aecp": 210,
+    "event.LINK": 150,
+    "event.AVB_INFO_CHANGED": 35,
+    "event.AS_PATH_CHANGED": 35,
+    "event.AMAP_LIVE_WRITE": 25,
+    "item.aecp.long": 365,
+    "record.aecp.long": 940
+  },
+  "header_inputs": {
+    "CTRL_LOOP_DRAIN_US": 1300,
+    "CTRL_LOOP_RX_PER_PASS": 2,
+    "CTRL_LOOP_STEP_AGE": 2,
+    "CTRL_LOOP_STEP_PASS_US": 975,
+    "CTRL_LOOP_BUILD_PASS_US": 1010,
+    "CTRL_LOOP_BUILD_ONE_PASS_US": 725,
+    "CTRL_LOOP_SHARE_US": 2000,
+    "CTRL_LOOP_SHARE_MARGIN_US": 65,
+    "CTRL_LOOP_TICK_US": 430,
+    "AECP_NOTICE_US": 255,
+    "AECP_ROUND_COLD_US": 85,
+    "AECP_ROUND_PACE_MS": 2,
+    "AECP_ROUND_YIELD_PACE_MS": 4,
+    "AECP_ROUND_YIELD_NOTICES": 1,
+    "AECP_ROUND_YIELDS": 0,
+    "AECP_ROUND_FIRM_NOTICES": 12,
+    "AECP_NOTICES_MOST": 12,
+    "AECP_QUEUED_FIRST_MS": 20,
+    "AECP_QUEUED_MS": 130
+  },
+  "rates": {
+    "adp": [
+      8,
+      10
+    ],
+    "acmp": [
+      16,
+      5
+    ],
+    "aecp": [
+      16,
+      5
+    ],
+    "maap": [
+      8,
+      20
+    ],
+    "srp": [
+      32,
+      2
+    ]
+  },
+  "pace_ms": 6,
+  "selected_pace_ms": 6,
+  "slice_choice": [
+    900,
+    0.00019999999999996022
+  ],
+  "bounds_ms": {
+    "R4": 20,
+    "R5": 90,
+    "R6": 90,
+    "first": 20,
+    "last": 130,
+    "R4L": 240,
+    "ACMP": 30,
+    "ADP": 30,
+    "MAAP": 30,
+    "tx": 50,
+    "txL": 50
+  },
+  "rows": {
+    "R4": [
+      12.82,
+      {
+        "ticks": 0.95,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 1.435,
+        "aecp": 3.76,
+        "others": 0.95,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.07,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.25,
+        "item.acmp_declined": 0.22,
+        "item.aecp": 1.05,
+        "passes": 1.175,
+        "datapath": 0.475
+      }
+    ],
+    "R5": [
+      72.71,
+      {
+        "ticks": 3.8,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 3.36,
+        "others": 18.015,
+        "srp": 8.96,
+        "item.retained": 2.52,
+        "builds": 1.45,
+        "item.mrpdu": 2.9,
+        "item.withdraw": 0.09,
+        "item.rebuild": 0.29,
+        "gm": 0.12,
+        "steps": 2.925,
+        "item.walk": 0.35,
+        "item.reclaim": 1.95,
+        "item.acmp": 1.95,
+        "item.acmp_declined": 1.58,
+        "item.aecp": 8.19,
+        "links": 0.15,
+        "passes": 9.165,
+        "datapath": 3.705
+      }
+    ],
+    "R6": [
+      68.62,
+      {
+        "ticks": 3.325,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 3.245,
+        "others": 17.395,
+        "srp": 8.96,
+        "item.retained": 2.24,
+        "builds": 1.45,
+        "item.mrpdu": 2.9,
+        "gm": 0.12,
+        "steps": 2.925,
+        "item.walk": 0.315,
+        "item.reclaim": 1.8,
+        "item.acmp": 1.8,
+        "item.acmp_declined": 1.46,
+        "item.aecp": 7.56,
+        "passes": 8.46,
+        "datapath": 3.42
+      }
+    ],
+    "first": [
+      14.5,
+      {
+        "ticks": 0.475,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 0.895,
+        "others": 1.42,
+        "gm": 0.08,
+        "steps": 0.975,
+        "item.walk": 0.035,
+        "item.reclaim": 0.1,
+        "item.acmp": 0.1,
+        "item.acmp_declined": 0.1,
+        "item.aecp": 0.42,
+        "passes": 0.47,
+        "datapath": 0.19,
+        "spacing": 8.0
+      }
+    ],
+    "last": [
+      125.84,
+      {
+        "ticks": 5.7,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 3.82,
+        "others": 23.25,
+        "srp": 25.2,
+        "item.retained": 3.64,
+        "builds": 1.45,
+        "item.mrpdu": 2.9,
+        "rounds": 3.315,
+        "gm": 0.12,
+        "steps": 3.9,
+        "item.walk": 0.49,
+        "item.reclaim": 3.4,
+        "item.acmp": 3.0,
+        "item.acmp_declined": 2.42,
+        "item.aecp": 11.55,
+        "passes": 15.98,
+        "datapath": 6.46,
+        "spacing": 8.0
+      }
+    ],
+    "R4L": [
+      158.34,
+      {
+        "ticks": 0.475,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 1.075,
+        "aecp": 0.94,
+        "others": 0.95,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.035,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.15,
+        "item.acmp_declined": 0.14,
+        "item.aecp": 1.095,
+        "passes": 0.705,
+        "datapath": 0.285,
+        "pace": 150.0
+      }
+    ],
+    "ACMP": [
+      28.35,
+      {
+        "ticks": 1.425,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 2.33,
+        "own": 4.48,
+        "aecp": 4.935,
+        "others": 1.86,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.105,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.85,
+        "item.acmp_declined": 0.7,
+        "item.aecp": 3.57,
+        "passes": 3.995,
+        "datapath": 1.615
+      }
+    ],
+    "ADP": [
+      26.76,
+      {
+        "ticks": 1.425,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 2.07,
+        "own": 0.84,
+        "aecp": 4.935,
+        "others": 6.69,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.105,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.65,
+        "item.acmp_declined": 0.54,
+        "item.aecp": 2.73,
+        "passes": 3.055,
+        "datapath": 1.235
+      }
+    ],
+    "MAAP": [
+      26.88,
+      {
+        "ticks": 1.425,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 2.07,
+        "own": 0.72,
+        "aecp": 4.935,
+        "others": 6.93,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.105,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.65,
+        "item.acmp_declined": 0.54,
+        "item.aecp": 2.73,
+        "passes": 3.055,
+        "datapath": 1.235
+      }
+    ],
+    "tx": [
+      29.78,
+      {
+        "ticks": 1.425,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 2.265,
+        "others": 12.675,
+        "builds": 0.725,
+        "gm": 0.12,
+        "steps": 0.975,
+        "item.walk": 0.105,
+        "item.reclaim": 0.15,
+        "item.acmp": 0.8,
+        "item.acmp_declined": 0.66,
+        "item.aecp": 3.36,
+        "passes": 3.76,
+        "datapath": 1.52
+      }
+    ],
+    "txL": [
+      49.99,
+      {
+        "ticks": 2.375,
+        "notice": 0.34,
+        "slice": 0.9,
+        "timers": 3.015,
+        "others": 21.38,
+        "builds": 0.725,
+        "gm": 0.12,
+        "steps": 1.95,
+        "item.walk": 0.175,
+        "item.reclaim": 0.15,
+        "item.acmp": 1.2,
+        "item.acmp_declined": 0.98,
+        "item.aecp": 8.76,
+        "passes": 5.64,
+        "datapath": 2.28
+      }
+    ]
+  },
+  "arithmetic_spotchecks": {
+    "record.aecp.long": {
+      "published_max_cycles": 89126,
+      "max_plus_5pct_rounded_up_5us": 940,
+      "stated_us": 940,
+      "holds": true
+    },
+    "item.aecp.long": {
+      "published_max_cycles": 34359,
+      "max_plus_5pct_rounded_up_5us": 365,
+      "stated_us": 365,
+      "holds": true
+    },
+    "item.acmp": {
+      "published_max_cycles": 4744,
+      "max_plus_5pct_rounded_up_5us": 50,
+      "stated_us": 50,
+      "holds": true
+    },
+    "item.acmp_declined": {
+      "published_max_cycles": 1589,
+      "max_plus_5pct_rounded_up_5us": 20,
+      "stated_us": 20,
+      "holds": true
+    },
+    "base": {
+      "published_max_cycles": 19159,
+      "max_plus_5pct_rounded_up_5us": 205,
+      "stated_us": 205,
+      "holds": true
+    },
+    "build_one": {
+      "published_max_cycles": 68951,
+      "max_plus_5pct_rounded_up_5us": 725,
+      "stated_us": 725,
+      "holds": true
+    },
+    "AVB_INFO_CHANGED": {
+      "published_max_cycles": 3196,
+      "max_plus_5pct_rounded_up_5us": 35,
+      "stated_us": 35,
+      "holds": true
+    },
+    "AS_PATH_CHANGED": {
+      "published_max_cycles": 2906,
+      "max_plus_5pct_rounded_up_5us": 35,
+      "stated_us": 35,
+      "holds": true
+    },
+    "AMAP_LIVE_WRITE": {
+      "published_max_cycles": 2333,
+      "max_plus_5pct_rounded_up_5us": 25,
+      "stated_us": 25,
+      "holds": true
+    }
+  },
+  "limit": "Spot checks verify arithmetic on published maxima; they do not establish a new maximum over unprovided raw traces or adversarial commands."
+}
