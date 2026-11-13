@@ -1,0 +1,13 @@
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 12.71 | 20 | -7.29 | 5 | aecp 3.760, timers 1.410, slice 1.200, item.aecp 1.050, steps 0.975, ticks 0.950, others 0.950, passes 0.950, datapath 0.450, notice 0.340, item.acmp 0.325, item.reclaim 0.200, gm 0.105, item.walk 0.040 |
+| 1x1/1if | R5 | 54.59 | 90 | -35.41 | 29 | others 15.655, srp 8.000, item.aecp 6.090, passes 5.510, timers 3.010, ticks 2.850, datapath 2.610, steps 1.950, item.acmp 1.885, item.retained 1.500, item.reclaim 1.450, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.rebuild 0.290, links 0.150, item.walk 0.140, gm 0.105, item.withdraw 0.090 |
+| 1x1/1if | R6 | 52.85 | 90 | -37.15 | 27 | others 15.655, srp 8.000, item.aecp 5.670, passes 5.130, timers 3.010, ticks 2.850, datapath 2.430, steps 1.950, item.acmp 1.755, item.retained 1.500, item.reclaim 1.350, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.walk 0.140, gm 0.105 |
+| 1x1/1if | first | 14.60 | 20 | -5.40 | 2 | spacing 8.000, others 1.420, slice 1.200, steps 0.975, timers 0.885, ticks 0.475, item.aecp 0.420, passes 0.380, notice 0.340, datapath 0.180, item.acmp 0.130, item.reclaim 0.100, gm 0.070, item.walk 0.020 |
+| 1x1/1if | last | 91.59 | 125 | -33.41 | 44 | others 19.240, srp 18.250, item.aecp 9.240, passes 8.360, spacing 8.000, ticks 4.275, datapath 3.960, timers 3.355, rounds 3.060, steps 2.925, item.acmp 2.860, item.retained 2.250, item.reclaim 2.200, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.walk 0.200, gm 0.105 |
+| 1x1/1if | tx (reported) | 29.00 | 20 | +9.00 | 16 | others 12.675, item.aecp 3.360, passes 3.040, timers 2.185, datapath 1.440, ticks 1.425, slice 1.200, item.acmp 1.040, steps 0.975, builds 0.955, notice 0.340, item.reclaim 0.200, gm 0.105, item.walk 0.060 |
+every row within its bound
+
+rc=0

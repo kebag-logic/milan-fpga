@@ -1,0 +1,10 @@
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 1x1/1if | R4 | 74.27 | 20 | +54.27 | srp 16.75, others 10.96, item.retained 9.00 |
+| 1x1/1if | R5 | 38.82 | 90 | -51.18 | others 9.18, srp 8.00, item.retained 3.25 |
+| 1x1/1if | R6 | 33.15 | 90 | -56.85 | srp 8.00, others 5.68, rounds 3.23 |
+| 1x1/1if | first | 20.00 | 20 | +0.00 | AECP_QUEUED_FIRST_MS 20.00 |
+| 1x1/1if | last | 125.00 | 125 | +0.00 | AECP_QUEUED_MS 125.00 |
+OVER 1x1/1if R4: by every source 74.27 ms, over its bound 20 ms; the largest term srp 16.75 ms
+RESULT: FAIL
+rc=1

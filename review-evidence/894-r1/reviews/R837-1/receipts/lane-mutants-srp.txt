@@ -1,0 +1,36 @@
+srp: 4 resumed-build defects
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-resumed-from-the-first-participant: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a build resumed across slices sends the frames of the build made whole
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-whole-in-any-slice: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a slice that holds one MRPDU makes one
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/mut-srp/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-resumed-past-a-reset: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a reset ends the build it was resuming: its new participants build whole, MSRP first
+[ok] build-resumed-from-the-first-participant: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a build resumed across slices sends the frames of the build made whole
+[ok] build-whole-in-any-slice: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a slice that holds one MRPDU makes one
+[ESCAPED] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+Note: Google Test filter = SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (2 ms)
+[----------] 1 test from SrpRetry (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP receive recovery: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] build-resumed-past-a-reset: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a reset ends the build it was resuming: its new participants build whole, MSRP first
+RESULT: ESCAPED

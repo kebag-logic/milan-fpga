@@ -1,0 +1,37 @@
+ctrl: 17 tier mutants
+[ok] mutant tier1-others-beside-the-first (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and no other tier-1 channel's record while it holds one it would take
+[ok] mutant tier1-first-to-its-cap (port): 3 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 with a clock it goes past its cap while the pass has room
+[ok] mutant tier1-first-past-its-time (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US
+[ok] mutant tier1-held-by-a-module-not-ready (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+[ok] mutant tier1-held-by-an-empty-ring (port): 33 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+[ok] mutant tier2-beside-tier1 (port, port): 16 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+[ok] mutant whole-beside-tier1 (port): 8 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that finds its ring empty leaves tier 1 holding nothing
+[ok] mutant holds-a-module-not-ready (port): 4 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+[ok] mutant whole-row-beside-tier1 (port): 7 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass takes the input it held off
+[ok] mutant round-before-the-drain (port): 2 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round waits while THE DRAIN's channel was left a record (SRP first)
+[ok] mutant drained-beside-the-drain (port): 2 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a pass that takes THE DRAIN's cap leaves a record of its channel
+[ok] mutant first-notice-not-tier1 (port): 2 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+[ok] mutant round-one-never-told (port): 6 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a tier-1 record is held (THE TIERS)
+[ok] mutant round-slice-is-the-share (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass given whole has a slice from the pass's start
+[ok] mutant slice-end-past-the-deadline (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+[ok] mutant slice-starts-at-the-cap (port): 2 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+[ok] mutant transmit-told-a-whole-build (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 told the MRPDUs its slice holds (THE TIERS)
+mutants: 17 of 17 caught
+RESULT: ALL CAUGHT

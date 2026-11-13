@@ -1,0 +1,30 @@
+== arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8 rc=1
+PROBE MBX_N_IF=1 whole(most=2): revoked=1 granted=1 gap=0 polled=0 | sliced(most=1): revoked=1 granted=1 gap=1 polled=0
+$REVIEWS/894-r837-1-packet/scratch/probe-srp/sw/firmware/ctrl/test/srp_mbx.cpp:1805: Failure
+Value of: gap[1]
+  Actual: true
+Expected: false
+no slice boundary stands between the adoption and its MVRP commit
+  [FAIL] Srp.ProbeReviewerDomainAdoptionAcrossSlices: no slice boundary stands between the adoption and its MVRP commit
+[  FAILED  ] Srp.ProbeReviewerDomainAdoptionAcrossSlices (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeReviewerDomainAdoptionAcrossSlices
+ 1 FAILED TEST
+wrote $REVIEWS/894-r837-1-packet/scratch/srp-probe-out/if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/srp-probe-out/if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/894-r837-1-packet/scratch/srp-probe-out/if2/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+== arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8 rc=1
+PROBE MBX_N_IF=2 whole(most=2): revoked=1 granted=1 gap=0 polled=0 | sliced(most=1): revoked=1 granted=1 gap=1 polled=0
+$REVIEWS/894-r837-1-packet/scratch/probe-srp/sw/firmware/ctrl/test/srp_mbx.cpp:1805: Failure
+Value of: gap[1]
+  Actual: true
+Expected: false
+no slice boundary stands between the adoption and its MVRP commit
+  [FAIL] Srp.ProbeReviewerDomainAdoptionAcrossSlices: no slice boundary stands between the adoption and its MVRP commit
+[  FAILED  ] Srp.ProbeReviewerDomainAdoptionAcrossSlices (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeReviewerDomainAdoptionAcrossSlices
+ 1 FAILED TEST
+rc=1

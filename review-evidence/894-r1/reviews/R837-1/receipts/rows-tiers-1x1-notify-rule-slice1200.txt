@@ -1,0 +1,13 @@
+Model: under the tiers (slice 1200 us, tier 1 aecp-first, tier 2 srp-first, AECP notify)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 20.70 | 20 | +0.70 | 17 | aecp 3.760, item.aecp 3.570, passes 3.230 |
+| 1x1/1if | R5 | 54.59 | 90 | -35.41 | 29 | others 15.655, srp 8.000, item.aecp 6.090 |
+| 1x1/1if | R6 | 52.85 | 90 | -37.15 | 27 | others 15.655, srp 8.000, item.aecp 5.670 |
+| 1x1/1if | first | 14.60 | 20 | -5.40 | 2 | spacing 8.000, others 1.420, slice 1.200 |
+| 1x1/1if | last | 91.59 | 125 | -33.41 | 44 | others 19.240, srp 18.250, item.aecp 9.240 |
+| 1x1/1if | tx (reported) | 29.00 | 20 | +9.00 | 16 | others 12.675, item.aecp 3.360, passes 3.040 |
+OVER 1x1/1if R4: under the tiers (slice 1200 us, tier 1 aecp-first, tier 2 srp-first, AECP notify) 20.70 ms, over its bound 20 ms; the largest term aecp 3.76 ms
+
+rc=1
