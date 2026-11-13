@@ -254,14 +254,16 @@ LEDGERED: dict[str, Ledgered] = {
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
-                                         "granule: ROM debt owed to S14 on top of the 58.0 allowance, one half "
-                                         "tile, 528 B of sram past 55 granules (#665)"),
+                                         "granule: ROM debt owed to the hybrid XIP work (#665 decision D3) on top "
+                                         "of the 58.0 allowance, one half tile, 528 B of sram past 55 granules "
+                                         "(#665)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
-                                            "for the flip: ROM debt of 4.0 RAMB36 owed to S14 (#665)"),
+                                            "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
+                                            "(#665 decision D3)"),
 }
 
 
