@@ -127,20 +127,24 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     single = held(limit('base', 1) + 1, interfaces=1)
     out.append(("a pass at one interface is held to that point's costs",
                 [o['cycles'] for o in single['over']] == [limit('base', 1) + 1], str(single)))
+    return out + named_checks(held, limit) + long_checks(held, limit) + offer_checks(synthetic, sys_hz, cpu_hz) + \
+        join_checks(synthetic, sys_hz, cpu_hz, tx_record) + reference_checks()
+
+
+def named_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Check]:
+    """A base or an item over its stated cost is named and fails the run; held and limit are polls_checks'."""
     base_over = held(limit('base') + 1)
     item_over = held(limit('base'), (('withdraw', limit('withdraw') + 1, False),))
     named = run.stated_misses([dict(group='g', passes=dict(polls=base_over)),
                                dict(group='h', passes=dict(polls=item_over))])
-    out.append(("a pass's base or an item over its stated cost is named, with the cost it passed",
-                named == [f"g: a pass's polls base of {limit('base') + 1:,} CPU cycles, over its stated "
-                          f"{limit('base'):,}", f"h: a withdraw item of {limit('withdraw') + 1:,} CPU cycles, over "
-                          f"its stated {limit('withdraw'):,}"], str(named)))
     args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
                               record_share_findings=True)
-    out.append(("a pass's base over its stated cost fails a run whatever findings it records",
-                run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, ''))
-    return out + long_checks(held, limit) + offer_checks(synthetic, sys_hz, cpu_hz) + \
-        join_checks(synthetic, sys_hz, cpu_hz, tx_record) + reference_checks()
+    return [("a pass's base or an item over its stated cost is named, with the cost it passed",
+             named == [f"g: a pass's polls base of {limit('base') + 1:,} CPU cycles, over its stated "
+                       f"{limit('base'):,}", f"h: a withdraw item of {limit('withdraw') + 1:,} CPU cycles, over "
+                       f"its stated {limit('withdraw'):,}"], str(named)),
+            ("a pass's base over its stated cost fails a run whatever findings it records",
+             run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, '')]
 
 
 def long_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Check]:
