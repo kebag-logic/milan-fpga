@@ -2428,6 +2428,141 @@ TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
     EXPECT_EQ(aecp_map_restore(&a,&maps[1],outputs,2),0u);EXPECT_EQ(maps[1].count,2u);
 }
 
+// #904: an ADD_AUDIO_MAPPINGS or REMOVE_AUDIO_MAPPINGS is its definition, each mapping in its turn (IEEE 1722.1-2021
+// 7.4.45, 7.4.46; Milan v1.2 5.4.2.27, 5.4.2.28). A mapping is refused when it is not legal for its port, or at an
+// output port when the port, read for it, reports its stream running, or when another output port's map holds its
+// stream channel; an ADD's when an earlier mapping or a row of its port's map holds its key with another value; a
+// REMOVE's when its port's map does not hold it. An ADD past the map's room is NO_RESOURCES. Then each mapping in turn
+// adds itself where its map does not hold it, or removes the first row equal to it. Seeded edits of repeated and
+// conflicting mappings against maps that hold repeated rows, rows that conflict and keys spread over the command's
+// table: each edit's status, its port's map row for row, its CHANGE_MAP notice and the port's reads are the
+// definition's.
+TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
+{
+    constexpr uint16_t ILLEGAL=65535;   // no such stream: refused before its port is read
+    auto same=[](const aecp_mapping &x,const aecp_mapping &y){
+        return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;};
+    struct Outcome { unsigned status=0; std::vector<aecp_mapping> rows; unsigned reads=0; };
+    auto definition=[&](bool in,bool add,const std::vector<aecp_mapping> &held,size_t room,
+                        const std::vector<aecp_mapping> &owned,const std::vector<aecp_mapping> &edit,bool running){
+        auto key=[in](const aecp_mapping &r){
+            return in?std::make_pair(r.cluster,r.cluster_channel):std::make_pair(r.stream,r.channel);};
+        auto holds=[&](auto first,auto last,const aecp_mapping &r){
+            return std::any_of(first,last,[&](const aecp_mapping &x){return same(x,r);});};
+        Outcome o{0,held,0};
+        size_t additions=0;
+        for(size_t n=0;n<edit.size();++n){
+            const aecp_mapping &r=edit[n];
+            bool refused=r.stream==ILLEGAL;
+            if(!refused&&!in){
+                ++o.reads;
+                refused=running||std::any_of(owned.begin(),owned.end(),
+                                             [&](const aecp_mapping &x){return x.stream==r.stream&&x.channel==r.channel;});
+            }
+            for(size_t k=0;add&&k<n;++k)refused=refused||(key(edit[k])==key(r)&&!same(edit[k],r));
+            for(auto &x:held)refused=refused||(add&&key(x)==key(r)&&!same(x,r));
+            refused=refused||(!add&&!holds(held.begin(),held.end(),r));
+            if(refused){o.status=7;return o;}
+            additions+=add&&!holds(held.begin(),held.end(),r)&&!holds(edit.begin(),edit.begin()+n,r);
+        }
+        if(additions>room){o.status=8;return o;}
+        for(auto &r:edit){
+            auto at=std::find_if(o.rows.begin(),o.rows.end(),[&](const aecp_mapping &x){return same(x,r);});
+            if(add&&at==o.rows.end())o.rows.push_back(r);
+            if(!add&&at!=o.rows.end())o.rows.erase(at);
+        }
+        return o;
+    };
+    // The fixture's legal mappings: stream 0, its channel, the port's cluster and its first channel.
+    for(unsigned type:{14u,15u}){
+        ASSERT_GE((get(desc(type==14u?5u:6u).value+74,8)>>22)&1023,4u);
+        ASSERT_GE(get(desc(type).value+12,2),4u);
+        for(unsigned k=0;k<4;++k)ASSERT_GE(get(desc(20,get(desc(type).value+14,2)+k).value+84,2),1u);
+    }
+    uint32_t seed=0x904u;
+    auto next=[&]{seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;};
+    auto legal=[&]{return aecp_mapping{0,uint16_t(next()%4),uint16_t(next()%4),0};};
+    auto wide=[&]{return aecp_mapping{uint16_t(next()%8),uint16_t(next()%1024),uint16_t(next()%1024),uint16_t(next()%4)};};
+    std::array<aecp_mapping,8> other{};
+    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other.data(),0,other.size(),nullptr,0}};
+    a.cfg.maps=pools.data();a.cfg.map_count=pools.size();
+    unsigned reads=0,noted=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
+        ++reads;*v={};v->running=streaming;return observations;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change kind,uint16_t,uint16_t){noted+=kind==AECP_CHANGE_MAP;});
+    std::map<std::string,unsigned> seen;
+    for(unsigned c=0;c<4000&&!HasFailure();++c){
+        const bool in=next()%2,add=next()%2;
+        aecp_map &own=pools[in?0:1];
+        std::vector<aecp_mapping> held,lawful,owned,edit;
+        for(unsigned n=next()%9;n--;){
+            unsigned pick=next()%20;
+            aecp_mapping r=pick<12||held.empty()?legal():pick<15?held[next()%held.size()]:pick<17?legal():wide();
+            if(pick==15||pick==16)r.cluster_channel=1; // another cluster channel: not legal, and at an output a conflict
+            held.push_back(r);
+            if(pick<12||(pick<15&&r.cluster_channel==0&&r.stream==0&&r.channel<4&&r.cluster<4))lawful.push_back(r);
+        }
+        for(unsigned n=next()%4;n--;)owned.push_back(next()%3?legal():wide());
+        for(unsigned n=next()%11;n--;){
+            unsigned pick=next()%10;
+            if(!edit.empty()&&pick<3)edit.push_back(edit[next()%edit.size()]);
+            else if(!lawful.empty()&&pick<(add?5u:8u))edit.push_back(lawful[next()%lawful.size()]);
+            else edit.push_back(legal());
+        }
+        if(!edit.empty()&&next()%8==0)edit[next()%edit.size()]={ILLEGAL,0,0,0};
+        const size_t room=next()%3;
+        streaming=!in&&next()%10==0;
+        std::copy(held.begin(),held.end(),own.rows);own.count=held.size();own.capacity=held.size()+room;
+        std::copy(owned.begin(),owned.end(),other.begin());pools[2].count=owned.size();
+        const Outcome want=definition(in,add,held,room,owned,edit,streaming);
+        Bytes body=target(in?14:15,0,8+8*edit.size());put(body,4,edit.size(),2);
+        for(size_t k=0;k<edit.size();++k){
+            put(body,8+8*k,edit[k].stream,2);put(body,10+8*k,edit[k].channel,2);
+            put(body,12+8*k,edit[k].cluster,2);put(body,14+8*k,edit[k].cluster_channel,2);
+        }
+        reads=noted=0;
+        SCOPED_TRACE("edit "+std::to_string(c));
+        ask(add?44:45,body,want.status);
+        std::vector<aecp_mapping> got(own.rows,own.rows+own.count);
+        EXPECT_TRUE(got.size()==want.rows.size()&&std::equal(got.begin(),got.end(),want.rows.begin(),same))
+            <<"the edit's map is its definition's, row for row";
+        EXPECT_EQ(reads,want.reads)<<"the edit reads its port for each output mapping its definition reaches";
+        EXPECT_EQ(noted,want.status==0&&want.rows.size()!=held.size()?1u:0u)
+            <<"the edit notifies CHANGE_MAP where its definition changes the map";
+        const bool repeated=std::any_of(want.rows.begin(),want.rows.end(),[&](const aecp_mapping &x){
+            return std::any_of(edit.begin(),edit.end(),[&](const aecp_mapping &r){return same(x,r);});});
+        seen[std::string(add?"ADD ":"REMOVE ")+std::to_string(want.status)]++;
+        seen["a REMOVE that keeps a row equal to one it removed"]+=!add&&want.status==0&&repeated;
+        seen["an output edit refused after its port is read"]+=!in&&want.status==7&&want.reads!=0;
+    }
+    streaming=false;
+    for(auto name:{"ADD 0","ADD 7","ADD 8","REMOVE 0","REMOVE 7","a REMOVE that keeps a row equal to one it removed",
+                   "an output edit refused after its port is read"})
+        EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
+}
+
+// #904: a saved output map is refused whole where another output port's map in its configuration holds one of its
+// stream channels, as an ADD is, and a saved row is its own wherever any coordinate differs (Milan v1.2 5.4.2.27;
+// IEEE 1722.1-2021 7.4.45).
+TEST_F(Core, RestoredOutputMapsHaveOneGlobalOwner)
+{
+    a.open=false;
+    aecp_mapping other_rows[]={{0,3,0,0},{0,1,0,0}};
+    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other_rows,2,2,nullptr,0}};
+    a.cfg.maps=pools.data();a.cfg.map_count=pools.size();
+    aecp_mapping rows[]={{0,0,0,0},{0,1,1,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_BAD_ARGUMENTS))
+        <<"another output port owns stream channel 1";
+    EXPECT_EQ(pools[1].count,0u)<<"a refused saved map changes nothing";
+    pools[2].configuration=1;
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_SUCCESS))<<"a map of another configuration owns none";
+    EXPECT_EQ(pools[1].count,2u);
+    put(desc(20).value+84,2,2);
+    aecp_mapping channels[]={{0,0,0,0},{0,0,0,1}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[0],channels,2),unsigned(AECP_SUCCESS));
+    EXPECT_EQ(pools[0].count,2u)<<"a saved row that differs only in its cluster channel is its own";
+}
+
 TEST_F(Core, InitRefusalsAndClosedService)
 {
     auto original=cfg;

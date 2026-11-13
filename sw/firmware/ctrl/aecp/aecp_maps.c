@@ -2,6 +2,7 @@
 // Atomic dynamic map edits and fixed partitions, Milan v1.2 5.4.2.26-.28.
 #include "aecp_internal.h"
 #include "aecp_state.h"
+#include <stddef.h>
 
 static unsigned channels(uint64_t format)
 {
@@ -43,12 +44,6 @@ bool aecp_maps_allow_format(struct aecp *a, uint16_t type, uint16_t index, uint6
 	return true;
 }
 
-static struct aecp_mapping decode(const uint8_t *p)
-{
-	return (struct aecp_mapping){(uint16_t)wire_be16(p), (uint16_t)wire_be16(p + 2),
-		(uint16_t)wire_be16(p + 4), (uint16_t)wire_be16(p + 6)};
-}
-
 static void encode(uint8_t *p, const struct aecp_mapping *r)
 {
 	aecp_put16(p, r->stream);
@@ -80,7 +75,16 @@ static size_t position(const struct aecp_map *m, const struct aecp_mapping *r)
 	return m->count;
 }
 
-static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r, bool live)
+// Output stream channels have one owner across output ports: a map is
+// another's unless it is in another configuration, not an output port's, or
+// the port's own.
+static bool foreign(const struct aecp *a, const struct aecp_descriptor *port, const struct aecp_map *other)
+{
+	return !(other->configuration != a->configuration || other->type != 15u || other->index == port->index);
+}
+
+// Every check of a mapping but its output owner's, the port read last.
+static bool topology(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r, bool live)
 {
 	uint16_t type = port->type == 14u ? 5u : 6u;
 	struct aecp_descriptor *stream = aecp_find(a, a->configuration, type, r->stream);
@@ -102,16 +106,116 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 			return false;
 		}
 	}
-	if (type == 6u) {
-		for (size_t n = 0; n < a->cfg.map_count; ++n) {
-			const struct aecp_map *other = &a->cfg.maps[n];
-			if (other->configuration != a->configuration || other->type != 15u || other->index == port->index) continue;
-			for (size_t k = 0; k < other->count; ++k) {
-				if (other->rows[k].stream == r->stream && other->rows[k].channel == r->channel) return false;
-			}
+	return true;
+}
+
+static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r, bool live)
+{
+	if (!topology(a, port, r, live)) {
+		return false;
+	}
+	for (size_t n = 0; port->type != 14u && n < a->cfg.map_count; ++n) {
+		const struct aecp_map *other = &a->cfg.maps[n];
+		if (!foreign(a, port, other)) continue;
+		for (size_t k = 0; k < other->count; ++k) {
+			if (other->rows[k].stream == r->stream && other->rows[k].channel == r->channel) return false;
 		}
 	}
 	return true;
+}
+
+// One ADD or REMOVE_AUDIO_MAPPINGS (#904): each mapping decoded once into two
+// words, its stream and stream channel and its cluster and cluster channel,
+// and each distinct one held in a table by its key, so the command, its port's
+// map and the other output ports' maps are each one pass of lookups (IEEE
+// 1722.1-2021 7.4.45, 7.4.46; Milan v1.2 5.4.2.27, 5.4.2.28).
+#define MAP_SLOTS 256u
+_Static_assert(AECP_MAP_PAGE < MAP_SLOTS && MAP_SLOTS <= 256u, "a slot holds a mapping's index plus one");
+// EARLIER: an earlier mapping of its key differs; FOUND: its port's map holds
+// it; BARRED: a row it may not join holds its key, another value of it in its
+// port's map for an ADD, or any in another output port's map.
+enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u };
+struct edit {
+	bool input;
+	bool differs; // the last lookup met a held mapping of its key that differs
+	union held {
+		struct aecp_mapping r;
+		uint32_t w[2]; // the stream and its channel, then the cluster and its channel
+	} rows[AECP_MAP_PAGE];
+	uint8_t slot[MAP_SLOTS];       // 0, or one plus a distinct mapping
+	uint8_t rep[AECP_MAP_PAGE];    // the first mapping equal to each
+	uint8_t flags[AECP_MAP_PAGE];
+	uint8_t copies[AECP_MAP_PAGE]; // each distinct mapping's occurrences
+};
+
+// What a port's mappings may not share with different values: the cluster
+// channel an input port writes, the stream channel an output port reads.
+static uint32_t key(bool input, const union held *h)
+{
+	return h->w[input];
+}
+
+// One plus the held mapping equal to x, else `insert`, held there. Nothing
+// leaves the table, so every held mapping of x's key lies in the run of slots
+// from its hash: the walk marks each of them that differs `other`, and ends at
+// an empty slot, since fewer than MAP_SLOTS are held.
+static size_t match(struct edit *e, const union held *x, unsigned other, size_t insert)
+{
+	uint32_t k = key(e->input, x), first = x->w[0], second = x->w[1];
+	size_t found = 0;
+	e->differs = false;
+	for (size_t s = (k ^ k >> 13) & (MAP_SLOTS - 1u);; s = (s + 1u) & (MAP_SLOTS - 1u)) {
+		size_t v = e->slot[s];
+		if (v == 0u) {
+			if (found == 0u) {
+				e->slot[s] = (uint8_t)(found = insert);
+			}
+			return found;
+		}
+		const union held *h = &e->rows[v - 1u];
+		if (key(e->input, h) != k) {
+			continue;
+		}
+		if (h->w[0] == first && h->w[1] == second) {
+			found = v;
+		} else {
+			e->differs = true;
+			e->flags[v - 1u] |= (uint8_t)other;
+		}
+	}
+}
+
+// A map's row looked up.
+static size_t row(struct edit *e, const struct aecp_mapping *r, unsigned other)
+{
+	union held x = {*r};
+	return match(e, &x, other, 0u);
+}
+
+// Each row of a map looked up: `same` marks the held mapping equal to it and
+// `other` each other one of its key. A pass that marks nothing is a REMOVE's:
+// each held mapping removes the first rows equal to it, one an occurrence, as
+// each in turn did, and the rows kept keep their order.
+static void mark(struct edit *e, struct aecp_map *m, unsigned other, unsigned same)
+{
+	size_t kept = 0;
+	for (size_t k = 0; k < m->count; ++k) {
+		size_t v = row(e, &m->rows[k], other);
+		if (v != 0u) {
+			e->flags[v - 1u] |= (uint8_t)same;
+		}
+		if (same != 0u) {
+			continue;
+		}
+		if (v != 0u && e->copies[v - 1u] != 0u) {
+			--e->copies[v - 1u];
+		} else {
+			m->rows[kept++] = m->rows[k];
+		}
+	}
+	if (same == 0u) {
+		m->count = kept;
+	}
 }
 
 // Partition maxima come from the advertised format lists, never the current
@@ -223,50 +327,59 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	aecp_put16(out + 4, count);
 	memcpy(out + 8, in + 8, count * 8u);
 	*bytes = 8u + count * 8u;
+	bool adding = cmd == 44u;
+	struct edit e;
+	memset(e.slot, 0, sizeof e - offsetof(struct edit, slot));
+	e.input = type == 14u;
+	// The mappings in order: the first held equal to each is its own, and a held
+	// one of its key that differs is an earlier conflict. An ADD with one is
+	// refused there at the latest, so its table ends there.
+	size_t steps = count;
+	for (size_t n = 0; n < steps; ++n) {
+		uint32_t first = wire_be32(in + 8u + n * 8u), second = wire_be32(in + 12u + n * 8u);
+		e.rows[n].r = (struct aecp_mapping){(uint16_t)(first >> 16), (uint16_t)first, (uint16_t)(second >> 16),
+			(uint16_t)second};
+		size_t v = match(&e, &e.rows[n], 0u, n + 1u) - 1u;
+		e.rep[n] = (uint8_t)v;
+		++e.copies[v];
+		if (e.differs) {
+			e.flags[n] = EARLIER;
+			if (adding) {
+				steps = n + 1u;
+			}
+		}
+	}
+	for (struct aecp_map *v = a->cfg.maps; v < a->cfg.maps + a->cfg.map_count; ++v) {
+		if (v == m) {
+			mark(&e, m, adding ? BARRED : 0u, FOUND);
+		} else if (!e.input && foreign(a, port, v)) {
+			mark(&e, v, BARRED, BARRED);
+		}
+	}
+	// Each mapping's checks in its turn, so the port is read as each was before.
 	size_t additions = 0;
-	for (size_t n = 0; n < count; ++n) {
-		struct aecp_mapping r = decode(in + 8u + n * 8u);
-		if (!valid(a, port, &r, true)) {
+	for (size_t n = 0; n < steps; ++n) {
+		unsigned held = e.flags[e.rep[n]];
+		if (!topology(a, port, &e.rows[n].r, true) || (held & BARRED) != 0u ||
+		    (adding ? (e.flags[n] & EARLIER) != 0u : (held & FOUND) == 0u)) {
 			return AECP_BAD_ARGUMENTS;
 		}
-		bool duplicate = false;
-		for (size_t k = 0; k < n; ++k) {
-			struct aecp_mapping earlier = decode(in + 8u + k * 8u);
-			if (cmd == 44u && conflict(type == 14u, &r, &earlier)) {
-				return AECP_BAD_ARGUMENTS;
-			}
-			duplicate |= equal(&r, &earlier);
-		}
-		size_t found = position(m, &r);
-		if (cmd == 45u && found == m->count) {
-			return AECP_BAD_ARGUMENTS;
-		}
-		if (cmd == 44u) {
-			for (size_t k = 0; k < m->count; ++k) {
-				if (conflict(type == 14u, &r, &m->rows[k])) {
-					return AECP_BAD_ARGUMENTS;
-				}
-			}
-			additions += !duplicate && found == m->count;
-		}
+		additions += adding && e.rep[n] == n && (held & FOUND) == 0u;
 	}
 	if (additions > m->capacity - m->count) {
 		return AECP_NO_RESOURCES;
 	}
-	bool changed = false;
-	for (size_t n = 0; n < count; ++n) {
-		struct aecp_mapping r = decode(in + 8u + n * 8u);
-		size_t found = position(m, &r);
-		if (cmd == 44u && found == m->count) {
-			m->rows[m->count++] = r;
-			changed = true;
-		} else if (cmd == 45u && found < m->count) {
-			memmove(m->rows + found, m->rows + found + 1u, (m->count - found - 1u) * sizeof *m->rows);
-			--m->count;
-			changed = true;
+	size_t was = m->count;
+	if (adding) {
+		for (size_t n = 0; n < count; ++n) {
+			if (e.rep[n] == n && (e.flags[n] & FOUND) == 0u) {
+				m->rows[m->count++] = e.rows[n].r;
+			}
 		}
+	} else {
+		mark(&e, m, 0u, 0u);
 	}
-	if (changed) {
+	if (m->count != was) {
 		aecp_note(a, AECP_CHANGE_MAP, type, index);
 	}
 	return AECP_SUCCESS;

@@ -190,7 +190,16 @@ and a non-default one each come back across the store's power cycle
 ([#763](https://github.com/kebag-logic/milan-fpga/issues/763); Milan v1.2
 5.3.9.1, 5.3.10.1). Live format changes cannot orphan
 existing mappings. Map partitioning follows advertised geometry and output
-stream/channel ownership is global across output ports. An accepted default-valued
+stream/channel ownership is global across output ports. An ADD or
+REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds each distinct one in
+a table by its key, so its mappings, its port's map and every other output
+port's map are each one pass of lookups
+([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Each mapping's
+checks still run in its turn, an output mapping's port read first, so an edit
+answers, changes its map and reads the port as its pairwise definition does:
+`Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
+seeded edits, and [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants
+a defect in each pass. An accepted default-valued
 SET still establishes a persistent override. Store dirty marks are queued for
 later polling. The reserved system-ID/media-clock-reference saved spans remain
 erased; system unique ID is volatile until a record-format decision is made.
