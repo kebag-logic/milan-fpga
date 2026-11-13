@@ -168,11 +168,11 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)'
-    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 27u : 90u)')}
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 97u)'
+    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 97u)')}
     with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
                            f(r, p, under)):
-        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 27 ms' in f for f in row_findings(root, one)):
+        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
     if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40 or \
             paced_rows.PACED_BOUNDS != {'R4L': 240}:

@@ -337,7 +337,7 @@ extern "C" {
 // tree whose row passes this). At 8x8/2if, whose rows by every source are
 // reported and not held (#894, the owner's decision of 2026-11-12, owed to
 // #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 97u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
