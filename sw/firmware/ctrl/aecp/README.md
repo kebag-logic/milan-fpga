@@ -105,12 +105,31 @@ Initialization checks before touching potentially uninitialized destination stor
 Its refusal increments the active caller's counter; others increment the destination's.
 The diagnostic build defines `CTRL_REENTRY_ASSERT`.
 
-Unavailable notification snapshots retain their event and retry after 1 ms.
+Unavailable notification snapshots retain their event and retry after 1, 2, 4, then every 8 ms (`AECP_RETRY_MAX_MS`, #665).
+The first failure of a round schedules the next round; a delivered notice resets the wait.
+Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
+A notice is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), #665): with `aecp.retry_hold` set, as the adapter sets it, `aecp_poll` and the timer's sink build no notice, hold a due retry, arm no timer for it and report it owed, and only `aecp_retry` builds or tries one, never beside a backlog's records or a centisecond.
+The event loop calls it in a pass that took no input and dispatched no centisecond, after an aged step or a build, or in a pass of its own once `aecp_retry_aged` reports a notice waiting and the pace the round before it set has passed.
+A round spends what its pass has left of THE SHARE at `AECP_ROUND_COLD_US` once, `AECP_NOTICE_US` a notice and `AECP_ATTEMPT_US` a refused attempt, and starts no attempt with less than a notice's time left (`aecp.c`, `scan`), so it puts no pass over the share.
+The first two are the line over every round the CPU budget harness measured, plus 5 %, and the harness fails any round dearer than its notices and refused attempts at those costs ([`round_grade.py`](../../../../tb/verilator/ctrl_service_budget/round_grade.py)).
+A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
+While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
+So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
+A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 22 ms at 1x1/1if and 62 ms at 8x8/2if, within its ceilings of 25 and 70 ms ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)); `aecp_mbx.c` holds it to its ceiling at compile time, and a gate searches what the loop may be made to do for the latest commit (`ctrl_retry_search.py`), with at most all but one port refusing, since a queue has a port answering.
+`aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
+A notice goes to every recipient through the fan port, whose record mover is still reading one frame as the next recipient's is written, and one completion stands for the whole fan-out.
+The notice is built once; each recipient's frame is only addressed, its destination MAC, its interface's source MAC, its controller_entity_id and its own sequence_id written in place, and the walk steps through each interface's used registrations by their mask (`aecp.c`, `fan_out` and `address`; #665, IEEE 1722.1-2021 7.5.2, Milan v1.2 5.4.5.1).
 Backpressure retains the completed snapshot and its remaining recipients.
+A frame the fan port reports lost, its record mover's move having failed (`AECP_FAN_LOST`, from the fan after it or from `fan_end` for the last; `mbx.h`), is owed the same way: the notice resumes at that frame's recipient, at the sequence_id it did not have, and no completion is kept for a lost last frame (#665).
+A refusal is not a loss: `AECP_FAN_REFUSED` means the frame before it was delivered, so a ring with no room for a frame resumes the notice at that frame's recipient, not the one before, and a queue with no room for the completion leaves the notice owed past its last recipient, with no frame sent again.
+`fan_end` keeps the completion only for a walk that reached its last recipient (its `whole`): a walk left owed at a recipient, lost or refused there, keeps none, and the resumed walk's end keeps the notice's one completion, so a counter notice's holdoff starts when its last frame leaves (#665; Milan v1.2 5.4.5.2).
+The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
+`aecp_open` relinks every row, so what was set before the open is seen.
+`aecp_find` answers from an index of the model's keys that `aecp_init` builds (`aecp.runs`, `aecp_index`): a configuration's descriptors of one type, held as one run from index 0, are found at their position, and a key outside the indexed configurations and types of IEEE 1722.1-2021 Table 7-1, or placed otherwise, is scanned for as before (#665). The firmware never changes a key after `aecp_init`; the self-test's cases that do rebuild the index with the change, and its fixture fails any case that leaves `aecp_find` answering differently from a scan.
 
-[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
+[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel, one timer slot and THE RETRY's client with its pace, and is refused when the loop already has one. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
 adapter retains completion cookies until the final frame words retire and reads
 the clock then. A stale clock observation cannot move the completion time back.
@@ -188,7 +207,10 @@ No reserved message type is interpreted as an AEM command.
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
-each source defect to fail its named assertion in a completed run. It plants into
+each source defect to fail its named assertion in a completed run; it appends the
+descriptor index's and the event and registration lists' defects from
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), and THE RETRY's from
+[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
@@ -300,7 +322,7 @@ The service tests count mailbox accesses from one original arrival/due time,
 including fanout, stalls and deferred failure, then add fixed CPU/observation
 allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
-and the 10 ms local service target. The HDCP refusal path also checks the
+and the 20 ms local service bound. The HDCP refusal path also checks the
 15 ms response deadline from IEEE 9.7.2.7. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit
 100 ns access/observation and 1 ms CPU allowances. Target calibration, complete

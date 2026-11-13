@@ -5,12 +5,14 @@ and UART on pads.
 
 The CPU, its firmware memory, the mailbox and the flash are the CPU budget
 harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):
-the shipping VexiiRiscv with the split placement's instruction cache at the
-Milan clock, milan_soc.add_ctrl_memory built from the linked image, KL_mbx
-behind KL_mbx_wb with its datapath on the testbench's pads and the face
+the shipping VexiiRiscv with the split placement's instruction and data caches
+on the bus clock, sys, milan_soc.add_ctrl_memory built from the linked image,
+KL_mbx behind KL_mbx_wb with its datapath on the testbench's pads and the face
 commit acknowledged at the contract's bound, LiteSPI and timer0 where F1's
-port addresses them. That harness's SoC has neither of the two devices the
-platform adds, so this one adds them:
+port addresses them, and the flash window uncached and not executable, as the
+product's split CPU has it (milan_soc.ctrl_uncached_flash; #665): a build
+whose window is another is refused. That harness's SoC has neither of the two
+devices the platform adds, so this one adds them:
 
   - the Milan CSR window, a Wishbone slave at milan_soc.MILAN_CSR_BASE named
     milan_csr as the product SoC names it, its bus on pads: the testbench
@@ -66,6 +68,11 @@ def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
         raise RuntimeError(f"the boot SoC does not place the flash port's devices as the split SoC does: {deviations}")
 
 
+#: The platform image's ledgered points (ctrl_memory.LEDGERED), each named only at its own point: the boot SoC plans
+#: that point's image to the override's tiles, as the image's own link does (run.image), and every other to 56.
+PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
+
+
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
     """Export the boot SoC's Verilog and csr.csv; return the native build's inputs."""
     addresses = split_soc.fixture_addresses(flash_map)
@@ -80,18 +87,24 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
     cpu = split_soc.CpuPatches('cover')
     geometry = split_soc.fetch_l1_geometry('split')
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-            flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
-            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+            flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD,
+            l2_bytes=clocks['l2_bytes'], extra_scala_args=scala_args, uart_name='sim',
+            uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
-        milan_soc.add_ctrl_memory(soc, elf)
+        if hasattr(soc.cpu, 'cpu_clk'):
+            raise RuntimeError(f'the split CPU has a clock of its own beside {soc.cpu_cd}: it runs on the bus clock')
+        cpu_hz = soc.cpu_clk_freq
+        with split_soc.ledgered_plan(PLATFORM_LEDGERED.get((shape, n_if))):
+            milan_soc.add_ctrl_memory(soc, elf)
         for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         split_soc.add_devices(soc, platform, addresses, contract, n_if)
+        milan_soc.ctrl_uncached_flash(soc)
         soc.milan_csr = CsrWindow(platform.request('milan_csr'))
         soc.bus.add_slave('milan_csr', soc.milan_csr.bus, region=SoCRegion(
             origin=milan_soc.MILAN_CSR_BASE, size=milan_soc.MILAN_CSR_SIZE, cached=False))
@@ -99,7 +112,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
-        sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
+        sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
         builder.build(run=False, sim_config=sim_config)
     refuse_deviation(build_dir / 'csr.csv', flash_map)
     spec = {
@@ -111,5 +124,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
         'ctrl_plan': soc.ctrl_plan.summary(),
     }
+    modes = [r[2] for r in spec['memory_regions'] if r[0] == addresses['flash']]
+    if modes != ['r']:
+        raise RuntimeError(f"the boot SoC is not the split placement's: its flash window's regions are {modes}, "
+                           "not ['r'] (milan_soc.ctrl_uncached_flash)")
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec

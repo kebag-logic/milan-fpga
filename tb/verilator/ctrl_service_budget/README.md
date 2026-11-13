@@ -4,12 +4,17 @@ This harness measures the Mark II split firmware's service paths on the split pl
 That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)), or without it (`--fetch-l1 none`), the cacheless core S2 measured.
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
-Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
-Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+Every figure is a measured clock count, never an estimate, at the CPU clock its table names.
+That is the product's split CPU clock: the CPU runs on the bus clock, `sys`, 100 MHz, since the owner's decision of 2026-10-30 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), and a CPU anywhere else, the Milan clock among them, is refused ([Run and reproduce](#run-and-reproduce)).
+The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before it, with the CPU on the Milan clock at 50 MHz and the bus at 100 MHz; they are history.
+Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+[Results](#results) and [The instruction cache](#the-instruction-cache) record S2's and S2c's runs, which were graded against the 10 ms then proposed.
+[Split placement control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-split-cpu-on-sys-at-100-mhz) has the composed rows and the passes at the approved budget with the CPU on `sys` at 100 MHz, and before them at the earlier clocks.
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the CPU clock and its refusal of any other, the per-pass share, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
@@ -34,14 +39,14 @@ Each point builds the runtime, the image, the SoC and the native model, then run
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-1x1 --record-budget-findings
+  --build-dir /tmp/budget-1x1 --record-budget-findings --record-share-findings
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
-  --build-dir /tmp/budget-8x8 --record-budget-findings
+  --build-dir /tmp/budget-8x8 --record-budget-findings --record-share-findings
 ```
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
-`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan past the 56-RAMB36 budget to the tiles `ctrl_memory.LEDGERED` holds for it ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 58.5 RAMB36 (`ctrl_memory.LEDGERED`, the owner's cap) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
 The planner refuses the override on any other image, and the product SoC build names none.
 
@@ -53,8 +58,131 @@ So this SoC differs from `CtrlMailbox` in that one input: it acknowledges each c
 The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
 The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before contract 2.3.
 
-Without `--record-budget-findings` a path over T_svc fails the run.
+Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
+
+**The CPU clock.**
+The CPU runs in the split placement's clock domain, `sys`, the bus clock: the point's `sys_clk_hz`, 100 MHz (`milan_soc.CTRL_CPU_CD`; #665, owner decision 2026-10-30).
+`split_soc.build` names that domain to `MilanSoC` as `ctrl_cpu_cd`, so the CPU is built with no clock of its own and no crossing, and its clock is `MilanSoC.cpu_clk_freq`, never the point's `milan_clk_hz`.
+That is the Milan datapath clock, which stays the bare-metal build contract's 50 MHz and clocks nothing in the test SoC.
+`build.json` records `cpu_cd`, `cpu_hz` and `sys_hz`, and `milan_hz` beside them.
+A build or a reused build whose CPU runs in another domain, the Milan clock among them, or off the bus clock, or which records no domain (a build made before the CPU moved), is refused: `REFUSED the split CPU is not on the bus clock: ...`.
+Each `table.md` opens with the clock, `results.json` carries it, and the run prints it first and last: `CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz`.
+Every millisecond is CPU time at that clock.
+The earlier `--cpu-hz` option, which ran the CPU on its own clock at a labelled frequency, is retired: on the bus clock, another CPU clock would move the bus with it.
+
+**The per-pass share.**
+Apart from the rows, every work pass of every group is held to the per-pass share ([`share.py`](share.py), `grade.pass_share`).
+An input waits for the pass running when it arrives and is answered in a later pass.
+The deepest wait the loop admits is nine passes, THE DRAIN's and THE TRANSMIT's at two interfaces and seven owed frames answered in pass 8 after the room returns, and the share is the smallest bound every input shares over ten, a pass to spare (`ctrl_loop.h`, THE SHARE).
+That bound is T_svc, SRP's own since the owner's ruling of 2026-11-06, so the share is 20 / 10 = 2.0 ms: 200,000 CPU cycles at the product's 100 MHz.
+A pass that writes nothing to the mailbox is not printed, only the longest of each run of them (`sim_main.cpp`'s `IDLE` line), and the saved-state store's step can be all such a pass does (`ctrl_loop.h`, THE STEP): a run whose longest is over the share is one pass over it, and the `SHARE` line names it.
+Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
+The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
+
+**A save in a composed window.**
+[`save_window.py`](save_window.py)'s groups, named `backlog-adp@<phase>-<k>`, open `backlog-adp`'s window, the heaviest the harness stages, while a save of the saved-state store is in each of its flash phases (#665).
+A SET_NAME 1.1 s into the window's 2 s wait for MAAP starts the save, and the bind the window needs is persisted and joins it, so the save's first-dirty window and seal run beside that wait.
+Each phase starts at a flash event of that save, which the stimulus waits for (`wait flash`): the erase for the blank check, the first page program for the program phase, and 30 ms with no program after the last one for the verify.
+`grade.save_phase` refuses a window that did not open inside its phase of the first save, read off the save's page programs in the log's `FLASHOP` lines alone, since its read-backs run in passes the log gives only as their run's longest: after the erase and before the first page, within 30 ms of a page or before a later one (an aged window's flood paces a page every other aged step, 60 ms apart), or 30 ms or more after the last one.
+The blank check and the verify read back 128 bytes on every 10 ms tick, so their windows open at eight phases 1.25 ms apart; the program phase issues a page on every other tick, so its windows open at eight phases 2.5 ms apart.
+Each window must commit `backlog-adp`'s defined load, its probe is an instance of `backlog-adp`'s path and its records of the composed rows', and every pass of the group is held to the share.
+The composed maximum stays the four backlog rows' (`grade.BACKLOG_ROWS`).
+They are among every group a point runs, 24 at each point.
+
+**An aged window.**
+A window can open with THE STEP's age above zero: input that leaves no pass empty before it, such as a grandmaster change as every pass starts, holds the step off and its age grows, and a pass that takes nothing is what ends it (`ctrl_loop.h`).
+`save_window.aged_window`'s groups, named `backlog-adp@<phase>-aged<age>-<n>`, open the same window in each flash phase with the age at its limit, `CTRL_LOOP_STEP_AGE`, so the next centisecond makes the next pass an aged step's, and one short of it.
+After the phase's flash event the stimulus starts the grandmaster flood, waits for two of the store's steps (`wait steps`), which leaves the phase's heavy step next (a blank-check read-back, a page's issue, a verify read-back), then for the age's centiseconds in TICK records (`wait ticks`), then one of eight delays spread evenly across the whole tick, 0.625 to 9.375 ms, and stops the flood as the window opens.
+The aged step then lands anywhere in the window's first tick at the limit, or its second one short of it.
+[`save_grade.aged_window`](save_grade.py) proves the age off the log: the centiseconds the TICK records posted since the last pass that carried a step, every pass between that one and the window a work pass; a group whose log shows another age is refused, and so is one at the limit with no aged step taking its phase's heavy step in it. A window that drains before its next centisecond, as some do at 1x1, takes that step just after its last record; the grade reports the aged steps among its records and after them apart.
+`sim_main.cpp` marks an aged step's pass `aged=1` on its `STEPPASS` line, or beside `step=1` on its `PASS` line where the pass writes to the mailbox, as THE RETRY's round after the step does when it re-arms AECP's timer (`ctrl_loop.h`): its step came before the pass addressed the mailbox.
+The table gives each aged window's age, the aged steps among its records (start after the window opened, CPU time, step) and its tightest row with its margin, and the run prints an `AGED` line with the least margin.
+They are among every group a point runs, 48 at each point.
+
+**A save under load, and its stated worst case.**
+`save-held` and `save-starved` time one save from its change, a SET_NAME of the entity, which marks both its names, to durable.
+Through that save's stated worst case and 500 ms more, every receive channel is held at its contract refill rate with its bursts: the composed load's records, admission's records at once, again every as many refill periods, each channel's bursts 0.2 ms after the one before it, so none queues behind another's at the ingress (`save_window.arrivals`).
+AECP's first burst comes one refill period after the change, since the SET_NAME takes one of its tokens; the other channels burst at the change, so the SET_NAME's marks fall among their first bursts' records (`save_window.held_arrivals`).
+`save-starved` adds a grandmaster change as every pass starts (`sim_main.cpp`'s `flood gm`), an event source the contract coalesces but does not rate, so no pass takes nothing and the store steps only through THE STEP's age limit (`ctrl_loop.h`).
+The worst case, `save_window.bound_ms`, is the 1,000 ms first-dirty window, then each of the save's steps at most `CTRL_LOOP_STEP_AGE` + 1 ticks after the one before, and 10 ms: 12,470 ms at 8x8 (382 steps of KLJ3's 13,584-byte container) and 4,070 ms at 1x1 (102 of 3,444).
+The container is the stage, `nvm_stage`, less the record header the store's format names, which `save_window.rec_hdr` reads from `ctrl_nvm` (KLJ3's 10 bytes, #823); a save that programs any other count is refused.
+`save-second` times a change marked while a save is in flight: under the same flood, with no held channels, a SET_NAME just after a step, then 1,035 ms later and one step on, once the save's capture has started and taken the entity's first name, a SET_NAME of the entity to another value (`save_window.second`).
+The capture in flight takes the second name, and the first waits for the next save, which only an idle step starts, so the second change is timed from its mark to durable in the save after the first.
+Its worst case is the rest of the save in flight, all its steps but the two that started its capture and took that name, or its own first-dirty window where that is longer, then its own save's steps, at the same pace, and 10 ms: 22,870 ms at 8x8 (380 and 382 steps) and 6,070 ms at 1x1 (100 and 102).
+`save_grade.save_time` refuses it unless that change came after the first's first-dirty window and before the first save's erase.
+[`save_grade.py`](save_grade.py) reads a save's flash steps off the log, `FLASHOP` with its address and bytes, `FLASHPOLL` and a `FLASHRD` line for each run of journal reads, and times it to the read-back that completes its verify.
+The journal is the flash map's, `flash_port.json`'s `journal` as `build.py` writes it into `budget_config.hpp`: the split placement's KLJ3 journal, 640 KiB at `0xe40000` (#823). The flash device refuses any write outside it (`flash.hpp`'s `journal()`, "flash write escaped the journal"), and a `FLASHRD` run is a run of reads inside it.
+A save not durable within its worst case fails the run, whatever the options record, and the run prints a `SAVE` line for each save it timed.
+A held group whose receive channels did not commit every record its load offered is refused, and each channel's longest record is its row, from its receive commit to the end of the pass that released it.
+A save's window is refused too if it opens after its read-backs have read back every programmed byte.
+Every pass that carries the store's step is printed, a `STEPPASS` line or `step=1` on a work pass, and the table gives each group's longest and its longest step's own CPU time, the store's and its flash port's; the run prints a `STEPS` line.
+**A retried notice under sustained input.**
+[`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
+The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
+Groups `notice-every-<k>` and `notice-burst-<k>` run every notice the model holds pending at once, each its own row, in the `answering-every-port` arm: 40 at 8x8/2if and 12 at 1x1/1if, the second with the composed burst 6 ms after the answer.
+The first commit is held to `AECP_QUEUED_FIRST_MS` from its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every row to `AECP_QUEUED_MS` (`notice_window.queued_first_ms` and `queued_ms` read them from the headers), and `run.notice_misses` fails the run on either whatever its options record.
+[`whole_grade.py`](whole_grade.py) holds a pass given whole to a build or an aged step, whose round found nothing to do, to the cost `ctrl_loop.h` states for it at that point: THE RETRY's search counts the notices such a pass carries from those costs, so a dearer pass would carry fewer than the bound says with no pass over the share to show it. A pass over its stated cost prints `STATED` and fails the run whatever findings it records.
+[`round_grade.py`](round_grade.py) holds every round of THE RETRY, the testbench's `SPAN` line of `ctrl_loop.c`'s `round_of`, to `AECP_ROUND_COLD_US` + n x `AECP_NOTICE_US` + k x `AECP_ATTEMPT_US` at its point: n the notices it built, the `CALL` lines of `aecp.c`'s `finish` inside it, and k its refused attempts, its `aecp_command` calls less n. Each round costs its pass what it was admitted at, so a dearer round would overspend its pass with no row to show it; a round over its stated cost prints `STATED` and fails the run too.
+[`poll_grade.py`](poll_grade.py) holds the polls by source (#665, the round 22 ruling, item 1): a pass's polls, from its first firmware poll's entry (ADP's) to its last one's return (SRP's delivery), less the heavy items inside them, are its base, which every ordinary pass is charged, and each heavy item is its own function, which does its work only once its source has posted it: SRP's withdrawal and rebuild of an interface after a link change, its walk of a stale registrar, lwSRP's reclaim, a retained record's retry and an owed MRPDU, ACMP's owed frame and AECP's send (an ACMP or AECP call that committed no frame is the base's).
+Each is held to its stated cost at its point, `poll_grade.STATED_US`, the most measured over every group plus 5 % (a retained record's retry and an owed MRPDU, which no group stages, at the cost of the measured work that holds them): a pass's base or an item over its cost prints `STATED` and fails the run whatever findings it records.
+So is each SRP record's own apply, `apply_receive` outside the polls, the work its retained retry repeats, at that retry's stated cost (`poll_grade.RECORD`; #665, the [round 26 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6779973927), item 3): an SRP record dearer than it prints `STATED` as `an SRP record's apply of`.
+The testbench traces a pass's first and last firmware poll and every item ([`poll_items.py`](poll_items.py)); a test fixture's own poll comes after the firmware's and is not the polls'.
+[`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+That is the column at this tree's TSN stack pin. A second, `STATED_US_DONOR`, is measured with tsn-c-stack #32 applied at the pin in a scratch build (the ACMP core walking only the sinks an entry changed), each cost stated at every point. The gate holds 1x1/1if in both columns, the pin's being the image that merges and the donor's the load the pin move owes (#665), each named in what it finds (`load_grade.COLUMNS`), and reports both.
+A pass's own cost is no source and is reported beside the load. The ceiling is 0.70 (#665, the round 25 ruling, item 4); the gate holds it at 1x1/1if, for merge, at the pin and with tsn-c-stack #32. 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665 issuecomment-6759183115; the round 26 ruling, issuecomment-6779973927, item 6), with the compute its load with tsn-c-stack #32 would need for 0.70. A point over its ceiling fails the gate, and so does a term the load counts with no source in the term list, SRP's retries where the tree states no rule that bounds them (`RETRY_RULE`), or a column whose name is bound to another table than its own (`load_grade.unbound`: the pin's name to `STATED_US`, the donor's to `STATED_US_DONOR`, by identity), which would print each `HELD` line with the other column's load:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+```
+
+8x8/2if is held to the same 0.70 by the flip check, [`flip_grade.py`](flip_grade.py), a check apart from the merge gates (#665, the [round 27 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6788828284), items 4 and 6).
+It reads the load at this tree's TSN stack pin, `load_grade.STATED_US`, not the column graded with tsn-c-stack #32, through `load_grade.load` itself, and fails a load over the ceiling, a missing cost or a term with no source.
+The split placement's flip at 8x8/2if must pass it; at this head it fails, its load over the ceiling ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-split-cpu-on-sys-at-100-mhz)):
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
+```
+
+The flip check holds each point's flip as well to decision D's tier bounds, which bind the flip and not the merge (#665): the rows by every source, [`rows_grade.py`](rows_grade.py), at 1x1/1if and at 8x8/2if.
+Each of R4 (the AECP channel's last record of its burst beside the composed burst, every notice queued), R5 (SRP's last record of its burst, a link change on every interface) and R6 (SRP's last record of the composed burst, every notice queued) is the smallest window W in which the record's own work and every source's arrival bound, each at its stated cost, fit: the records at their contract rates, the TICK's consumers, the timer slots and the grandmaster event at their protocol timers, every ordinary pass's base and the polls' items by their own sources, THE RETRY's rounds, THE TRANSMIT's builds and THE STEP's aged steps.
+The costs are the flip's, the load gate's column at this tree's pin with the polls' items and a LINK event's (`rows_grade.ROW_COSTS`); what precedes the row's record is THE DRAIN as `ctrl_loop.h` states it.
+In R4 SRP's records are THE DRAIN's first, so every one that arrives before the row's record is taken precedes it: they are counted over W less that record's own work alone (`rows_grade.srp_window`).
+A retained SRP record's retry is counted at the retry's own rule, at most one a centisecond (`srp_mbx.c`), so one before the window's first centisecond and one after each, and one a pass (`rows_grade.retained_retries`), in R4 alone: a retained record holds SRP's channel, each up to `SRP_RX_RETRY_MS`, which is SRP's storage rule and not the CPU's service, so SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage and count neither that hold nor the retry (`rows_grade.RETAINED_ROWS`).
+The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted, each named with its reason (`rows_grade.EXCLUDED`): no group stages them, so no cost of theirs is stated, and the notices they mark are counted.
+`rows_grade.rule_findings` holds these rules against the tree at every point: the retry's rule as `srp_mbx.c` states it (`load_grade.RETRY_RULE`), R4's retries and SRP records against the rules' own counts at several windows (`rows_grade.rule_windows`: under, at and over each row's bound on SRP's 2 ms refill grid; each solved row's W at the point, off it; and a microsecond either side of R4's 20 ms bound plus R4's own record, the window at which the refill at that bound is the first R4's record no longer precedes, so a window off by a record or more counts an SRP record fewer or more there), no retry in an SRP row, and every event type of the contract counted or excluded; `flip_grade.py --check` prints what it finds.
+R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`, which the loop search holds the loop to.
+The flip at 1x1/1if must pass the check at that point; at this head it fails there at R4 ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-long-window-load)), and 8x8/2if's flip waits on #890:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+```
+
+
+[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
+A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
+They run in the labelled `answering-later` arm, at each point:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-notice --variant answering-later --record-budget-findings --record-share-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-8x8-notice --variant answering-later --record-budget-findings --record-share-findings
+```
+
+The arm keeps the face block's stream observation unanswered, as the unmodified fixture has it, until an attempt at or after NOW_MS 3,150 fails.
+That attempt calls `retry_port_answers`, whose entry the testbench reports (`ENTRY`), and every later attempt answers zeroed values.
+So the port answers just after a retry failed, and the notice's next retry is the backoff's whole 8 ms away (`AECP_RETRY_MAX_MS`), the worst phase the spacing allows; the row starts at that entry.
+Each group registers 16 controllers on every interface, the firmware's capacity, so the notice fans out to every registration.
+A SET_NAME starts a save, so the store's steps are in flight.
+A BIND_RX of STREAM_INPUT 0 leaves its GET_STREAM_INFO notice to the unanswered port, which retries it.
+From NOW_MS 3,050 to 60 ms past the answer the group holds `save-starved`'s input: every receive channel at its contract refill rate with its bursts, and a grandmaster change as every pass starts.
+So no pass takes nothing, and the retry is taken only in an aged step's pass or in a pass of its own once it is `CTRL_LOOP_RETRY_AGE_MS` past its time.
+Group `notice-retried-<k>` binds `k` ms after group 0, eight of them across the retry's spacing, so the answer meets the load's bursts at a different phase in each.
+Each channel's longest record under that load is a row too, as in `save-held`, from the mark `notice.load`.
+A retried notice later than its bound fails the run whatever the options record (`run.notice_misses`), and the run prints a `NOTICE` line for each, with its time, its recipients and its verdict; the table gives each group's.
+
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -80,11 +208,16 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 ```
 
 - `answering-ports` (arm B) makes the four observation ports answer zeroed values.
+  Its `aecp` group, where GET_AVB_INFO and GET_COUNTERS answer SUCCESS, is one of the load gate's legs at both points (#882).
   Three are contract 2.3's face block, `stream`, `avb` and `counters` (`aecp_face.c`): the arm replaces them in the face's ports before the core takes them, so it reads no window.
   The fourth is the fixture's own `path` port, which answers an empty sequence.
-  It runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, so its composed maximum is partial.
+  Run with `--groups` naming three backlog rows, as S2's runs did, its composed maximum is partial; the 100 MHz runs of section 13 take all four.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
+- `answering-later` keeps the face block's stream observation unanswered until an attempt at or after NOW_MS 3,150 fails, then answers (above, "A retried notice under sustained input").
+  It runs the `notice-retried-<k>` groups only.
+- `answering-every-port` holds every observation port unanswered until the first attempt at or after NOW_MS 3,150 fails, marks every notice the model holds as the first waits, then answers on all of them.
+  It runs the `notice-every-<k>` and `notice-burst-<k>` groups only.
 
 As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
 With `--fetch-l1 none` they are S2's arms in [Results](#results).
@@ -107,12 +240,14 @@ That is a CI change, outside this lane.
 
 [`split_soc.py`](split_soc.py) builds it; [`build.py`](build.py) links the image and compiles the model.
 
-- **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
-  It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
-  The DMA port the shipping image has is kept, idle.
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32IM, one hart, on the bus clock, `sys`, 100 MHz, the split placement's clock domain (`ctrl_cpu_cd`), with no clock of its own and no crossing ("The CPU clock", above).
+  It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
+  The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
-  At `8x8` its plan is held to the ledgered point's tiles in `ctrl_memory.LEDGERED` (`split_soc.ledgered_plan`).
+  At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 58.5 RAMB36 (`split_soc.ledgered_plan`).
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+  `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
+  The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
   Its receive and transmit streams, link levels and grandmaster are on pads that [`sim_main.cpp`](sim_main.cpp) drives.
   Every other port is connected as `milan_soc.CtrlMailbox` connects it.
   The publication block's outputs (contract 2.2, and from 2.4 each source's stream_id, `pub_src_sid_o`) are named and unread.
@@ -183,6 +318,15 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 - The test-only SHUTDOWN input starts at the commit of `adp_mbx_set_enable`'s entry.
 - A path ends when its last required output is committed: an accepted TX_HEAD write, a TMR_CMD arm or cancel, a publication write or the record's RX_TAIL release.
 - A response is matched by its sequence_id and its interface.
+- A row that ends at a response states the response it measures ([`answers.py`](answers.py), #882): an AEM, MVU or ACMP response of its command or message type, with its status (IEEE 1722.1-2021 Table 7-141 for AEM and MVU, Table 8-3 for ACMP).
+  Its own response, the one answering its sequence_id, must have that type and that status, or the row is an unexpected response and the run fails.
+  A row that states a status other than SUCCESS measures a refusal and is named as one, `<row>, refused <status>`, so a refusal is never reported as the path it refuses.
+  The run refuses a group with a row that ends at a response and states no type and status, or states a refusal its row does not name.
+  Until #882 the `aecp` group's `get_avb_info` row sent GET_AS_PATH (`0x0028`) with descriptor_index 9, which no image has, and timed its NO_SUCH_DESCRIPTOR as GET_AVB_INFO.
+  It now sends GET_AVB_INFO (`0x0027`) on AVB_INTERFACE 0 with its four-byte command (IEEE 1722.1-2021 7.4.40.1).
+- The rows that measure a refusal: the `aecp` group's unknown command, a reserved command_type under `0x4000` (NOT_IMPLEMENTED; `aecp.c` keeps the field's low 14 bits, so a command at or above `0x4000` is answered under another command_type), `acmp-cmd`'s PROBE_TX (TALKER_DEST_MAC_FAIL: the source has no stream destination in that group, Milan v1.2 Tables 5.42 and 5.43) and GET_TX_CONNECTION (NOT_SUPPORTED, Milan v1.2 5.5.4.4), and in arm A GET_AVB_INFO and GET_COUNTERS.
+  Their values come through a window of the face block (`aecp_face.c`), which the test SoC's idle datapath never answers, so arm A refuses each ENTITY_MISBEHAVING once the window read's bound has passed.
+  In arm B, whose observation ports answer, both answer SUCCESS.
 - A notification fan-out ends at the last required recipient's commit.
   Each recipient is a controller registered for unsolicited notifications on an interface (IEEE 1722.1-2021 7.5.2).
   Each must receive the unsolicited response of the probe's command type and descriptor.
@@ -192,14 +336,18 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 - A response with frames owed ahead of it requires exactly those responses, by sequence_id and in order, between its input and its own.
 - A command the core may take and drop under the load (one behind the owed input) is a path too: a response that never comes is reported as **never answered**, a measured finding with no bound, not a refusal.
 
-Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/100, rounded up), bus cycles from CPU cycles, and milliseconds from either.
+Every conversion is one `Grader` method: CPU cycles from bus cycles (times the CPU clock over the bus clock, 50/100 at the product's clocks, rounded up), bus cycles from CPU cycles, and milliseconds from either.
 A pass runs from one committed entry of `ctrl_loop_service` to the next.
 The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
 The testbench also prints, passively, a SPAN line for every call of the saved-state store's boot and service step (entry to the commit of its return address) and a CALL line for every entry of the state port's owners and of the flash port's calls (`build.SPAN_SYMBOLS`, `build.CALL_SYMBOLS`).
 This grader reads none of them; [`nvm_split_target`](../nvm_split_target/README.md) grades them.
+It prints a SPAN line too for each channel's record and event handler, each module's poll and the centisecond's dispatch, and a CALL line for each event taken and record dispatched: they cut a pass into its parts, so the gate's own legs measure the load gate's stated costs (#665, the [round 26 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6779973927), items 2 and 3). No grader reads them either.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
+With the split CPU's data cache, loads and stores are counted at its IO bus, which carries every uncached access and so every mailbox access; cached accesses and refills never reach it and are not counted.
+The flash window is uncached and not executable, as the product's split CPU has it (`milan_soc.ctrl_uncached_flash`, #665), but in the labelled hybrid-XIP arm, which runs from it.
+Before that the window was cacheable in every arm, so on the data-cached CPU the saved-state store read the flash through the cache, which the product never does: its 256-byte read and its buffer met at one cache index, and the line went back and forth for each byte, so one pass in each save took 11.8 ms at 8x8 and 3.8 ms at 1x1.
 
 One phase is one sample.
 So each probe also reports a measured bound.
@@ -210,12 +358,14 @@ Each probe also reports the records ahead of its input: those on its ring (or in
 A backlog group's composed window, between its `composed` and `composed_end` marks, carries its row's defined load.
 `grade.defined_load` derives that load from the mailbox contract alone, never from the stimulus: each channel's records one instant admits, at the size of the load's frame.
 The grader counts the records each receive channel committed in the window, and the GM and LINK events posted.
-It refuses the group unless that population is exactly the defined load, so a record the filter refused, a channel left out or one record too many fails the run.
+It refuses the group unless that population is exactly the defined load, so a record the filter refused, a channel left out or one record too many fails the run, and the refusal names the event records held when the window opened.
+A backlog window opens only on a drained event ring (`scenario.OPEN_WINDOW`, the native model's `wait events`), and its table gives the records held at its opening.
+Its fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits (`mailbox.yaml`, `KL_mbx_evt.sv`), so with k records held only 16 - k + 1 of them commit: the defined load needs a ring the core has drained, which no fixed wait gives a CPU whose pass is longer than that wait.
 The self-test counts every window's stimulus against the same loads, restated, so a scenario that drops a channel from its stimulus and from its own declaration together still fails.
 
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
-A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
+A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither its budget nor its ceiling.
 A served record's records ahead are its channel's earlier records not yet released at its commit.
 A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
 The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
@@ -223,8 +373,10 @@ While any of those windows left its load unreleased, the composed maximum is a l
 A run that did not include every backlog row names the rows not run, and its figure is labelled partial: the longest pass of the windows it ran, not the composed maximum.
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
-The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
-A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
+The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 20 ms.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family.
+A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
+A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 
 ## Results
 
@@ -234,7 +386,7 @@ In that firmware the size fixture's own observation callbacks (`a_stream`, `a_av
 At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
 The figures here have not been measured again at this head, apart from the flash's ([Per access and per instruction](#per-access-and-per-instruction) and [The hybrid-XIP arm](#the-hybrid-xip-arm)), and they have no SPI PHY stage (#814).
 
-These are S2's results, on the cacheless core:
+These are S2's results, on the cacheless core, graded against the T_svc = 10 ms then proposed:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
@@ -317,7 +469,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ADP
 
-| Path ([`MAILBOX_SPLIT.md:499-506`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:516-523`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
 |---|---:|---:|---:|
 | RCV_ADP_DISCOVER -> TMR_DELAY armed | 0.29 (1.63) | 2.57 (9.27) / 2.86 (9.27) | 38 / 73 (31) |
 | TMR_DELAY expiry -> ENTITY_AVAILABLE, TMR_ADVERTISE armed | 0.87 (3.57) | 2.64 (9.09) / 3.70 (10.87) | 46 / 47 (39) |
@@ -329,7 +481,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ACMP
 
-| Path ([`MAILBOX_SPLIT.md:649-661`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:666-678`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
 |---|---:|---:|---:|---:|---:|
 | BIND_RX | 1.62 (3.96) | 4.51 (13.22) / 11.36 (31.60) **miss** | 1.62 (3.96) | 4.51 (13.22) / 4.22 (12.59) | 82 / 90 (77) |
 | UNBIND_RX | 6.56 (26.86) | 6.75 (27.03) / 19.80 (40.08) **miss** | 1.07 (3.22) | 3.99 (10.46) / 3.95 (12.55) | 119 / 176 (50) |
@@ -356,6 +508,7 @@ The 1x1 first TMR_NO_RESP and ENTITY_DEPARTING cells are the `fixture` group's i
 
 Each row ends at the command's solicited response (H-AECP).
 The notification a setter's change causes is the fan-out below.
+No row's response status was checked then: three rows measured a refusal, as their labels now say, and at this head every row states its response ([Markers and grading](#markers-and-grading), #882).
 
 | AECP path | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses, 1x1 / 8x8 |
 |---|---:|---:|---:|
@@ -374,15 +527,15 @@ The notification a setter's change causes is the fan-out below.
 | READ_DESCRIPTOR type 26, 113 B | 4.95 (6.09) | 5.59 (11.41) / - | 81 / 75 |
 | READ_DESCRIPTOR type 36, 82 B | 4.84 (5.98) | 6.26 (11.72) / - | 73 / 71 |
 | entity_available | 4.49 (5.63) | 5.00 (11.16) / 5.77 (11.59) | 57 / 51 |
-| get_avb_info | 4.51 (5.66) | 5.92 (11.35) / 5.21 (11.03) | 53 / 48 |
+| get_avb_info, as GET_AS_PATH on AVB_INTERFACE 9: refused NO_SUCH_DESCRIPTOR (#882) | 4.51 (5.66) | 5.92 (11.35) / 5.21 (11.03) | 53 / 48 |
 | get_configuration | 4.42 (5.56) | 14.82 (27.43) **miss** / 5.69 (11.10) | 53 / 60 |
-| get_counters | 4.92 (6.06) | 6.57 (12.39) / 6.21 (12.03) | 86 / 80 |
+| get_counters, refused ENTITY_MISBEHAVING (the fixture's counters unavailable) | 4.92 (6.06) | 6.57 (12.39) / 6.21 (12.03) | 86 / 80 |
 | get_name | 4.69 (5.83) | 7.05 (12.87) / 5.21 (11.36) | 70 / 99 |
 | lock_entity | 3.96 (5.41) | 8.32 (14.50) / 8.19 (14.64) | 66 / 73 |
 | MVU GET_MILAN_INFO | 2.50 (3.64) | 3.52 (9.68) / 3.53 (9.35) | 50 / 52 |
 | register_unsolicited | 2.48 (3.61) | 5.91 (11.72) / 4.87 (10.68) | 46 / 54 |
 | set_name | 4.81 (6.90) | 7.47 (15.08) / 7.52 (15.20) | 106 / 114 |
-| unknown_command | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
+| unknown_command (`0x7FF0`), refused NOT_IMPLEMENTED | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
 | unlock_entity | 3.95 (5.40) | 5.61 (11.51) / 6.12 (12.56) | 65 / 66 |
 
 ### Notification fan-out
@@ -454,7 +607,7 @@ The ADP, AECP and SRP rings are offered their burst, which is fewer records than
 Under sustained arrivals the bucket keeps admitting one record per period, so those rings can hold more: their rows are observed at the burst, not bounded by it.
 `backlog-adp-refill` measures that for the bound-talker row: the burst, then one more ENTITY_DISCOVER per refill period, up to the ring's room, then the input.
 
-| Backlog row ([`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
+| Backlog row ([`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
 |---|---:|---:|---:|---:|---:|
 | an event behind 15 others | 10,569 / 13,287 | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] |
 | an ACMP command behind a full acmp ring | 38,753 / 48,719 | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] |
@@ -533,7 +686,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 
 - Per-pass CPU work, not mailbox accesses, sets the time.
   The 1x1 worst pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
-  [`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
+  [`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
 - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
@@ -602,7 +755,7 @@ Every window committed exactly its defined load (the run refuses one that did no
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
    In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
-   At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
+   At this head the 1x1 image's `.data` load image is at 0x19428, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    At this head only the mailbox's is; the flash port's are generated from the split SoC's `csr.csv`.
    The target platform firmware owns the mailbox's.
@@ -614,7 +767,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 The [S2c assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) gives the split CPU an L1 instruction cache, VexiiRiscv's fetch L1, through the pinned generator's own options (`milan_soc.ctrl_cpu_args`).
 The split CPU's cache is 4 KiB, direct-mapped, of 64-byte lines; its data side stays cacheless.
 [Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache) states the parameters and why, and debits the block RAM.
-This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are.
+This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are, against the T_svc = 10 ms then proposed.
 Every run's `table.md` lists every path's worst instance and every probe, in CPU cycles and ms.
 
 ### The sweep
@@ -844,7 +997,7 @@ The 1x1, 32 KiB `backlog` window's longest pass moves from 19.23 to 23.56 ms, an
 The rows' other differences from the table above are this line's firmware since `e76a755a`, not the stage's: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, both 4 KiB arms' tables are byte-identical to the no-stage rows' apart from paths.
 None of this changes D3's rule: with the code in flash, paths inside T_svc still miss at both cache sizes.
 
-**The 1x1, 4 KiB rows cover two of the four backlog windows.**
+**The 1x1, 4 KiB rows cover two of the four backlog windows, at the CPU's old 50 MHz.**
 Their composed maxima are partial figures, so neither is comparable with the 94.91 ms above, which covers all four ([Findings](#findings)).
 Each run's `table.md` reports `backlog-adp` and `backlog-adp-refill` as not run; they ran, and the grader refused them.
 With the code in flash behind 4 KiB, the event ring still holds 5 of its 16 records when those two windows open, 4 without the stage.
@@ -868,6 +1021,20 @@ A refused window's passes ran a smaller load than its row defines, so its figure
 | `backlog-adp-refill` | none | 13 | refused | 878.62 | 14 | 84.98 | aecp 1, srp 32 |
 
 So the longest pass in any of the four is at least 88.32 ms with the stage, in a window the grader refuses, and at least 86.54 ms without it.
+
+That was the window's definition, not the firmware's defect: it named a population only a drained ring can take, and waited a fixed time for one.
+A backlog window now opens on a drained ring, so the same arm, 1x1, 4 KiB, with the CPU on `sys` at 100 MHz, takes all four:
+
+| Window | Event records held at its opening | GM events committed, of 15 | Window, ms | Passes | Longest pass, ms | Records unreleased |
+|---|---:|---:|---:|---:|---:|---|
+| `backlog` | 0 | 15 | 644.25 | 56 | 34.81 | none |
+| `backlog-adp` | 0 | 15 | 617.53 | 22 | 40.25 | srp 26 |
+| `backlog-adp-refill` | 0 | 15 | 685.13 | 25 | 38.55 | srp 23 |
+| `backlog-owed` | 0 | 15 | 860.05 | 52 | 31.66 | none |
+
+Its composed maximum covers the four, so it is no longer partial: at least 40.25 ms, a lower bound while the two bound-talker windows close with SRP records unreleased, and 34.81 ms over the windows that released their whole load.
+With the code in flash every one of the arm's 16 paths still misses T_svc there, and all its work passes miss the per-pass share, so D3's rule stands.
+The other flash rows above stay as measured at 50 MHz.
 
 ### Block RAM and logic
 
@@ -908,12 +1075,16 @@ The residual is the data side's, and in order of size:
 - Software multiply, divide and shift, 3 % of the composed maximum's pass at both points (7 % of the released windows' longest). The M extension removes them; that is an owner decision.
 
 With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
-A data cache is the owner's option, with the coherent interconnect it needs (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)); the clock stays the owner's too.
+A data cache was the owner's option, with the coherent interconnect it needs; the owner took it on 2026-10-28 (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)), and the clock stays the owner's.
+[Its section 10](../../../docs/design/SPLIT_CONTROL_MEMORY.md#10-the-cpu-clock-the-composed-rows-need) measures the CPU clock the backlog rows need, with this harness and three labelled variants of it.
+[Its section 11](../../../docs/design/SPLIT_CONTROL_MEMORY.md#11-the-firmwares-work-on-the-record-paths) cuts the firmware's work on the AECP and SRP record paths and measures the rows again, with this harness and a labelled profiling variant of it.
+[Its section 12](../../../docs/design/SPLIT_CONTROL_MEMORY.md#12-the-remaining-firmware-levers-at-the-present-clock) takes the firmware levers left at the present clock and models what a larger fetch L1 would save, with the same variant and committed-PC traces of the windows.
+[Its section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover) measures the 16 KiB two-way fetch L1, the bulk primitives and the mailbox's record mover with the same variant, and lwSRP's and the TSN stack's drafts staged.
 
 ### Controls with the cache
 
-The three controls run again on the cached CPU, and each is caught.
-Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, the split's geometry, in place of `--fetch-l1 none`:
+S2c ran the three controls again on its cached CPU, with the planted spin then of 16,000 turns, against the 10 ms T_svc then proposed, and each was caught.
+Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, S2c's geometry, in place of `--fetch-l1 none`:
 
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
@@ -927,17 +1098,23 @@ The fixture has a short composed window: one record on every receive channel and
 Its checks:
 
 - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
-- every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
-- an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+- a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+- every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
+- an exact-budget path passes and one bus cycle more misses;
+- each family against min(T_svc, its ceiling): an SRP instance at its 20 ms bound fits, and one cycle over it and one at 21 ms miss; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+- W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 20 ms misses both;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
+- a probe's own response, the one answering its sequence_id and not an earlier one, is held to its row's stated type and status: an AEM response with another status or to another command type, an MVU response with another status, an AEM response where an MVU one is stated, and an ACMP response of another message type or status are each refused, and a refusal its row states and names is measured; every row of the real scenario that ends at a response, at one and two interfaces, in arm A and arm B, states its type and status and names each refusal; the `get_avb_info` row sends GET_AVB_INFO on AVB_INTERFACE 0 at its four-byte length, SUCCESS in arm B and named ENTITY_MISBEHAVING in arm A; the talker rows' statuses, restated; a row that states no response, a refusal its row does not name and a status that is no code of its kind are each named, and a run refuses such a group by name: these are [`selftest_answers.py`](selftest_answers.py)'s, which `selftest.py` runs;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
 - a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it; over three recipients, the cost a recipient is the first to last commit over the two gaps;
 - the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
 - the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it; it is still a lower bound when the longest window released its load and a shorter one did not;
 - a run without every backlog row names the rows not run, and its composed maximum is partial: arm B's three rows, and one row alone;
 - `results.json`'s composed maximum is the record the table renders, its line checked word for word: a lower bound over every window, a partial figure, and both at once;
+- every backlog window, at one and two interfaces, waits for the event ring to drain and then opens; the event records held are those posted before the mark less those released, through the ring index's wrap; a window short of its grandmaster changes is refused, naming the event records held when it opened;
+- each frame of an AECP group waits a refill period of its token bucket, and a build's flash window is uncached and not executable, but in the hybrid-XIP arm;
+  these five are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
 - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
 - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
 - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
@@ -945,11 +1122,21 @@ Its checks:
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
-- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources.
+- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
+- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
+- the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
-- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
+- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
+- the per-pass share is T_svc's 20 ms over ten passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
+- each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
+- a save's stated worst case, restated, at both points; a save is timed from its change to the read-back that completes its verify, within it, over it, or never in the run, and one not within it fails the run whatever the options record; the age limit's plant is caught by `save-starved`'s save not durable within it, and escapes with every save within it, only `save-held`'s late, or a refusal; every receive channel of the held groups is at its contract refill rate with its bursts through the worst case, AECP's from one refill period after the change, and `save-starved` alone has the grandmaster flood; a held group that commits fewer records than its load offered is refused; every pass that carries the store's step is counted, idle or work, with the longest and the longest step;
+- a save's window is refused outside its flash phase, the verify's ending when its read-backs have read back every programmed byte;
+- each flash phase's aged windows open after the save's own flash event, under the grandmaster flood, two steps and the age's centiseconds later, at the age limit and one short of it, at eight delays across the whole tick; an aged window is graded only at the age its name declares, counted in the TICK records' centiseconds since its last step with every pass between them a work pass, and at the limit, once a centisecond came in it, only with a step taking its phase's heavy step in it, aged or run by a pass that took nothing, its pass a work pass or not;
+- a change marked while a save is in flight is a SET_NAME of the entity to another value, 1,035 ms and one step after a first, under the flood, and its worst case, restated, at both points, is the rest of the save in flight or its own first-dirty window, then its own save; it is timed to durable in the next save, and refused when marked inside the first change's first-dirty window or after the save in flight erased its slot;
+  these six are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
+- a pass's polls less the heavy items inside them at its base's stated cost fits it and one a cycle over does not, and each item at its own; an ACMP or AECP call that committed no frame is the base's; an item after the polls is neither the base's nor a polls item; an item inside another is the outer one's; a pass at one interface is held to that point's costs; a base or an item over its cost is named and fails the run whatever findings it records; the SRP record cut's control is held to this image's unplanted record with a 5 % margin, not to a stated cost, and a reference control is caught by a planted record more than that margin dearer and escapes at the margin, at the same cost, cheaper, with a refusal in either run or without its group in either, its other run being its group alone on this point's unplanted image at its variant and core, in the build directory's `reference`: these are [`selftest_polls.py`](selftest_polls.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -964,6 +1151,31 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | marker: the first required output ends the path | fixture row fixture.set_name.if0 |
 | marker: a receive commit goes to the oldest pending frame (earlier rule) | a receive commit belongs to the frame it follows |
 | marker: the expected-response check is skipped | the expected response is checked |
+| answers: a response's status is not checked | the expected response is checked |
+| answers: a response's command or message type is not checked | a response to another command type than its row states is refused |
+| answers: a probe's response is the first on its channel, whatever its sequence_id | a probe's response is the one answering its sequence_id, not an earlier one on its channel |
+| answers: an MVU response read as an AEM response | an MVU response with its stated command type and status is measured |
+| answers: a row that ends at a response need not state it (earlier rule) | a probe that ends at a response and states no type and status is named |
+| answers: a refusal row need not name its refusal | every row of the scenario that ends at a response states its type and status, each refusal named |
+| run: a group whose row states no response is graded as any other | a run refuses a group whose row states no response, by name |
+| scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule) | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: the face's getters stated SUCCESS on the image as linked | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: the talker's refusals stated SUCCESS | the talker rows state the statuses Milan gives them, restated |
+| flip: an over-ceiling row passes | the load gate refuses a held point not held |
+| flip: read on the column graded with tsn-c-stack#32 | the flip check refuses the graded column read, not the pin |
+| flip: 8x8/2if held to a looser ceiling | the load gate refuses a held point not held |
+| load: 8x8/2if held by the merge gate again (earlier rule) | the load gate refuses a held point not held |
+| load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule) | the load gate refuses a rise at the pin alone |
+| rows: the rows by every source not held | the flip check refuses 1x1/1if R4 over its bound |
+| rows: SRP's rows held to T_svc's 20 ms | the flip check refuses the tier bounds or the points not decision D's |
+| rows: the grandmaster events left out of a row's window | the flip check refuses a source the rows do not count |
+| rows: read on the column graded with tsn-c-stack#32 | the flip check refuses the rows read on the column graded with tsn-c-stack#32 |
+| rows: a retained record retried once a pass (earlier rule) | the flip check refuses the arrival rules not held at this head |
+| rows: SRP's arrivals ahead of R4's record cut by AECP's whole burst (earlier rule) | the flip check refuses the arrival rules not held at this head |
+| rows: a retained record's retry counted in SRP's own rows | the flip check refuses the arrival rules not held at this head |
+| rows: the arrival rules not held | the flip check refuses the retained retry counted once a pass |
+| rows: a datapath event neither counted nor excluded | the flip check refuses the arrival rules not held at this head |
+| load: the pin's name bound to the donor's table | the load gate refuses a column's name bound to the other's table |
 | notify: the first recipient's commit ends the fan-out | two recipients across interfaces end at the last |
 | notify: the first unsolicited response on any interface ends it (earlier rule) | two recipients across interfaces end at the last |
 | notify: any unsolicited response counts as the change | unrelated unsolicited responses do not end it |
@@ -977,6 +1189,13 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | clock ratio: a pass's bus cycles equal its CPU cycles | fixture row fixture.link_up.if0 |
 | pass bound: it starts at the input, not at the running pass | fixture row fixture.malformed.if0 |
 | composition: the window's population is not checked | a composed load missing one channel is refused |
+| pacing: an AECP group's frames meet an empty token bucket | each frame of an AECP group waits a refill period of its token bucket |
+| flash: a cached window is taken | a build's flash window is uncached and not executable, but in the hybrid-XIP arm |
+| flash: the hybrid-XIP arm is held to the uncached window | a build's flash window is uncached and not executable, but in the hybrid-XIP arm |
+| opening: a backlog window opens without waiting for the drained event ring | every backlog window waits for the event ring to drain, then opens |
+| opening: the window opens with records held | every backlog window waits for the event ring to drain, then opens |
+| opening: the records released are not counted | fixture row fixture.link_up.if0 |
+| opening: the refusal does not name the records held | a window short of its grandmaster changes is refused, naming the event records held when it opened |
 | composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
 | composition: the composed maximum is the window's first pass | fixture passes: worst pass and composed maximum |
 | worst pass: the run's last pass is dropped | refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass |
@@ -1002,13 +1221,14 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
 | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
 | notify: the fan-out registers one controller an interface (earlier rule) | the fan-out group registers the firmware's capacity, every registration a recipient |
-| deadline: T_svc 20 ms | fixture row fixture.service.srp.first.if0 |
+| deadline: T_svc pinned at the 10 ms proposal (earlier rule) | fixture row fixture.service.srp.first.if0 |
+| deadline: each family graded against its ceiling alone, not T_svc | an AECP instance at 22 ms misses T_svc, within its ceiling |
 | deadline: strictly below the budget | exact budget passes |
 | deadline: the normative wait is not added | W + T_svc passes |
 | deadline: the ceiling drops the normative wait | W + T_svc passes |
-| deadline: the ACMP ceiling is the transaction timeout | ceilings pinned |
+| deadline: the ACMP ceiling is the transaction timeout | T_svc and the ceilings pinned |
 | run: a CPU trap is not refused | a CPU trap is refused |
-| run: a T_svc miss never fails the run | a T_svc miss fails the run unless recorded |
+| run: a budget miss never fails the run | a budget miss fails the run unless recorded |
 | run: a refusal does not fail the run | a refusal fails the run, recorded or not |
 | regrade: a selected group without its log is dropped (earlier rule) | a regrade refuses each absent log or script, and a stale script, by name |
 | reuse: an input outside the checkout is not rechecked (earlier rule) | reuse refuses the image |
@@ -1021,12 +1241,106 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
 | fetch bus: one beat a refill | a refill's beats are read off the netlist |
+| lsu bus: the cacheless observers on a data-cached CPU | the load/store observers follow the data cache's IO bus, without ids |
 | reuse: the fetch L1 and the arm are not compared | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | reuse: a reused build is not compared with the selection | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | build: an XIP build records the block-RAM arm | the run builds and records the fetch L1 and the arm it selected |
 | build: the CPU is built with the split's cache whatever the selection | the run builds and records the fetch L1 and the arm it selected |
 | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| xip: the hot code and the rest stay in rom | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| share: the bound over eight passes | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: a pass at the share is over it | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: in bus cycles, not CPU time | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: the passes are not held to it | a work pass at the share fits it and one a cycle over it does not |
+| share: a pass over it is no finding | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: the rows option records the passes too | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: a pass over it fails the run only beside a row miss | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| clock: the CPU is built on the Milan clock | the run builds and records the fetch L1 and the arm it selected |
+| clock: build.json records the point's Milan clock as the CPU's | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
+| clock: no CPU clock refusal | a build whose SoC puts the CPU on the Milan clock is refused and records nothing |
+| clock: the CPU's domain is not checked | a build whose SoC puts the CPU on the Milan clock is refused and records nothing |
+| clock: the CPU's clock is not checked against the bus clock | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
+| clock: a reused build is not checked | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
+| save: the program phase ends at the window's last page, not the save's | a save's window is refused unless it opens inside its flash phase of the first save |
+| save: a verify window is graded after its read-backs read back the container | a save's window is refused unless it opens inside its flash phase of the first save |
+| save: the bound counts one tick a step, not the age limit's | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
+| save: the bound leaves out the verify's read-backs | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
+| save: durable at the verify's first read-back, not the one that completes it | a save is timed from its change to the last read-back that completes its verify |
+| save: a save never durable in the run is within its bound | a save is timed from its change to the last read-back that completes its verify |
+| save: a save over its stated worst case is no finding | a save not durable within its stated worst case fails the run, whatever the options record |
+| save: the age limit's plant is judged as a budget control | the age limit's plant is caught by save-starved's save not durable within its stated worst case |
+| save: a held group that commits fewer records than it offered is graded | a held group is refused unless its receive channels commit every record its load offered from its change |
+| save: a channel left out of the held load | every receive channel is held at its contract refill rate with its bursts through a save's stated worst case |
+| save: the held load a burst once, then nothing | every receive channel is held at its contract refill rate with its bursts through a save's stated worst case |
+| save: the starved save without its grandmaster flood | save-starved adds a grandmaster change as every pass starts from its change, save-held does not |
+| save: the held AECP channel bursts with its change, the SET_NAME's token not yet back | the held AECP channel's first burst comes one refill period after the change |
+| steps: a pass that carries a step and writes nothing to the mailbox is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
+| steps: a work pass that carries a step is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
+| save: the in-flight change's bound leaves out the save in flight | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the in-flight change waits for every step of the save in flight | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the in-flight change's wait not its first-dirty window where that is longer | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the second change timed to the save in flight | a change marked while a save is in flight is timed from its mark to durable in the next save |
+| save: a second change not marked while the save is in flight is graded | a change marked while a save is in flight is timed from its mark to durable in the next save |
+| save: the second change the same name as the first | a change while a save is in flight is a SET_NAME of the entity to another value |
+| save: the second change marked before the save in flight's capture | a change while a save is in flight is a SET_NAME of the entity to another value |
+| aged: the opening age counts TICK records, not their centiseconds | an aged window is graded only at the age its name declares |
+| aged: the age counted from the window's lead, not from its last step | an aged window is graded only at the age its name declares |
+| aged: a pass that took nothing before the window does not end the age | an aged window is graded only at the age its name declares |
+| aged: a window opened at another age than its name declares is graded | an aged window is graded only at the age its name declares |
+| aged: an aged step's work pass is read as not aged | an aged window is graded only at the age its name declares |
+| aged: a window at the limit that drains before its aged step is refused | an aged window is graded only at the age its name declares |
+| aged: a window at the age limit with no aged step in it is graded | an aged window is graded only at the age its name declares |
+| aged: a window that closed before its centisecond is refused | an aged window is graded only at the age its name declares |
+| aged: a step a pass that took nothing ran is not counted | an aged window is graded only at the age its name declares |
+| aged: the program phase's aged step need not be a page's issue | an aged window is graded only at the age its name declares |
+| aged: the heavier aged step's plant is judged as a budget control | the heavier aged step's plant is caught by an aged window's row over its budget or its aged step over its stated cost |
+| aged: one delay an aged window | each flash phase's aged window opens after the save's own flash event |
+| aged: the delays across the tick's first 8.75 ms only | each flash phase's aged window opens after the save's own flash event |
+| aged: windows at the age limit only | each flash phase's aged window opens after the save's own flash event |
+| aged: the program phase's window one step short of a page's issue | each flash phase's aged window opens after the save's own flash event |
+| notice: a retried notice later than its bound is a budget finding only | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
+| notice: a retried notice is held to its ceiling, not its bound | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
+| notice: the age-less plant is judged as a budget control | the age-less plant is caught only when every group's retried notice is later than its bound |
+| notice: the port answers before the load | every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark |
+| transmit: the aged build's plant is judged as a budget control | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+| transmit: any row over its bound catches the aged build's plant | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+| transmit: a timer's row ends at the first build, with no frame | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
+| transmit: a timer's row starts at its entry, not at the deadline | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
+| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 22 ms at one interface and 62 ms at two |
+| notice: the first of a queue is held to the queue's bound | a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two |
+| notice: the first of a queue is held to T_svc at both points (earlier rule) | a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two |
+| load: any window may hold the flood's last change | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
+| load: an aged window may hold no more than its row's | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
+| stated: no pass is held to its cost | a build pass at its stated cost fits it and one a cycle over it does not |
+| stated: a pass over its cost is no finding | a pass over its stated cost is named, with the cost it passed |
+| stated: one point's costs at both | each point has its own stated costs |
+| stated: a build of one is held to a build of two's cost | a build of one MRPDU has a cost of its own, under a build of two's |
+| stated: a pass whose round did something is held too | a pass whose round did something is not its work alone, and a pass that neither built nor stepped has no stated cost |
+| stated: a round that found nothing leaves no work alone | a round that found nothing to do leaves the pass its work alone |
+| stated: an aged step's silent pass is not held | an aged step in a pass that wrote nothing to the mailbox is held too |
+| stated: an aged step is not held | a step pass at its stated cost fits it and one a cycle over it does not |
+| stated: in bus cycles, not CPU time | a build pass at its stated cost fits it and one a cycle over it does not |
+| round: no round is held to its cost | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| round: a refused attempt is free | each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 |
+| round: one point's costs at both | each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 |
+| round: the notices it built are not counted | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| round: calls outside it are counted | calls outside a round count none of its notices or attempts |
+| round: in bus cycles, not CPU time | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| polls: no base is held to its cost | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: no item is held to its cost | each heavy item at its stated cost fits it and one a cycle over does not |
+| polls: the items are not taken from the base | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: an ACMP or AECP call that sent nothing is an item | an ACMP call that committed no ACMP frame is the base's |
+| polls: an item after the polls is theirs | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: an item nested in another is counted twice | an item inside another is counted once, as the outer one |
+| polls: one point's costs at both | each point's polls costs are stated, every item's and the base's, the 8x8/2if base dearer than the 1x1/1if's |
+| polls: in bus cycles, not CPU time | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: a reference control held to no margin | the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with a margin of 5 % |
+| polls: a reference control read against its own planted run | a reference control is caught by a planted record more than its margin dearer than the unplanted one, and escapes at the margin, at the same cost and cheaper |
+| polls: a reference control's refusals ignored | a reference control escapes with a refusal in either run, or without its group in either |
+| polls: a reference control's other run without its variant | a reference control's other run is its group alone on this point's unplanted image, at its variant and core, in the build directory's reference |
+| polls: a reference control's other run in the planted build's place | a reference control's other run is its group alone on this point's unplanted image, at its variant and core, in the build directory's reference |
+| polls: the SRP record cut's control held to its stated cost | the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with a margin of 5 % |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1041,6 +1355,81 @@ python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture \
   /tmp/budget-fixture/results/fixture.log /tmp/budget-fixture/build.json
 ```
 
+The planted store step runs a save's windows with the loop taking THE STEP in every pass and handing it a deadline no pass reaches, so the store takes its flash step in whatever pass owes it, as it did before THE STEP:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-store-step --mutation store-step-unbounded
+```
+
+It must give, in some window, a pass over the share while every row of that window fits its budget, with no refusal: the share sees what the rows do not. It then prints `CONTROL store-step-unbounded caught`, with how many windows the share alone catches and how many a row catches as well; no such window, or a refusal, is `ESCAPED`.
+
+The planted age limit's removal runs `save-starved` with the step taken only in a pass that took no input, as before THE STEP's age limit:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-store-ageless --mutation store-step-ageless
+```
+
+Its save must not be durable within its stated worst case, with no refusal: it prints `CONTROL store-step-ageless caught`; a save within it, or a refusal, is `ESCAPED`.
+
+The planted heavier aged step runs the verify's aged windows at the age limit with the pass given whole to an aged step holding the CPU 0.8 ms longer, by the step's own clock, about one read-back step more:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-aged-heavier --mutation store-step-aged-heavier
+```
+
+Some aged window's row must go over its budget, or its aged step over the cost `ctrl_loop.h` states for it (`whole_grade.py`), with no refusal and no pass over the share: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget and every aged step within its cost, a miss outside the aged windows only, a refusal or a pass over the share is `ESCAPED`.
+
+The planted round without a pass given whole runs the retried notice's groups with a change notice taken only in a pass that took no input and dispatched no centisecond, or beside an aged step or a build:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-retry-ageless --variant answering-later --mutation retry-ageless
+```
+
+Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, or not within its window at all, with no other refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
+
+The planted age on the build runs the same groups with an MRPDU owed held 300 passes before THE TRANSMIT's pass:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-transmit --variant answering-later --mutation transmit-aged
+```
+
+Every group's timer-driven MRPDU must then be over its 20 ms, with no refusal: it prints `CONTROL transmit-aged caught`, naming the groups; any group within its bound, a miss in another row, or a refusal is `ESCAPED`.
+
+The polls by source have two planted defects, each run on the `backlog` group, whose link change makes SRP withdraw and rebuild each interface.
+The first rebuilds through the participants' creation itself, not as the rebuild item (`open_interface` stays in the image, never taken, so its code layout and hot list hold), so the pass that rebuilds carries the rebuild in its base; the second creates the participants twice, so the rebuild item is heavier than its stated cost:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-polls-base --mutation polls-rebuild-in-the-base
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-polls-twice --mutation polls-rebuild-twice
+```
+
+Each must print its `STATED` line in `backlog`, a pass's polls base over its stated cost for the first and a rebuild item over its stated cost for the second, with no refusal: `CONTROL polls-rebuild-in-the-base caught` and `CONTROL polls-rebuild-twice caught`; no such line, or a refusal, is `ESCAPED`.
+
+The round 26 ruling's two cuts have a planted defect each that restores the old cost (#665, [issuecomment-6779973927](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6779973927), items 2 and 3): the notice's fan-out as it was, each registration found from the recipient's index and each frame addressed through the put helpers' calls, run on `aecp-fanout`; and SRP's StreamID and MAC comparisons through `memcmp`, run on `notice-every-2` in the `answering-every-port` arm, the group with the heaviest SRP record:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-notice-fan --mutation notice-fan-out-as-it-was
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 --variant answering-every-port \
+  --build-dir /tmp/budget-srp-memcmp --mutation srp-compared-by-memcmp
+```
+
+The first must print its `STATED` line in its group, an AECP item over its stated cost, with no refusal: `CONTROL notice-fan-out-as-it-was caught`.
+The second is held to this image's own unplanted record instead (#665, the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2), since each stated cost is the larger of a new measurement and the committed table's: an image that makes the SRP record cheaper leaves its stated 365 us above both the cut and its reversal, and a control held to that cost escapes.
+So the run measures `notice-every-2` twice, on the planted build and on this tree's unplanted image at the same point, variant and core, built in the build directory's `reference` (`run.reference_run`), and the control is caught where the planted group's heaviest SRP record apply (`poll_grade.RECORD`) is more than 5 % dearer than the unplanted one, the 5 % a stated cost carries over its measurement, with no refusal in either run (`poll_items.REFERENCE_CONTROLS`, `run.reference_verdict`): it prints `CONTROL srp-compared-by-memcmp caught`, with both figures.
+A record within that margin, one at the same cost or cheaper, a refusal in either run or either run without its group prints `ESCAPED`. No stated cost is lowered, and the table rule is unchanged.
+With `--reuse-build` or `--regrade` the run reuses `reference` as it reuses the planted build, and refuses it unless it is this point's unplanted image.
+
+The load gate has twelve planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost raised at 1x1/1if that the gate's own ceiling must hold (`load_grade.CEILING`) and at 8x8/2if that the flip check's must (`flip_grade.FLIP`), an ACMP record's cost raised in the pin's column alone until its load at 1x1/1if passes 0.70, which the gate must refuse naming the pin's column and not the donor's, a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, the retry's rule planted in a copy of `srp_mbx.c` as a retry with nothing changed since the refusal and as a retry every pass a change allows (each leaves SRP's term with no source, `load_grade.RETRY_RULE`), AECP's owed frame charged once for every source rather than by what each sends (a dearer probe must raise the term by every registration's retries of it, a dearer notice by the records' share alone), a timer slot counted once a pass rather than at its expiry rate, a term with no source in the term list, a cost the graded column (tsn-c-stack #32's) states below the pin's though #32 does not move it, an SRP record's (`load_grade.WALK` names the costs it moves), and a column's name bound to the other column's table, which `--check` itself refuses (`load_grade.unbound`): the head's own binding must hold, and the tables swapped, the donor's column dropped and an equal copy of the donor's table must each be refused (`load_grade.binding_controls`); and for each period the load reads from the tree (each channel's refill, `tick_ms`, `holdoff_ms`, `SRP_JOIN_CS`, `CTRL_LOOP_STEP_AGE`, `ACMP_TMR_NO_RESP_MS`, `MAAP_PROBE_BASE_MS`, `ADP_ADVERTISE_MS` and a registration's probe retry), the period halved, which must raise the terms it sets (`load_grade.PERIODS`). Each must be refused; one that is not prints `ESCAPED`.
+The flip check has six for the load, and for the rows by every source a control for each row at each point, which the self-test runs (`flip_grade.flip_checks`, through `load_grade.ceiling_checks`) and `flip_grade.py --selftest` prints: the 8x8/2if row at the pin against a ceiling a thousandth under its load, which must be refused, and a thousandth over it, which must pass; a cost raised over the ceiling; a cost the load needs missing; the ceiling other than 0.70 at 8x8/2if; and the column graded with tsn-c-stack #32 read instead of the pin's. Then each row at each point against a bound a hundredth of a millisecond under its W, which must be refused, and over it, which must pass; each source a solved row counts left out, which must shorten its W; an SRP record's cost raised in the pin's column, which must lengthen R5; the rows read on the column graded with tsn-c-stack #32; `AECP_QUEUED_PASSES` planted in a copy of `aecp_mbx.h` until the last queued notice passes 125 ms; a source the method's docstring names that a row does not count; and the bounds or the points other than decision D's. Then the arrival rules (`flip_grade.rule_controls`): the head's own rows holding every rule (`rows_grade.rule_findings` empty), a retained record retried once a pass, the earlier rule, which must be refused and lengthen 1x1/1if's R4, SRP's arrivals ahead of R4's record cut by AECP's whole burst, the earlier rule, which must be refused and shorten it, SRP's arrivals counted over the window less two records of AECP, an error of one record that moves no row at this head and that only a window off SRP's refill grid sees, which must be refused, a retained record's retry counted in an SRP row, the retry's rule planted out of a copy of `srp_mbx.c` (a retry every pass a change allows), and a datapath event dropped from the excluded list, each refused by name.
+
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 
 ```sh
@@ -1052,22 +1441,27 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-as-built --fetch-l1 none --cpu-regions as-built
 ```
 
-`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
-The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-The ordinary image measures the same path at 0.294 ms.
-`slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
-The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins 32,000 turns first.
+The `control` group's RCV_ADP_DISCOVER must miss its 20 ms budget: it measures 48.697 ms, and the run prints `CONTROL slow-adp-rx caught`.
+The ordinary image measures the same path at 0.056 ms.
+`slow-adp-shutdown` makes disabling ADP spin as long before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.933 ms against 0.292 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this core; at the approved budget that would have left 4.6 ms.
+The controls are the cacheless core's.
+Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.322 ms, SHUTDOWN 17.411 ms), which fits the budget.
+No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
 `as-built` hands the generator the SoC's regions unchanged, without the split SoC's pieces.
 The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
 
-These figures are the firmware of `e76a755a`.
-At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-`slow-adp-shutdown` has not been run at this head.
-At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), and the run prints `CONTROL as-built caught`.
+With the CPU on `sys` at 100 MHz, at this head, the two spins measure 24.673 and 24.797 ms on the cacheless core, each over its 20 ms budget, and each control prints its `CONTROL ... caught`.
+The figures here are the CPU at 50 MHz, with contract 2.3's face writer merged (#665); each control was run again there, and again with the per-pass share and the clock option, at that 50 MHz, with the same figures.
+At that head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), on the cacheless core and behind the split's caches alike, and the run prints `CONTROL as-built caught`.
 The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
-The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and prints `CONTROL as-built ESCAPED`.
+Before the merge, at `01879189` (round 9, whose harness and firmware are `bf1773c0`'s), the two spins measured 48.697 and 48.932 ms and `as-built` met the defect with cause 1.
+On S1's branch, before this one merged it (`dev-soft-core` `f4c9ad4f`), the 16,000-turn `slow-adp-rx` measured 24.614 ms, and `as-built` met the defect with cause 5.
+There the same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, was graded with no trap and printed `CONTROL as-built ESCAPED`.
 
 ## Limits
 
@@ -1088,7 +1482,7 @@ The same run with the generator handed the regions' cover, so that the CPU decod
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
 - The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; the saved-state store's cases on this SoC are [`nvm_split_target`](../nvm_split_target/README.md)'s.
-- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
+- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port carries only the record mover's moves.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
 - With the instruction cache, a fetch is observed as a line refill on the cache's bus; hits are on no bus and are not counted.

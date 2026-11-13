@@ -27,7 +27,7 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     no write sets ADP_CTRL[0] or PP_CTRL[0];
   - UART: scripts/baremetal_uart_smoke.py's own parse and grade on the
     transcript, each check's verdict printed; and each command's duty against
-    #397's 500 ms tick rule and T_svc = 10 ms: its span, and its longest gap
+    #397's 500 ms tick rule and T_svc = 20 ms: its span, and its longest gap
     between two response bytes, which bounds the loop pass that sends them.
 --native-controls grades the native controls (NATIVE_CONTROLS), with no
 build: a stand-in for the model prints a valid boot's observations, then ends
@@ -71,7 +71,7 @@ SIM_LIMIT_MS = 2000
 READY_BOUND_MS = 20000.0
 #: #397's one-hart tick rule, and the control service bound (FR_NFR.md 3.4.1).
 TICK_RULE_MS = 500.0
-T_SVC_MS = 10.0
+T_SVC_MS = 20.0
 #: The grader's check whose verdict on a split image differs by design, and why: a difference for a ruling.
 DIFFERS = {
     'fabric-enabled': 'the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP '
@@ -91,15 +91,20 @@ STAND_IN = {
 }
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
 #: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
-#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 700,000 turns before
-#: milan_status's response, about 0.7 s, each turn a load and a store of the counter in sram, about 1 us; the
+#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 2,000,000 turns before
+#: milan_status's response, about 0.55 s, each turn a load and a store of the counter in sram, about 0.27 us; the
 #: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
-                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t\t}'
+                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
 }
+#: The SoC's planted control of --self-test: the export with the product's flash window's call made a no-op, as
+#: boot_soc.py without it, which must be refused (#665): a cached window reads the saved state through the data
+#: cache, which the product never does. (name, the statement run before the export, the refusal's words)
+SOC_PLANT = ('flash-window-cached', 'boot_soc.milan_soc.ctrl_uncached_flash = lambda soc: None',
+             "flash window's regions")
 #: The words boot_soc.build refuses a deviating flash map in, and the register its export control moves.
 DEVIATES = "the boot SoC does not place the flash port's devices as the split SoC does"
 MOVED = 'spiflash_master_cs'
@@ -192,10 +197,13 @@ def image(out: Path, name: str, point: tuple[str, int], maps: ImageMaps, archive
     """The platform image of one point (shape, interfaces) against one map, from the checkout's tree or a
     planted copy."""
     shape, n_if = point
+    sys.path.insert(0, str(HERE))
+    from boot_soc import PLATFORM_LEDGERED   # the point's own override, where the ledger names one
+    ledgered = PLATFORM_LEDGERED.get(point)
     run([sys.executable, '-B', str(FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
          str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(maps.csr_csv),
          '--flash-map', str(maps.flash_map), '--output', str(out / name), '--libc', str(archives[0]),
-         '--compiler-runtime', str(archives[1]),
+         '--compiler-runtime', str(archives[1]), *([] if ledgered is None else ['--ledgered-point', ledgered]),
          *([] if source is None else ['--ctrl-source', str(source)])], out / f'{name}.log', cwd=ROOT)
     return out / name / 'ctrl_app.elf'
 
@@ -408,7 +416,7 @@ def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, 
     prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
     one-owner report, the ready line, and the three commands answered as the grader passes them), then ends its log
     and exits as the control says."""
-    spec = {'sys_hz': 100_000_000, 'cpu_hz': 50_000_000, 'shape': shape, 'interfaces': n_if}
+    spec = {'sys_hz': 100_000_000, 'cpu_hz': 100_000_000, 'shape': shape, 'interfaces': n_if}
     rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
     rows.append('READY 10000')
     for k, (command, answer) in enumerate(ANSWERS):
@@ -448,6 +456,27 @@ def native_controls(out: Path, shape: str, n_if: int) -> int:
               f'required {control.run}, {control.regrade}); findings: {ran} / {regraded}')
     print(f'ctrl_split_boot native controls: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} as required')
     return wrong
+
+
+def soc_plant(out: Path, shape: str, n_if: int) -> bool:
+    """The SoC plant: the export without the product's flash window; True when it is refused, by name."""
+    name, statement, words = SOC_PLANT
+    if (HERE / 'boot_soc.py').read_text().count('milan_soc.ctrl_uncached_flash(soc)\n') != 1:
+        raise RuntimeError(f"plant {name}: boot_soc.py does not call milan_soc.ctrl_uncached_flash once")
+    out.mkdir(parents=True, exist_ok=True)
+    sys.path.insert(0, str(BUDGET))
+    import build as budget_build
+    flash_map = budget_build.flash_map(out / 'split-soc/flash-map', shape)
+    elf = image(out, 'image', (shape, n_if), ImageMaps(PROVISIONAL, flash_map), runtime(out))
+    try:
+        exported(out, 'soc', (shape, n_if), elf, flash_map, statement)
+    except RuntimeError:
+        refused = words in (out / 'soc.log').read_text()
+    else:
+        refused = False
+    print(f'PLANT {name}: {"caught" if refused else "ESCAPED"} (the export {"is" if refused else "is not"} refused: '
+          f"its flash window's regions)")
+    return refused
 
 
 def edited_map(out: Path, name: str) -> Path:
@@ -506,10 +535,10 @@ def placement_controls(out: Path, shape: str, n_if: int) -> int:
 
 def self_test(out: Path, shape: str, n_if: int) -> int:
     """Every native control graded as it requires, then every plant graded a finding of its own kind in a run the
-    model completed (no NATIVE finding), so its observations are a whole run's, then the placement controls on the
-    first plant's build; 0 when each is."""
+    model completed (no NATIVE finding), so its observations are a whole run's, the SoC plant refused, then the
+    placement controls on the first plant's build; 0 when each is."""
     wrong = native_controls(out / 'native', shape, n_if)
-    escaped = 0
+    escaped = 0 if soc_plant(out / f'plant-{SOC_PLANT[0]}', shape, n_if) else 1
     for plant, (_, _, _, kind) in PLANTS.items():
         findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
         completed = not any(f.startswith('NATIVE:') for f in findings)
@@ -519,7 +548,8 @@ def self_test(out: Path, shape: str, n_if: int) -> int:
               f'{"the run completed" if completed else "the model did not complete its run"}); findings: {findings}')
     misplaced = placement_controls(out / f'plant-{next(iter(PLANTS))}', shape, n_if)
     print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
-          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught; {misplaced} placement controls wrong')
+          f'required; {len(PLANTS) + 1 - escaped} of {len(PLANTS) + 1} plants caught; {misplaced} placement controls '
+          'wrong')
     return 1 if escaped or wrong or misplaced else 0
 
 

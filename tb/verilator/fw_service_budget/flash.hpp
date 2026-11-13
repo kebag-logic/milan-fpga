@@ -72,7 +72,7 @@ public:
             if (!wel_ || cycle < busy_until_ || address_bytes_ != 3)
                 throw std::runtime_error("flash write without WEL or while busy");
             // Restrict mutations to the journal, independently of firmware.
-            if (address_ < 0xee0000 || address_ >= 0xf00000)
+            if (address_ < journal_lo_ || address_ >= journal_hi_)
                 throw std::runtime_error("flash write escaped the journal");
             if (operation == 0xd8) {
                 const auto base = address_ & ~0xffffu;
@@ -103,8 +103,22 @@ public:
             && address_ == 0x400000;
     }
 
+    // The command in progress, its address and the next byte a read returns: an observer reads them
+    // before deselect() closes the command.
+    unsigned command() const { return command_; }
+    std::uint32_t address() const { return address_; }
+    std::uint32_t cursor() const { return cursor_; }
     std::uint64_t busy_until() const { return busy_until_; }
     std::uint8_t byte(std::uint32_t address) const { return bytes_.at(address); }
+    // The only span a write may touch: by default the KLJ2 journal this harness's media lay out (0xee0000,
+    // 128 KiB). A bench whose flash map places its store's journal elsewhere, as the split placement's KLJ3
+    // journal is (#823), sets that span here, and a write outside it is refused as above.
+    void journal(std::uint32_t offset, std::uint32_t size) {
+        if (size == 0 || offset % 0x10000 || size % 0x10000 || offset + size > bytes_.size())
+            throw std::runtime_error("journal span not whole erase blocks inside the medium");
+        journal_lo_ = offset;
+        journal_hi_ = offset + size;
+    }
     unsigned erases = 0;
     unsigned programs = 0;
     unsigned programmed_bytes = 0;
@@ -119,6 +133,8 @@ private:
     unsigned address_bytes_ = 0;
     std::uint32_t address_ = 0;
     std::uint32_t cursor_ = 0;
+    std::uint32_t journal_lo_ = 0xee0000;
+    std::uint32_t journal_hi_ = 0xf00000;
     bool dummy_seen_ = false;
     bool wel_ = false;
 };

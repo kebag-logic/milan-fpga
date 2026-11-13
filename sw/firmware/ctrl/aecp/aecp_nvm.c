@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // KLJ2 adaptation only; the core owns all live values, maps and validation.
 #include "aecp_nvm.h"
+#include "aecp_internal.h"
 #include "nvm_store.h"
 #include "wire.h"
 #include <string.h>
@@ -97,10 +98,10 @@ static int latch(void *ctx, unsigned group, unsigned index, uint8_t *p, unsigned
 		memset(p, 0xff, len);
 		for (size_t k = 0; k < m->count; ++k) {
 			const struct aecp_mapping *r = &m->rows[k];
-			wire_put_be(p + 8u*k, r->stream, 2);
-			wire_put_be(p + 8u*k + 2u, r->channel, 2);
-			wire_put_be(p + 8u*k + 4u, r->cluster, 2);
-			wire_put_be(p + 8u*k + 6u, r->cluster_channel, 2);
+			aecp_put16(p + 8u*k, r->stream);
+			aecp_put16(p + 8u*k + 2u, r->channel);
+			aecp_put16(p + 8u*k + 4u, r->cluster);
+			aecp_put16(p + 8u*k + 6u, r->cluster_channel);
 		}
 		return 1;
 	}
@@ -123,10 +124,12 @@ void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_valu
 	n->port = (struct nvm_state){model_ready, apply, settle, rollback, latch, release, n};
 }
 
+// The record's id without the walk to its offset (nvm_rec_id_of): a mark costs
+// the same in any pass (#665, the share in ctrl_loop.h).
 static void mark(struct aecp_nvm *n, unsigned group, unsigned index)
 {
-	struct nvm_rec r = nvm_rec_of(group, index);
-	if (r.ok) n->pending[r.id / 32u] |= 1u << (r.id % 32u);
+	int id = nvm_rec_id_of(group, index);
+	if (id >= 0) n->pending[(unsigned)id / 32u] |= 1u << ((unsigned)id % 32u);
 }
 
 void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, uint16_t index)
@@ -147,16 +150,23 @@ void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, 
 	}
 }
 
+// The lowest pending record, one a pass. A clear word is passed over whole
+// (#665: testing all 256 bits cost about 20,000 cycles of every pass).
 bool aecp_nvm_poll(struct aecp_nvm *n)
 {
-	for (unsigned id = 0; id < 256u; ++id) {
-		uint32_t bit = 1u << (id % 32u);
-		if ((n->pending[id / 32u] & bit) != 0u) {
-			n->pending[id / 32u] &= ~bit;
-			struct nvm_rec r = nvm_rec_by_id(id);
-			nvm_store_changed(r.group, r.index);
-			return true;
+	for (unsigned w = 0; w < sizeof n->pending / sizeof n->pending[0]; ++w) {
+		uint32_t word = n->pending[w];
+		if (word == 0u) {
+			continue;
 		}
+		unsigned bit = 0;
+		while ((word & 1u) == 0u) {
+			word >>= 1;
+			++bit;
+		}
+		n->pending[w] &= ~(1u << bit);
+		nvm_store_changed_id(32u * w + bit);
+		return true;
 	}
 	return false;
 }

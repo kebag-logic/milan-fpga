@@ -31,6 +31,9 @@ protected:
         f.insert(f.end(),{0,0,0,0});
         return f;
     }
+    // A centisecond: the fabric's TICK, which the next pass dispatches. A retained receive is retried only once the pool
+    // or an attribute changed since its refusal, and at most once a centisecond (srp_mbx.c, #665).
+    void centisecond() { mbx_model_advance_ms(&model,10); }
     void pump(unsigned ms) {
         for(unsigned k=0;k<ms;++k) {
             mbx_model_advance_ms(&model,1);
@@ -53,9 +56,10 @@ TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
     EXPECT_EQ(adapter.pending_rx.arrival_ms,400u);
     EXPECT_EQ(std::memcmp(adapter.pending_rx.bytes,f.data(),f.size()),0);
     EXPECT_EQ(adapter.received,before);
+    // Nothing the refusal depends on changes in these passes, so no retry is made: it would meet the same refusal.
     const auto refusals=adapter.refused;
     for(unsigned n=0;n<3;++n) ctrl_loop_service(&loop);
-    EXPECT_GT(adapter.refused,refusals);
+    EXPECT_EQ(adapter.refused,refusals) << "a retry with neither the pool nor an attribute changed";
     EXPECT_EQ(adapter.malformed,0u);
     EXPECT_TRUE(adapter.ifs[i].active[0]);
     EXPECT_EQ(adapter.ifs[i].domain.vid,2u);
@@ -66,12 +70,110 @@ TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
     EXPECT_CALL(licence,Change(i,0,false));
     ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.pending_rx.len,0u);
+    settle(); // the adoption is THE TRANSMIT's, the pass after the record
     EXPECT_FALSE(adapter.ifs[i].active[0]);
     EXPECT_EQ(adapter.ifs[i].domain.vid,7u);
     EXPECT_EQ(adapter.received,before+1);
     EXPECT_EQ(adapter.stops,1u);
     EXPECT_EQ(adapter.malformed,0u);
     settle(); EXPECT_EQ(adapter.stops,1u);
+}
+
+// The retry's rule (#665): a refused record is retried only once the pool or an attribute changed since its refusal,
+// and at most once a centisecond; once the pool frees, the first pass after it takes the record.
+TEST_F(SrpRetry, RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond) {
+    settle(); advance(400);
+    auto refusals=adapter.refused;
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    // Nothing changed: no retry, whatever the passes, with a centisecond's leave to retry.
+    ASSERT_EQ(adapter.refused,++refusals) << "a retry with neither the pool nor an attribute changed";
+    ASSERT_FALSE(adapter.retry_spent);
+    for(unsigned n=0;n<5;++n) ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.refused,refusals) << "a retry with neither the pool nor an attribute changed";
+    // A change (a block returned and taken again), then the retry it allows: refused, the pool still full.
+    ctrl_pool_free(&pool,held.back()); held.back()=ctrl_pool_alloc(&pool,1);
+    ASSERT_NE(held.back(),nullptr);
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.refused,refusals+1) << "the retry a change allows";
+    refusals=adapter.refused;
+    // Nothing changed since that refusal: the next centisecond brings no retry either.
+    centisecond(); ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.refused,refusals) << "no retry with nothing changed since the last refusal";
+    // The pool frees: the first pass after it takes the record.
+    recover(); ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.pending_rx.len,0u) << "a refused record is taken on the first pass after the pool frees";
+    EXPECT_EQ(adapter.received,1u);
+    EXPECT_EQ(adapter.refused,refusals);
+    EXPECT_EQ(adapter.rx_discarded,0u);
+    settle(); // the adoption is THE TRANSMIT's, the pass after the record
+    EXPECT_EQ(adapter.ifs[0].domain.vid,7u);
+    // Refused again, and refused once more in this centisecond: the pool's freeing waits for the next centisecond.
+    advance(10);
+    const auto next=frame(4,{6,5,0,8},0);
+    exhaust(); offer(next);
+    ASSERT_EQ(adapter.pending_rx.len,next.size());
+    refusals=adapter.refused;
+    ctrl_pool_free(&pool,held.back()); held.back()=ctrl_pool_alloc(&pool,1);
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.refused,refusals+1) << "the retry a change allows";
+    recover();
+    for(unsigned n=0;n<5;++n) ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.pending_rx.len,next.size()) << "at most one retry a centisecond";
+    centisecond(); ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.pending_rx.len,0u) << "the first pass a retry may take after the pool frees";
+    EXPECT_EQ(adapter.received,2u);
+}
+
+// A fresh adapter has made no retry: a record refused before any centisecond is taken once the pool frees.
+TEST_F(SrpRetry, ARecordRefusedBeforeAnyCentisecondIsTakenOnceThePoolFrees) {
+    settle();
+    const auto refusals=adapter.refused;
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    ASSERT_EQ(adapter.refused,refusals+1);
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    ASSERT_EQ(loop.stats.ticks,0u);
+    recover(); ctrl_loop_service(&loop);
+    EXPECT_EQ(adapter.pending_rx.len,0u) << "no retry was made before the first centisecond";
+    EXPECT_EQ(adapter.received,1u);
+}
+
+// An attribute's change alone allows the retry: lwSRP's timers and the builds they owe move the Applicants, and take
+// no block.
+TEST_F(SrpRetry, AnAttributeChangeAloneAllowsTheRetry) {
+    settle(); advance(400);
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    const auto refusals=adapter.refused;
+    const auto returned=ctrl_pool_returned;
+    ASSERT_FALSE(adapter.ifs[0].moved);
+    for(unsigned n=0;n<300 && !adapter.ifs[0].moved;++n) {
+        loop.ticks[0]();
+        if(adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
+    }
+    ASSERT_TRUE(adapter.ifs[0].moved) << "every Applicant or Registrar change lwSRP reports is marked";
+    ASSERT_EQ(ctrl_pool_returned,returned) << "no block returned";
+    ASSERT_EQ(adapter.refused,refusals);
+    loop.polls[0].fn(loop.polls[0].ctx);
+    EXPECT_EQ(adapter.refused,refusals+1) << "the retry an attribute's change allows";
+}
+
+// With nothing changed the deadline is checked as the refusal a retry would meet checks it: the record is discarded.
+TEST_F(SrpRetry, NothingChangedStillExpiresAtTheDeadline) {
+    settle(); advance(400);
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    const auto refusals=adapter.refused;
+    model.now_ms+=999u; // the clock alone: no centisecond, no block, no attribute
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.rx_discarded,0u) << "the deadline is SRP_RX_RETRY_MS after the arrival, not a millisecond before";
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    model.now_ms+=1u; // SRP_RX_RETRY_MS
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(adapter.refused,refusals);
+    EXPECT_EQ(adapter.pending_rx.len,0u) << "the deadline holds with nothing changed";
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.received,0u);
 }
 
 TEST_F(SrpRetry, PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop) {
@@ -89,6 +191,7 @@ TEST_F(SrpRetry, PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop) {
     for(unsigned n=0;n<3;++n) ctrl_loop_service(&loop);
     recover(); ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.pending_rx.len,0u);
+    settle(); // the adoption is THE TRANSMIT's, the pass after the record
     EXPECT_EQ(adapter.ifs[0].domain.vid,8u);
     EXPECT_EQ(adapter.ifs[0].domain.priority,5u);
     EXPECT_EQ(adapter.received,2u);
@@ -149,7 +252,8 @@ TEST_F(SrpRetry, OtherInterfaceResetPreservesRetainedPayload) {
     ctrl_loop_service(&loop);
     EXPECT_NE(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.pending_rx.interface,1u);
-    recover(); settle();
+    // the reset's frees allowed a retry this centisecond: the next is the next centisecond's
+    centisecond(); recover(); settle();
     EXPECT_EQ(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.ifs[1].domain.vid,7u);
     EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
@@ -174,7 +278,7 @@ TEST_F(SrpRetry, FailedParticipantRecreationRetainsFreshReceive) {
     settle(); advance(400);
     calloc_before_failure=0;
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[0].msrp,nullptr);
     auto f=frame(3,identity(),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
@@ -219,11 +323,15 @@ TEST_F(SrpRetry, RetainedReceiveWaitsForOwedTransmit) {
     mbx_model_advance_ms(&model,600);
     for(unsigned n=0;n<10;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
-    recover(); ctrl_loop_service(&loop);
+    // A block returned since the refusal and a centisecond's retry given: only the owed frame holds the retry back.
+    recover(); centisecond();
+    for(unsigned n=0;n<3;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
     EXPECT_NE(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
     EXPECT_EQ(adapter.malformed,0u);
-    mbx_model_tx_pause(&model,false); settle();
+    // The frame leaves; the next centisecond's retry takes the record.
+    mbx_model_tx_pause(&model,false); centisecond(); settle();
     EXPECT_EQ(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.ifs[0].domain.vid,7u);
     EXPECT_EQ(adapter.received,1u);
@@ -289,6 +397,10 @@ TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBind
     // No artificial allocation failure: the PDU itself fills the entity pool.
     pump(999);
     EXPECT_NE(adapter.pending_rx.len,0u);
+    // The Domains the record registered before the pool ran out leave an adoption owed on its interface. The
+    // adoption is declared before the reclaim, so the room a reclaim frees is the retained receive's, and the
+    // adoption stays refused while the receive waits (#665, THE TRANSMIT's declarations).
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"a refused adoption takes no room a retained receive waits for";
     EXPECT_EQ(adapter.rx_discarded,0u);
     EXPECT_EQ(adapter.received,1u);
     EXPECT_CALL(licence,Change(i,0,false));
@@ -354,7 +466,7 @@ TEST_F(SrpRetry, FailedRecreationCannotRetainInputBeyondItsDeadline) {
     const unsigned i=MBX_N_IF-1;
     calloc_before_failure=0;
     mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[i].msrp,nullptr);
     auto f=frame(3,identity(i),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));

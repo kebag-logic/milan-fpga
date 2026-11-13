@@ -387,10 +387,12 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
     bind.listener = ctrl_plat.config.entity->entity_id;
     const auto frame = acmp_test::acmpdu(bind);
     ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) << "B10 the bind reaches the mailbox";
-    // the loop's passes, 10 ms of both clocks apart, so each carries one centisecond
+    // the loop's passes, 10 ms of both clocks apart, so each carries one centisecond; the store's step
+    // is taken by the pass after it, which takes nothing (THE STEP, ctrl_loop.h)
     for (unsigned k = 0; k < 2000u && nvm_store_status()->commits_ok == commits; ++k) {
         mbx_model_advance_ms(&fabric, 10u);
         nvm_fmodel_advance_us(10000u);
+        ctrl_plat_step();
         ctrl_plat_step();
     }
     acmp_sink_view sink{};

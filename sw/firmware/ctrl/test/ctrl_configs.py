@@ -164,6 +164,8 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_hot.py": "compares the split link script's hot list with its recorded order and "
+                                         "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
@@ -174,6 +176,11 @@ OUTSIDE = {
                                            "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
                                            "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "
                                            "its own compiles build the boot SoC's Verilator model",
+    "tb/verilator/ctrl_split_boot/plat_ledger.py": "the platform image's ledger gate (#665), which no hosted job can "
+                                                   "run (the CPU budget harness's prerequisites): build.flash_map "
+                                                   "delegates map images to ctrl_srp_image.py; it delegates every "
+                                                   "platform compile of the firmware to ctrl_plat_image.py, unchanged, "
+                                                   "and the runtime to runtime_ssp.py; it compiles nothing itself",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
     "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
@@ -222,14 +229,31 @@ OUTSIDE = {
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
+    "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
+                                                         "AECP_QUEUED_PASSES, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
+                                                         "and AECP_NOTICES_MOST from the headers; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads THE RETRY search's stated costs "
+                                                       "from ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
+                                                       "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
+                                                      "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
+                                                      "and the TSN stack's headers; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/selftest_round.py": "the round gate's self-test; it reads a round's stated costs "
+                                                          "from aecp.h and aecp_mbx.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
+                                                       "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/share.py": "the per-pass share from scenario.py's bounds and ctrl_loop.h's "
+                                                 "derivation, which it names; it compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
-                                                     "compiles off, and reads the image's placeholder mailbox address "
-                                                     "from ctrl_build.RV32_FLAGS and the flash port's generated map; "
-                                                     "it compiles no firmware or stack source",
+                                                     "compiles off, and reads the image's placeholder mailbox and "
+                                                     "record mover addresses from ctrl_build.RV32_FLAGS and "
+                                                     "SPLIT_RV32_FLAGS and the flash port's generated map; it "
+                                                     "compiles no firmware or stack source",
     "tb/verilator/nvm_split_target/target_cases.py": "the saved-state cases' arms and planted defects on the split "
                                                      "CPU (#665), which the CPU budget harness's build.py builds; it "
                                                      "compiles nothing",

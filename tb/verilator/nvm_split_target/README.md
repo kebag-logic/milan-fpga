@@ -126,6 +126,7 @@ The bound is the CPU budget harness's `scenario.T_SVC_MS`.
 At this harness's base that is the 10 ms proposal.
 The owner approved `T_svc` = 20 ms on 2026-10-29, graded per family as `min(T_svc, ceiling)` ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); `scenario.py` takes that value with the change that makes it normative.
 10 ms is under every family's bound, the 18 ms of SRP's included, so a step within it is within each.
+Merged into lane S2b's branch (#810), `scenario.T_SVC_MS` is that 20 ms, the bound of every family, and every step is held to it; the self-test's T_svc figures follow it. The results below are this harness's at its own base, graded at 10 ms, and were not re-graded at the merged head.
 The boot is not a service step: it runs once, before the loop, and is measured, not held to T_svc.
 
 **The capture** is the store's capture phase for one work set with every record of the shape dirty.

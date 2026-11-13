@@ -1,0 +1,191 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""The self-test's checks of the polls by source (poll_grade.py; #665): every pass's base,
+its polls less the heavy items inside them, and every heavy item held to its stated cost at its point, an ACMP or AECP
+call that committed no frame the base's, and a base or an item over its cost failing the run whatever findings it
+records; and a control held to this image's own unplanted measurement (a reference control) caught only past
+its margin."""
+from __future__ import annotations
+
+import argparse
+import contextlib
+import io
+import tempfile
+from collections.abc import Callable
+from pathlib import Path
+from unittest.mock import patch
+
+import build
+import grade
+import poll_grade
+import poll_items
+import run
+import scenario
+
+Check = tuple[str, bool, str]
+#: The labels the testbench prints for each span, read here apart from poll_grade.ITEMS: a pass's first and last
+#: firmware poll, then each item's function.
+FIRST, LAST = 'adp_mbx:on_poll', 'ctrl_app_srp:deliver'
+LABELS = {'withdraw': 'srp_mbx:reset_interface', 'rebuild': 'srp_mbx:open_interface', 'walk': 'mrp_attr_visit',
+          'reclaim': 'mrp_reclaim', 'retained': 'srp_mbx:apply_receive', 'mrpdu': 'srp_mbx:build_mrpdu',
+          'acmp': 'acmp_mbx:on_poll', 'aecp': 'aecp:transmit'}
+#: The items whose call did their work only where it committed a frame of their module's channel.
+SENDING = {'acmp': 'acmp', 'aecp': 'aecp'}
+
+
+def traced_label(name: str | tuple[str, str]) -> str:
+    """The label the testbench prints for a SPAN_SYMBOLS entry."""
+    return name if isinstance(name, str) else f'{name[0]}:{name[1]}'
+
+
+def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
+    """A pass's base and each item at its stated cost fit it and a cycle over does not, by point."""
+    ratio = sys_hz // cpu_hz
+
+    def limit(kind: str, interfaces: int = 2) -> int:
+        """A stated cost in CPU cycles."""
+        return poll_grade.stated_us(interfaces)[kind] * cpu_hz // 1_000_000
+
+    def held(base: int, items: tuple = (), outside: tuple = (), unsent: tuple = (), interfaces: int = 2) -> dict:
+        """One pass's polls whose time outside its items is base CPU cycles, ACMP or AECP calls that committed no
+        frame among it: the items inside (kind, cycles, nested in the one before), and items after the polls,
+        graded."""
+        start = 10_000
+        span = lambda at, cycles, label: f'SPAN {ratio * at} {at} {cycles} 00002000 {label}'
+        lines, end, outer = [span(start, 50, FIRST)], start + 50, None
+        for kind, cycles, nested in items:
+            at = outer + 5 if nested else end + 10
+            lines.append(span(at, cycles, LABELS[kind]))
+            if kind in SENDING:
+                lines.append(f'TXC {ratio * (at + cycles // 2)} {scenario.CH[SENDING[kind]]} 0')
+            if not nested:
+                outer, end = at, at + cycles
+        for kind, cycles in unsent:
+            lines.append(span(end + 10, cycles, LABELS[kind]))
+            end += 10 + cycles
+        spent = sum(c for _, c, nested in items if not nested)
+        slack = base - (end - start - spent) - 40
+        assert slack >= 0, (base, end - start - spent)
+        end += slack + 40
+        lines.append(span(end - 40, 40, LAST))
+        lines += [span(end + 500, cycles, LABELS[kind]) for kind, cycles in outside]
+        lines.insert(0, f'PASS 1 {ratio * (start - 10)} {start - 10} {end - start + 520 + 10 * ratio} instr=10 '
+                        f'store_mbx=1 W {ratio * start}:1:0')
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, interfaces)['passes']['polls']
+
+    kinds = [k for k in LABELS]
+    one, two = poll_grade.stated_us(1), poll_grade.stated_us(2)
+    out = [("each point's polls costs are stated, every item's and the base's, the 8x8/2if base dearer than the "
+            "1x1/1if's", sorted(one) == sorted(two) == sorted(['base', *kinds]) and all(one.values()) and
+            all(two.values()) and two['base'] > one['base'], str((one, two))),
+           ("the testbench traces a pass's first and last firmware poll and every heavy item",
+            {FIRST, LAST, *LABELS.values()} <= {traced_label(n) for n in build.SPAN_SYMBOLS} and
+            {k: v[0] for k, v in poll_grade.ITEMS.items()} == LABELS, '')]
+    every = tuple((k, limit(k) // 4, False) for k in kinds)
+    at, over = held(limit('base'), every), held(limit('base') + 1, every)
+    out.append(("a pass's base at its stated cost fits it and one a cycle over does not, every item inside it "
+                'subtracted', at['over'] == [] and at['passes'] == 1 and
+                [(o['kind'], o['cycles']) for o in over['over']] == [('base', limit('base') + 1)], str((at, over))))
+    fits, misses = [], []
+    for k in kinds:
+        a, b = held(limit('base'), ((k, limit(k), False),)), held(limit('base'), ((k, limit(k) + 1, False),))
+        fits.append(a['over'] == [] and a['heaviest'][k] == limit(k))
+        misses.append([(o['kind'], o['cycles']) for o in b['over']] == [(k, limit(k) + 1)])
+    out.append(('each heavy item at its stated cost fits it and one a cycle over does not', all(fits) and all(misses),
+                str((fits, misses))))
+    for k in SENDING:
+        quiet = held(limit('base') + 1, unsent=((k, 101),))
+        out.append((f"an {k.upper()} call that committed no {k.upper()} frame is the base's",
+                    [(o['kind'], o['cycles']) for o in quiet['over']] == [('base', limit('base') + 1)], str(quiet)))
+    far = held(limit('base'), outside=(('rebuild', limit('rebuild') + 1),))
+    out.append(('an item outside the polls is neither subtracted from the base nor held as a polls item',
+                far['over'] == [] and far['heaviest']['rebuild'] == 0, str(far)))
+    record, dearer = (held(limit('base'), outside=(('retained', limit('retained') + d),)) for d in (0, 1))
+    out.append(("an SRP record's own apply, outside the polls, is held to its retry's stated cost: at it fits, a "
+                'cycle over does not, and neither is a polls item',
+                record['over'] == [] and record['heaviest'][poll_grade.RECORD] == limit('retained') and
+                record['heaviest']['retained'] == 0 and
+                [(o['kind'], o['cycles']) for o in dearer['over']] == [(poll_grade.RECORD, limit('retained') + 1)],
+                str((record, dearer))))
+    named_record = run.stated_misses([dict(group='r', passes=dict(polls=dearer))])
+    out.append(("an SRP record's apply over its stated cost is named, with the cost it passed",
+                named_record == [f"r: an SRP record's apply of {limit('retained') + 1:,} CPU cycles, over its stated "
+                                 f"{limit('retained'):,}"], str(named_record)))
+    nested = held(limit('base'), (('retained', limit('retained'), False), ('walk', limit('retained') // 2, True)))
+    out.append(('an item inside another is counted once, as the outer one',
+                nested['over'] == [] and nested['heaviest']['walk'] == 0, str(nested)))
+    single = held(limit('base', 1) + 1, interfaces=1)
+    out.append(("a pass at one interface is held to that point's costs",
+                [o['cycles'] for o in single['over']] == [limit('base', 1) + 1], str(single)))
+    base_over = held(limit('base') + 1)
+    item_over = held(limit('base'), (('withdraw', limit('withdraw') + 1, False),))
+    named = run.stated_misses([dict(group='g', passes=dict(polls=base_over)),
+                               dict(group='h', passes=dict(polls=item_over))])
+    out.append(("a pass's base or an item over its stated cost is named, with the cost it passed",
+                named == [f"g: a pass's polls base of {limit('base') + 1:,} CPU cycles, over its stated "
+                          f"{limit('base'):,}", f"h: a withdraw item of {limit('withdraw') + 1:,} CPU cycles, over "
+                          f"its stated {limit('withdraw'):,}"], str(named)))
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    out.append(("a pass's base over its stated cost fails a run whatever findings it records",
+                run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, ''))
+    return out + reference_checks()
+
+
+def reference_checks() -> list[Check]:
+    """A reference control (build.REFERENCE_CONTROLS, #665) is caught only where its group's planted heaviest
+    instance of its kind is more than the stated margin dearer than this image's unplanted one, measured on this
+    point's unplanted build in the same run, with no refusal in either run."""
+    name = 'srp-compared-by-memcmp'
+    kind, group = build.REFERENCE_CONTROLS.get(name), build.MUTATIONS[name][3]
+    args = argparse.Namespace(mutation=name)
+
+    def grades(cycles: int | None) -> list[dict]:
+        """One run's grade of the control's group with that heaviest instance, none for None."""
+        return [] if cycles is None else [dict(group=group, passes=dict(polls=dict(heaviest={kind: cycles})))]
+
+    def verdict(planted: int | None, unplanted: int | None = 20_000, refused: tuple = (),
+                unrefused: tuple = ()) -> int:
+        """The control's exit status on those two runs, its CONTROL line kept off the self-test's output."""
+        with contextlib.redirect_stdout(io.StringIO()):
+            return run.reference_verdict(args, grades(planted), list(refused), (grades(unplanted), list(unrefused)))
+    edge = 21_000
+    out = [("the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with "
+            'a margin of 5 %', kind == poll_grade.RECORD and name not in build.POLL_CONTROLS and
+            poll_items.REFERENCE_MARGIN_PERCENT == 5, str((kind, sorted(build.POLL_CONTROLS))))]
+    if kind is None:
+        return out
+    margins = tuple(verdict(c) for c in (edge + 1, edge, 20_000, 19_000))
+    out.append(('a reference control is caught by a planted record more than its margin dearer than the unplanted '
+                'one, and escapes at the margin, at the same cost and cheaper', margins == (0, 1, 1, 1), str(margins)))
+    refusals = (verdict(edge + 1, refused=('r',)), verdict(edge + 1, unrefused=('r',)), verdict(edge + 1, None),
+                verdict(None))
+    out.append(('a reference control escapes with a refusal in either run, or without its group in either',
+                refusals == (1, 1, 1, 1), str(refusals)))
+    out.append(reference_run_check(name))
+    return out
+
+
+def reference_run_check(name: str) -> Check:
+    """run.reference_run builds this point's unplanted image at the control's variant and core in <build-dir>/reference
+    and runs the control's group alone there."""
+    calls: list = []
+    planted = argparse.Namespace(mutation=name, variant=build.MUTATIONS[name][4], point='8x8', cpu_regions='cover',
+                                 fetch_l1='split', xip=False, reuse_build=False, regrade=False)
+    groups = [scenario.Group(build.MUTATIONS[name][3]), scenario.Group('other')]
+    spec = dict(flash_image='-')
+    with tempfile.TemporaryDirectory() as tmp, \
+            patch.object(build, 'build', lambda where, shape, n_if, **kw: calls.append(
+                ('build', where, shape, n_if, kw)) or spec), \
+            patch.object(run, 'all_groups', lambda point, s: groups), \
+            patch.object(scenario, 'point', lambda label, s: label), \
+            patch.object(run, 'run_group', lambda where, out, g, flash: calls.append(('run', where, g.name)) or out), \
+            patch.object(run, 'graded', lambda gs, logs, s, out: ([dict(group=g.name) for g in gs], ['x'], [])):
+        planted_dir = Path(tmp) / 'b'
+        results, refusals = run.reference_run(planted, planted_dir, 'endstation_ax7101_8x8', 2)
+    want = [('build', planted_dir / 'reference', 'endstation_ax7101_8x8', 2,
+             dict(mutation='none', variant=planted.variant, core=build.Core('cover', 'split', False))),
+            ('run', planted_dir / 'reference', build.MUTATIONS[name][3])]
+    return ("a reference control's other run is its group alone on this point's unplanted image, at its variant and "
+            'core, in the build directory\'s reference', calls == want and results == [dict(group=groups[0].name)]
+            and refusals == ['x'], str(calls))

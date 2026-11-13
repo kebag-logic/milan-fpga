@@ -24,10 +24,11 @@ import re
 import struct
 import sys
 from pathlib import Path
-from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
-                        source, stack_pin)
+from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, SPLIT_ISA, SPLIT_RV32_FLAGS, NVM_DIR, STACK, Tree,
+                        Refusal, legacy_stack, run, source, stack_pin)
 from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
+import ctrl_hot
 import fw_gtest
 import fw_rv32
 sys.path.insert(0,str(ROOT/"sw/litex"))
@@ -82,33 +83,75 @@ def aecp_inputs(tree: Tree, config: Path, out: Path, nvm: Path,
     return inc,sources
 
 
-def verify_abi(cc: str, elf: Path) -> None:
-    """Verify the final ELF, including all linked runtime objects."""
+def verify_abi(cc: str, elf: Path, isa: str) -> None:
+    """Verify the final ELF, including all linked runtime objects, is exactly `isa`."""
     data=elf.read_bytes()
     attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
     arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
+    name,attribute=fw_rv32.ARCH[isa]
     if (data[:7] != b"\x7fELF\x01\x01\x01" or
             struct.unpack_from("<HH",data,16) != (2,243) or
             struct.unpack_from("<I",data,36)[0] != 0 or
-            len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
-        raise Refusal("linked image must be RV32I ILP32, including runtime code")
+            len(arches) != 1 or not re.fullmatch(attribute,arches[0])):
+        raise Refusal(f"linked image must be {name} ILP32, including runtime code")
+
+
+def layout_isa(layout: str) -> str:
+    """The split placement's hart is RV32IM (#665, owner decision 2026-10-27); the flat size fixture stays RV32I."""
+    return SPLIT_ISA if layout == "split" else "rv32i"
+
+
+def layout_flags(layout: str) -> tuple[str, list[str]]:
+    """The layout's ISA and the flags its objects are compiled with."""
+    isa=layout_isa(layout)
+    return isa,[*(SPLIT_RV32_FLAGS if isa == SPLIT_ISA else RV32_FLAGS),
+                "-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+
+
+def object_audit(cc: str, objects: list[Path], isa: str) -> list[str]:
+    """Each object must be built for exactly `isa`; on the split hart, which multiplies and divides in hardware
+    (#665), none may call a software multiply or divide helper."""
+    return fw_rv32.object_findings(cc,objects,isa)+(fw_rv32.muldiv_findings(cc,objects) if isa == SPLIT_ISA else [])
 
 
 def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
          layout: str) -> tuple[Path, Path]:
-    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld)."""
+    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld), for its layout's
+    ISA (layout_isa)."""
     elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
+    isa=layout_isa(layout)
     script,ldflags=HERE/"ctrl_image.ld",[]
     if layout == "split":
         start=out/"ctrl_split_start.o"
-        checked([cc,"-march=rv32i","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
+        checked([cc,f"-march={isa}","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
         (out/"regions.ld").write_text(ctrl_memory.regions_ld())
         script,ldflags=src/"plat/ctrl_split.ld",[f"-L{out}",str(start)]
-    checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
+    checked([cc,f"-march={isa}","-mabi=ilp32","-nostdlib","-static","-no-pie",
              "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
              "-T",str(script),*ldflags,*map(str,objects),
              "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
     return elf,mapfile
+
+
+def hot_list(src: Path, mapfile: Path, layout: str) -> None:
+    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665);
+    a tree from before the list has neither file's part and is not checked."""
+    if layout != "split":
+        return
+    script=(src/"plat/ctrl_split.ld").read_text(); order=src/"plat/ctrl_split_hot.txt"
+    if not order.is_file() and ctrl_hot.START not in script:
+        return
+    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text())
+    if found:
+        raise Refusal("\n".join(found))
+
+
+def memory_calls_nothing(nm: str, sources: list[Path], objects: list[Path]) -> None:
+    """The platform's memory primitives reference no symbol (#665): a call the compiler made inside memcpy,
+    memmove or memset would recurse."""
+    for src,obj in zip(sources,objects):
+        if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
+            raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
 
 
 def arguments() -> argparse.Namespace:
@@ -133,6 +176,23 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def required_symbols(args: argparse.Namespace) -> set[str]:
+    """What the linked image must hold for the selected composition to have been linked, not discarded."""
+    required={"ctrl_app_start","ctrl_loop_run","image_app","image_arena"}
+    if not args.without_srp:
+        required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
+                     "acmp_rx","acmp_poll","image_acmp","srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
+                     "mrp_transmit","image_srp","image_sources"}
+    if args.with_aecp:
+        required -= {"ctrl_app_start","ctrl_app_start_maap"}
+        required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
+                     "aecp_rx","aecp_poll","aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
+                     "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
+                     "nvm_store_boot","nvm_store_tick","nvm_store_step","image_aecp","image_descriptors",
+                     "image_values","image_events","image_maps","image_map_pools","image_map_scratch"}
+    return required
+
+
 def main() -> int:
     """Measure one selected shape and composition."""
     args=arguments()
@@ -149,11 +209,15 @@ def main() -> int:
         variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
                  "-o",str(out/"adp_entity_gen.h")])
-        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+        isa,flags=layout_flags(args.layout)
         nvm=args.nvm_source.resolve()
         inc += [f"-I{out}",f"-I{nvm}",*fw_rv32.includes(cc)]
         sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
+        # The platform's word-wide memory primitives, linked ahead of the runtime archive's byte loops (#665);
+        # a tree from before them links the archive's.
+        memory=tree.src/"plat/ctrl_mem.c"
+        sources += [memory] if memory.is_file() else []
         if args.with_aecp:
             if args.without_srp:
                 raise Refusal("AECP sizing requires the complete SRP composition")
@@ -173,12 +237,13 @@ def main() -> int:
             obj=out/f"{index}-{src.stem}.o"
             checked([cc,*flags,*inc,"-c",str(src),"-o",str(obj)])
             objects.append(obj)
-        findings=fw_rv32.object_findings(cc,objects)
+        findings=object_audit(cc,objects,isa)
         if findings:
             raise Refusal(str(findings))
-        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         nm=cc.removesuffix("gcc")+"nm"
-        verify_abi(cc,elf)
+        memory_calls_nothing(nm,sources,objects)
+        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
+        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")
@@ -186,20 +251,9 @@ def main() -> int:
         names={line.split()[-1] for line in symbols.splitlines() if line.split()}
         if names & forbidden:
             raise Refusal("heap dependency in composed image")
-        required={"ctrl_app_start","ctrl_loop_run","image_app","image_arena"}
-        if not args.without_srp:
-            required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
-                         "acmp_rx","acmp_poll","image_acmp","srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
-                         "mrp_transmit","image_srp","image_sources"}
-        if args.with_aecp:
-            required -= {"ctrl_app_start","ctrl_app_start_maap"}
-            required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
-                         "aecp_rx","aecp_poll","aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
-                         "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
-                         "nvm_store_boot","nvm_store_service","image_aecp","image_descriptors",
-                         "image_values","image_events","image_maps","image_map_pools","image_map_scratch"}
-        if required-names:
-            raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")
+        missing=required_symbols(args)-names
+        if missing:
+            raise Refusal(f"composition discarded required code/storage: {sorted(missing)}")
         size=checked([cc.removesuffix("gcc")+"size","-A",str(elf)])
         sections={name:int(count) for name,count in re.findall(r"^(\.\S+)\s+(\d+)\s+",size,re.M)}
         if any(name not in sections for name in (".text",".rodata",".bss",".stack")):

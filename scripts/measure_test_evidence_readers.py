@@ -68,6 +68,10 @@ DUT_READER_DISPOSITIONS = {
         "boundary step double counting, retained guard streak, streak increment "
         "on slew discard and slew discard counted as a guard trip; "
         "no expectations read from RTL",
+    "tb/verilator/mbx/dma_mutants.py":
+        "mutation campaign; it plants one of the record mover's named defects (#665) into a copy of "
+        "KL_mbx_dma and requires its named check of dma_main.cpp to fail; the bench's expectations "
+        "are a driver's word loop written from the mailbox contract, never read from RTL",
     "tb/verilator/aaf_clock_meter/mutants.py":
         "mutation campaign; it plants one of the #629 design's named AAF clock meter "
         "and meter-in-front-of-servo defects into a copy of the meter or the servo and "

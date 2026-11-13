@@ -40,6 +40,7 @@
  * clock, a whole number of MHz or not: there is no whole ticks-per-us.
  */
 #include <stdint.h>
+#include <string.h>
 
 #include <generated/csr.h>
 #include <generated/mem.h>
@@ -74,8 +75,24 @@
  * and the host suite holds it to the clock of the shape's config. */
 const uint32_t nvm_flash_litespi_call_ticks = (uint32_t)(LS_CALL_US * LS_HZ / 1000000u);
 
+/* The clock and the microsecond over LS_COMMON, a common factor of the
+ * clock and 10^6: within a second, the microseconds of t clocks are
+ * t * LS_US_PER / LS_TICKS_PER exactly, in 32 bits (#665: the 64-bit divides
+ * and multiplies cost about 15,000 cycles of every pass on the RV32I core). */
+#define LS_COMMON (CONFIG_CLOCK_FREQUENCY % 1000000u == 0u ? 1000000u : \
+		   CONFIG_CLOCK_FREQUENCY % 100000u == 0u ? 100000u : \
+		   CONFIG_CLOCK_FREQUENCY % 10000u == 0u ? 10000u : \
+		   CONFIG_CLOCK_FREQUENCY % 1000u == 0u ? 1000u : \
+		   CONFIG_CLOCK_FREQUENCY % 100u == 0u ? 100u : \
+		   CONFIG_CLOCK_FREQUENCY % 10u == 0u ? 10u : 1u)
+#define LS_US_PER (1000000u / LS_COMMON)
+#define LS_TICKS_PER ((uint32_t)(CONFIG_CLOCK_FREQUENCY / LS_COMMON))
+_Static_assert((uint64_t)LS_US_PER * LS_TICKS_PER <= UINT32_MAX,
+	       "a clock whose microsecond does not convert in 32 bits needs another conversion");
+
 static uint32_t ls_tick_last;   /* timer0 at the last read */
-static uint64_t ls_ticks;       /* system clocks since nvm_flash_litespi_power_on */
+static uint32_t ls_second;      /* system clocks into the current second */
+static uint64_t ls_seconds_us;  /* the whole seconds since nvm_flash_litespi_power_on, in microseconds */
 static uint32_t ls_call_start;  /* timer0 when this call started */
 static uint32_t ls_waited;      /* status reads this call found the master not ready */
 
@@ -150,17 +167,17 @@ static void ls_close(void)
 	spiflash_master_cs_write(0);
 }
 
-/* One chip-select window: n command bytes, then len data bytes; 0 when every
- * byte went. On a stall the device is deselected and -1 returned. A command
- * cut short there reaches at most the slot being written, never the
- * authoritative one, and the store fails that attempt. */
-static int ls_window(const uint8_t *cmd, uint32_t n, const uint8_t *data, uint32_t len)
+/* One chip-select window of n bytes; 0 when every byte went. On a stall the
+ * device is deselected and -1 returned. A command cut short there reaches at
+ * most the slot being written, never the authoritative one, and the store
+ * fails that attempt. */
+static int ls_window(const uint8_t *bytes, uint32_t n)
 {
 	uint32_t i;
 	int ok = ls_open() == 0;
 
-	for (i = 0; ok && i < n + len; ++i)
-		ok = ls_xfer(i < n ? cmd[i] : data[i - n]) >= 0;
+	for (i = 0; ok && i < n; ++i)
+		ok = ls_xfer(bytes[i]) >= 0;
 	ls_close();
 	return ok ? 0 : -1;
 }
@@ -198,9 +215,15 @@ static int ls_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 
 static const uint8_t ls_wren = LS_CMD_WREN;
 
+/* A page goes from a copy in this frame (#665): each byte passes through calls
+ * whose frames can share a D-cache set with the store's own buffer, and a line
+ * of the page that does misses on every byte, 28,000 CPU cycles more in the
+ * page the 1x1 image's stack aliases. The stack is one span no longer than the
+ * cache, so the copy shares a set with no frame, and every page costs the same
+ * wherever the image is linked (NVM_STEP_US). */
 static int ls_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t len)
 {
-	uint8_t cmd[4];
+	uint8_t cmd[4u + LS_PAGE];
 
 	(void)ctx;
 	if (len == 0 || len > LS_PAGE || (addr % LS_PAGE) + len > LS_PAGE ||
@@ -208,7 +231,8 @@ static int ls_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t len
 		return -1;
 	ls_call_begin();
 	ls_command(cmd, LS_CMD_PP, addr);
-	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))
+	memcpy(cmd + 4, src, len);
+	if (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u + len))
 		return -1;
 	return 0;
 }
@@ -223,7 +247,7 @@ static int ls_erase(void *ctx, uint32_t addr)
 		return -1;
 	ls_call_begin();
 	ls_command(cmd, LS_CMD_SE, base);
-	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, 0, 0u))
+	if (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u))
 		return -1;
 	return 0;
 }
@@ -246,18 +270,28 @@ static int ls_busy(void *ctx)
 	return (status & LS_SR_WIP) ? 1 : 0;
 }
 
+/* floor(clocks since power-on * 10^6 / CONFIG_CLOCK_FREQUENCY): the whole
+ * seconds, carried as they complete, then the clocks into this one. */
 static uint64_t ls_now_us(void *ctx)
 {
 	uint32_t v;
+	uint32_t elapsed;
+	uint32_t steps;
 
 	(void)ctx;
 	v = ls_timer();
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
-	ls_ticks += (uint32_t)(ls_tick_last - v);
+	elapsed = (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
-	/* whole seconds, then the rest: fewer clocks than one second's, so
-	 * times 10^6 it stays inside 64 bits */
-	return ls_ticks / LS_HZ * 1000000u + ls_ticks % LS_HZ * 1000000u / LS_HZ;
+	/* at most 2^32 - 1 clocks: a few dozen seconds, carried without a divide */
+	while (elapsed >= (uint32_t)LS_HZ - ls_second) {
+		elapsed -= (uint32_t)LS_HZ - ls_second;
+		ls_second = 0;
+		ls_seconds_us += 1000000u;
+	}
+	ls_second += elapsed;
+	steps = ls_second / LS_TICKS_PER;
+	return ls_seconds_us + steps * LS_US_PER + (ls_second - steps * LS_TICKS_PER) * LS_US_PER / LS_TICKS_PER;
 }
 
 void nvm_flash_litespi_power_on(void)
@@ -267,7 +301,8 @@ void nvm_flash_litespi_power_on(void)
 	timer0_reload_write(0xffffffffu);
 	timer0_en_write(1);
 	ls_tick_last = 0xffffffffu;
-	ls_ticks = 0;
+	ls_second = 0;
+	ls_seconds_us = 0;
 }
 
 const struct nvm_flash nvm_flash_litespi = {

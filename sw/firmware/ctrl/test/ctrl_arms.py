@@ -31,6 +31,35 @@ def arm_port(tree: Tree) -> Outcome:
     return execute("port", link(tree, "test_port_loop", objs))
 
 
+#: The one file of the firmware outside test/ that may name a compiler extension, behind its portable fallback (#665).
+PLATFORM_CC = "plat/ctrl_cc.h"
+#: What names one: a GNU attribute or built-in.
+EXTENSION = re.compile(r"__attribute__|__builtin_")
+#: The check's name on its [FAIL] lines, as a planted defect reads it.
+PORTABLE_CHECK = "Portable.CompilerExtensionsOnlyInThePlatformHeader"
+
+
+def arm_portable(tree: Tree) -> Outcome:
+    """Portable C11 (#665: the firmware ports to a hard core): no source or header of the tree outside test/ names a
+    compiler extension but plat/ctrl_cc.h, and the port layer, the driver and the loop pass their tests built with
+    that header's portable fallback (CTRL_CC_GNU=0)."""
+    found = []
+    for path in sorted(p for p in tree.src.rglob("*") if p.suffix in (".c", ".h", ".S") and p.is_file()):
+        rel = path.relative_to(tree.src).as_posix()
+        if "test" in path.relative_to(tree.src).parts or rel == PLATFORM_CC:
+            continue
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if EXTENSION.search(line):
+                found.append(f"  [FAIL] {PORTABLE_CHECK}: {rel}:{number} a compiler extension outside {PLATFORM_CC}")
+    fallback = ("-DCTRL_CC_GNU=0",)
+    objs = (compile_c(tree, sources(tree, PORTABLE), "portable", fallback, measured=False) +
+            compile_c(tree, sources(tree, HOST), "portable/host", measured=False) +
+            compile_tests(tree, ("test_port_loop.cpp",), "portable/tests"))
+    built = execute("portable", link(tree, "test_port_loop_portable", objs))
+    scan = f"  {PORTABLE_CHECK}: {len(found)} finding(s)"
+    return Outcome("portable", 1 if found or built.rc else 0, "\n".join([*found, scan, built.log]))
+
+
 #: The ADP binary's tests: the stack's core cases, then the adapter's, the latency bounds and the backlog.
 ADP_TESTS = ("tsn-c-stack/tests/test_adp.cpp", "test_adp.cpp")
 
@@ -193,7 +222,9 @@ def arm_reentry_release(tree: Tree) -> Outcome:
 
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
-    mocks; then the MMIO platform over a host window."""
+    mocks; then the MMIO platform over a host window, the driver built for that
+    window, the driver built as the split image builds it, with the record mover
+    and the notice's fan port over it, and the platform's memory primitives."""
     fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
     objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
     seams = execute("unit", link(tree, "test_unit", objs))
@@ -201,7 +232,27 @@ def arm_unit(tree: Tree) -> Outcome:
               "-DCTRL_MBX_WFI=ctrl_test_wfi")
     mmio = compile_c(tree, sources(tree, ("plat/mbx_plat_mmio.c",)), "mmio", window)
     platform = execute("unit", link(tree, "test_mmio", mmio + compile_tests(tree, ("test_mmio.cpp",), "mmio/tests")))
-    return Outcome("unit", max(seams.rc, platform.rc), f"{seams.log}\n{platform.log}")
+    # The driver as the image builds it: for the window, each access made in place (plat/mbx_mmio.h, #665).
+    driver = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-driver", window)
+    in_place = execute("unit", link(tree, "test_mmio_driver",
+                                    driver + compile_tests(tree, ("test_mmio_driver.cpp",), "mmio-driver/tests")))
+    # The driver as the split image builds it: each record's payload moved by the record mover (plat/mbx_dma.h),
+    # over a register model of the mover (mmio_dma.h, #665).
+    dma = (*window, f"-include{HERE / 'mmio_dma.h'}", "-DCTRL_MBX_DMA_BASE=(ctrl_test_dma_base())")
+    mover = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-dma", dma)
+    # with the notice's fan port over that driver (aecp_mbx.c), on the window's HAL
+    aecp = (f"-I{tree.src / 'aecp'}",)
+    mover += compile_c(tree, sources(tree, ("aecp/aecp_mbx.c", "plat/mbx_plat_mmio.c")), "mmio-dma-aecp", (*dma, *aecp))
+    moved = execute("unit", link(tree, "test_mbx_dma_driver",
+                                 mover + compile_tests(tree, ("test_mbx_dma_driver.cpp",), "mmio-dma/tests", aecp)))
+    # The platform's memcpy, memmove, memset and memcmp under names the host's C library does not own.
+    renamed = ("-Dmemcpy=ctrl_mem_memcpy", "-Dmemmove=ctrl_mem_memmove", "-Dmemset=ctrl_mem_memset",
+               "-Dmemcmp=ctrl_mem_memcmp")
+    mem = compile_c(tree, sources(tree, ("plat/ctrl_mem.c",)), "mem", renamed)
+    mem_tests = compile_tests(tree, ("test_ctrl_mem.cpp",), "mem/tests")
+    memory = execute("unit", link(tree, "test_ctrl_mem", mem + mem_tests))
+    return Outcome("unit", max(seams.rc, platform.rc, in_place.rc, moved.rc, memory.rc),
+                   f"{seams.log}\n{platform.log}\n{in_place.log}\n{moved.log}\n{memory.log}")
 
 
 #: The unit binary: the two link-seam mocks and the tests written on them.
@@ -326,7 +377,8 @@ def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
 
 
 def arm_rv32(tree: Tree, require: bool) -> Outcome:
-    """The portable set and the MMIO platform, cross-compiled; only C-library and libgcc symbols left open."""
+    """The portable set and the platform, cross-compiled; only C-library and libgcc symbols left open, and
+    none at all by the platform's memory primitives, which a compiler-made call would turn into recursion."""
     cc = rv32_compiler()
     if cc is None:
         if require:
@@ -339,7 +391,7 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
     except ValueError as exc:
         raise Refusal(str(exc)) from exc
     objs = []
-    for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
+    for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c", "plat/ctrl_mem.c")):
         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
         res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
         if res.returncode != 0:
@@ -349,6 +401,9 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
     stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
     findings = fw_rv32.object_findings(cc, objs)
+    leaf = symbols(tool + "nm", [obj_dir / "plat_ctrl_mem.o"], True)
+    if leaf:
+        findings.append(f"plat/ctrl_mem.c references {', '.join(sorted(leaf))}: the memory primitives call nothing")
     try:
         frame = fw_rv32.stack_frames(objs)
     except ValueError as exc:
@@ -467,6 +522,26 @@ def arm_srpcmp() -> Outcome:
            f"  {len(plants)} planted defects caught: {', '.join(plants)}\n"
            f"  named controls and plants missing: {', '.join(missing) or 'none'}")
     return Outcome("srpcmp", 1 if failed or missing else 0, log)
+
+
+HOT = HERE / "ctrl_hot.py"
+#: The hot-list gate's planted defects, by name: one that goes missing from its self-test fails the arm (#665).
+HOT_PLANTS = frozenset({"stale-name", "absent-from-image", "only-discarded", "reordered", "dropped", "unrecorded",
+                        "recorded-elsewhere", "no-end-marker"})
+
+
+def arm_hot() -> Outcome:
+    """The split script's hot list: the tree's list is the recorded order (--check), and the gate's self-test
+    passes its control and refuses each named plant by its own rule."""
+    check = run([sys.executable, "-I", "-B", str(HOT), "--check"])
+    test = run([sys.executable, "-I", "-B", str(HOT), "--self-test"])
+    caught = set(re.findall(r"^\[caught\] ([\w-]+):", test.stdout, re.M))
+    missing = sorted(HOT_PLANTS - caught)
+    lines = (test.stdout + test.stderr).splitlines()
+    log = (f"  {HOT.name} --check: {(check.stdout + check.stderr).strip()}\n"
+           f"  {HOT.name} --self-test:\n" + "".join(f"    {line}\n" for line in lines)
+           + f"  named plants not caught: {', '.join(missing) or 'none'}")
+    return Outcome("hot", 1 if check.returncode or test.returncode or missing else 0, log)
 
 
 # ---- the verdict -------------------------------------------------------------------------

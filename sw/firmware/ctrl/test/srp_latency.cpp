@@ -136,7 +136,11 @@ TEST_F(SrpLatency, OriginalLeaveDeadlineSurvivesCoalescedBacklog) {
 TEST_F(SrpLatency, FullRingRetainsOriginalOriginAndElevenMillisecondStallFails) {
     mbx_model_tx_pause(&model,true); std::vector<uint8_t> filler(60);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
-    commits.clear(); now_ns=0; ctrl_loop_service(&loop); ASSERT_GT(adapter.owed_len,0u);
+    // THE TRANSMIT builds in the first pass that takes at most one event (ctrl_loop.h): at two interfaces the
+    // first pass takes both LINK records
+    commits.clear(); now_ns=0;
+    for(unsigned n=0;n<4u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
     const uint64_t origin=0;
     mbx_model_advance_ms(&model,11); now_ns=11*ns_per_ms; ctrl_loop_service(&loop);
     EXPECT_TRUE(commits.empty());

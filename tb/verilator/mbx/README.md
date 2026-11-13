@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # mbx: the packet-mailbox fabric skeleton, through both bus adapters
 
-`make` builds and runs four things, exit 0 = all green:
+`make` builds and runs five things, exit 0 = all green:
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
@@ -23,7 +23,24 @@
    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
    `obj_if2/gen`, never the tree), through both adapters and on the host
    model ([`model_main.cpp`](model_main.cpp)), so the own-MAC and
-   bound-talker checks run on two real interfaces.
+   bound-talker checks run on two real interfaces;
+5. `dma-mutants`: `run-dma`, the split placement's record mover
+   ([`KL_mbx_dma`](../../../hdl/milan/mailbox/KL_mbx_dma.sv), #665) on its own
+   bench ([`dma_main.cpp`](dma_main.cpp)): its host port answered by a model
+   of `KL_mbx`'s as merged (one request, none until its answer; a register
+   read answered two cycles after its request, a ring read or any write the
+   cycle after, #870), its DMA port by an AXI4 memory with seeded stalls and
+   an error range, checks D1 to D11 (a move leaves memory or the ring as the
+   driver's word loop would, bursts inside a 64-byte line, the CPU's access
+   held through a move with its own strobes, a move started beside a CPU
+   access, refusals, error responses that end a move at their burst, reset,
+   each request's fields held through its answer, every length the 12-bit
+   field takes, 4092 to 4095 included, and a CPU register read answered at
+   its two-cycle answer, alone, behind a move and in the cycle a move starts,
+   with no request on the port while one awaits its answer); then its 24
+   planted defects ([`dma_mutants.py`](dma_mutants.py)), each caught by the
+   check it names, `cpu-answer-one-cycle` among them: the one-cycle answer
+   routing that `KL_mbx`'s two-cycle register read broke.
 
 `make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)
 `--check --selftest` (#665, comments 6092086337, 6094461419, 6097292237 and

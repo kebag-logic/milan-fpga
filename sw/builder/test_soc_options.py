@@ -3,9 +3,12 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #654: early CPU option refusals and optional real-netlist effect tests.
 
-The builder runs the refusal bank, and the split placement's instruction
-cache check (#665): only the split CPU's generator options gain the cache,
-at exactly its documented geometry.
+The builder runs the refusal bank, and the split placement's CPU check
+(#665): only the split CPU's generator options gain RV32M and the
+instruction and data caches, each at exactly its documented geometry, the
+split CPU's flash window leaves its data cache, and the split CPU runs on
+the sys clock with no clock of its own while the all-fabric CPU keeps the
+Milan clock (owner decision 2026-10-30).
 --netlists additionally requires the NaxRiscv data package and its generator
 sources; no missing dependency skips. Each export uses a fresh process
 because CPU wrappers retain class state.
@@ -19,11 +22,20 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 SOC = ROOT / "sw/litex/milan_soc.py"
-#: The split CPU's generator options, restated here on purpose (#665,
-#: docs/design/SPLIT_CONTROL_MEMORY.md section 7, and the area plan's 1.5-tile
-#: debit): a 4 KiB fetch L1 of 64 sets, one way, of the generator's 64-byte
-#: line, and no LSU L1. A changed geometry must fail.
-SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1"
+#: The split CPU's generator options, restated here on purpose (#665, owner
+#: decision 2026-10-29; docs/design/SPLIT_CONTROL_MEMORY.md sections 7 and 13,
+#: and the area plan's debit): a 16 KiB fetch L1 of 128 sets, two ways, of the
+#: generator's 64-byte line. A changed geometry must fail.
+SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2"
+#: The split CPU's data cache (#665, owner decision 2026-10-28; section 9 of
+#: the same page): an 8 KiB LSU L1 of 128 sets, one way. Losing it or a
+#: changed geometry must fail.
+SPLIT_LSU_L1 = "--lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1"
+#: RV32M on the split CPU only (#665, owner decision 2026-10-27; NFR-SCOUT-01):
+#: the generator's multiply and its divide at their defaults. Losing either, or
+#: another divider, must fail.
+SPLIT_MULDIV = "--with-mul --with-div"
+SPLIT_CPU = f"{SPLIT_MULDIV} {SPLIT_FETCH_L1} {SPLIT_LSU_L1}"
 
 # Keep __file__ at the real recipe, including when planting source mutations.
 # Only the refusal probe replaces CPU setup with a sentinel. The effect arm
@@ -47,10 +59,19 @@ from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
 class SetupStarted(Exception):
     pass
 recorded = {}
+def soc_under_construction():
+    """The MilanSoC whose constructor is handing the CPU its options."""
+    frame = sys._getframe()
+    while frame is not None and not isinstance(frame.f_locals.get("self"), mod.MilanSoC):
+        frame = frame.f_back
+    return frame.f_locals["self"]
 def vexii_setup(args):
-    """Record the generator options the constructor hands the CPU, then stop before setup."""
+    """Record the generator options and the CPU clock the constructor hands the CPU, then stop before setup."""
+    soc = soc_under_construction()
     recorded["vexii_args"] = args.vexii_args
+    recorded["clock"] = [soc.cpu_cd, soc.cpu_clk_freq, args.with_cpu_clk]
     recorded["split_args"] = mod.ctrl_cpu_args(mod.CTRL_FETCH_L1)
+    recorded["cacheless_args"] = mod.ctrl_cpu_args(None)
     raise SetupStarted
 sink = io.StringIO()
 result = {}
@@ -223,38 +244,152 @@ def _split_cache(directory, mutations=()):
     """The CPU options of the all-fabric and the split placement (#665), checked.
 
     The all-fabric CPU keeps exactly its arguments; the split CPU adds only
-    the documented fetch L1 (SPLIT_FETCH_L1), which carries no LSU L1, and
-    ctrl_cpu_args gives the harness's --fetch-l1 split the same options.
+    RV32M (SPLIT_MULDIV), the documented fetch L1 (SPLIT_FETCH_L1) and the
+    documented LSU L1 (SPLIT_LSU_L1), and ctrl_cpu_args gives the harness's
+    --fetch-l1 split the same options and its cacheless arm the same RV32M,
+    with neither cache.
     """
     fabric = _probe(directory, options={}, mutations=list(mutations))
     split = _probe(directory, options={"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"},
                    mutations=list(mutations))
     assert fabric["kind"] == split["kind"] == "setup", (fabric, split)
     assert fabric["vexii_args"] == "--xlen=32", fabric
-    assert split["split_args"] == SPLIT_FETCH_L1, split
-    assert split["vexii_args"] == "--xlen=32 " + SPLIT_FETCH_L1, split
+    assert split["split_args"] == SPLIT_CPU, split
+    assert split["vexii_args"] == "--xlen=32 " + SPLIT_CPU, split
+    assert split["cacheless_args"] == SPLIT_MULDIV, split
 
 
 def test_split_cache() -> None:
-    """Grade the split placement's instruction cache options and kill their loss, leak, widening and resizing."""
+    """Grade the split placement's RV32M, instruction cache and data cache options and kill their loss, leak,
+    widening and resizing."""
     split = "\n                # #665: the split"
+    cache = 'return (f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"'
+    lsu = 'f" --lsu-l1 --lsu-l1-sets={lsu_sets} --lsu-l1-ways={lsu_ways}")'
+    muldiv = 'CTRL_MULDIV = "--with-mul --with-div"'
     controls = [
-        ("the split CPU without its cache", "            if ctrl_mailbox:" + split, "            if False:" + split),
-        ("the all-fabric CPU with the cache", "            if ctrl_mailbox:" + split, "            if True:" + split),
-        ("a data cache with it",
-         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"',
-         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways} --lsu-l1"'),
-        ("a larger cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (128, 1)"),
-        ("a second way", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (64, 2)"),
-        ("a smaller cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (32, 1)"),
+        ("the split CPU without its caches or RV32M", "            if ctrl_mailbox:" + split,
+         "            if False:" + split),
+        ("the all-fabric CPU with the caches and RV32M", "            if ctrl_mailbox:" + split,
+         "            if True:" + split),
+        ("the split CPU without its data cache", lsu, 'f"")'),
+        ("a larger cache", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (256, 2)"),
+        ("a third way", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (128, 3)"),
+        ("one way", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (128, 1)"),
+        ("a smaller cache", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (64, 2)"),
+        ("the 4 KiB direct-mapped cache it replaces", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (64, 1)"),
+        ("a larger data cache", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (256, 1)"),
+        ("a second data way", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (128, 2)"),
+        ("a smaller data cache", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (64, 1)"),
+        ("the split CPU without RV32M", muldiv, 'CTRL_MULDIV = ""'),
+        ("a multiply without the divide", muldiv, 'CTRL_MULDIV = "--with-mul"'),
+        ("a radix-4 divider", muldiv, 'CTRL_MULDIV = "--with-mul --with-div --div-radix=4"'),
+        ("the caches without RV32M", cache, 'return (f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"'),
+        ("the cacheless arm without RV32M", "    if fetch_l1 is None:\n        return CTRL_MULDIV",
+         '    if fetch_l1 is None:\n        return ""'),
     ]
     with tempfile.TemporaryDirectory(prefix="soc-split-cache-") as tmp:
         directory = Path(tmp)
         _split_cache(directory)
         for label, old, new in controls:
             _killed(lambda: _split_cache(directory, [(old, new)]), label)
-    print("Split placement CPU: the 4 KiB direct-mapped instruction cache on the split CPU only, "
-          f"{len(controls)} killed controls")
+    print("Split placement CPU: RV32M, the 16 KiB two-way instruction cache and the 8 KiB direct-mapped "
+          f"data cache on the split CPU only, {len(controls)} killed controls")
+
+
+def _split_clock(directory, mutations=()):
+    """The CPU clocks of the all-fabric and the split placement (#665, owner decision 2026-10-30), checked.
+
+    The probe's sys clock is 50 MHz and its Milan clock, when it has one, 25 MHz, so the two cannot
+    be confused. The all-fabric CPU stays on the Milan clock behind the generator's crossing, or on
+    sys without one; the split CPU runs on sys, at the sys clock, with no clock of its own, by
+    default and when named; a split CPU on the Milan clock is refused before the CPU is set up.
+    """
+    milan = {"milan_clk_freq": 25000000}
+    split = {"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"}
+    cases = {"all-fabric": milan, "all-fabric without a Milan clock": {}, "split": {**milan, **split},
+             "split, named": {**milan, **split, "ctrl_cpu_cd": "sys"}}
+    want = {"all-fabric": ["milan", 25000000, True], "all-fabric without a Milan clock": ["sys", 50000000, False],
+            "split": ["sys", 50000000, False], "split, named": ["sys", 50000000, False]}
+    got = {}
+    for name, options in cases.items():
+        result = _probe(directory, options=options, mutations=list(mutations))
+        got[name] = result.get("clock", result)
+    assert got == want, got
+    _refused(_probe(directory, options={**milan, **split, "ctrl_cpu_cd": "milan"}, mutations=list(mutations)),
+             "the split placement's CPU runs in the sys clock domain, the bus clock")
+
+
+def test_split_clock() -> None:
+    """Grade the split placement's CPU clock and kill its return to the Milan clock."""
+    domain = 'CTRL_CPU_CD = "sys"'
+    refusal = '    if ctrl_cpu_cd != CTRL_CPU_CD:\n        raise ValueError(f"the split'
+    default = "        if ctrl_mailbox and ctrl_cpu_cd is None:\n            ctrl_cpu_cd = CTRL_CPU_CD"
+    controls = [
+        ("the split CPU on the Milan clock", domain, 'CTRL_CPU_CD = "milan"'),
+        ("a split CPU on the Milan clock accepted", refusal,
+         refusal.replace("if ctrl_cpu_cd != CTRL_CPU_CD:", "if False:")),
+        ("the split CPU left to the all-fabric rule", default, default.replace("if ctrl_mailbox and", "if False and")),
+        ("the split CPU with a clock of its own", '_vex_args.with_cpu_clk = self.cpu_cd != "sys"',
+         "_vex_args.with_cpu_clk = bool(milan_clk_freq)"),
+        ("the all-fabric CPU moved to sys", 'else "milan" if milan_clk_freq else "sys")', 'else "sys")'),
+        ("the CPU's clock taken from the Milan clock",
+         'self.cpu_clk_freq = int(milan_clk_freq if self.cpu_cd == "milan" else sys_clk_freq)',
+         "self.cpu_clk_freq = int(milan_clk_freq or sys_clk_freq)"),
+    ]
+    with tempfile.TemporaryDirectory(prefix="soc-split-clock-") as tmp:
+        directory = Path(tmp)
+        _split_clock(directory)
+        for label, old, new in controls:
+            _killed(lambda: _split_clock(directory, [(old, new)]), label)
+    print("Split placement CPU: on sys at the sys clock with no clock of its own, the all-fabric CPU on the Milan "
+          f"clock, a split CPU on the Milan clock refused, {len(controls)} killed controls")
+
+
+_FLASH_PROBE = r'''
+import json, sys, types
+from pathlib import Path
+spec = json.loads(sys.stdin.read())
+source = Path(spec["soc"]).read_text()
+for old, new in spec["mutations"]:
+    assert source.count(old) == 1, (old, source.count(old))
+    source = source.replace(old, new)
+sys.path.insert(0, str(Path(spec["soc"]).parent))
+mod = types.ModuleType("soc_flash_probe")
+mod.__file__ = spec["soc"]
+sys.modules[mod.__name__] = mod
+exec(compile(source, spec["soc"], "exec"), mod.__dict__)
+from litex.soc.integration.soc import SoCRegion
+regions = {"spiflash": SoCRegion(origin=0x0100_0000, size=0x0100_0000, mode="rx"),
+           "sram": SoCRegion(origin=0x1000_0000, size=0x3_8000, mode="rwx")}
+mod.ctrl_uncached_flash(types.SimpleNamespace(bus=types.SimpleNamespace(regions=regions)))
+# VexiiRiscv.do_finalize's own rule: a region's mode, then "c" when it is cached.
+print(json.dumps({n: r.mode + ("c" if r.cached else "") for n, r in regions.items()}))
+'''
+
+
+def _split_flash(mutations=()):
+    """The split CPU's flash window reaches the generator uncached and not executable, and nothing else
+    changes (#665)."""
+    run = subprocess.run([sys.executable, "-B", "-c", _FLASH_PROBE], text=True, capture_output=True, cwd=ROOT,
+                         timeout=300, input=json.dumps(dict(soc=str(SOC), mutations=list(mutations))))
+    if run.returncode != 0:
+        raise RuntimeError(run.stdout + run.stderr)
+    modes = json.loads(run.stdout.strip().splitlines()[-1])
+    assert modes == {"spiflash": "r", "sram": "rwxc"}, modes
+
+
+def test_split_flash() -> None:
+    """Grade the split CPU's uncached flash window and kill its loss."""
+    _split_flash()
+    marked = '    region.cached = False'
+    fetch = '    region.mode = region.mode.replace("x", "")'
+    controls = [("the flash window left cached", marked, "    pass"),
+                ("the flash window left executable", fetch, "    pass"),
+                ("every region uncached", marked,
+                 "    for r in soc.bus.regions.values():\n        r.cached = False")]
+    for label, old, new in controls:
+        _killed(lambda: _split_flash([(old, new)]), label)
+    print(f"Split placement CPU: the flash window uncached and not executable, {len(controls)} killed controls")
 
 
 def test_refusals() -> None:
@@ -302,6 +437,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     test_refusals()
     test_split_cache()
+    test_split_flash()
+    test_split_clock()
     if args.netlists:
         test_netlists(args.nax_data_dir)
     print("RESULT: PASS")

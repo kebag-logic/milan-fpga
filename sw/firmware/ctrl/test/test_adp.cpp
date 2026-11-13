@@ -412,6 +412,7 @@ struct Passes {
     uint64_t worst;
     uint64_t answer_accesses;
     uint64_t rx_accesses;
+    unsigned tick_passes;  // the passes up to rx_at that dispatched a centisecond (THE TICK's cap, ctrl_loop.h)
 };
 
 // Events: an expiry on each of the 15 slots ADP does not own, then ADP's own
@@ -490,6 +491,7 @@ Passes backlog_take(const Backlog& b) {
         total += n;
         s.worst = n > s.worst ? n : s.worst;
         s.most_ticks = ticks_seen - t0 > s.most_ticks ? ticks_seen - t0 : s.most_ticks;
+        s.tick_passes += s.rx_at == 0u && ticks_seen > t0 ? 1u : 0u;
         if (s.evt_at == 0u && app.loop.stats.events - b.events0 >= 16u) {
             s.evt_at = p;
         }
@@ -522,8 +524,11 @@ void backlog_grade(const Backlog& b, const Passes& s) {
         << "F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it";
     EXPECT_TRUE(s.answer_at != 0u && s.answer_accesses <= ADP_MBX_EVT_ACCESSES)
         << "F2 within ADP_MBX_EVT_ACCESSES of the backlog's first access";
-    EXPECT_TRUE(s.rx_at == (b.stored + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
-        << "F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS)";
+    // a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records (THE TICK's cap, ctrl_loop.h)
+    const unsigned lost = s.tick_passes * (CTRL_LOOP_RX_PER_PASS - CTRL_LOOP_RX_PER_TICK_PASS);
+    EXPECT_TRUE(s.rx_at == (b.stored + lost + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
+        << "F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS), one record later for each "
+           "pass among them that dispatches a centisecond";
     EXPECT_TRUE(s.rx_at != 0u && s.rx_at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) &&
                 s.rx_accesses <= ADP_MBX_RX_ACCESSES)
         << "F3 within CTRL_LOOP_RX_PASSES(256) passes and ADP_MBX_RX_ACCESSES accesses";

@@ -51,7 +51,7 @@ FACE_COMMIT = min(hooks.face_commit_words({'interfaces': 1}))
 #: The product clocks (the owner's decision of 2026-10-30 on #665): the split CPU on sys, at the bus's 100 MHz.
 CPU_HZ = SYS_HZ = 100_000_000
 #: The bounds the owner's decision of 2026-10-29 on #665 gives, restated.
-BOUNDS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 18.0}
+BOUNDS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0}
 NORMATIVE = {'adp': 2000.0, 'disc': 200.0, 'acmp': 200.0, 'aecp': 240.0, 'notify': 240.0, 'maap': 500.0,
              'srp': 180.0}
 FAMILIES = {'adp': 'H-ADP', 'disc': 'H-DISC', 'acmp': 'H-ACMP', 'aecp': 'H-AECP', 'notify': 'H-NOTIFY',
@@ -105,9 +105,11 @@ def check_bounds() -> None:
 
 
 def check_srp_instance() -> None:
-    """An SRP path of 18 to 20 ms is over its bound, though within T_svc."""
-    expect(not run.hook_row(row('srp', 19.0), 'srp')['within'], 'a 19 ms SRP path fits')
-    expect(run.hook_row(row('srp', 18.0), 'srp')['within'], 'an 18 ms SRP path misses')
+    """An SRP path is held to T_svc, its bound since the owner's ruling of 2026-11-06 (#665, #810): a 20 ms path fits,
+    past it misses, and one over its earlier 18 ms ceiling fits."""
+    expect(run.hook_row(row('srp', 19.0), 'srp')['within'], 'a 19 ms SRP path misses')
+    expect(run.hook_row(row('srp', 20.0), 'srp')['within'], 'a 20 ms SRP path misses')
+    expect(not run.hook_row(row('srp', 20.00001), 'srp')['within'], 'an SRP path past T_svc fits')
 
 
 def check_exact_bound() -> None:
@@ -116,7 +118,7 @@ def check_exact_bound() -> None:
     expect(run.hook_row(row('aecp', 20.0), 'aecp')['within'], 'the exact bound misses')
     expect(not run.hook_row(row('aecp', 20.00001), 'aecp')['within'], 'past the bound fits')
     r = run.hook_row(row('srp', 210.0, wait=200.0), 'srp')
-    expect(r['within'] and r['bound_ms'] == 218.0, f'W + bound: {r}')
+    expect(r['within'] and r['bound_ms'] == 220.0, f'W + bound: {r}')
     expect(not run.hook_row(row('acmp', 1.0, starved=True), 'backlog')['within'], 'a starved path fits')
     expect(not run.hook_row(row('acmp', 1.0, unanswered=True), 'backlog')['within'], 'an unanswered path fits')
     r = run.hook_row(row('srp', 10.0, wait=150.0), 'srp')
@@ -546,9 +548,9 @@ def check_counter_rows() -> None:
 
 
 def check_amended() -> None:
-    """The amended column gives SRP T_svc, and a queued notice its point's ceiling, 20 ms at one interface and 60 ms
-    at two; any other path its bound. It grades nothing: the same paths are over the same bounds, and a table says
-    which bounds it graded by."""
+    """The amended column gives SRP T_svc, which with #810's bounds in the tree is SRP's graded bound too, and a queued
+    notice its point's ceiling, 20 ms at one interface and 60 ms at two; any other path its bound. It grades nothing:
+    the same paths are over the same bounds, and a table says which bounds it graded by."""
     expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
     graded = graded_with({'srp': [dict(row('srp', 19.0, probe='srp.x.if0'), status='measured')],
                           'hooks-counters': [dict(row('notify', 40.0, probe='counters.all.if0'), status='measured'),
@@ -569,10 +571,10 @@ def check_amended() -> None:
     held = run.held_row(dict(probe='counters.held.if0', eligible=0, end=MS, ms=1.0, wait_ms=900.0),
                         dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ))
     expect(hooks.amended_ms(held, 2) == 20.0, 'the column adds W the held bound does not')
-    expect((srp['bound_ms'], srp['within'], whole['bound_ms'], whole['within']) == (18.0, False, 20.0, False),
+    expect((srp['bound_ms'], srp['within'], whole['bound_ms'], whole['within']) == (20.0, True, 20.0, False),
            'the amended bounds graded a path')
     late = [x.split(':')[1].strip() for x in graded['findings'] if x.startswith('LATE ')]
-    expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0', 'srp.x.if0'], f'findings {late}')
+    expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0'], f'findings {late}')
     spec = dict(interfaces=2, arm='idle', cpu_clock='sys', cpu_hz=CPU_HZ, sys_hz=SYS_HZ)
     text = run.table('8x8', spec, graded)
     expect('Graded against the bounds in the tree at this base.' in text, 'the table does not say which bounds graded')
@@ -640,7 +642,7 @@ def check_buckets_full() -> None:
 
 
 CHECKS: dict[str, Callable[[], None]] = {
-    'bounds pinned': check_bounds, 'an 18 to 20 ms SRP path misses': check_srp_instance,
+    'bounds pinned': check_bounds, 'an SRP path is held to T_svc': check_srp_instance,
     'the exact bound fits and W adds': check_exact_bound, 'the hooks map': check_hooks_map,
     'the clock labels': check_clock_label, 'the plants apply': check_plants, 'the testbench additions apply':
     check_testbench, 'own lines are split off': check_split, 'H-ADP ordering': check_adp_order,
@@ -730,10 +732,11 @@ def change_before_rows(g: Group) -> None:
 
 
 def graded_by_amended(r: dict, group: str) -> dict:
-    """A path's verdict read from its amended bound at one interface, its bound as written: only SRP's verdict moves,
-    so the rule that fails is the verdict's, not the column's arithmetic or the table's."""
+    """A path's verdict read from its amended bound at two interfaces, its bound as written: only the queued notice's
+    verdict moves, as SRP's amended bound is its graded bound with #810's bounds in the tree, so the rule that fails is
+    the verdict's, not the column's arithmetic or the table's."""
     out = HOOK_ROW(r, group)
-    return dict(out, within=not out['unbounded'] and out['ms'] <= hooks.amended_ms(out, 1))
+    return dict(out, within=not out['unbounded'] and out['ms'] <= hooks.amended_ms(out, 2))
 
 
 def findings_by_amended(*arguments: object) -> dict:
@@ -772,8 +775,8 @@ SUMMARY_CHECK, COUNTER_ROWS = 'the worst path and the counts', 'the ALL push bot
 AMENDED, PLANT_VERDICT = 'the amended column grades nothing', 'a plant is caught only by its own finding'
 MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('bound: a stale T_svc of 10 ms', mutant(hooks, 'T_SVC_MS', 10.0), 'bounds pinned'),
-    ('bound: SRP graded against T_svc alone', mutant(hooks, 'bound_ms', lambda family: hooks.T_SVC_MS),
-     'an 18 to 20 ms SRP path misses'),
+    ('bound: SRP graded against its earlier 18 ms ceiling', mutant(hooks, 'bound_ms', lambda family: 18.0 if
+     family == 'srp' else min(hooks.T_SVC_MS, scenario.CEILING_MS[family])), 'an SRP path is held to T_svc'),
     ('bound: the ceiling alone', mutant(hooks, 'bound_ms', lambda family: scenario.CEILING_MS[family]),
      'bounds pinned'),
     ('bound: the normative wait is not added', mutant(run, 'hook_row', lambda r, g: dict(

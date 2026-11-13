@@ -323,7 +323,7 @@ def clock_checks() -> list[Check]:
     relabelled = refusal(dict(graded_record(CPU_HZ, SYS_HZ), cpu_hz=OTHER_CPU_HZ))
     out.append(("a record whose CPU clock is not the one its figures were converted at is refused",
                 'is not 40,000 CPU cycles at 62,500,000 Hz' in relabelled and "T_svc verdict" not in relabelled
-                and 'T_svc of 500,000 cycles' in relabelled, relabelled))
+                and f'T_svc of {LIMIT:,} cycles' in relabelled, relabelled))
     wrong = RUN.against_build(rec, {'a': dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ), 'b': specs['b']})
     out.append(("a record whose clocks are not its builds' is refused, naming the build", len(wrong) == 1 and
                 wrong[0].startswith('a: the build records CPU 50000000 Hz'), str(wrong)))

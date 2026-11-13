@@ -63,7 +63,7 @@ bool aecp_value_latch(struct aecp *a, struct aecp_value v, uint8_t *p, size_t by
 	unsigned offset, width, bit;
 	if (!field(a, v, &d, &offset, &width, &bit) || bytes != width ||
 	    (bit != 0u && !aecp_overridden(a, d, bit))) return false;
-	if (v.kind == AECP_CHANGE_LATENCY) wire_put_be(p, a->cfg.latency[v.index], 4);
+	if (v.kind == AECP_CHANGE_LATENCY) aecp_put32(p, a->cfg.latency[v.index]);
 	else memcpy(p, d->value + offset, width);
 	return true;
 }

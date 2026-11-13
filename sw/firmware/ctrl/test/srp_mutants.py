@@ -7,6 +7,10 @@ from ctrl_build import CTRL, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import arm_srp
 import srp_pub_mutants
+import srp_reopen_mutants
+import srp_compare_mutants
+import srp_retry_mutants
+import srp_transmit_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -74,8 +78,8 @@ DEFECTS = (
     Defect(
         name='short-leave',
         test='LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -134,8 +138,8 @@ DEFECTS = (
     Defect(
         name='rx-overtakes-expiry',
         test='ExpiryBacklogPrecedesSamePassReceive',
-        old='m->loop->ticks_owed == 0 &&',
-        new='true &&',
+        old='return m->owed_len == 0 && m->loop->ticks_owed == 0;',
+        new='return m->owed_len == 0;',
         needle='adapter.stops',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -204,8 +208,8 @@ DEFECTS = (
     Defect(
         name='reset-skips-recreate',
         test='RecreateAllocationFailureIsCountedAndRetried',
-        old='if (!i->msrp) {\n            // A failed recreate',
-        new='if (!i->msrp) {\n            continue; // A failed recreate',
+        old='            // A failed recreate',
+        new='            continue; // A failed recreate',
         needle='adapter.ifs[0].msrp',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -244,7 +248,7 @@ DEFECTS = (
     Defect(
         name='sink-da-ignored',
         test='WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt',
-        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        old='same(sink->dest_mac,v->dest_mac,6) &&',
         new='true &&',
         needle='declared',
         path='srp/srp_mbx.c',
@@ -392,8 +396,8 @@ DEFECTS = (
     Defect(
         name='latency-leave-origin',
         test='SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         suite='srp_latency.cpp',
     ),
@@ -417,7 +421,7 @@ DEFECTS = (
     Defect(
         name='walk-match-da-ignored',
         test='SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal',
-        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        old='same(sink->dest_mac,v->dest_mac,6) &&',
         new='true &&',
         needle='declared',
         suite='srp_walk.cpp',
@@ -425,8 +429,8 @@ DEFECTS = (
     Defect(
         name='walk-leave-shortened',
         test='SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         suite='srp_walk.cpp',
     ),
@@ -476,9 +480,6 @@ DEFECTS = (
            '    struct srp_mbx *m = ctx;\n    if (false)',
            'adapter.reentries'),
 
-    Defect('failed-interface-starves-peer','RecreateAllocationFailureIsCountedAndRetried',
-           'if (!i->msrp) {\n            m->cursor = (slot + 1u) % (2u * MBX_N_IF);',
-           'if (!i->msrp) {','other_sent'),
     Defect('backlogged-old-prefix-accepted','OldReceiveBacklogCannotRegisterAcrossLinkRestart',
            'i->discard_prefix && mbx_rx_before(MBX_CH_SRP,i->rx_mark)',
            'false','mock function call'),
@@ -552,8 +553,8 @@ DEFECTS = (
            'if (result == -SHLAN_ERROR_NO_MEMORY) { ++m->malformed;', 'adapter.malformed',
            suite='srp_rx_retry.cpp'),
     Defect('receive-overtakes-retained','SrpRetry.LaterRecordsCannotOvertakeRetainedInterface',
-           'return m->pending_rx.len == 0 && rx_order_ready(m);',
-           'return rx_order_ready(m);', 'loop.stats.rx_records', suite='srp_rx_retry.cpp'),
+           'return m->pending_rx.len == 0 && rx_order_ready(m) &&',
+           'return rx_order_ready(m) &&', 'loop.stats.rx_records', suite='srp_rx_retry.cpp'),
     Defect('reset-keeps-retained-receive','SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords',
            'm->pending_rx.len && m->pending_rx.interface == i->index', 'false',
            'adapter.received', suite='srp_rx_retry.cpp'),
@@ -603,9 +604,9 @@ DEFECTS = (
 
     Defect('receive-retention-unbounded','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
            '>= SRP_RX_RETRY_MS', '>= UINT32_MAX', 'adapter.pending_rx.len', suite='srp_rx_retry.cpp'),
-    Defect('receive-retention-short','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
+    Defect('receive-retention-short','SrpRetry.NothingChangedStillExpiresAtTheDeadline',
            '#define SRP_RX_RETRY_MS 1000u', '#define SRP_RX_RETRY_MS 999u',
-           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
+           'not a millisecond before', suite='srp_rx_retry.cpp'),
     Defect('receive-retention-late','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
            '>= SRP_RX_RETRY_MS', '> SRP_RX_RETRY_MS', 'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
     Defect('receive-discard-uncounted','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
@@ -711,18 +712,18 @@ DEFECTS = (
            'app->acmp.acmp.env == &app->acmp_delivery ||', '',
            'recompose before replacing the attached adapter', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('srp-bound-event','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           'SRP_MBX_EVENT_MAX (1u + SRP_MBX_PUB_RESET)', 'SRP_MBX_EVENT_MAX (0u + SRP_MBX_PUB_RESET)',
+           'SRP_MBX_EVENT_MAX (1u + SRP_MBX_PUB_WITHDRAW)', 'SRP_MBX_EVENT_MAX (0u + SRP_MBX_PUB_WITHDRAW)',
            'SRP event bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-receive','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           'SRP_MBX_RX_MAX 2u', 'SRP_MBX_RX_MAX 1u', 'SRP refused receive bound',
+           'SRP_MBX_RX_MAX 1u', 'SRP_MBX_RX_MAX 0u', 'SRP refused receive bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
-    Defect('srp-bound-poll-transmit','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 0u * SRP_MBX_TX_MAX))', 'SRP transmitting poll bound',
-           path='srp/srp_bounds.h', suite='srp_app.cpp'),
+    Defect('srp-bound-poll-transmit','PassFundsEveryEventRecordAndBothMaximumReceives',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + 0u * SRP_MBX_TX_MAX)',
+           'pass funds the independently measured poll envelope', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-poll','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))', '0u',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)', '0u',
            'SRP retained receive poll bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-tx-record','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
@@ -777,17 +778,21 @@ DEFECTS = (
            'r->parked = r->parked || (r->bound && (r->stream.vlan_id == 0 || r->stream.vlan_id >= 4095));',
            'replacement clears parking', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('srp-term-fixed','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (0u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
+           '(MBX_N_IF * (0u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-term-transmit-count','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 1u * SRP_MBX_TX_MAX))',
-           'poll transmit count is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
+           '#define SRP_MBX_TRANSMIT_FRAMES 2u', '#define SRP_MBX_TRANSMIT_FRAMES 3u',
+           "both of an interface's MRPDUs a call", path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-term-interface-count','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
-           '((MBX_N_IF - 1u) * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))',
+           '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
+           '((MBX_N_IF - 1u) * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
+    # #665: one MRPDU a call of THE TRANSMIT's, the next participant's on the next (srp_bounds.h, SRP_MBX_POLL_FRAMES).
+    Defect('srp-term-poll-frames-uncapped','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
+           'slot < 2u * n + 2u && !m->owed_len; ++slot',
+           'slot < 2u * n + 1u && !m->owed_len; ++slot',
+           "both of an interface's MRPDUs a call", suite='srp_app.cpp'),
     Defect('srp-term-send-cost','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'SRP_MBX_TX_MAX (2u +',
            'SRP_MBX_TX_MAX (1u +',
@@ -805,14 +810,14 @@ DEFECTS = (
            'SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)',
            'pass funds the independently measured poll envelope', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-poll-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '        bool link = mbx_link_up(n);\n',
-           '        bool link = mbx_link_up(n);\n        (void)mbx_irq_status();\n',
+           '        links[n] = mbx_link_up(n);\n',
+           '        links[n] = mbx_link_up(n);\n        (void)mbx_irq_status();\n',
            'one link read per interface', path='srp/srp_mbx.c', suite='srp_app.cpp'),
     Defect('srp-send-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            '    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {',
            '    (void)mbx_irq_status();\n'
            '    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {',
-           'real send callback has only the TX record accesses', path='srp/srp_mbx.c', suite='srp_app.cpp'),
+           "real send callback has only the TX record's accesses", path='srp/srp_mbx.c', suite='srp_app.cpp'),
 
     Defect('feedback-kind-failed-lost','SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView',
            'acmp_tk_kind_changed(&app->acmp.acmp,sink,registered == 1u);',
@@ -889,8 +894,38 @@ DEFECTS = (
     Defect('r10-feedback-allowance-eight','SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath',
            '(ACMP_MAX_SINKS * 7u)', '(8u)',
            'measured feedback per sink allowance', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
+    # #665: snapshot walks the registrar only after a change it copies, and poll
+    # reclaims only after a change that can leave a freeable attribute.
+    Defect('binding-change-not-copied','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
+           '    *s = replacement;\n'
+           '    i->stale = true; // snapshot matches registrations against the bindings (#665)\n',
+           '    *s = replacement;\n',
+           'holds what a walk copies'),
+    Defect('snapshot-walks-once','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
+           '    if (!i->stale) {\n', '    if (i->owner->walks != 0u) {\n',
+           'holds what a walk copies'),
+    Defect('unchanged-record-walks','ARecordThatChangesNoRegistrationCostsNoWalk',
+           '    if (!i->stale) {\n', '    if (!i->stale && !i->link) {\n',
+           'a record that changes nothing walks no registrar'),
+    Defect('own-listener-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
+           '        if (desired != s->declared) {\n'
+           '            // A declaration rewrites the value of the attribute a registration shares (#665).\n'
+           '            i->stale = true;\n        }\n', '',
+           'the own Listener Ready declaration rewrote the registered Listener'),
+    Defect('own-talker-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
+           '    uint32_t declared = 0;\n'
+           '    // A join rewrites the value of the attribute a registration shares (#665).\n'
+           '    i->stale = true;\n', '    uint32_t declared = 0;\n',
+           "the adopted Domain's Talker declaration rewrote the registered Talker"),
+    Defect('reclaim-forgotten-while-owed','ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame',
+           '        i->reclaim = i->owner->owed_len != 0u;\n', '        i->reclaim = false;\n',
+           'a reclaim lwSRP refused for the held frame is owed after it'),
 )
 DEFECTS += srp_pub_mutants.defects(Defect)
+DEFECTS += srp_reopen_mutants.defects(Defect)
+DEFECTS += srp_transmit_mutants.defects(Defect)
+DEFECTS += srp_retry_mutants.defects(Defect)
+DEFECTS += srp_compare_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""

@@ -9,10 +9,75 @@ extern "C" {
 #endif
 
 #define AECP_INTERFACES 2u
+// The registered controllers of one AVB Interface, at most (Milan v1.2 5.3.4.2): every registry and fan-out derives
+// from this constant, so the recipients of a notice are 16 at one interface and at most 32 at two, each registration on
+// its own port (Milan v1.2 5.4.5.1).
 #define AECP_REGISTRATIONS 16u
 #define AECP_FRAME_BYTES 1514u
 #define AECP_PATH_ITEMS 64u
 #define AECP_MAP_PAGE 176u
+// A notice whose observation port is unavailable is retried 1, 2, 4, then
+// every 8 ms until it is built (#665: a 1 ms retry rebuilt every pending
+// notice each millisecond). Only notices wait on it: a solicited response
+// never does (aecp_ready), so the 240 ms response bound of IEEE 1722.1-2021
+// 9.3.2.6 (9.2.1.2.5 in 1722.1-2013) and Milan v1.2 5.4.3.4 is untouched.
+// A retry is deferrable (THE RETRY, ctrl_loop.h): with aecp.retry_hold set, as
+// aecp_mbx sets it, aecp_poll builds no notice and holds a due retry, arming no
+// timer for it and reporting it owed, and only aecp_retry builds or tries one,
+// in a round the event loop calls in a pass that took no input and dispatched
+// no centisecond, after an aged step or a build (THE TRANSMIT), or in a pass of
+// its own once aecp_retry_aged reports a notice waiting and the last round's
+// pace passed. So once the port answers, the notice of Milan v1.2 5.4.5.2 and
+// Table 5.22 is built at its next retry, within AECP_RETRY_MAX_MS, in the round
+// that follows, under any input, a backlog or input that leaves no pass empty
+// included, and committed to every recipient in that pass. A datapath reset can
+// leave AECP_NOTICES_MOST notices pending at once, each round taking what its
+// pass has room for: FR_NFR.md 3.4.1 bounds the first of them by
+// AECP_QUEUED_FIRST_MS from its port's answer and those queued behind it by
+// AECP_QUEUED_MS, which aecp_mbx.h derives. That holds while nothing waits ahead of a round: a
+// response owed is committed first (ctrl_loop.h, A3), and while a command waits
+// on its apply (AECP_WAIT_MS) or a START or STOP is pending no round builds.
+// Measured from the port's answer to the last recipient's commit, under every
+// receive channel at its refill rate with its bursts and a grandmaster change
+// as every pass starts, with a save in flight (the CPU budget harness's notice
+// groups, eight phases of the spacing, with and without the drafts): MEASURED-ONE
+// and MEASURED-QUEUE (docs/design/SPLIT_CONTROL_MEMORY.md section 13).
+// GET_COUNTERS keeps its one-second spacing, and the 60 s unlock and the
+// controller monitor of Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
+#define AECP_RETRY_MAX_MS 8u
+// The longest frame the fan port takes: every notice's but a long GET_AS_PATH's.
+#define AECP_FAN_BYTES 256u
+// The response buffer's alignment, a line of the data cache: C11's _Alignas, and C++'s alignas where a test reads this
+// header as C++.
+#ifdef __cplusplus
+#define AECP_LINE alignas(64)
+#else
+#define AECP_LINE _Alignas(64)
+#endif
+// What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
+// CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
+// is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+#define AECP_ATTEMPT_US 34u
+// The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
+// first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
+// read, which answers for all it serves or for none (#665).
+#define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
+// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
+// each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each
+// clock domain's GET_COUNTERS, at the fixture's two shapes. The CPU budget harness holds the model to it.
+#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)
+// A notification's bound, min(T_svc, the 24 ms notification ceiling), of
+// FR_NFR.md 3.4.1: from a retried notice's port answer to its last
+// recipient's commit, no extra budget at a retry.
+#define AECP_NOTICE_MS 20u
+// aecp_find's index (#665) holds a run per descriptor type of IEEE 1722.1-2021
+// Table 7-1, ENTITY (0x0000) to PTP_PORT (0x0028), for the first
+// AECP_INDEXED_CONFIGURATIONS configurations: every shipped model has one.
+// A key outside them is scanned for, as before.
+#define AECP_DESCRIPTOR_TYPES 0x29u
+#define AECP_INDEXED_CONFIGURATIONS 1u
+// An aecp_run.count for a key whose descriptors are not one run.
+#define AECP_RUN_SCAN 0xffffu
 
 enum aecp_status {
 	AECP_SUCCESS = 0, AECP_NOT_IMPLEMENTED = 1, AECP_NO_SUCH_DESCRIPTOR = 2,
@@ -74,6 +139,13 @@ enum aecp_change {
 	AECP_CHANGE_RATE, AECP_CHANGE_CLOCK, AECP_CHANGE_NAME, AECP_CHANGE_MAP,
 	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID, AECP_CHANGE_LOCK
 };
+// What a call of the fan port did (aecp_ports.fan and fan_end, #665).
+enum aecp_fan {
+	AECP_FAN_TAKEN,   // fan: its frame started; fan_end: the frame before it delivered, and for a whole walk its
+	                  // completion kept
+	AECP_FAN_REFUSED, // no room: for fan's frame, or for a whole walk's completion; the frame before it delivered
+	AECP_FAN_LOST,    // the frame before it was not delivered, and nothing is started or kept
+};
 // All ports are required. They return without delivering ANY protocol input.
 // A port may publish an observation or apply a hardware value synchronously;
 // completion/event delivery is deferred to the event loop (#678).
@@ -111,6 +183,17 @@ struct aecp_ports {
 	// notified (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
 	// 5.4.2.2, 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
 	bool (*applied)(void *);
+	// A notice's frame with no completion of its own, or NULL, when send takes
+	// every frame: the same delivery, committed by the next fan or by fan_end at
+	// the latest, which gives the notice's last frame cookie's completion only
+	// when whole, the walk having reached its last recipient: a walk that ends
+	// owed at a recipient keeps none, since the notice is not yet delivered
+	// (#665; Milan v1.2 5.4.5.2). Each call reports a frame that was not
+	// delivered for that frame: AECP_FAN_LOST from the call after it, so the
+	// notice resumes at the recipient whose frame it was, at the sequence_id it
+	// has not had.
+	enum aecp_fan (*fan)(void *, unsigned, const uint8_t *, size_t);
+	enum aecp_fan (*fan_end)(void *, uint32_t cookie, bool whole);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
 // SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
@@ -153,6 +236,16 @@ struct aecp_event {
 	bool counter_sent;
 	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
+	uint8_t retry_ms;  // the next retry's wait, 0 before the first (AECP_RETRY_MAX_MS)
+	uint16_t next;     // the next event in aecp.live: its descriptor index + 1, 0 at the end
+	uint16_t awaited_next; // the next event in aecp.awaited, as next
+};
+// One key's descriptors, at model positions first + 0 .. first + count - 1,
+// each at the position of its index: count 0 when the model has none, and
+// AECP_RUN_SCAN when they are anywhere else.
+struct aecp_run {
+	uint16_t first;
+	uint16_t count;
 };
 struct aecp_config {
 	uint64_t entity_id;
@@ -180,7 +273,27 @@ struct aecp {
 	bool in_port;
 	bool open;
 	bool start_pending;
-	uint8_t response[AECP_FRAME_BYTES];
+	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+	bool retry_hold; // a due retry waits for aecp_retry (THE RETRY, ctrl_loop.h; #665)
+	bool retry_held; // with retry_hold, a notice waits for aecp_retry: arm armed no timer for it
+	uint8_t refused; // the ports that refused this round (AECP_ROUND_PORTS), one bit each
+	int32_t round_us; // what this round has left, in microseconds
+	int32_t notice_us; // what a notice costs a round, set by its owner with retry_hold
+	uint32_t retry_pace; // when the next round given a pass may start
+	// The events holding a notice or a retry, in descriptor order, linked through
+	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
+	// only these (#665).
+	uint16_t live;
+	// Bit n of used[i]: registry[i][n].used. The registry scans visit only these (#665).
+	uint16_t used[AECP_INTERFACES];
+	// aecp_find's index of the model's keys, which aecp_init builds and nothing
+	// rewrites after it (#665): runs[c][t] holds configuration c's descriptors
+	// of type t.
+	struct aecp_run runs[AECP_INDEXED_CONFIGURATIONS][AECP_DESCRIPTOR_TYPES];
+	uint16_t awaited; // the events whose snapshot awaits its frame's completion, the list aecp_tx_complete walks
+	// On a line of the data cache: what a recipient changes of a frame stays in one, which the record mover's read
+	// takes back from the cache each frame (#665).
+	AECP_LINE uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
 	unsigned response_interface;
 	unsigned recipient;
@@ -216,6 +329,16 @@ void aecp_open(struct aecp *);
 bool aecp_ready(struct aecp *);
 void aecp_rx(struct aecp *, unsigned interface, const uint8_t *, size_t);
 bool aecp_poll(struct aecp *);
+// THE RETRY's round (ctrl_loop.h, #665): at most `notices` notices built from
+// what its pass has left, left_us, each charged notice_us and each refused
+// attempt AECP_ATTEMPT_US, one attempt a port, then the timer armed for the
+// next. Only while no response or notice is owed, as aecp_poll builds one. True
+// while a notice or a due retry still waits or the built notice is owed.
+bool aecp_retry(struct aecp *, unsigned notices, int32_t left_us);
+// THE RETRY's age (ctrl_loop.h, #665): true when a held retry's time is age_ms
+// or more past, on the now_ms port, and nothing waits ahead of aecp_retry's
+// round, so the loop gives the round a pass of its own.
+bool aecp_retry_aged(struct aecp *, uint32_t pace_ms);
 void aecp_start_done(struct aecp *, bool success, bool changed);
 // departure_ms is the final output beat's time, or a later observation of it.
 // A later cookie for the same descriptor supersedes an earlier completion.
