@@ -1,0 +1,6 @@
+KL_mbx_dma alone, sv2v v0.0.12 then yosys "synth_xilinx -top KL_mbx_dma -family xc7 -flatten; stat"
+at 187eeed8 (the merge, before the fix) and da1869a3 (after it):
+  flops   704 -> 704 (FDRE 700, FDSE 4 both)
+  LUTs    484 -> 487 (LUT1 3->0, LUT3 106->112, LUT4 18->17, LUT6 246->247)
+  MUXF7    16 -> 13, MUXF8 5 -> 5, CARRY4 34 -> 34
+yosys 0.66 (86f2ddebc)

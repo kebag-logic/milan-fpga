@@ -1,0 +1,13 @@
+# head 5bea2597ec514f0cde306e538261c6ddee66b456 gate probe_r711_rules: cd tb/verilator/ctrl_service_budget && python3 -B <scratch>/probes/r711-8/probe_rules.py .
+head R4 1x1/1if 74.83 rule_findings []
+retry floor(W/10)+1 (one fewer): R4 74.55 (head 74.83); rule_findings 11: ["1x1/1if R4: 1 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)"]
+retry floor(W/10)+3 (one more): R4 75.39 (head 74.83); rule_findings 11: ["1x1/1if R4: 3 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)"]
+retry uncapped by passes: R4 74.83 (head 74.83); rule_findings 0: []
+srp window over whole W: R4 74.83 (head 74.83); rule_findings 4: ["1x1/1if R4: 42 SRP records ahead in 20 ms, not the 41 that arrive before the row's record is taken"]
+srp window less two records: R4 74.83 (head 74.83); rule_findings 2: ["1x1/1if R4: 50 SRP records ahead in 38.25 ms, not the 51 that arrive before the row's record is taken"]
+retained in no row: R4 69.25 (head 74.83); rule_findings 11: ["1x1/1if R4: 0 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)"]
+retained in R5 only: R4 74.83 (head 74.83); rule_findings 11: ["1x1/1if R5: a retained record's retry counted in an SRP row"]
+COLUMNS swapped: controls escaped ["a column's name bound to the other's table"] ; --check findings ["a column's name bound to the other's table, or a column not the gate's: [('at the pin', 'STATED_US_DONOR'), ('with tsn-c-stack#32', 'STATED_US')], not [('at the pin', 'STATED_US'), ('with tsn-c-stack#32', 'STATED_US_DONOR')]"]
+ held lines ['HELD 1x1/1if at the pin: the load 0.499, its ceiling 0.70', 'HELD 1x1/1if with tsn-c-stack#32: the load 0.501, its ceiling 0.70']
+COLUMNS one only: controls escaped ['a cost over the ceiling', 'a held point not held', 'a stated cost missing', "a column's name bound to the other's table"]
+head controls escaped []

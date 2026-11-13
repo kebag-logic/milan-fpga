@@ -1,0 +1,21 @@
+572700 1067572636 ctrl_loop:service_rx
+CALL 1067572975 1067572911 ctrl_loop:service_rx
+SPAN 1067573315 1067573251 81 00000498 adp_mbx:on_poll
+SPAN 1067573429 1067573365 310 00000498 acmp_mbx:on_poll
+SPAN 1067573772 1067573708 1494 00000498 maap_mbx:poll
+SPAN 1067575619 1067575555 244 000010d0 aecp:transmit
+SPAN 1067575443 1067575379 902 00000498 aecp_mbx:poll
+SPAN 1067576378 1067576314 2151 00000498 ctrl_app_aecp:deliver
+SPAN 1067578562 1067578498 1659 00000498 srp_mbx:poll
+SPAN 1067580254 1067580190 1128 00000498 ctrl_app_srp:deliver
+SPAN 1067581575 1067581511 1658 000003c4 ctrl_loop:round_of
+STEP 1067583468 18 wait quiet
+MARK 1067583468 acmp-notk.barrier0
+IDLE 4 0 17539
+FLASHRD 268336217 268399169 e40d00 116
+SUMMARY sys=1067583468 cpu=1067583404 passes=78459 instr=206366268 bus_errors=0 traps=0 mbx_read=719744/8140928/7/56 mbx_write=11752/233772/7/69 host_cycles=732094/1442532/1/2 fetch_rom=2066187/165683828/80/207 load_rom=0/0/0/0 store_rom=0/0/0/0 fetch_sram=0/0/0/0 load_sram=0/0/0/0 store_sram=0/0/0/0 fetch_mbx=0/0/0/0 load_mbx=719744/8140928/7/56 store_mbx=11752/233772/7/69 fetch_flash=0/0/0/0 load_flash=7128/3715673/267/630 store_flash=0/0/0/0 fetch_csr=0/0/0/0 load_csr=171288/1203877/7/71 store_csr=160596/1168919/7/71 fetch_other=0/0/0/0 load_other=0/0/0/0 store_other=0/0/0/0
+MODULES ctrl_split_start:152379 aecp_mbx:32036164 ctrl_app_aecp:123046401 mbx:76294157 ctrl_loop:188213329 aecp:155594009 srp_mbx:144995232 adp_mbx:738451 adp:5891261 acmp_mbx:23256837 acmp:63066284 maap_mbx:39323582 ctrl_mem:22767400 ctrl_app_srp:77715416 ctrl_aecp_image:1100836 maap:15722867 aecp_nvm:17388680 mrp_mad:798744 mbx_plat_mmio:470946 timer:686701 nvm_store:11564607 nvm_flash_litespi:32191840 aecp_commands:1551938 msrp:18913 shlan_port:254 ctrl_pool:6524 mvrp:6752 mrp_pdu:37939 ctrl_debug:18 acmp_nvm:566 ctrl_app:2733 aecp_image:1571358 aecp_face:30676082 nvm_klj2:693854 unmapped:350
+FLASH erases=1 programs=14 bytes=3444
+CODE boot_bytes=15744 service_bytes=53696 service_only_bytes=48704 aecp_mbx=884 ctrl_app_aecp=1652 mbx=3100 ctrl_loop=1968 aecp=4012 srp_mbx=6112 adp_mbx=492 adp=2000 acmp_mbx=844 acmp=8340 maap_mbx=1180 ctrl_mem=968 ctrl_app_srp=1464 ctrl_aecp_image=416 maap=2176 aecp_nvm=100 mrp_mad=6012 mbx_plat_mmio=20 timer=128 nvm_store=2868 nvm_flash_litespi=1308 aecp_commands=1184 msrp=1084 shlan_port=40 ctrl_pool=332 mvrp=560 mrp_pdu=1208 acmp_nvm=128 ctrl_app=100 aecp_face=1756 nvm_klj2=1260
+== ctrl_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

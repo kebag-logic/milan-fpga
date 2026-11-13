@@ -1,0 +1,46 @@
+# head 5bea2597ec514f0cde306e538261c6ddee66b456 gate probe_r712_fan: python3 -B <scratch>/probes/r712-8/fan_probes.py $PWD <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/baseline-aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/baseline-aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/baseline-aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+baseline-aecp [aecp] rc=0 failed=0 [] ['  verdict: PASS (125 tests, 0 failures, exit 0)']
+baseline-unit [unit] rc=0 failed=0 [] ['  verdict: PASS (5 tests, 0 failures, exit 0)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/fan-end-refused-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/fan-end-refused-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/fan-end-refused-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+fan-end-refused-taken-as-lost [aecp] rc=1 failed=2 ['1', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain'] ['  verdict: FAIL (its tallies report 1 failure(s) across 125 checks, exit 1)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/refused-mid-fan-after-a-taken-frame-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/refused-mid-fan-after-a-taken-frame-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/refused-mid-fan-after-a-taken-frame-taken-as-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+refused-mid-fan-after-a-taken-frame-taken-as-lost [aecp] rc=1 failed=2 ['1', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain'] ['  verdict: FAIL (its tallies report 1 failure(s) across 125 checks, exit 1)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/notice-completion-kept-for-a-walk-left-owed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/notice-completion-kept-for-a-walk-left-owed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/notice-completion-kept-for-a-walk-left-owed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+notice-completion-kept-for-a-walk-left-owed [aecp] rc=1 failed=3 ['2', 'Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain'] ['  verdict: FAIL (its tallies report 2 failure(s) across 125 checks, exit 1)']
+author-T6-keeps-completion-for-partial [unit] rc=1 failed=2 ['1', 'MbxDma.T6AWalkLeftOwedKeepsNoCompletion'] ['  verdict: PASS (5 tests, 0 failures, exit 0)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-whole-is-not-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-whole-is-not-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-whole-is-not-lost/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-whole-is-not-lost [aecp] rc=1 failed=2 ['1', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain'] ['  verdict: FAIL (its tallies report 1 failure(s) across 125 checks, exit 1)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-refused-completion-taken-as-done/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-refused-completion-taken-as-done/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-refused-completion-taken-as-done/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-refused-completion-taken-as-done [aecp] rc=1 failed=3 ['2', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain', 'Mailbox.ANoticeWithNoRoomStaysOwed'] ['  verdict: FAIL (its tallies report 2 failure(s) across 125 checks, exit 1)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-partial-walk-not-committed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-partial-walk-not-committed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-partial-walk-not-committed/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-partial-walk-not-committed [aecp] rc=0 failed=0 [] ['  verdict: PASS (125 tests, 0 failures, exit 0)']
+r-partial-walk-not-committed-unit [unit] rc=0 failed=0 [] ['  verdict: PASS (5 tests, 0 failures, exit 0)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-completion-checked-before-commit/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-completion-checked-before-commit/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-completion-checked-before-commit/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-completion-checked-before-commit [aecp] rc=0 failed=0 [] ['  verdict: PASS (125 tests, 0 failures, exit 0)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resend-keeps-spent-sequence/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resend-keeps-spent-sequence/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resend-keeps-spent-sequence/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-lost-resend-keeps-spent-sequence [aecp] rc=1 failed=2 ['1', 'Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain'] ['  verdict: FAIL (its tallies report 1 failure(s) across 125 checks, exit 1)']
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resumes-past-held/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resumes-past-held/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-run/tmp-lane-5bea2597-a/r712-fan/r-lost-resumes-past-held/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+r-lost-resumes-past-held [aecp] rc=1 failed=2 ['1', 'Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain'] ['  verdict: FAIL (its tallies report 1 failure(s) across 125 checks, exit 1)']
+r-completion-checked-before-commit-unit [unit] rc=1 failed=2 ['1', 'MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted'] ['  verdict: PASS (5 tests, 0 failures, exit 0)']

@@ -1,0 +1,14 @@
+# head 5bea2597ec514f0cde306e538261c6ddee66b456 gate probe_r712_rules: python3 -B <scratch>/probes/r712-8/rule_probes.py $PWD
+head: R4 1x1/1if 74.83 rule_findings []
+REFUSED | retries one fewer (no retry before the first centisecond) | R4 1x1/1if 74.55 | 22 findings | 1x1/1if R4: 1 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | retries one more | R4 1x1/1if 75.39 | 22 findings | 1x1/1if R4: 3 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | retries once a pass (round-28 rule) | R4 1x1/1if 89.24 | 22 findings | 1x1/1if R4: 20 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+ESCAPED | retries not capped by passes | R4 1x1/1if 74.83 | 0 findings | 
+REFUSED | retries zero | R4 1x1/1if 69.25 | 22 findings | 1x1/1if R4: 0 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | SRP window the whole W | R4 1x1/1if 74.83 | 8 findings | 1x1/1if R4: 42 SRP records ahead in 20 ms, not the 41 that arrive before the row's record is taken
+REFUSED | SRP window less two records | R4 1x1/1if 74.83 | 3 findings | 1x1/1if R4: 50 SRP records ahead in 38.25 ms, not the 51 that arrive before the row's record is taken
+REFUSED | SRP window less the AECP burst (round-28 rule) | R4 1x1/1if 73.66 | 22 findings | 1x1/1if R4: 32 SRP records ahead in 5 ms, not the 34 that arrive before the row's record is taken
+REFUSED | retries also in R5 | R4 1x1/1if 74.83 | 22 findings | 1x1/1if R5: a retained record's retry counted in an SRP row
+REFUSED | retries in no row | R4 1x1/1if 69.25 | 22 findings | 1x1/1if R4: 0 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | COUNTERS_CHANGED dropped from EXCLUDED | ["the contract's event COUNTERS_CHANGED neither counted nor excluded"]
+REFUSED | TICK both counted and excluded | ['the event TICK both counted and excluded']
