@@ -1,0 +1,486 @@
+187eeed89235d5ab7ce68bcd4953c7ef118e9245
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 9d9a1f729d..552f2bd8d4 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -35,13 +35,9 @@ No BIOS ROM or BIOS SRAM is built there.
+ 
+ Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
+ `add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-Every other region keeps its origin and size: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+-The split CPU sees `spiflash` uncached and not executable ([section 9](#9-the-cpus-data-cache)).
+-=======
+ The other regions are `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`, as in the all-fabric image.
+ The split image has no `main_ram`: it builds no DDR3 and no integrated main RAM (decision D4, [section 4](#4-boot-console-and-diagnostics)).
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++The split CPU sees `spiflash` uncached and not executable ([section 9](#9-the-cpus-data-cache)).
+ 
+ Each region spans the whole 224 KiB budget.
+ The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
+@@ -133,26 +129,17 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
+ The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
+ An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+ 
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821, and the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)).
+-=======
+-Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821, and the owner's decision 6824896581).
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,288 B | 60.0 |
++| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.0 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.0 |
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+ The owner's caps are the refusals half a tile past each entry: 58.5 for the size fixture's, 60.5 for the platform's.
+-=======
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.0 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,392 B | 59.0 |
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -284,7 +271,6 @@ S14 is the first lane after the flip.
+ `ctrl_memory.LEDGERED` holds the two entries at 60.0 and 58.0, each refused half a tile past ([section 3](#3-named-refusals)).
+ These figures are planned, not mapped.
+ 
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
+ It links the merged firmware of `51fa5f18` against the branch before the merge, `bf1773c0`, with one runtime for both:
+ 
+@@ -298,7 +284,7 @@ It links the merged firmware of `51fa5f18` against the branch before the merge,
+ The merge adds 6,264 to 6,376 B of `rom` and 336 B of `sram` at each point, the face writer's.
+ Each point plans half a tile under S1's own ledger above, and the largest a whole tile, because the branch's compactions (sections 11 to 13) are in both.
+ These figures are planned, not mapped.
+-=======
++
+ **The split's KLJ3 format (#823).** The size fixture was linked again at its base `a9d69c77` and with KLJ3, one runtime for both:
+ 
+ | Point | Base `rom` / `sram`, B | KLJ3 `rom` / `sram`, B | Delta, B | RAMB36, base to KLJ3 |
+@@ -312,7 +298,6 @@ The `sram` delta is the stage's two bytes a record and the store's open bits, 36
+ Every point stays within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
+ The target platform's image was not linked again; its `ctrl_plat` is unchanged.
+ 
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
+ Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
+ 
+@@ -347,7 +332,7 @@ THE STEP (`ctrl_loop.h`, section 13) and SRP's one build a pass add 336 to 424 B
+ THE STEP's age limit, SRP's turn read before the poll's visits and the store's walk-free mark add 152 to 224 B of `rom` and up to 16 B of `sram` at each point (#665, 2026-11-03); only the platform's 1x1 two-interface image takes half a tile more, 41.5, its `rom` 216 B past the 110,592 B, 54 banks of 2 KiB, that it filled exactly.
+ `ctrl_plat` is 20,288 B at the largest point and 20,096 B before this branch's merge of the tsn-c-stack pin move (its 152 B in `app`, the struct padded to its 64-byte alignment); the ledger last named 19,968 B, a size the struct had already outgrown at round 27's head (20,096 B measured there), and 19,960 B before the age limit's two fields, 19,944 B before THE STEP's four fields and 21,240 B when the ledger above named it, so the ledger names the new size, as it requires when that struct changes. Its size at each point is measured in the composed build by `ctrl_plat_image.py`: 17,472, 19,008, 18,112 and 20,288 B (`ctrl_memory_ledger.py`).
+ 
+-At this branch's head, the merge of the pin move (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
++At round 29's head (`b2d39235`), the merge of the pin move's round 2 head (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+ |---|---:|---:|---:|---:|---:|
+@@ -453,7 +438,7 @@ The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` wi
+ The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
+ The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+ 
+-On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
++On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's branch merged it (its round 4 head, `8bc1dfc0`) and planned both images again at all four points, at `0fb66211` and with that merge, without this branch's record commits:
+ Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+@@ -466,13 +451,20 @@ Each image was built by the pinned RV32 SDK and linked with one runtime; the pla
+ Two plans move against `0fb66211`.
+ The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+ The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+-Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
+-The tightest point is now the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
++On that branch both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and its own `ctrl_plat`, 21,392 B at the largest point; its tightest point is the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
++
++**At this branch's head, the merge of the pin move's round 4 head `8bc1dfc0` into this branch** (round 30), planned the same way from both images built alike at the four points, the platform's by [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) against each shape's own split export, one runtime for both:
++
++| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
++|---|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 108,600 / 45,920 | 38.5 | 113,672 / 46,880 | 39.5 | 17,472 |
++| 1x1, two interfaces | 110,304 / 57,312 | 41.0 | 115,400 / 58,336 | 43.0 | 19,008 |
++| 8x8, one interface | 122,136 / 87,008 | 51.5 | 127,256 / 87,984 | 53.0 | 18,112 |
++| 8x8, two interfaces (largest) | 123,808 / 113,168 | **58.5, over its 58.0** | 128,960 / 114,160 | 59.5, within its 60.0 | 20,288 |
+ 
+-The owner's decision of 2026-11-12 (#665, 6824896581) supersedes, for the flip only, the requirement above that the flip (S13) needs 56 RAMB36 or fewer at every point with S14 merged.
+-The two 8x8 points with two interfaces are held as named ROM debt owed to S14: the target platform's image may plan 60.0 RAMB36, at most 60.5, and the size fixture's 58.0, at most 58.5.
+-Every other point, every 1x1 one-interface point among them, stays at or under 56.
+-`ctrl_memory.LEDGERED` holds the fixture's point at 58.0 and the platform's at 59.0, the tiles each plans.
++Both images carry the KLJ3 stage, so both overrides are keyed on `nvm_stage` of 13,594 B, and `ctrl_plat` is this branch's struct, unchanged by the merge at every point (`ctrl_memory_ledger.py`).
++The KLJ3 hot path's `nvm_any` is a count the compiler inlines, so it leaves the split link script's hot list, in both its copies (`ctrl_split_hot.txt`, `ctrl_split.ld`): a hot-list name with no section refuses the link.
++**The size fixture's 8x8 image with two interfaces plans 58.5 RAMB36 against the 58.0 its entry ledgers** (the owner's decision of 2026-11-12 caps it at 58.5, refused): its `rom` needs 123,808 B in 124,928, as at round 29's head (123,112 B in the same banks), and its `sram` 113,168 B, 528 B past the 112,640 B of the 55 granules round 29's 112,576 B filled, so `sram` takes a 56th granule. The KLJ3 stage and the store's open bits add the `sram` (#823's own table: +576 B at that point); neither side plans past 58.0 alone, the pin move's branch because its `rom` (121,064 B) takes one granule fewer. Returning to 58.0 needs 928 B of `rom` or 528 B of `sram`; the entry stays 58.0 and the image is refused at its tiles, by name, which waits for a decision. Every other point of both images is within its ledger, the platform's largest within its 60.0 and every other point within 56.
+ 
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+@@ -491,7 +483,8 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
+ ```
+ 
+ This is the ledgered point, so both commands name its override.
+-Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
++Without `--ledgered-point`, both refuse it, past the 56-RAMB36 budget.
++At this branch's head the image plans 58.5 RAMB36, and both refuse it under its override too, past the 58.0 its entry ledgers ([section 5](#5-fit)).
+ Every other point takes no override, and refuses one.
+ 
+ Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
+@@ -550,12 +543,8 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
+ | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
+ | Data cache | none when this cache was chosen; [section 9](#9-the-cpus-data-cache) adds one | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost was mostly byte-loop stores to `sram`, which the firmware removed first. |
+ 
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-Every executable region is cacheable: `rom`, `sram` and, while DDR3 is built, `main_ram`.
+-The flash window was too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
+-=======
+-Every executable region is cacheable: `rom`, `sram` and the flash window. The split builds no `main_ram`.
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++Every executable region is cacheable: `rom` and `sram`. The split builds no `main_ram`.
++The flash window was cacheable too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
+ So the cache never fetches uncached.
+ The cache adds no region and changes none.
+ Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
+@@ -2299,7 +2288,7 @@ The costs at 1x1/1if and 8x8/2if are measured on the gate's own legs (round 26),
+ 
+ **Portable C** (item 5). The AECP response buffer is aligned by C11's `_Alignas(64)`, and the firmware's two GNU attributes, `noinline` for SRP's `same`, `reclaim` and `build_mrpdu` and `may_alias` for the pool's link, sit behind `CTRL_CC_GNU` in [`plat/ctrl_cc.h`](../../sw/firmware/ctrl/plat/ctrl_cc.h), with a portable fallback (no `noinline`, `memcpy` for the link). The change alone builds 8x8/2if arm A's three images byte-identical to round 27's and replays its `control` group byte for byte, so it moves no cost.
+ 
+-**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image against their stated costs: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). `srp-compared-by-memcmp` escaped its stated cost here: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. So it is held to this image's own unplanted record instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2; `poll_items.REFERENCE_CONTROLS`), with no stated cost lowered: one run measures the group on the planted build and on the unplanted image, and the plant must make the heaviest SRP record more than 5 % dearer. On the image of round 30's `ef913ca4`, whose firmware is this merge's, it is caught: 35,908 cycles planted against 32,866 unplanted, 9.3 % dearer (`CONTROL srp-compared-by-memcmp caught`).
++**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image against their stated costs: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). `srp-compared-by-memcmp` escaped its stated cost here: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. So it is held to this image's own unplanted record instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2; `poll_items.REFERENCE_CONTROLS`), with no stated cost lowered: one run measures the group on the planted build and on the unplanted image, and the plant must make the heaviest SRP record more than 5 % dearer. On round 29's composed image, at round 30's `ef913ca4`, whose firmware is round 29's, it is caught: 35,908 cycles planted against 32,866 unplanted, 9.3 % dearer (`CONTROL srp-compared-by-memcmp caught`). At this branch's head, the merge of the pin move's round 4 head, the 8x8 size fixture with two interfaces plans 58.5 RAMB36 against its 58.0 ([section 5](#5-fit)), so its 8x8/2if builds, this control's and the legs' among them, are refused; the costs above are round 29's.
+ 
+ At this head (`load_grade.py --check` and `flip_grade.py --check`; the stated costs and their sources are the gate's two columns, with `poll_grade.STATED_US`'s and `ctrl_loop.h`'s where a column states none):
+ 
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index 5564c16959..22146feb8f 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -83,7 +83,6 @@ SECTIONS
+ 		*-nvm_store.o(.text.nvm_store_service)
+ 		*-nvm_store.o(.text.nvm_now)
+ 		*-nvm_flash_litespi.o(.text.ls_now_us)
+-		*-nvm_store.o(.text.nvm_any)
+ 		*-nvm_store.o(.text.nvm_publish)
+ 		*-adp_mbx.o(.text.on_event)
+ 		*-acmp_mbx.o(.text.on_event)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 526c52b854..3f6d39cdeb 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -87,7 +87,6 @@ timer shlan_timer_tick
+ nvm_store nvm_store_service
+ nvm_store nvm_now
+ nvm_flash_litespi ls_now_us
+-nvm_store nvm_any
+ nvm_store nvm_publish
+ adp_mbx on_event
+ acmp_mbx on_event
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl_nvm/README.md
+index e5fe314264..009fcf62f0 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -258,13 +258,8 @@ so a mark costs the same in any pass. Each
+ | idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set |
+ | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
+ | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-| erase | start the erase of the slot that is NOT authoritative |
+-| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
+-=======
+ | erase | start the erase of the next block the container spans, in the slot that is NOT authoritative |
+-| erase wait, blank check | poll once; then read back 256 bytes per step, all `0xFF` |
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
+ | program, program wait | one page, in ascending order: the header page first, the trailer last |
+ | verify | read back 128 bytes per step and compare with the stage |
+ | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
+diff --git a/sw/firmware/ctrl_nvm/nvm_store.c b/sw/firmware/ctrl_nvm/nvm_store.c
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl_nvm/nvm_store.c
+index 302d465133..837e28eea8 100644
+--- a/sw/firmware/ctrl_nvm/nvm_store.c
++++ b/sw/firmware/ctrl_nvm/nvm_store.c
+@@ -884,17 +884,10 @@ static void nvm_mark(unsigned int id)
+ 
+ 	if (nvm.st.phase == NVM_P_OFF)
+ 		return;
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ 	/* the running capture has yet to reach the record: it takes this change,
+ 	 * and leaves no window open behind it (DR2a) */
+ 	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;
+-	nvm.dirty[id >> 5] |= 1u << (id & 31u);
+-=======
+-	/* the running capture has yet to reach r: it takes this change, and
+-	 * leaves no window open behind it (DR2a) */
+-	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
+-	nvm_open_set(&nvm.dirty, r.id);
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++	nvm_open_set(&nvm.dirty, id);
+ 	if (!taken && !nvm.dirty_armed) {
+ 		nvm.dirty_armed = 1;
+ 		nvm.dirty_since_us = nvm_now();
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_mutants.py b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl_nvm/test/nvm_mutants.py
+index 686765e1fb..930a990b5a 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_mutants.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+@@ -393,13 +393,8 @@ MUTANTS = (
+        "\tif (0) {", "media_failures"),
+     # every change call opens a new budget, changed or not
+     _m("budget_rearmed_by_change", STORE,
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tif (!taken",
+-       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tnvm.st.attempts = 0;\n"
+-=======
+-       "\tnvm_open_set(&nvm.dirty, r.id);\n\tif (!taken",
+-       "\tnvm_open_set(&nvm.dirty, r.id);\n\tnvm.st.attempts = 0;\n"
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++       "\tnvm_open_set(&nvm.dirty, id);\n\tif (!taken",
++       "\tnvm_open_set(&nvm.dirty, id);\n\tnvm.st.attempts = 0;\n"
+        "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
+     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
+        "dr2c_unchanged_set"),
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/README.md
+index f447a5fd7f..545f831f16 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -321,18 +321,11 @@ The adapter still delivers inputs only from the event loop.
+ | `sw/firmware/ctrl/plat/ctrl_plat.c` | `compose` | `return ctrl_app_compose(&p->app, &p->config) &&` | arcs 2, 4, 6 of 6 | A module refusing the platform's composition (#665 S3), each operand false. `ctrl_app_compose` refuses an arena the pool cannot carve, a binding that does not fit or a MAAP range outside the pool: the platform's arena is `SRP_POOL_ARENA_BYTES` for `srp_pool_classes`, which `srp_mbx.h` derives together, aligned to `max_align_t`; its loop is initialised empty in the same call; its `maap_preferred` is 0. `ctrl_app_compose_aecp` refuses an app without ACMP, an AECP channel already bound and fewer than two free polls: the platform composes ACMP, binds AECP once, and three of `CTRL_LOOP_MAX_POLLS` (8) are taken. Its `aecp_mbx_init` refuses `MBX_N_IF` interfaces past the contract's and a model `aecp_init` refuses, and the model is the one `aecp_image_load` accepted from the generated image two calls before. `ctrl_app_aecp_attach_face` refuses a second face and a full sink table: this is the first face, and four of `CTRL_LOOP_MAX_SINKS` (8) are taken. The platform's own refusals are tested (`Boot.B2` to `Boot.B6`). |
+ | `sw/firmware/ctrl/plat/ctrl_plat.c` | `ctrl_plat_boot` | `if (!compose(p)) {` | arc 1 of 2; line `composition refused` | `compose` returning false: its only false results are the three operands the row above names. |
+ | `sw/firmware/ctrl/plat/ctrl_plat.c` | `ctrl_plat_boot` | `if (!srp_mbx_init(&p->srp, &p->srp_config)` | arcs 2, 3 of 4; line `SRP refused` | SRP refusing the platform (#665 S3). `srp_mbx_init` refuses an instance that already owns SRP's timer, no licence port, no bound pool, a missing source array and a participant lwSRP cannot create: the boot runs once per reset on a cleared instance, the platform supplies the licence port and every interface's sources, `ctrl_app_compose` bound the pool, and the arena is sized for the entity's sources and sinks (`SRP_POOL_MEDIUM_BLOCKS`). `ctrl_app_attach_srp` refuses SRP already attached, more sinks than `CTRL_SRP_SINKS`, fewer than two free polls and an app without ADP or MAAP: the platform attaches once, composes `CTRL_SRP_SINKS` sinks, ADP and MAAP, and takes six of the eight polls before it. `srp_mbx_attach` refuses a full tick, poll or sink table and a bound SRP channel: one of four ticks and six of eight sinks are taken, and nothing else binds the channel. |
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ | `sw/firmware/ctrl/srp/srp_mbx.c` | `poll` | `if (i->msrp && i->link &&` | arcs 2, 4, 6 of 6 | The poll's owed frame on an interface without its participants or its link, or a prepared frame's transmit returning 0 (each operand false; #665, THE TRANSMIT in `ctrl_loop.h`). A frame becomes owed only in `send_pdu`, which `mrp_transmit` calls on a participant the build's call reached with its link up. `reset_interface` withdraws the interface's owed frame before it destroys the participants, and it runs on every LINK event (`on_event`) and, in this poll's loop above, on every link level that changed; the interface's participants are built again only by a later poll. A participant holding a prepared PDU sends it in `mrp_transmit`, which returns 1 when the send succeeds and the send's negative error when it does not, never 0. The guards are kept as the build's call has them. |
+-| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;` | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
+-| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | arc 2 of 4 | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant. |
+-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | arc 4 of 6 | The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). A change (`nvm_store_changed`, `nvm_store_changed_id`) opens the window only with the bit it sets, and marks nothing for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
+-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | arcs 2, 4, 6, 10, 12 of 12 | A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ. |
+-=======
+ | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;` | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, the layout 3 blocks of `nvm_layout3.h` follow one another, and the `_Static_assert`s of `nvm_shape.h` keep every group inside its block. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a table (a byte per input port, 16 bits per output port) that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
+ | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | arc 2 of 4 | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM3_N_*` constant. |
+-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(&nvm.dirty) &&` | arc 4 of 6 | The first-dirty window open with nothing dirty (`nvm_any(&nvm.dirty)` false: its count is 0). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
++| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(&nvm.dirty) &&` | arc 4 of 6 | The first-dirty window open with nothing dirty (`nvm_any(&nvm.dirty)` false: its count is 0). A change (`nvm_store_changed`, `nvm_store_changed_id`) opens the window only with the bit it sets, and marks nothing for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
+ | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | arcs 2, 4, 6, 8, 10, 14, 16 of 16 | A staged record span that starts with the magic but is not a frame of its record (each of the seven compares after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, reserved byte, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ. |
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_erase_start` | `nvm.target == nvm.st.auth` | arc 2 of 4 | Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1. |
+ | `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `ls_in_journal` | `return addr >= NVM_JOURNAL_OFFSET &&` | arc 2 of 6 | A length longer than the journal (`len <= NVM_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two slots of whole 64 KiB blocks (`nvm_shape.h` asserts it). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second. |
+ 
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index 3fbf216cbf..248ca9d436 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -33,17 +33,10 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 8/8  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 114/114  branches 68/68
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ sw/firmware/ctrl/srp/srp_mbx.c  lines 663/663  branches 577/577
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 207/207  branches 116/116
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 456/456  branches 265/265
++sw/firmware/ctrl_nvm/nvm_klj2.c  lines 212/212  branches 120/120
++sw/firmware/ctrl_nvm/nvm_store.c  lines 481/481  branches 275/275
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 108/108  branches 63/63
+-=======
+-sw/firmware/ctrl/srp/srp_mbx.c  lines 543/543  branches 486/486
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 203/203  branches 110/110
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 459/459  branches 269/269
+-sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ third_party/tsn-c-stack/include/wire.h  lines 14/14  branches 2/2
+ third_party/tsn-c-stack/src/acmp.c  lines 847/847  branches 436/436
+ third_party/tsn-c-stack/src/adp.c  lines 206/206  branches 99/99
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index 4b3171a856..1e391851aa 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -248,20 +248,13 @@ class Ledgered:
+ #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+ #: where it happens.
+ LEDGERED: dict[str, Ledgered] = {
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+-    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+-                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+-                                         "6425357821); 58.0 since a TX record's commit judges its own move, "
+-                                         "+112 to 120 B an image, with tsn-c-stack 715589c (#665)"),
+-    "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_288)), 60.0,
+-=======
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+                                    58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+-                                         "6425357821; the owner's 6824896581: 58.0, at most 58.5)"),
++                                         "6425357821); 58.0 since a TX record's commit judges its own move, "
++                                         "+112 to 120 B an image, with tsn-c-stack 715589c, held there for the "
++                                         "flip by the owner's decision of 2026-11-12, at most 58.5 (#665)"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_392)), 59.0,
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index 491d334ca7..bf55e83a61 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -5,16 +5,11 @@ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+ only by its own name, under #665's documented memory exceptions: the size fixture's at 58.0 RAMB36 and the target
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ platform's at 60.0 (the owner's decision of 2026-11-12), each refused half a tile past. A `Case` here is what the
+ ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+ here takes, and grades what these return.
+-=======
+-platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+-writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
+ syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+ (#665 S9); `mapper_arms` grades that override and plants three defects in it.
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ """
+ 
+ from __future__ import annotations
+@@ -51,17 +46,10 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 58.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.0)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 58.0),
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 60.0)}
+-=======
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 58.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 59.0)}
+-#: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 58.0),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 59.0)}
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+@@ -73,7 +61,6 @@ REFUSED = (
+     ("an 8x8 image with no image_allocation at 58.0", FIXTURE, Case(STAGE_8X8, None, None, 58.0)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+     ("the platform's 8x8 two-interface image at 58.0", FIXTURE, OWN[PLATFORM]._replace(tiles=58.0)),
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+     ("its own image at 60.5 RAMB36, half a tile past its 60.0", PLATFORM, OWN[PLATFORM]._replace(tiles=60.5)),
+     ("the platform's 1x1 one-interface image at 60.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 60.0)),
+     ("the platform's 1x1 two-interface image at 60.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 60.0)),
+@@ -81,15 +68,6 @@ REFUSED = (
+     ("an image with the point's ctrl_plat and the 1x1 stage at 60.0", PLATFORM,
+      Case(STAGE_1X1, None, PLAT_8X8_2, 60.0)),
+     ("an 8x8 image with no ctrl_plat at 60.0", PLATFORM, Case(STAGE_8X8, None, None, 60.0)),
+-=======
+-    ("its own image at 59.5 RAMB36, half a tile past its 59.0", PLATFORM, OWN[PLATFORM]._replace(tiles=59.5)),
+-    ("the platform's 1x1 one-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 59.0)),
+-    ("the platform's 1x1 two-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 59.0)),
+-    ("the platform's 8x8 one-interface image at 59.0", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 59.0)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 59.0", PLATFORM,
+-     Case(STAGE_1X1, None, PLAT_8X8_2, 59.0)),
+-    ("an 8x8 image with no ctrl_plat at 59.0", PLATFORM, Case(STAGE_8X8, None, None, 59.0)),
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
+     ("the size fixture's 8x8 two-interface image at 60.0", PLATFORM, OWN[FIXTURE]._replace(tiles=60.0)),
+     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+index 0dbc530eef..fdb4a4cf1f 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -18,11 +18,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces) plans
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+      its 58.0 or 60.0 by name and is refused without its override, through
+-=======
+-     its 58.0 or 59.0 by name and is refused without its override, through
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+      add_ctrl_memory and half a tile past; each override is refused on every
+      other point, on the other's image and on an image with one of its two
+      symbols. Six planted ledgers, each widening an entry to another point or
+@@ -335,11 +331,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+                                           f"platform's 8x8 images with two interfaces at 58.0 and 60.0 ({held})")
+-=======
+-                                          f"platform's 8x8 images with two interfaces at 58.0 and 59.0 ({held})")
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+index 2ebf147653..cfbf2c0948 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -1439,7 +1439,6 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+   --build-dir /tmp/budget-as-built --fetch-l1 none --cpu-regions as-built
+ ```
+ 
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+ `slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins 32,000 turns first.
+ The `control` group's RCV_ADP_DISCOVER must miss its 20 ms budget: it measures 48.697 ms, and the run prints `CONTROL slow-adp-rx caught`.
+ The ordinary image measures the same path at 0.056 ms.
+@@ -1449,15 +1448,7 @@ The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this co
+ The controls are the cacheless core's.
+ Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.322 ms, SHUTDOWN 17.411 ms), which fits the budget.
+ No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
+-`as-built` hands the generator the SoC's regions unchanged.
+-=======
+-`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
+-The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
+-The ordinary image measures the same path at 0.294 ms.
+-`slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+-The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+ `as-built` hands the generator the SoC's regions unchanged, without the split SoC's pieces.
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
+ The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
+ Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
+ The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/split_soc.py
+index 1b2045cba5..897e61c48a 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -479,24 +479,17 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
+ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:
+     """Export the test SoC's Verilog and return the native build's inputs.
+ 
+-<<<<<<< 70e30d7b92 (State in section 13 that the SRP record cut's control, held to this image's unplanted record, is caught (#665))
+     core is the selection (build.Core). Its cpu_regions 'cover' gives the CPU
+-    generator each region at its power-of-two cover; 'as-built' gives it the
+-    SoC's regions unchanged, which reproduces the generator's rom decode
+-    defect (a control). Its fetch_l1 selects the CPU's instruction cache
+-    (fetch_l1_geometry). Its cpu_cd is the split CPU's clock domain, MilanSoC's
+-    ctrl_cpu_cd, None for the split placement's own (milan_soc.CTRL_CPU_CD,
+-    sys): MilanSoC refuses any other, the Milan clock among them (#665, owner
+-    decision 2026-10-30). The CPU's clock, cpu_hz, is the one MilanSoC derives
+-    from that domain (cpu_clk_freq), never the point's milan_clk_hz, which is
+-    the datapath's and is recorded only as milan_hz.
+-=======
+-    cpu_regions 'cover' gives the CPU generator the shipping split's
+-    regions, each its own power-of-two cover (#791); 'as-built' gives it the
+-    SoC's regions without that split, which reproduces the generator's
+-    single-mask rom decode (a control).
+-    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+->>>>>>> 8bc1dfc0bb (Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665))
++    generator the shipping split's regions, each its own power-of-two cover
++    (#791); 'as-built' gives it the SoC's regions without that split, which
++    reproduces the generator's single-mask rom decode (a control). Its
++    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry). Its
++    cpu_cd is the split CPU's clock domain, MilanSoC's ctrl_cpu_cd, None for
++    the split placement's own (milan_soc.CTRL_CPU_CD, sys): MilanSoC refuses
++    any other, the Milan clock among them (#665, owner decision 2026-10-30).
++    The CPU's clock, cpu_hz, is the one MilanSoC derives from that domain
++    (cpu_clk_freq), never the point's milan_clk_hz, which is the datapath's
++    and is recorded only as milan_hz.
+     """
+     addresses = fixture_addresses(build_dir / FLASH_MAP)
+     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
