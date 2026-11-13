@@ -249,37 +249,45 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
     """A join interval is two consecutive MRPDUs of one participant, an interface and an MRP application, with a join
     timer's run-out between them and neither the periodic nor the LeaveAll timer's; each outside Table 4.3's 180.0 to
     240.0 ms is named and fails the run (#894's contingent ruling issuecomment-6858269025, item 4)."""
-    srp, ms = scenario.CH['srp'], sys_hz // 1000
+    srp, ms, ratio = scenario.CH['srp'], sys_hz // 1000, sys_hz // cpu_hz
 
-    def joins(sends: tuple, timers: tuple = ()) -> dict:
-        """The join intervals of a log whose MRPDUs are (ms, interface, EtherType) and whose timers (ms, callback)."""
+    def joins(sends: tuple, timers: tuple = (), idle: tuple = ()) -> dict:
+        """The join intervals of a log whose MRPDUs are (ms, interface, EtherType), each committed in a pass of its own
+        after its build, whose timers are (ms, callback), and whose builds at the ms in idle sent nothing."""
         lines, word = [], 0
         for at, interface, kind in sends:
             frame = bytes(12) + kind.to_bytes(2, 'big') + bytes(46)
             lines += tx_record(srp, interface, frame, word, at * ms)
             word += 2 + (len(frame) + 3) // 4
+        builds = sorted([at for at, _, _ in sends] + list(idle))
+        lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at in builds]
+        lines += [f'PASS {n} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
+                  for n, at in enumerate(builds)]
         lines += [f'ENTRY {at * ms} {name}' for at, name in timers]
         return join_grade.held(grade.parse(synthetic(lines), sys_hz, cpu_hz))
 
     msrp, mvrp = 0x22EA, 0x88F5
-    edge = joins(((1_000, 0, msrp), (1_180, 0, msrp), (1_420, 0, msrp)), ((1_100, 'on_join_timer'),
-                                                                        (1_300, 'on_join_timer')))
-    out = [('a join interval is two MRPDUs of one participant with a join timer between: 180 and 240 ms hold',
-            edge['count'] == 2 and edge['shortest'] == 180.0 and edge['longest'] == 240.0 and edge['over'] == [],
-            str(edge))]
-    short = joins(((1_000, 0, msrp), (1_179, 0, msrp)), ((1_100, 'on_join_timer'),))
-    long = joins(((1_000, 0, mvrp), (1_241, 0, mvrp)), ((1_100, 'on_join_timer'),))
+    edge = joins(((1_000, 0, msrp), (1_180, 0, msrp), (1_420, 0, msrp)), ((1_170, 'on_join_timer'),
+                                                                        (1_400, 'on_join_timer')))
+    out = [('a join interval is two MRPDUs of one participant, the second one a join timer released: 180 and 240 ms '
+            'hold', edge['count'] == 2 and edge['shortest'] == 180.0 and edge['longest'] == 240.0 and
+            edge['over'] == [], str(edge))]
+    short = joins(((1_000, 0, msrp), (1_179, 0, msrp)), ((1_170, 'on_join_timer'),))
+    long = joins(((1_000, 0, mvrp), (1_241, 0, mvrp)), ((1_230, 'on_join_timer'),))
     named = run.stated_misses([dict(group='j', passes=dict(joins=short)), dict(group='k', passes=dict(joins=long))])
     out.append(('a join interval under 180.0 ms or over 240.0 ms is named with its participant',
                 named == ['j: a join interval of 179.000 ms (if0 MSRP), outside 180.0 to 240.0 ms',
                           'k: a join interval of 241.000 ms (if0 MVRP), outside 180.0 to 240.0 ms'], str(named)))
     apart = joins(((1_000, 0, msrp), (1_050, 0, mvrp), (1_100, 1, msrp), (1_190, 0, msrp)),
-                  ((1_120, 'on_join_timer'),))
+                  ((1_180, 'on_join_timer'),))
     other = joins(((1_000, 0, msrp), (1_090, 0, msrp)), ((1_050, 'on_join_timer'), (1_060, 'on_pt_timer')))
     none = joins(((1_000, 0, msrp), (1_090, 0, msrp)))
     out.append(("a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no "
                 'join timer, between them are none', apart['count'] == 1 and apart['shortest'] == 190.0 and
                 other['count'] == 0 and none['count'] == 0, str((apart, other, none))))
+    idle = joins(((1_000, 0, msrp), (1_700, 0, msrp)), ((1_190, 'on_join_timer'),), idle=(1_191,))
+    out.append(('a join timer that runs out with nothing to send, its build sending no frame, releases nothing, and '
+                'the MRPDU a later request sends ends no join interval', idle['count'] == 0, str(idle)))
     args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
                               record_share_findings=True)
     out.append(('a join interval outside its range fails a run whatever findings it records',

@@ -31,7 +31,11 @@ def ticks(log: grade.Log) -> list[int]:
 
 def commits(grader: grade.Grader, entry: int) -> list[tuple[int, int]]:
     """The (cycle, interface) of the frames of the builds after a timer's entry, as the module docstring says."""
-    log = grader.log
+    return released(grader.log, entry)
+
+
+def released(log: grade.Log, entry: int) -> list[tuple[int, int]]:
+    """commits' frames, from the log alone: what the timer that ran out at entry released (join_grade.py too)."""
     srp = scenario.CH['srp']
     limit = entry + int(LOOK_MS * log.sys_hz / 1000)
     builds = [c for c, name in log.entries if name == BUILD and entry < c < limit]

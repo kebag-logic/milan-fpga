@@ -838,6 +838,9 @@ MUTANTS: dict[str, Patches] = {
     'joins: no join interval held to its range': lambda: [patch.object(
         join_grade, 'held', lambda log, f=join_grade.held: dict(f(log), over=[]))],
     'joins: the range from the armed 190 ms': lambda: [patch.object(join_grade, 'LEAST_MS', 190.0)],
+    "joins: an MRPDU a join timer did not release taken for a join's": lambda: [patch.object(
+        join_grade, 'released', lambda log: {c: max((e for e, n in log.entries if n == join_grade.JOIN and e < c),
+                                                    default=c) for c, _, _, _ in log.tx})],
     "joins: a periodic or LeaveAll timer's MRPDU taken for a join's": lambda: [patch.object(join_grade, 'OTHERS', ())],
     "joins: the participants' applications not told apart": lambda: [patch.dict(
         join_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
