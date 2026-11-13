@@ -29,6 +29,9 @@ LONG_NOTICE_BYTES = 550
 #: AVAILABLE, Milan v1.2 5.6.3.5.4) nor MAAP (500 to 600 ms between probes, IEEE 1722-2016 B.3.4.2) has a response
 #: deadline; and tier 1's 20 ms for AECP's with its largest legal notice, the one row that counts it.
 CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30}
+#: THE TRANSMIT's MRPDU rows: tx, and txL with every AECP notice the largest legal one (#894's ruling of 2026-11-13 on
+#: option A: the MRPDU's 40 ms is the specs', so the largest legal notice is one of its sources).
+TX_ROWS = ('tx', 'txL')
 
 
 def queue_passes(i: Inputs, burst: int, first_us: float, drain: float = 0.0) -> int:
@@ -191,7 +194,7 @@ def tier1_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[
     if row == 'first':
         # the pass running as the retry falls due: its tier-1 records, each channel's cap
         return {'others': sum(min(arrive(o), q[o]) * c[f'record.{o}'] for o in TIER1)}
-    if row == 'tx':
+    if row in TX_ROWS:
         whole = d.slice_us >= h['CTRL_LOOP_BUILD_PASS_US']
         build = 'CTRL_LOOP_BUILD_PASS_US' if whole else 'CTRL_LOOP_BUILD_ONE_PASS_US'
         return {'others': sum(arrive(o) * c[f'record.{o}'] for o in TIER1), 'builds': h[build]}

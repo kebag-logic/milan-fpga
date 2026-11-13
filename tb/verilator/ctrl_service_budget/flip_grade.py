@@ -15,7 +15,8 @@ THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grad
 comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
 2026-11-13, item 2: AECP's with its largest legal notice at tier 1's 20 ms, ACMP's, ADP's and MAAP's at 30 ms by the
 owner's decision of 2026-11-13, option A, FR_NFR.md 3.4.1)
-and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 40 ms), and the check fails
+and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 40 ms), by its stated notice
+and with every AECP notice the largest legal one (txL, #894's slice ruling of 2026-11-13), and the check fails
 when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
@@ -166,11 +167,11 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 90u)'
-    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)')}
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)'
+    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 27u : 90u)')}
     with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
                            f(r, p, under)):
-        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 28 ms' in f for f in row_findings(root, one)):
+        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 27 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
     if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40:
         escaped.append(CHANNEL_CONTROLS[2])

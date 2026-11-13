@@ -7,7 +7,10 @@ flip check's (flip_grade.py, --design built); its self-test plants a defect in e
 
   built      THE TIERS as ctrl_loop.c builds them: BUILT, the default. Its rows are TIER_ROWS, each tier-1 channel's
              last record of its burst (CHANNEL_ROWS, #894's ruling of 2026-11-13, item 2: AECP's with its largest legal
-             notice as well, R4L) and THE TRANSMIT's MRPDU (tx, at CTRL_LOOP_TX_BOUND_MS, item 1), each held.
+             notice as well, R4L) and THE TRANSMIT's MRPDU (tx, at CTRL_LOOP_TX_BOUND_MS, item 1, and txL with every
+             AECP notice the largest legal one, #894's ruling on option A), each held. R4L and txL charge every AECP
+             command as the one the largest legal notice answers, its record and its notice at their costs measured
+             by the CPU budget harness (LONG_RECORD_US, LONG_NOTICE_US; #894's slice ruling of 2026-11-13).
   corrected  THE DRAIN as built before the tiers (rows_grade.demand, re-derived here and held equal to it with every
              correction off), with each count at its source's own rule: the retained retry at most once a centisecond
              and no more than SRP's records (srp_mbx.c, retry_spent, given back by the centisecond's consumer;
@@ -43,7 +46,8 @@ from typing import Callable, NamedTuple
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
-from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, aecp_passes,  # noqa: E402
+import poll_grade  # noqa: E402
+from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
                         channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_passes)
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
@@ -97,8 +101,11 @@ TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
 #: its burst beside the composed burst, AECP's also with every command of its burst answered by the largest legal
 #: notice (R4L), and THE DRAIN's channel's R5 and R6. served() reads the channels from the loop's bindings.
 CHANNEL_ROWS = {'aecp': ('R4', 'R4L'), 'acmp': ('ACMP',), 'adp': ('ADP',), 'maap': ('MAAP',), 'srp': ('R5', 'R6')}
-#: The rows the tier model adds beside TIER_ROWS, in their order: the tier-1 channels' and THE TRANSMIT's MRPDU.
-ADDED_ROWS = ('R4L', 'ACMP', 'ADP', 'MAAP', 'tx')
+#: The rows the tier model adds beside TIER_ROWS, in their order: the tier-1 channels' and THE TRANSMIT's MRPDU, by its
+#: stated notice and with every AECP notice the largest legal one (TX_ROWS).
+ADDED_ROWS = ('R4L', 'ACMP', 'ADP', 'MAAP', *TX_ROWS)
+#: The rows that charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US).
+LONG_ROWS = ('R4L', 'txL')
 #: The MRP timer budget's bound on THE TRANSMIT's MRPDU, in ms (#894's ruling of 2026-11-13, item 1; ctrl_loop.h,
 #: CTRL_LOOP_TX_BOUND_MS, which the tree must state): JoinTime's 200 ms plus it within Milan v1.2 Table 4.3's 240.
 TX_BUDGET_MS = 40
@@ -107,12 +114,18 @@ TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
 AECP_RULES = ('notify', 'cap', 'queue')
 LONG_RULES = ('buffer', 'slot-552')
-#: That notice's cost to the registered controllers in us, a stated input and not a measurement: no group of the CPU
-#: budget harness sends one. A notice over AECP_FAN_BYTES is sent a recipient at a time (aecp.c, fan_out), each charged
-#: the most measured AECP poll sending one frame (poll.aecp_one_frame: 4,216 cycles at 1x1/1if, 5,945 at 8x8/2if), to
-#: every registration but the requester's (15 and 31), plus 5 %, rounded up to 5 us. A long command's own record is
-#: charged record.aecp, measured on shorter ones.
-LONG_NOTICE_US = {'1x1/1if': 665, '8x8/2if': 1940}
+#: An AECP poll's owed frames in us where every notice is the largest legal one: the CPU budget harness's stated cost
+#: of an AECP poll item that commits a notice longer than AECP_FAN_BYTES (poll_grade.STATED_US, aecp_long), the most
+#: measured over the aecp-largest-notice group, a 550 B notice to every registration but the requester's (15 and 31;
+#: long_notice.py), plus 5 %, rounded up to 5 us (#894's slice ruling of 2026-11-13: the measured cost replaces the
+#: stated 665 us).
+LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
+#: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
+#: largest legal notice answers): ADD_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler (aecp_mbx.c,
+#: frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, 742,470 CPU cycles at 1x1/1if and 959,647 on
+#: the 8x8 shape with the answering-ports arm, whose output map that group edits (#894's slice ruling of 2026-11-13: the
+#: group's measurement). record.aecp, 235 us at 1x1/1if, is measured on shorter commands.
+LONG_RECORD_US = {'1x1/1if': 7800, '8x8/2if': 10080}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -168,7 +181,7 @@ def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) ->
     spacing = re.search(r'^#define AECP_RETRY_MAX_MS (\d+)u', (root / 'sw/firmware/ctrl/aecp/aecp.h').read_text(), re.M)
     base = rows_grade.point_inputs(root, point)
     costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
-             'item.aecp.long': LONG_NOTICE_US[point]}
+             'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
     return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, base.s['n_if'], texts))
 
 
@@ -177,13 +190,13 @@ def as_tiers(base: rows_grade.Inputs) -> Inputs:
     interfaces, the retry spacing of aecp.h's AECP_RETRY_MAX_MS (8 ms) and no built constants."""
     point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if'])
     costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
-             'item.aecp.long': LONG_NOTICE_US[point]}
+             'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
     return Inputs(base.h, costs, *base[2:], 8)
 
 
 def bounds_at(i: Inputs) -> dict[str, float]:
     """Every row's bound in ms at a point: decision D's, the channel rows' and THE TRANSMIT's, the header's."""
-    return {**BOUNDS, **CHANNEL_BOUNDS, 'tx': i.tx_bound}
+    return {**BOUNDS, **CHANNEL_BOUNDS, **dict.fromkeys(TX_ROWS, i.tx_bound)}
 
 
 def served(root: Path, texts: dict[str, str] | None = None) -> tuple[tuple[str, ...], str]:
@@ -375,7 +388,10 @@ def round_slices(h: dict, notices: int, slice_us: int) -> tuple[float, int]:
 
 
 def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
-    """Each source's work in microseconds in a window of w_ms before the row's work is done, under the tiers."""
+    """Each source's work in microseconds in a window of w_ms before the row's work is done, under the tiers: in a
+    LONG_ROWS row every AECP record the largest legal command's (LONG_RECORD_US)."""
+    if row in LONG_ROWS:
+        i = i._replace(c={**i.c, 'record.aecp': max(i.c['record.aecp'], i.c['record.aecp.long'])})
     h, c, s, rate, tick_ms = i[:5]
     n_if, slice_us = s['n_if'], d.slice_us
 
@@ -406,7 +422,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             n = p_aecp + 1
         elif row == 'first':
             n = 2
-        elif row == 'tx':
+        elif row in TX_ROWS:
             n = tx_passes(i, d, ticks, notice, arrive)
         else:
             # tier 2 ahead of the row's last unit: SRP's rows their own burst; the last notice every unit arriving
@@ -443,12 +459,12 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
         passes = n
     out['timers'] = timers
     out.update(tier1_records(row, i, d, passes, arrive))
-    if row not in (*TIER1_ROWS, 'tx'):
+    if row not in (*TIER1_ROWS, *TX_ROWS):
         out.update(tier2)
     gm = sum(math.floor(w_ms / ms) + 1 for ms in load_grade.GM_INTERVALS_MS)
     out['gm'] = n_if * min(passes, gm) * c['event.GM']
     out['steps'] = (math.floor(w_ms / (10 * (h['CTRL_LOOP_STEP_AGE'] + 1))) + 1) * h['CTRL_LOOP_STEP_PASS_US']
-    if row in (*TIER1_ROWS, 'tx'):
+    if row in (*TIER1_ROWS, *TX_ROWS):
         # SRP's walk and reclaim, by their sources in the window: lwSRP's centiseconds and the slice's records
         out['item.walk'] = min(passes * n_if, n_if * ticks) * c['item.walk']
         out['item.reclaim'] = min(2 * n_if * passes, 2 * per_slice) * c['item.reclaim']
@@ -456,8 +472,8 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
         out['item.walk'] = min(passes * n_if, n_if * (ticks + count_b)) * c['item.walk']
         out['item.reclaim'] = min(2 * n_if * passes, 2 * (srp_in + count_b)) * c['item.reclaim']
     out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
-    # AECP's owed frames, R4L's each the largest legal notice (LONG_NOTICE_US)
-    each = max(c['item.aecp'], c['item.aecp.long']) if row == 'R4L' else c['item.aecp']
+    # AECP's owed frames, R4L's and txL's each the largest legal notice (LONG_NOTICE_US)
+    each = max(c['item.aecp'], c['item.aecp.long']) if row in LONG_ROWS else c['item.aecp']
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * each
     if row == 'R5':
         out['links'] = n_if * c['event.LINK']
@@ -470,24 +486,27 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
 def solve(row: str, i: Inputs, model: Fix | Design,
           dropped: str | None = None) -> tuple[float | None, dict[str, float]]:
     """The row's W in ms, in steps of 0.01, with its terms in microseconds, by `model` (a Fix or a Design); None if
-    none under 2,000 ms. Under the tiers the queued notices' W opens AECP_RETRY_MAX_MS (spacing) before their window;
-    by the corrected model they are the tree's derived bounds, as rows_grade reads them. `dropped` is left out."""
+    none under 2,000 ms, with its terms at 2,000 ms. Under the tiers the queued notices' W opens AECP_RETRY_MAX_MS
+    (spacing) before their window; by the corrected model they are the tree's derived bounds, as rows_grade reads them.
+    `dropped` is left out."""
     if isinstance(model, Fix) and row in ('first', 'last'):
         name = 'AECP_QUEUED_FIRST_MS' if row == 'first' else 'AECP_QUEUED_MS'
         return float(i.h[name]), {name: i.h[name] * 1000.0}
     model = at_point(model, i)
     spacing = i.spacing_ms if row in ('first', 'last') and dropped != 'spacing' else 0
-    w, d = 0.01, {}
-    while w < 2000:
+    def at(w: float) -> dict[str, float]:
+        """The row's terms in a window of w ms."""
         terms = built(row, i, w, model) if isinstance(model, Fix) else tiered(row, i, w, model)
-        d = {k: v for k, v in terms.items() if k != dropped}
-        if spacing:
-            d['spacing'] = spacing * 1000.0
+        kept = {k: v for k, v in terms.items() if k != dropped}
+        return {**kept, 'spacing': spacing * 1000.0} if spacing else kept
+    w = 0.01
+    while w < 2000:
+        d = at(w)
         total = sum(d.values()) / 1000
         if total <= w + spacing:
             return w + spacing, d
         w = max(w + 0.01, math.ceil((total - spacing) * 100) / 100)
-    return None, d
+    return None, at(2000)
 
 
 def rows(root: Path, point: str, model: Fix | Design, i: Inputs | None = None,
@@ -521,7 +540,7 @@ def findings(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS,
 
 
 def long_counted(i: Inputs, w: float, terms: dict[str, float]) -> bool:
-    """Whether R4L's terms charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US)."""
+    """Whether a LONG_ROWS row's terms charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US)."""
     passes = round(terms['passes'] * 1000 / (i.c['events_none'] + i.c['base']))
     sent = min(passes, i.rate['aecp'][0] + math.floor(w / i.rate['aecp'][1]) + i.s['n_if'] * i.s['registrations'])
     return abs(terms.get('item.aecp', 0.0) * 1000 - sent * max(i.c['item.aecp'], i.c['item.aecp.long'])) < 1e-6
@@ -529,7 +548,8 @@ def long_counted(i: Inputs, w: float, terms: dict[str, float]) -> bool:
 
 def tx_statements(root: Path, points: tuple[str, ...] = POINTS, texts: dict[str, str] | None = None) -> list[str]:
     """Each way ctrl_loop.h's statement of THE TRANSMIT's MRPDU is not the model's: its bound not the timer budget's
-    (TX_BUDGET_MS), or its figure, CTRL_LOOP_TX_MS, under the built design's tx row rounded up to the ms."""
+    (TX_BUDGET_MS), or its figure, CTRL_LOOP_TX_MS, under the built design's tx row rounded up to the ms (txL, every
+    notice the largest legal one, is the flip check's row alone)."""
     out = []
     for point in points:
         i = point_inputs(root, point, texts)
@@ -603,8 +623,8 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
                         out.append(f'{point} {row}: the first queued notice is not counted')
                 if abs(terms.get('slice', 0.0) * 1000 - model.slice_us) > 1e-6:
                     out.append(f'{point} {row}: its one slice is not the slice\'s length')
-                if row == 'R4L' and not long_counted(i, w or 2000, terms):
-                    out.append(f'{point} R4L: an owed frame of AECP\'s not the largest legal notice')
+                if row in LONG_ROWS and not long_counted(i, w or 2000, terms):
+                    out.append(f'{point} {row}: an owed frame of AECP\'s not the largest legal notice')
     if load_grade.retry_unbounded(root):
         out.append('the retained retry\'s rule is not the tree\'s (load_grade.RETRY_RULE)')
     return out
@@ -641,6 +661,12 @@ BUILT = Design(0, 'aecp-first', 'srp-first', 'queue')
 #: The grid the slice is chosen on, in us: the tier model's first sweep's (#894, the ruling of 2026-11-12: the slice
 #: with the largest least relative margin over the five rows at 1x1/1if).
 SLICE_GRID_US = 50
+#: The row the slice rule ranks beside TIER_ROWS (#894's slice ruling of 2026-11-13, its sixth row): THE TRANSMIT's
+#: MRPDU with every AECP notice the largest legal one.
+SLICE_HELD = ('txL',)
+#: That ruling's slice at 1x1/1if in us, and the range in us in which the tree may take the rule's choice instead, once
+#: it holds every row by every source (ruled).
+RULED_SLICE_US, RULED_RANGE_US = 800, (650, 1100)
 #: The models whose rows the controls hold, each named in the controls.
 HELD = (('corrected', CORRECTED), ('tiers', REFERENCE), ('built', BUILT))
 
@@ -654,16 +680,28 @@ def least_margin(rows_at: dict[str, tuple[float | None, dict]], bounds: dict | N
 
 
 def slice_choice(root: Path, point: str = '1x1/1if') -> tuple[int, float]:
-    """The slice of the built design's orders and rule with the largest least relative margin at the point, on
-    SLICE_GRID_US from the smallest the code could take to CTRL_LOOP_DRAIN_US, and that margin; the shorter on a tie."""
+    """The slice of the built design's orders and rule with the largest least relative margin over TIER_ROWS and
+    SLICE_HELD at the point, on SLICE_GRID_US from the smallest the code could take to CTRL_LOOP_DRAIN_US, and that
+    margin; the shorter on a tie."""
     i = point_inputs(root, point)
+    bounds = bounds_at(i)
+    six = {row: bounds[row] for row in (*TIER_ROWS, *SLICE_HELD)}
     first = math.ceil(smallest_slice(i) / SLICE_GRID_US) * SLICE_GRID_US
     best = None
     for us in range(first, i.h['CTRL_LOOP_DRAIN_US'] + 1, SLICE_GRID_US):
-        m = least_margin(rows(root, point, BUILT._replace(slice_us=us), i))
+        m = least_margin(rows(root, point, BUILT._replace(slice_us=us), i), six)
         if best is None or m > best[1]:
             best = (us, m)
     return best
+
+
+def ruled(root: Path) -> int:
+    """The slice the tree must state at 1x1/1if (#894's slice ruling of 2026-11-13): the rule's choice where it holds
+    every row by every source there and lies in RULED_RANGE_US, else RULED_SLICE_US."""
+    us, margin = slice_choice(root)
+    i = point_inputs(root, '1x1/1if')
+    every = least_margin(rows(root, '1x1/1if', BUILT._replace(slice_us=us), i), bounds_at(i))
+    return us if margin >= 0 and every >= 0 and RULED_RANGE_US[0] <= us <= RULED_RANGE_US[1] else RULED_SLICE_US
 #: The planted defects controls() plants beside each row's, in its order.
 CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry counted once a pass',
             "SRP's window cut by the AECP burst's whole work", 'a datapath source left out',
@@ -673,7 +711,9 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             'an order TIERS does not state', "rows_grade's default not the as-built model",
             'the slice length not read', 'the retry rule not read from the tree',
             "the built design's slice not the rule's", "the owed-notice queue's depth not counted",
-            "R4L's owed frames not the largest legal notice", 'a channel the loop serves without its rows',
+            "R4L's owed frames not the largest legal notice", "txL's owed frames not the largest legal notice",
+            "a slice chosen at which txL is over its bound", "R4L's AECP records not the largest legal command's",
+            "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
             'a design whose quotas are not its order\'s')
@@ -765,6 +805,8 @@ PLANTS: dict[str, tuple[Fix | Design, Callable]] = {
         k: v for k, v in t.items() if row != 'R4' or k != 'notice'}),
     "R4L's owed frames not the largest legal notice": (BUILT, lambda row, i, w, m, t: dict(
         t, **{'item.aecp': t['item.aecp'] * i.c['item.aecp'] / i.c['item.aecp.long']}) if row == 'R4L' else t),
+    "txL's owed frames not the largest legal notice": (BUILT, lambda row, i, w, m, t: dict(
+        t, **{'item.aecp': t['item.aecp'] * i.c['item.aecp'] / i.c['item.aecp.long']}) if row == 'txL' else t),
 }
 
 
@@ -784,8 +826,11 @@ def plant_controls(root: Path) -> list[str]:
 
 def tree_controls(root: Path) -> list[str]:
     """The planted defects of what the models read: the as-built derivation, the slice, the orders, rows_grade's
-    default and the retry rule in the tree, each that is not refused."""
+    default and the retry rule in the tree, and the rows that count the largest legal notice (long_rows.py), each that
+    is not refused."""
     from unittest import mock
+
+    import long_rows
     me = sys.modules[__name__]
     escaped = []
     if drift(root):
@@ -820,12 +865,13 @@ def tree_controls(root: Path) -> list[str]:
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1200u : 1300u)'
-    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1250u : 1300u)')
+    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 800u : 1300u)'
+    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 850u : 1300u)')
     tree = built_constants(root, 1)[0]
-    if slice_choice(root)[0] != tree or built_constants(root, 1, {loop: other})[0] == tree or \
+    if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
             stated not in (root / loop).read_text():
         escaped.append("the built design's slice not the rule's")
+    escaped += long_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
     # R4, and none is the tree's rule before it (notify)
     mailbox = 'sw/firmware/ctrl/aecp/aecp_mbx.h'
@@ -872,8 +918,8 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 90u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)')}
+    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 27u : 90u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
     if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, bound[:-3] + '90u')}):

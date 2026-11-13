@@ -94,12 +94,19 @@ def solve(root: Path, point: str, d: rows_tiers.Design, i: rows_tiers.Inputs, lo
 
 
 def loads(root: Path, point: str) -> tuple[float, float]:
-    """The point's long-window load at the pin, with the stated notice and with every command's notice the largest
-    legal one (load_grade charges a record's owed frame at the larger of its response's and its notice's)."""
+    """The point's long-window load at the pin, with the stated notice and with every command the one the largest
+    legal notice answers, its record and its notice at their measured costs (rows_tiers.LONG_RECORD_US and
+    LONG_NOTICE_US; load_grade charges a record's owed frame at the larger of its response's and its notice's)."""
     table = {p: dict(v) for p, v in load_grade.STATED_US.items()}
     stated = sum(load_grade.load(root, point, table).values())
     table[point]['item.aecp.notice'] = rows_tiers.LONG_NOTICE_US[point]
+    table[point]['record.aecp'] = max(table[point]['record.aecp'], rows_tiers.LONG_RECORD_US[point])
     return stated, sum(load_grade.load(root, point, table).values())
+
+
+def ms(w: float | None) -> str:
+    """A row's W as the tables give it."""
+    return 'none' if w is None else f'{w:.2f}'
 
 
 def shape(d: rows_tiers.Design) -> str:
@@ -131,10 +138,13 @@ def tier1_needs(pool: list[Result], bounds: dict) -> list[str]:
     for name, rows_held in (('all', tier1), ('all but R4L', [r for r in tier1 if r != 'R4L'])):
         fit = [r for r in pool if max(r.load, r.long_load) <= LOAD_CEILING and
                all(w is not None and w <= bounds[x] for x, (w, _) in r.rows.items() if x not in tier1)]
-        top = min(fit, key=lambda r: max(r.rows[x][0] for x in rows_held))
-        need = max(top.rows[x][0] for x in rows_held)
+        if not fit:
+            out.append(f'| {name} | none | no candidate holds every other row and the load | |')
+            continue
+        top = min(fit, key=lambda r: max(r.rows[x][0] or 2000 for x in rows_held))
+        need = max(top.rows[x][0] or 2000 for x in rows_held)
         out.append(f'| {name} | {need:.2f} | {top.design.label()} | ' +
-                   ', '.join(f'{x} {top.rows[x][0]:.2f}' for x in rows_held) + ' |')
+                   ', '.join(f'{x} {ms(top.rows[x][0])}' for x in rows_held) + ' |')
     return out
 
 
@@ -149,10 +159,11 @@ def terms(root: Path, point: str, d: rows_tiers.Design) -> list[str]:
 
 
 def every_notice_long(root: Path, point: str, d: rows_tiers.Design) -> list[str]:
-    """A design's rows with every AECP owed frame in every row the largest legal notice: what that source adds to the
-    rows that charge the stated notice (indicative; the notice's cost is a stated input, not a measurement)."""
+    """A design's rows with every AECP command in every row the one the largest legal notice answers, its record and
+    its owed frames at their measured costs: what that source adds to the rows that charge the stated ones."""
     i = rows_tiers.point_inputs(root, point)
-    long = i._replace(c={**i.c, 'item.aecp': max(i.c['item.aecp'], i.c['item.aecp.long'])})
+    long = i._replace(c={**i.c, 'item.aecp': max(i.c['item.aecp'], i.c['item.aecp.long']),
+                         'record.aecp': max(i.c['record.aecp'], i.c['record.aecp.long'])})
     bounds = rows_tiers.bounds_at(i)
     held = rows_tiers.rows(root, point, d, long)
     return [f'| {d.label()} | ' + ' | '.join('none' if w is None else f'{w:.2f} ({w - bounds[row]:+.2f})'
@@ -186,7 +197,7 @@ def run(root: Path, point: str, out: Path | None) -> int:
               'Its rows over their bounds |', '|---|---:|---:|---:|---|---:|---|']
     for order in (*searched, *REPORTED):
         top = best(results[order])
-        over = ', '.join(f'{row} {w:.2f}' for row, (w, _) in top.rows.items() if w is None or w > bounds[row])
+        over = ', '.join(f'{row} {ms(w)}' for row, (w, _) in top.rows.items() if w is None or w > bounds[row])
         lines.append(f'| {order}{" (reported)" if order in REPORTED else ""} | {len(results[order])} | '
                      f'{len(refused[order])} | {sum(r.holds for r in results[order])} | {shape(top.design)}, '
                      f'{top.design.slice_us} us, {top.design.long} | {top.margin:+.4f} | {over or "none"} |')
@@ -195,7 +206,7 @@ def run(root: Path, point: str, out: Path | None) -> int:
     for row in ROWS:
         top = min(pool, key=lambda r, x=row: (r.rows[x][0] is None, r.rows[x][0] or 0))
         w = top.rows[row][0]
-        lines.append(f'| {row} | {bounds[row]} | {w:.2f} | {top.design.label()} | {mine.rows[row][0]:.2f} |')
+        lines.append(f'| {row} | {bounds[row]} | {ms(w)} | {top.design.label()} | {ms(mine.rows[row][0])} |')
     chosen = best(held) if held else None
     lines += ['', f'CHOSEN: {chosen.design.label()}, least margin {chosen.margin:+.4f}' if chosen else
               'NO CANDIDATE HOLDS every row by every source within its bound and the load within '

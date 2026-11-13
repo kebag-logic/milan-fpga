@@ -1091,9 +1091,10 @@ static bool poll(void *ctx)
 // slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes at the next
 // participant, its declarations already made, then makes that interface's declarations: the frames of the build made
 // whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). Where a slice holds both MRPDUs
-// (CTRL_LOOP_BUILD_MOST 2, 1x1/1if) a Domain adopted here is sent in this call, so no poll sees its VID unlicensed
-// between them. Where it holds one (8x8/2if) the MVRP MRPDU follows in the next slice and polls may run between the
-// two, and the Talker's licence still waits for the MVRP commit (vlan_sent; Milan v1.2 4.3.2). No declaration is made
+// (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID unlicensed between
+// them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU follows in the next
+// slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit (vlan_sent;
+// Milan v1.2 4.3.2). No declaration is made
 // while a retained receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again
 // when the join count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay
 // what THE RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.

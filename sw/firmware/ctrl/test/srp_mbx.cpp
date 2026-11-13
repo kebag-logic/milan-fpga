@@ -1590,7 +1590,7 @@ void gapped_transmit(void *ctx, unsigned) {
 }
 }
 
-// THE TIERS (#894): where a slice holds one MRPDU (CTRL_LOOP_BUILD_MOST 1, 8x8/2if), a Domain that moves the VID,
+// THE TIERS (#894): where a slice holds one MRPDU (CTRL_LOOP_BUILD_MOST 1, both points), a Domain that moves the VID,
 // adopted in a build's first slice, goes out in its MSRP MRPDU and the MVRP MRPDU follows in the next slice, an
 // ordinary pass's poll between the two; the Talker's licence waits for the MVRP commit (vlan_sent; Milan v1.2 4.3.2).
 TEST_F(Srp, ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent) {

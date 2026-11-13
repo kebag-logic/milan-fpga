@@ -259,13 +259,17 @@ extern "C" {
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
 // THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
-// of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a 50 us grid, the
-// one whose rows by every source have the largest least margin relative to their
-// bounds (#894's ruling of 2026-11-12; rows_tiers.py, slice_choice): 1,200 us,
-// the last queued notice binding, at the costs measured on the image under the
-// tiers. The ruling chooses no slice at 8x8/2if, whose rows miss at every slice:
-// 1,300 us there, which also holds one MRPDU's build, CTRL_LOOP_BUILD_ONE_PASS_US.
-#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1200u : 1300u)
+// of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a 50 us grid at
+// which every row by every source holds, THE TRANSMIT's MRPDU with every AECP
+// notice the largest legal one among them (#894's slice ruling of 2026-11-13),
+// the one whose decision D rows have the largest least margin relative to their
+// bounds (#894's ruling of 2026-11-12; rows_tiers.py, slice_choice): 800 us, at
+// the costs measured on the image under the tiers, that notice's among them. It
+// holds one MRPDU's build, not both (CTRL_LOOP_BUILD_MOST). The rulings choose no
+// slice at 8x8/2if, whose rows miss at every slice: 1,300 us there, which also
+// holds one MRPDU's build, CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image
+// takes 1x1/1if's slice at every shape (#894's slice ruling: 8x8/1if's too).
+#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 800u : 1300u)
 // An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
 // slice starts a record only while it has this left.
 #define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
@@ -331,7 +335,7 @@ extern "C" {
 // tree whose row passes this). At 8x8/2if, whose rows by every source are
 // reported and not held (#894, the owner's decision of 2026-11-12, owed to
 // #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 90u)
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

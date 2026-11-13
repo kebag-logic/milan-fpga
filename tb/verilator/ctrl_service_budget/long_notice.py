@@ -9,12 +9,12 @@ its requester's (aecp.c, fan_out: no requester receives its own): 15 at one inte
 first registered on interface 0, sends REMOVE_AUDIO_MAPPINGS and then ADD_AUDIO_MAPPINGS of MAPPINGS mappings, a
 map's last default row repeated (scenario.map_edit): the input map's, or where it can never change (capacity 0, as at
 8x8) the output map's with the answering-ports arm, as aecp_fanout_groups edits it. The map is a set, so the first
-removes that row and the second adds it back, and each response echoes every mapping (aecp_maps.c). That is a control_data_length of 524, the
-most IEEE 1722.1-2021 9.2.2.6 allows, so the response and every notice is a 550 B AECPDU (tier1_rows.LONG_NOTICE_BYTES),
-longer than AECP_FAN_BYTES, which fan_out sends a recipient at a time. Each command is a probe of the notification
-family, from its receive commit to its last recipient's commit, and every AECP poll item that commits such a notice is
-held to its own stated cost (poll_grade.py, aecp_long). A run in which this group measured no such item is refused
-(missing), since the cost it states would then rest on nothing.
+removes that row and the second adds it back, and each response echoes every mapping (aecp_maps.c). That is a
+control_data_length of 524, the most IEEE 1722.1-2021 9.2.2.6 allows, so the response and every notice is a 550 B AECPDU
+(tier1_rows.LONG_NOTICE_BYTES), longer than AECP_FAN_BYTES, which fan_out sends a recipient at a time. Each command is
+a probe of the notification family, from its receive commit to its last recipient's commit, and every AECP poll item
+that commits such a notice is held to its own stated cost (poll_grade.py, aecp_long). A run in which this group
+measured no such item is refused (missing), since the cost it states would then rest on nothing.
 """
 from __future__ import annotations
 

@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cwchar>
+#include <deque>
 #include <functional>
 #include <string>
 
@@ -546,6 +547,7 @@ struct LoopProbe {
     bool owing;  // what the probe's poll reports
     std::uint32_t now;       // the step's clock, in microseconds
     std::uint32_t now_step;  // what each read of it advances it by
+    std::deque<std::uint32_t> read_steps;  // what each next read advances it by instead, in order
     unsigned clock_reads;
     std::uint32_t poll_us;   // the time each poll takes on that clock
     unsigned steps;
@@ -591,7 +593,12 @@ bool probe_poll(void*) {
 
 std::uint32_t probe_clock(void*) {
     probe.clock_reads++;
-    probe.now += probe.now_step;
+    std::uint32_t step = probe.now_step;
+    if (!probe.read_steps.empty()) {
+        step = probe.read_steps.front();
+        probe.read_steps.pop_front();
+    }
+    probe.now += step;
     return probe.now;
 }
 
@@ -1737,13 +1744,16 @@ TEST_F(Loop, L27TierTwoRoundsComeAfterTheDrainInSlices) {
     probe.now_step = 0u;
     EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - 100u - CTRL_LOOP_SHARE_MARGIN_US)
         << "L27 a round in a pass that took nothing has a slice from its own start";
+    // the slice's start read late enough that a slice from it would end 10 us past the pass's deadline, and the
+    // round's 100 us after it (the pass's start, the slice's start and the round's read)
     constexpr std::uint32_t late = CTRL_LOOP_SHARE_US - CTRL_LOOP_SLICE_US + 10u;
-    static_assert(2u * late + CTRL_LOOP_SHARE_MARGIN_US < CTRL_LOOP_SHARE_US, "a round has time left at the deadline");
+    static_assert(late + 100u + CTRL_LOOP_SHARE_MARGIN_US < CTRL_LOOP_SHARE_US, "a round has time left at the deadline");
     drain(&loop_);
-    probe.now_step = late;
+    probe.read_steps = {0u, late, 100u};
     static_cast<void>(ctrl_loop_service(&loop_));
-    probe.now_step = 0u;
-    EXPECT_EQ(probe.round_left, CTRL_LOOP_SHARE_US - 2u * late - CTRL_LOOP_SHARE_MARGIN_US)
+    EXPECT_TRUE(probe.read_steps.empty()) << "(the pass read the clock three times)";
+    probe.read_steps.clear();
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SHARE_US - late - 100u - CTRL_LOOP_SHARE_MARGIN_US)
         << "L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline";
     drain(&loop_);
 }
