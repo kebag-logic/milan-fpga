@@ -190,11 +190,12 @@ Later input on every interface and binding calls can then proceed.
 This recovery limit does not enlarge the service bound.
 Destroy cancels it; link reset cancels only its interface's record.
 
-Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
-Admission charges Ethernet overhead and a 75% link-rate ceiling.
-Unallocated outputs report insufficient resources (code 2); bandwidth failures
-report insufficient bandwidth (code 1), each with the interface's MAC as the
-system identifier (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). A registered Ready
+A declared output's first declaration is Talker Advertise or Talker Failed
+(Milan 5.5.2.7). Admission charges Ethernet overhead and a 75% link-rate
+ceiling. Without a DA gate (`sources_valid`), unallocated outputs report
+insufficient resources (code 2); bandwidth failures report insufficient
+bandwidth (code 1), each with the interface's MAC as the system identifier
+(IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). A registered Ready
 or ReadyFailed Listener can enable an admitted output only after the applicable
 MVRP Join commits (Milan 4.3.2).
 
@@ -218,12 +219,21 @@ Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
 the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
 THE TRANSMIT's bound); a destination that changes while valid withdraws the old
-one first. An admission change swaps the type in place, the new type joined
+one first. Two LeaveAllTime periods are read as twice the LeaveAllTime the
+participants are configured with, 1000 cs (Table 10-7), not as two drawn
+LeaveAll periods (10.7.4.3 draws each between LeaveAllTime and 1.5 times it):
+the hold-off is the 20 s floor of the 20 to 30 s two drawn periods span, as
+acceptance 2 of #895 words it. An admission change swaps the type in place, the new type joined
 before the old leaves, so a refused join keeps the old. A link reset destroys
 the participants with no Leave sent, so the new ones hold a source whose
 destination changed before it as its Leave would; an unchanged source declares
 again at once. A refused join is declared again with THE TRANSMIT's next
-declarations.
+declarations. lwSRP refuses a Leave while the participant holds an MRPDU the
+ring refused, which the declarations after THE TRANSMIT's build may meet (a
+Domain adoption refused for storage before the build, made after it): the
+source then stays declared, its `TALKER_DECL` bit and bandwidth too, and its
+withdrawal is owed. THE TRANSMIT's next call meets no frame owed, so its first
+declarations take the Leave, and the hold-off starts at the Leave lwSRP took.
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
@@ -408,8 +418,9 @@ each interface's publication block of the mailbox (lane F-INT; the
 - `TALKER_DECL`: bit s while source s's Talker Advertise or Talker Failed is
   declared, written once every source joined, before those declarations are
   sent (participant creation, Domain adoption and a validity change's
-  declarations), cleared for a withdrawn source before its Leave is sent, and
-  cleared before a reset or destroy removes the participants holding them. The
+  declarations), cleared for a withdrawn source before its Leave is sent (kept
+  while lwSRP refuses that Leave), and cleared before a reset or destroy
+  removes the participants holding them. The
   datapath's CRF talker tags its frames only while its bit is set (802.1Q
   35.1.2). A source is declared only while its DA gate is open, as the
   processor declares it (the design page's choices; #895).
@@ -418,7 +429,9 @@ The tests read the block as the fabric held it at each SRP record's commit, so
 an MRPDU that left before its Domain, slope or declarations were published
 fails a named test, a Domain adoption's and a withdrawal's included
 (`srp_talker.cpp`, at 1x1/1if and 8x8/2if, with `srp_talker_mutants.py`'s
-planted defects, one a rule). Through the composition, `test_acmp_mbx.cpp`'s
+planted defects, one a rule), a refused withdrawal's Leave on the wire once
+lwSRP takes it, and THE TRANSMIT's publications counted within one call
+against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
 `SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
 and the 15 s expiry withdraws it, a registered Listener keeps it declared past
 the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new

@@ -1140,7 +1140,9 @@ them:
   source only while its DA gate is open (#895; Milan v1.2 4.3.3.1, 5.3.7.4:
   `srp_mbx_gate`, fed by the composition from the MAAP adapter's gate), and
   withdraws it, its bit cleared before the Leave is sent, when the gate closes,
-  as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A
+  as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
+  lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
+  bit set and the withdrawal owed until lwSRP takes it. A
   changed destination is declared two LeaveAllTime periods after the Leave
   (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
   frames leave under the licence, which needs a declaration in both
@@ -1161,8 +1163,12 @@ MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
 it destroys the participants, then, in the next pass's poll, `SR_DOMAIN`, `IDLE_SLOPE` and
 `TALKER_DECL` as it declares again (five; an event is 3), an adoption writes
 `SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
-`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
-on the host model.
+`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). THE TRANSMIT's call
+writes an interface's `IDLE_SLOPE` and `TALKER_DECL` at most twice (the
+interface it builds has its declarations before the build and after it),
+`SR_DOMAIN` once for an adoption and `LICENCE` once for each licence a
+withdrawal closes: at most 5 + 16, within the same terms (`srp_bounds.h`;
+`srp_talker.cpp` counts one call's). Each figure is measured on the host model.
 
 ## The processor's other faces
 

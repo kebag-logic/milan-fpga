@@ -279,16 +279,16 @@ At this branch's head, the merge of the pin move (tsn-c-stack `715589c`) with th
 | 8x8, one interface | 121,440 / 86,416 | 51.5 | 126,560 / 87,392 | 52.5 | 18,112 |
 | 8x8, two interfaces (largest) | 123,112 / 112,576 | 58.0, ledgered | 128,264 / 113,568 | **59.5, over its 59.0** | 20,288 |
 
-With SRP's Talker declarations following each source's validity (#895: a source declares only while MAAP holds its destination and a probe of the last 15 s or a registered Listener asks for it, withdraws when that lapses, and holds a changed destination two LeaveAllTime periods), at the merge of #810's round 29 head, planned the same way:
+With SRP's Talker declarations following each source's validity (#895: a source declares only while MAAP holds its destination and a probe of the last 15 s or a registered Listener asks for it, withdraws when that lapses, and holds a changed destination two LeaveAllTime periods), at this branch's head, which merges #810's round 29 head, planned the same way:
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
 |---|---:|---:|---:|---:|---:|
-| 1x1, one interface (shipping) | 108,872 / 45,568 | 38.5 | 113,936 / 46,576 | 39.5 | 17,536 |
-| 1x1, two interfaces | 110,664 / 56,976 | 41.5 | 115,760 / 58,032 | 43.0 | 19,072 |
-| 8x8, one interface | 122,400 / 86,464 | 51.5 | 127,504 / 87,456 | 53.0 | 18,176 |
+| 1x1, one interface (shipping) | 108,880 / 45,568 | 38.5 | 113,944 / 46,576 | 39.5 | 17,536 |
+| 1x1, two interfaces | 110,672 / 56,976 | 41.5 | 115,768 / 58,032 | 43.0 | 19,072 |
+| 8x8, one interface | 122,400 / 86,464 | 51.5 | 127,512 / 87,456 | 53.0 | 18,176 |
 | 8x8, two interfaces (largest) | 124,136 / 112,624 | 58.0, ledgered 58.5 | 129,288 / 113,632 | 60.0, ledgered | 20,352 |
 
-The declarations add 800 to 1,040 B of `rom` and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, with 16 B of `sram` to spare; its `answering-every-port` arm holds 124,444 B of `rom` and 112,688 B of `sram`, 58.5 tiles, within the 58.5 its entry now ledgers (below). The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
+Against #810's round 29 head (`b2d39235`, the table above), each image linked at both commits from the same runtime archives and split SoC exports, the declarations add 952 to 1,072 B of `rom` (the most at both 1x1 two-interface images) and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, with 16 B of `sram` to spare; its `answering-every-port` arm holds 124,444 B of `rom` and 112,688 B of `sram`, 58.5 tiles, within the 58.5 its entry now ledgers (below). The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
 
 Before #895, the size fixture's 8x8 image with two interfaces held 123,112 B of `rom` in 124,928, 58.0 tiles, 1,816 B before its next granule, within the 58.0 its entry now ledgers ([section 3](#3-named-refusals)).
 **The platform's image at that point plans 59.5 tiles against the 59.0 its entry ledgers** (ruling 6505997821): its `rom` needs 128,264 B, 1,288 B past the 126,976 of its banks at 59.0, and so does this branch's head before the merge (127,664 B) and round 27's (127,544 B). Every link of that image since round 27 was refused first by a stale `ctrl_plat` size, so its tiles were not read, and no gate links the platform image with its override. The ledger stays 59.0 until a ruling names another; the image is refused at its tiles, by name.
