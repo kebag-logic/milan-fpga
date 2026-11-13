@@ -12,7 +12,12 @@ Each point's flip is held as well to decision D's tier bounds, the rows by every
 R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms), at 1x1/1if and at 8x8/2if: those bind
 each point's flip, not the merge (#665). The rows are the built design's by default (rows_tiers.py, rows_tiers.BUILT:
 THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grade.py, `--design as-built`), kept for
-comparison. The flip at 1x1/1if must pass --check --point 1x1/1if; 8x8/2if's is an owner question (#894).
+comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
+2026-11-13, item 2: AECP's with its largest legal notice, ACMP's, ADP's and MAAP's, each at FR_NFR.md 3.4.1's 20 ms)
+and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 40 ms), and the check fails
+when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
+when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
+8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
 usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--selftest]
   --check     print the 8x8/2if row at the pin and the rows by every source, and exit 1 if a load is over its ceiling
@@ -45,7 +50,8 @@ def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) 
     """Each row over its bound by every source at each point, by the design's model."""
     if design == 'as-built':
         return rows_grade.findings(root, points)
-    return rows_tiers.findings(root, rows_tiers.BUILT, points)
+    return rows_tiers.findings(root, rows_tiers.BUILT, points) + rows_tiers.unrowed(root, rows_tiers.BUILT, points) + \
+        rows_tiers.tx_statements(root, points)
 
 
 def row_report(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
@@ -125,8 +131,8 @@ def built_controls(root: Path) -> list[str]:
         i = rows_tiers.point_inputs(root, point)
         for row, (w, terms) in rows_tiers.rows(root, point, model, i).items():
             name = f'{point} {row}:'
-            under = dict(rows_grade.BOUNDS, **{row: (w or 2000) - 0.01})
-            over = dict(rows_grade.BOUNDS, **{row: (w or 2000) + 0.01})
+            under = dict(rows_tiers.bounds_at(i), **{row: (w or 2000) - 0.01})
+            over = dict(rows_tiers.bounds_at(i), **{row: (w or 2000) + 0.01})
             if not any(f.startswith(name) for f in rows_tiers.findings(root, model, (point,), under)):
                 escaped.append(f'built {point} {row} over its bound')
             if w is not None and any(f.startswith(name) for f in rows_tiers.findings(root, model, (point,), over)):
@@ -138,6 +144,33 @@ def built_controls(root: Path) -> list[str]:
         escaped.append('the built design breaks its own rules')
     if DESIGNS[0] != 'built':
         escaped.append('the flip check not held by the built design')
+    return escaped + channel_controls(root)
+
+
+#: The channel rows' and THE TRANSMIT's planted defects, in channel_controls' order.
+CHANNEL_CONTROLS = ('a channel the loop serves without its rows', "THE TRANSMIT's stated figure under its row",
+                    "a channel row's or THE TRANSMIT's bound not the ruling's")
+
+
+def channel_controls(root: Path) -> list[str]:
+    """Each planted defect of the rows the ruling of 2026-11-13 adds that the flip check must refuse: a served
+    channel's rows dropped, ctrl_loop.h stating THE TRANSMIT's figure under its row, and the added bounds moved."""
+    from unittest import mock
+    escaped = []
+    one = ('1x1/1if',)
+    with mock.patch.dict(rows_tiers.CHANNEL_ROWS, {'acmp': ()}):
+        if not any('the channel acmp the loop serves has no row' in f for f in row_findings(root, one)):
+            escaped.append(CHANNEL_CONTROLS[0])
+    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+    text = (root / loop).read_text()
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 90u)'
+    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)')}
+    with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
+                           f(r, p, under)):
+        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 28 ms' in f for f in row_findings(root, one)):
+            escaped.append(CHANNEL_CONTROLS[1])
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 20, 'ADP': 20, 'MAAP': 20} or rows_tiers.TX_BUDGET_MS != 40:
+        escaped.append(CHANNEL_CONTROLS[2])
     return escaped
 
 
@@ -150,7 +183,8 @@ def built_control_names(root: Path) -> tuple[str, ...]:
             if w is not None:
                 names.append(f'built {point} {row} within its bound')
                 names += [f'built {point} {row}: the source {term} not counted' for term, v in terms.items() if v > 0]
-    return (*names, 'the built design breaks its own rules', 'the flip check not held by the built design')
+    return (*names, 'the built design breaks its own rules', 'the flip check not held by the built design',
+            *CHANNEL_CONTROLS)
 
 
 def row_controls(root: Path) -> list[str]:
