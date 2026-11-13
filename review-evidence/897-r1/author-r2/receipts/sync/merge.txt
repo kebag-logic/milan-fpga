@@ -1,0 +1,65 @@
+# the sync merge of lane 897 round 2
+origin/dev-soft-core cec88385ad0a0ec0d61b91597640797766e45010
+round 1 head 5e6fef3ee74dcf6766ac3923349ae83524bc0e7b
+merge base 7f50ee6a90a85554d8601f45fa4eaf3c6adabfbb
+merge commit d3202fa2265ea97f0d20a7678c7130fa35992f40 parents 5e6fef3ee74dcf6766ac3923349ae83524bc0e7b cec88385ad0a0ec0d61b91597640797766e45010
+
+## git merge-tree --write-tree --name-only 5e6fef3e cec88385 (the conflicts the merge met)
+57e13b582cda5352a878cca2c9111cad9375f7ac
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+
+Auto-merging docs/design/MAILBOX_SPLIT.md
+CONFLICT (content): Merge conflict in docs/design/MAILBOX_SPLIT.md
+Auto-merging docs/design/SPLIT_CONTROL_MEMORY.md
+CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+Auto-merging sw/firmware/ctrl/plat/README.md
+Auto-merging sw/firmware/ctrl/test/test_aecp.cpp
+Auto-merging sw/firmware/gtest/coverage.ratchet
+Auto-merging tb/verilator/ctrl_service_budget/README.md
+Auto-merging tb/verilator/ctrl_service_budget/build.py
+Auto-merging tb/verilator/ctrl_service_budget/run.py
+rc=1
+
+## files changed on both sides since the merge base
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/test/test_aecp.cpp
+sw/firmware/gtest/coverage.ratchet
+tb/verilator/ctrl_service_budget/build.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/run.py
+
+## the merge's tree against dev-soft-core: exactly the branch's files
+identical lists (16 files)
+
+## per file: the branch's delta (7f50ee6a..5e6fef3e) against the merge's (cec88385..d3202fa2), sorted +/- lines
+same d8d2cc2d8db96406 d8d2cc2d8db96406 docs/design/MAILBOX_SPLIT.md
+same 4afb4933f229b037 4afb4933f229b037 docs/design/SPLIT_CONTROL_MEMORY.md
+same b561906d8ea68976 b561906d8ea68976 sw/firmware/ctrl/aecp/README.md
+same 71f7eafa7215737a 71f7eafa7215737a sw/firmware/ctrl/aecp/aecp_face.c
+same 3376dfffc477df1b 3376dfffc477df1b sw/firmware/ctrl/aecp/aecp_face.h
+same 0267d57c7722b274 0267d57c7722b274 sw/firmware/ctrl/plat/README.md
+same 360072bc5fb8c19a 360072bc5fb8c19a sw/firmware/ctrl/plat/ctrl_plat.c
+same 0feef8985b4a9878 0feef8985b4a9878 sw/firmware/ctrl/test/aecp_mutants.py
+same eee9b9f8264163a9 eee9b9f8264163a9 sw/firmware/ctrl/test/ctrl_aecp_image.c
+same 8bfbde1bdfd95c2c 8bfbde1bdfd95c2c sw/firmware/ctrl/test/plat_mutants.py
+same 22d182fa7d24ef3d 22d182fa7d24ef3d sw/firmware/ctrl/test/test_aecp.cpp
+same ee5cd47f7c1f9666 ee5cd47f7c1f9666 sw/firmware/ctrl/test/test_plat_boot.cpp
+same 450fceb090d869d1 450fceb090d869d1 sw/firmware/gtest/coverage.ratchet
+same ea6908fe9e3759c0 ea6908fe9e3759c0 tb/verilator/ctrl_service_budget/README.md
+same 9cbed8dda9a19e31 9cbed8dda9a19e31 tb/verilator/ctrl_service_budget/build.py
+same cc1b113bdc08a2a1 cc1b113bdc08a2a1 tb/verilator/ctrl_service_budget/run.py
+
+## submodule pins at cec88385 and d3202fa2
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

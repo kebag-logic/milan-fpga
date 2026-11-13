@@ -1,0 +1,46 @@
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+[...]
+[WIN] AMAP: status 0x102 data 0x1 in 10 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 6 polls
+[TX] commit to the MAC's last byte: 205 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 4, up again after 2
+[TAP] burst: 109 frames offered, 65 handed out, 44 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+ran 133623 mailbox cycles
+checks: 82   failures: 0
+python3 render_mutants.py
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.003, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.003, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.003}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 76.834, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 76.831, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 76.835, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.001}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 134.145, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 57.31, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 134.146, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 148.283, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "elapsed_s": 14.137, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 148.283, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 206.685, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 58.402, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 206.686, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 220.786, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 14.1, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 220.786, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 277.494, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 56.708, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 277.499, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.005}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 291.931, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 14.432, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 291.931, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 348.347, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 56.416, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 348.351, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.004}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 362.433, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 14.082, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 362.433, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 440.118, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 77.685, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 440.215, "state": "idle", "idle_s": 0.097}
+
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,5 @@
+# head 3bebf03a1d25bcbde9c0ec48dfd711af7280131e workflow rtl.yml job full-ci-gate step target: Print the event and pin the one SHA this run validates
+# clone <scratch>/r2/gates-out/wf-3bebf03a/rtl__full-ci-gate/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+event=pull_request ref=refs/heads/897-split-as-path sha=3bebf03a1d25bcbde9c0ec48dfd711af7280131e

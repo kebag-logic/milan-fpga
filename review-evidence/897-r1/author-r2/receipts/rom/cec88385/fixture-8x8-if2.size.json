@@ -1,0 +1,91 @@
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 97592,
+    ".rodata": 25766,
+    ".data": 448,
+    ".bss": 104520,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3520,
+    "image_aecp_bridge": 140,
+    "image_allocation": 16,
+    "image_app": 10336,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2976,
+    "image_face": 96,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_platform": 64,
+    "image_sources": 576,
+    "image_srp": 4408,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "18660c76abf83cc4a669f363f8a9cfad76665c8ad86e3295cb8c7aeef942776b"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "012b687bde3609f209d2493c987fbc2409606e98e585a045aa97339e001279b9"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 157172,
+      "sha256": "5bd9bff006cf4a73f37cb49745be6ff881a1e63b122b7580b2e93068349150ae"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 152258,
+      "sha256": "5866ae41777a6a877d0202635f3296530289c38579de8da47f5d1e778d9ca5f2"
+    }
+  ],
+  "ram_sections": 236518,
+  "split": {
+    "rom": {
+      "bytes": 123808,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 113168,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 58.5,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 58.5
+  }
+}

@@ -1,0 +1,46 @@
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+[...]
+  [ok]   CRF 5.3.8.7 wait-bind: STREAMING_WAIT reads 1  = 0x1
+  [ok]   CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  = 0xa
+  [ok]   CRF 5.3.8.7 stopped: fmt/seq stayed clean      = 0x0
+  [ok]   CRF 5.3.8.7 stopped: ten valid PDUs did NOT lock the sink = 0x0
+  [ok]   CRF 5.3.8.7 START_STREAMING answered SUCCESS   = 0x0
+  [ok]   CRF 5.3.8.7 started: STREAMING_WAIT reads 0 immediately = 0x1
+  [ok]   CRF 5.3.8.7 started: the same cadence now LOCKS = 0x1
+  [ok]   CRF 5.3.8.7 STOP_STREAMING answered SUCCESS    = 0x0
+  [ok]   CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair = 0x3
+  [ok]   CRF 5.3.8.7 re-stopped: still BOUND (stop is not unbind) = 0x1
+  [ok]   CRF 5.3.8.7 cleanup: START answered SUCCESS    = 0x0
+  [ok]   #67 pre: the high Stream Input is NOT bound    = 0x1
+  [ok]   #67 GET_STREAM_FORMAT SUCCESS at cdl 24        = 0x1
+  [ok]   #67 the generated base declares the leg's channel count = 0x8
+  [ok]   #67 SET_STREAM_FORMAT to the 2ch family member SUCCEEDS = 0x0
+  [ok]   #67 ...echoing the format now in force         = 0x1
+  [ok]   #67 GET_STREAM_FORMAT serves the SETTING through the fold = 0x1
+  [ok]   #67 an off-family base is BAD_ARGUMENTS        = 0x7
+  [ok]   #67 ...carrying the CURRENT format, not the refused one = 0x1
+  [ok]   #67 baseline: the base format is in force      = 0x0
+  [ok]   #67 input ADD refuses: retired input clusters (#259) = 0x7
+  [ok]   #67 the 1ch member is free: nothing mapped to orphan = 0x0
+  [ok]   #67 the 2ch member is free too                 = 0x0
+  [ok]   #67 the 8ch base still satisfies the mapping   = 0x0
+  [ok]   #67 input REMOVE refuses the same retired surface (#259) = 0x7
+  [ok]   #67 ...and the 1ch format is accepted once the mapping is gone = 0x0
+  [ok]   #67 ADD of channel 2 refuses under the 1ch setting = 0x7
+  [ok]   #67 restore: the base format is back           = 0x0
+  [ok]   #67 ...and the base does not revive the surface (#259) = 0x7
+  [ok]   #67 cleanup REMOVE refuses too: nothing landed
+sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was killed by SIGTERM
+sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started before SIGTERM
+sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started before SIGTERM
+sim_pool: ./obj_prune/Vmilan_dp_prune was not started before SIGTERM
+sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started before SIGTERM
+sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started before SIGTERM
+sim_pool: ./obj_maprec8/Vmilan_dp_maprec8 was not started before SIGTERM
+sim_pool: ./obj_maprec4/Vmilan_dp_maprec4 was not started before SIGTERM
+sim_pool: ./obj_split/Vmilan_dp_split was not started before SIGTERM
+make: *** [Makefile:729: run] Terminated
