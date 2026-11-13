@@ -1,0 +1,35 @@
+# lever (b): the large sram objects of each variant's split image (nm -S -n of ctrl_app.elf), each with its first line's set in the 8 KiB direct-mapped data cache (64 B lines, 128 sets; SPLIT_CONTROL_MEMORY section 9)
+== V3
+10000270   1008 image_events first set 9, last set 25
+10000660   4527 image_values first set 25, last set 96
+10001810    672 image_descriptors first set 96, last set 106
+10001c00   3520 image_aecp first set 112, last set 38
+100029c0   9920 image_arena first set 39, last set 65
+10005130   3344 image_srp first set 68, last set 120
+10005e40   9152 image_app first set 121, last set 7
+10008204    256 nvm_chunk first set 8, last set 12
+1000838c   3344 nvm_stage first set 14, last set 66
+100090a0    296 nvm first set 66, last set 71
+== V4
+10000270   1008 image_events first set 9, last set 25
+10000660   4527 image_values first set 25, last set 96
+10001810    672 image_descriptors first set 96, last set 106
+10001c00   3520 image_aecp first set 112, last set 38
+100029c0   9920 image_arena first set 39, last set 65
+10005130   3344 image_srp first set 68, last set 120
+10005e40   9152 image_app first set 121, last set 7
+10008204    256 nvm_chunk first set 8, last set 12
+1000838c   3454 nvm_stage first set 14, last set 68
+10009110    552 nvm first set 68, last set 76
+== V0
+100000c0   9216 image_owed first set 3, last set 18
+10002678   1008 image_events first set 25, last set 41
+10002a68   4527 image_values first set 41, last set 112
+10003c18    672 image_descriptors first set 112, last set 122
+10004000   3520 image_aecp first set 0, last set 54
+10004dc0   9920 image_arena first set 55, last set 81
+10007530   3344 image_srp first set 84, last set 8
+10008240   9168 image_app first set 9, last set 24
+1000a614    256 nvm_chunk first set 24, last set 28
+1000a79c   3454 nvm_stage first set 30, last set 84
+1000b520    552 nvm first set 84, last set 93

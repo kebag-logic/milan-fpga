@@ -1,0 +1,11 @@
+# every image at every point at the final head 11c586a80a54415a0e7eece81d0350230c9120be (its own clean clone), qall.sh: ctrl_srp_image.py (the size fixture) and ctrl_plat_image.py (the platform), against this pass's own harness builds' flash maps and runtimes (H-L1A at 1x1, H-L8A at 8x8) and the suite's CSR map, read only. Caps: 56 everywhere; at 8x8/2if 59.0 (fixture, the ledgered fallback) and 60.5 (platform). Every rc 0.
+fixture-1x1-1if: rc 0 rom 110400 in 110592, sram 55152 in 55296, tiles 40.5, ledgered None None
+fixture-1x1-2if: rc 0 rom 111696 in 112640, sram 57312 in 57344, tiles 41.5, ledgered None None
+fixture-8x8-1if: rc 0 rom 123936 in 124928, sram 96240 in 96256, tiles 54.0, ledgered None None
+fixture-8x8-2if: rc 0 rom 125200 in 126976, sram 113168 in 114688, tiles 59.0, ledgered 8x8-two-interfaces 59.0
+platform-1x1-1if: rc 0 rom 115456 in 116736, sram 56224 in 57344, tiles 42.5, ledgered None None
+platform-1x1-2if: rc 0 rom 116768 in 118784, sram 58336 in 59392, tiles 43.5, ledgered None None
+platform-8x8-1if: rc 0 rom 129032 in 131072, sram 97264 in 98304, tiles 56.0, ledgered None None
+platform-8x8-2if: rc 0 rom 130328 in 131072, sram 114160 in 114688, tiles 60.0, ledgered platform-8x8-two-interfaces 60.0
+# against lever c's receipt (V7's placement, every-image-lever-c.txt): every rom equal; sram by alignment, the fixture's 8x8/1if back to 54.0 (96,240 B), the platform's 8x8/1if 56.0 (97,264 of 98,304 B, 1,040 B spare)
+# 8a3791e44533d6b1cc26d486d0b18e7d83470dc1, the final head, changes no firmware source outside the tests since 11c586a8 (git diff 11c586a8 8a3791e4 -- sw/firmware/ctrl ':!sw/firmware/ctrl/test' is empty: its three files are two SRP tests and ctrl_configs.py), so these are its images too; its own full pass rebuilt the boot gates' 1x1 and 8x8 images (boot_1x1, boot_8x8 rc 0)

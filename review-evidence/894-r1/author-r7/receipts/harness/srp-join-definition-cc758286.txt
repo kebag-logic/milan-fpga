@@ -1,0 +1,70 @@
+# the srp group at cc758286 (join 19 cs, slice 900 us), graded by join_grade's first definition (commit 3d3afc17): two
+# 715 ms 'intervals' at 1x1 and four 720-783 ms at 8x8
+== pre-J1
+HEAD cc758286ede8a194eb76eab2990f5086c8084953 DIRTY 0 point 1x1 jobs 4 args --groups srp start 2026-11-13T20:46:51
+SLICES 18969 tier-2 slices; the longest SRP's records 30,093, THE TRANSMIT's build 68,951, THE RETRY's round 1,873 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 5 join interval(s), the shortest 188.094 ms and the longest 714.821 ms, against 180.0 to 240.0
+STATED srp: a build-one pass of 68,951 CPU cycles, over its stated 43,000
+STATED srp: a join interval of 714.783 ms (if0 MSRP), outside 180.0 to 240.0 ms
+STATED srp: a join interval of 714.821 ms (if0 MVRP), outside 180.0 to 240.0 ms
+END rc=1 2026-11-13T20:57:18
+== pre-J8
+HEAD cc758286ede8a194eb76eab2990f5086c8084953 DIRTY 0 point 8x8 jobs 4 args --groups srp start 2026-11-13T20:47:11
+SLICES 12677 tier-2 slices; the longest SRP's records 33,665, THE TRANSMIT's build 147,613, THE RETRY's round 2,214 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp: 10 join interval(s), the shortest 185.645 ms and the longest 783.221 ms, against 180.0 to 240.0
+STATED srp: a build-one pass of 136,735 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 147,613 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 136,735 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 147,613 CPU cycles, over the stated slice 130,000
+STATED srp: a join interval of 719.497 ms (if0 MSRP), outside 180.0 to 240.0 ms
+STATED srp: a join interval of 719.961 ms (if0 MVRP), outside 180.0 to 240.0 ms
+STATED srp: a join interval of 782.794 ms (if1 MSRP), outside 180.0 to 240.0 ms
+STATED srp: a join interval of 783.221 ms (if1 MVRP), outside 180.0 to 240.0 ms
+END rc=1 2026-11-13T20:58:40
+
+# the 1x1 log's MRPDU commits and timer and build entries, ms (grade.parse): at 2213 ms the join timer runs out and its
+# builds send nothing; the 2738 ms MRPDU follows the Listener Ready input with the join timer idle
+75.14 build_mrpdu
+75.43 TX if0 MSRP
+75.56 build_mrpdu
+75.73 TX if0 MVRP
+263.07 on_join_timer
+263.07 on_join_timer
+263.25 build_mrpdu
+263.53 TX if0 MSRP
+263.65 build_mrpdu
+263.82 TX if0 MVRP
+453.1 on_join_timer
+453.1 on_join_timer
+453.28 build_mrpdu
+453.55 TX if0 MSRP
+453.68 build_mrpdu
+643.11 on_join_timer
+643.29 build_mrpdu
+643.34 build_mrpdu
+1023.11 on_pt_timer
+1023.15 on_pt_timer
+1023.41 build_mrpdu
+1023.68 TX if0 MSRP
+1023.8 build_mrpdu
+1023.97 TX if0 MVRP
+1213.1 on_join_timer
+1213.1 on_join_timer
+1213.29 build_mrpdu
+1213.33 build_mrpdu
+2023.05 on_pt_timer
+2023.08 on_pt_timer
+2023.34 build_mrpdu
+2023.61 TX if0 MSRP
+2023.74 build_mrpdu
+2023.9 TX if0 MVRP
+2213.15 on_join_timer
+2213.15 on_join_timer
+2213.33 build_mrpdu
+2213.38 build_mrpdu
+2738.11 build_mrpdu
+2738.4 TX if0 MSRP
+2738.55 build_mrpdu
+2738.72 TX if0 MVRP
+# regraded by the corrected definition (0ab4e574): {'count': 3, 'shortest': 188.094, 'longest': 190.025, 'over': []}
+# the 8x8 log regraded: {'count': 5, 'shortest': 185.668, 'longest': 190.016, 'over': []}

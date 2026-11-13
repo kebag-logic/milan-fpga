@@ -1,0 +1,6 @@
+# lever (b): each variant's acmp-cmd run, its SUMMARY line (sim_main.cpp): count, average, least and most CPU cycles of a mailbox register read and write, a fetch refill and a CSR access, and the host port cycles a CPU request held it (1: the answer the next cycle, 2: two cycles late)
+V3 passes 5998 instr 15445999; mbx_read 54286 avg 9.45 [7, 68]; mbx_write 249 avg 12.89 [7, 55]; fetch_rom 112313 avg 80.07 [80, 208]; load_csr 12153 avg 7.23 [7, 117]; host_cycles 54921 avg 1.00 [1, 1]
+V4 passes 5138 instr 13333618; mbx_read 46547 avg 11.32 [7, 55]; mbx_write 249 avg 12.88 [7, 69]; fetch_rom 131612 avg 80.14 [80, 207]; load_csr 10435 avg 7.21 [7, 71]; host_cycles 47182 avg 1.98 [1, 2]
+V0 passes 4660 instr 13056096; mbx_read 42263 avg 8.02 [7, 60]; mbx_write 258 avg 12.31 [7, 69]; fetch_rom 124484 avg 84.68 [80, 209]; load_csr 18697 avg 7.14 [7, 120]; host_cycles 42907 avg 1.98 [1, 2]
+V1 passes 4663 instr 13063543; mbx_read 42289 avg 7.03 [7, 59]; mbx_write 257 avg 12.25 [7, 69]; fetch_rom 124561 avg 84.68 [80, 209]; load_csr 18707 avg 7.14 [7, 120]; host_cycles 42932 avg 1.00 [1, 1]
+V2 passes 4890 instr 13667222; mbx_read 44330 avg 8.02 [7, 65]; mbx_write 256 avg 11.25 [7, 68]; fetch_rom 125252 avg 80.18 [80, 208]; load_csr 19614 avg 7.13 [7, 83]; host_cycles 44972 avg 1.98 [1, 2]

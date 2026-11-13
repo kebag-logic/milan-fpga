@@ -1,0 +1,13 @@
+# M1 (lever a, #908): backlog-owed, the one group that stages owed ACMP frames (the answering-every-port arm has none), at 1x1 and 8x8 on a clean clone of ccb47e39 with lever (a) applied (the acmp_rx trace), arm A; the run's lines, then poll_grade.held's heaviest by kind from each log
+== m1a-1x1
+HEAD 0b0f97cc0983f1b2e8815fb90024d991d9f0ad10 DIRTY 0 point 1x1 jobs 1 args --groups backlog-owed start 2026-11-13T18:22:46
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 310 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED backlog-owed: a acmp item of 4,743 CPU cycles, over its stated 3,500
+STATED backlog-owed: a acmp item of 4,744 CPU cycles, over its stated 3,500
+STATED backlog-owed: a acmp item of 4,074 CPU cycles, over its stated 3,500
+STATED backlog-owed: a declined ACMP offer of 1,589 CPU cycles, over its stated 1,500
+END rc=1 2026-11-13T18:49:14
+== m1a-8x8
+HEAD 0b0f97cc0983f1b2e8815fb90024d991d9f0ad10 DIRTY 0 point 8x8 jobs 1 args --groups backlog-owed start 2026-11-13T18:22:46
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 319 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-13T18:50:25

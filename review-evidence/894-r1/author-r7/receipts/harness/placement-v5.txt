@@ -1,0 +1,15 @@
+# placement V5 (#908 lever c trial: the store's state alone first in .bss, ccb47e39 with that one line), 1x1, the answering-every-port arm's four notice groups where V7's rounds went over (to 3.28 s each) and arm A's acmp-cmd; rounds_check.py (round_grade.held and poll_grade.held against the lane's stated costs) and base_kinds.py
+notice-burst-1: rounds 23311, over 0; aecp item most 21,634 of 21,000; base most 13,335
+notice-burst-4: rounds 23301, over 0; aecp item most 21,634 of 21,000; base most 13,337
+notice-every-0: rounds 22647, over 0; aecp item most 21,634 of 21,000; base most 13,335
+notice-every-7: rounds 22663, over 0; aecp item most 21,634 of 21,000; base most 13,335
+# the head ccb47e39, the same arm (h1e), for comparison:
+notice-burst-1: rounds 19413, over 0; aecp item most 17,913 of 21,000; base most 15,640
+notice-burst-4: rounds 19439, over 0; aecp item most 17,913 of 21,000; base most 15,640
+notice-every-0: rounds 18887, over 0; aecp item most 17,913 of 21,000; base most 15,640
+notice-every-7: rounds 18902, over 0; aecp item most 17,913 of 21,000; base most 15,640
+# V5's acmp-cmd (arm A):
+bind            1 passes; heaviest base 10781 cycles (acmp-cmd sys 67618311; srp.d 3953, aecp.d 2002)
+both            1 passes; heaviest base 14545 cycles (acmp-cmd sys 67750392; srp.d 5526, aecp.d 3588)
+latch           2 passes; heaviest base 11713 cycles (acmp-cmd sys 67532432; srp.d 1417, aecp.d 4523)
+ordinary     5976 passes; heaviest base 11819 cycles (acmp-cmd sys 2465952; srp.d 1481, aecp.d 2165)

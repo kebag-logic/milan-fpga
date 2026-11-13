@@ -1,0 +1,21 @@
+# placement trials (#908 lever c) on acmp-cmd, the heaviest leg, 1x1 arm A, each graded by the lane's poll_grade (base_kinds.py, SRP_D = AECP_D = 3000): V5 the store's state alone first in .bss; V6 the store's whole .bss first; V7 SRP's state then the store's first (committed in 77a2da0b, reverted); V10 no object moved, struct nvm_store's per-pass fields (its status, dirty set, timers, flash pointer, THE STEP's flag) last
+== V5
+bind            1 passes; heaviest base 10781 cycles (acmp-cmd sys 67618311; srp.d 3953, aecp.d 2002)
+both            1 passes; heaviest base 14545 cycles (acmp-cmd sys 67750392; srp.d 5526, aecp.d 3588)
+latch           2 passes; heaviest base 11713 cycles (acmp-cmd sys 67532432; srp.d 1417, aecp.d 4523)
+ordinary     5976 passes; heaviest base 11819 cycles (acmp-cmd sys 2465952; srp.d 1481, aecp.d 2165)
+== V6
+bind            1 passes; heaviest base 12241 cycles (acmp-cmd sys 67676860; srp.d 3995, aecp.d 2776)
+both            1 passes; heaviest base 16028 cycles (acmp-cmd sys 67810264; srp.d 5271, aecp.d 4415)
+latch           2 passes; heaviest base 12988 cycles (acmp-cmd sys 67539350; srp.d 1352, aecp.d 5082)
+ordinary     5521 passes; heaviest base 12242 cycles (acmp-cmd sys 2462988; srp.d 1481, aecp.d 2463)
+== V7
+bind            1 passes; heaviest base 11158 cycles (acmp-cmd sys 67619971; srp.d 3763, aecp.d 2774)
+both            1 passes; heaviest base 14514 cycles (acmp-cmd sys 67755119; srp.d 4753, aecp.d 4233)
+latch           2 passes; heaviest base 12183 cycles (acmp-cmd sys 67530728; srp.d 1249, aecp.d 5169)
+ordinary     6219 passes; heaviest base 11762 cycles (acmp-cmd sys 2462498; srp.d 1380, aecp.d 2328)
+== V10
+bind            1 passes; heaviest base 14599 cycles (acmp-cmd sys 67682681; srp.d 6574, aecp.d 2002)
+both            1 passes; heaviest base 17878 cycles (acmp-cmd sys 67897414; srp.d 7864, aecp.d 3378)
+latch           2 passes; heaviest base 13111 cycles (acmp-cmd sys 67536677; srp.d 1855, aecp.d 4362)
+ordinary     4776 passes; heaviest base 13249 cycles (acmp-cmd sys 2473079; srp.d 1969, aecp.d 2107)

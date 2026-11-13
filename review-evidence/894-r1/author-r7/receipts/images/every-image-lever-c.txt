@@ -1,0 +1,10 @@
+# every image at every point, built from a clean clone of fda4ef56aa9925d16c062c4398a8a507ea0fad32 with lever (c)'s working-tree change applied (the .bss placement and the SETS rule), qall.sh: ctrl_srp_image.py (the size fixture, which applies ctrl_hot.py's three rules) and ctrl_plat_image.py (the platform), against this round's own harness builds' flash maps and runtimes (1x1 and 8x8) and the suite's CSR map, read only. Caps: 56 everywhere; at 8x8/2if 59.0 (fixture) and 60.5 (platform). Every rc 0.
+fixture-1x1-1if: rc 0 rom 110400 in 110592, sram 55152 in 55296, tiles 40.5, ledgered None None
+fixture-1x1-2if: rc 0 rom 111696 in 112640, sram 57296 in 57344, tiles 41.5, ledgered None None
+fixture-8x8-1if: rc 0 rom 123936 in 124928, sram 96272 in 98304, tiles 54.5, ledgered None None
+fixture-8x8-2if: rc 0 rom 125200 in 126976, sram 113136 in 114688, tiles 59.0, ledgered 8x8-two-interfaces 59.0
+platform-1x1-1if: rc 0 rom 115456 in 116736, sram 56176 in 57344, tiles 42.5, ledgered None None
+platform-1x1-2if: rc 0 rom 116768 in 118784, sram 58352 in 59392, tiles 43.5, ledgered None None
+platform-8x8-1if: rc 0 rom 129032 in 131072, sram 97280 in 98304, tiles 56.0, ledgered None None
+platform-8x8-2if: rc 0 rom 130328 in 131072, sram 114176 in 114688, tiles 60.0, ledgered platform-8x8-two-interfaces 60.0
+# against round 6's head eebc37a3 (the same firmware but the placement): sram moves by alignment alone, fixture 1x1/2if -16, 8x8/1if +32 (96,240 -> 96,272 B: 54.0 -> 54.5 tiles), 8x8/2if -32; platform 1x1/1if -48, 1x1/2if +16, 8x8/1if +16 (97,280 in 98,304: 56.0), 8x8/2if +16 (114,176 in 114,688: 60.0); every rom unchanged

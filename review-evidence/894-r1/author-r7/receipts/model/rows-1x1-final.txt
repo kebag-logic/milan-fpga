@@ -1,0 +1,26 @@
+# flip_grade.py --check --point 1x1/1if, tier_grid.py --point 1x1/1if, load_grade.py --check, paced_rows.choice and rows_tiers.ruled on the lane tree at 2953091ee3 (clean: 0 changed paths)
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 12.82 | 20 | -7.18 | 5 | aecp 3.760, timers 1.435, passes 1.175 |
+| 1x1/1if | R5 | 65.95 | 90 | -24.05 | 35 | others 17.395, srp 8.960, passes 8.225 |
+| 1x1/1if | R6 | 59.60 | 90 | -30.40 | 31 | others 16.170, srp 8.960, passes 7.285 |
+| 1x1/1if | first | 14.50 | 20 | -5.50 | 2 | spacing 8.000, others 1.420, steps 0.975 |
+| 1x1/1if | last | 117.19 | 125 | -7.81 | 62 | srp 24.080, others 22.115, passes 14.570 |
+| 1x1/1if | R4L | 158.34 | 240 | -81.66 | 3 | pace 150.000, item.aecp 1.095, timers 1.075 |
+| 1x1/1if | ACMP | 28.35 | 30 | -1.65 | 17 | aecp 4.935, own 4.480, passes 3.995 |
+| 1x1/1if | ADP | 26.76 | 30 | -3.24 | 13 | others 6.690, aecp 4.935, passes 3.055 |
+| 1x1/1if | MAAP | 26.88 | 30 | -3.12 | 13 | others 6.930, aecp 4.935, passes 3.055 |
+| 1x1/1if | tx | 29.49 | 50 | -20.51 | 16 | others 12.675, passes 3.760, item.aecp 3.360 |
+| 1x1/1if | txL | 49.70 | 50 | -0.30 | 24 | others 21.380, item.aecp 8.760, passes 5.640 |
+RESULT: PASS
+exit 0
+paced_rows.choice 6 statements []
+rows_tiers.slice_choice (900, 0.005999999999999943) ruled 900 TX_BUDGET_MS 50
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.499, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.495, its ceiling 0.70
+RESULT: PASS
+Point 1x1/1if: 420 candidates solved and 126 refused by their own rules; 6 hold every row and the load (load at the pin 0.499, 0.671 with every notice the largest legal one).
+CHOSEN: slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0060

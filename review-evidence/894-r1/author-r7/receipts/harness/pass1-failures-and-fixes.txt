@@ -1,0 +1,28 @@
+# the two steps the first full pass at 11c586a8 failed (workflows-verify.md there), their logs' verdict lines
+== rtl-fast firmware-boundary ci_step_9 (rc 2)
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (440 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (120 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (368 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (1 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (33 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (32 s)
+REFUSED: tb/verilator/ctrl_service_budget/queued_bound.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+== rtl-fast firmware-srp-mutants ci_step_9 (rc 1)
+[ESCAPED] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+[ESCAPED] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+test_ctrl_firmware: FAIL
+
+# the escaped mutants alone (srp_two.py: srp_mutants.campaign over named defects), at 19 cs and with the join at 20 cs on a scratch clone
+== srp2 (the lane tree at 11c586a8, the shared-bindings test timed from its unbind)
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+[ESCAPED] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+== srp2-j20 (a scratch clone of 11c586a8, CTRL_LOOP_JOIN_CS 20u)
+[ok] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+== srp2-s800 (a scratch clone of 11c586a8, the slice at 800 us)
+[ESCAPED] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+== srp4 (the lane tree with the retry test two JoinTimes in, as committed in 5cbebb80)
+[ok] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+== srp4-j20 (the same test with CTRL_LOOP_JOIN_CS 20u)
+[ok] build-reclaim-left-to-the-next-slice: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received

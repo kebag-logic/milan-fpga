@@ -1,0 +1,27 @@
+# lever (b), #908: the heaviest leg's polls base (acmp-cmd at 1x1/1if, arm A), each variant graded by the head's poll_grade (base_kinds.py, SRP_D = AECP_D = 3000 cycles)
+# V0 the head ccb47e39; V1 V0 with KL_mbx, KL_mbx_rx, mailbox_face.py and mailbox_skeleton.py at 3ba76ae7^ (one-cycle register read); V2 V0 with nvm_any out of line (noinline, noipa) in the hot list after ls_now_us; V3 #810's 2cc852fa (the composed image, base stated 155); V4 #810's da1869a3 (the merge of dev-soft-core 0fb66211's lineage, base stated 205)
+== V0
+bind            1 passes; heaviest base 15154 cycles (acmp-cmd sys 67691560; srp.d 6574, aecp.d 2622)
+both            1 passes; heaviest base 18881 cycles (acmp-cmd sys 67896306; srp.d 7934, aecp.d 4309)
+latch           2 passes; heaviest base 14088 cycles (acmp-cmd sys 67541915; srp.d 1855, aecp.d 5272)
+ordinary     4645 passes; heaviest base 13922 cycles (acmp-cmd sys 2472699; srp.d 1969, aecp.d 2653)
+== V1
+bind            1 passes; heaviest base 15152 cycles (acmp-cmd sys 67690370; srp.d 6574, aecp.d 2622)
+both            1 passes; heaviest base 18879 cycles (acmp-cmd sys 67894767; srp.d 7934, aecp.d 4309)
+latch           2 passes; heaviest base 14026 cycles (acmp-cmd sys 67555412; srp.d 1855, aecp.d 5212)
+ordinary     4648 passes; heaviest base 13920 cycles (acmp-cmd sys 2472653; srp.d 1969, aecp.d 2653)
+== V2
+bind            1 passes; heaviest base 14532 cycles (acmp-cmd sys 67679433; srp.d 6408, aecp.d 2359)
+both            1 passes; heaviest base 18678 cycles (acmp-cmd sys 67890279; srp.d 7702, aecp.d 4294)
+latch           2 passes; heaviest base 13839 cycles (acmp-cmd sys 67547404; srp.d 1764, aecp.d 5196)
+ordinary     4875 passes; heaviest base 13626 cycles (acmp-cmd sys 2471987; srp.d 1969, aecp.d 2436)
+== V3
+both            2 passes; heaviest base 14287 cycles (acmp-cmd sys 67650318; srp.d 4268, aecp.d 4370)
+latch           2 passes; heaviest base 11902 cycles (acmp-cmd sys 67423956; srp.d 1120, aecp.d 4939)
+ordinary     5987 passes; heaviest base 11643 cycles (acmp-cmd sys 2356167; srp.d 1310, aecp.d 1960)
+# the ordinary base, the heaviest ten:
+== V4
+both            2 passes; heaviest base 19159 cycles (acmp-cmd sys 67764533; srp.d 7215, aecp.d 5297)
+latch           2 passes; heaviest base 14041 cycles (acmp-cmd sys 67506608; srp.d 1519, aecp.d 5853)
+ordinary     5127 passes; heaviest base 13436 cycles (acmp-cmd sys 2426778; srp.d 1736, aecp.d 2042)
+# the ordinary base, the heaviest ten:

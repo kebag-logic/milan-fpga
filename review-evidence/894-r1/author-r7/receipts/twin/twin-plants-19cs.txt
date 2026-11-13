@@ -1,0 +1,30 @@
+# make -C tb/verilator/milan_dp twin-plants at 18e14164 (join 19 cs): it stopped at the first escape, table-10-3
+plant table-10-3: ESCAPED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+make: *** [Makefile:970: twin-plants] Error 1
+make: Leaving directory '<scratch>/twinq/tb/verilator/milan_dp'
+
+# each capture and fabric plant's verdict on that head's captures (twin_compare.py --plant, the recipe's three calls)
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+plant vanished-owed: REFUSED by "owed row stream-output-0-notices: the difference has gone"
+plant command-byte: REFUSED by "AECP command 0 differs at byte 33"
+plant command-sequence: REFUSED by "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0"
+plant response-sequence: REFUSED by "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1"
+plant table-10-3: ESCAPED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+plant received-join: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sen
+plant leave-all-declaration: REFUSED by "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]"
+plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+plant mvrp-join-in: ESCAPED by "[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt"
+plant mvrp-received-join: ESCAPED by "[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinI
+plant vanished-mvrp-leave-all: REFUSED by "owed row fabric-mvrp-leave-all: the defect has gone"
+plant vanished-available-index: REFUSED by "owed row entity-available-index: the difference has gone"
+plant vanished-domain-new: REFUSED by "owed row fabric-domain-one-new: the defect has gone"
+plant domain-trace-moved: REFUSED by "owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value 06030002: New x1 from ms 200, JoinIn x1 from ms 1000"
+plant vanished-vid2-join-in: REFUSED by "owed row fabric-vid2-join-in: the defect has gone"
+plant vid2-registrar-in: REFUSED by "owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 M
+
+# the three escaped plants' findings: the same message, the split's time moved by the 19 cs join
+[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 1
+[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinMt at ms 4
+[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing (IEEE 802.1Q-2018 10.7.7), after JoinMt at ms
+
+# with the restated words (f02457a6) on the same captures: table-10-3, mvrp-join-in, mvrp-received-join REFUSED, self 0
