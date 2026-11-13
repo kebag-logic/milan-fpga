@@ -22,6 +22,7 @@ import answers
 import build
 import flip_grade
 import grade
+import join_grade
 import load_grade
 import long_notice
 import mrpdu_grade
@@ -834,6 +835,16 @@ MUTANTS: dict[str, Patches] = {
     'polls: the declined offers held to no bound': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != poll_grade.DECLINES]))(f(log, n)))],
+    'joins: no join interval held to its range': lambda: [patch.object(
+        join_grade, 'held', lambda log, f=join_grade.held: dict(f(log), over=[]))],
+    'joins: the range from the armed 190 ms': lambda: [patch.object(join_grade, 'LEAST_MS', 190.0)],
+    "joins: a periodic or LeaveAll timer's MRPDU taken for a join's": lambda: [patch.object(join_grade, 'OTHERS', ())],
+    "joins: the participants' applications not told apart": lambda: [patch.dict(
+        join_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
+    'joins: any two MRPDUs, with no join timer between': lambda: [patch.object(
+        join_grade, 'intervals', lambda log: [(ms, who, end) for ms, who, end in (
+            ((b - a) * 1000 / log.sys_hz, 'if0 MRP', b) for a, b in zip(
+                *(lambda c: (c, c[1:]))(sorted(c for c, ch, _, fr in log.tx if ch == scenario.CH['srp']))))])],
     'polls: the declined offers held to three a send': lambda: [patch.object(
         poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(

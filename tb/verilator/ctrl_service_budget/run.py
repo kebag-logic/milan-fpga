@@ -143,8 +143,10 @@ def share_misses(results: list[dict]) -> list[str]:
 def stated_misses(results: list[dict]) -> list[str]:
     """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost the rows by
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
-    items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); and
-    each tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS)."""
+    items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
+    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); and each join interval outside 180.0 to
+    240.0 ms (join_grade.held)."""
+    import join_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -164,7 +166,9 @@ def stated_misses(results: list[dict]) -> list[str]:
                if o['kind'] == poll_grade.DECLINES] +
             [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
              f"stated slice {g['passes']['slices']['limit']:,}"
-             for g in results for o in g['passes'].get('slices', {}).get('over', [])])
+             for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
+            [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
+             f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])])
 
 
 #: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
@@ -179,6 +183,17 @@ def print_slices(results: list[dict]) -> None:
         print(f"SLICES {sum(s['slices'] for s in sliced)} tier-2 slices; the longest "
               + ', '.join(f"{SLICE_KINDS[kind]} {cycles:,}" for kind, cycles in longest.items())
               + f" CPU cycles, against the stated slice {sliced[0]['limit']:,} (THE TIERS)")
+
+
+def print_joins(results: list[dict]) -> None:
+    """Each group's JOINS line: its join intervals' count, shortest and longest (join_grade.py; #894's contingent
+    ruling issuecomment-6858269025, item 4)."""
+    import join_grade
+    for g in results:
+        j = g['passes'].get('joins') or {}
+        if j.get('count'):
+            print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
+                  f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}")
 
 
 def saves(results: list[dict]) -> list[dict]:
@@ -756,6 +771,7 @@ def main() -> int:
               f"{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), {group}; the longest step {store['store_cycles']:,} "
               f"({store['store_ms']:.3f} ms), {where}")
     print_slices(results)
+    print_joins(results)
     opened = aged(results)
     if opened:
         least = min(opened, key=lambda a: a['margin_ms'])
