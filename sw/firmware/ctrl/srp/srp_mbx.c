@@ -399,7 +399,7 @@ static void moved(struct srp_interface *i, unsigned slot, const struct mrp_trans
     struct srp_mbx *m = i->owner;
     i->reclaim = true;
     i->moved = true;
-    i->stale = i->stale || t->reg_from != t->reg_to;
+    i->stale |= t->reg_from != t->reg_to;
     if (t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u) {
         m->tx_due |= (uint8_t)(1u << i->index);
     }
