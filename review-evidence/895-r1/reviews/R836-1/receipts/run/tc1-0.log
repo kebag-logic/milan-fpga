@@ -1,0 +1,12 @@
+== tc1-0 start 2026-11-12T23:09:14Z :: python3 -I <packet>/scripts/talker_campaign.py --repo <clone> --root <packet>/scratch/tc1-0 --interfaces 1 --shard 0/3 --jobs 2
+defects selected: 9 (shard 0/3, prefix 'talker-', interfaces 1)
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+== tc1-0 rc 0 2026-11-12T23:10:23Z

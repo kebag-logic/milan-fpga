@@ -1,0 +1,11 @@
+== tc1-2 start 2026-11-12T23:09:14Z :: python3 -I <packet>/scripts/talker_campaign.py --repo <clone> --root <packet>/scratch/tc1-2 --interfaces 1 --shard 2/3 --jobs 2
+defects selected: 8 (shard 2/3, prefix 'talker-', interfaces 1)
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two LeaveAllTime periods after the Leave
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+== tc1-2 rc 0 2026-11-12T23:10:19Z

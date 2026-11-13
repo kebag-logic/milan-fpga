@@ -1,0 +1,39 @@
+== tc2-0 start 2026-11-12T23:09:14Z :: python3 -I <packet>/scripts/talker_campaign.py --repo <clone> --root <packet>/scratch/tc2-0 --interfaces 2 --shard 0/3 --jobs 2
+defects selected: 9 (shard 0/3, prefix 'talker-', interfaces 2)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+wrote <packet>/scratch/tc2-0/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-0/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+== tc2-0 rc 0 2026-11-12T23:10:27Z

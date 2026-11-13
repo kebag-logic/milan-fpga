@@ -1,0 +1,12 @@
+== images start 2026-11-12T23:10:28Z :: bash <packet>/scripts/images.sh <clone> <packet>/scratch/images <packet>/scratch/builds/vd1 <packet>/scratch/builds/vd8
+| Point | image | rc | rom B | sram B | RAMB36 (tiles) | rom banks B | ctrl_plat B |
+| 1x1-if1 | fixture | 0 | 108872 | 45568 | 38.5 | 110592 |  |
+| 1x1-if2 | fixture | 0 | 110664 | 56976 | 41.5 | 112640 |  |
+| 8x8-if1 | fixture | 0 | 122400 | 86464 | 51.5 | 122880 |  |
+| 8x8-if2 | fixture | 0 | 124136 | 112624 | 58.0 | 124928 |  |
+| 8x8-if2-nokey | fixture | 2 | | | | | wrote <packet>/scratch/images/fixture-8x8-if2-nokey/contract/mbx_contract.h (2 interfaces) |
+| 1x1-if1 | platform | 0 | 113936 | 46576 | 39.5 | 114688 | 17536 |
+| 1x1-if2 | platform | 0 | 115760 | 58032 | 43.0 | 116736 | 19072 |
+| 8x8-if1 | platform | 0 | 127504 | 87456 | 53.0 | 129024 | 18176 |
+| 8x8-if2 | platform | 0 | 129288 | 113632 | 60.0 | 131072 | 20352 |
+== images rc 0 2026-11-12T23:12:02Z

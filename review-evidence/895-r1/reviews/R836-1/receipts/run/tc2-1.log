@@ -1,0 +1,39 @@
+== tc2-1 start 2026-11-12T23:09:14Z :: python3 -I <packet>/scripts/talker_campaign.py --repo <clone> --root <packet>/scratch/tc2-1 --interfaces 2 --shard 1/3 --jobs 2
+defects selected: 9 (shard 1/3, prefix 'talker-', interfaces 2)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+wrote <packet>/scratch/tc2-1/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/tc2-1/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+== tc2-1 rc 0 2026-11-12T23:10:27Z
