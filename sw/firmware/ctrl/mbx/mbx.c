@@ -252,6 +252,18 @@ bool mbx_pub_talker_decl(unsigned interface, uint32_t declared)
 	return true;
 }
 
+bool mbx_pub_src_sid(unsigned interface, unsigned source, bool high, uint32_t word)
+{
+	if (interface >= MBX_N_IF || source >= MBX_N_PUB_SOURCES) {
+		return false;
+	}
+	mbx_bus_write32(pub_reg(interface, MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * source +
+				    (high ? MBX_PUB_SRC_REG_SRC_SID_HI : MBX_PUB_SRC_REG_SRC_SID_LO)),
+			high ? mbx_place(word, MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH)
+			     : mbx_place(word, MBX_SRC_SID_LO_SID_LSB, MBX_SRC_SID_LO_SID_WIDTH));
+	return true;
+}
+
 // BINDING's BOUND and STARTED, SID_VALID clear.
 static uint32_t binding_of(bool bound, bool started)
 {

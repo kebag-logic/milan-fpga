@@ -15,7 +15,8 @@ extern "C" {
 // Bounds count bus transactions, not target CPU time. See maap/README.md. An
 // allocation reported writes the range filter (3) and DA_GATE (1).
 // F3b dispatch queries may read the clock once per source. Poll also
-// allows one write for a changed declaration gate.
+// allows one publication write: a changed declaration gate, or else one
+// word of a source's owed SRC_SID (#905).
 #define MAAP_MBX_EVENT_MAX (49u + ACMP_MAX_SOURCES)
 #define MAAP_MBX_RX_MAX (48u + ACMP_MAX_SOURCES)
 #define MAAP_MBX_POLL_MAX (49u + ACMP_MAX_SOURCES)
@@ -43,6 +44,15 @@ struct maap_mbx {
 	struct acmp *acmp;
 	uint32_t published_gate[MBX_N_IF];
 	uint32_t demand; // Cached acmp_declaring answers, including source DA validity.
+	// Each source's SRC_SID (#905): the stream_id it holds as last written,
+	// source s's at s; bit s, source s's is owed, written again before its
+	// DA_GATE bit opens, since the bit closed or its port reported another;
+	// the source whose low word the poll wrote (+ 1, 0 for none) and the high
+	// word it owes next.
+	uint64_t sid[ACMP_MAX_SOURCES];
+	uint32_t sid_owed[MBX_N_IF];
+	uint32_t sid_high[MBX_N_IF];
+	uint8_t sid_half[MBX_N_IF];
 };
 
 // Bind the declaration owner before attaching the adapter. No owner means
@@ -57,7 +67,10 @@ void maap_mbx_bind_acmp(struct maap_mbx *m, struct acmp *acmp);
 bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t count,
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx);
 bool maap_mbx_attach(struct maap_mbx *m, struct ctrl_loop *loop);
-// Called after ctrl_loop_open. False refuses a supplied range outside B.4.
+// Called after ctrl_loop_open. It first writes each source's SRC_SID, the
+// stream_id the declaration owner's source port reports, before any DA_GATE
+// bit opens or any service pass runs (#905). False refuses a supplied range
+// outside B.4.
 bool maap_mbx_start(struct maap_mbx *m, uint64_t preferred);
 void maap_mbx_stop(struct maap_mbx *m);
 

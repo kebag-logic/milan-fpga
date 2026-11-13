@@ -304,12 +304,23 @@ TEST(DriverUnit, D14PublicationBlock) {
         EXPECT_TRUE(mbx_pub_sink(i, k, false, false, 0u));
         EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == 0u)
             << "D14 an unbound sink: BINDING 0, one write";
+        // #905: a source's stream_id, a word a write, each in its own register of the source's entry
+        const unsigned s = MBX_N_PUB_SOURCES - 1u - i;
+        const std::uint32_t src = block + MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s;
+        first = w.writes.size();
+        EXPECT_TRUE(mbx_pub_src_sid(i, s, false, 0x44556677u + i) && mbx_pub_src_sid(i, s, true, 0x00112233u + i))
+            << "D14 source " << s << " takes its stream_id";
+        EXPECT_EQ(w.writes.size(), first + 2u) << "D14 one write a word";
+        EXPECT_EQ(w.at(src + MBX_PUB_SRC_REG_SRC_SID_LO), 0x44556677u + i) << "D14 SRC_SID_LO holds stream_id[31:0]";
+        EXPECT_EQ(w.at(src + MBX_PUB_SRC_REG_SRC_SID_HI), 0x00112233u + i) << "D14 SRC_SID_HI holds stream_id[63:32]";
     }
     const std::size_t writes = w.writes.size();
     EXPECT_FALSE(mbx_pub_da_gate(MBX_N_IF, 1u) || mbx_pub_licence(MBX_N_IF, 1u) || mbx_pub_idle_slope(MBX_N_IF, 1u) ||
                  mbx_pub_domain(MBX_N_IF, true, 1u, 1u) || mbx_pub_talker_decl(MBX_N_IF, 1u) ||
-                 mbx_pub_sink(MBX_N_IF, 0, true, true, 1u) || mbx_pub_sink_binding(MBX_N_IF, 0, true, true, true))
+                 mbx_pub_sink(MBX_N_IF, 0, true, true, 1u) || mbx_pub_sink_binding(MBX_N_IF, 0, true, true, true) ||
+                 mbx_pub_src_sid(MBX_N_IF, 0, false, 1u))
         << "D14 an interface past the contract's is refused";
+    EXPECT_FALSE(mbx_pub_src_sid(0, MBX_N_PUB_SOURCES, true, 1u)) << "D14 a source past the block's is refused";
     EXPECT_FALSE(mbx_pub_sink(0, MBX_N_PUB_SINKS, true, true, 1u) ||
                  mbx_pub_sink_binding(0, MBX_N_PUB_SINKS, true, true, true))
         << "D14 a sink past the block's is refused";
