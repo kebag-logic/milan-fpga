@@ -558,6 +558,7 @@ struct LoopProbe {
     unsigned steps_at_retry;   // the steps run when the retry was last called
     bool retry_owing;          // what the probe's retry reports
     bool retry_aged;           // what the probe's retry age reports
+    bool round_one_at_retry;   // the loop's round_one as its retry was last called, its context the loop
     unsigned aged_reads;       // THE RETRY's age reads
     unsigned rx_at_aged;       // the records taken when the age was last read
     unsigned transmits;        // THE TRANSMIT's client calls
@@ -614,7 +615,8 @@ bool probe_aecp_ready(void*) {
     return !probe.aecp_busy;
 }
 
-bool probe_retry(void*, unsigned left_us) {
+bool probe_retry(void* ctx, unsigned left_us) {
+    probe.round_one_at_retry = ctx != nullptr && static_cast<const ctrl_loop*>(ctx)->round_one;
     probe.round_left = left_us;
     probe.retries++;
     probe.polls_at_retry = probe.polls;
@@ -1657,6 +1659,38 @@ TEST_F(Loop, L26TierOnesFirstChannelGoesFirst) {
     drain(&loop_);
     loop_.drain_ch = 0u;
     loop_.first_ch = 0u;
+}
+
+// THE TIERS (#894): a round in an ordinary pass that took nothing stands alone, nothing held beside it, so it is told
+// round_one false whatever the pass given whole before it was told. Here no pass given whole may follow (THE DRAIN's
+// channel holds a record), so the ordinary pass's own word is all the round is told.
+TEST_F(Loop, L28AnOrdinaryPassesRoundIsToldItStandsAlone) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, probe_retry_aged, &loop_));
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    loop_.drain_ch = MBX_CH_ADP + 1u;
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    probe.now_step = CTRL_LOOP_SHARE_US;   // each clock read a pass on: THE DRAIN's slice holds no record's cost
+    static_cast<void>(ctrl_loop_service(&loop_));
+    ASSERT_FALSE(loop_.drained) << "L28 (the ordinary pass leaves THE DRAIN's channel its record)";
+    probe.retry_aged = true;
+    loop_.retry_first = true;
+    unsigned retries = probe.retries;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    ASSERT_EQ(probe.retries, retries + 1u) << "L28 (a queue's first notice, a pass given whole beside held work)";
+    ASSERT_TRUE(probe.round_one_at_retry) << "L28 (told it stands beside held work)";
+    loop_.retry_first = false;
+    probe.retry_aged = false;
+    retries = probe.retries;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    ASSERT_EQ(probe.retries, retries + 1u) << "L28 (an ordinary pass that took nothing calls the round)";
+    EXPECT_FALSE(probe.round_one_at_retry) << "L28 an ordinary pass's round is told it stands alone";
+    probe.now_step = 0u;
+    loop_.drain_ch = 0u;
+    drain(&loop_);
 }
 
 // THE TIERS (#894), tier 2's order and slices: THE RETRY's round waits while the ordinary pass before it left THE

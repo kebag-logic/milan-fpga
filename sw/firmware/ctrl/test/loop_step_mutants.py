@@ -282,6 +282,7 @@ def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     l20, l22, l23 = ("Loop.L20AnOwedBuildIsAPassOfItsOwn", "Loop.L22PassesGivenWholeStandApartAsInputWaits",
                      "Loop.L23TheDrainIsTierTwoInASlice")
     l26, l27 = "Loop.L26TierOnesFirstChannelGoesFirst", "Loop.L27TierTwoRoundsComeAfterTheDrainInSlices"
+    l28 = "Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone"
     sweep = "sweep = l->rx_left == 0u;"
     first = "service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US)"
     held = "\t\t\tl->rx_left &= ~(1u << ch);\n\t\t\tbreak;\n\t\t}\n\t\tenum mbx_status st"
@@ -326,6 +327,10 @@ def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "L22 a queue's first notice after that pass, though a record waits"),
         kind("round-one-never-told", "loop/ctrl_loop.c", one, one.replace("!(", "false && !("), port, l22,
              "L22 told it stands beside held tier-1 work"),
+        kind("round-one-kept-from-a-pass-given-whole", "loop/ctrl_loop.c",
+             "\t\tl->round_one = false;\n\t\towed = round_of(l, slice_end(l, deadline)) || owed;\n",
+             "\t\towed = round_of(l, slice_end(l, deadline)) || owed;\n", port, l28,
+             "L28 an ordinary pass's round is told it stands alone"),
         kind("round-slice-is-the-share", "loop/ctrl_loop.c",
              "uint32_t end = deadline - CTRL_LOOP_SHARE_US + CTRL_LOOP_SLICE_US;", "uint32_t end = deadline;",
              port, l27,
