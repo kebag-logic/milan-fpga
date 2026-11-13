@@ -2392,6 +2392,23 @@ At 32x32/2if the item stays the whole poll, as measured there.
 
 At these costs, by every source at 1x1/1if, txL is 46.58 ms at the 8 ms pace and the last queued notice 135.64 ms (47.25 and 137.79 before), and the load is 0.499 at the pin. 8x8/1if's load, derived from 8x8/2if's stated costs at one interface's constants and counts, is 0.696 (0.727 before).
 
+**The polls' base, attributed** (#908, lever b).
+The base's heaviest leg is `acmp-cmd`: its pass that hands an ACMP binding to SRP (`srp_mbx_bind`) and marks the store reproduces each image's stated base, 14,287 CPU cycles on #810's `2cc852fa` (155 us by the rule) and 19,159 on `da1869a3` (205 us).
+On this branch's head before the cut, `ccb47e39`, that pass is 18,881 cycles, and each of the three candidates measured alone on it gives:
+
+| Candidate | The pass, cycles | Its share |
+|---|---:|---:|
+| The two-cycle register read (`KL_mbx`, `dev-soft-core` `3ba76ae7`), undone: one cycle again | 18,879 | 2 cycles |
+| The hot list without `nvm_any`, undone: `nvm_any` out of line in its old place | 18,678 | 203 cycles |
+| KLJ3 and the rest of the merge | | the other ~4,400 |
+
+- **The register read** costs a cycle a mailbox read: 8.02 cycles on average against 7.03, and the pass reads about twelve.
+- **The hot list's share** is the code layout's.
+- **The rest is the data cache's.** The pass commits the same instructions at `2cc852fa` and `da1869a3` (2,034 and 1,991) and 8 more fetch refills.
+  - The store's own functions grew 1,440 cycles: `nvm_mark`, `nvm_publish`, the new `nvm_open_set` and `ctrl_app_aecp_store_words`.
+  - The rest is SRP's bind on unchanged instruction counts: the sink's copy (`forward`) by 1,100 cycles on 131 instructions, `deliver` by 863 on 367, `srp_mbx_bind` by 523, `snapshot` by 399.
+- **The mechanism** is where the data cache ([section 9](#9-the-cpus-data-cache): 8 KiB, direct-mapped, 64-byte lines) puts the store's state. KLJ3 grew it, `nvm_store.c`'s `nvm`, from 296 to 552 B. On both images after the merge its nine lines fall on the sets of SRP's state's first nine, its interfaces' own state, which every pass's polls read beside the store's status: sets 68 to 76 at `da1869a3`, 84 to 92 at `ccb47e39`. At `2cc852fa` they shared three.
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
