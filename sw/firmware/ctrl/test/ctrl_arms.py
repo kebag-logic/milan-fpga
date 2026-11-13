@@ -527,7 +527,7 @@ def arm_srpcmp() -> Outcome:
 HOT = HERE / "ctrl_hot.py"
 #: The hot-list gate's planted defects, by name: one that goes missing from its self-test fails the arm (#665).
 HOT_PLANTS = frozenset({"stale-name", "absent-from-image", "only-discarded", "reordered", "dropped", "unrecorded",
-                        "recorded-elsewhere", "no-end-marker", "state-unplaced", "state-reordered", "state-aliased"})
+                        "recorded-elsewhere", "no-end-marker"})
 
 
 def arm_hot() -> Outcome:

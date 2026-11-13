@@ -5,7 +5,6 @@ This directory is the target side of the [control firmware](../README.md).
 `mbx_plat_mmio.c` is the mailbox HAL on the bus.
 `ctrl_cc.h` is the one file of the firmware outside `test/` that names a compiler extension: `noinline` and `may_alias` behind `CTRL_CC_GNU`, with a portable C11 fallback (#665: the firmware ports to a hard core; the `portable` arm holds it).
 `ctrl_split.ld` and `ctrl_split_start.S` are the image's memory map and reset entry ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md)).
-The script opens `.bss` with SRP's state and then the saved-state store's, so the two share no set of the data cache (#908; [SRP's state and the store's, apart](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#srps-state-and-the-stores-apart)). Here SRP's state is inside `ctrl_plat`, so the store's state opens `.bss`.
 The rest is the image's `main` and the platform it composes: the boot sequence, the CSR window, the console and the ports.
 `milan_baremetal.c` is read and never edited; this platform ports the duties #397's rule allows into the split image.
 
