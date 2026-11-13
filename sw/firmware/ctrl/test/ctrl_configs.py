@@ -233,6 +233,8 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
                                                       "controls plant ctrl_loop.h's and aecp.h's text in memory; it "
                                                       "compiles nothing",
+    "tb/verilator/ctrl_service_budget/poll_grade.py": "grades a run's log and reads AECP_FAN_BYTES from aecp.h; it "
+                                                      "compiles nothing",
     "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
                                                        "ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "

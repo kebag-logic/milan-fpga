@@ -25,6 +25,9 @@ them all). That section less the items inside it is the pass's base, which every
   aecp       AECP's owed response, a completed command's notification or a probe (aecp.c's transmit, which sends only
              what the core owes); its sources are AECP's records, its applies and its registrations' monitors. A call
              that committed no AECP frame sent nothing and is the base's
+  aecp_long  an aecp item whose call committed a notice longer than AECP_FAN_BYTES (aecp.h), an unsolicited
+             AEM_RESPONSE (IEEE 1722.1-2021 7.5.2) that fan_out sends a recipient at a time, which a command of the
+             largest legal control_data_length answers (9.2.2.6; long_notice.py, #894)
 
 An item nested in another (a walk inside a retained record's apply) is that one's, counted once. Calls outside the polls
 (a record's own apply, a build's MRPDU, a round's notices, the LINK event's withdrawal) are their own source's, not the
@@ -40,6 +43,8 @@ contract rate, is the response-time method's (docs/design/SPLIT_CONTROL_MEMORY.m
 """
 from __future__ import annotations
 
+import functools
+import re
 from bisect import bisect_left
 
 import grade
@@ -56,15 +61,34 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. Measured again on
 #: the image under THE TIERS (#894), each the larger of that and this table's: the base 160 us at 1x1/1if (155), and
-#: ACMP's owed frame 195 (185) and a notice 275 (270) at 8x8/2if.
+#: ACMP's owed frame 195 (185) and a notice 275 (270) at 8x8/2if. A notice longer than AECP_FAN_BYTES (aecp_long) is
+#: measured over the aecp-largest-notice group alone, the one that stages it (long_notice.py, #894): a 550 B notice to
+#: 15 controllers, 33,815 CPU cycles at 1x1/1if, and to 31 on the 8x8 shape with the answering-ports arm, 61,578.
 STATED_US = {1: dict(base=160, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
-                    aecp=210),
+                    aecp=210, aecp_long=360),
              2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=195,
-                    aecp=275)}
+                    aecp=275, aecp_long=650)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
 RECORD = 'record'
+#: An aecp item that committed a notice longer than AECP_FAN_BYTES, held to its own stated cost.
+LONG = 'aecp_long'
+
+
+@functools.cache
+def fan_bytes() -> int:
+    """AECP_FAN_BYTES (aecp.h): the longest notice the fan port takes; a longer one goes a recipient at a time."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
+    return int(re.search(r'^#define AECP_FAN_BYTES (\d+)u', text, re.M)[1])
+
+
+def long_notices(log: grade.Log) -> list[int]:
+    """The bus cycle of each AECP commit of a notice longer than AECP_FAN_BYTES, sorted: an AEM_RESPONSE (message_type
+    1) with the u bit set (IEEE 1722.1-2021 7.5.2), its command_type's top bit."""
+    ch = scenario.CH['aecp']
+    return sorted(cycle for cycle, c, _, frame in log.tx
+                  if c == ch and len(frame) > fan_bytes() and frame[15] & 0x0F == 1 and frame[36] & 0x80)
 
 
 def stated_us(interfaces: int) -> dict[str, int]:
@@ -108,20 +132,22 @@ def committed(log: grade.Log) -> dict[int, list[int]]:
 
 
 def instances(log: grade.Log, traced: dict, commits: dict[int, list[int]], start: int,
-              end: int) -> list[tuple[str, int]]:
-    """The items inside a pass's polls that did their work, outermost first, each (kind, CPU cycles)."""
+              end: int, longs: list[int] = ()) -> list[tuple[str, int]]:
+    """The items inside a pass's polls that did their work, outermost first, each (kind, CPU cycles): an aecp item
+    that committed a notice of `longs` (long_notices) is LONG's."""
     found = []
     for kind, (label, channel) in ITEMS.items():
         rows = traced.get(label, [])
         for s, cycles, s_sys in rows[bisect_left(rows, (start, -1, -1)):]:
             if s >= end:
                 break
+            end_sys = s_sys + cycles * log.sys_hz // log.cpu_hz
             if channel is not None:
                 marks = commits.get(scenario.CH[channel], [])
-                end_sys = s_sys + cycles * log.sys_hz // log.cpu_hz
                 if bisect_left(marks, end_sys) == bisect_left(marks, s_sys):
                     continue
-            found.append((s, s + cycles, kind))
+            long = kind == 'aecp' and bisect_left(longs, end_sys) != bisect_left(longs, s_sys)
+            found.append((s, s + cycles, LONG if long else kind))
     return outermost(found)
 
 
@@ -136,19 +162,20 @@ def outermost(found: list[tuple[int, int, str]]) -> list[tuple[str, int]]:
 
 
 def held(log: grade.Log, interfaces: int) -> dict:
-    """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, and
-    every one over its cost."""
+    """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
+    one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
     limits[RECORD] = limits['retained']
-    traced, commits = spans(log), committed(log)
+    traced, commits, longs = spans(log), committed(log), long_notices(log)
     heaviest = dict.fromkeys(limits, 0)
     over = []
-    every = sections(traced)
+    every, sent = sections(traced), []
     for start, end, start_sys in every:
-        items = instances(log, traced, commits, start, end)
+        items = instances(log, traced, commits, start, end, longs)
         base = end - start - sum(cycles for _, cycles in items)
         for kind, cycles in [('base', base), *items]:
             heaviest[kind] = max(heaviest[kind], cycles)
+            sent += [(start_sys, cycles)] if kind == LONG else []
             if cycles > limits[kind]:
                 over.append(dict(kind=kind, start_sys=start_sys, cycles=cycles))
     # each SRP record's own apply: an apply_receive call in no pass's polls
@@ -160,4 +187,5 @@ def held(log: grade.Log, interfaces: int) -> dict:
         heaviest[RECORD] = max(heaviest[RECORD], cycles)
         if cycles > limits[RECORD]:
             over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles))
-    return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over)
+    # each LONG item, (the bus cycle its pass's polls began, CPU cycles): a long notice's polls, reported
+    return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over, long=sent)

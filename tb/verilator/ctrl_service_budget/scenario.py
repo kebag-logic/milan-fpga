@@ -45,6 +45,7 @@ from pathlib import Path
 import answers
 import datapath_window
 import frames as f
+import long_notice
 import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -509,10 +510,9 @@ def descriptor_value(build: dict, kind: int, index: int) -> bytes:
     raise KeyError(f'no descriptor {kind}:{index} in the image')
 
 
-def map_edit(build: dict, port_type: int) -> bytes | None:
-    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of
-    that type: one mapping, its map's last default row. None when that map holds no row: the
-    live map starts with its defaults (aecp.c), and a map of capacity 0 can never change."""
+def map_edit(build: dict, port_type: int, copies: int = 1) -> bytes | None:
+    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of that type: `copies`
+    of its map's last default row (the live map starts with its defaults, aecp.c), or None where the map has none."""
     import re
     header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
     maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
@@ -522,7 +522,7 @@ def map_edit(build: dict, port_type: int) -> bytes | None:
     defaults = header[header.index('aecp_map_defaults[] = {'):]
     rows = re.findall(r'\{(\d+),(\d+),(\d+),(\d+)\}', defaults[:defaults.index('};')])
     mapping = b''.join(f.be(int(v), 2) for v in rows[int(first) + int(number) - 1])
-    return f.be(port_type, 2) + f.be(0, 2) + f.be(1, 2) + f.be(0, 2) + mapping
+    return f.be(port_type, 2) + f.be(0, 2) + f.be(copies, 2) + f.be(0, 2) + mapping * copies
 
 
 #: The controllers aecp_fanout_groups registers on every interface, up to the capacity.
@@ -996,5 +996,5 @@ def all_groups(p: Point, build: dict) -> list[Group]:
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
-              *datapath_window.groups(p)]
+              *datapath_window.groups(p), *long_notice.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

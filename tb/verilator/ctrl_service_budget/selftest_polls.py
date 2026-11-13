@@ -11,6 +11,7 @@ from collections.abc import Callable
 
 import build
 import grade
+import long_notice
 import poll_grade
 import run
 import scenario
@@ -31,25 +32,30 @@ def traced_label(name: str | tuple[str, str]) -> str:
     return name if isinstance(name, str) else f'{name[0]}:{name[1]}'
 
 
-def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
-    """A pass's base and each item at its stated cost fit it and a cycle over does not, by point."""
+def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
+                 tx_record: Callable[..., list[str]]) -> list[Check]:
+    """A pass's base and each item at its stated cost fit it and a cycle over does not, by point; tx_record is
+    selftest.py's, the ring writes and commit of one TX record."""
     ratio = sys_hz // cpu_hz
 
     def limit(kind: str, interfaces: int = 2) -> int:
         """A stated cost in CPU cycles."""
         return poll_grade.stated_us(interfaces)[kind] * cpu_hz // 1_000_000
 
-    def held(base: int, items: tuple = (), outside: tuple = (), unsent: tuple = (), interfaces: int = 2) -> dict:
+    def held(base: int, items: tuple = (), outside: tuple = (), unsent: tuple = (), interfaces: int = 2,
+             sent: bytes = b'') -> dict:
         """One pass's polls whose time outside its items is base CPU cycles, ACMP or AECP calls that committed no
         frame among it: the items inside (kind, cycles, nested in the one before), and items after the polls,
-        graded."""
+        graded; an AECP item commits `sent` where one is given."""
         start = 10_000
         span = lambda at, cycles, label: f'SPAN {ratio * at} {at} {cycles} 00002000 {label}'
         lines, end, outer = [span(start, 50, FIRST)], start + 50, None
         for kind, cycles, nested in items:
             at = outer + 5 if nested else end + 10
             lines.append(span(at, cycles, LABELS[kind]))
-            if kind in SENDING:
+            if kind == 'aecp' and sent:
+                lines += tx_record(scenario.CH['aecp'], 0, sent, 0, ratio * (at + cycles // 2))
+            elif kind in SENDING:
                 lines.append(f'TXC {ratio * (at + cycles // 2)} {scenario.CH[SENDING[kind]]} 0')
             if not nested:
                 outer, end = at, at + cycles
@@ -68,8 +74,9 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
     kinds = [k for k in LABELS]
     one, two = poll_grade.stated_us(1), poll_grade.stated_us(2)
-    out = [("each point's polls costs are stated, every item's and the base's, the 8x8/2if base dearer than the "
-            "1x1/1if's", sorted(one) == sorted(two) == sorted(['base', *kinds]) and all(one.values()) and
+    out = [("each point's polls costs are stated, every item's, a long notice's and the base's, the 8x8/2if base "
+            "dearer than the 1x1/1if's", sorted(one) == sorted(two) == sorted(['base', *kinds, poll_grade.LONG]) and
+            all(one.values()) and
             all(two.values()) and two['base'] > one['base'], str((one, two))),
            ("the testbench traces a pass's first and last firmware poll and every heavy item",
             {FIRST, LAST, *LABELS.values()} <= {traced_label(n) for n in build.SPAN_SYMBOLS} and
@@ -122,4 +129,39 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                               record_share_findings=True)
     out.append(("a pass's base over its stated cost fails a run whatever findings it records",
                 run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, ''))
+    return out + long_checks(held, limit)
+
+
+def long_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Check]:
+    """A notice longer than AECP_FAN_BYTES is a poll item of its own at its own stated cost, and the largest legal
+    notice's group that measured none is refused (#894: long_notice.py)."""
+    fan = poll_grade.fan_bytes()
+
+    def frame(n: int, unsolicited: bool = True) -> bytes:
+        """An AEM_RESPONSE of n bytes, unsolicited (the u bit, IEEE 1722.1-2021 7.5.2) or not."""
+        head = bytearray(n)
+        head[15], head[36] = 1, 0x80 if unsolicited else 0
+        return bytes(head)
+    big, k = frame(long_notice.LONG_NOTICE_BYTES), poll_grade.LONG
+    at, over = (held(limit('base'), (('aecp', limit(k) + d, False),), sent=big) for d in (0, 1))
+    out = [('a notice longer than AECP_FAN_BYTES is a long notice\'s item at its own stated cost: at it fits, a cycle '
+            'over does not, and neither is the aecp item\'s',
+            limit(k) > limit('aecp') and at['over'] == [] and at['heaviest'][k] == limit(k) and
+            at['heaviest']['aecp'] == 0 and [c for _, c in at['long']] == [limit(k)] and
+            [(o['kind'], o['cycles']) for o in over['over']] == [(k, limit(k) + 1)], str((at, over)))]
+    short = [held(limit('base'), (('aecp', limit('aecp'), False),), sent=s)
+             for s in (frame(fan), frame(fan + 1, unsolicited=False))]
+    out.append(('a notice of AECP_FAN_BYTES, or a longer solicited response, is the aecp item\'s',
+                all(q['heaviest']['aecp'] == limit('aecp') and q['heaviest'][k] == 0 and q['long'] == []
+                    for q in short), str(short)))
+    named = run.stated_misses([dict(group='n', passes=dict(polls=over))])
+    out.append(('a long notice\'s item over its stated cost is named, with the cost it passed',
+                named == [f'n: a {k} item of {limit(k) + 1:,} CPU cycles, over its stated {limit(k):,}'], str(named)))
+    group = long_notice.NAME
+    refused = long_notice.missing([dict(group=group, passes=dict(polls=dict(long=[]))),
+                                   dict(group='aecp-fanout', passes=dict(polls=dict(long=[]))),
+                                   dict(group=group, passes=dict(polls=at))])
+    out.append(('the largest legal notice\'s group that measured no long notice is refused, and only that group',
+                refused == [f'{group}: no AECP poll item committed a notice longer than AECP_FAN_BYTES, so the largest '
+                            'legal notice was not measured'], str(refused)))
     return out

@@ -22,6 +22,7 @@ import build
 import flip_grade
 import grade
 import load_grade
+import long_notice
 import mrpdu_grade
 import notice_window
 import poll_grade
@@ -786,7 +787,16 @@ MUTANTS: dict[str, Patches] = {
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != poll_grade.RECORD]))(f(log, n)))],
     'polls: the items are not taken from the base': lambda: [patch.object(
-        poll_grade, 'instances', lambda log, traced, commits, start, end: [])],
+        poll_grade, 'instances', lambda log, traced, commits, start, end, longs=(): [])],
+    "polls: a long notice is the aecp item's": lambda: [patch.object(poll_grade, 'long_notices', lambda log: [])],
+    "polls: a long notice's item is held to no cost": lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.LONG]))(f(log, n)))],
+    "polls: a long notice is any AECP frame over the fan port's": lambda: [patch.object(
+        poll_grade, 'long_notices', lambda log: sorted(
+            c for c, ch, _, fr in log.tx if ch == scenario.CH['aecp'] and len(fr) > poll_grade.fan_bytes()))],
+    'long notice: a group that measured none is taken': lambda: [patch.object(
+        long_notice, 'missing', lambda results: [])],
     'polls: an ACMP or AECP call that sent nothing is an item': lambda: [patch.dict(
         poll_grade.ITEMS, acmp=('acmp_mbx:on_poll', None), aecp=('aecp:transmit', None))],
     'polls: an item after the polls is theirs': lambda: [patch.object(

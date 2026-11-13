@@ -481,8 +481,10 @@ def unstated(group: object) -> list[str]:
 
 
 def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list, list, list]:
-    """Every group's grade, the refusals and the budget misses; each grade is written beside its log."""
+    """Every group's grade, the refusals and the budget misses; each grade is written beside its log. The largest
+    legal notice's group that measured no such notice is refused (long_notice.missing)."""
     import grade
+    import long_notice
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         refusals += unstated(group)
@@ -501,7 +503,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
                               f"at least {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
             elif not r['within_budget']:
                 misses.append(f"{r['probe']}: {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
-    return results, refusals, misses
+    return results, refusals + long_notice.missing(results), misses
 
 
 #: The access faults #791's region decode raises: whichever access first meets a rom
