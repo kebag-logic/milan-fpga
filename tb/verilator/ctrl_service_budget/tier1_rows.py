@@ -7,6 +7,7 @@ and solves the rows; every function here takes a point's inputs (rows_tiers.Inpu
 from __future__ import annotations
 
 import math
+import re
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
@@ -200,3 +201,22 @@ def tier1_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[
         build = 'CTRL_LOOP_BUILD_PASS_US' if whole else 'CTRL_LOOP_BUILD_ONE_PASS_US'
         return {'others': sum(arrive(o) * c[f'record.{o}'] for o in TIER1), 'builds': h[build]}
     return {'others': sum(min(arrive(o), passes * q[o]) * c[f'record.{o}'] for o in TIER1)}
+
+
+def join_cs(text: str) -> int:
+    """The join time a header's text arms, CTRL_LOOP_JOIN_CS (ctrl_loop.h), in centiseconds."""
+    return int(re.search(r'^#define CTRL_LOOP_JOIN_CS (\d+)u', text, re.M)[1])
+
+
+def built_value(text: str, name: str, n_if: int, burst: int) -> int:
+    """A built constant of a header's text at that many interfaces: `(MBX_N_IF == 1u ? a : b)`, a number, or derived
+    from the join time, `(240u - 10u * CTRL_LOOP_JOIN_CS)` (#894's contingent ruling issuecomment-6858269025,
+    item 3); the burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST)."""
+    body = re.search(rf'^#define {name} (.+)$', text, re.M)[1].split('//')[0].strip()
+    body = re.sub(r'(\d+)u\b', r'\1', body).replace('MBX_CH_AECP_RATE_BURST', str(burst))
+    body = body.replace('CTRL_LOOP_JOIN_CS', str(join_cs(text))) if 'CTRL_LOOP_JOIN_CS' in body else body
+    pick = re.fullmatch(r'\(MBX_N_IF == 1 \? (\d+) : (\d+)\)', body)
+    derived = re.fullmatch(r'\((\d+) - (\d+) \* (\d+)\)', body)
+    if pick:
+        return int(pick[1] if n_if == 1 else pick[2])
+    return int(derived[1]) - int(derived[2]) * int(derived[3]) if derived else int(body)

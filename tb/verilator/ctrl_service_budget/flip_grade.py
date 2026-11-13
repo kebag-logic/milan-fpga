@@ -174,7 +174,9 @@ def channel_controls(root: Path) -> list[str]:
                            f(r, p, under)):
         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
-    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40 or \
+    # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs (#894's contingent ruling
+    # issuecomment-6858269025, item 3)
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 50 or \
             paced_rows.PACED_BOUNDS != {'R4L': 240}:
         escaped.append(CHANNEL_CONTROLS[2])
     aecp = 'sw/firmware/ctrl/aecp/aecp.h'

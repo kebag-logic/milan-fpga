@@ -1521,7 +1521,7 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     settle();
     EXPECT_EQ(adapter.tx_due,0u)<<"a settled adapter owes no MRPDU";
     // every participant now owes an MRPDU (Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks)
-    for (unsigned n=0;n<19u;++n) loop.ticks[0]();
+    for (unsigned n=0;n+1u<CTRL_LOOP_JOIN_CS;++n) loop.ticks[0]();
     EXPECT_EQ(adapter.tx_due,0u)<<"no centisecond before a join timer's end owes one";
     loop.ticks[0]();
     EXPECT_NE(adapter.tx_due,0u)<<"the centisecond that ends a join timer owes its interface's MRPDUs";

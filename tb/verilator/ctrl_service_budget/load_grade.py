@@ -231,8 +231,11 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
     found = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
 
     def value(name: str) -> int:
-        """A plain integer, or a ternary on the interface count, the two forms the read constants take."""
+        """A plain integer, a ternary on the interface count, or another constant's name (srp_mbx.c's SRP_JOIN_CS is
+        ctrl_loop.h's CTRL_LOOP_JOIN_CS, #894's contingent ruling issuecomment-6858269025, item 3)."""
         body = found[name]
+        if body in found:
+            return value(body)
         plain = re.fullmatch(r'\(?(\d+)u?\)?', body)
         if plain:
             return int(plain[1])

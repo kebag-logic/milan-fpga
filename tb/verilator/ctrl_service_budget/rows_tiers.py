@@ -50,7 +50,8 @@ import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
-                        channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_passes)
+                        built_value, channel_passes, channel_row, join_cs, quota_fits, tier1_busy, tier1_records,
+                        tx_passes)
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
 
@@ -108,9 +109,10 @@ CHANNEL_ROWS = {'aecp': ('R4', 'R4L'), 'acmp': ('ACMP',), 'adp': ('ADP',), 'maap
 ADDED_ROWS = ('R4L', 'ACMP', 'ADP', 'MAAP', *TX_ROWS)
 #: The rows that charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US).
 LONG_ROWS = ('R4L', 'txL')
-#: The MRP timer budget's bound on THE TRANSMIT's MRPDU, in ms (#894's ruling of 2026-11-13, item 1; ctrl_loop.h,
-#: CTRL_LOOP_TX_BOUND_MS, which the tree must state): JoinTime's 200 ms plus it within Milan v1.2 Table 4.3's 240.
-TX_BUDGET_MS = 40
+#: The MRP timer budget's bound on THE TRANSMIT's MRPDU in ms, which CTRL_LOOP_TX_BOUND_MS states (#894's ruling of
+#: 2026-11-13, item 1): Milan v1.2 Table 4.3's 240 ms less the join time the tree arms (CTRL_LOOP_JOIN_CS, ctrl_loop.h;
+#: #894's contingent ruling issuecomment-6858269025, item 3: 19 cs, so 50 ms).
+TX_BUDGET_MS = 240 - 10 * join_cs((ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
 TIER1_ROWS = ('R4', 'R4L', 'ACMP', 'ADP', 'MAAP', 'first')
 TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
@@ -173,11 +175,7 @@ def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) 
     burst = rows_grade.contract(root)[0]['aecp'][0]
     out = []
     for name, path in BUILT_NAMES.items():
-        text = (texts or {}).get(path) or (root / path).read_text()
-        body = re.search(rf'^#define {name} (.+)$', text, re.M)[1].split('//')[0].strip()
-        body = re.sub(r'(\d+)u\b', r'\1', body).replace('MBX_CH_AECP_RATE_BURST', str(burst))
-        pick = re.fullmatch(r'\(MBX_N_IF == 1 \? (\d+) : (\d+)\)', body)
-        out.append(int(pick[1] if n_if == 1 else pick[2]) if pick else int(body))
+        out.append(built_value((texts or {}).get(path) or (root / path).read_text(), name, n_if, burst))
     return tuple(out)
 
 
@@ -932,11 +930,12 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
+    bound, typed = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)', '#define CTRL_LOOP_TX_BOUND_MS 90u'
     under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
-    if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, bound[:-3] + '90u')}):
+    if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, typed)}):
         escaped.append("THE TRANSMIT's bound not the timer budget's")
     if not broken(root, Design(1200, 'wrr', quota=(4, 4, 4, 4)), one):
         escaped.append("a quota design over the pass's tier-1 time")

@@ -24,8 +24,9 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 // Every source has its bit of the publication block's LICENCE and TALKER_DECL.
 _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE and a TALKER_DECL bit");
 
-// The JoinTime every participant is configured with, in centiseconds (create_participants).
-#define SRP_JOIN_CS 20u
+// The JoinTime every participant is configured with, in centiseconds (create_participants): the loop's, whose
+// THE TRANSMIT bound is derived from it (ctrl_loop.h, CTRL_LOOP_JOIN_CS).
+#define SRP_JOIN_CS CTRL_LOOP_JOIN_CS
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
 
