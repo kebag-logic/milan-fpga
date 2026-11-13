@@ -146,13 +146,14 @@ STATED_US = {
 #: 170 us, THE TRANSMIT's build 920); arm A's 8x8/2if image with the donor was over that point's ledger there. On the
 #: merge of the pin move, whose pin 715589c carries tsn-c-stack#32 (its src/ and include/ the donor's 9043b926), both
 #: points are measured on the pin's own legs, each cost the larger of that, this column's and, for a cost the walk does
-#: not move, the pin's column.
+#: not move, the pin's column. On the merge of dev-soft-core 0fb66211 (#665), ctrl_loop.h states THE TRANSMIT's
+#: builds at 1x1/1if at 1,010 and 430 us, and an owed MRPDU is a build of one's, so this column's are those.
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 260, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
                 'event.ADP': 110, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 60, 'event.TICK': 40,
                 'event.GM': 35, 'centisecond': 130, 'events_none': 25, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155, 'item.reclaim': 25, 'item.retained': 260,
-                'item.mrpdu': 405, 'item.acmp': 120, 'item.walk': 20, 'build': 920, 'build_one': 405, 'step': 975},
+                'item.mrpdu': 430, 'item.acmp': 120, 'item.walk': 20, 'build': 1010, 'build_one': 430, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 100, 'event.TICK': 75,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 270,
