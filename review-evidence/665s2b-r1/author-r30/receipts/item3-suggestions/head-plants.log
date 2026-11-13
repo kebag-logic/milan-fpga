@@ -1,0 +1,8 @@
+[ok] mutant acmp-expiry-reads-the-clock-twice (acmp, acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+[ok] mutant mover-fan-end-keeps-a-completion-for-a-walk-left-owed (unit): 2 check(s) failed
+    first: [FAIL] MbxDma.T6AWalkLeftOwedKeepsNoCompletion: T6 fan_end of a walk left owed after a mid-walk loss keeps no completion
+[ok] mutant mover-fan-end-refuses-before-the-last-frame-is-committed (unit): 1 check(s) failed
+    first: [FAIL] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted: T7 the last frame is committed before REFUSED, and no completion is kept
+mutants: 3 of 3 caught
+elapsed=43s

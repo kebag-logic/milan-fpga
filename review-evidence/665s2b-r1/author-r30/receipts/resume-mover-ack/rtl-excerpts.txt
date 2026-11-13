@@ -1,0 +1,34 @@
+== KL_mbx.sv host port at 1d6bf555 (round 29's merge base)
+  output logic                         host_ack_o,     //! the access completes, one cycle after host_req_i
+  output logic [31:0]                  host_rdata_o,   //! read data, valid with host_ack_o
+== at 0fb66211 (dev-soft-core, 3ba76ae7)
+  output logic                         host_ack_o,     //! the access completes: 1 cycle after host_req_i, 2 for a register read
+  output logic [31:0]                  host_rdata_o,   //! read data, valid with host_ack_o
+      ack_r       <= (host_req_i && !reg_rd_w) || rd_q_r;
+== KL_mbx_dma.sv at a4faefd4 (this branch only; absent at 0fb66211)
+  logic                      ack_cpu_r;    //! the host port's request last cycle was the CPU's
+  assign cpu_ack_o   = host_ack_i && ack_cpu_r;
+  assign cpu_rdata_o = host_rdata_i;
+      ack_cpu_r    <= 1'b0;
+    end else begin
+      ack_cpu_r <= cpu_issue_w;
+== the firmware's check (mbx.c)
+static bool caps_match(uint32_t id, uint32_t caps)
+{
+	return mbx_field(id, MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH) == MBX_MAGIC &&
+	       mbx_field(id, MBX_ID_MAJOR_LSB, MBX_ID_MAJOR_WIDTH) == MBX_VERSION_MAJOR &&
+	       mbx_field(caps, MBX_CAPS_N_CH_LSB, MBX_CAPS_N_CH_WIDTH) == MBX_N_CH &&
+	       mbx_field(caps, MBX_CAPS_N_IF_LSB, MBX_CAPS_N_IF_WIDTH) == MBX_N_IF &&
+	       mbx_field(caps, MBX_CAPS_N_TIMERS_LSB, MBX_CAPS_N_TIMERS_WIDTH) == MBX_N_TIMERS &&
+	       (1u << mbx_field(caps, MBX_CAPS_EVT_WORDS_LOG2_LSB, MBX_CAPS_EVT_WORDS_LOG2_WIDTH)) == MBX_EVT_WORDS;
+}
+
+bool mbx_open(void)
+{
+	if (!caps_match(mbx_bus_read32(MBX_REG_ID), mbx_bus_read32(MBX_REG_CAPS))) {
+		return false;
+	}
+      50:	00428293          	addi	t0,t0,4
+      54:	ff5ff06f          	j	48 <_start+0x48>
+      58:	3a00f0ef          	jal	f3f8 <main>
+      5c:	0000006f          	j	5c <_start+0x5c>

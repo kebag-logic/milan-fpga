@@ -1,0 +1,47 @@
+426301112 426301048 964 00000498 aecp_mbx:poll
+SPAN 426302109 426302045 2017 00000498 ctrl_app_aecp:deliver
+SPAN 426304159 426304095 1951 00000498 srp_mbx:poll
+SPAN 426306143 426306079 1128 00000498 ctrl_app_srp:deliver
+PASS 32218 426293722 426293658 13831 instr=2458 fetch_rom=29/2382 load_mbx=13 store_mbx=1 wait_mbx=137 load_csr=1 store_csr=1 wait_csr=14 code_words=14352 mods=aecp_mbx:157,ctrl_app_aecp:1719,mbx:1133,ctrl_loop:2512,aecp:1220,srp_mbx:2792,adp_mbx:104,adp:150,acmp_mbx:217,acmp:802,maap_mbx:618,ctrl_mem:483,ctrl_app_srp:915,ctrl_aecp_image:14,maap:275,aecp_nvm:222,nvm_store:53,nvm_flash_litespi:221,aecp_face:224, W 426295152:19:b95c
+EVW 426307556 32 2e580003
+EVW 426307557 33 fffd2cab
+EVW 426307558 34 0a0b0c0d
+EVW 426307559 35 00000000
+SPAN 426308312 426308248 68 00000244 ctrl_loop:dispatch_ticks
+CALL 426308392 426308328 mbx_event_take
+SPAN 426309036 426308972 2599 00000288 ctrl_loop:dispatch_ticks
+SPAN 426311719 426311655 102 0000047c adp_mbx:on_event
+SPAN 426311848 426311784 18 0000047c acmp_mbx:on_event
+SPAN 426311933 426311869 116 0000047c maap_mbx:event
+SPAN 426312116 426312052 23 0000047c aecp_mbx:event
+SPAN 426312322 426312258 586 0000047c srp_mbx:on_event
+CALL 426312937 426312873 mbx_event_take
+SPAN 426313502 426313438 124 0000047c adp_mbx:on_event
+SPAN 426313653 426313589 18 0000047c acmp_mbx:on_event
+SPAN 426313698 426313634 39 0000047c maap_mbx:event
+SPAN 426313764 426313700 18 0000047c aecp_mbx:event
+SPAN 426313901 426313837 586 0000047c srp_mbx:on_event
+CALL 426314516 426314452 mbx_event_take
+CALL 426314630 426314566 ctrl_loop:service_rx
+CALL 426315397 426315333 ctrl_loop:service_rx
+CALL 426315672 426315608 ctrl_loop:service_rx
+CALL 426315905 426315841 ctrl_loop:service_rx
+CALL 426316311 426316247 ctrl_loop:service_rx
+SPAN 426316974 426316910 81 00000498 adp_mbx:on_poll
+SPAN 426317088 426317024 203 00000498 acmp_mbx:on_poll
+SPAN 426317324 426317260 1573 00000498 maap_mbx:poll
+SPAN 426319274 426319210 270 000010d0 aecp:transmit
+SPAN 426319074 426319010 874 00000498 aecp_mbx:poll
+SPAN 426319981 426319917 2104 00000498 ctrl_app_aecp:deliver
+SPAN 426322118 426322054 1951 00000498 srp_mbx:poll
+SPAN 426324102 426324038 1128 00000498 ctrl_app_srp:deliver
+PASS 32219 426307553 426307489 17959 instr=3003 fetch_rom=29/2382 load_mbx=18 store_mbx=2 wait_mbx=180 load_csr=1 store_csr=1 wait_csr=14 code_words=14352 mods=aecp_mbx:175,ctrl_app_aecp:1871,mbx:1394,ctrl_loop:2936,aecp:1130,srp_mbx:5170,adp_mbx:157,adp:150,acmp_mbx:235,acmp:802,maap_mbx:657,ctrl_mem:763,ctrl_app_srp:915,ctrl_aecp_image:14,maap:275,aecp_nvm:222,mrp_mad:82,timer:500,nvm_store:66,nvm_flash_litespi:221,aecp_face:224, W 426308993:19:b960 426313449:19:b964
+EVW 426325515 36 2e590003
+EVW 426325516 37 fffd2cac
+EVW 426325517 38 0a0b0c0d
+EVW 426325518 39 00000000
+CALL 426326986 426326922 nvm_flash_litespi:ls_erase
+FAIL: flash write escaped the journal
+  [FAIL] simulation completed without boundary failures
+== ctrl_service_budget: checks: 1   failures: 1 ==
+RESULT: FAIL

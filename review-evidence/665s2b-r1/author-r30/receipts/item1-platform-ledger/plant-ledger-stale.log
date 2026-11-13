@@ -1,0 +1,8 @@
+POINT 1x1-if1: rom 113,672 B, sram 46,880 B, 39.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 17472 B: PASS
+POINT 1x1-if2: rom 115,400 B, sram 58,336 B, 43 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19008 B: PASS
+POINT 8x8-if1: rom 127,256 B, sram 87,984 B, 53 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18112 B: PASS
+POINT 8x8-if2: rom 128,960 B, sram 114,160 B, 59.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 20288 B: FAIL
+FINDING: LINK 8x8-if2: its plan is refused (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 20224}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 20288})
+FINDING: KEY 8x8-if2: 'platform-8x8-two-interfaces' lists {'nvm_stage': 13594, 'ctrl_plat': 20224}, the image carries {'nvm_stage': 13594, 'ctrl_plat': 20288}
+plat_ledger: FAIL (2 finding(s))
+elapsed=0s

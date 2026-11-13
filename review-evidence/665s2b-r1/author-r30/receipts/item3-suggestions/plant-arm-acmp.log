@@ -1,0 +1,13 @@
+  [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+  [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_RESP
+  [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_RESP2
+  [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_RETRY
+  [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state SETTLED_NO_RSV
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+  [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (1 ms)
+  [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+[  FAILED  ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+== ctrl ACMP core and adapter (fake ports and host model): checks: 164   failures: 3 ==
+elapsed=15s
