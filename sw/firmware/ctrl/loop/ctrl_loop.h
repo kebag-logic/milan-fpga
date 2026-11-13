@@ -259,16 +259,18 @@ extern "C" {
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
 // THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
-// of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a 50 us grid at
-// which every row by every source holds, THE TRANSMIT's MRPDU with every AECP
-// notice the largest legal one among them (#894's slice ruling of 2026-11-13),
-// the one whose decision D rows have the largest least margin relative to their
-// bounds (#894's ruling of 2026-11-12; rows_tiers.py, slice_choice): 800 us, at
-// the costs measured on the image under the tiers, that notice's among them. It
-// holds one MRPDU's build, not both (CTRL_LOOP_BUILD_MOST). The rulings choose no
-// slice at 8x8/2if, whose rows miss at every slice: 1,300 us there, which also
-// holds one MRPDU's build, CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image
-// takes 1x1/1if's slice at every shape (#894's slice ruling: 8x8/1if's too).
+// #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
+// to 1,100 us once every row by every source holds there (rows_tiers.py, ruled).
+// The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
+// 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
+// AECP notice the largest legal one have the largest least margin relative to
+// their bounds (slice_choice). An 800 us slice holds one MRPDU's build, not both
+// (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
+// at every slice: 1,300 us there, which also holds one MRPDU's build,
+// CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
+// shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
+// measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
+// which states 1x1/1if's (#894).
 #define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 800u : 1300u)
 // An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
 // slice starts a record only while it has this left.

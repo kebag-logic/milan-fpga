@@ -27,7 +27,7 @@ from tier1_rows import LONG_NOTICE_BYTES
 NAME = 'aecp-largest-notice'
 #: The bytes of an AEM_RESPONSE to ADD/REMOVE_AUDIO_MAPPINGS before its mappings: the Ethernet header's 14, the AVTP
 #: control header's 4, target_entity_id 8, controller_entity_id, sequence_id and command_type 12, and the descriptor,
-#: count and reserved field 8 (IEEE 1722.1-2021 7.4.44.1).
+#: count and reserved field 8 (IEEE 1722.1-2021 7.4.45.1 and 7.4.46.1).
 FIXED_BYTES = 46
 #: The mappings that make the largest legal notice, each 8 bytes: 63.
 MAPPINGS = (LONG_NOTICE_BYTES - FIXED_BYTES) // 8
