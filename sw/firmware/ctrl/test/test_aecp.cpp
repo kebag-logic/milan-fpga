@@ -2466,7 +2466,10 @@ TEST_F(Mailbox, ARoundFillsWhatItsPassHasLeft)
     loop.retry_firm=true;
     EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
     if(AECP_ROUND_FIRM_NOTICES<AECP_NOTICES_MOST){
-        EXPECT_EQ(built(CTRL_LOOP_SHARE_US),AECP_ROUND_FIRM_NOTICES)<<"firm, it stops at its cap beside records";
+        // room for one notice past the cap, whatever the stated costs: at 8x8/2if a share's room is 4.97 notices at a
+        // 185 us cold start (#665), so CTRL_LOOP_SHARE_US alone no longer tells the cap from the pass's room
+        EXPECT_EQ(built(AECP_ROUND_COLD_US+(AECP_ROUND_FIRM_NOTICES+1u)*AECP_NOTICE_US),AECP_ROUND_FIRM_NOTICES)
+            <<"firm, it stops at its cap beside records";
     }
     loop.backlog=false;loop.retry_firm=true;
     for(unsigned n=0;n<AECP_NOTICES_MOST&&built(CTRL_LOOP_SHARE_US)!=0u;++n){}
