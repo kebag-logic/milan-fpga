@@ -13,7 +13,8 @@ R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms), at 
 each point's flip, not the merge (#665). The rows are the built design's by default (rows_tiers.py, rows_tiers.BUILT:
 THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grade.py, `--design as-built`), kept for
 comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
-2026-11-13, item 2: AECP's with its largest legal notice, ACMP's, ADP's and MAAP's, each at FR_NFR.md 3.4.1's 20 ms)
+2026-11-13, item 2: AECP's with its largest legal notice at tier 1's 20 ms, ACMP's, ADP's and MAAP's at 30 ms by the
+owner's decision of 2026-11-13, option A, FR_NFR.md 3.4.1)
 and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 40 ms), and the check fails
 when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
@@ -169,7 +170,7 @@ def channel_controls(root: Path) -> list[str]:
                            f(r, p, under)):
         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 28 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
-    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 20, 'ADP': 20, 'MAAP': 20} or rows_tiers.TX_BUDGET_MS != 40:
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40:
         escaped.append(CHANNEL_CONTROLS[2])
     return escaped
 

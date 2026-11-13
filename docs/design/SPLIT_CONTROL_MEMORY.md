@@ -2183,10 +2183,12 @@ An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records:
 
 Each tier-1 channel's last record of its burst is a row too (item 2; [`tier1_rows.py`](../../tb/verilator/ctrl_service_budget/tier1_rows.py)). At 1x1/1if the built design holds none of the new channel rows by every source:
 
-- ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, against T_svc's 20. Under AECP-first each waits for every AECP record arriving in its window.
+- ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, against T_svc's 20, the bound the ruling gave them. Under AECP-first each waits for every AECP record arriving in its window.
 - R4L 37.47 ms: AECP's burst with every notice the largest legal one, 550 B, which waits in the response buffer and holds AECP to a record a pass. Its cost, 665 us, is a stated input and not a measurement.
 
-The ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) holds no design either: 440 candidates solved, 132 refused by their own rules. No candidate holds every tier-1 row under 22.77 ms (R4L aside), so the lane stops for the owner (#894).
+The [owner's decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6843318273), option A, holds ACMP's, ADP's and MAAP's last record at 30 ms by every source, 15 % of ACMP's 200 ms command timeout; neither ADP nor MAAP has a response deadline ([FR_NFR.md](../reference/FR_NFR.md) 3.4.1). AECP's rows, R4, R4L and the first queued notice, stay at 20 ms. The largest legal notice is counted in R4L only.
+
+At the ruling's 20 ms, the ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) held no design either: 440 candidates solved, 132 refused by their own rules. No candidate held every tier-1 row under 22.77 ms (R4L aside), so the lane stopped for the owner (#894).
 
 At 8x8/2if the size fixture's image is 1,104 B of rom larger than before the tiers (122,440 to 123,544 B), 664 B over its 57.5-RAMB36 ledger ([section 5](#5-fit)): the CPU budget harness's 8x8/2if build refuses it, and its runs used a plan of 58.0 RAMB36 for measurement only, an owner question on #894. At 1x1/1if the image is 108,336 B of rom and 48,480 B of sram.
 

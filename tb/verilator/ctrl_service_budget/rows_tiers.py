@@ -17,8 +17,9 @@ tree's slice and orders, read from ctrl_loop.h, and AECP's owed-notice queue at 
   tiers      TIERS below, at a Design: tier 2's slice length and the orders.
 
 Every bound, cost and arrival rule not named here is rows_grade.py's (its docstring's source list). The bounds are
-decision D's (rows_grade.BOUNDS): tier 1 20 ms, SRP 90 ms, the last queued notice 125 ms; each tier-1 channel row's
-FR_NFR.md 3.4.1's T_svc, 20 ms (CHANNEL_BOUNDS); THE TRANSMIT's the MRP timer budget's 40 ms (bounds_at).
+decision D's (rows_grade.BOUNDS): tier 1 20 ms, SRP 90 ms, the last queued notice 125 ms; the tier-1 channel rows'
+FR_NFR.md 3.4.1's (CHANNEL_BOUNDS: R4L 20 ms, ACMP, ADP and MAAP 30 ms by the owner's decision of 2026-11-13, option
+A); THE TRANSMIT's the MRP timer budget's 40 ms (bounds_at).
 
 usage: python3 -I rows_tiers.py [--model {built,corrected,tiers}] [--slice US ...] [--tier1 ORDER] [--tier2 ORDER]
                                 [--aecp RULE] [--cap N] [--quota A/B/C/D] [--long RULE] [--no-datapath]

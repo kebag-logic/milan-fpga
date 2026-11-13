@@ -18,10 +18,12 @@ if TYPE_CHECKING:
 TIER1 = ('aecp', 'acmp', 'adp', 'maap')
 #: The orders whose takes are each channel's quota a pass (Design.quota).
 QUOTA_ORDERS = ('aecp-quota', 'wrr')
-#: The rows solved as a tier-1 channel's (channel_passes, channel_records) beside R4, each with its bound in ms:
-#: FR_NFR.md 3.4.1's T_svc, 20 ms, for every path of ACMP (Milan v1.2 Table 5.26), ADP and MAAP (PROBE and DEFEND), and
-#: tier 1's for AECP's with its largest legal notice.
-CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 20, 'ADP': 20, 'MAAP': 20}
+#: The rows solved as a tier-1 channel's (channel_passes, channel_records) beside R4, each with its bound in ms (#894,
+#: the owner's decision of 2026-11-13, option A; FR_NFR.md 3.4.1): ACMP's, ADP's and MAAP's 30 ms by every source, 15 %
+#: of ACMP's 200 ms command timeout (Milan v1.2 5.5.2.3, Table 5.26), where neither ADP (a random 0 to 4 s delay before
+#: AVAILABLE, Milan v1.2 5.6.3.5.4) nor MAAP (500 to 600 ms between probes, IEEE 1722-2016 B.3.4.2) has a response
+#: deadline; and tier 1's 20 ms for AECP's with its largest legal notice, the one row that counts it.
+CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30}
 
 
 def queue_passes(i: Inputs, burst: int, first_us: float, drain: float = 0.0) -> int:
