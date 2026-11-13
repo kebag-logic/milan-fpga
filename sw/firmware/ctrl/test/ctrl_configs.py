@@ -246,6 +246,9 @@ OUTSIDE = {
                                                       "polls' stated costs from poll_grade.py; it compiles nothing",
     "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model, and its controls plant "
                                                       "aecp_mbx.h's AECP_PACE_MS in memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
+                                                        "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
+                                                        "memory; it compiles nothing",
     "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
                                                       "controls plant ctrl_loop.h's and aecp.h's text in memory; it "
                                                       "compiles nothing",
