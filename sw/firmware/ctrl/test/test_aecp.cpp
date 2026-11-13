@@ -2542,13 +2542,13 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
 }
 
 // #904: a saved output map is refused whole where another output port's map in its configuration holds one of its
-// stream channels, as an ADD is, and a saved row is its own wherever any coordinate differs (Milan v1.2 5.4.2.27;
-// IEEE 1722.1-2021 7.4.45).
+// stream channels, or where two of its rows hold one with different clusters, as an ADD is, and a saved row is its own
+// wherever any coordinate differs (Milan v1.2 5.4.2.27; IEEE 1722.1-2021 7.4.45).
 TEST_F(Core, RestoredOutputMapsHaveOneGlobalOwner)
 {
     a.open=false;
-    aecp_mapping other_rows[]={{0,3,0,0},{0,1,0,0}};
-    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other_rows,2,2,nullptr,0}};
+    aecp_mapping other_rows[]={{1,1,0,0},{0,3,0,0},{0,1,0,0}};
+    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other_rows,3,3,nullptr,0}};
     a.cfg.maps=pools.data();a.cfg.map_count=pools.size();
     aecp_mapping rows[]={{0,0,0,0},{0,1,1,0}};
     EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_BAD_ARGUMENTS))
@@ -2557,6 +2557,10 @@ TEST_F(Core, RestoredOutputMapsHaveOneGlobalOwner)
     pools[2].configuration=1;
     EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_SUCCESS))<<"a map of another configuration owns none";
     EXPECT_EQ(pools[1].count,2u);
+    aecp_mapping shared[]={{0,2,0,0},{0,2,1,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],shared,2),unsigned(AECP_BAD_ARGUMENTS))
+        <<"two saved rows of one stream channel with different clusters conflict";
+    EXPECT_EQ(pools[1].count,2u)<<"and the map keeps its rows";
     put(desc(20).value+84,2,2);
     aecp_mapping channels[]={{0,0,0,0},{0,0,0,1}};
     EXPECT_EQ(aecp_map_restore(&a,&pools[0],channels,2),unsigned(AECP_SUCCESS));

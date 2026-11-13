@@ -21,6 +21,10 @@ ROWS = (
      'other->rows[k].channel == r->channel) return false;',
      'other->rows[k].channel == r->channel) continue;',
      (RESTORE, 'another output port owns stream channel 1')),
+    ('restore-conflict-unchecked', 'aecp_maps.c',
+     'if (conflict(m->type == 14u, &rows[n], &rows[k])) return AECP_BAD_ARGUMENTS;',
+     '(void)rows[k];',
+     (RESTORE, 'two saved rows of one stream channel with different clusters conflict')),
     # the table: a lookup is its key's, and a value is compared whole
     ('map-table-key-unchecked', 'aecp_maps.c',
      '\t\tif (key(e->input, h) != k) {\n\t\t\tcontinue;\n\t\t}\n',
