@@ -1,0 +1,39 @@
+# head 084cf7a8455e9fa8e24a0e5bcf57c9557816c819 gate diff_vs_dev_soft_core: git diff e5f88a8e HEAD -- docs/design/SPLIT_CONTROL_MEMORY.md
+# excerpt: the hunks naming #874, the smallest margins or the tightest point; the full diff is 268893 bytes, sha256 125e76ae3cc222b519c2b36ec7f5346c0f571a3fd94e56e6e098dd47a2ee7952, not kept (over 200 KB)
+@@ -363,7 +439,7 @@ The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` wi
+ The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
+ The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+ 
+-On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
++On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's branch merged it (its round 4 head, `8bc1dfc0`) and planned both images again at all four points, at `0fb66211` and with that merge, without this branch's record commits:
+ Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+@@ -376,13 +452,21 @@ Each image was built by the pinned RV32 SDK and linked with one runtime; the pla
+ Two plans move against `0fb66211`.
+ The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+ The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+-Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
+-The smallest margins at the merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override holds.
++On that branch both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and its own `ctrl_plat`, 21,392 B at the largest point.
++The smallest margins at that merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override held there.
++
++**At this branch's head, the merge of the pin move's round 4 head `8bc1dfc0` into this branch** (round 30), planned the same way from both images built alike at the four points, the platform's by [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) against each shape's own split export, one runtime for both:
+ 
+-The owner's decision of 2026-11-12 (#665, 6824896581) supersedes, for the flip only, the requirement above that the flip (S13) needs 56 RAMB36 or fewer at every point with S14 merged.
+-The two 8x8 points with two interfaces are held as named ROM debt owed to S14: the target platform's image may plan 60.0 RAMB36, at most 60.5, and the size fixture's 58.0, at most 58.5.
+-Every other point, every 1x1 one-interface point among them, stays at or under 56.
+-`ctrl_memory.LEDGERED` holds the fixture's point at 58.0 and the platform's at 59.0, the tiles each plans.
++| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
++|---|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 108,600 / 45,920 | 38.5 | 113,672 / 46,880 | 39.5 | 17,472 |
++| 1x1, two interfaces | 110,304 / 57,312 | 41.0 | 115,400 / 58,336 | 43.0 | 19,008 |
++| 8x8, one interface | 122,136 / 87,008 | 51.5 | 127,256 / 87,984 | 53.0 | 18,112 |
++| 8x8, two interfaces (largest) | 123,808 / 113,168 | 58.5, its ledger's cap | 128,960 / 114,160 | 59.5, within its 60.0 | 20,288 |
++
++Both images carry the KLJ3 stage, so both overrides are keyed on `nvm_stage` of 13,594 B, and `ctrl_plat` is this branch's struct, unchanged by the merge at every point (`ctrl_memory_ledger.py`).
++The KLJ3 hot path's `nvm_any` is a count the compiler inlines, so it leaves the split link script's hot list, in both its copies (`ctrl_split_hot.txt`, `ctrl_split.ld`): a hot-list name with no section refuses the link.
++**The size fixture's 8x8 image with two interfaces plans 58.5 RAMB36, the cap of the owner's decision, and its entry ledgers 58.5** (the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP): its `rom` needs 123,808 B in 124,928, as at round 29's head (123,112 B in the same banks), and its `sram` 113,168 B, 528 B past the 112,640 B of the 55 granules round 29's 112,576 B filled, so `sram` takes a 56th granule. The KLJ3 stage and the store's open bits add the `sram` (#823's own table: +576 B at that point); neither side plans past 58.0 alone, the pin move's branch because its `rom` (121,064 B) takes one granule fewer. The half tile is ROM debt owed to S14 on top of the 58.0 allowance: 528 B of `sram` past 55 granules, which a firmware cut (928 B of `rom` or 528 B of `sram`) would recover, a design change outside a sync round. The cap is now fully used: any further growth at that point, a granule of either region, is a STOP. Every other point of both images is within its ledger, the platform's largest within its 60.0 and every other point within 56; S14, the first lane after the flip, owes both 8x8 points with two interfaces.
+ 
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
