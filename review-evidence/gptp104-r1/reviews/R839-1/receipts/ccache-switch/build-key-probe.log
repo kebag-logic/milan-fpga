@@ -1,0 +1,24 @@
+## B1 head, empty cache
+B1: OBJCACHE='<unset>' exe=built
+B1: ccache {'cache_miss': 4, 'direct_cache_miss': 4, 'local_storage_miss': 4, 'local_storage_read_miss': 8, 'preprocessed_cache_miss': 4}
+B1: generated C++/headers naming the work dir: none
+B1: any generated file (.cpp .h .mk .d .dat) naming it: 2 ['obj_clean/VKL_gptp_engine__ver.d', 'obj_clean/VKL_gptp_engine__verFiles.dat']
+## B2 head, same checkout, new temporary directory, warm cache
+B2: OBJCACHE='<unset>' exe=built
+B2: ccache {'direct_cache_hit': 4, 'local_storage_hit': 4, 'local_storage_read_hit': 8}
+B2: generated C++/headers naming the work dir: none
+B2: any generated file (.cpp .h .mk .d .dat) naming it: 2 ['obj_clean/VKL_gptp_engine__ver.d', 'obj_clean/VKL_gptp_engine__verFiles.dat']
+## B3 head, a copy of the checkout at another path, warm cache
+B3: OBJCACHE='<unset>' exe=built
+B3: ccache {'cache_miss': 1, 'direct_cache_miss': 4, 'local_storage_hit': 3, 'local_storage_miss': 1, 'local_storage_read_hit': 3, 'local_storage_read_miss': 5, 'preprocessed_cache_hit': 3, 'preprocessed_cache_miss': 1}
+B3: generated C++/headers naming the work dir: none
+B3: any generated file (.cpp .h .mk .d .dat) naming it: 2 ['obj_clean/VKL_gptp_engine__ver.d', 'obj_clean/VKL_gptp_engine__verFiles.dat']
+## B4 main a64be73d, OBJCACHE=ccache CCACHE_NOHASHDIR=1 forced, empty cache then a new temporary directory
+B4a: OBJCACHE='ccache' exe=built
+B4a: ccache {'cache_miss': 4, 'direct_cache_miss': 4, 'local_storage_miss': 4, 'local_storage_read_miss': 8, 'preprocessed_cache_miss': 4}
+B4a: generated C++/headers naming the work dir: ['VKL_gptp_engine___024root__0.cpp', 'VKL_gptp_engine___024root__0__Slow.cpp']
+B4a: any generated file (.cpp .h .mk .d .dat) naming it: 4 ['obj_clean/VKL_gptp_engine___024root__0.cpp', 'obj_clean/VKL_gptp_engine___024root__0__Slow.cpp', 'obj_clean/VKL_gptp_engine__ver.d', 'obj_clean/VKL_gptp_engine__verFiles.dat']
+B4b: OBJCACHE='ccache' exe=built
+B4b: ccache {'cache_miss': 1, 'direct_cache_hit': 3, 'direct_cache_miss': 1, 'local_storage_hit': 3, 'local_storage_miss': 1, 'local_storage_read_hit': 7, 'local_storage_read_miss': 1, 'preprocessed_cache_miss': 1}
+B4b: generated C++/headers naming the work dir: ['VKL_gptp_engine___024root__0.cpp', 'VKL_gptp_engine___024root__0__Slow.cpp']
+B4b: any generated file (.cpp .h .mk .d .dat) naming it: 4 ['obj_clean/VKL_gptp_engine___024root__0.cpp', 'obj_clean/VKL_gptp_engine___024root__0__Slow.cpp', 'obj_clean/VKL_gptp_engine__ver.d', 'obj_clean/VKL_gptp_engine__verFiles.dat']

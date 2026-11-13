@@ -1,0 +1,51 @@
+## A: ccache on PATH, nothing set
+  run recipe: CCACHE_BASEDIR=<packet>/scratch/trees/860e4749
+  run recipe: CCACHE_NOHASHDIR=1
+  run recipe: OBJCACHE=ccache
+  run recipe: OBJCACHE is [ccache]
+make: *** [Makefile:50: run] Error 3
+  mutants: CCACHE_NOHASHDIR=1
+  mutants: OBJCACHE=ccache
+  mutants: OBJCACHE is [ccache]
+  compiler_env: CCACHE_NOHASHDIR=[1]
+  compiler_env: OBJCACHE=[ccache]
+## B: ccache not on PATH
+  run recipe: CCACHE_BASEDIR=<packet>/scratch/trees/860e4749
+  run recipe: CCACHE_NOHASHDIR=1
+  run recipe: OBJCACHE=
+  run recipe: OBJCACHE is []
+make: *** [Makefile:50: run] Error 3
+  mutants: CCACHE_NOHASHDIR=1
+  mutants: OBJCACHE=
+  mutants: OBJCACHE is []
+  compiler_env: CCACHE_NOHASHDIR=[1]
+  compiler_env: OBJCACHE=[]
+## C: make OBJCACHE= on the command line
+make: *** [Makefile:50: run] Error 3
+  run recipe: CCACHE_BASEDIR=<packet>/scratch/trees/860e4749
+  run recipe: CCACHE_NOHASHDIR=1
+  run recipe: OBJCACHE=
+  run recipe: OBJCACHE is []
+  mutants: CCACHE_NOHASHDIR=1
+  mutants: OBJCACHE=
+  mutants: OBJCACHE is []
+## D: OBJCACHE= in the environment
+make: *** [Makefile:50: run] Error 3
+  run recipe: CCACHE_BASEDIR=<packet>/scratch/trees/860e4749
+  run recipe: CCACHE_NOHASHDIR=1
+  run recipe: OBJCACHE=
+  run recipe: OBJCACHE is []
+  mutants: CCACHE_NOHASHDIR=1
+  mutants: OBJCACHE=
+  mutants: OBJCACHE is []
+  compiler_env: CCACHE_NOHASHDIR=[1]
+  compiler_env: OBJCACHE=[]
+## E: caller CCACHE_BASEDIR=/x CCACHE_NOHASHDIR=0
+make: *** [Makefile:50: run] Error 3
+  run recipe: CCACHE_BASEDIR=/x
+  run recipe: CCACHE_NOHASHDIR=0
+  run recipe: OBJCACHE=ccache
+  run recipe: OBJCACHE is [ccache]
+  compiler_env: CCACHE_BASEDIR=[/x]
+  compiler_env: CCACHE_NOHASHDIR=[0]
+  compiler_env: OBJCACHE=[ccache]

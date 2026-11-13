@@ -1,0 +1,12 @@
+== table body old 565-793 vs new 50-278
+TABLE-BYTE-IDENTICAL
+== helpers old 118-133 vs new 28-43
+HELPERS-BYTE-IDENTICAL
+== old 560-564 context
+     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_SYNCOK_C)\n",
+     "#84 master cycles were graded | p1 255 #84 master cycles were graded"),
+    ("a handover to a peer keeps sync-ok", GENERATOR,
+     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C)\n",
+     "    e_flags(p, andm=FL_ASCAP_C | FL_SYNCOK_C, orm=FL_PRESENT_C)\n",
+     "#84 every handover to a peer grandmaster clears sync-ok"
+     " | p1 255 #84 every handover to a peer grandmaster clears sync-ok"),

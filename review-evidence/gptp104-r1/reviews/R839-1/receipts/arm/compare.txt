@@ -1,0 +1,25 @@
+9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2  main-plain.stdout
+9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2  head-cold.stdout
+9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2  <published packet>/author/receipts/before/engine-arm.stdout
+ 77458 main-plain.stdout
+ 77458 head-cold.stdout
+     0 main-plain.stderr
+     0 head-cold.stderr
+154916 total
+main-plain == head-cold byte for byte
+head-cold == published main reference byte for byte
+160 checks: 160 PASS, 0 FAIL
+160
+0
+main-plain wall 3640 s
+main-plain ccache:
+cache_miss	0
+direct_cache_hit	0
+files_in_cache	0
+preprocessed_cache_hit	0
+head-cold wall 3629 s
+head-cold ccache:
+cache_miss	74
+direct_cache_hit	210
+files_in_cache	78
+preprocessed_cache_hit	0

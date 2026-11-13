@@ -1,0 +1,25 @@
+## neg1: in_list_order yields in completion order
+781c781,782
+<         for future in futures:
+---
+>         from concurrent.futures import as_completed
+>         for future in as_completed(futures):
+INFO --jobs 1: exit 0, 59116 bytes, 160 verdicts, 2.0 s
+INFO --jobs 8: exit 0, 59116 bytes, 160 verdicts, 0.5 s
+FAIL --jobs 8 prints 160 [PASS] lines in list order
+FAIL --jobs 1 and --jobs 8 print the same bytes
+10 checks: 8 PASS, 2 FAIL
+rc=1
+## neg2: the last entry is never printed or tallied
+849c849
+<             for caught, lines in results:
+---
+>             for caught, lines in list(results)[:-1]:
+INFO --jobs 1: exit 0, 58667 bytes, 159 verdicts, 1.9 s
+INFO --jobs 8: exit 0, 58667 bytes, 159 verdicts, 0.5 s
+FAIL --jobs 1 prints 160 [PASS] lines in list order
+FAIL --jobs 1 tallies 160 checks
+FAIL --jobs 8 prints 160 [PASS] lines in list order
+FAIL --jobs 8 tallies 160 checks
+10 checks: 6 PASS, 4 FAIL
+rc=1

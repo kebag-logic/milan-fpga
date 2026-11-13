@@ -1,0 +1,15 @@
+## warm: every model the arm builds (control + 70 RTL mutants), from <packet>/scratch/clones/x/y/head-b (another path than the cold run's clones/head-a), new temporary directories, a copy of the cold run's cache, 8 at a time
+builds: 71, built: 71, failed: 0
+ccache: {'cache_miss': 8, 'direct_cache_hit': 189, 'direct_cache_miss': 95, 'local_storage_hit': 276, 'local_storage_miss': 8, 'local_storage_read_hit': 528, 'local_storage_read_miss': 40, 'preprocessed_cache_hit': 87, 'preprocessed_cache_miss': 8}
+compilations from the cache: 276, misses: 8
+rc=0
+## the same again, now from the cold run's own checkout path (clones/head-a)
+builds: 71, built: 71, failed: 0
+ccache: {'direct_cache_hit': 273, 'direct_cache_miss': 11, 'local_storage_hit': 284, 'local_storage_read_hit': 568, 'preprocessed_cache_hit': 11}
+compilations from the cache: 284, misses: 0
+rc=0
+## again from clones/x/y/head-b, after its own harness unit is cached: the 8 misses above were that one unit (sim_main.cpp by its absolute path), compiled by the first 8 concurrent builds before any stored it
+builds: 71, built: 71, failed: 0
+ccache: {'direct_cache_hit': 222, 'direct_cache_miss': 62, 'local_storage_hit': 284, 'local_storage_read_hit': 568, 'preprocessed_cache_hit': 62}
+compilations from the cache: 284, misses: 0
+rc=0
