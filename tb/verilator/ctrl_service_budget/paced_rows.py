@@ -106,10 +106,13 @@ def controls(root: Path) -> list[str]:
     escaped = []
     text = (root / HEADER).read_text()
     taken = choice(root)
-    stated = f'#define AECP_PACE_MS {taken}u\n'
-    if statements(root) or stated not in text or not all(
-            statements(root, {HEADER: text.replace(stated, f'#define AECP_PACE_MS {p}u\n')}) for p in (taken - 1,
-                                                                                                         taken + 1)):
+    if taken is None:
+        # no pace holds txL: the tree is refused whatever it states, by name
+        if not any('no pace up to' in s for s in statements(root)):
+            escaped.append("THE PACE not the model's")
+    elif statements(root) or f'#define AECP_PACE_MS {taken}u\n' not in text or not all(
+            statements(root, {HEADER: text.replace(f'#define AECP_PACE_MS {taken}u\n', f'#define AECP_PACE_MS {p}u\n')})
+            for p in (taken - 1, taken + 1)):
         escaped.append("THE PACE not the model's")
     i = rt.point_inputs(root, '1x1/1if')
     unpaced = i._replace(pace_ms=0)

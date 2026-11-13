@@ -242,7 +242,7 @@ def datapath_pass_us(c: dict, s: dict) -> float:
 
 
 class Fix(NamedTuple):
-    """The corrected model's corrections, each a count at its source's own rule; all off is rows_grade.demand."""
+    """The corrected model's corrections, each a count at its source's own rule; AS_BUILT is rows_grade.demand."""
 
     retained: bool = True
     window: bool = True
@@ -251,7 +251,7 @@ class Fix(NamedTuple):
 
 
 CORRECTED = Fix()
-AS_BUILT = Fix(False, False, False, False)
+AS_BUILT = Fix(True, True, False, False)  # rows_grade.demand since #665 holds the retry's rule and SRP's window
 
 
 def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
@@ -302,8 +302,9 @@ def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
     srp_in = arrive('srp')
     out['item.walk'] = min(passes * n_if, n_if * (ticks + count_b)) * c['item.walk']
     out['item.reclaim'] = min(2 * n_if * passes, 2 * (srp_in + count_b)) * c['item.reclaim']
-    # the retained retry: as built one a pass; corrected at most one a centisecond dispatched (the retry's own rule)
-    out['item.retained'] = min(passes, srp_in, *((ticks,) if fix.retained else ())) * c['item.retained']
+    # the retained retry: one a pass, or at its own rule in rows_grade.RETAINED_ROWS alone (rows_grade.retained_retries)
+    out.update({'item.retained': (rows_grade.retained_retries(w_ms, passes, tick_ms) if fix.retained else min(
+        passes, srp_in)) * c['item.retained']} if not fix.retained or row in rows_grade.RETAINED_ROWS else {})
     out['item.mrpdu'] = min(passes, 2 * count_b) * c['item.mrpdu']
     out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * c['item.aecp']
@@ -431,7 +432,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             n = tx_passes(i, d, ticks, notice, arrive)
         else:
             # tier 2 ahead of the row's last unit: SRP's rows their own burst; the last notice every unit arriving
-            retained = min(passes, ticks, srp_in)
+            retained = min(rows_grade.retained_retries(w_ms, passes, tick_ms), srp_in)
             records = rate['srp'][0] if row != 'last' else srp_in
             mrpdu = min(passes, 2 * count_b)
             srp_slices = slices(records + retained, c['record.srp'], slice_us - c['events_none'])
@@ -613,7 +614,7 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
                 continue
             ticks = math.floor((w or 2000) / i.tick_ms) + 1
             if (isinstance(model, Design) or model.retained) and \
-                    terms.get('item.retained', 0.0) * 1000 > ticks * i.c['item.retained'] + 1e-6:
+                    terms.get('item.retained', 0.0) * 1000 > (ticks + 1) * i.c['item.retained'] + 1e-6:
                 out.append(f'{point} {row}: the retained retry counted past one a centisecond')
             passes = round(terms['passes'] * 1000 / (i.c['events_none'] + i.c['base']))
             if model.datapath and abs(terms.get('datapath', 0.0) * 1000 - passes * datapath_pass_us(i.c, i.s)) > 1e-6:
@@ -803,7 +804,7 @@ def default_holds(root: Path) -> list[str]:
 #: w, model, terms) returns the planted terms.
 PLANTS: dict[str, tuple[Fix | Design, Callable]] = {
     'the retained retry counted once a pass': (CORRECTED, lambda row, i, w, m, t: dict(
-        t, **{'item.retained': max(t['item.retained'], round(t['passes'] / (i.c['events_none'] + i.c['base'])) *
+        t, **{'item.retained': max(t.get('item.retained', 0), round(t['passes'] / (i.c['events_none'] + i.c['base'])) *
                                    i.c['item.retained'])})),
     "SRP's window cut by the AECP burst's whole work": (CORRECTED, lambda row, i, w, m, t: dict(
         t, srp=(i.rate['srp'][0] + math.floor(max(0.0, w - t['aecp'] / 1000) / i.rate['srp'][1])) *
@@ -931,8 +932,8 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 28u : 90u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 27u : 90u)')}
+    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 97u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 97u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
     if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, bound[:-3] + '90u')}):

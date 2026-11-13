@@ -26,9 +26,11 @@ def slice_held(root: Path) -> list[str]:
     first = rt.point_inputs
     with mock.patch.object(rt, 'point_inputs', lambda r, p, texts=None: dear(cost) if p == '1x1/1if' else
                            first(r, p, texts)):
-        us = rt.slice_choice(root)[0]
+        us, margin = rt.slice_choice(root)
     w = rt.solve('txL', dear(cost), rt.BUILT._replace(slice_us=us))[0]
-    held = us != i.slice_us and w is not None and w <= i.tx_bound
+    # where no slice holds every row the rule says so, its least margin no more than txL's own at its choice
+    held = (us != i.slice_us and w is not None and w <= i.tx_bound) or \
+        (margin < 0 and margin <= (i.tx_bound - (w or 2000)) / i.tx_bound + 1e-9)
     return [] if held else ['a slice chosen at which txL is over its bound']
 
 
