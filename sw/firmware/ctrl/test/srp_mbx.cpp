@@ -1576,11 +1576,60 @@ void sliced_transmit(void *ctx, unsigned) {
     slice_frames = slice_model->tx_sent - before;
     slice_widest = slice_frames > slice_widest ? slice_frames : slice_widest;
 }
+ctrl_poll_fn gap_poll;   // SRP's poll, run in each gap a slice leaves between an adoption's MSRP and its MVRP
+unsigned gap_slices;     // the slices that ended with a resume owed and interface 0's VLAN unsent
+bool gap_licensed;       // whether interface 0's Talker was licensed in such a gap, after its poll
+void gapped_transmit(void *ctx, unsigned) {
+    whole_transmit(ctx, 1u);
+    const auto *m = static_cast<const srp_mbx *>(ctx);
+    if (m->tx_resume != 0u && !m->ifs[0].vlan_sent) {
+        ++gap_slices;
+        static_cast<void>(gap_poll(ctx));   // an ordinary pass's poll between the two slices
+        gap_licensed = gap_licensed || m->ifs[0].active[0];
+    }
+}
 }
 
-// THE TRANSMIT's build resumes across slices (THE TIERS; #665 round 23, item 2): the same SRP frames, in the same order,
-// as the build made whole, each call making at most the MRPDUs its slice holds; a reset between two slices leaves the
-// new participants a whole build.
+// THE TIERS (#894): where a slice holds one MRPDU (CTRL_LOOP_BUILD_MOST 1, 8x8/2if), a Domain that moves the VID,
+// adopted in a build's first slice, goes out in its MSRP MRPDU and the MVRP MRPDU follows in the next slice, an
+// ordinary pass's poll between the two; the Talker's licence waits for the MVRP commit (vlan_sent; Milan v1.2 4.3.2).
+TEST_F(Srp, ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent) {
+    whole_transmit = loop.transmit;
+    loop.transmit = gapped_transmit;
+    gap_poll = nullptr;
+    for (unsigned k = 0; k < loop.n_polls; ++k) {
+        if (loop.polls[k].ctx == &adapter) {
+            gap_poll = loop.polls[k].fn;
+        }
+    }
+    ASSERT_NE(gap_poll, nullptr);
+    gap_slices = 0u;
+    gap_licensed = false;
+    settle();
+    EXPECT_CALL(licence, Change(0, 0, true));
+    offer(frame(3, identity(0), 1, 2), 0);
+    ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+    unsigned grants = 0u;
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, false)).Times(::testing::AnyNumber());
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, true))
+        .WillRepeatedly([&](unsigned, unsigned, bool) {
+            ++grants;
+            EXPECT_TRUE(adapter.ifs[0].vlan_sent) << "the Talker's licence waits for the MVRP commit";
+        });
+    offer(frame(4, {6, 4, 0, 3}, 0));
+    advance(400);
+    EXPECT_EQ(adapter.ifs[0].domain.vid, 3u) << "(the Domain was adopted)";
+    EXPECT_GE(gap_slices, 1u) << "a slice ends between the adoption's MSRP and its MVRP, a poll run there";
+    EXPECT_FALSE(gap_licensed) << "no Talker is licensed there while its VLAN is unsent";
+    EXPECT_EQ(grants, 1u) << "and the Talker is licensed again once its VLAN is sent";
+    ::testing::Mock::VerifyAndClearExpectations(&licence);
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, ::testing::_)).Times(::testing::AnyNumber());
+    loop.transmit = whole_transmit;
+}
+
+// THE TRANSMIT's build resumes across slices (THE TIERS; #665, the decision of 2026-11-09, item 2): the same SRP
+// frames, in the same order, as the build made whole, each call making at most the MRPDUs its slice holds; a reset
+// between two slices leaves the new participants a whole build.
 TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
     const auto frames = [&](unsigned most) {
         TearDown();

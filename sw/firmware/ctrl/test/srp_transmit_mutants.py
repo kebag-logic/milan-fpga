@@ -30,9 +30,9 @@ SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\
 
 
 def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
-    """THE TIERS (#894; #665 round 23, item 2): a build that stops at a slice boundary resumes at the next participant
-    with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the next build
-    would, and a reset ends the build it was resuming."""
+    """THE TIERS (#894; #665, the decision of 2026-11-09, item 2): a build that stops at a slice boundary resumes at the
+    next participant with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the
+    next build would, and a reset ends the build it was resuming."""
     sliced = "ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole"
     boundary = ("                    reclaim(i);\n                    m->tx_resume = (uint8_t)(slot + 1u);\n")
     return (
@@ -44,6 +44,8 @@ def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("build-reclaim-left-to-the-next-slice", RETAINED, boundary,
              "                    m->tx_resume = (uint8_t)(slot + 1u);\n", "adapter.received",
              suite="srp_rx_retry.cpp"),
+        kind("licence-before-vlan-across-slices", "ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent",
+             "link && i->vlan_sent &&", "link &&", "no Talker is licensed there while its VLAN is unsent"),
         kind("build-resumed-past-a-reset", sliced,
              "    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;\n", "",
              "a reset ends the build it was resuming: its new participants build whole, MSRP first"),

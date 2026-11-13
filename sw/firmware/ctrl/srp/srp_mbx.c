@@ -1086,15 +1086,17 @@ static bool poll(void *ctx)
 }
 
 // THE TRANSMIT's client (ctrl_loop.h, #665), called in a pass given whole to what an interface owes, a slice of tier 2
-// (THE TIERS): every interface's declarations, then both participants' MRPDUs of the first interface that owes one,
-// and the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send
-// licensed. A slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes
-// at the next participant, its declarations already made, then makes that interface's declarations: the frames of the
-// build made whole, with a slice between two (#894; #665 round 23, item 2). A Domain adopted here is sent in this call, so no
-// poll sees its VID unlicensed between them (Milan 4.3.2). No declaration is made while a retained receive waits, so
-// none takes the room it waits for. A refused or waiting declaration is tried again when the join count ends, at the
-// JoinTime's rate and not every pass given whole, so the passes this client takes stay what THE RETRY's bound counts.
-// A frame the ring refuses stays the poll's (A3) and the interface stays due.
+// (THE TIERS): every interface's declarations, then both participants' MRPDUs of the first interface that owes one, and
+// the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send licensed. A
+// slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes at the next
+// participant, its declarations already made, then makes that interface's declarations: the frames of the build made
+// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). Where a slice holds both MRPDUs
+// (CTRL_LOOP_BUILD_MOST 2, 1x1/1if) a Domain adopted here is sent in this call, so no poll sees its VID unlicensed
+// between them. Where it holds one (8x8/2if) the MVRP MRPDU follows in the next slice and polls may run between the
+// two, and the Talker's licence still waits for the MVRP commit (vlan_sent; Milan v1.2 4.3.2). No declaration is made
+// while a retained receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again
+// when the join count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay
+// what THE RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.
 static void transmit(void *ctx, unsigned most)
 {
     struct srp_mbx *m = ctx;
