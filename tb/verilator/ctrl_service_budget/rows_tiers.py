@@ -93,10 +93,10 @@ behind every tier-2 unit that arrives in its window."""
 DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AMAP_LIVE_WRITE': 'entity'}
 #: Each datapath event's stated cost in us, its take and every sink's work: the most the CPU budget harness measured
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
-#: 5 %, rounded up to 5 us, as every stated cost, the larger of each image's measurement and the one before it (#894:
-#: the datapath events' sink cost, measured, and measured again on the image under THE TIERS).
-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 25},
-               '8x8/2if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 25}}
+#: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: measured on the image
+#: under THE TIERS, then at #810's 084cf7a8 merge: 31.96, 29.06, 23.33 us at 1x1/1if and 36.57, 34.43, 23.02 at 8x8).
+DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 25},
+               '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 25}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
 TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
 #: Each channel the loop serves and its rows (#894's ruling of 2026-11-13, item 2): a tier-1 channel's last record of
@@ -124,11 +124,11 @@ LONG_RULES = ('buffer', 'slot-552')
 LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
 #: largest legal notice answers): REMOVE_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler
-#: (aecp_mbx.c, frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, 87,372 CPU cycles at 1x1/1if
-#: and 147,843 on the 8x8 shape with the answering-ports arm, whose output map that group edits (#904: each mapping
-#: decoded once and checked in one pass, where 742,470 and 959,647 were measured before). record.aecp, 235 us at
-#: 1x1/1if, is measured on shorter commands.
-LONG_RECORD_US = {'1x1/1if': 920, '8x8/2if': 1555}
+#: (aecp_mbx.c, frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, the larger kept: 89,126 CPU
+#: cycles at 1x1/1if at the merge of #810's 084cf7a8 (87,372 before it), and 147,843 on the 8x8 shape with the
+#: answering-ports arm, whose output map that group edits (144,293 at the merge); #904: one decode and one pass, where
+#: 742,470 and 959,647 were measured before. record.aecp, 235 us at 1x1/1if, is measured on shorter commands.
+LONG_RECORD_US = {'1x1/1if': 940, '8x8/2if': 1555}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -932,8 +932,8 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 97u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 97u)')}
+    figure, bound = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)', '#define CTRL_LOOP_TX_BOUND_MS 40u'
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
     if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, bound[:-3] + '90u')}):

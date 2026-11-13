@@ -67,12 +67,12 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: and 325 us, the walk 35 at 1x1/1if and the rebuild 690 at 8x8/2if. Measured again on the image under THE TIERS
 #: (#894), each the larger of that and this table's: ACMP's owed frame 195 and a notice 275 at 8x8/2if. A notice longer
 #: than AECP_FAN_BYTES (aecp_long) is measured over the aecp-largest-notice group alone, the one that stages it
-#: (long_notice.py, #894): a 550 B notice to 15 controllers, 33,815 CPU cycles at 1x1/1if, and to 31 on the 8x8 shape
-#: with the answering-ports arm, 61,578.
+#: (long_notice.py, #894): a 550 B notice to 15 controllers, 34,359 CPU cycles at 1x1/1if, and to 31 on the 8x8 shape
+#: with the answering-ports arm, 61,935, at the merge of #810's 084cf7a8 (33,815 and 61,578 before it), plus 5 %.
 STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=430, acmp=120,
-                    aecp=210, aecp_long=360),
+                    aecp=210, aecp_long=365),
              2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=195,
-                    aecp=275, aecp_long=650)}
+                    aecp=275, aecp_long=655)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
