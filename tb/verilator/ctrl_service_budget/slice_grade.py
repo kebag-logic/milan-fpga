@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE TIERS' slices against their stated length (#894; #665's round 23 ruling, item 1: tier-2 work runs only in slices
-of at most a stated length, and a gate fails any slice over it). The length is ctrl_loop.h's CTRL_LOOP_SLICE_US, and
-each slice is measured from where the loop starts it:
+"""THE TIERS' slices against their stated length (#894; #665's decision of 2026-11-09, item 1: tier-2 work runs only in
+slices of at most a stated length, and a gate fails any slice over it). The length is ctrl_loop.h's CTRL_LOOP_SLICE_US,
+and each slice is measured from where the loop starts it:
 
 - SRP's records in an ordinary pass (THE DRAIN's channel), from the pass's start to the end of its last record's
   handler, srp_mbx's receive (a SPAN line);

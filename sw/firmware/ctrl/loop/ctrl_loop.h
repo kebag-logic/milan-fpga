@@ -180,7 +180,7 @@
 // join timer idle, and for a declaration, which while notices are queued waits
 // for the join timer, so each comes at most once a JoinTime a participant.
 //
-// THE TIERS (#894; #665 round 23, option B). Tier 1, the response channels
+// THE TIERS (#894; #665, the decision of 2026-11-09, option B). Tier 1, the response channels
 // (AECP, ACMP, ADP and MAAP) and a queue's first notice, is served before any
 // tier-2 work; tier 2, SRP's records (THE DRAIN), THE TRANSMIT's builds and
 // THE RETRY's rounds, runs only in slices of at most CTRL_LOOP_SLICE_US, with
@@ -258,7 +258,7 @@ extern "C" {
 // to take another past CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
-// THE TIERS: tier 2's slice, in microseconds (#894; #665 round 23). At 1x1/1if,
+// THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
 // of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a 50 us grid, the
 // one whose rows by every source have the largest least margin relative to their
 // bounds (#894's ruling of 2026-11-12; rows_tiers.py, slice_choice): 1,200 us,

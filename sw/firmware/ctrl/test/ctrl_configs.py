@@ -225,9 +225,14 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
                                                        "aecp.h and aecp_mbx.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
-                                                      "CTRL_LOOP_SLICE_US from ctrl_loop.h, AECP_MBX_OWED_SLOTS from "
-                                                      "aecp_mbx.h and AECP_RETRY_MAX_MS from aecp.h; it compiles "
-                                                      "nothing",
+                                                      "CTRL_LOOP_SLICE_US, CTRL_LOOP_TX_BOUND_MS and CTRL_LOOP_TX_MS "
+                                                      "from ctrl_loop.h, AECP_MBX_OWED_SLOTS from aecp_mbx.h, "
+                                                      "AECP_RETRY_MAX_MS and AECP_OWED_BYTES from aecp.h and the "
+                                                      "loop's channel bindings from the firmware's sources; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
+                                                      "controls plant ctrl_loop.h's and aecp.h's text in memory; it "
+                                                      "compiles nothing",
     "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
                                                        "ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "

@@ -82,9 +82,9 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
 
 def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
-    """THE TIERS' slices (slice_grade.py; #665's round 23 ruling, item 1): SRP's records from their pass's start, a
-    pass given whole to a build with its round, and every other round, each at the stated length fitting it and a cycle
-    over it refused, and a slice over it failing the run whatever findings it records."""
+    """THE TIERS' slices (slice_grade.py; #665's decision of 2026-11-09, item 1): SRP's records from their pass's start,
+    a pass given whole to a build with its round, and every other round, each at the stated length fitting it and a
+    cycle over it refused, and a slice over it failing the run whatever findings it records."""
     header = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
     us = [int(n) for n in re.search(r'^#define CTRL_LOOP_SLICE_US \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', header,
                                     re.M).groups()]

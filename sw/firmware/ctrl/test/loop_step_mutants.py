@@ -275,9 +275,9 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
 
 
 def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
-    """THE TIERS' defects (#894; #665 round 23): tier 1's first channel and its others, tier 2 only once tier 1 holds no
-    record, a pass given whole only after a pass that served tier 1, SRP first, a queue's first notice tier 1's, and
-    the slices a round and THE DRAIN's records are given."""
+    """THE TIERS' defects (#894; #665, the decision of 2026-11-09): tier 1's first channel and its others, tier 2 only
+    once tier 1 holds no record, a pass given whole only after a pass that served tier 1, SRP first, a queue's first
+    notice tier 1's, and the slices a round and THE DRAIN's records are given."""
     port = "port"
     l20, l22, l23 = ("Loop.L20AnOwedBuildIsAPassOfItsOwn", "Loop.L22PassesGivenWholeStandApartAsInputWaits",
                      "Loop.L23TheDrainIsTierTwoInASlice")

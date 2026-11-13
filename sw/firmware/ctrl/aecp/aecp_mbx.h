@@ -31,14 +31,14 @@ extern "C" {
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
 #define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
-// The bound of FR_NFR.md 3.4.1 on notices queued behind one another, under THE TIERS (ctrl_loop.h; #894, #665 round 23
-// and decision D). A queue's first notice is tier 1's and commits within AECP_QUEUED_FIRST_MS of its port's answer,
-// 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1 and SRP's records,
-// and commits within AECP_QUEUED_MS, the last queued notice's 125 ms, half of the 250 ms a controller waits on an AECP
-// command (IEEE 1722.1-2021 9.3.2.6). The rows by every source hold both at the built design's slice
-// (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the CPU budget harness holds every
-// measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every source do not fit, an owner
-// question (#894).
+// The bound of FR_NFR.md 3.4.1 on notices queued behind one another, under THE TIERS (ctrl_loop.h; #894, #665, the
+// decision of 2026-11-09 and decision D). A queue's first notice is tier 1's and commits within AECP_QUEUED_FIRST_MS of
+// its port's answer, 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1
+// and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's 125 ms, half of the 250 ms a
+// controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6). The rows by every source hold both at the built
+// design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the CPU budget
+// harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every source do not
+// fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
 #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 125u : 62u)
 // The owed-notice queue's slots an integrator gives AECP (aecp_config.owed, #894): the AECP channel's burst at one

@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The rows by every source under priority tiers (#894; #665, the round 23 ruling, option B), beside rows_grade.py's
-rows of the loop before the tiers, which this module does not change. The built design (BUILT, the tier model at the
-tree's slice and orders, read from ctrl_loop.h, and AECP's owed-notice queue at each point's depth) is the flip check's
-(flip_grade.py, --design built); its self-test plants a defect in each of its paths.
+"""The rows by every source under priority tiers (#894; #665, the decision of 2026-11-09, option B), beside
+rows_grade.py's rows of the loop before the tiers, which this module does not change. The built design (BUILT, the tier
+model at the tree's slice and orders, read from ctrl_loop.h, and AECP's owed-notice queue at each point's depth) is the
+flip check's (flip_grade.py, --design built); its self-test plants a defect in each of its paths.
 
   built      THE TIERS as ctrl_loop.c builds them: BUILT, the default. Its rows are TIER_ROWS, each tier-1 channel's
              last record of its burst (CHANNEL_ROWS, #894's ruling of 2026-11-13, item 2: AECP's with its largest legal
@@ -48,20 +48,20 @@ from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, 
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
 
-TIERS = """THE TIERS (#665 round 23: a tier-1 record is served before any tier-2 work; tier-2 work runs in slices of at
-most a stated length, with tier 1 checked between two slices). A pass, in this order:
+TIERS = """THE TIERS (#665, the decision of 2026-11-09: a tier-1 record is served before any tier-2 work; tier-2 work
+runs in slices of at most a stated length, with tier 1 checked between two slices). A pass, in this order:
   1. events, as built (ctrl_loop.c:252, events first): the TICK and its centisecond consumers, the timer slots, the
      grandmaster event and the three datapath events, each coalesced, one a source an ordinary pass at most;
   2. tier 1: the first queued notice once its retry is due (a round of one, AECP_ROUND_COLD_US + AECP_NOTICE_US),
      then the records of AECP, ACMP, ADP and MAAP. `turn`: each channel its cap a pass (CTRL_LOOP_RX_PER_PASS, one in
      a pass that dispatched a centisecond), as built. `aecp-first`: no other tier-1 channel's record is taken while an
      AECP record waits, and AECP's go past the cap while tier 1 has spent less than CTRL_LOOP_DRAIN_US in the pass;
-  3. tier 2, only when no tier-1 record waits (a ring's occupancy: an AECP record its owed notice holds still holds
-     tier 2 off): one slice of at most slice_us. A slice takes a unit only while what it has left holds the unit's
-     stated cost; a unit dearer than the slice resumes in the next (#665 round 23, item 2: THE TRANSMIT's build and
-     THE RETRY's round). `srp-first`: THE TRANSMIT's build and an owed MRPDU, then SRP's records and its retained retry
-     (THE DRAIN), a link change's withdrawal and rebuild, then THE RETRY's rounds. `turn`: the build, SRP and the
-     rounds take slices in turn;
+  3. tier 2, only when no tier-1 record waits (a ring's occupancy: an AECP record its owed notice holds still holds tier
+     2 off): one slice of at most slice_us. A slice takes a unit only while what it has left holds the unit's stated
+     cost; a unit dearer than the slice resumes in the next (#665, the decision of 2026-11-09, item 2: THE TRANSMIT's
+     build and THE RETRY's round). `srp-first`: THE TRANSMIT's build and an owed MRPDU, then SRP's records and its
+     retained retry (THE DRAIN), a link change's withdrawal and rebuild, then THE RETRY's rounds. `turn`: the build, SRP
+     and the rounds take slices in turn;
   4. the polls' base, ACMP's and AECP's owed frames (tier 1's own output, A3) and SRP's walk and reclaim (under 65 us
      each, the room the next SRP record needs), each counted as rows_grade counts it.
 THE STEP stays a pass given whole, as built: its age limit is its own bound, and a flash step does not divide.
@@ -339,7 +339,8 @@ def smallest_slice(i: Inputs) -> int:
 
 def resumed(i: Inputs, slice_us: int) -> list[str]:
     """The tier-2 units dearer than the slice, each of which must resume across slices: THE TRANSMIT's build and THE
-    RETRY's round by the ruling (round 23, item 2); any other is a further change the design asks for."""
+    RETRY's round by the ruling (#665's decision of 2026-11-09, item 2); any other is a further change the design asks
+    for."""
     h, c = i.h, i.c
     units = {'an SRP record': c['record.srp'], 'a retained retry': c['item.retained'],
              "a link change's withdrawal": c['item.withdraw'], "a link change's rebuild": c['item.rebuild'],
