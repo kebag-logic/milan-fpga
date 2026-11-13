@@ -18,6 +18,11 @@ if TYPE_CHECKING:
 TIER1 = ('aecp', 'acmp', 'adp', 'maap')
 #: The orders whose takes are each channel's quota a pass (Design.quota).
 QUOTA_ORDERS = ('aecp-quota', 'wrr')
+#: The largest legal AECPDU in octets: a control_data_length of 524 following the target_entity_id (IEEE 1722.1-2021
+#: 9.2.2.6), the 8-octet target_entity_id, the AVTP control header's 4 and the Ethernet header's 14; ADD_AUDIO_MAPPINGS
+#: or REMOVE_AUDIO_MAPPINGS of 63 mappings answers one that long, a notice over AECP_FAN_BYTES. A slot that holds it
+#: (AECP_OWED_BYTES, the tree's) queues every legal notice.
+LONG_NOTICE_BYTES = 550
 #: The rows solved as a tier-1 channel's (channel_passes, channel_records) beside R4, each with its bound in ms (#894,
 #: the owner's decision of 2026-11-13, option A; FR_NFR.md 3.4.1): ACMP's, ADP's and MAAP's 30 ms by every source, 15 %
 #: of ACMP's 200 ms command timeout (Milan v1.2 5.5.2.3, Table 5.26), where neither ADP (a random 0 to 4 s delay before
@@ -95,8 +100,8 @@ def channel(row: str) -> str:
 
 def held_back(row: str, i: Inputs, d: Design) -> bool:
     """Whether the row's AECP burst takes a record a pass: R4L's notices each wait in the response buffer (the buffer
-    rule, a queue of none, or a rule before the queue)."""
-    return row == 'R4L' and (d.long == 'buffer' or i.owed == 0 or d.aecp != 'queue')
+    rule with the tree's slot, i.slot, under the largest legal notice, a queue of none, or a rule before the queue)."""
+    return row == 'R4L' and ((d.long == 'buffer' and i.slot < LONG_NOTICE_BYTES) or i.owed == 0 or d.aecp != 'queue')
 
 
 def channel_passes(row: str, i: Inputs, d: Design, ticks: int, notice: float, arrive: Callable[[str], int]) -> int:

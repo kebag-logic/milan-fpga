@@ -245,8 +245,12 @@ struct aecp_run {
 };
 // A command's notice owed to its recipients while AECP takes its next record (#894, the ruling of 2026-11-12): the
 // frame its response was, which fan_out addresses to each recipient, and the controller its recipients leave out
-// (Milan v1.2 5.4.5.1). A notice longer than a slot stays in the response buffer, as every notice did before.
-#define AECP_OWED_BYTES 128u
+// (Milan v1.2 5.4.5.1). A slot holds the largest legal AECPDU, 550 octets rounded up to a word: a control_data_length
+// of at most 524 octets after the target_entity_id (IEEE 1722.1-2021 9.2.2.6), behind the 26 octets of the Ethernet
+// header and the control header to it. So every legal command's notice is queued (#894, the owner's decision of
+// 2026-11-13, option A). A notice longer than a slot, a command past that length the core still answers, stays in the
+// response buffer, as every notice did before.
+#define AECP_OWED_BYTES 552u
 struct aecp_owed {
 	AECP_LINE uint8_t frame[AECP_OWED_BYTES];
 	uint64_t requester;

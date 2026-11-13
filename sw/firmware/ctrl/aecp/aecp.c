@@ -383,6 +383,8 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 
 static bool transmit(struct aecp *a, bool drains);
 
+_Static_assert(AECP_OWED_BYTES >= 26u + 524u, "an owed-notice slot must hold the largest legal AECPDU");
+
 // A command's notice, as its response is about to be sent, into the owed-notice queue's tail when a slot holds it, so
 // AECP takes its next record while the notice is owed; true when it is queued (#894).
 static bool owe(struct aecp *a)

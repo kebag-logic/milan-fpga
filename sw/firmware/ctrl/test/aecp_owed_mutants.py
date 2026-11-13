@@ -10,6 +10,7 @@ QL = 'Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue'
 QR = 'Queued.AQueuedNoticeResumesAtItsRecipient'
 QD = 'Queued.AQueueTooDeepOrWithNoStorageIsRefused'
 QF = 'Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame'
+QB = 'QueuedBurst.ABurstOfTheLargestLegalNoticesIsQueued'
 ROUND = 'Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse'
 NONE = 'Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice'
 FIRST = 'Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone'
@@ -32,7 +33,7 @@ ROWS = (
      'return a->response_owed || a->notify || a->waiting || a->start_pending;',
      (ROUND, 'the round waits while the owed-notice queue holds a notice')),
     ('owed-fan-over-the-held-notice', 'aecp.c', 'a->notify ? NULL : a->response)', 'a->response)',
-     (QF, "the queue's frame by frame, the long notice's two through the fan port")),
+     (QF, "the queue's frame by frame beside the held notice, and the long one past the fan's")),
     # (a) per-controller order FIFO, each recipient its notice once at its next sequence_id
     ('owed-newest-first', 'aecp.c', HEAD, HEAD.replace('a->owed_head]', 'a->owed_head + a->owed_count - 1u]'),
      (QA, '(a) in the order their commands were taken')),
@@ -57,6 +58,10 @@ ROWS = (
      (QC, '(c) its slot free, AECP is ready again')),
     ('owed-long-notice-queued', 'aecp.c', ' || a->response_bytes > AECP_OWED_BYTES) {', ') {',
      (QL, "its response waits for the poll, as every notice's did")),
+    # a slot holds the largest legal notice (#894, the owner's decision of 2026-11-13, option A)
+    ('owed-slot-under-the-largest-legal-notice', 'aecp.c', ' || a->response_bytes > AECP_OWED_BYTES) {',
+     ' || a->response_bytes > AECP_OWED_BYTES - 4u) {',
+     (QB, "(b) command 0's response is committed in its record's turn")),
     ('owed-not-queued', 'aecp.c', "(!a->notify || owe(a))", "(!a->notify || (false && owe(a)))",
      (QA, '(c) a command\'s notice owed in the queue does not hold the next record')),
     # THE TIERS: a queue's first notice alone beside held work, and only the first

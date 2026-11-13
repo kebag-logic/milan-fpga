@@ -725,6 +725,23 @@ struct Queued : Core {
     }
     static bool notice(const Bytes& f) { return (get(f,36,2)&0x8000u)!=0u; }
 };
+// The queue at the AECP channel's burst of 16, the depth an integrator gives AECP at one interface
+// (AECP_MBX_OWED_SLOTS).
+struct QueuedBurst : Queued {
+    std::array<aecp_owed,16> burst{};
+    void SetUp() override {
+        Queued::SetUp();
+        cfg.owed=burst.data();cfg.owed_slots=burst.size();
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+};
+// An ADD_AUDIO_MAPPINGS' or REMOVE_AUDIO_MAPPINGS' body: STREAM_PORT_INPUT 0 and `count` copies of one mapping, its
+// response as long, 38 + 8 + 8 x count octets.
+Bytes mappings(unsigned count) {
+    Bytes rows=target(14,0,8+count*8);put(rows,4,count,2);
+    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
+    return rows;
+}
 }
 
 // (a), (b), (d): two controllers' back-to-back SET_NAMEs, the second taken while the first's notice is owed. Each
@@ -801,14 +818,15 @@ TEST_F(Queued, AQueueTooDeepOrWithNoStorageIsRefused)
 }
 
 // (a), (b): a notice longer than a slot stays in the response buffer, its response and its notice sent by the poll as
-// before, after every notice owed in the queue ahead of it; the queue's walk meanwhile sends frame by frame.
+// before, after every notice owed in the queue ahead of it; the queue's walk meanwhile sends frame by frame. A slot
+// holds every legal notice, so the longer one is a command past IEEE 1722.1-2021 9.2.2.6's 524 octets that the core
+// still answers: 64 mappings.
 TEST_F(Queued, ALongerNoticeWaitsInTheResponseBufferBehindTheQueue)
 {
     register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
     sent.clear();
     set_name(CTLR,0x41);
-    Bytes rows=target(14,0,8+12*8);put(rows,4,12,2);
-    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
+    const Bytes rows=mappings(64);
     auto b=command(44,rows,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
     ASSERT_GT(38u+rows.size(),AECP_OWED_BYTES)<<"(the mappings' notice is longer than a slot)";
     EXPECT_EQ(sent.size(),1u)<<"its response waits for the poll, as every notice's did";
@@ -829,6 +847,50 @@ TEST_F(Queued, ALongerNoticeWaitsInTheResponseBufferBehindTheQueue)
     EXPECT_EQ(to[CTLR+2],(std::vector<unsigned>{16u,44u}))<<"(a) the queue's notice first, then the long one";
     EXPECT_EQ(to[CTLR],(std::vector<unsigned>{44u}));EXPECT_EQ(to[CTLR+1],(std::vector<unsigned>{16u}));
     EXPECT_TRUE(aecp_ready(&a));
+}
+
+// The largest legal notice is queued (#894, the owner's decision of 2026-11-13, option A; IEEE 1722.1-2021 9.2.2.6): a
+// burst of the AECP channel's 16 commands, ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS of 63 mappings alternating so
+// that each changes state and notifies, each with a control_data_length of 524 octets, the most the clause allows, and
+// so a notice of 550. Each is taken in its record's turn with no poll between them: its response is committed there and
+// AECP stays ready until the queue is full; the polls send every notice, each recipient's in the order their commands
+// were taken, each one its response's bytes, at the recipient's next sequence_id, and no requester its own.
+TEST_F(QueuedBurst, ABurstOfTheLargestLegalNoticesIsQueued)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    const Bytes rows=mappings(63);
+    for(unsigned k=0;k<burst.size();++k){
+        ASSERT_TRUE(aecp_ready(&a))<<"(c) the queue has a slot for command "<<k;
+        auto b=command(k%2u?45u:44u,rows,CTLR+k%2u);
+        ASSERT_EQ(get(b,16,2)&0x7ffu,524u)<<"the largest legal control_data_length";
+        aecp_rx(&a,0,b.data(),b.size());
+        ASSERT_EQ(sent.size(),k+1u)<<"(b) command "<<k<<"'s response is committed in its record's turn";
+        EXPECT_TRUE(!notice(sent[k].second)&&sent[k].second.size()==550u&&(get(sent[k].second,16,2)>>11)==0u)
+            <<"a successful response of 550 octets";
+    }
+    EXPECT_EQ(a.owed_count,burst.size())<<"every notice owed in the queue, none in the response buffer";
+    EXPECT_FALSE(aecp_ready(&a))<<"(c) AECP not ready while the queue is full";
+    drain();
+    std::map<uint64_t,std::vector<std::pair<unsigned,unsigned>>> to;   // each recipient's notices: command, sequence_id
+    for(size_t k=burst.size();k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f))<<"(b) only notices follow the responses";
+        const unsigned cmd=unsigned(get(f,36,2)&0x7fffu);
+        EXPECT_EQ(Bytes(f.begin()+38,f.end()),Bytes(sent[cmd-44u].second.begin()+38,sent[cmd-44u].second.end()))
+            <<"each notice is its command's response (the burst's ADDs answer alike, and its REMOVEs)";
+        to[get(f,26,8)].emplace_back(cmd,unsigned(get(f,34,2)));
+    }
+    EXPECT_EQ(sent.size(),burst.size()*3u)<<"16 notices to the third controller, 8 to each requester";
+    std::vector<unsigned> each,adds,removes;
+    for(unsigned k=0;k<burst.size();++k){each.push_back(44u+k%2u);(k%2u?removes:adds).push_back(44u+k%2u);}
+    const auto cmds=[&](uint64_t c){std::vector<unsigned> v;for(auto &n:to[c])v.push_back(n.first);return v;};
+    EXPECT_EQ(cmds(CTLR+2),each)<<"(a) in the order the commands were taken";
+    EXPECT_EQ(cmds(CTLR),removes)<<"(a) the first requester has the other's alone";
+    EXPECT_EQ(cmds(CTLR+1),adds)<<"(a) and the second the first's";
+    for(size_t k=1;k<to[CTLR+2].size();++k)
+        EXPECT_EQ(to[CTLR+2][k].second,to[CTLR+2][k-1].second+1u)<<"(a) its sequence_id one on per notice";
+    EXPECT_EQ(a.owed_count,0u);EXPECT_TRUE(aecp_ready(&a));
 }
 
 // (a): a queued notice whose ring refuses a frame resumes at that recipient, each recipient sent it once, at its own
@@ -1632,16 +1694,14 @@ TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
 }
 
 // (a), #894: with the fan port, a queued notice beside a longer one in the response buffer goes frame by frame, since
-// the fan port's frames alternate with that buffer, which holds the longer notice; that one goes through the fan port
-// after it, to each recipient in order.
+// the fan port's frames alternate with that buffer, which holds the longer notice; that one, past a slot and so past
+// AECP_FAN_BYTES, goes frame by frame after it, to each recipient in order, its bytes whole.
 TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
 {
     register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
     sent.clear();
     set_name(CTLR,0x41);
-    Bytes rows=target(14,0,8+12*8);put(rows,4,12,2);
-    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
-    auto b=command(44,rows,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    auto b=command(44,mappings(64),CTLR+1);aecp_rx(&a,0,b.data(),b.size());
     fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
     ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
     ports.fan_end=[](void*,uint32_t c){return fan_model.end(c);};
@@ -1649,7 +1709,17 @@ TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
     std::vector<unsigned> order;
     for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
     EXPECT_EQ(order,(std::vector<unsigned>{16u,16u,44u,44u}))<<"(a) the queue's notice to each recipient, then the long one";
-    EXPECT_EQ(fan_model.started,2u)<<"the queue's frame by frame, the long notice's two through the fan port";
+    EXPECT_EQ(fan_model.started,0u)
+        <<"the queue's frame by frame beside the held notice, and the long one past the fan's";
+    const auto response=std::find_if(sent.begin(),sent.end(),
+                                     [](auto &s){return !notice(s.second)&&get(s.second,36,2)==44u;});
+    ASSERT_NE(response,sent.end());
+    for(auto &s:sent){
+        if(notice(s.second)&&(get(s.second,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),Bytes(response->second.begin()+38,response->second.end()))
+                <<"the held notice's bytes whole";
+        }
+    }
     ports.fan=nullptr;ports.fan_end=nullptr;
 }
 

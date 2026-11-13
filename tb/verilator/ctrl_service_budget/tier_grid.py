@@ -10,9 +10,10 @@ The grid, at the point's stated costs and tier 2 SRP first (the built order):
   wrr                       weights (AECP, ACMP, ADP, MAAP) 1/1/1/1, 2/1/1/1, 1/2/1/1 or 2/2/1/1
   turn                      the tree's cap (rows_tiers.REFERENCE's order), reported and not searched
 each at every slice from one SRP record's apply to CTRL_LOOP_DRAIN_US on the 50 us grid, and under each rule for a
-notice longer than a slot (rows_tiers.LONG_RULES). A candidate holds when every row is within its bound and the load
-at or under LOAD_CEILING; of those, the one with the largest least relative margin over every row is chosen, a tie to
-the built order, then the larger slice.
+notice longer than a slot (rows_tiers.LONG_RULES: `buffer` the tree's slot, AECP_OWED_BYTES, 128 B when the grid was
+declared and 552 B since the owner's decision of 2026-11-13, option A, so the two rules now coincide). A candidate
+holds when every row is within its bound and the load at or under LOAD_CEILING; of those, the one with the largest
+least relative margin over every row is chosen, a tie to the built order, then the larger slice.
 
 usage: python3 -I tier_grid.py [--point POINT] [--out DIR]
   --point  the point the grid is solved at (default 1x1/1if, the one the ruling gates)

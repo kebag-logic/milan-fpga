@@ -43,8 +43,8 @@ from typing import Callable, NamedTuple
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
-from tier1_rows import (CHANNEL_BOUNDS, QUOTA_ORDERS, TIER1, aecp_passes, channel_passes, channel_row,  # noqa: E402
-                        quota_fits, tier1_busy, tier1_records, tx_passes)
+from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, aecp_passes,  # noqa: E402
+                        channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_passes)
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
 
@@ -72,8 +72,9 @@ first, each its cap then one each in turn, and AECP past its cap only once they 
 AECP's records: `notify`, the tree's rule, one a pass at worst, since a command that changes state leaves its notice
 owed and aecp_ready refuses the next record until the poll sends it (aecp.c:277-280); `cap`, a further change, AECP
 takes its next record while a command's notice is owed. A notice longer than a slot of the owed-notice queue
-(`buffer`, the tree's: AECP_OWED_BYTES) waits in the response buffer under the notify rule; `slot-552` sizes a slot
-to the largest legal notice (LONG_NOTICE_BYTES), so every notice is queued.
+(`buffer`, the tree's slot: AECP_OWED_BYTES) waits in the response buffer under the notify rule; `slot-552` sizes a
+slot to the largest legal notice (LONG_NOTICE_BYTES), so every notice is queued. The tree's slot holds it (#894, the
+owner's decision of 2026-11-13, option A), so at this tree the two rules give the same rows.
 The rows: R4, R5 and R6 as rows_grade defines them; the first and the last queued notice are solved too, from the
 first notice's port answer: its retry falls due within AECP_RETRY_MAX_MS (the spacing), then its window. The first is
 tier 1's first work; the last waits for all the queue's rounds, a round a slice, behind tier 1 and, `srp-first`,
@@ -106,10 +107,6 @@ TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
 AECP_RULES = ('notify', 'cap', 'queue')
 LONG_RULES = ('buffer', 'slot-552')
-#: The largest legal AECPDU in octets: a control_data_length of 524 following the target_entity_id (IEEE 1722.1-2021
-#: 9.2.2.6), the 8-octet target_entity_id, the AVTP control header's 4 and the Ethernet header's 14; ADD_AUDIO_MAPPINGS
-#: or REMOVE_AUDIO_MAPPINGS of 63 mappings answers one that long, a notice over a slot and over AECP_FAN_BYTES.
-LONG_NOTICE_BYTES = 550
 #: That notice's cost to the registered controllers in us, a stated input and not a measurement: no group of the CPU
 #: budget harness sends one. A notice over AECP_FAN_BYTES is sent a recipient at a time (aecp.c, fan_out), each charged
 #: the most measured AECP poll sending one frame (poll.aecp_one_frame: 4,216 cycles at 1x1/1if, 5,945 at 8x8/2if), to

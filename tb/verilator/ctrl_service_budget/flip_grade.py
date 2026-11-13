@@ -150,12 +150,14 @@ def built_controls(root: Path) -> list[str]:
 
 #: The channel rows' and THE TRANSMIT's planted defects, in channel_controls' order.
 CHANNEL_CONTROLS = ('a channel the loop serves without its rows', "THE TRANSMIT's stated figure under its row",
-                    "a channel row's or THE TRANSMIT's bound not the ruling's")
+                    "a channel row's or THE TRANSMIT's bound not the ruling's",
+                    "the owed-notice slot under the largest legal notice")
 
 
 def channel_controls(root: Path) -> list[str]:
     """Each planted defect of the rows the ruling of 2026-11-13 adds that the flip check must refuse: a served
-    channel's rows dropped, ctrl_loop.h stating THE TRANSMIT's figure under its row, and the added bounds moved."""
+    channel's rows dropped, ctrl_loop.h stating THE TRANSMIT's figure under its row, the added bounds moved, and
+    aecp.h's slot under the largest legal notice, which R4L's notices must then wait in the response buffer for."""
     from unittest import mock
     escaped = []
     one = ('1x1/1if',)
@@ -172,6 +174,13 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[1])
     if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40:
         escaped.append(CHANNEL_CONTROLS[2])
+    aecp = 'sw/firmware/ctrl/aecp/aecp.h'
+    text, slot = (root / aecp).read_text(), '#define AECP_OWED_BYTES 552u'
+    narrow = {aecp: text.replace(slot, '#define AECP_OWED_BYTES 548u')}
+    with mock.patch.object(rows_tiers, 'built_constants', lambda r, n, texts=None, f=rows_tiers.built_constants:
+                           f(r, n, narrow)):
+        if text.count(slot) != 1 or not any(f.startswith('1x1/1if R4L:') for f in row_findings(root, one)):
+            escaped.append(CHANNEL_CONTROLS[3])
     return escaped
 
 

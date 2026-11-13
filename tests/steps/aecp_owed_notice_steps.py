@@ -33,7 +33,7 @@ RULES = {
     "its requester left out": (AECP_C, "r->controller == requester"),
     "each recipient's next sequence_id": (AECP_C, "++r->sequence;"),
     "a longer notice stays in the response buffer": (AECP_C, "a->response_bytes > AECP_OWED_BYTES"),
-    "the slot's length": (AECP_H, "#define AECP_OWED_BYTES 128u"),
+    "the slot's length": (AECP_H, "#define AECP_OWED_BYTES 552u"),
     "the depth at one interface": (AECP_MBX_H,
                                    "#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? MBX_CH_AECP_RATE_BURST : 0u)"),
 }

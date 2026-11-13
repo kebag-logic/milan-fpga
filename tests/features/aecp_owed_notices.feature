@@ -18,6 +18,8 @@ Feature: back-to-back state-changing commands from two controllers, with AECP's 
     (c) the queue is bounded: AECP takes no command while it is full;
     (d) this feature and the firmware's unit tests (test_aecp.cpp, Queued) cover
         two controllers' back-to-back commands.
+  A slot holds the largest legal AECPDU (IEEE 1722.1-2021 9.2.2.6), so a notice
+  longer than a slot is a command past that length that the core still answers.
 
   WHAT THIS LAYER IS. An offline model of the queue's rules, in the manner of
   the rest of the suite, each rule pinned to the shipped source that makes it
