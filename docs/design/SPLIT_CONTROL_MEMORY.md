@@ -2192,14 +2192,17 @@ The slice at 1x1/1if is the one with the largest least relative margin over the 
 
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 29.00 ms at 1x1/1if and 89.01 ms at 8x8/2if (the tx row of `rows_tiers.py`). That is over the 20 ms the loop before the tiers held it to by construction. [#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1, gives it tier 2's 90 ms where the MRP timer budget holds there, and otherwise the tightest value that does. The budget holds to 40 ms (`CTRL_LOOP_TX_BOUND_MS`): lwSRP arms the join timer as an MRPDU is committed, so JoinTime's 200 ms plus the lateness must stay within Milan Table 4.3's 240 ms, and 90 ms would give 290. The periodic and LeaveAll timers restart at their expiry. The row is held to 40 ms at 1x1/1if, and at compile time (`CTRL_LOOP_TX_MS`); at 8x8/2if it is reported.
 
-Each tier-1 channel's last record of its burst is a row too (item 2; [`tier1_rows.py`](../../tb/verilator/ctrl_service_budget/tier1_rows.py)). At 1x1/1if the built design holds none of the new channel rows by every source:
-
-- ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, against T_svc's 20, the bound the ruling gave them. Under AECP-first each waits for every AECP record arriving in its window.
-- R4L 37.47 ms: AECP's burst with every notice the largest legal one, 550 B, which waits in the response buffer and holds AECP to a record a pass. Its cost, 665 us, is a stated input and not a measurement.
+Each tier-1 channel's last record of its burst is a row too (item 2; [`tier1_rows.py`](../../tb/verilator/ctrl_service_budget/tier1_rows.py)). At the ruling's 20 ms the built design held none of the new channel rows by every source at 1x1/1if: ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, each waiting under AECP-first for every AECP record arriving in its window, and R4L 37.47 ms, AECP's burst with every notice the largest legal one, 550 B, waiting in the response buffer behind 128 B slots and holding AECP to a record a pass. The ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) held no design either: 440 candidates solved, 132 refused by their own rules, and none held every tier-1 row under 22.77 ms (R4L aside), so the lane stopped for the owner (#894).
 
 The [owner's decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6843318273), option A, holds ACMP's, ADP's and MAAP's last record at 30 ms by every source, 15 % of ACMP's 200 ms command timeout; neither ADP nor MAAP has a response deadline ([FR_NFR.md](../reference/FR_NFR.md) 3.4.1). AECP's rows, R4, R4L and the first queued notice, stay at 20 ms. The largest legal notice is counted in R4L only.
 
-At the ruling's 20 ms, the ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) held no design either: 440 candidates solved, 132 refused by their own rules. No candidate held every tier-1 row under 22.77 ms (R4L aside), so the lane stopped for the owner (#894).
+The built design is the option's: the 1,200 us slice, AECP first, and owed-notice slots of 552 B (`AECP_OWED_BYTES`), each holding the largest legal AECPDU, so every legal command's notice is queued and R4L is AECP's burst taken as R4's is. At 1x1/1if every row holds by every source (`flip_grade.py --check --point 1x1/1if`, ms, each against its bound):
+
+| R4 (20) | R4L (20) | ACMP (30) | ADP (30) | MAAP (30) | First queued notice (20) | R5 (90) | R6 (90) | Last queued notice (125) | MRPDU (40) |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 12.71 | 14.98 | 27.26 | 24.86 | 24.98 | 14.60 | 54.59 | 52.85 | 91.59 | 29.00 |
+
+The largest legal notice's cost, 665 us at 1x1/1if, is a stated input and not a measurement: no group of the CPU budget harness sends one. R4L holds at any cost up to 1,665 us. ACMP's row binds the tier-1 channels, 2.74 ms under its bound.
 
 At 8x8/2if the size fixture's image is 904 B of rom larger than before the tiers (122,440 to 123,344 B), 58.0 RAMB36, and the platform's 59.5: the ledger names both there, within the owner's caps of 58.5 and 60.5 (#894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820); [section 5](#5-fit)). The owed-notice queue is compiled out where `AECP_MBX_OWED_SLOTS` is 0. At 1x1/1if the size fixture's image is 108,528 B of rom and 54,624 B of sram, 40.0 RAMB36, its 552 B slots included.
 
