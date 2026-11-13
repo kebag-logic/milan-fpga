@@ -1,0 +1,25 @@
+aecp-fanout: share over 0 of 147, worst pass 94739; slices 4258 longest {'srp': 0, 'build': 94739, 'round': 3519} limit 130000; aecp 0.840 (aecp_fanout.set_name.if0)
+aecp: share over 0 of 138, worst pass 94739; slices 4203 longest {'srp': 0, 'build': 94739, 'round': 2568} limit 130000; aecp 0.479 (aecp.set_name.if0)
+backlog-adp: share over 0 of 324, worst pass 165633; slices 13001 longest {'srp': 112356, 'build': 94739, 'round': 9871} limit 130000; acmp 7.732 (backlog-adp.service.acmp.last.if0), adp 6.378 (backlog-adp.service.adp.last.if0), aecp 3.163 (backlog-adp.service.aecp.last.if1), maap 6.415 (backlog-adp.service.maap.last.if0), srp 12.504 (backlog-adp.service.srp.last.if1)
+backlog-adp-refill: share over 0 of 335, worst pass 165633; slices 13125 longest {'srp': 111284, 'build': 94739, 'round': 9802} limit 130000; acmp 7.806 (backlog-adp-refill.service.acmp.last.if0), adp 3.127 (backlog-adp-refill.service.adp.first.if0), aecp 3.163 (backlog-adp-refill.service.aecp.last.if1), maap 6.461 (backlog-adp-refill.service.maap.last.if0), srp 12.324 (backlog-adp-refill.service.srp.last.if1)
+backlog: share over 0 of 297, worst pass 172424; slices 12760 longest {'srp': 88630, 'build': 94739, 'round': 2568} limit 130000; acmp 7.830 (backlog.service.acmp.last.if0), adp 6.588 (backlog.service.adp.last.if1), aecp 5.037 (backlog.service.aecp.last.if1), events 1.837 (backlog.event.if0), maap 6.573 (backlog.service.maap.last.if0), srp 10.594 (backlog.service.srp.last.if1)
+backlog-owed: share over 0 of 350, worst pass 173521; slices 14656 longest {'srp': 101569, 'build': 95260, 'round': 2568} limit 130000; acmp 360.570 (backlog.owed_behind0.if0), adp 4.949 (backlog-owed.service.adp.last.if1), aecp 62.034 (backlog-owed.service.aecp.last.if1), maap 4.934 (backlog-owed.service.maap.last.if0), srp 10.242 (backlog-owed.service.srp.last.if1)
+datapath-events: share over 0 of 160, worst pass 94739; slices 3511 longest {'srp': 0, 'build': 94739, 'round': 9059} limit 130000; 
+srp: share over 0 of 316, worst pass 158096; slices 13360 longest {'srp': 36884, 'build': 158096, 'round': 2568} limit 130000; events 1.503 (srp.startup.if0), srp 1.913 (srp.domain.if0)
+MISS srp: a build-one pass of 158,096 CPU cycles, over its stated 121,500
+MISS srp: a build-one pass of 131,518 CPU cycles, over its stated 121,500
+MISS aecp-fanout: a pass's polls base of 48,627 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 44,392 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,525 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,586 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 43,813 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,543 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,440 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 44,891 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 44,300 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,586 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,400 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,544 CPU cycles, over its stated 28,000
+MISS aecp-fanout: a pass's polls base of 42,440 CPU cycles, over its stated 28,000
+MISS srp: a tier-2 slice of THE TRANSMIT's build of 158,096 CPU cycles, over the stated slice 130,000
+MISS srp: a tier-2 slice of THE TRANSMIT's build of 131,518 CPU cycles, over the stated slice 130,000

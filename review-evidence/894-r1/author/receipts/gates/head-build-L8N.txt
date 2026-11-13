@@ -1,0 +1,14 @@
+image/ctrl_app.elf objcopy -O binary identical: old 29f524701a9de120ea5387452a13ad5475f85125ad71d066751cdcb2f392bca2 new 29f524701a9de120ea5387452a13ad5475f85125ad71d066751cdcb2f392bca2, 123852 B
+image/ctrl_app.elf elf identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary DIFFERS: old 0e300c023b0a56b49f3d537940a845dbddfe77257b028e228b3fa65df0b9a82c new 1fe26daaa1f3cbce28bf3bd3b476748472a2305e7e4b3e101831236561635d54, 121864 B
+split-soc/mapped/image/ctrl_app.elf elf differs
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary DIFFERS: old 1c2538810951166fbdac646f3bec899a463f94ee5e5fc95b97e52bf47b7e503a new 45a6509015925c22c5146cef231bd4525ae053a5fa5d7a2925da5bcad578c186, 121872 B
+split-soc/stand-ins/image/ctrl_app.elf elf differs
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 30, identical: 25
+sample notice-every-0 log identical: recorded f3b02404a707e42d155aee2349e6533ebb2494131d5be1d886ee6449e98e1e3c new f3b02404a707e42d155aee2349e6533ebb2494131d5be1d886ee6449e98e1e3c, 13192055 bytes
+note: the leg's run image, image/ctrl_app.elf (build.json elf, the 8x8/2if two-interface image), is identical, with the sample log; split-soc/stand-ins and split-soc/mapped are the shape's one-interface image, built only to export the flash port's CSR map (build.py flash_map), and differ only in CTRL_LOOP_SLICE_US's one-interface arm (1,050 to 1,200 us; 12 instruction lines, each that immediate or 2,000 less it); the flash map they export is identical but for its source path.

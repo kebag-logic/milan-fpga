@@ -1,0 +1,25 @@
+  [i]    T11: a suppressed CSR write is a CSR behaviour; no AECP status is asserted for it. The in-range PROJECTED mirror is T11b below; the in-range NONPHYSICAL one is the multi-stream leg's M6.
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 8 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 187 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 8 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+  [i]    T6 FASTER CLOCK: 23 frames, 0 repeats, 0 skipped events, underruns 0
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 413 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 263   failures: 0 ==
+RESULT: PASS
+======================================================================
+python3 tdm8_render_mutants.py --leg-defects
+[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)
+[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+
+5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)

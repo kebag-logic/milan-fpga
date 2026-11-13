@@ -1,0 +1,25 @@
+shard: 3/4   selected suites: 16
+PASS     aaf_audio_loop
+PASS     avtp_stream
+PASS     cdc
+PASS     chmap_capture
+PASS     crf_rx
+PASS     crf_tx
+PASS     follow_ring
+PASS     ifg
+PASS     media_nco
+TIMEOUT  media_phase   (1400s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  mmcm_servo   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     pcmlpf
+PASS     reboot_ctrl
+PASS     tdm
+PASS     tdm_render
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 16   passed: 14   failed: 0   timed out: 2
+checks: 21290   in-suite failures: 0
+TIMED OUT (result unknown, NOT a failure): media_phase mmcm_servo
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <scratch>/gates-out/sweep/shard-3/logs

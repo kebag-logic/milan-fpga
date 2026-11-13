@@ -1,0 +1,14 @@
+image/ctrl_app.elf objcopy -O binary identical: old ba0bd4eacf8f9ffe99857e65addadd4b0bb64ebef2de0f22ec7ae3c6d0828736 new ba0bd4eacf8f9ffe99857e65addadd4b0bb64ebef2de0f22ec7ae3c6d0828736, 108496 B
+image/ctrl_app.elf elf identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary identical: old e695edc6db0fafc2a26f38ffb8ed549600e8414d64f0cdbfe11eb48cb8d9a52a new e695edc6db0fafc2a26f38ffb8ed549600e8414d64f0cdbfe11eb48cb8d9a52a, 108336 B
+split-soc/mapped/image/ctrl_app.elf elf identical
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary identical: old 2b8874ba664883643e2fa31306b0812ba46709059dbac908a9987c01185ff070 new 2b8874ba664883643e2fa31306b0812ba46709059dbac908a9987c01185ff070, 108336 B
+split-soc/stand-ins/image/ctrl_app.elf elf identical
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29, identical: 24
+sample aecp log identical: recorded 3e5140b7bea81d430256200be703d719fbeedadfb1b4a6d45f9025c45a73b2e8 new 3e5140b7bea81d430256200be703d719fbeedadfb1b4a6d45f9025c45a73b2e8, 5392428 bytes
+rc=0

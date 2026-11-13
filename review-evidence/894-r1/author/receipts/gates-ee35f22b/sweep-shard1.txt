@@ -1,0 +1,27 @@
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+FAIL     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+TIMEOUT  milan_dp_gm_steps   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 17   passed: 15   failed: 1   timed out: 1
+checks: 1946925   in-suite failures: 0
+failing suites: gptp_shadow
+TIMED OUT (result unknown, NOT a failure): milan_dp_gm_steps
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <scratch>/gates-out/sweep/shard-1/logs

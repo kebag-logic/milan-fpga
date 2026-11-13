@@ -1,0 +1,12 @@
+  [ ok ] [S4] LOCKED on every edge
+  [ ok ] [S5] arm: stepped sample staged, T0 next edge
+  [ ok ] [S5] arm: boundary fired on the stepped sample
+  [ ok ] [S5] coincident step+slew window counted once = 1 in [1, 1]
+[P4] rate path: talker +20 -> -20 ppm, no step
+  [ ok ] [P4] the first window after the change commits
+  [ ok ] [P4] its error carries the rate change (x512 ppm) = -20480 in [-23040, -2560]
+  [ ok ] [P4] re-LOCKED on the new rate           got=4 exp=4
+  [ ok ] [P4] integrator ~ new talker - base (x512 ppm) = -4690 in [-5816, -3768]
+  [ ok ] [P4] nothing discarded = 0 in [0, 0]
+== mmcm_servo phc_step: checks: 90   failures: 0 ==
+RESULT: PASS

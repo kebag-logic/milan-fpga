@@ -1,0 +1,20 @@
+HEAD 12180198b087d4cfdd531d0de5d3753211b35616 DIRTY 1 regrade 8x8 results-merged with H-L8A
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 64.014 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.585 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.584 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.583 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.583 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 61.997 ms over its budget 20 ms
+STEPS 4918 passes carry the store's step; the longest 110,124 CPU cycles (1.101 ms), save-held; the longest step 79,562 (0.796 ms), save-held
+SLICES 167550 tier-2 slices; the longest SRP's records 111,162, THE TRANSMIT's build 157,971, THE RETRY's round 9,789 CPU cycles, against the stated slice 130,000 (THE TIERS)
+SAVE save-second: durable 22110.206 ms after its change (stated worst case 22,150 ms, 370 steps, longest gap between flash steps 32.803 ms) within
+SAVE save-held: durable 4697.688 ms after its change (stated worst case 12,110 ms, 370 steps, longest gap between flash steps 17.983 ms) within
+SAVE save-starved: durable 12088.059 ms after its change (stated worst case 12,110 ms, 370 steps, longest gap between flash steps 35.228 ms) within
+11 groups graded, 0 refusals, 6 budget misses (6 of 131 probe instances, 3 of 82 paths), 0 of 167463 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 157,971 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 131,683 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 157,971 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 131,683 CPU cycles, over the stated slice 130,000
+rc=1

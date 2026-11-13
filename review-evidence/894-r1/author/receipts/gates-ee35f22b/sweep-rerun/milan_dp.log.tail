@@ -1,0 +1,12 @@
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 299.028, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 16.608, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 299.028, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 358.009, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 58.981, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 358.012, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 373.16, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 15.148, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 373.16, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 457.926, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 84.766, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 458.015, "state": "idle", "idle_s": 0.089}
+
+6 checks: 6 PASS, 0 FAIL

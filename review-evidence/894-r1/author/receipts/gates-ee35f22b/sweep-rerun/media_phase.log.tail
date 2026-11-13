@@ -1,0 +1,12 @@
+[carry] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [carry] LOCKED on rate alone
+  info: [carry] 40 windows, 15 odd errors, sum(e) 255, integrator moved 32640/256
+  [ ok ] [carry] the window sample is wide enough to grade (odd errors seen)
+  [ ok ] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+  [ ok ] [carry] the phase term stayed off (never engaged)
+  [ ok ] [carry] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [carry] fine-PS protocol clean
+  [ ok ] [carry] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [carry] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase carry: checks: 8   failures: 0 ==
+RESULT: PASS
