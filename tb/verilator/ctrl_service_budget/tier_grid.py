@@ -201,7 +201,7 @@ def run(root: Path, point: str, out: Path | None) -> int:
               f'{LOAD_CEILING:.2f} at {point}.']
     print('\n'.join(lines))
     if out:
-        write(root, point, out, results, bounds, lines, chosen)
+        write(root, point, out, results, lines, chosen)
         for order, rs in refused.items():
             with (out / f'{order}.md').open('a') as f:
                 f.write(''.join(f'| {order} | {shape(d)} | {d.slice_us} | {d.long} | refused: {why} |\n'
@@ -209,9 +209,9 @@ def run(root: Path, point: str, out: Path | None) -> int:
     return 0 if held else 1
 
 
-def write(root: Path, point: str, out: Path, results: dict, bounds: dict, summary: list[str],
-          chosen: Result | None) -> None:
+def write(root: Path, point: str, out: Path, results: dict, summary: list[str], chosen: Result | None) -> None:
     """Each order's table, the summary, and every term of the chosen or each order's best and of the built design."""
+    bounds = rows_tiers.bounds_at(rows_tiers.point_inputs(root, point))
     out.mkdir(parents=True, exist_ok=True)
     for order, rs in results.items():
         (out / f'{order}.md').write_text('\n'.join([f'# {order} at {point}', ''] + table(rs, bounds)) + '\n')
