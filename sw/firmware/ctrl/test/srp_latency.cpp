@@ -85,8 +85,9 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
             if(la && !seen[i][p]) {
                 seen[i][p]=true; EXPECT_GE(ms,due[i][p]);
                 const unsigned last=last_ms[i][p];
-                const unsigned wait=last+200>due[i][p] ? last+200-due[i][p] : 0;
-                ASSERT_LE(wait,200u);
+                const unsigned join_ms=10u*CTRL_LOOP_JOIN_CS; // the armed JoinTime (ctrl_loop.h)
+                const unsigned wait=last+join_ms>due[i][p] ? last+join_ms-due[i][p] : 0;
+                ASSERT_LE(wait,join_ms);
                 bound(mvrp?"MVRP LeaveAll":"MSRP LeaveAll",due[i][p]*ns_per_ms,
                       commits.at(k),wait);
             }

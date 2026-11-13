@@ -291,7 +291,7 @@ TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
             unsigned count=0;
             for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==type) {
                 ASSERT_LT(count,3u); const unsigned events[]={0,0,3};
-                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,200*count); ++count;
+                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count); ++count;
                 if(type==4) EXPECT_EQ(d.value,(std::vector<uint8_t>{6,3,0,2}));
                 else {
                     const unsigned index=type==1 ? 0 : 1;
@@ -307,7 +307,7 @@ TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
         }
         unsigned count=0;
         for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x88f5) {
-            EXPECT_EQ(d.type,1u); EXPECT_EQ(d.event,3u); EXPECT_EQ(d.time_ms,200*count);
+            EXPECT_EQ(d.type,1u); EXPECT_EQ(d.event,3u); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count);
             EXPECT_EQ(d.value,(std::vector<uint8_t>{0,2})); ++count;
         }
         EXPECT_EQ(count,2u);
@@ -1695,10 +1695,10 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
 // ends. LeaveAll's timer owes its LeaveAll whatever the join timer's count (802.1Q Table 10-5).
 TEST_F(Srp, TheJoinCountFollowsWhatABuildSent) {
     settle();
-    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    for (unsigned n=0;n<CTRL_LOOP_JOIN_CS;++n) loop.ticks[0]();
     settle();
     const uint8_t left=adapter.join_left[0];
-    EXPECT_EQ(left,20u)<<"a sent MRPDU restarts its participant's count at the JoinTime";
+    EXPECT_EQ(left,CTRL_LOOP_JOIN_CS)<<"a sent MRPDU restarts its participant's count at the JoinTime";
     EXPECT_EQ(adapter.tx_due,0u);
     for (unsigned n=0;n<5u;++n) loop.ticks[0]();
     EXPECT_EQ(adapter.join_left[0],left-5u)<<"each centisecond takes one off it";
