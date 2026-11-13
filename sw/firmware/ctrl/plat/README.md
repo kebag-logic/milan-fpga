@@ -133,7 +133,7 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
 
 - **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 58.5 RAMB36, within the 59.0 ledgered and owed to lane S14 (decision D3), above.
+- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.5 RAMB36, ledgered there and owed to lane S14 (decision D3), above, within the owner's 60.5 (#894, [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820)).
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.

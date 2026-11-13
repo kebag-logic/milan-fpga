@@ -230,6 +230,7 @@ static bool compose(struct ctrl_plat *p)
 #if AECP_MBX_OWED_SLOTS != 0u
 	p->aecp_config.owed = owed;
 	p->aecp_config.owed_slots = AECP_MBX_OWED_SLOTS;
+	p->aecp_config.queue = &aecp_owed_queue;
 #endif
 	p->aecp_platform = (struct aecp_ports){.random = random_value, .path = path};
 	aecp_face_init(&p->face, &p->aecp_platform);

@@ -46,7 +46,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
-`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 57.5 RAMB36 against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 58.0 RAMB36 against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
 The planner refuses the override on any other image, and the product SoC build names none.
 
@@ -258,7 +258,7 @@ That is a CI change, outside this lane.
   It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
-  At `8x8` its plan is held to the ledgered point's 57.5 RAMB36 (`split_soc.ledgered_plan`).
+  At `8x8` its plan is held to the ledgered point's 58.0 RAMB36 (`split_soc.ledgered_plan`).
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
   `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
   The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.

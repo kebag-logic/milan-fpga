@@ -229,6 +229,7 @@ bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_
 	memset(a, 0, sizeof *a);
 	if (cfg->interfaces == 0u || cfg->interfaces > AECP_INTERFACES || cfg->owed_slots > 0xffu ||
 	    (cfg->owed_slots != 0u && cfg->owed == NULL) ||
+	    (cfg->owed_slots != 0u && cfg->queue == NULL) ||
 	    cfg->model->count == 0u || cfg->model->count >= 0xffffu || cfg->model->configurations == 0u) {
 		return false;
 	}
@@ -508,7 +509,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 	// A plain response is committed in the record's turn, so the pass may take the channel's next (#665); so is one whose
 	// notice the owed-notice queue takes: its response first, its notice to the poll, after every notice owed before it
 	// (#894; Milan v1.2 5.4.5.1 and 5.4.5.2)
-	if (!a->waiting && !a->start_pending && (!a->notify || owe(a))) {
+	if (!a->waiting && !a->start_pending && (!a->notify || (a->cfg.queue != NULL && a->cfg.queue->owe(a)))) {
 		(void)transmit(a, false);
 	}
 	arm(a);
@@ -697,6 +698,22 @@ static bool fan_out(struct aecp *a, uint8_t *frame, size_t bytes, uint64_t reque
 	return owed;
 }
 
+// The owed-notice queue's oldest notice, its walk of the recipients from where it stopped; its slot freed once the walk
+// reaches its last recipient (#894). A poll's only, where it drains; a count past none means owe queued it, with the
+// queue's operations given.
+static void owed_drain(struct aecp *a)
+{
+	struct aecp_owed *o = &a->cfg.owed[a->owed_head];
+	a->counter_event = a->cfg.model->count;
+	if (!fan_out(a, o->frame, o->bytes, o->requester, &a->owed_recipient, a->notify ? NULL : a->response)) {
+		a->owed_recipient = 0u;
+		a->owed_head = a->owed_head + 1u < a->cfg.owed_slots ? (uint8_t)(a->owed_head + 1u) : 0u;
+		--a->owed_count;
+	}
+}
+
+const struct aecp_owed_queue aecp_owed_queue = {owe, owed_drain};
+
 // The response owed, if any: true while its ring has no room for it.
 static bool respond(struct aecp *a)
 {
@@ -722,13 +739,7 @@ static bool notices(struct aecp *a, bool drains)
 {
 	if (a->owed_count != 0u) {
 		if (drains) {
-			struct aecp_owed *o = &a->cfg.owed[a->owed_head];
-			a->counter_event = a->cfg.model->count;
-			if (!fan_out(a, o->frame, o->bytes, o->requester, &a->owed_recipient, a->notify ? NULL : a->response)) {
-				a->owed_recipient = 0u;
-				a->owed_head = a->owed_head + 1u < a->cfg.owed_slots ? (uint8_t)(a->owed_head + 1u) : 0u;
-				--a->owed_count;
-			}
+			a->cfg.queue->drain(a);
 		}
 		return a->owed_count != 0u || a->notify;
 	}

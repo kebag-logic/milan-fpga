@@ -96,13 +96,13 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821).
+Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821; with the control loop's tiers, #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820), within the owner's 58.5 for the size fixture's and 60.5 for the platform's).
 Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 19,968 B | 59.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,096 B | 59.5 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -126,8 +126,8 @@ It requires `budget` to refuse that image in three cases: without the override, 
 It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 Six planted ledgers each widen one entry to another point or image, or past its tiles.
-The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 59.5.
-The fixture's loses `image_allocation`, or plans 59.0.
+The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 60.0.
+The fixture's loses `image_allocation`, or plans 59.5.
 Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
@@ -277,6 +277,17 @@ The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture wi
 
 The retry's rule added about 104 B of code, and with the two 1.5 KB buffers last every other field of the adapter is within a load's reach of its address, which takes 348 B of address arithmetic off `srp_mbx.o` (11,916 to 11,568 B of `.text`). The other arms at `3a1d14c2`: `answering-later` 122,400 B, `answering-ports` 122,416 B, arm A 122,248 B. Round 26's cuts ([section 13](#the-long-window-load)) add 80 B to arm A (122,328 B at this head) and to the arm: the notice's addressing in place, `same` and its calls, less the pool's two `memcpy` calls. tsn-c-stack #32 grows the core's `acmp.o` from 12,748 to 13,300 B of `.text`, so the pin move that carries it owes this arm 204 B of `rom`, or its next granule.
 
+**With the control loop's tiers** (#894; the [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820): each point within its cap, measured from the built image, rom and sram separately). The owed-notice queue's slots each hold the largest legal AECPDU, 552 B (`AECP_OWED_BYTES`, the [owner's decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6843318273), option A), 16 of them at one interface (`AECP_MBX_OWED_SLOTS`), 6,144 B more `sram` there than 128 B slots took. Where the count is 0, at two interfaces, the integrator names neither the slots nor the queue's operations (`aecp_owed_queue`), so the image links none of the queue's code: 200 B less `rom` in the size fixture's two-interface images and 208 B less in the platform's. Each image, linked as `ctrl_srp_image.py` and `ctrl_plat_image.py` link it, against the caps (56 RAMB36 everywhere; at 8x8 with two interfaces the size fixture's 58.5 and the platform's 60.5):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Against the cap |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 108,528 / 54,624 | 40.0 | 113,624 / 55,728 | 42.0 | within 56 |
+| 1x1, two interfaces | 109,856 / 56,800 | 41.0 | 115,000 / 57,776 | 43.0 | within 56 |
+| 8x8, one interface | 122,056 / 95,504 | 53.5 | 127,184 / 96,544 | 55.5 | within 56 |
+| 8x8, two interfaces (largest) | 123,344 / 112,432 | 58.0 | 128,536 / 113,376 | 59.5 | within 58.5 and 60.5, ledgered at 58.0 and 59.5 |
+
+Before the slots grew and the queue was compiled out, the size fixture's images were 38.5, 41.0, 52.0 and 58.0 RAMB36 and the platform's 40.5, 43.0, 54.0 and 59.5. `ctrl_plat` is 17,408, 18,816, 18,048 and 20,096 B at the four points (`ctrl_memory_ledger.py`). The ledger names the size fixture's image at 58.0 and the platform's at 59.5 (`ctrl_memory.LEDGERED`, [section 3](#3-named-refusals)); every other point is within 56, the tightest the platform's 8x8 one-interface image at 55.5.
+
 The figures by part below are `b8628704`'s.
 
 By part, from the two link maps, with one section per function and object, the platform's bytes minus the fixture's at each point (`rom` / `sram`, B):
@@ -358,7 +369,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
+Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
@@ -369,7 +380,7 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
   --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
 
-It names the platform's own override, and is refused at 59.0 RAMB36 without it or with the fixture's.
+It names the platform's own override, and is refused at 59.5 RAMB36 without it or with the fixture's.
 Its report (`$OUT/size.json`) holds the plan and the five largest `.bss` objects, with `ctrl_plat` counted by member.
 
 `ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
@@ -2190,7 +2201,7 @@ The [owner's decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/i
 
 At the ruling's 20 ms, the ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) held no design either: 440 candidates solved, 132 refused by their own rules. No candidate held every tier-1 row under 22.77 ms (R4L aside), so the lane stopped for the owner (#894).
 
-At 8x8/2if the size fixture's image is 1,104 B of rom larger than before the tiers (122,440 to 123,544 B), 664 B over its 57.5-RAMB36 ledger ([section 5](#5-fit)): the CPU budget harness's 8x8/2if build refuses it, and its runs used a plan of 58.0 RAMB36 for measurement only, an owner question on #894. At 1x1/1if the image is 108,336 B of rom and 48,480 B of sram.
+At 8x8/2if the size fixture's image is 904 B of rom larger than before the tiers (122,440 to 123,344 B), 58.0 RAMB36, and the platform's 59.5: the ledger names both there, within the owner's caps of 58.5 and 60.5 (#894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820); [section 5](#5-fit)). The owed-notice queue is compiled out where `AECP_MBX_OWED_SLOTS` is 0. At 1x1/1if the size fixture's image is 108,528 B of rom and 54,624 B of sram, 40.0 RAMB36, its 552 B slots included.
 
 ### What is left
 

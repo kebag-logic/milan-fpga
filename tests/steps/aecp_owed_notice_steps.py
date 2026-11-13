@@ -27,7 +27,8 @@ AECP_MBX_H = ROOT / "sw/firmware/ctrl/aecp/aecp_mbx.h"
 #: Each rule and the firmware text that makes it.
 RULES = {
     "ready only while the queue has a slot": (AECP_C, "(a->owed_count == 0u || a->owed_count < a->cfg.owed_slots)"),
-    "a record's turn commits its response, the notice to the queue": (AECP_C, "(!a->notify || owe(a))"),
+    "a record's turn commits its response, the notice to the queue": (AECP_C,
+                                                                     "(a->cfg.queue != NULL && a->cfg.queue->owe(a))"),
     "the response before any notice": (AECP_C, "return respond(a) || notices(a, drains);"),
     "the queue's oldest notice first": (AECP_C, "struct aecp_owed *o = &a->cfg.owed[a->owed_head];"),
     "its requester left out": (AECP_C, "r->controller == requester"),

@@ -52,7 +52,7 @@ python3 -B tb/verilator/ctrl_service_hooks/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one interface, the shipping shape.
 `8x8` is `endstation_ax7101_8x8` with two, the largest.
-At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, owed to lane S14.
+At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, and 59.5 since the control loop's tiers (#894, [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820)), owed to lane S14.
 
 `--cpu-clock` names the CPU clock: `sys`, the product's 100 MHz, by default, or `milan`, the 50 MHz history clock. The bus stays at 100 MHz.
 `--arm answering` runs the labelled answering-face arm ([The SoC and the testbench](#the-soc-and-the-testbench)), the only arm with H-COUNTERS.

@@ -146,7 +146,7 @@ struct Core : testing::Test {
         maps[0]={14,0,0,8,input.data(),0,input.size(),nullptr,0};
         maps[1]={15,0,0,8,output.data(),0,output.size(),nullptr,0};
         cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data(),
-             nullptr,0u};
+             nullptr,0u,nullptr};
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     aecp_descriptor& desc(unsigned type,unsigned index=0) {
@@ -715,7 +715,7 @@ struct Queued : Core {
     std::array<aecp_owed,2> slots{};
     void SetUp() override {
         Core::SetUp();
-        cfg.owed=slots.data();cfg.owed_slots=slots.size();
+        cfg.owed=slots.data();cfg.owed_slots=slots.size();cfg.queue=&aecp_owed_queue;
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     // A SET_NAME of the entity's name by `controller`, its bytes `fill`, taken in a record's turn with no poll after it.
@@ -808,13 +808,16 @@ TEST_F(Queued, TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull)
     EXPECT_EQ(a.owed_count,0u);
 }
 
-// (c): an integrator's queue deeper than the queue's 8-bit counts, or slots given with no storage, is refused.
+// (c): an integrator's queue deeper than the queue's 8-bit counts, or slots given with no storage or without the
+// queue's operations, is refused.
 TEST_F(Queued, AQueueTooDeepOrWithNoStorageIsRefused)
 {
     aecp b{};auto c=cfg;
     c.owed_slots=256u;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) a queue deeper than its 8-bit counts";
     c.owed_slots=slots.size();c.owed=nullptr;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) slots with no storage";
-    c.owed=slots.data();EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the fixture's queue is taken";
+    c.owed=slots.data();c.queue=nullptr;
+    EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) slots without the queue's operations";
+    c.queue=&aecp_owed_queue;EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the fixture's queue is taken";
 }
 
 // (a), (b): a notice longer than a slot stays in the response buffer, its response and its notice sent by the poll as
@@ -925,6 +928,17 @@ TEST_F(Core, WithNoOwedSlotsTheNextRecordWaitsForTheNotice)
     EXPECT_TRUE(sent.empty())<<"the response waits for the poll, with its notice";
     EXPECT_FALSE(aecp_ready(&a))<<"and the next record for both";
     drain();ASSERT_EQ(sent.size(),2u);EXPECT_TRUE(aecp_ready(&a));
+    // the queue's operations given with no slots: a queue of none, as with neither
+    aecp q{};auto c=cfg;c.queue=&aecp_owed_queue;ASSERT_TRUE(aecp_init(&q,&c,&ports));aecp_open(&q);
+    std::swap(a,q);
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    std::fill(name.begin()+8,name.end(),0x42);   // a name that changes the shared model's again, so it notifies
+    b=command(16,name,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(sent.empty())<<"with the queue's operations and no slots the response still waits for the poll";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record with it";
+    drain();ASSERT_EQ(sent.size(),2u);EXPECT_TRUE(aecp_ready(&a));
+    std::swap(a,q);
 }
 
 TEST_F(Core, EveryDescriptorAndReadFailures)
@@ -1716,8 +1730,8 @@ TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
     ASSERT_NE(response,sent.end());
     for(auto &s:sent){
         if(notice(s.second)&&(get(s.second,36,2)&0x7fffu)==44u){
-            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),Bytes(response->second.begin()+38,response->second.end()))
-                <<"the held notice's bytes whole";
+            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),
+                      Bytes(response->second.begin()+38,response->second.end()))<<"the held notice's bytes whole";
         }
     }
     ports.fan=nullptr;ports.fan_end=nullptr;

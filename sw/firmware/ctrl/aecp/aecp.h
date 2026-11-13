@@ -256,6 +256,16 @@ struct aecp_owed {
 	uint64_t requester;
 	uint16_t bytes;
 };
+// The owed-notice queue's two operations (#894): a command's notice into its tail as the record's turn sends the
+// response (owe), and its oldest notice's walk of the recipients in a poll (drain). An integrator that gives the queue
+// slots gives it these (aecp_config.queue, &aecp_owed_queue), and one that gives none names neither, so its image does
+// not link them (--gc-sections): the queue is compiled out where AECP_MBX_OWED_SLOTS (aecp_mbx.h) is 0.
+struct aecp;
+struct aecp_owed_queue {
+	bool (*owe)(struct aecp *);
+	void (*drain)(struct aecp *);
+};
+extern const struct aecp_owed_queue aecp_owed_queue;
 struct aecp_config {
 	uint64_t entity_id;
 	uint64_t mac[AECP_INTERFACES];
@@ -265,10 +275,11 @@ struct aecp_config {
 	size_t map_count;
 	struct aecp_event *events; // model->count entries
 	uint32_t *latency; // one entry per STREAM_OUTPUT descriptor
-	// The owed-notice queue (#894): owed_slots entries, supplied by the integrator; none keeps the next record waiting
-	// for every notice, as before.
+	// The owed-notice queue (#894): owed_slots entries and the queue's operations, supplied by the integrator; none
+	// keeps the next record waiting for every notice, as before.
 	struct aecp_owed *owed;
 	unsigned owed_slots;
+	const struct aecp_owed_queue *queue;
 };
 struct aecp {
 	struct aecp_config cfg;

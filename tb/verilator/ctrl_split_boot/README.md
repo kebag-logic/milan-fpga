@@ -106,7 +106,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 58.5 RAMB36, within the 59.0 the owner's ruling (#665, 6505997821) ledgers by name, owed to lane S14.
+The 8x8 image with two interfaces plans 59.5 RAMB36, the figure the ledger names it by (#665, 6505997821; #894, 6839847820), owed to lane S14.
 This simulation names no override, so it builds no SoC for that point ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
 
 The smoke grader's verdicts on the simulated UART:

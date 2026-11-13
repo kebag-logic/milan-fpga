@@ -79,6 +79,7 @@ int main(void)
 #if AECP_MBX_OWED_SLOTS != 0u
     aecp.owed=image_owed;
     aecp.owed_slots=AECP_MBX_OWED_SLOTS;
+    aecp.queue=&aecp_owed_queue;
 #endif
     for (unsigned i=0;i<MBX_N_IF;++i) aecp.mac[i]=image_entity.mac;
     const struct ctrl_app_config cfg = {

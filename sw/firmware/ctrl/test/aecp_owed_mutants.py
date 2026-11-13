@@ -15,7 +15,7 @@ ROUND = 'Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse'
 NONE = 'Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice'
 FIRST = 'Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone'
 TRANSMIT = 'return respond(a) || notices(a, drains);'
-HEAD = '\t\t\tstruct aecp_owed *o = &a->cfg.owed[a->owed_head];\n'
+HEAD = '\tstruct aecp_owed *o = &a->cfg.owed[a->owed_head];\n'
 READY = '(a->owed_count == 0u || a->owed_count < a->cfg.owed_slots)'
 
 ROWS = (
@@ -27,6 +27,8 @@ ROWS = (
      (QD, '(c) a queue deeper than its 8-bit counts')),
     ('owed-slots-without-storage', 'aecp.c', '(cfg->owed_slots != 0u && cfg->owed == NULL) ||', '',
      (QD, '(c) slots with no storage')),
+    ('owed-slots-without-the-queue', 'aecp.c', '(cfg->owed_slots != 0u && cfg->queue == NULL) ||', '',
+     (QD, "(c) slots without the queue's operations")),
     # THE RETRY waits on the queue as on every other notice owed, and the queue's fan-out leaves a held notice whole
     ('owed-round-beside-the-queue', 'aecp.c',
      'return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;',
@@ -39,8 +41,8 @@ ROWS = (
      (QA, '(a) in the order their commands were taken')),
     ('owed-requester-forgotten', 'aecp.c', '\to->requester = a->requester;\n', '\to->requester = 0u;\n',
      (QA, '(a) two notices, each to the two registered controllers not its requester')),
-    ('owed-walk-restarts', 'aecp.c', '\t\t\tif (!fan_out(a, o->frame,',
-     '\t\t\ta->owed_recipient = 0u;\n\t\t\tif (!fan_out(a, o->frame,',
+    ('owed-walk-restarts', 'aecp.c', '\tif (!fan_out(a, o->frame,',
+     '\ta->owed_recipient = 0u;\n\tif (!fan_out(a, o->frame,',
      (QR, '(a) the walk resumes at the recipient it stopped at')),
     ('owed-long-notice-before-the-queue', 'aecp.c', '\tif (a->owed_count != 0u) {\n\t\tif (drains) {',
      '\tif (a->owed_count != 0u && !a->notify) {\n\t\tif (drains) {',
@@ -54,7 +56,7 @@ ROWS = (
     ('owed-ready-while-full', 'aecp.c', READY, 'true', (QC, '(c) AECP is not ready while the queue is full')),
     ('owed-never-ready-without-slots', 'aecp.c', READY, '(a->owed_count < a->cfg.owed_slots)',
      (NONE, 'command produces a response')),
-    ('owed-slot-never-freed', 'aecp.c', '\t\t\t\t--a->owed_count;\n', '',
+    ('owed-slot-never-freed', 'aecp.c', '\t\t--a->owed_count;\n', '',
      (QC, '(c) its slot free, AECP is ready again')),
     ('owed-long-notice-queued', 'aecp.c', ' || a->response_bytes > AECP_OWED_BYTES) {', ') {',
      (QL, "its response waits for the poll, as every notice's did")),
@@ -62,7 +64,7 @@ ROWS = (
     ('owed-slot-under-the-largest-legal-notice', 'aecp.c', ' || a->response_bytes > AECP_OWED_BYTES) {',
      ' || a->response_bytes > AECP_OWED_BYTES - 4u) {',
      (QB, "(b) command 0's response is committed in its record's turn")),
-    ('owed-not-queued', 'aecp.c', "(!a->notify || owe(a))", "(!a->notify || (false && owe(a)))",
+    ('owed-not-queued', 'aecp.c', "(a->cfg.queue != NULL && a->cfg.queue->owe(a))", "(a->cfg.queue != NULL && false)",
      (QA, '(c) a command\'s notice owed in the queue does not hold the next record')),
     # THE TIERS: a queue's first notice alone beside held work, and only the first
     ('retry-first-never-cleared', 'aecp_mbx.c',
