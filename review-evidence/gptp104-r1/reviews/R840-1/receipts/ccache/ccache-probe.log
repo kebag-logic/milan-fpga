@@ -1,0 +1,48 @@
+== 1 head cold, ccache on PATH, OBJCACHE unset
+BUILT
+model sources naming the work dir: 0 []
+== 2 head warm, new temporary directory
+BUILT
+model sources naming the work dir: 0 []
+cache_miss=0 direct_cache_hit=4 files_in_cache=8 preprocessed_cache_hit=0 
+== 3 head warm, a third temporary directory
+BUILT
+model sources naming the work dir: 0 []
+cache_miss=0 direct_cache_hit=4 files_in_cache=8 preprocessed_cache_hit=0 
+== 4 checkout at another path, warm cache
+BUILT
+model sources naming the work dir: 0 []
+cache_miss=1 direct_cache_hit=0 files_in_cache=13 preprocessed_cache_hit=3 
+== 5 same other path again
+BUILT
+model sources naming the work dir: 0 []
+cache_miss=0 direct_cache_hit=4 files_in_cache=13 preprocessed_cache_hit=0 
+== 6 OBJCACHE= (off), empty cache dir
+BUILT
+model sources naming the work dir: 0 []
+files in cache dir: 0
+== 7 compiler_env with ccache absent from PATH
+OBJCACHE='' CCACHE_NOHASHDIR='1'
+== 7b compiler_env defaults with ccache on PATH
+OBJCACHE='ccache' CCACHE_NOHASHDIR='1'
+== 7c caller's own settings win
+OBJCACHE='mycache' CCACHE_NOHASHDIR='0'
+== 8 unwritable cache dir (mode 555), OBJCACHE unset
+NOT-BUILT
+model sources naming the work dir: 0 []
+rc=1
+== 8b uncreatable cache dir
+NOT-BUILT
+model sources naming the work dir: 0 []
+rc=1
+== 8c unwritable cache dir with OBJCACHE= (documented remedy)
+BUILT
+model sources naming the work dir: 0 []
+rc=0
+== 9 base a64be73d, OBJCACHE=ccache forced, cold
+BUILT
+model sources naming the work dir: 2 ['VKL_gptp_engine___024root__0.cpp', 'VKL_gptp_engine___024root__0__Slow.cpp']
+== 10 base a64be73d, warm, new temporary directory
+BUILT
+model sources naming the work dir: 2 ['VKL_gptp_engine___024root__0.cpp', 'VKL_gptp_engine___024root__0__Slow.cpp']
+cache_miss=1 direct_cache_hit=3 files_in_cache=9 preprocessed_cache_hit=0 

@@ -1,0 +1,15 @@
+OK   head-unmodified: rc 0 (want 0); 0 FAIL lines; last: 10 checks: 10 PASS, 0 FAIL
+OK   completion-order-yield: rc 1 (want 1); 2 FAIL lines; last: 10 checks: 8 PASS, 2 FAIL
+       FAIL --jobs 8 prints 160 [PASS] lines in list order
+       FAIL --jobs 1 and --jobs 8 print the same bytes
+OK   lines-printed-on-completion: rc 1 (want 1); 2 FAIL lines; last: 10 checks: 8 PASS, 2 FAIL
+       FAIL --jobs 8 prints 160 [PASS] lines in list order
+       FAIL --jobs 1 and --jobs 8 print the same bytes
+OK   one-mutant-dropped: rc 1 (want 1); 6 FAIL lines; last: 10 checks: 4 PASS, 6 FAIL
+       FAIL --jobs 1 prints 160 [PASS] lines in list order
+       FAIL --jobs 1 tallies 160 checks
+       FAIL --jobs 1 gives each of the 160 entries its own run directory (got 159)
+       FAIL --jobs 8 prints 160 [PASS] lines in list order
+       FAIL --jobs 8 tallies 160 checks
+       FAIL --jobs 8 gives each of the 160 entries its own run directory (got 159)
+OK   shared-run-directory: rc 1 (want 1); 0 FAIL lines; last: KeyError: 'shared'

@@ -1,0 +1,6 @@
+default: OBJCACHE=[ccache] NOHASHDIR=[1] BASEDIR(run-only)=[]
+cmdline-empty: OBJCACHE=[]
+env-empty: OBJCACHE=[]
+no-ccache-on-PATH: OBJCACHE=[]
+caller-basedir: make: *** [Makefile:51: run] Error 127
+make: *** [Makefile:51: run] Error 127

@@ -1,0 +1,49 @@
+INFO jobs1-cold: ccache cache_miss 6, cache_size_kibibyte 428, direct_cache_hit 6, direct_cache_miss 6, files_in_cache 10, local_storage_hit 6, local_storage_miss 6, local_storage_read_hit 14, local_storage_read_miss 10, local_storage_write 12, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 6
+INFO jobs8-cold: ccache cache_miss 6, cache_size_kibibyte 428, direct_cache_hit 6, direct_cache_miss 6, files_in_cache 10, local_storage_hit 6, local_storage_miss 6, local_storage_read_hit 14, local_storage_read_miss 10, local_storage_write 12, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 6
+INFO jobs1-warm: ccache cache_miss 3, cache_size_kibibyte 536, direct_cache_hit 9, direct_cache_miss 3, files_in_cache 13, local_storage_hit 9, local_storage_miss 3, local_storage_read_hit 21, local_storage_read_miss 3, local_storage_write 6, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 3
+INFO jobs8-warm: ccache cache_miss 3, cache_size_kibibyte 536, direct_cache_hit 9, direct_cache_miss 3, files_in_cache 13, local_storage_hit 9, local_storage_miss 3, local_storage_read_hit 21, local_storage_read_miss 3, local_storage_write 6, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 3
+INFO jobs1-off: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 773 s
+INFO jobs8-off: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 208 s
+INFO jobs1-cold: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 700 s
+INFO jobs8-cold: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 205 s
+INFO jobs1-warm: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 698 s
+INFO jobs8-warm: exit 0, 1721 bytes, sha256 2b809bab55dcb1edd7a2df8c42d1b9f33bd8adf17c27796b6fea874e94ad9389, 4 verdicts, 202 s
+PASS jobs1-off: ccache wrote nothing (0 files)
+PASS jobs8-off: ccache wrote nothing (0 files)
+PASS jobs1-cold: 12 compilations, 6 into the empty cache (got 12, 6)
+PASS jobs8-cold: 12 compilations, 6 into the empty cache (got 12, 6)
+FAIL jobs1-warm: all 12 compilations from the warm cache (got 9 hits, 3 misses)
+FAIL jobs8-warm: all 12 compilations from the warm cache (got 9 hits, 3 misses)
+PASS jobs1-off: prints 4 verdict lines (got 4)
+PASS jobs1-off: tallies 4 checks (got 4)
+PASS jobs8-off: the exit status is jobs1-off's (0 and 0)
+PASS jobs8-off: the verdict list is jobs1-off's, byte for byte
+PASS jobs8-off: stdout is jobs1-off's, byte for byte
+PASS jobs8-off: stderr is jobs1-off's, byte for byte
+PASS jobs8-off: prints 4 verdict lines (got 4)
+PASS jobs8-off: tallies 4 checks (got 4)
+PASS jobs1-cold: the exit status is jobs1-off's (0 and 0)
+PASS jobs1-cold: the verdict list is jobs1-off's, byte for byte
+PASS jobs1-cold: stdout is jobs1-off's, byte for byte
+PASS jobs1-cold: stderr is jobs1-off's, byte for byte
+PASS jobs1-cold: prints 4 verdict lines (got 4)
+PASS jobs1-cold: tallies 4 checks (got 4)
+PASS jobs8-cold: the exit status is jobs1-off's (0 and 0)
+PASS jobs8-cold: the verdict list is jobs1-off's, byte for byte
+PASS jobs8-cold: stdout is jobs1-off's, byte for byte
+PASS jobs8-cold: stderr is jobs1-off's, byte for byte
+PASS jobs8-cold: prints 4 verdict lines (got 4)
+PASS jobs8-cold: tallies 4 checks (got 4)
+PASS jobs1-warm: the exit status is jobs1-off's (0 and 0)
+PASS jobs1-warm: the verdict list is jobs1-off's, byte for byte
+PASS jobs1-warm: stdout is jobs1-off's, byte for byte
+PASS jobs1-warm: stderr is jobs1-off's, byte for byte
+PASS jobs1-warm: prints 4 verdict lines (got 4)
+PASS jobs1-warm: tallies 4 checks (got 4)
+PASS jobs8-warm: the exit status is jobs1-off's (0 and 0)
+PASS jobs8-warm: the verdict list is jobs1-off's, byte for byte
+PASS jobs8-warm: stdout is jobs1-off's, byte for byte
+PASS jobs8-warm: stderr is jobs1-off's, byte for byte
+PASS jobs8-warm: prints 4 verdict lines (got 4)
+PASS jobs8-warm: tallies 4 checks (got 4)
+38 checks: 36 PASS, 2 FAIL

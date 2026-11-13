@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/mutation_order_test.py", line 147, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/mutation_order_test.py", line 117, in main
+    rc = arm.main(["--jobs", str(jobs)])
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/verilator/engine/mutants.py", line 849, in main
+    for caught, lines in results:
+                         ^^^^^^^
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/verilator/engine/mutants.py", line 776, in in_list_order
+    yield task()
+          ~~~~^^
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/verilator/engine/mutants.py", line 830, in task
+    return run_mutant(work, clean_exe, mutation, lines.append), lines
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/verilator/engine/mutants.py", line 744, in run_mutant
+    rc, output = run_harness(exe, rundir)
+                 ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/gptp104-r840-1-packet/scratch/order-shared-run-directory/tb/mutation_order_test.py", line 91, in run_harness
+    time.sleep(self.delay[tag])
+               ~~~~~~~~~~^^^^^
+KeyError: 'shared'

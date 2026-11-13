@@ -1,0 +1,18 @@
+make: Entering directory '$REVIEWS/gptp104-r840-1-packet/scratch/suite1/tb/verilator/engine'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$REVIEWS/gptp104-r840-1-packet/scratch/suite1/tb/verilator/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+./obj_dir/Vengine_sim
+mkdir -p seedrun
+python3 ../../../hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 --seq-seed 0x200000 -o seedrun/gptp_ucode.hex >/dev/null
+echo "-- again, with the request counter seeded above 16 bits --"
+cd seedrun && ../obj_dir/Vengine_sim
+mkdir -p syncseedrun
+python3 ../../../hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 --sync-seq-seed 0x10000 -o syncseedrun/gptp_ucode.hex >/dev/null
+echo "-- again, with the Sync counter seeded above 16 bits --"
+cd syncseedrun && ../obj_dir/Vengine_sim
+mkdir -p p1run
+python3 ../../../hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 --p1 255 --clock-accuracy 0xFE -o p1run/gptp_ucode.hex >/dev/null
+echo "-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --"
+cd p1run && ../obj_dir/Vengine_sim +not-gm-capable
+python3 ../../mutation_order_test.py mutants.py
+python3 mutants.py
+make: Leaving directory '$REVIEWS/gptp104-r840-1-packet/scratch/suite1/tb/verilator/engine'

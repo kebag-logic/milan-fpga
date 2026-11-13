@@ -1,0 +1,13 @@
+INFO --jobs 1: exit 0, 58667 bytes, 159 verdicts, 2.1 s
+INFO --jobs 8: exit 0, 58667 bytes, 159 verdicts, 0.5 s
+PASS --jobs 1 exits 0 (got 0)
+FAIL --jobs 1 prints 160 [PASS] lines in list order
+FAIL --jobs 1 tallies 160 checks
+FAIL --jobs 1 gives each of the 160 entries its own run directory (got 159)
+PASS --jobs 8 exits 0 (got 0)
+FAIL --jobs 8 prints 160 [PASS] lines in list order
+FAIL --jobs 8 tallies 160 checks
+FAIL --jobs 8 gives each of the 160 entries its own run directory (got 159)
+PASS --jobs 8: the entries finished out of list order
+PASS --jobs 1 and --jobs 8 print the same bytes
+10 checks: 4 PASS, 6 FAIL
