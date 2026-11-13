@@ -427,6 +427,10 @@ TEST_F(Nvm, EveryChangeQueuesOnlyItsOwnedRecords)
     aecp_nvm_changed(&owner,AECP_CHANGE_IDENTIFY,26,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_SYSTEM_ID,0,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_FORMAT,6,65535);
+    // a name of a type the writable names' runs hold, at the index just past its last run, which
+    // no run holds: past a run's count it marks no ordinal of the runs after it (#894)
+    unsigned past=0;for(const auto&r:runs)if(r.type==5)past=std::max(past,unsigned(r.index+r.count));
+    aecp_nvm_changed(&owner,AECP_CHANGE_NAME,5,uint16_t(past));
     EXPECT_FALSE(aecp_nvm_poll(&owner))<<"reserved and absent records never enter the queue";
 }
 #endif
