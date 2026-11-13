@@ -733,14 +733,16 @@ TEST_F(Srp, SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind) {
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,7)); settle();
     EXPECT_EQ(adapter.ifs[0].sinks[1].declared,2u);
     advance(200); const unsigned first=model.tx_sent;
+    // what is declared after the first unbind, whatever the JoinTime's grid (CTRL_LOOP_JOIN_CS)
+    const unsigned unbound=model.now_ms;
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); advance(200); capture();
-    for(const auto &d:declarations) if(d.time_ms>=1000 && d.ethertype==0x22ea && d.type==3) {
+    for(const auto &d:declarations) if(d.time_ms>unbound && d.ethertype==0x22ea && d.type==3) {
         EXPECT_NE(d.event,5u)<<"one remaining binding retains the Listener";
     }
     EXPECT_TRUE(adapter.ifs[0].sinks[1].vlan_sent);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0)); advance(200); capture();
     bool vlan_left=false; bool listener_left=false;
-    for(const auto &d:declarations) if(d.event==5 && d.time_ms>=1000) {
+    for(const auto &d:declarations) if(d.event==5 && d.time_ms>unbound) {
         vlan_left|=d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,7});
         listener_left|=d.ethertype==0x22ea && d.type==3;
     }
