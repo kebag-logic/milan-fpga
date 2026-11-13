@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """srptx_mutants.py - the split build's SRP transmit checks, each against a defect planted in the code (#867).
 
-Each arm plants one line in a copy of lwSRP, the SRP adapter or the datapath, builds the split half through
-its own recipe (twin_fw.py --replace for a firmware unit, DP_SRC for the datapath, make build-twin-sp into
-an arm's own directories), runs the scenario the arm names, and srptx_grade.py must report a finding with
-the arm's words. A clean control first builds the tracked sources the same way and must grade every
+Each arm plants one line in a copy of lwSRP, the SRP adapter, the MAAP adapter or the datapath, builds the
+split half through its own recipe (twin_fw.py --replace for a firmware unit, DP_SRC for the datapath, make
+build-twin-sp into an arm's own directories), runs the scenario the arm names, and srptx_grade.py must report
+a finding with the arm's words. A clean control first builds the tracked sources the same way and must grade every
 scenario an arm runs with no finding. A build failure is never a catch.
 
   python3 tb/verilator/milan_dp/srptx_mutants.py [--only NAME] [--list]
@@ -28,6 +28,7 @@ ROOT = HERE.parents[2]
 MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
 ADAPTER = ROOT / "sw/firmware/ctrl/srp/srp_mbx.c"
 DP = ROOT / "hdl/milan/milan_datapath.sv"
+MAAP = ROOT / "sw/firmware/ctrl/maap/maap_mbx.c"
 JOIN_ARM = "    shlan_timer_arm(&ps->join_timer, ps->join_cs);"
 #: the grade's words for a Join timer's transmit opportunity outside JoinTime's range widened by T_svc
 JOIN_SPACING = f"ms after the one before, outside JoinTime's range widened by T_svc ({g.JOIN_BOUNDS_MS[0]} to " \
@@ -77,6 +78,11 @@ ARMS = (
      "    assign pp_cd_srp_active_w         = i_ctl_pub_licence[ACMP_SRC_C-1:0];",
      "    assign pp_cd_srp_active_w         = '1;",
      "licence", 0, "[LIC] at ms 1 the policer reads active 0x3, admitted 0x0"),
+    ("no source's SRC_SID written (#905)", MAAP,
+     "\t\t\t(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);\n"
+     "\t\t\t(void)mbx_pub_src_sid(k, s, true, (uint32_t)(id >> 32));",
+     "\t\t\t(void)k;",
+     "licence", 0, "which no Talker Advertise the split declared carries"),
 )
 
 
