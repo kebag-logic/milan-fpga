@@ -1,0 +1,38 @@
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (0 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (15 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (0 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (21 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[       OK ] Talker.DestinationChangeWhileValidWithdrawsTheOld (5 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (0 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:421: Failure
+Expected: (adv) != (nullptr), actual: NULL vs (nullptr)
+and declare it once the hold-off ends
+
+  [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: and declare it once the hold-off ends
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (5 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[----------] 9 tests from Talker (49 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (49 ms total)
+[  PASSED  ] 8 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 9   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 9 checks, exit 1)

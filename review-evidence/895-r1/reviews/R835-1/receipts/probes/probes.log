@@ -1,0 +1,88 @@
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/baseline-unplanted/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+SURVIVED baseline-unplanted
+  srp_talker.cpp:*@if1-1x1 rc=0 fails=0 []
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/gate-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED gate-owes-no-pass
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=5 ['[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: a valid source declares Talker Advertise at once', '[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: IDLE_SLOPE admits the source before its Advertise leaves', '[FAIL] Talker.UnchangedDestinationIsDeclaredAgainAtOnce: an unchanged destination is declared again at once']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=1 fails=8 ['[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: a valid source declares Talker Advertise at once', '[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: IDLE_SLOPE admits the source before its Advertise leaves', '[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: a valid source declares Talker Advertise at once']
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=1 fails=5 ["[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", "[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", '[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a re-probe with the same destination declares it again at once']
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=1 fails=5 ["[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", "[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", '[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a re-probe with the same destination declares it again at once']
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-end-owes-no-pass/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED hold-off-end-owes-no-pass
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=1 ['[FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: and declare it once the hold-off ends']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-margin-dropped/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED hold-off-margin-dropped
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=5 ['[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave', '[FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two LeaveAllTime periods after the Leave']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=1 fails=8 ['[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave']
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/hold-off-1999/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED hold-off-1999
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=5 ['[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave', '[FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two LeaveAllTime periods after the Leave']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=1 fails=8 ['[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends', '[FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave']
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/feed-interface-0-everywhere/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED feed-interface-0-everywhere
+  srp_talker.cpp:*@if1-1x1 rc=0 fails=0 []
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=1 fails=7 ["[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", "[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a probe declares the source's Talker on its own interface", "[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: with MAAP's base + n"]
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/reset-forgets-talkers/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED reset-forgets-talkers
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=2 ['[FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset', '[FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=1 fails=2 ['[FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset', '[FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits']
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=0 fails=0 []
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=0 fails=0 []
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/probes/readdressed-kept/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+KILLED readdressed-kept
+  srp_talker.cpp:*@if1-1x1 rc=1 fails=9 ['[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: TALKER_DECL holds the valid sources', '[FAIL] Talker.UnchangedDestinationIsDeclaredAgainAtOnce: an unchanged destination is declared again at once', '[FAIL] Talker.AdmissionChangeSwapsTheTypeInPlace: a lapse withdraws a Talker Failed too']
+  srp_talker.cpp:*@if2-endstation_ax7101_8x8 rc=1 fails=12 ['[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: TALKER_DECL holds the valid sources', '[FAIL] Talker.ValidSourceDeclaresAtOnceAndNothingBefore: TALKER_DECL holds the valid sources', '[FAIL] Talker.UnchangedDestinationIsDeclaredAgainAtOnce: an unchanged destination is declared again at once']
+  test_acmp_mbx.cpp:SrpGate.*@if2-endstation_ax7101_8x8 rc=1 fails=1 ['[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a re-probe with the same destination declares it again at once']
+  test_acmp_mbx.cpp:SrpGate.*@if1-1x1 rc=1 fails=1 ['[FAIL] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt: a re-probe with the same destination declares it again at once']

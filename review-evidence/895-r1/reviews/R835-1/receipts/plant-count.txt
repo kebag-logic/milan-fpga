@@ -1,0 +1,30 @@
+head d023b77a7bf677205e45195e0e1f0daf80d1a4d4: srp_talker_mutants.defects() = 26 plants
+  talker-declared-while-not-valid | Talker.ValidSourceDeclaresAtOnceAndNothingBefore | srp_talker.cpp
+  talker-lapse-kept | Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing | srp_talker.cpp
+  talker-lapse-ignored-by-the-entry | SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt | test_acmp_mbx.cpp
+  talker-unchanged-held | Talker.UnchangedDestinationIsDeclaredAgainAtOnce | srp_talker.cpp
+  talker-hold-off-skipped | Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods | srp_talker.cpp
+  talker-lapse-starts-no-hold-off | SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff | test_acmp_mbx.cpp
+  talker-hold-off-one-leaveall | Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods | srp_talker.cpp
+  talker-hold-off-never-ends | Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods | srp_talker.cpp
+  talker-change-while-valid-unmarked | Talker.DestinationChangeWhileValidWithdrawsTheOld | srp_talker.cpp
+  talker-reset-forgets-the-move | Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne | srp_talker.cpp
+  talker-decl-kept-at-the-withdrawal | Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing | srp_talker.cpp
+  talker-licence-closed-after-the-withdrawal | Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing | srp_talker.cpp
+  talker-unchanged-declared-again | Talker.ValidSourceDeclaresAtOnceAndNothingBefore | srp_talker.cpp
+  talker-admission-change-held | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-swap-keeps-the-old-type | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-swap-leaves-a-failed-only | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-withdrawal-leaves-an-advertise-only | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-refused-swap-takes-the-new-type | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-allocated-unfit-declares-code-2 | Talker.AdmissionChangeSwapsTheTypeInPlace | srp_talker.cpp
+  talker-refused-declaration-forgotten | Talker.RefusedDeclarationIsDeclaredAgain | srp_talker.cpp
+  talker-gate-before-attach | Talker.GateEntryRecordsOnlyWhatChanged | srp_talker.cpp
+  talker-gate-reentered | Talker.GateEntryRecordsOnlyWhatChanged | srp_talker.cpp
+  talker-gate-past-the-sources | Talker.GateEntryRecordsOnlyWhatChanged | srp_talker.cpp
+  talker-gate-not-fed | SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt | test_acmp_mbx.cpp
+  talker-gate-of-another-range | SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt | test_acmp_mbx.cpp
+  talker-listener-demand-not-forwarded | SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow | test_acmp_mbx.cpp
+full SRP table (two-interface campaign): 286
+one-interface selection: 104  talker- in it: 26
+talker- kills in this review's SRP shard (both campaigns): 52

@@ -1,0 +1,33 @@
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (1 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (10 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (0 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (16 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[       OK ] Talker.DestinationChangeWhileValidWithdrawsTheOld (7 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (0 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+[       OK ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (8 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[----------] 9 tests from Talker (46 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (46 ms total)
+[  PASSED  ] 9 tests.
+== ctrl SRP Talker declarations: checks: 9   failures: 0 ==
+RESULT: PASS
+PROBE: TALKER_DECL published 2 times on interface 0 in one THE TRANSMIT call
+PROBE: TALKER_DECL published 2 times on interface 1 in one THE TRANSMIT call
+PROBE: TALKER_DECL published 2 times on interface 0 in one THE TRANSMIT call
+PROBE: TALKER_DECL published 2 times on interface 1 in one THE TRANSMIT call
+  verdict: PASS (9 tests, 0 failures, exit 0)
