@@ -4,11 +4,12 @@
 the table each edit holds its mappings in, its passes over the command, its port's map and the other output ports'
 maps, and its turns, each against the edit's definition mapping by mapping; and in a restore, which still compares
 rows whole and checks the output owner itself. aecp_mutants.py plants each row; every named check must fail on its
-own words."""
+own words. THE PACE (aecp_mbx.h) holds the record after an edit; its rows are planted here too."""
 
 EDIT = 'Core.MapEditsAreTheirDefinitionRowForRow'
 RESTORE = 'Core.RestoredOutputMapsHaveOneGlobalOwner'
 OWNER = 'Core.OutputMappingsHaveOneGlobalOwner'
+PACE = 'Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone'
 
 #: (name, file, planted text, its replacement, (test, failing words), ...)
 ROWS = (
@@ -61,4 +62,25 @@ ROWS = (
      'if (v != 0u && e->copies[v - 1u] != 0u) {',
      'if (v != 0u) {',
      (EDIT, "the edit's map is its definition's, row for row")),
+    # THE PACE: an edit that is checked holds the next record until AECP_PACE_MS after its take
+    ('pace-not-held', 'aecp_mbx.c',
+     'return aecp_ready(&m->core) && (uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS;',
+     'return aecp_ready(&m->core);',
+     (PACE, 'ms after the edit, to the pace\'s last millisecond')),
+    ('pace-a-millisecond-short', 'aecp_mbx.c',
+     '(uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS;',
+     '(uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS - 1u;',
+     (PACE, 'ms after the edit, to the pace\'s last millisecond')),
+    ('pace-from-boot', 'aecp_mbx.c',
+     '\tm->core.edited_ms = 0u - AECP_PACE_MS;',
+     '',
+     (PACE, 'before any edit nothing is held')),
+    ('pace-unstamped', 'aecp_maps.c',
+     '\ta->edited_ms = a->now;\n',
+     '',
+     (PACE, 'ms after the edit, to the pace\'s last millisecond')),
+    ('pace-a-refused-edit', 'aecp_maps.c',
+     '\tif (aecp_foreign_lock(a)) {\n\t\treturn AECP_ENTITY_LOCKED;',
+     '\tif (aecp_foreign_lock(a)) {\n\t\ta->edited_ms = a->now;\n\t\treturn AECP_ENTITY_LOCKED;',
+     (PACE, 'an edit refused before its checks holds nothing')),
 )

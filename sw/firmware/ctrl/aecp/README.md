@@ -199,7 +199,12 @@ checks still run in its turn, an output mapping's port read first, so an edit
 answers, changes its map and reads the port as its pairwise definition does:
 `Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
 seeded edits, and [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants
-a defect in each pass. An accepted default-valued
+a defect in each pass. An edit that is checked paces AECP's next record
+(THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
+rx-ready gate holds the channel's next record in its ring, never dropped,
+until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll
+moves on. `Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone` holds the
+pace, and the same plant table plants a defect in it. An accepted default-valued
 SET still establishes a persistent override. Store dirty marks are queued for
 later polling. The reserved system-ID/media-clock-reference saved spans remain
 erased; system unique ID is volatile until a record-format decision is made.

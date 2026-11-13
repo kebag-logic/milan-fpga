@@ -3085,6 +3085,36 @@ TEST_F(Mailbox, ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone)
     EXPECT_TRUE(loop.retry_first)<<"a queue served to its end leaves its next notice a queue's first";
 }
 
+// THE PACE (#904, #894; aecp_mbx.h): an ADD or REMOVE_AUDIO_MAPPINGS that is checked holds the AECP channel's next
+// record in its ring, never dropped, until AECP_PACE_MS after the edit was taken, by the core's clock, which each pass's
+// poll moves on; the held record is then taken and answered, and a held edit paces the next from its own take. Before
+// any edit nothing is held, and neither a command that is no edit nor an edit refused before its checks holds anything.
+TEST_F(Mailbox, AnEditHoldsTheNextRecordForThePaceAndDropsNone)
+{
+    auto send=[&](unsigned cmd,const Bytes &body){auto p=command(cmd,body);
+        ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();};
+    const Bytes query=target(14,0,8);
+    Bytes edit=target(14,0,16);put(edit,4,1,2);put(edit,10,1,2);put(edit,12,1,2);
+    uint32_t sent=fabric.tx_sent;send(43,query);
+    EXPECT_EQ(fabric.tx_sent,sent+1)<<"before any edit nothing is held";
+    sent=fabric.tx_sent;send(43,query);EXPECT_EQ(fabric.tx_sent,sent+1)<<"a command that is no edit holds nothing";
+    adapter.core.locked=true;adapter.core.lock_owner=CTLR+1;
+    send(44,edit);sent=fabric.tx_sent;send(43,query);
+    EXPECT_EQ(fabric.tx_sent,sent+1)<<"an edit refused before its checks holds nothing";
+    adapter.core.locked=false;
+    sent=fabric.tx_sent;send(44,edit);ASSERT_EQ(fabric.tx_sent,sent+1)<<"(an edit is taken while no pace holds)";
+    for(unsigned edits=0;edits<2;++edits){
+        sent=fabric.tx_sent;send(edits?43:45,edits?query:edit);
+        for(unsigned ms=1;ms<AECP_PACE_MS;++ms){
+            mbx_model_advance_ms(&fabric,1);service();
+            ASSERT_EQ(fabric.tx_sent,sent)<<"held "<<ms<<" ms after the edit, to the pace's last millisecond";
+        }
+        mbx_model_advance_ms(&fabric,1);service();
+        ASSERT_EQ(fabric.tx_sent,sent+1)<<"the held record is taken and answered once the pace has passed, never dropped";
+        EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+36,2)&0x7fffu,edits?0x2bu:0x2du)<<"the held record's answer";
+    }
+}
+
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
 {
     mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
@@ -3173,7 +3203,8 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
                     unsigned expected=cmd==40?554u:cmd==75?550u:1454u;
                     EXPECT_EQ(emitted->len,expected)<<"maximum path retains its full response body";
                 }
-                mbx_model_advance_ms(&fabric,5);
+                // an edit's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
+                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45)?AECP_PACE_MS:5);
             }
         }
         for(unsigned msg:{2u,4u,8u}){

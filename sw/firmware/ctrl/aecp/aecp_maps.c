@@ -327,6 +327,8 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	aecp_put16(out + 4, count);
 	memcpy(out + 8, in + 8, count * 8u);
 	*bytes = 8u + count * 8u;
+	// an edit that is checked costs what its mappings do, so each is paced (THE PACE, aecp_mbx.h)
+	a->edited_ms = a->now;
 	bool adding = cmd == 44u;
 	struct edit e;
 	memset(e.slot, 0, sizeof e - offsetof(struct edit, slot));

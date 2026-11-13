@@ -133,7 +133,9 @@ bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 	m->environment = environment;
 	m->ports = (struct aecp_ports){m, send, now, random_value, timer,
 		stream, avb, path, counters, changed, start, format, available_index, applied, fan, fan_end};
-	return aecp_init(&m->core, cfg, &m->ports);
+	bool ok = aecp_init(&m->core, cfg, &m->ports);
+	m->core.edited_ms = 0u - AECP_PACE_MS; // no edit yet: the pace is open from the first millisecond
+	return ok;
 }
 
 static void frame(void *ctx, const struct mbx_frame *f)
@@ -142,10 +144,12 @@ static void frame(void *ctx, const struct mbx_frame *f)
 	aecp_rx(&m->core, f->interface, f->bytes, f->len);
 }
 
+// THE PACE (aecp_mbx.h): the channel's next record waits in its ring until AECP_PACE_MS after an edit was taken, by
+// the core's clock, which each pass's poll moves on.
 static bool ready(void *ctx)
 {
 	struct aecp_mbx *m = ctx;
-	return aecp_ready(&m->core);
+	return aecp_ready(&m->core) && (uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS;
 }
 
 static void event(void *ctx, const struct mbx_event *e)

@@ -10,7 +10,8 @@ flip check's (flip_grade.py, --design built); its self-test plants a defect in e
              notice as well, R4L) and THE TRANSMIT's MRPDU (tx, at CTRL_LOOP_TX_BOUND_MS, item 1, and txL with every
              AECP notice the largest legal one, #894's ruling on option A), each held. R4L and txL charge every AECP
              command as the one the largest legal notice answers, its record and its notice at their costs measured
-             by the CPU budget harness (LONG_RECORD_US, LONG_NOTICE_US; #894's slice ruling of 2026-11-13).
+             by the CPU budget harness (LONG_RECORD_US, LONG_NOTICE_US; #894's slice ruling of 2026-11-13), each
+             such command paced (THE PACE, paced_rows.py; #904).
   corrected  THE DRAIN as built before the tiers (rows_grade.demand, re-derived here and held equal to it with every
              correction off), with each count at its source's own rule: the retained retry at most once a centisecond
              and no more than SRP's records (srp_mbx.c, retry_spent, given back by the centisecond's consumer;
@@ -46,6 +47,7 @@ from typing import Callable, NamedTuple
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
+import paced_rows  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
                         channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_passes)
@@ -121,17 +123,18 @@ LONG_RULES = ('buffer', 'slot-552')
 #: stated 665 us).
 LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
-#: largest legal notice answers): ADD_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler (aecp_mbx.c,
-#: frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, 742,470 CPU cycles at 1x1/1if and 959,647 on
-#: the 8x8 shape with the answering-ports arm, whose output map that group edits (#894's slice ruling of 2026-11-13: the
-#: group's measurement). record.aecp, 235 us at 1x1/1if, is measured on shorter commands.
-LONG_RECORD_US = {'1x1/1if': 7800, '8x8/2if': 10080}
+#: largest legal notice answers): REMOVE_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler
+#: (aecp_mbx.c, frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, 86,604 CPU cycles at 1x1/1if
+#: and 139,816 on the 8x8 shape with the answering-ports arm, whose output map that group edits (#904: each mapping
+#: decoded once and checked in one pass, where 742,470 and 959,647 were measured before). record.aecp, 235 us at
+#: 1x1/1if, is measured on shorter commands.
+LONG_RECORD_US = {'1x1/1if': 910, '8x8/2if': 1470}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
 SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own'), 'datapath': ('datapath',),
            'tier 1: the first queued notice': ('notice',), 'tier 2: the slice a window opens on': ('slice',),
-           'the retry spacing': ('spacing',)}
+           'the retry spacing': ('spacing',), "THE PACE: R4L's burst ahead of its last": ('pace',)}
 
 
 class Inputs(NamedTuple):
@@ -151,6 +154,7 @@ class Inputs(NamedTuple):
     tx_bound: int = TX_BUDGET_MS
     tx_stated: int = 0
     slot: int = 0
+    pace_ms: int = 0
 
 
 #: The built design's constants and where each is read: the slice, the owed-notice queue's depth at each point, THE
@@ -159,7 +163,8 @@ BUILT_NAMES = {'CTRL_LOOP_SLICE_US': 'sw/firmware/ctrl/loop/ctrl_loop.h',
                'AECP_MBX_OWED_SLOTS': 'sw/firmware/ctrl/aecp/aecp_mbx.h',
                'CTRL_LOOP_TX_BOUND_MS': 'sw/firmware/ctrl/loop/ctrl_loop.h',
                'CTRL_LOOP_TX_MS': 'sw/firmware/ctrl/loop/ctrl_loop.h',
-               'AECP_OWED_BYTES': 'sw/firmware/ctrl/aecp/aecp.h'}
+               'AECP_OWED_BYTES': 'sw/firmware/ctrl/aecp/aecp.h',
+               'AECP_PACE_MS': 'sw/firmware/ctrl/aecp/aecp_mbx.h'}
 
 
 def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) -> tuple[int, ...]:
@@ -391,7 +396,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     """Each source's work in microseconds in a window of w_ms before the row's work is done, under the tiers: in a
     LONG_ROWS row every AECP record the largest legal command's (LONG_RECORD_US)."""
     if row in LONG_ROWS:
-        i = i._replace(c={**i.c, 'record.aecp': max(i.c['record.aecp'], i.c['record.aecp.long'])})
+        i = i._replace(c={**i.c, 'record.aecp': paced_rows.record(row, i, w_ms)})
     h, c, s, rate, tick_ms = i[:5]
     n_if, slice_us = s['n_if'], d.slice_us
 
@@ -492,6 +497,8 @@ def solve(row: str, i: Inputs, model: Fix | Design,
     if isinstance(model, Fix) and row in ('first', 'last'):
         name = 'AECP_QUEUED_FIRST_MS' if row == 'first' else 'AECP_QUEUED_MS'
         return float(i.h[name]), {name: i.h[name] * 1000.0}
+    if row == 'R4L' and i.pace_ms and isinstance(model, Design):
+        return paced_rows.r4l(i, lambda r, one: solve(r, one, model, dropped), dropped)
     model = at_point(model, i)
     spacing = i.spacing_ms if row in ('first', 'last') and dropped != 'spacing' else 0
     def at(w: float) -> dict[str, float]:
@@ -623,8 +630,13 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
                         out.append(f'{point} {row}: the first queued notice is not counted')
                 if abs(terms.get('slice', 0.0) * 1000 - model.slice_us) > 1e-6:
                     out.append(f'{point} {row}: its one slice is not the slice\'s length')
-                if row in LONG_ROWS and not long_counted(i, w or 2000, terms):
+                paced = row == 'R4L' and i.pace_ms
+                if row in LONG_ROWS and not long_counted(paced_rows.one(i) if paced else i,
+                                                         (w or 2000) - terms.get('pace', 0.0), terms):
                     out.append(f'{point} {row}: an owed frame of AECP\'s not the largest legal notice')
+                ahead = (i.rate['aecp'][0] - 1) * (i.pace_ms + paced_rows.TAKE_PASSES * i.h['CTRL_LOOP_SHARE_US'] / 1e3)
+                if paced and abs(terms.get('pace', 0.0) - ahead) > 1e-6:
+                    out.append(f'{point} R4L: its burst not a pace and its take a command')
     if load_grade.retry_unbounded(root):
         out.append('the retained retry\'s rule is not the tree\'s (load_grade.RETRY_RULE)')
     return out
@@ -716,7 +728,8 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
-            'a design whose quotas are not its order\'s')
+            'a design whose quotas are not its order\'s', "THE PACE not the model's", "txL's AECP records not paced",
+            "R4L's burst without its paces")
 
 
 def control_names(root: Path) -> tuple[str, ...]:
@@ -871,7 +884,7 @@ def tree_controls(root: Path) -> list[str]:
     if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
             stated not in (root / loop).read_text():
         escaped.append("the built design's slice not the rule's")
-    escaped += long_rows.controls(root)
+    escaped += long_rows.controls(root) + paced_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
     # R4, and none is the tree's rule before it (notify)
     mailbox = 'sw/firmware/ctrl/aecp/aecp_mbx.h'
