@@ -1,0 +1,61 @@
+325514224bcc356a6b43843f1003c2323f09de25
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 84fc6390f6..965962547c 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -439,11 +439,7 @@ The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` wi
+ The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
+ The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+ 
+-<<<<<<< 5bea2597ec (Restate the load gate's and the polls' stated costs on the merge of dev-soft-core 0fb66211, the larger of round 30's measurement and the tables', and section 13's re-grade, load and rows at 0.501 and 0.822 (#665))
+ On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's branch merged it (its round 4 head, `8bc1dfc0`) and planned both images again at all four points, at `0fb66211` and with that merge, without this branch's record commits:
+-=======
+-On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
+->>>>>>> e5f88a8e8b (Merge PR #892: Move the dev-soft-core tsn-c-stack pin to 715589c (#892))
+ Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+@@ -456,12 +452,7 @@ Each image was built by the pinned RV32 SDK and linked with one runtime; the pla
+ Two plans move against `0fb66211`.
+ The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+ The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+-<<<<<<< 5bea2597ec (Restate the load gate's and the polls' stated costs on the merge of dev-soft-core 0fb66211, the larger of round 30's measurement and the tables', and section 13's re-grade, load and rows at 0.501 and 0.822 (#665))
+ On that branch both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and its own `ctrl_plat`, 21,392 B at the largest point; its tightest point is the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
+-=======
+-Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
+-The smallest margins at the merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override holds.
+->>>>>>> e5f88a8e8b (Merge PR #892: Move the dev-soft-core tsn-c-stack pin to 715589c (#892))
+ 
+ **At this branch's head, the merge of the pin move's round 4 head `8bc1dfc0` into this branch** (round 30), planned the same way from both images built alike at the four points, the platform's by [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) against each shape's own split export, one runtime for both:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+index 2312a74255..751a74511f 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -46,11 +46,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+ 
+ `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
+ `8x8` is `endstation_ax7101_8x8` with two.
+-<<<<<<< 5bea2597ec (Restate the load gate's and the polls' stated costs on the merge of dev-soft-core 0fb66211, the larger of round 30's measurement and the tables', and section 13's re-grade, load and rows at 0.501 and 0.822 (#665))
+ `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 58.5 RAMB36 (`ctrl_memory.LEDGERED`, the owner's cap) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+-=======
+-`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan past the 56-RAMB36 budget to the tiles `ctrl_memory.LEDGERED` holds for it ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+->>>>>>> e5f88a8e8b (Merge PR #892: Move the dev-soft-core tsn-c-stack pin to 715589c (#892))
+ So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
+ The planner refuses the override on any other image, and the product SoC build names none.
+ 
+@@ -248,11 +244,7 @@ That is a CI change, outside this lane.
+   It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
+   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
+ - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
+-<<<<<<< 5bea2597ec (Restate the load gate's and the polls' stated costs on the merge of dev-soft-core 0fb66211, the larger of round 30's measurement and the tables', and section 13's re-grade, load and rows at 0.501 and 0.822 (#665))
+   At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 58.5 RAMB36 (`split_soc.ledgered_plan`).
+-=======
+-  At `8x8` its plan is held to the ledgered point's tiles in `ctrl_memory.LEDGERED` (`split_soc.ledgered_plan`).
+->>>>>>> e5f88a8e8b (Merge PR #892: Move the dev-soft-core tsn-c-stack pin to 715589c (#892))
+ - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+   `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
+   The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
