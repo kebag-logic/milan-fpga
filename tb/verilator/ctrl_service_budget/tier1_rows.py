@@ -32,7 +32,7 @@ LONG_NOTICE_BYTES = 550
 #: restates at the 240 ms response time (paced_rows.PACED_BOUNDS, #894's ruling of 2026-11-13 on round 5).
 CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30}
 #: THE TRANSMIT's MRPDU rows: tx, and txL with every AECP notice the largest legal one (#894's ruling of 2026-11-13 on
-#: option A: the MRPDU's 40 ms is the specs', so the largest legal notice is one of its sources).
+#: option A: the MRPDU's bound is the specs', so the largest legal notice is one of its sources).
 TX_ROWS = ('tx', 'txL')
 
 

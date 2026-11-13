@@ -23,7 +23,7 @@ flip check's (flip_grade.py, --design built); its self-test plants a defect in e
 Every bound, cost and arrival rule not named here is rows_grade.py's (its docstring's source list). The bounds are
 decision D's (rows_grade.BOUNDS): tier 1 20 ms, SRP 90 ms, the last queued notice 125 ms; the tier-1 channel rows'
 FR_NFR.md 3.4.1's (CHANNEL_BOUNDS: R4L 20 ms, 240 ms paced, paced_rows.bounds; ACMP, ADP and MAAP 30 ms by the
-owner's decision of 2026-11-13, option A); THE TRANSMIT's the MRP timer budget's 40 ms (bounds_at).
+owner's decision of 2026-11-13, option A); THE TRANSMIT's the MRP timer budget's (TX_BUDGET_MS, bounds_at).
 
 usage: python3 -I rows_tiers.py [--model {built,corrected,tiers}] [--slice US ...] [--tier1 ORDER] [--tier2 ORDER]
                                 [--aecp RULE] [--cap N] [--quota A/B/C/D] [--long RULE] [--no-datapath]

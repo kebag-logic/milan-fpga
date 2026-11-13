@@ -15,7 +15,8 @@ THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grad
 comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
 2026-11-13, item 2: AECP's with its largest legal notice at tier 1's 20 ms, ACMP's, ADP's and MAAP's at 30 ms by the
 owner's decision of 2026-11-13, option A, FR_NFR.md 3.4.1)
-and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 40 ms), by its stated notice
+and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 50 ms at 19 cs, the
+contingent ruling's item 3), by its stated notice
 and with every AECP notice the largest legal one (txL, #894's slice ruling of 2026-11-13), and the check fails
 when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
