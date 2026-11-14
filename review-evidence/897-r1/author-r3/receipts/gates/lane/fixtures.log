@@ -1,0 +1,5 @@
+# head f098f893d57e0fa3ec95a7e459313c5cfe4f4224 gate fixtures: bash <scratch>/scripts/r3/fixtures3.sh $PWD <scratch>/r3/builds/boot-f098f893/plat-ledger <scratch>/r3/builds/boot-f098f893/fixtures && for f in <scratch>/r3/builds/boot-f098f893/fixtures/*.rc; do [ "$(cat $f)" = 0 ] || exit 1; done
+1x1-if1 rc 0 rom 110904 in 112640 sram 55152 in 55296 tiles 41.0
+1x1-if2 rc 0 rom 112192 in 112640 sram 57312 in 57344 tiles 41.5
+8x8-if1 rc 0 rom 124424 in 124928 sram 96240 in 96256 tiles 54.0
+8x8-if2 rc 0 rom 125688 in 126976 sram 113168 in 114688 tiles 59.0

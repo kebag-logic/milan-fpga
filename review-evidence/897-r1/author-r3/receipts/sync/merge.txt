@@ -1,0 +1,73 @@
+# git show --stat --format=fuller e45981f8 (the sync merge)
+e45981f8eecf8cbbbd1cef1f0ff528c8b3241f52
+parents 3bebf03a1d25bcbde9c0ec48dfd711af7280131e 5b264bf26416108add32d7fe5abca5252ffde2cb
+subject Merge 894-tiers 5b264bf2 (#902, not merged) into the split's GET_AS_PATH lane, each conflict kept from both sides
+
+ docs/design/MAILBOX_SPLIT.md                       |   10 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  178 +++-
+ docs/reference/FR_NFR.md                           |   27 +-
+ sw/firmware/ctrl/aecp/README.md                    |   66 +-
+ sw/firmware/ctrl/aecp/aecp.c                       |  112 ++-
+ sw/firmware/ctrl/aecp/aecp.h                       |   33 +
+ sw/firmware/ctrl/aecp/aecp_entity.py               |    2 +-
+ sw/firmware/ctrl/aecp/aecp_maps.c                  |  270 ++++--
+ sw/firmware/ctrl/aecp/aecp_mbx.c                   |   18 +-
+ sw/firmware/ctrl/aecp/aecp_mbx.h                   |   46 +-
+ sw/firmware/ctrl/aecp/aecp_shape.py                |   48 +-
+ sw/firmware/ctrl/loop/ctrl_loop.c                  |  116 ++-
+ sw/firmware/ctrl/loop/ctrl_loop.h                  |  252 +++--
+ sw/firmware/ctrl/plat/ctrl_plat.c                  |    8 +
+ sw/firmware/ctrl/srp/README.md                     |   12 +-
+ sw/firmware/ctrl/srp/srp_mbx.c                     |   51 +-
+ sw/firmware/ctrl/srp/srp_mbx.h                     |    1 +
+ sw/firmware/ctrl/test/acmp_mutants.py              |    4 +-
+ sw/firmware/ctrl/test/aecp_arms.py                 |   50 +-
+ sw/firmware/ctrl/test/aecp_fan_mutants.py          |   12 +-
+ sw/firmware/ctrl/test/aecp_map_mutants.py          |  129 +++
+ sw/firmware/ctrl/test/aecp_mutants.py              |   15 +-
+ sw/firmware/ctrl/test/aecp_owed_mutants.py         |   80 ++
+ sw/firmware/ctrl/test/aecp_retry_mutants.py        |    4 +-
+ sw/firmware/ctrl/test/ctrl_aecp_image.c            |    8 +
+ sw/firmware/ctrl/test/ctrl_configs.py              |   34 +-
+ sw/firmware/ctrl/test/ctrl_mutants.py              |    7 +-
+ sw/firmware/ctrl/test/ctrl_retry_search.py         |  272 ------
+ sw/firmware/ctrl/test/ctrl_service_bounds.py       |   10 +-
+ sw/firmware/ctrl/test/loop_step_mutants.py         |  129 ++-
+ sw/firmware/ctrl/test/srp_app.cpp                  |   10 +-
+ sw/firmware/ctrl/test/srp_latency.cpp              |   10 +-
+ sw/firmware/ctrl/test/srp_mbx.cpp                  |  161 +++-
+ sw/firmware/ctrl/test/srp_mutants.py               |    4 +-
+ sw/firmware/ctrl/test/srp_rx_retry.cpp             |    7 +-
+ sw/firmware/ctrl/test/srp_transmit_mutants.py      |   37 +-
+
+# conflicted files at the merge (git merge --no-commit 5b264bf2 on 3bebf03a)
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/plat/ctrl_plat.c
+sw/firmware/gtest/coverage.ratchet
+
+# files changed on both sides since cec88385
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/aecp/README.md
+sw/firmware/ctrl/plat/ctrl_plat.c
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/test/aecp_mutants.py
+sw/firmware/ctrl/test/ctrl_aecp_image.c
+sw/firmware/ctrl/test/test_aecp.cpp
+sw/firmware/gtest/coverage.ratchet
+tb/verilator/ctrl_service_budget/build.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/run.py
+tb/verilator/ctrl_split_boot/README.md
+
+# gitlinks (git ls-tree -r, mode 160000) at cec88385, 3bebf03a, 5b264bf2, e45981f8
+cec88385 external=efeb541a gptp-processor=135afd04 protocol-processor=a9e84b66 third_party/lwSRP=08ee86e8 third_party/tsn-c-stack=715589c1 third_party/verilog-axis=48ff7a7e
+3bebf03a external=efeb541a gptp-processor=135afd04 protocol-processor=a9e84b66 third_party/lwSRP=08ee86e8 third_party/tsn-c-stack=715589c1 third_party/verilog-axis=48ff7a7e
+5b264bf2 external=efeb541a gptp-processor=135afd04 protocol-processor=a9e84b66 third_party/lwSRP=08ee86e8 third_party/tsn-c-stack=715589c1 third_party/verilog-axis=48ff7a7e
+e45981f8 external=efeb541a gptp-processor=135afd04 protocol-processor=a9e84b66 third_party/lwSRP=08ee86e8 third_party/tsn-c-stack=715589c1 third_party/verilog-axis=48ff7a7e
+
+# merge_sides-e45981f8.txt: "8 file(s) differ" are the four files both sides edited, each counted once a side:
+#  SPLIT_CONTROL_MEMORY.md and plat/README.md (both moved 59.5 to 60.0; this branch's longer line kept),
+#  coverage.ratchet (both edited the ctrl_plat.c row; the composed measurement recorded in 417f44af),
+#  ctrl_split_boot/README.md (the identical edit on both sides, so the merge shows no diff against either parent).

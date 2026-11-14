@@ -1,0 +1,101 @@
+# head f098f893d57e0fa3ec95a7e459313c5cfe4f4224 gate behave: cd tests && <scratch>/gates/venv/bin/behave --no-capture -f plain
+USING RUNNER: behave.runner:Runner
+Feature: back-to-back state-changing commands from two controllers, with AECP's owed-notice queue
+  Background: 
+
+  Scenario: A's and B's commands back to back, the second taken while the first's notice is owed
+    Given AECP's owed-notice rules read from the shipped firmware ... passed in 0.001s
+    And controllers A, B and C registered for unsolicited notifications ... passed in 0.000s
+    When A sends a state-changing command and B sends one before any notice leaves ... passed in 0.000s
+    Then the wire carries A's response, then B's response, then the notices ... passed in 0.000s
+    And C receives A's notice before B's, at consecutive sequence_ids ... passed in 0.000s
+    And A receives only B's notice and B only A's ... passed in 0.000s
+
+  Scenario: the queue is bounded and AECP takes no command while it is full
+    Given AECP's owed-notice rules read from the shipped firmware ... passed in 0.000s
+    And controllers A, B and C registered for unsolicited notifications ... passed in 0.000s
+    When commands fill the owed-notice queue at its depth ... passed in 0.000s
+    Then AECP is not ready for the next command ... passed in 0.000s
+    And one notice sent frees one slot and AECP is ready again ... passed in 0.000s
+
+  Scenario: a notification longer than a slot waits behind the queue, its response first
+    Given AECP's owed-notice rules read from the shipped firmware ... passed in 0.000s
+    And controllers A, B and C registered for unsolicited notifications ... passed in 0.000s
+    When A sends a state-changing command and B sends one whose notice is longer than a slot ... passed in 0.000s
+    Then B's response is held until the poll and precedes B's notice ... passed in 0.000s
+    And C receives A's notice before B's ... passed in 0.000s
+
+Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
+  Background: 
+
+  Scenario: reading ENTITY[0] answers SUCCESS with the whole response shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 4 with u clear ... passed in 0.000s
+    And the AECP response target_entity_id is our own ... passed in 0.000s
+    And the AECP response echoes the sequence_id and the controller_entity_id ... passed in 0.000s
+    And the AECP response is unicast back to the requester from our own MAC ... passed in 0.000s
+    And the AECP response configuration_index is 0 and the reserved halfword is zero ... passed in 0.000s
+[...]
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks an empty capture end to end ... passed in 0.000s
+    Then no check verdict is PASS ... passed in 0.000s
+    And every check family is represented ... passed in 0.000s
+    And every SKIP names what was absent ... passed in 0.000s
+    And the capture-shape verdict is FAIL ... passed in 0.000s
+
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the attribute is a Talker Advertise ... passed in 0.000s
+    And the declared destination address is 91e0f000fe07 ... passed in 0.000s
+    And the declared vlan identifier is 2 ... passed in 0.000s
+    And the declared MaxFrameSize is 1024 ... passed in 0.000s
+    And the attribute is declaring ... passed in 0.000s
+
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the listener declaration is "Ready" ... passed in 0.000s
+
+  Scenario: a talker Stream Output that never declares is found from the wire
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the entity declares 5 talker stream ids from 0200000000020000 ... passed in 0.000s
+    And only stream 0200000000020000 and 0200000000020001 advertise ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "talker-advertise-declared" ... passed in 0.000s
+    And the missing declarations are named ... passed in 0.000s
+
+  Scenario: frames on the wire with no Listener Ready are unreserved
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+15 features passed, 0 failed, 0 skipped
+511 scenarios passed, 0 failed, 0 skipped
+2346 steps passed, 0 failed, 0 skipped
+Took 0min 2.739s

@@ -1,0 +1,101 @@
+## arm A 8x8: head build 6109475c7171, base build adbef07e1dd6, point 8x8
+counts head {'paths': 86, 'path_misses': 4, 'instances': 91, 'instance_misses': 7} base {'paths': 86, 'path_misses': 4, 'instances': 91, 'instance_misses': 7}
+refusals: head 0 base 0
+misses: head 7 base 7
+share_misses: head 0 base 0
+notice_misses: head 0 base 0
+| path | if | head cycles | base cycles | delta | head ms (bound) | within bound |
+|---|---:|---:|---:|---:|---|---|
+| acmp.bind_rx | 0 | 20523 | 20352 | 171 | 0.20523 (0.49481) | True |
+| acmp.bind_rx | 1 | 17904 | 17793 | 111 | 0.17904 (0.46617) | True |
+| acmp.disconnect_tx | 0 | 9280 | 9196 | 84 | 0.0928 (0.3003) | True |
+| acmp.disconnect_tx | 1 | 8723 | 9244 | -521 | 0.08723 (0.30207) | True |
+| acmp.get_rx_state | 0 | 10669 | 10224 | 445 | 0.10669 (0.31896) | True |
+| acmp.get_rx_state | 1 | 11318 | 10977 | 341 | 0.11318 (0.32983) | True |
+| acmp.get_tx_connection | 0 | 8646 | 9225 | -579 | 0.08646 (0.30011) | True |
+| acmp.get_tx_connection | 1 | 9859 | 9438 | 421 | 0.09859 (0.31224) | True |
+| acmp.get_tx_state | 0 | 10098 | 10010 | 88 | 0.10098 (0.31028) | True |
+| acmp.get_tx_state | 1 | 10143 | 10143 | 0 | 0.10143 (0.31123) | True |
+| acmp.probe_tx | 0 | 10937 | 10944 | -7 | 0.10937 (0.33082) | True |
+| acmp.probe_tx | 1 | 11045 | 10632 | 413 | 0.11045 (0.33135) | True |
+| acmp.probe_tx_response | 0 | 9749 | 10260 | -511 | 0.09749 (0.37618) | True |
+| acmp.probe_tx_response | 1 | 10770 | 10195 | 575 | 0.1077 (0.3846) | True |
+| acmp.unbind_rx | 0 | 13804 | 13649 | 155 | 0.13804 (0.45036) | True |
+| acmp.unbind_rx | 1 | 14038 | 14529 | -491 | 0.14038 (0.48103) | True |
+| aecp.entity_available | 0 | 16858 | 18839 | -1981 | 0.16858 (0.60193) | True |
+| aecp.entity_available | 1 | 28215 | 24455 | 3760 | 0.28215 (0.72828) | True |
+| aecp.get_avb_info | 0 | 32809 | 13103 | 19706 | 0.32809 (0.76763) | True |
+| aecp.get_avb_info | 1 | 31180 | 27510 | 3670 | 0.3118 (0.7603) | True |
+| aecp.get_configuration | 0 | 25885 | 27982 | -2097 | 0.25885 (0.70433) | True |
+| aecp.get_configuration | 1 | 18864 | 15402 | 3462 | 0.18864 (0.62242) | True |
+| aecp.get_counters | 0 | 20329 | 30708 | -10379 | 0.20329 (0.64482) | True |
+| aecp.get_counters | 1 | 22358 | 18309 | 4049 | 0.22358 (0.66453) | True |
+| aecp.get_name | 0 | 28097 | 29739 | -1642 | 0.28097 (0.73214) | True |
+| aecp.get_name | 1 | 30020 | 26325 | 3695 | 0.3002 (0.75187) | True |
+| aecp.lock_entity | 0 | 44200 | 44568 | -368 | 0.442 (0.8159) | True |
+| aecp.lock_entity | 1 | 36991 | 30349 | 6642 | 0.36991 (0.77374) | True |
+| aecp.mvu_get_milan_info | 0 | 16272 | 18216 | -1944 | 0.16272 (0.59824) | True |
+| aecp.mvu_get_milan_info | 1 | 27824 | 23984 | 3840 | 0.27824 (0.72411) | True |
+| aecp.read_descriptor.t0.i0.c0 | 0 | 32523 | 34056 | -1533 | 0.32523 (0.77728) | True |
+| aecp.read_descriptor.t0.i0.c0 | 1 | 24086 | 33931 | -9845 | 0.24086 (0.68118) | True |
+| aecp.read_descriptor.t1.i0.c0 | 0 | 28864 | 30706 | -1842 | 0.28864 (0.73941) | True |
+| aecp.read_descriptor.t1.i0.c0 | 1 | 21631 | 17820 | 3811 | 0.21631 (0.66841) | True |
+| aecp.read_descriptor.t10.i9.c0 | 0 | 27900 | 29631 | -1731 | 0.279 (0.72709) | True |
+| aecp.read_descriptor.t12.i0.c0 | 0 | 18644 | 20714 | -2070 | 0.18644 (0.62444) | True |
+| aecp.read_descriptor.t13.i0.c0 | 0 | 32753 | 34417 | -1664 | 0.32753 (0.78311) | True |
+| aecp.read_descriptor.t14.i7.c0 | 0 | 27746 | 29797 | -2051 | 0.27746 (0.72722) | True |
+| aecp.read_descriptor.t15.i7.c0 | 0 | 18196 | 20266 | -2070 | 0.18196 (0.62154) | True |
+| aecp.read_descriptor.t2.i0.c0 | 0 | 19182 | 21325 | -2143 | 0.19182 (0.63101) | True |
+| aecp.read_descriptor.t2.i0.c0 | 1 | 30440 | 27129 | 3311 | 0.3044 (0.75395) | True |
+| aecp.read_descriptor.t20.i71.c0 | 0 | 28145 | 30070 | -1925 | 0.28145 (0.73033) | True |
+| aecp.read_descriptor.t26.i0.c0 | 0 | 19687 | 21735 | -2048 | 0.19687 (0.63566) | True |
+| aecp.read_descriptor.t36.i0.c0 | 0 | 28882 | 21792 | 7090 | 0.28882 (0.74104) | True |
+| aecp.read_descriptor.t5.i8.c0 | 0 | 28240 | 30287 | -2047 | 0.2824 (0.73355) | True |
+| aecp.read_descriptor.t6.i8.c0 | 0 | 19862 | 21910 | -2048 | 0.19862 (0.6365) | True |
+| aecp.read_descriptor.t9.i0.c0 | 0 | 18697 | 20716 | -2019 | 0.18697 (0.63578) | True |
+| aecp.register_unsolicited | 0 | 16919 | 19289 | -2370 | 0.16919 (0.61805) | True |
+| aecp.register_unsolicited | 1 | 27008 | 29213 | -2205 | 0.27008 (0.7224) | True |
+| aecp.set_name | 0 | 51997 | 52818 | -821 | 0.51997 (0.97335) | True |
+| aecp.set_name | 1 | 50133 | 45718 | 4415 | 0.50133 (0.9215) | True |
+| aecp.unknown_command | 0 | 26131 | 27992 | -1861 | 0.26131 (0.71098) | True |
+| aecp.unknown_command | 1 | 18774 | 15150 | 3624 | 0.18774 (0.62587) | True |
+| aecp.unlock_entity | 0 | 35014 | 34361 | 653 | 0.35014 (0.71885) | True |
+| aecp.unlock_entity | 1 | 46821 | 42011 | 4810 | 0.46821 (0.84676) | True |
+| aecp_fanout.lock_entity | 0 | 65147 | 65545 | -398 | 0.65147 (1.06982) | True |
+| aecp_fanout.lock_entity | 1 | 64760 | 65497 | -737 | 0.6476 (1.06291) | True |
+| aecp_fanout.set_clock_source | 0 | 59431 | 60458 | -1027 | 0.59431 (1.0369) | True |
+| aecp_fanout.set_clock_source | 1 | 68357 | 68929 | -572 | 0.68357 (1.12423) | True |
+| aecp_fanout.set_control | 0 | 65149 | 65735 | -586 | 0.65149 (1.06798) | True |
+| aecp_fanout.set_control | 1 | 55711 | 55699 | 12 | 0.55711 (0.97536) | True |
+| aecp_fanout.set_name | 0 | 66628 | 67405 | -777 | 0.66628 (1.15161) | True |
+| aecp_fanout.set_name | 1 | 61858 | 62350 | -492 | 0.61858 (1.07207) | True |
+| aecp_fanout.set_sampling_rate | 0 | 57402 | 58177 | -775 | 0.57402 (1.01468) | True |
+| aecp_fanout.unlock_entity | 0 | 56298 | 55717 | 581 | 0.56298 (0.97939) | True |
+| aecp_fanout.unlock_entity | 1 | 56298 | 55717 | 581 | 0.56298 (0.97825) | True |
+| backlog.owed | 0 | 6357215 | 6375977 | -18762 | 63.57215 (63.84301) | False |
+| backlog.owed_behind | 0 | 6459585 | 6480467 | -20882 | 64.59585 (64.86943) | False |
+| service.acmp.first | 0 | 146171 | 167359 | -21188 | 1.46171 (None) | None |
+| service.acmp.last | 0 | 6228839 | 6245122 | -16283 | 62.28839 (None) | False |
+| service.adp.first | 0 | 150493 | 171681 | -21188 | 1.50493 (None) | None |
+| service.adp.last | 1 | 149877 | 302387 | -152510 | 1.49877 (None) | None |
+| service.aecp.first | 0 | 276698 | 170999 | 105699 | 2.76698 (None) | None |
+| service.aecp.last | 1 | 6195939 | 6211317 | -15378 | 61.95939 (None) | False |
+| service.maap.first | 0 | 148755 | 169943 | -21188 | 1.48755 (None) | None |
+| service.maap.last | 0 | 275246 | 300869 | -25623 | 2.75246 (None) | None |
+| service.srp.first | 0 | 435030 | 431620 | 3410 | 4.3503 (None) | None |
+| service.srp.last | 1 | 860244 | 856211 | 4033 | 8.60244 (None) | None |
+| srp.domain | 0 | 174124 | 172744 | 1380 | 1.74124 (1.90658) | True |
+| srp.domain | 1 | 181239 | 179848 | 1391 | 1.81239 (2.01011) | True |
+| srp.listener_ready | 0 | 56351 | 56462 | -111 | 0.56351 (0.56417) | True |
+| srp.listener_ready | 1 | 55168 | 55366 | -198 | 0.55168 (0.55234) | True |
+| srp.malformed | 0 | 28604 | 28307 | 297 | 0.28604 (0.2867) | True |
+| srp.malformed | 1 | 29011 | 28799 | 212 | 0.29011 (0.29077) | True |
+| srp.startup | 0 | 146641 | 146299 | 342 | 1.46641 (1.5341) | True |
+| srp.startup | 1 | 148762 | 148051 | 711 | 1.48762 (1.54999) | True |
+group srp: worst work pass head 149156 base 147814 cycles; work passes head 316 base 316
+group backlog-owed: worst work pass head 153459 base 155424 cycles; work passes head 319 base 318
+group aecp-fanout: worst work pass head 89845 base 89825 cycles; work passes head 151 base 151
+group acmp-cmd: worst work pass head 89845 base 89825 cycles; work passes head 112 base 112
+group aecp: worst work pass head 89845 base 89825 cycles; work passes head 141 base 141
+group datapath-events: worst work pass head 89845 base 89825 cycles; work passes head 156 base 158
+largest path delta: -152510 cycles at ('service.adp.last', 1)

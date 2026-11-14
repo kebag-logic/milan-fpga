@@ -1,0 +1,9 @@
+# head e45981f8eecf8cbbbd1cef1f0ff528c8b3241f52: python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.513 | 0.509 | 0.70, both columns | 1.00x | 235 | srp 0.168, rec.acmp 0.053, ticks 0.048, rec.aecp 0.047, item.aecp 0.046, steps 0.033, item.reclaim 0.026, timers 0.018, item.acmp 0.016, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.010, builds 0.008, rec.maap 0.004, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.792 | 0.752 | the flip check, 0.70 at the pin (flip_grade.py) | 1.07x | 355 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, ticks 0.059, timers 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, builds 0.026, item.acmp 0.025, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.513, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70
+RESULT: PASS

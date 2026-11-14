@@ -1,0 +1,63 @@
+HEAD f098f893d57e0fa3ec95a7e459313c5cfe4f4224 DIRTY 0 fA1 1x1 datapath-events,aecp-largest-notice,backlog-owed,srp,aecp,aecp-fanout,acmp-cmd  start 09:56:16
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=False, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+[milan] --ctrl-firmware <scratch>/r3/builds/fA1/image/ctrl_app.elf: {"rom": {"bytes": 110904, "banks": [65536, 32768, 8192, 4096, 2048], "RAMB36": 27, "RAMB18": 1}, "sram": {"bytes": 55152, "banks": [32768, 16384, 4096, 2048], "RAMB36": 13, "RAMB18": 1}, "tiles": 41.0, "budget_tiles": 56}
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (7)
+rom                 : Origin: 0x00000000, Size: 0x00038000, Mode:  RX, Cached:  True, Linker: False
+spiflash            : Origin: 0x01000000, Size: 0x01000000, Mode:   R, Cached: False, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00038000, Mode: RWX, Cached:  True, Linker: False
+ctrl_mbx            : Origin: 0x80000000, Size: 0x00008000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : rw
+- sram              : rw
+- ctrl_mbx          : rw
+- spiflash          : r
+- csr               : rw
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (1)
+- ctrl_mbx_dma      : rw
+Bus Slaves: (1)
+- dma               : rw
+CSR Locations: (6)
+- ctrl           : 0
+- identifier_mem : 1
+- uart           : 2
+- spiflash       : 3
+- timer0         : 4
+- ctrl_mbx_dma   : 29
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0VexiiRiscv netlist : VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952
+MilanSoC
+Legend:
+
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 62.864 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.039 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.213 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.386 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.560 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.024 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.779 ms over its budget 20 ms
+STEPS 919 passes carry the store's step; the longest 20,970 CPU cycles (0.210 ms), srp; the longest step 2,162 (0.022 ms), backlog-owed
+SLICES 64204 tier-2 slices; the longest SRP's records 75,817, THE TRANSMIT's build 69,269, THE RETRY's round 8,423 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS aecp-fanout: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS datapath-events: 3 join interval(s), the shortest 187.958 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+7 groups graded, 0 refusals, 7 budget misses (7 of 66 probe instances, 4 of 62 paths), 0 of 1136 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+rc=0 elapsed=709s end 10:08:05
+PLAN none endstation_ax7101_1x1_tdm8 1 rom 110904 in 112640 sram 55152 in 55296 tiles 41.0

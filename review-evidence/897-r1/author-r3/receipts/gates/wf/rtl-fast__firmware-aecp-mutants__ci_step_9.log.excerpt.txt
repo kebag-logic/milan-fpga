@@ -1,0 +1,101 @@
+# head f098f893d57e0fa3ec95a7e459313c5cfe4f4224 workflow rtl-fast.yml job firmware-aecp-mutants step ci_step_9: Run the AECP mutation campaign
+# clone <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1422 live invocations in exactly one shard; shard sizes [76, 718, 284, 344]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-input-refusal: Core.S2_NoSubcommandSetOnInputIsNotSupported
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-applies-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-reports-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-notifies-change: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-timer-lost: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] entity-available-index-static: Core.EntityAvailableIndexUsesTheIngressObservation:App.EntityReadSeesTheLastAdvertisedIndex
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+[...]
+[ok] map-remove-every-copy: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-remove-values-rewalked: Core.MapEditWorkIsLinearInItsMappings
+[ok] map-table-scanned: Core.MapEditWorkIsLinearInItsMappings
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] pace-not-held: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] pace-a-millisecond-short: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] pace-from-boot: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] pace-unstamped: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] pace-a-refused-edit: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-count-read-as-avb-info: Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-entries-at-one-ordinal: Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-through-the-first-interface: Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-truncated-at-its-bound: Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-bound-off-by-one: Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-count-unanswered-ignored: Face.AnUnansweredAsPathWordFailsItsPortThere
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-entry-unanswered-ignored: Face.AnUnansweredAsPathWordFailsItsPortThere
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-change-notifies-avb-info: AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r3/gates-out/final-f098f893/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-is6ijy3m/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-as-path-change-on-the-first-interface: AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+test_ctrl_firmware: PASS
