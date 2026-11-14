@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """A final pass's AECP records held to their stated costs by class, and the pass held to every group they depend on
-(#894's round 11: the one-row map edit's record had grown past record.aecp in the one group that measures it,
-aecp-fanout, which no pass had run since round 4).
+(#894: the one-row map edit's record grew past record.aecp unseen, in the one group that measures it,
+aecp-fanout, which the gate passes after that growth did not run).
 
 Each AECP record is a span of the record handler (aecp_mbx.c, frame), from entry to return; its command is that of
 the first solicited AECP response committed at or after its start (grade.parse, Log.tx). Each is held, by the rule
@@ -69,7 +69,7 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (lane 894b's, reported)."""
+    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8 follow-up, reported)."""
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 

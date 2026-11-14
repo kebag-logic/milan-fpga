@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE PACE's edits among AECP's ordinary records (#894's round-11 amendment, the class split): every checked ADD or
+"""THE PACE's edits among AECP's ordinary records (#894's class-split amendment): every checked ADD or
 REMOVE_AUDIO_MAPPINGS is paced (aecp_maps.c stamps it, aecp_mbx.c, ready, holds the next record; paced_rows.py), so
 a row's window of w ms holds at most edits(w, P) of them, ceil((w + 1) / P). A tier-model row that is not one of
 rows_tiers.LONG_ROWS charges each AECP record it counts at record.aecp, the ordinary commands' record, and here those
@@ -26,9 +26,9 @@ import paced_rows
 if TYPE_CHECKING:
     from rows_tiers import Inputs
 
-#: A one-row edit's record in us at each point (above), under the cut of #894's round 11: at 1x1/1if 24,360 CPU cycles,
-#: a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of one input row 22,728, 240;
-#: 27,851 at 7398ec0a); at 8x8/2if 30,563, a REMOVE of one output row, 325.
+#: A one-row edit's record in us at each point (above), under #894's one-row edit cut, bc971054: at 1x1/1if 24,360 CPU
+#: cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of one input row
+#: 22,728, 240; 27,851 at 7398ec0a); at 8x8/2if 30,563, a REMOVE of one output row, 325.
 EDIT_RECORD_US = {'1x1/1if': 260, '8x8/2if': 325}
 #: The planted defect controls() plants (rows_tiers.CONTROLS names it).
 CONTROLS = ("an unpaced edit charged at the non-edit record",)

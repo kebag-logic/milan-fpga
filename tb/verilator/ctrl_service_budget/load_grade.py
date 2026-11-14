@@ -123,11 +123,11 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: on the merge of the TSN stack pin move to 715589c (#665), each cost the larger of that measurement and this
 #: table's (the polls' and AECP's own at poll_grade.py's, which the redelivery's ACMP item restates), and again on
 #: the merge of dev-soft-core 0fb66211 (#665), 8x8/2if on the image whose round's cold start is 185 us, each cost the
-#: larger of that measurement and this table's; on #894's round 11 a TICK at 1x1/1if 45 to 50 us, the larger of this
+#: larger of that measurement and this table's; under #894's edit cut a TICK at 1x1/1if 45 to 50 us, the larger of this
 #: table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an owed
 #: frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and ACMP's
 #: owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30 to 35 (2,859 cycles
-#: in notice-every-0; 2,093 at round 9's head) and ACMP's owed frame 65 to 70. 32x32/2if is measured on the 32x32
+#: in notice-every-0; 2,093 at 5b264bf2) and ACMP's owed frame 65 to 70. 32x32/2if is measured on the 32x32
 #: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
