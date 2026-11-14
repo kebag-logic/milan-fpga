@@ -98,6 +98,7 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 | `item10_audio_maps.feature` | 5 | the chmap64 render-crossbar word format and its base_cluster + offset key space |
 | `milan_streaming_licence.feature` | 4 | the AAF admission composition, the t>0 wire identity in `KL_aaf_packetizer`, and a byte-exact bench MSRPDU capture |
 | `crf_sr_class_a.feature` | 3 | the CRF emitter's 802.1Q C-TAG and the lane it leaves on |
+| `aecp_owed_notices.feature` | 3 | AECP's owed-notice queue (#894) on two controllers' back-to-back state-changing commands: each controller's notices in command order with its sequence_id one on per notice, each response before its notices, and AECP not ready while the queue is full, on a model whose depth, order and readiness rule are read from `aecp.c`, `aecp.h` and `aecp_mbx.h` |
 
 > Counts in prose go stale. `behave -f plain` prints the authoritative totals on
 > every run; if this table and the run disagree, the run wins.

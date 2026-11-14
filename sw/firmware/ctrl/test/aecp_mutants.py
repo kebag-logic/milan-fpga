@@ -11,7 +11,9 @@ from pathlib import Path
 
 import aecp_arms
 import aecp_index_mutants
+import aecp_map_mutants
 import aecp_fan_mutants
+import aecp_owed_mutants
 import aecp_retry_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
@@ -402,9 +404,11 @@ DEFECTS = (
            '(void)cfg, d->type == type',
            ('Core.MetadataConfigurationKeysAndRepeatedOverrides',
             'status for command')),
+    # #904: an edit compares mappings by its table's key, so the input key's cluster channel is the key's; a restore
+    # still compares rows whole.
     defect('map-cluster-channel-ignored', 'aecp_maps.c',
-           'a->cluster_channel == b->cluster_channel;',
-           '((void)a->cluster_channel, true);',
+           'return h->w[input];',
+           'return input ? h->r.cluster : h->w[0];',
            ('Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore',
             'a distinct cluster channel is a distinct input key')),
     defect('no-interface-accepted', 'aecp.c',
@@ -865,7 +869,8 @@ DEFECTS = (
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
 ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_fan_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_map_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:
@@ -921,7 +926,9 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
                 result = aecp_arms.image_arm(tree, config)
             else:
                 debug = d.checks[0][0].startswith("AecpDebug.")
-                result = aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected)
+                work = d.checks[0][0].startswith(aecp_arms.WORK.rstrip("*"))
+                result = (aecp_arms.core_arm(tree, config, 1, "work", selected) if work else
+                          aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected))
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:

@@ -22,13 +22,17 @@ import answers
 import build
 import flip_grade
 import grade
+import join_grade
 import load_grade
+import long_notice
 import mrpdu_grade
 import notice_window
 import poll_grade
 import poll_items
 import round_grade
+import slice_grade
 import rows_grade
+import rows_tiers
 import run
 import save_grade
 import save_window
@@ -473,6 +477,8 @@ MUTANTS: dict[str, Patches] = {
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
         load_grade, 'COLUMNS', load_grade.COLUMNS[1:])],
     'rows: the rows by every source not held': lambda: [patch.object(rows_grade, 'findings', lambda *a, **k: [])],
+    "rows: the built design's rows by every source not held": lambda: [patch.object(
+        rows_tiers, 'findings', lambda *a, **k: [])],
     "rows: SRP's rows held to T_svc's 20 ms": lambda: [patch.object(
         rows_grade, 'BOUNDS', dict(rows_grade.BOUNDS, R5=20, R6=20))],
     "rows: the grandmaster events left out of a row's window": lambda: [patch.object(
@@ -772,6 +778,20 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],
     'round: in bus cycles, not CPU time': lambda: [patch.object(
         round_grade, 'held', lambda log, n, f=round_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    'slice: no slice is held to its length': lambda: [patch.object(
+        slice_grade, 'held', lambda log, n, f=slice_grade.held: dict(f(log, n), over=[]))],
+    'slice: the stated length doubled': lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: 2 * f(interfaces))],
+    "slice: one point's length at both": lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(2))],
+    "slice: SRP's records are not a slice": lambda: [patch.object(slice_grade, 'RECORD', 'srp_mbx:none')],
+    "slice: SRP's slice from its first record": lambda: [patch.object(
+        slice_grade, 'origin', lambda p, records: min(cpu for cpu, _ in records))],
+    'slice: a build pass is not a slice': lambda: [patch.object(slice_grade, 'BUILD', 'build_none')],
+    "slice: a build pass's round a slice of its own": lambda: [patch.object(
+        slice_grade, 'claimed', lambda inside: set())],
+    'slice: in bus cycles, not CPU time': lambda: [patch.object(
+        slice_grade, 'held', lambda log, n, f=slice_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
     'polls: no base is held to its cost': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != 'base']))(f(log, n)))],
@@ -782,13 +802,72 @@ MUTANTS: dict[str, Patches] = {
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != poll_grade.RECORD]))(f(log, n)))],
     'polls: the items are not taken from the base': lambda: [patch.object(
-        poll_grade, 'instances', lambda log, traced, commits, start, end: [])],
+        poll_grade, 'instances', lambda log, traced, commits, start, end, longs=(): [])],
+    "polls: a long notice is the aecp item's": lambda: [patch.object(poll_grade, 'long_notices', lambda log: [])],
+    "polls: a long notice's item is held to no cost": lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.LONG]))(f(log, n)))],
+    "polls: a long notice is any AECP frame over the fan port's": lambda: [patch.object(
+        poll_grade, 'long_notices', lambda log: sorted(
+            c for c, ch, _, fr in log.tx if ch == scenario.CH['aecp'] and len(fr) > poll_grade.fan_bytes()))],
+    'long notice: a group that measured none is taken': lambda: [patch.object(
+        long_notice, 'missing', lambda results: [])],
     'polls: an ACMP or AECP call that sent nothing is an item': lambda: [patch.dict(
         poll_grade.ITEMS, acmp=('acmp_mbx:on_poll', None), aecp=('aecp:transmit', None))],
     'polls: an item after the polls is theirs': lambda: [patch.object(
         poll_grade, 'sections', lambda traced, f=poll_grade.sections: [(s, e + 10_000, ss) for s, e, ss in f(traced)])],
     'polls: an item nested in another is counted twice': lambda: [patch.object(
-        poll_grade, 'outermost', lambda found: [(kind, e - s) for s, e, kind in found])],
+        poll_grade, 'outermost', lambda found: [(kind, s, e - s) for s, e, kind in found])],
+    "polls: an ACMP item carries the redelivery's offers (earlier rule)": lambda: [patch.object(
+        poll_grade, 'offers',
+        lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: f(traced) if start < 0 else [])],
+    'polls: no offer is the kept record\'s re-offer, so none is told declined': lambda: [patch.object(
+        poll_grade, 'offers', lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: [
+            (s, c, False, ss) for s, c, _, ss in f(traced, start, end)])],
+    'polls: no declined ACMP offer is held to its cost': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.DECLINED]))(f(log, n)))],
+    "polls: no kept command's accepted offer is held to its cost": lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.KEPT]))(f(log, n)))],
+    "polls: a kept command's accepted offer held to the send's cost, not the record's": lambda: [patch.object(
+        poll_grade, 'record_us', lambda interfaces: poll_grade.stated_us(interfaces)['acmp'])],
+    'polls: the declined offers held to no bound': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.DECLINES]))(f(log, n)))],
+    'joins: no join interval held to its range': lambda: [patch.object(
+        join_grade, 'held', lambda log, f=join_grade.held: dict(f(log), over=[]))],
+    'joins: the range from the armed 190 ms': lambda: [patch.object(join_grade, 'LEAST_MS', 190.0)],
+    "joins: an MRPDU a join timer did not release taken for a join's": lambda: [patch.object(
+        join_grade, 'released', lambda log: {c: max((e for e, n in log.entries if n == join_grade.JOIN and e < c),
+                                                    default=c) for c, _, _, _ in log.tx})],
+    "joins: a periodic or LeaveAll timer's MRPDU taken for a join's": lambda: [patch.object(join_grade, 'OTHERS', ())],
+    "joins: the participants' applications not told apart": lambda: [patch.dict(
+        join_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
+    'joins: any two MRPDUs, with no join timer between': lambda: [patch.object(
+        join_grade, 'intervals', lambda log: [(ms, who, end) for ms, who, end in (
+            ((b - a) * 1000 / log.sys_hz, 'if0 MRP', b) for a, b in zip(
+                *(lambda c: (c, c[1:]))(sorted(c for c, ch, _, fr in log.tx if ch == scenario.CH['srp']))))])],
+    "joins: a run-out's builds sought within 100 ms of it (earlier rule)": lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: f(log, entry) if any(
+            entry < c < entry + log.sys_hz // 10 for c, n in log.entries if n == mrpdu_grade.BUILD) else
+        ('empty', []))],
+    "joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted": lambda: [
+        patch.object(join_grade, 'LEAST_MS', 180.0), patch.object(join_grade, 'MOST_MS', 240.0)],
+    'joins: a late build taken for an on-time one': lambda: [patch.object(mrpdu_grade, 'LATE_MS', 10 ** 6)],
+    "joins: a late build's run-out not failing the run": lambda: [patch.object(mrpdu_grade, 'FAILING', ('absent',))],
+    'joins: an absent build taken for an unresolved one': lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
+            lambda r: ('unresolved', r[1]) if r[0] == 'absent' else r)(f(log, entry)))],
+    'joins: an unresolved build taken for one that owes nothing': lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
+            lambda r: ('empty', r[1]) if r[0] == 'unresolved' else r)(f(log, entry)))],
+    "joins: a frame its build left owed not the build's": lambda: [patch.object(
+        mrpdu_grade, 'index', lambda log, f=mrpdu_grade.index: (lambda builds, passes, sent, last: (
+            builds, passes, [s for s in sent if any(q.start_sys <= s[0] < mrpdu_grade.end_of(log, q) and any(
+                q.start_sys <= c < mrpdu_grade.end_of(log, q) for c in builds) for q in passes)], last))(*f(log)))],
+    'polls: the declined offers held to three a send': lambda: [patch.object(
+        poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(2))],
     'polls: in bus cycles, not CPU time': lambda: [patch.object(

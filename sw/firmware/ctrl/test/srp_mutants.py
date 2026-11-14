@@ -794,8 +794,8 @@ DEFECTS = (
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     # #665: one MRPDU a call of THE TRANSMIT's, the next participant's on the next (srp_bounds.h, SRP_MBX_POLL_FRAMES).
     Defect('srp-term-poll-frames-uncapped','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           'slot < 2u * n + 2u && !m->owed_len; ++slot',
-           'slot < 2u * n + 1u && !m->owed_len; ++slot',
+           'slot < 2u * n + 2u && !m->owed_len;',
+           'slot < 2u * n + 1u && !m->owed_len;',
            "both of an interface's MRPDUs a call", suite='srp_app.cpp'),
     Defect('srp-term-send-cost','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'SRP_MBX_TX_MAX (2u +',

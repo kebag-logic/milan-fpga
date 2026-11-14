@@ -15,11 +15,13 @@
 //      to every sink; a TICK record's centiseconds go to the centisecond
 //      consumers, at most CTRL_LOOP_TICKS_PER_PASS per pass, the rest carried
 //      to the next pass;
-//   2. receive rings: THE DRAIN's channel, then each bound channel, each pass
-//      starting one channel on, at most CTRL_LOOP_RX_PER_PASS records, each to
-//      its handler, then what the pass has left to the records still waiting,
-//      one a channel in turn;
-//   3. polls: every module once; a poll returns true while its module still
+//   2. tier 1's receive rings (THE TIERS): its first channel, then each other
+//      bound channel, each pass starting one channel on, at most
+//      CTRL_LOOP_RX_PER_PASS records, each to its handler, then what the pass
+//      has left to the records still waiting, one a channel in turn;
+//   3. tier 2: THE DRAIN's channel, in one slice, once tier 1 holds no record
+//      it would take;
+//   4. polls: every module once; a poll returns true while its module still
 //      owes output (a frame its transmit ring had no room for).
 // A pass that handled anything, or after which output or centiseconds are
 // still owed, is followed by the next pass at once. Only a pass that handled
@@ -27,19 +29,22 @@
 // waits for raises the mailbox interrupt (an RX level, the event level), so
 // no owed frame waits on a wake that never comes.
 //
-// THE BOUND. An input is taken by pass CTRL_LOOP_EVT_PASSES (an event) or
-// CTRL_LOOP_RX_PASSES(rx_words) (a record of a channel), and one pass later
-// for each pass among them that dispatches a centisecond, which takes
-// CTRL_LOOP_RX_PER_TICK_PASS records of a channel (THE TICK), counted from the
-// first pass that starts after the fabric posted it, and the module's
-// response is committed in the pass that takes it (A3 says when it is
-// not). A pass given whole (THE STEP, THE RETRY, THE TRANSMIT) takes no input
-// and is not counted: it costs the input the step's, the round's or the
-// build's time, and it holds no more than THE SHARE. At most
-// CTRL_LOOP_WHOLE_RUN stand in a row, and one between two ordinary passes while
-// an event or a record of THE DRAIN's channel waits, or while records wait and
-// the client yields. A pass costs at most the budgets below times the modules'
-// stated costs. That holds under four assumptions:
+// THE BOUND. An event is taken by pass CTRL_LOOP_EVT_PASSES, and a record of a
+// tier-1 channel by pass CTRL_LOOP_RX_PASSES(rx_words) of the passes that serve
+// its tier (THE TIERS), and one pass later for each pass among them that
+// dispatches a centisecond, which takes CTRL_LOOP_RX_PER_TICK_PASS records of
+// a channel (THE TICK), counted from the first pass that starts after the
+// fabric posted it, and the module's response is committed in the pass that
+// takes it (A3 says when it is not). A pass given whole (THE STEP, THE RETRY,
+// THE TRANSMIT) takes no input and is not counted: it costs the input the
+// step's, the round's or the build's time, and it holds no more than THE
+// SHARE, a round or a build no more than a slice. At most CTRL_LOOP_WHOLE_RUN
+// stand in a row, and one between two ordinary passes while an event or a
+// record of THE DRAIN's channel waits, while a tier-1 record is held, or while
+// records wait and the client yields. A record of THE DRAIN's channel is
+// tier 2's: the rows by every source bound it (THE TIERS). A pass costs at
+// most the budgets below times the modules' stated costs. That holds under
+// four assumptions:
 //   A1 backlog: at most a full event ring (CTRL_LOOP_EVT_BACKLOG records,
 //      the ring holds no more) and at most a full receive ring per channel
 //      (CTRL_LOOP_RX_BACKLOG records: the smallest record the filter passes
@@ -79,8 +84,9 @@
 //   * MAAP: its records, and at most two queued frames per interface
 //     (tsn-c-stack maap.c, pump);
 //   * AECP: the records the loop hands it, each answered in its pass and taken
-//     only while no response or notice is owed; its change notices only in
-//     THE RETRY's round, as many as the pass has room for;
+//     only while no response is owed, no notice waits in its response buffer
+//     and its owed-notice queue has a slot; one owed notice a poll; its change
+//     notices only in THE RETRY's round, as many as the slice has room for;
 //   * SRP: its records (THE DRAIN), and an interface's two MRPDUs in a pass
 //     given whole (THE TRANSMIT); a link change withdraws in the pass that
 //     takes it and builds in the next, and a pass builds one interface at most
@@ -117,9 +123,8 @@
 // saved-state store's write path. Its flash steps (a page program's issue up
 // to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
 // pass the other slices make (1.90 ms at 8x8/2if), and in a pass that takes
-// records they lengthen every record still waiting (the last SRP record of the
-// composed burst waits CTRL_LOOP_SRP_PASSES passes), so its centisecond consumer only owes a
-// step, and the loop calls the step only once a pass takes nothing. It hands
+// records they lengthen every record still waiting, so its centisecond
+// consumer only owes a step, and the loop calls the step only once a pass takes nothing. It hands
 // the step the clock's value at which the pass has spent
 // CTRL_LOOP_SHARE_US, read once as the pass starts; the client takes its
 // step only when its stated cost still fits before that deadline. Otherwise
@@ -144,11 +149,16 @@
 // whole to an aged step or a build, after it; and one given whole to the round,
 // which the client asks for as each pass given whole may start (aecp.c,
 // aecp_retry_aged): a notice waits, nothing waits ahead of its round, and the
-// pace the last round set has passed. The loop tells the client what the pass
-// has left of THE SHARE under CTRL_LOOP_SHARE_MARGIN_US, and the client spends it
-// at the stated cost of each notice and each refused attempt, one attempt a port
-// and none with less than a notice's time left (aecp.c, scan), so a round takes
-// no pass over THE SHARE by construction.
+// pace the last round set has passed. A round is a slice of tier 2 (THE TIERS):
+// the loop tells the client what the slice has left under
+// CTRL_LOOP_SHARE_MARGIN_US, a slice from the start of a pass given whole, from
+// the round's own start in the others, never past THE SHARE, and the client
+// spends it at the stated cost of each notice and each refused attempt, one
+// attempt a port and none with less than a notice's time left (aecp.c, scan),
+// so a round takes no slice over its length and no pass over THE SHARE by
+// construction; a round that runs out resumes in the next slice at the next
+// notice. Beside a held tier-1 record or THE DRAIN's work, a round is a
+// queue's first notice alone (round_one, retry_first), tier 1's.
 // While records wait a round yields, one notice at a slower pace, so the CPU
 // they wait for is not spent on notices; a queue's first AECP_ROUND_YIELDS
 // rounds beside records do, and then the client stands firm (retry_firm), at
@@ -158,29 +168,45 @@
 // THE TRANSMIT (#665). One client's build: SRP's MRPDUs (srp_mbx.c, transmit).
 // Built in a pass that takes records, it lengthened every record still waiting,
 // and it is the one thing the join, periodic and LeaveAll timers wait for, so
-// a build has a pass given whole of its own, the first the loop can give once
-// the client reports one owed. That pass makes every interface's declarations
-// and sends both MRPDUs of the first interface that owes one, then THE RETRY's
-// client fills what is left of it. Its module's poll builds nothing; it sends
-// only a frame already owed (A3), and no build is owed ahead of that frame. The
-// client owes a pass for a join timer's end, a LeaveAll timer's where no join
-// timer holds it, or an Applicant that moves with its join timer idle, and for
-// a declaration, which while notices are queued waits for the join timer, so
-// each comes at most once a JoinTime a participant and THE RETRY's bound can
-// count them. CTRL_LOOP_TX_MS states the bound.
+// a build has a pass given whole of its own, a slice of tier 2, the first the
+// loop can give once the client reports one owed (THE TIERS). That pass makes
+// every interface's declarations and sends both MRPDUs of the first interface
+// that owes one, CTRL_LOOP_BUILD_MOST where the slice holds fewer, the next
+// slice resuming at the next participant with the same frames, then THE
+// RETRY's client fills what is left of the slice. Its module's poll builds
+// nothing; it sends only a frame already owed (A3), and no build is owed ahead
+// of that frame. The client owes a pass for a join timer's end, a LeaveAll
+// timer's where no join timer holds it, or an Applicant that moves with its
+// join timer idle, and for a declaration, which while notices are queued waits
+// for the join timer, so each comes at most once a JoinTime a participant.
 //
-// THE DRAIN (#665). One channel's records go first, past
-// CTRL_LOOP_RX_PER_PASS, to CTRL_LOOP_DRAIN_RECORDS, while the pass has spent
-// less than CTRL_LOOP_DRAIN_US: SRP's, whose burst is twice any other's and
-// whose bound the composed burst would pass at two a pass. A pass that took
-// more than CTRL_LOOP_RX_PER_PASS of them takes no other channel's, and a
-// record follows only the events posted before it (rx_order, read before the
-// pass's events): an event posted during every pass holds it back no longer.
-// What the pass has left then goes to every channel's records still waiting, one
-// a channel in turn, under the same limit, so a record of any channel takes the
-// time a burst's records leave. A module whose poll owes a heavy step holds both
-// off (rx_held): the limit counts only records, and SRP's rebuild of an interface
-// after a link change is 850 us of polls. CTRL_LOOP_SRP_MS states the bound.
+// THE TIERS (#894; #665, the decision of 2026-11-09, option B). Tier 1, the response channels
+// (AECP, ACMP, ADP and MAAP) and a queue's first notice, is served before any
+// tier-2 work; tier 2, SRP's records (THE DRAIN), THE TRANSMIT's builds and
+// THE RETRY's rounds, runs only in slices of at most CTRL_LOOP_SLICE_US, with
+// tier 1 served between two slices, so a tier-1 record waits for one slice at
+// most. A channel holds a record when one waits and its module is ready for
+// it (holds). Tier 1's first channel (first_ch, AECP's) goes first, past
+// CTRL_LOOP_RX_PER_PASS to CTRL_LOOP_DRAIN_RECORDS while the pass has spent at
+// most CTRL_LOOP_DRAIN_US; every other tier-1 channel's records only once it
+// holds none, each its due, then what the pass has left, one a channel in turn,
+// under the same limit. THE DRAIN's channel (drain_ch, SRP's) is tier 2: once
+// tier 1 holds no record, a slice ending CTRL_LOOP_SLICE_US after the pass
+// started takes its records, each started only while the slice holds its stated
+// cost, CTRL_LOOP_SRP_UNIT_US, and a record follows only the events posted
+// before it (rx_order, read before the pass's events): an event posted during
+// every pass holds it back no longer. A pass given whole to a build or a round
+// is the next slice: it follows an ordinary pass that left tier 1 holding no
+// record (tier1_done), or a pass given whole while tier 1 holds none, and the
+// round only once THE DRAIN's channel is served too (drained, SRP first). THE
+// STEP's aged pass stands as built. A module whose poll owes a heavy step holds
+// the records to their cap (rx_held): the limit counts only records, and SRP's
+// rebuild of an interface after a link change is 850 us of polls. The rows by
+// every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
+// rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
+// 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; #894's
+// amendment of 2026-11-13 to its contingent ruling, item 2).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -228,11 +254,30 @@ extern "C" {
 // record a channel it holds a channel's record fewer than any other pass of
 // the burst.
 #define CTRL_LOOP_RX_PER_TICK_PASS 1u
-// THE DRAIN: the records of its channel a pass takes at most, and what the pass
-// may have spent, in microseconds, for it to take another past
-// CTRL_LOOP_RX_PER_PASS.
+// THE TIERS: the records of tier 1's first channel, and of THE DRAIN's, a pass
+// takes at most, and what the pass may have spent, in microseconds, for tier 1
+// to take another past CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
+// THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
+// #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
+// to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
+// as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
+// AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3): 900 us.
+// The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
+// 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
+// AECP notice the largest legal one have the largest least margin relative to
+// their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both
+// (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
+// at every slice: 1,300 us there, which also holds one MRPDU's build,
+// CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
+// shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
+// measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
+// which states 1x1/1if's (#894).
+#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)
+// An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
+// slice starts a record only while it has this left.
+#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
@@ -263,45 +308,63 @@ extern "C" {
 // an aged step never below its earlier figure, the harness failing a pass over
 // its figure (whole_grade.py; #665, a stated cost is an upper bound). The build
 // of both is SRP's declarations of every stream after a link comes up (the
-// srp group): at 8x8/2if it leaves THE RETRY's round no room for a notice. At
-// 8x8/2if, the point THE DRAIN's sum binds: one record of SRP's burst, the
-// first registration of a burst and a centisecond's consumers.
+// srp group): at 8x8/2if it leaves THE RETRY's round no room for a notice. And
+// a centisecond's consumers at 8x8/2if, the heavier point, which the rows by
+// every source charge each centisecond at least (rows_grade.py). At 1x1/1if the
+// build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
+// a pass given whole it carries (#894). A slice that holds one MRPDU's build
+// makes the declarations in the first: the srp group's after its Listener
+// Ready is 68,951 cycles at 1x1/1if, so a build of one is 725 us there (#894,
+// #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
+// refuted, with its rows (#894, owed to #872).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
 #define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 430u : 1215u)
-#define CTRL_LOOP_SRP_RECORD_US 123u
-#define CTRL_LOOP_SRP_FIRST_US 400u
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 725u : 1215u)
+// The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
+// interface's where the slice holds that build, else one, and the next slice
+// makes the other.
+#define CTRL_LOOP_BUILD_MOST (CTRL_LOOP_SLICE_US >= CTRL_LOOP_BUILD_PASS_US ? 2u : 1u)
+// The JoinTime every SRP participant is armed with, in centiseconds (srp_mbx.c,
+// create_participants; lwSRP arms it as an MRPDU is committed, mrp_mad.c): 19,
+// within Milan v1.2 Table 4.3's 180 to 240 ms, which IEEE 802.1Q-2018 10.7.11
+// lets an implementation modify (#894's contingent ruling of 2026-11-13, item
+// 3: at 20 cs no pace held THE TRANSMIT's MRPDU with every AECP notice the
+// largest legal one within 40 ms). #908 stays open until 20 cs holds again.
+#define CTRL_LOOP_JOIN_CS 19u
+// The fabric's allowances in ms (FR_NFR.md 3.4.1, the numeric response
+// deadlines' table): T_ingress, from a frame's last byte to its record's commit
+// (KL_mbx_rx), and T_egress, from a record's commit to the wire (KL_mbx_tx),
+// bounds the design gives, not measurements. A bound held at the commit that
+// serves a deadline on the wire leaves them room (#894's egress ruling of
+// 2026-11-13, item 1): THE TRANSMIT's below, and R4L's 238 ms by every source,
+// IEEE 1722.1-2021 9.3.2.6's 240 ms less both (paced_rows.py).
+#define CTRL_LOOP_T_INGRESS_MS 1u
+#define CTRL_LOOP_T_EGRESS_MS 1u
+// THE TRANSMIT's bound under THE TIERS, in ms from the centisecond that owes an
+// MRPDU to its commit: the most lateness the MRP timers keep their budget at
+// (#894's ruling of 2026-11-13, item 1: tier 2's 90 ms, or the tightest value
+// that budget holds at). The join timer runs CTRL_LOOP_JOIN_CS from a commit,
+// so the next transmit opportunity comes 180 to 190 ms after it and its MRPDU
+// this much later, then T_egress more to the wire: JoinTime stays within Table
+// 4.3's 180 to 240 ms, which IEEE 802.1Q-2018 10.7.11 requires a requested
+// opportunity within, only up to 240 ms less the armed value and T_egress,
+// 49 ms, derived and never typed (the contingent ruling, item 3; #894's egress
+// ruling, item 1). The periodic and LeaveAll timers restart at their expiry
+// (802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is late on the
+// wire by at most this and T_egress against a fixed schedule: 1,000 ms +/- 50
+// within 900 to 1,500, and 10.01 to 14.99 s +/- 0.05 within 9.5 to 15.5 s; and
+// 802.1Q-2018 10.7.11 a) holds, 2 x 240 + 6 x 10 = 540 ms under LeaveTime's
+// least, 4,500 ms (Milan) and 600 ms (802.1Q Table 10-7). At 90 ms JoinTime
+// would reach 281 ms.
+#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
+// THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
+// (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
+// tree whose row passes this). At 8x8/2if, whose rows by every source are
+// reported and not held (#894, the owner's decision of 2026-11-12, owed to
+// #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)
 #define CTRL_LOOP_TICK_US 430u
-// THE TRANSMIT's bound (#665), every MRPDU a join, periodic or LeaveAll timer
-// makes owed, from the deadline to its commit, by pass class, each within THE
-// SHARE under any input: the pass running when the centisecond's TICK is
-// posted; a row of passes given whole; the ordinary pass that takes
-// CTRL_LOOP_EVENTS_PER_PASS events ahead of the TICK, a full ring's half; the
-// one pass given whole that may follow it, since events still wait; the
-// ordinary pass that takes the TICK and dispatches the centisecond, which owes
-// the build; and one pass given whole a build first, an interface each. 20 ms at
-// two interfaces, 16 ms at one, within T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds
-// it).
-#define CTRL_LOOP_TX_PASSES (1u + CTRL_LOOP_WHOLE_RUN + 1u + 1u + 1u + MBX_N_IF)
-#define CTRL_LOOP_TX_MS (CTRL_LOOP_TX_PASSES * CTRL_LOOP_SHARE_US / 1000u)
-// THE DRAIN's bound (#665), the composed burst's last SRP record from its
-// arrival to the pass that takes it, by pass class, each within THE SHARE under
-// any input: the pass running at its arrival, then a pass given whole and an
-// ordinary pass, CTRL_LOOP_SRP_DRAINS times, none in a row while a record waits.
-// An ordinary pass takes the records it starts before CTRL_LOOP_DRAIN_US: the
-// fewest in the four the burst needs are one beside a centisecond and the first
-// registration, one alone, one beside the next centisecond, 10 ms on, and one
-// alone. 18 ms, inside T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds the sum to the
-// burst).
-#define CTRL_LOOP_DRAIN_TAKES(spent_us) \
-	((CTRL_LOOP_DRAIN_US - (spent_us) + CTRL_LOOP_SRP_RECORD_US - 1u) / CTRL_LOOP_SRP_RECORD_US)
-#define CTRL_LOOP_SRP_DRAINS 4u
-#define CTRL_LOOP_SRP_DRAINED \
-	(CTRL_LOOP_DRAIN_TAKES(CTRL_LOOP_TICK_US + CTRL_LOOP_SRP_FIRST_US) + CTRL_LOOP_DRAIN_TAKES(0u) + \
-	 CTRL_LOOP_DRAIN_TAKES(CTRL_LOOP_TICK_US) + CTRL_LOOP_DRAIN_TAKES(0u))
-#define CTRL_LOOP_SRP_PASSES (1u + 2u * CTRL_LOOP_SRP_DRAINS)
-#define CTRL_LOOP_SRP_MS (CTRL_LOOP_SRP_PASSES * CTRL_LOOP_SHARE_US / 1000u)
-
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
 #define CTRL_LOOP_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + 4u)
@@ -329,8 +392,9 @@ typedef bool (*ctrl_retry_fn)(void *ctx, unsigned left_us);
 // THE RETRY's pace: true when a notice waits, nothing waits ahead of its round
 // and the pace the last round set has passed.
 typedef bool (*ctrl_retry_aged_fn)(void *ctx);
-// THE TRANSMIT: the build of a pass given whole.
-typedef void (*ctrl_transmit_fn)(void *ctx);
+// THE TRANSMIT: the build of a pass given whole, at most `most` MRPDUs, what its
+// slice holds (CTRL_LOOP_BUILD_MOST); the next call resumes at the next.
+typedef void (*ctrl_transmit_fn)(void *ctx, unsigned most);
 // THE TRANSMIT's due: true when the client owes a build and no frame ahead of it.
 typedef bool (*ctrl_transmit_aged_fn)(void *ctx);
 
@@ -395,6 +459,12 @@ struct ctrl_loop {
 	uint16_t rx_order;              // the records before this follow only events already taken
 	unsigned rx_from;               // the channel this pass's records start at, one on each pass
 	bool rx_held;                   // a poll owes a heavy step: a pass takes no record past its cap
+	unsigned first_ch;              // tier 1's first channel + 1 (THE TIERS), 0 when none
+	bool retry_first;               // THE RETRY's client: its next notice is a queue's first, tier 1's
+	bool round_one;                 // this round stands beside held tier-1 or THE DRAIN's work: a queue's first notice alone
+	bool tier1_done;                // the last ordinary pass left tier 1 holding no record it would take (THE TIERS)
+	bool drained;                   // and THE DRAIN's channel holding none after its slice
+	uint32_t rx_left;               // the channels whose take this pass ended on a limit, records left (bit ch)
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);

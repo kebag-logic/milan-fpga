@@ -515,7 +515,8 @@ TEST_F(Talker, TransmitPublishesWithinItsTermsAfterARefusedJoin) {
     const unsigned built=(adapter.tx_due&1u)!=0u ? 0u : 1u;
     pub_trace.clear();
     mbx_host_trace(pub_writes,nullptr);
-    loop.transmit(loop.transmit_ctx);
+    // THE TRANSMIT's call as the loop makes it, and the slices that resume its build (THE TIERS, #894)
+    do loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST); while (adapter.tx_resume!=0u);
     untrace();
     calloc_before_failure=-1;
     EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence)) << "the withdrawal closes the licence";
@@ -567,7 +568,7 @@ TEST_F(Talker, RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt) {
     ASSERT_TRUE(loop.transmit_aged(loop.transmit_ctx));
     ASSERT_EQ(adapter.tx_due&1u,1u) << "THE TRANSMIT's call builds interface 0's MRPDUs";
     trace();
-    loop.transmit(loop.transmit_ctx);
+    loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     ASSERT_NE(adapter.owed_len,0u) << "the ring refused the MRPDU built";
     ASSERT_EQ(adapter.ifs[0].domain.vid,3u) << "the adoption refused before the build is made after it";
     EXPECT_EQ(pub_of(model,0).talker_decl&1u,1u) << "a withdrawal lwSRP refused keeps the source declared";

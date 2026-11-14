@@ -382,8 +382,14 @@ flowchart TB
   the pass leaves (`ctrl_loop.h`; #665): built beside the composed burst's
   records it put the last SRP record past its bound at 8x8/2if. Up to three
   such passes stand in a row, one while an event or a record of THE DRAIN's
-  channel waits. THE DRAIN takes SRP's records first, past two, while the pass
-  has spent less than 1.3 ms of its 2.0 ms share.
+  channel waits. Since #894 the receive rings and that work are in two tiers
+  (THE TIERS, `ctrl_loop.h`): tier 1, AECP's records first, past two while
+  the pass has spent at most `CTRL_LOOP_DRAIN_US`, then, once AECP's take
+  left none it would take, ACMP's, ADP's and MAAP's, each its due, then one a
+  channel in turn; tier 2 only once tier 1 left no record to take: SRP's records in a
+  slice from the pass's start (`CTRL_LOOP_SLICE_US`: 0.9 ms at one interface, 1.3 ms at two), and
+  THE TRANSMIT's build and THE RETRY's round each a slice of a pass given
+  whole, the build resumed in the next slice where one cannot hold it.
   A pass that dispatches a centisecond takes one record of a channel, not
   two (THE TICK's cap): the centisecond's consumers cost about 43,000 CPU
   cycles at 8x8/2if, and beside two records a channel that pass was the
