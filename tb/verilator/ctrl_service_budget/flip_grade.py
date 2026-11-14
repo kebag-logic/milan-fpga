@@ -175,7 +175,7 @@ def channel_controls(root: Path) -> list[str]:
     under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
     with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
                            f(r, p, under)):
-        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
+        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 33 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
     # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs, and T_egress; R4L's paced: 9.3.2.6's 240 ms
     # less T_ingress and T_egress (#894's contingent ruling of 2026-11-13, item 3; its egress ruling, item 1)
