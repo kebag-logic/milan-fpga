@@ -12,6 +12,7 @@ from pathlib import Path
 import aecp_arms
 import aecp_index_mutants
 import aecp_map_mutants
+import aecp_face_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
 import aecp_retry_mutants
@@ -35,10 +36,6 @@ def defect(name: str, file: str, old: str, new: str,
     path = file if "/" in file else "aecp/" + file
     return Defect(name, path, old, new, (check, *also))
 
-
-#: GET_AS_PATH's two window reads, as aecp_face.c holds them (#897).
-AS_PATH_COUNT = 'if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {'
-AS_PATH_ENTRY = 'if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {'
 
 DEFECTS = (
     defect('nosub-bypasses-running-only', 'aecp_commands.c',
@@ -665,38 +662,6 @@ DEFECTS = (
            '\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n', '',
            ('AppFace.FaceEventsDriveTheirTable522Notifications',
             'a counter change notifies GET_COUNTERS')),
-    # GET_AS_PATH is the datapath's sequence (#897; IEEE 1722.1-2021 7.4.41): the count at kind 2 selector 0, each
-    # entry at selector 8 by its ordinal, through its own interface's window, at most the core's capacity; a word with
-    # no answer fails the port; AS_PATH_CHANGED notifies the AVB interface that changed (Milan v1.2 Table 5.22)
-    defect('face-as-path-count-read-as-avb-info', 'aecp_face.c', AS_PATH_COUNT,
-           AS_PATH_COUNT.replace('interface, 2u, AVB_INTERFACE', 'interface, 1u, AVB_INTERFACE'),
-           ('Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow', 'the count, then each entry once')),
-    defect('face-as-path-entries-at-one-ordinal', 'aecp_face.c', AS_PATH_ENTRY,
-           AS_PATH_ENTRY.replace('8u, k, 0u', '8u, 0u, 0u'),
-           ('Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow', 'at selector 8, by its ordinal')),
-    defect('face-as-path-through-the-first-interface', 'aecp_face.c', AS_PATH_COUNT,
-           AS_PATH_COUNT.replace('gsi(f, interface, 2u', 'gsi(f, 0u, 2u'),
-           ('Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow', "read through its own interface's window")),
-    defect('face-as-path-truncated-at-its-bound', 'aecp_face.c', AS_PATH_COUNT + '\n\t\treturn false;\n\t}\n',
-           AS_PATH_COUNT.replace(' || n > capacity', '') + '\n\t\treturn false;\n\t}\n'
-           '\tn = n > capacity ? capacity : n;\n',
-           ('Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt', 'a count past the bound fails the port')),
-    defect('face-as-path-bound-off-by-one', 'aecp_face.c', AS_PATH_COUNT,
-           AS_PATH_COUNT.replace('n > capacity', 'n >= capacity'),
-           ('Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt', 'AECP_PATH_ITEMS entries are carried')),
-    defect('face-as-path-count-unanswered-ignored', 'aecp_face.c', AS_PATH_COUNT,
-           AS_PATH_COUNT.replace('if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) ||',
-                                 'if ((gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) && false) ||'),
-           ('Face.AnUnansweredAsPathWordFailsItsPortThere', 'the count unanswered fails the port')),
-    defect('face-as-path-entry-unanswered-ignored', 'aecp_face.c', AS_PATH_ENTRY,
-           AS_PATH_ENTRY.replace('&out[k])) {', '&out[k]) && false) {'),
-           ('Face.AnUnansweredAsPathWordFailsItsPortThere', 'an entry unanswered fails the port')),
-    defect('face-as-path-change-notifies-avb-info', 'app/ctrl_app_aecp.c',
-           'ctrl_app_aecp_changed(c, 9u, e->interface, 4u);', 'ctrl_app_aecp_changed(c, 9u, e->interface, 2u);',
-           ('AppFace.AnAsPathChangeNotifiesTheDatapathsSequence', 'an AS_PATH change notifies GET_AS_PATH')),
-    defect('face-as-path-change-on-the-first-interface', 'app/ctrl_app_aecp.c',
-           'ctrl_app_aecp_changed(c, 9u, e->interface, 4u);', 'ctrl_app_aecp_changed(c, 9u, 0u, 4u);',
-           ('AppFace.AnAsPathChangeNotifiesTheDatapathsSequence', 'an AS_PATH change notifies GET_AS_PATH')),
     # acknowledged state is the only truth a controller sees (#665): a change
     # the face has not taken waits undone behind IN_PROGRESS, then one final
     # response; no other change is taken meanwhile; an expiry is notified once
@@ -906,7 +871,7 @@ DEFECTS = (
             'AECP opens only once the initial publication is acknowledged')),
 ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:
