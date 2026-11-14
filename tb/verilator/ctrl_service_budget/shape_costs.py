@@ -424,9 +424,10 @@ def key_controls(root: Path = ROOT) -> list[str]:
     escaped = []
     shape, aem = header_of, aecp_header_of
     eight = root / 'configs' / f'{BUILT["8x8/1if"][0]}.yaml'
+    lines = re.compile(r'^#define AECP_ENTITY_KEY_\w+ \d+u\n', re.M)
     plants = {
         'the shape header not stating the map edits\' key domain': (
-            {'header_of': lambda c, r=ROOT: re.sub(r'^#define AECP_ENTITY_KEY_\w+ \d+u\n', '', shape(c, r), flags=re.M)},
+            {'header_of': lambda c, r=ROOT: lines.sub('', shape(c, r))},
             'the shape header does not state AECP_ENTITY_KEY_STREAMS'),
         'aecp_entity_gen.h stating the key domain beside the shape header': (
             {'aecp_header_of': lambda c, r=ROOT: aem(c, r).replace(KEY_GUARD + '\n', '', 1)},
