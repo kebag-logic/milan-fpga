@@ -130,7 +130,10 @@ def build(args: argparse.Namespace, bench: Path) -> Path:
     match = re.search(r"^VERILATOR_ROOT = (.+)$", (model / "Vpp_top_wrap.mk").read_text(), re.M)
     if match is None:
         raise ValueError("model include directory missing")
-    inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{args.stack/STACK_INCLUDE}", f"-I{output}"]
+    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the tracked contract it includes; #894's
+    # ruling issuecomment-6878014227, item 1): a compile with no shape header, at the shipping shape
+    inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{args.stack/STACK_INCLUDE}", f"-I{output}",
+           f"-I{ROOT/'sw/firmware/ctrl/loop'}", f"-I{ROOT/'sw/firmware/ctrl/mbx'}"]
     objects = []
     for name in ("aecp", "aecp_commands", "aecp_maps", "aecp_image", "aecp_state"):
         obj = output / (name + ".o")
