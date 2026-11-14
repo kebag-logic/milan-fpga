@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_qspi_owner_transition_completed_write_prefixes()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/mutation-M3/sw/builder/test_builder.py", line 19088, in test_qspi_owner_transition_completed_write_prefixes
+    refuse_board("XC7A200T on the cable", {"OFL_MODEL": "xc7a200"},
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "JTAG-detected part xc7a200t does not match", False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/mutation-M3/sw/builder/test_builder.py", line 19080, in refuse_board
+    assert refused.returncode != 0, f"{label} {step}: accepted\n{output}"
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: XC7A200T on the cable flash: accepted
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from <scratch>/tmp7elusj21/deploy-tmp/tmp.9KMOb6Ez1N/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: <scratch>/tmp7elusj21/deploy-tmp/tmp.9KMOb6Ez1N/target/flashboot_layout.json (bound to <scratch>/tmp7elusj21/deploy-tmp/tmp.9KMOb6Ez1N/target/gateware/target.bit and <scratch>/tmp7elusj21/deploy-tmp/tmp.9KMOb6Ez1N/target/aem_desc.bin, xlen 32)
+fabric	7a100tfgg484	34
+[deploy] write+verify bitstream @ 0x000000: <scratch>/tmp7elusj21/deploy-tmp/tmp.9KMOb6Ez1N/target/gateware/target.bit
+
+[deploy] WARNING: non-atomic recovery bitstream write requested
+

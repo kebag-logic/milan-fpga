@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_qspi_owner_transition_completed_write_prefixes()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/mutation-M4/sw/builder/test_builder.py", line 19104, in test_qspi_owner_transition_completed_write_prefixes
+    refuse_board("a layout naming no flash device",
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 {"LAYOUT": str(deviceless_layout)},
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "names no flash device", False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/mutation-M4/sw/builder/test_builder.py", line 19081, in refuse_board
+    assert needle in output, f"{label} {step}: no {needle!r}\n{output}"
+           ^^^^^^^^^^^^^^^^
+AssertionError: a layout naming no flash device flash-pair: no 'names no flash device'
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from <scratch>/tmplbgtf4gh/deploy-tmp/tmp.utIinc3T5i/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: <scratch>/tmplbgtf4gh/deploy-tmp/tmp.utIinc3T5i/target/flashboot_layout.json (bound to <scratch>/tmplbgtf4gh/deploy-tmp/tmp.utIinc3T5i/target/gateware/target.bit and <scratch>/tmplbgtf4gh/deploy-tmp/tmp.utIinc3T5i/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from <scratch>/tmplbgtf4gh/deploy-tmp/tmp.utIinc3T5i/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] identify the board on serial TEST-SERIAL (FPGA die, then flash JEDEC ID)
+Traceback (most recent call last):
+  File "<scratch>/mutation-M4/sw/litex/qspi_owner_transition.py", line 707, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/mutation-M4/sw/litex/qspi_owner_transition.py", line 690, in main
+    result = check_board(args.layout, args.bit, args.detect, args.flash)
+  File "<scratch>/mutation-M4/sw/litex/qspi_owner_transition.py", line 344, in check_board
+    "flash_jedec_id": f"0x{jedec:06x}"}
+                          ^^^^^^^^^^^
+TypeError: unsupported format string passed to NoneType.__format__
+[deploy] REFUSED: the FPGA on the cable is not the image set's part.
+

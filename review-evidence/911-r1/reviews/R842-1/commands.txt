@@ -1,0 +1,39 @@
+From the exact-head checkout, with PACKET naming this packet directory:
+
+python3 "$PACKET/run_focus.py" "$PWD" "$PACKET" <pinned-litex-python>
+  The first execution had a reviewer invocation typo for shape-controls:
+  --selftest exited 2. The portable driver now uses --self-test.
+  The focused transaction, shape baseline, platform/timing, table/controls,
+  dry-run, diagram generation and diff check all exited 0.
+
+TMPDIR="$PACKET/scratch" python3 -B scripts/check_sweep_shape.py --self-test
+  Corrected focused execution exited 0; see shape-controls-corrected.log/.rc.
+
+python3 "$PACKET/mutation_probe.py" "$PWD" "$PACKET"
+  Four independent copies, at most four concurrent test processes.
+  M2/M3/M4 killed on first execution. The M1 fixture text contained accidental
+  plus characters, so its anchor check refused without executing a mutant.
+  Corrected the portable probe and ran only M1:
+python3 "$PACKET/mutation_probe.py" "$PWD" "$PACKET" M1
+  M1 killed for loading the bridge before the die refusal.
+
+python3 -B "$PACKET/boundary_probe.py" "$PWD" "$PACKET"
+  An initial synthetic bitstream omitted the configuration sync word and
+  was correctly refused. Corrected fixture includes that word. Completed
+  boundary and documented-command probes exit 0; boundaries.log/.rc.
+
+python3 "$PACKET/audit_receipts.py" "$PWD" "$PACKET"
+  Requires public archive 6d63052b extracted beneath scratch/.
+  Exit 0; receipt-audit.log/.rc. Archive fetched read-only with git and
+  extracted only under scratch/; no private author material accessed.
+
+python3 "$PACKET/verify_tree.py" "$PWD"
+  Exit 0; tree-integrity.log/.rc. Hashes actual tracked bytes and verifies
+  modes/index/gitlinks, independent of skip-worktree or assume-unchanged.
+
+All commands stayed in foreground; concurrent child checks were joined.
+No full parent/processor/builder/synthesis banks or hardware commands ran.
+The scoped simulator identity was read and matched the supplied 5.050 pin;
+no simulation build was needed for this Python/shell/platform-only delta.
+Receipt output paths in run_focus.py and mutation_probe.py are normalized
+to <review-tree>, <packet>, <litex-python> or <scratch>; results are unchanged.

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_qspi_owner_transition_completed_write_prefixes()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/mutation-M1/sw/builder/test_builder.py", line 19088, in test_qspi_owner_transition_completed_write_prefixes
+    refuse_board("XC7A200T on the cable", {"OFL_MODEL": "xc7a200"},
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "JTAG-detected part xc7a200t does not match", False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/mutation-M1/sw/builder/test_builder.py", line 19086, in refuse_board
+    assert not io, f"{label} {step}: loaded the bridge: {io}"
+           ^^^^^^
+AssertionError: XC7A200T on the cable flash-pair: loaded the bridge: ['DETECT\tflash']

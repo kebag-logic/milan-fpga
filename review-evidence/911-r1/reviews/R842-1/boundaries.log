@@ -1,0 +1,16 @@
+Both maps aligned, non-overlapping and in 16 MiB; reconstruction follows compiled AEM offsets.
+Payload length 9730652 ACCEPT
+Payload length 10485760 ACCEPT
+Payload length 10485761 REFUSE
+Identification: correct ACCEPT
+Identification: alternate JEDEC form ACCEPT
+Identification: both agreeing forms ACCEPT
+Identification: wrong die REFUSE
+Identification: empty die REFUSE
+Identification: two different dies REFUSE
+Identification: wrong flash REFUSE
+Identification: empty flash REFUSE
+Identification: conflicting flash forms REFUSE
+Malformed layout JEDEC IDs: all six refused before identification parsing.
+Three documented JTAG shell blocks execute with fixture image set and stub cable: layout-derived part, SRAM load, AEM first at 0xa00000, verified bitstream last.
+No programmer or hardware accessed; fixture bitstream is synthetic.

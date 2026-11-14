@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_qspi_owner_transition_completed_write_prefixes()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/mutation-M2/sw/builder/test_builder.py", line 19093, in test_qspi_owner_transition_completed_write_prefixes
+    refuse_board("a 256 Mbit flash on the board", {"OFL_JEDEC": "20ba19"},
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "flash device JEDEC ID 0x20ba19 does not match", True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/mutation-M2/sw/builder/test_builder.py", line 19080, in refuse_board
+    assert refused.returncode != 0, f"{label} {step}: accepted\n{output}"
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a 256 Mbit flash on the board flash-pair: accepted
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/flashboot_layout.json (bound to <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/gateware/target.bit and <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] identify the board on serial TEST-SERIAL (FPGA die, then flash JEDEC ID)
+[deploy] board matches the image set: xc7a100t	n25q128a13	0x20ba18
+[deploy] prove live QSPI bitstream on serial TEST-SERIAL (34 B)
+
+[deploy] live bit identity: installed artifact; fabric -> fabric; images-first
+[deploy] write+verify aem @ 0x400000
+
+[deploy] write+verify bitstream @ 0x000000: <scratch>/tmpb36bw3fm/deploy-tmp/tmp.CF6iNfyUbi/target/gateware/target.bit
+
+[deploy] flash-pair done. Power-cycle to boot the verified owner set.
+
