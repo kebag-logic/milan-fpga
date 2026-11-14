@@ -331,12 +331,14 @@ def check_board(layout_path: str | Path, bit_path: str | Path,
             "target layout names no flash device (flash_device and "
             "flash_jedec_id); rebuild it, or regenerate it from the build's "
             "soc.h with layout_from_soch.py")
-    models = set(_DETECT_MODEL.findall(_read_text(detect_path, "JTAG detect output")))
+    # One entry per chain device, so a chain of two equal dies is refused
+    # too: the board then has more than the one FPGA the write would reach.
+    models = _DETECT_MODEL.findall(_read_text(detect_path, "JTAG detect output"))
     if len(models) != 1:
         raise TransitionError(
             "JTAG detect output names no single FPGA model "
-            f"({sorted(models) or 'none'}); is the cable on this board?")
-    detected = models.pop() + "t"
+            f"({models or 'none'}); is the cable on this board?")
+    detected = models[0] + "t"
     if detected != _die(part):
         raise TransitionError(
             f"JTAG-detected part {detected} does not match the image set's "

@@ -18666,13 +18666,21 @@ if "--detect" in args:
     # (empty: the read printed no ID).
     with open(log, "a", encoding="utf-8") as trace:
         trace.write("DETECT\t" + ("flash" if "-f" in args else "jtag") + "\n")
+    # OFL_MODEL2 adds a second device to the chain; OFL_JEDEC2 a second ID
+    # line in the "JEDEC ID: 0x" form, naming another flash.
     print("index 0:\n\tidcode 0x3631093\n\tmanufacturer xilinx\n"
           "\tfamily artix a7\n\tmodel  " + os.environ.get("OFL_MODEL", "xc7a100")
           + "\n\tirlength 6")
+    if os.environ.get("OFL_MODEL2"):
+        print("index 1:\n\tidcode 0x3636093\n\tmanufacturer xilinx\n"
+              "\tfamily artix a7\n\tmodel  " + os.environ["OFL_MODEL2"]
+              + "\n\tirlength 6")
     jedec = os.environ.get("OFL_JEDEC", "20ba18")
     if "-f" in args and jedec:
         ident = bytes.fromhex(jedec)
         print(" ".join(f"{byte:x}" for byte in ident) + f" read {int(jedec, 16):x}")
+    if "-f" in args and os.environ.get("OFL_JEDEC2"):
+        print("JEDEC ID: 0x" + os.environ["OFL_JEDEC2"])
     raise SystemExit(0)
 
 if "--dump-flash" in args:
@@ -19094,6 +19102,14 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                      "flash device JEDEC ID 0x20ba19 does not match", True)
         refuse_board("no JEDEC ID in the flash read", {"OFL_JEDEC": ""},
                      "names no single JEDEC ID", True)
+        refuse_board("two disagreeing JEDEC IDs in the flash read",
+                     {"OFL_JEDEC2": "20ba19"}, "names no single JEDEC ID", True)
+        refuse_board("an XC7A100T and an XC7A200T on one chain",
+                     {"OFL_MODEL2": "xc7a200"}, "names no single FPGA model",
+                     False)
+        refuse_board("two XC7A100T devices on one chain",
+                     {"OFL_MODEL2": "xc7a100"}, "names no single FPGA model",
+                     False)
         with open(fabric2["layout"], encoding="utf-8") as source:
             deviceless_body = json.load(source)
         for key in ("flash_device", "flash_jedec_id"):
@@ -19165,10 +19181,11 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
           "before programmer I/O; on flash-pair, flash and flash-images a "
           "JTAG die other than the bitstream's, an unreadable die, a flash "
           "JEDEC ID other than the layout's, an unreadable ID and a layout "
-          "naming no flash device all refuse before a dump or write (#911); "
-          "build.sh flash ax7a200t flashes a 200T set on its own map (AEM at "
-          "0xA00000, a 9,730,652-B payload at 0) on a 200T die and refuses it "
-          "on the AX7101's")
+          "naming no flash device, two disagreeing JEDEC IDs and a "
+          "two-device chain (two dies, or one die twice) all refuse before a "
+          "dump or write (#911); build.sh flash ax7a200t flashes a 200T set "
+          "on its own map (AEM at 0xA00000, a 9,730,652-B payload at 0) on a "
+          "200T die and refuses it on the AX7101's")
 
 
 
