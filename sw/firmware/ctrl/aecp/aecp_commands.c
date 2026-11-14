@@ -192,6 +192,8 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 		} else if (wire_be16(in + 2) >= a->cfg.model->configurations) {
 			status = AECP_BAD_ARGUMENTS;
 		} else {
+			// accepted, it costs a paced record's, so it is paced as an edit is (THE PACE, aecp_mbx.h)
+			a->edited_ms = a->now;
 			struct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);
 			bool moved = a->configuration != wire_be16(in + 2);
 			bool changed = moved || !aecp_overridden(a, entity, 1u);

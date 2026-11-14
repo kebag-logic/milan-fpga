@@ -3451,6 +3451,30 @@ TEST_F(Mailbox, AnEditHoldsTheNextRecordForThePaceAndDropsNone)
     }
 }
 
+// THE PACE (#894; aecp_mbx.h): an accepted SET_CONFIGURATION costs a paced record's, so it holds the AECP channel's
+// next record as a checked edit does, until AECP_PACE_MS after it was taken, never dropped; one refused, its stream
+// running, holds nothing.
+TEST_F(Mailbox, AnAcceptedConfigurationHoldsTheNextRecordForThePace)
+{
+    auto send=[&](unsigned cmd,const Bytes &body){auto p=command(cmd,body);
+        ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();};
+    const Bytes query=target(14,0,8);
+    const Bytes config(4);
+    streaming=true;uint32_t sent=fabric.tx_sent;send(6,config);ASSERT_EQ(fabric.tx_sent,sent+1);
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+16,2)>>11,12u)<<"(refused, its stream running)";
+    sent=fabric.tx_sent;send(43,query);EXPECT_EQ(fabric.tx_sent,sent+1)<<"a refused SET_CONFIGURATION holds nothing";
+    streaming=false;sent=fabric.tx_sent;send(6,config);ASSERT_EQ(fabric.tx_sent,sent+1)<<"(accepted while no pace holds)";
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+16,2)>>11,0u);
+    sent=fabric.tx_sent;send(43,query);
+    for(unsigned ms=1;ms<AECP_PACE_MS;++ms){
+        mbx_model_advance_ms(&fabric,1);service();
+        ASSERT_EQ(fabric.tx_sent,sent)<<"held "<<ms<<" ms after the accepted SET_CONFIGURATION";
+    }
+    mbx_model_advance_ms(&fabric,1);service();
+    ASSERT_EQ(fabric.tx_sent,sent+1)<<"the held record is taken and answered once the pace has passed, never dropped";
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+36,2)&0x7fffu,0x2bu)<<"the held record's answer";
+}
+
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
 {
     mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
@@ -3539,8 +3563,9 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
                     unsigned expected=cmd==40?554u:cmd==75?550u:1454u;
                     EXPECT_EQ(emitted->len,expected)<<"maximum path retains its full response body";
                 }
-                // an edit's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
-                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45)?AECP_PACE_MS:5);
+                // an edit's next record, and an accepted SET_CONFIGURATION's, waits for THE PACE (aecp_mbx.h), so
+                // the next arrives a pace on
+                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45||cmd==6)?AECP_PACE_MS:5);
             }
         }
         for(unsigned msg:{2u,4u,8u}){
@@ -3697,7 +3722,9 @@ struct Face : Core {
         EXPECT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),interface));service();
         if(fabric.tx_sent==before){ADD_FAILURE()<<"command "<<cmd<<" has a response";return Bytes(200);}
         auto f=mbx_model_tx_frame(&fabric,before);Bytes out(f->bytes,f->bytes+f->len);
-        EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;mbx_model_advance_ms(&fabric,5);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;
+        // an accepted SET_CONFIGURATION's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
+        mbx_model_advance_ms(&fabric,cmd==6&&status==0?AECP_PACE_MS:5);
         return out;
     }
     //! The block interface i's datapath took at its last commit.

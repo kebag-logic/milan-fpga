@@ -360,7 +360,7 @@ struct aecp {
 	unsigned held_interface;
 	size_t held_bytes;
 	uint8_t held[AECP_HELD_BYTES];
-	uint32_t edited_ms; // the clock as the last ADD or REMOVE_AUDIO_MAPPINGS was taken (#904; THE PACE, aecp_mbx.h)
+	uint32_t edited_ms; // the clock as the last paced record was taken (#904, #894; THE PACE, aecp_mbx.h)
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
