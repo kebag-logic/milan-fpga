@@ -34,7 +34,7 @@ BUILD = mrpdu_grade.BUILD
 
 def stated_us(interfaces: int | shape_costs.Shape) -> int:
     """The slice length ctrl_loop.h states at a shape, or at that many interfaces at the shipping shape's streams
-    (shape_costs.at; #894's ruling issuecomment-6867393730, item (b)), in microseconds."""
+    (shape_costs.at; #894's shape ruling, item (b)), in microseconds."""
     return shape_costs.at(interfaces, scenario.ROOT)[SLICE]
 
 

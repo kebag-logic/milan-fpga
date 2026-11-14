@@ -31,7 +31,7 @@ def header_us(given: int | shape_costs.Shape) -> dict[str, int | None]:
     """The round's costs as the headers state them at a shape, or at that many interfaces at the streams ctrl_loop.h
     takes with no shape header, read here apart from round_grade.stated_us and shape_costs: AECP_NOTICE_US's ternary on
     the interface count, and AECP_ROUND_COLD_US and AECP_ATTEMPT_US each the name its header gives it, as the shape's
-    own block of ctrl_loop.h's table states that name (THE SHAPES; #894's ruling issuecomment-6878014227, item 1); a
+    own block of ctrl_loop.h's table states that name (THE SHAPES; #894's retry-cost ruling, item 1); a
     cost that is not one of the block's names is None."""
     ctrl = scenario.ROOT / 'sw/firmware/ctrl'
     text = ''.join((ctrl / 'aecp' / name).read_text() for name in ('aecp.h', 'aecp_mbx.h'))
@@ -98,8 +98,8 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     at8 = lambda n, k: (own['cold'] + n * own['notice'] + k * own['attempt']) * cpu_hz // 1_000_000
     fit8, miss8 = held(at8(0, 2), 0, 2, interfaces=eight), held(at8(0, 2) + 1, 0, 2, interfaces=eight)
     out.append(("a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists "
-                "for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling "
-                "issuecomment-6878014227, item 1)",
+                "for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's "
+                "retry-cost ruling, item 1)",
                 None not in own.values() and round_grade.stated_us(eight) == own and
                 (own['cold'], own['attempt']) != (single['cold'], single['attempt']) and fit8['over'] == [] and
                 [(o['notices'], o['refused']) for o in miss8['over']] == [(0, 2)],
@@ -149,7 +149,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
             [o['kind'] for o in held('build', one + 1, 1)['over']] == ['build'] and not held('build', one, 1)['over'],
             ''),
            ("THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to "
-            "its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
+            "its build of one, apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))",
             {k: whole_grade.stated_us(shapes['8x8/1if'])[k] for k in ('build', 'build-one')} ==
             {'build': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD],
              'build-one': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD_ONE]} and
@@ -158,7 +158,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
             whole_grade.stated_us(shapes['8x8/1if'])['build-one'] != whole_grade.stated_us(1)['build-one'],
             str((whole_grade.stated_us(shapes['8x8/1if']), poll_grade.stated_us(shapes['8x8/1if'])['mrpdu']))),
            ("a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams "
-            "apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
+            "apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))",
             slice_grade.stated_us(shapes['8x8/1if']) == wide != us[0] and
             [o['kind'] for o in held('build', wide_cycles + 1, shapes['8x8/1if'])['over']] == ['build'] and
             not held('build', wide_cycles, shapes['8x8/1if'])['over'] and
@@ -190,7 +190,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
                    shape: shape_costs.Shape) -> list[Check]:
     """A pass's polls at a shape of its own (8x8/1if) held to that shape's stated costs, not the interface count's
-    (poll_grade.STATED_US; #894's ruling issuecomment-6871343905, item (b)(iii)): its base at the shape's cost fits it
+    (poll_grade.STATED_US; #894's held-egress ruling, item (b)(iii)): its base at the shape's cost fits it
     and a cycle over does not, where the interface count's cost refuses it."""
     ratio, start = sys_hz // cpu_hz, 10_000
 
@@ -205,7 +205,7 @@ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: i
     own, count = poll_grade.stated_us(shape), poll_grade.stated_us(shape.interfaces)
     limit = own['base'] * cpu_hz // 1_000_000
     return [("a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE "
-             "SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over "
+             "SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over "
              "does not, where 1x1/1if's refuses it",
              own != count and own['base'] > count['base'] and held(limit, shape) == [] and
              held(limit + 1, shape) == [('base', limit + 1)] and held(limit, shape.interfaces) == [('base', limit)],

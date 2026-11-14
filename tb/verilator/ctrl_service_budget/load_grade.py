@@ -108,11 +108,11 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
-#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's ruling
-#: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
+#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
+#: ruling, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
 #: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
 #: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
-#: the polls' base and items its own shape's (poll_grade.STATED_US; the ruling issuecomment-6871343905, item (b)(iii)),
+#: the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress ruling, item (b)(iii)),
 #: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
 #: rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
@@ -238,7 +238,7 @@ RETRY_RULE = {
 def macros(root: Path, n_if: int | shape_costs.Shape) -> dict[str, int]:
     """The integer constants the load reads from the tree, at a shape's interfaces or at that many; THE TRANSMIT's
     builds as ctrl_loop.h lists them at the shape, or with an interface count at the shipping shape's streams
-    (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
+    (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
     text = ''.join((root / p).read_text() for p in (
         'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'sw/firmware/ctrl/aecp/aecp_mbx.h',
         'third_party/tsn-c-stack/include/acmp.h', 'third_party/tsn-c-stack/include/maap.h',

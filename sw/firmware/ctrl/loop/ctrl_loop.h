@@ -272,11 +272,11 @@ extern "C" {
 // (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
-// there plus 5 %, at most 1,600 us (#894's ruling issuecomment-6867393730, item
-// (b): a design parameter, the rows and the load the owner's gate): 1,475 us,
+// there plus 5 %, at most 1,600 us (#894's shape ruling, item (b): a design
+// parameter, the rows and the load the owner's gate): 1,475 us,
 // CTRL_LOOP_BUILD_ONE_PASS_US there, which the build measures again at that slice.
 //
-// THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)). The slice and
+// THE SHAPES (#894's shape ruling, item (b)). The slice and
 // THE TRANSMIT's builds' stated costs depend on the static shape an image is
 // built at, which its builder states: the interfaces, MBX_N_IF (the mailbox
 // contract it compiles against), and the talker sources and listener sinks ADP
@@ -290,12 +290,12 @@ extern "C" {
 // CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
 // stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
 // has this left, so a unit under the record's measurement lets the slice run
-// past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). And
+// past its length (#894's held-egress ruling, item (b)(ii)). And
 // THE RETRY's round costs, which AECP's adapter admits a round at and its core
 // charges a refused attempt at: a round's cold start, CTRL_LOOP_RETRY_COLD_US
 // (aecp_mbx.h, AECP_ROUND_COLD_US), and a refused attempt's,
 // CTRL_LOOP_RETRY_ATTEMPT_US (aecp.h, AECP_ATTEMPT_US), each keyed on the shape
-// and never on the interface count (#894's ruling issuecomment-6878014227,
+// and never on the interface count (#894's retry-cost ruling,
 // item 1). A shape not listed fails the build. Both two-interface shapes keep
 // the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
 // the heaviest SRP record measured there on the tree that merges #902,

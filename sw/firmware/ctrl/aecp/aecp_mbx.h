@@ -26,7 +26,7 @@ extern "C" {
 // decided 2026-11-13; FR_NFR.md 3.4.1). It expires at the 8x8/2if flip: #890 closes only with a measured cold cost of
 // at most 176.1 us, or on a new owner decision. The cold start, and a refused attempt's AECP_ATTEMPT_US, are stated
 // for each shape (THE SHAPES, ctrl_loop.h: CTRL_LOOP_RETRY_COLD_US and CTRL_LOOP_RETRY_ATTEMPT_US), never by the
-// interface count (#894's ruling issuecomment-6878014227, item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over
+// interface count (#894's retry-cost ruling, item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over
 // its rounds measured, and 185 us at both two-interface shapes.
 #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
 #define AECP_ROUND_COLD_US CTRL_LOOP_RETRY_COLD_US

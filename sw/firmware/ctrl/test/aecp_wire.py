@@ -131,7 +131,7 @@ def build(args: argparse.Namespace, bench: Path) -> Path:
     if match is None:
         raise ValueError("model include directory missing")
     # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the tracked contract it includes; #894's
-    # ruling issuecomment-6878014227, item 1): a compile with no shape header, at the shipping shape
+    # retry-cost ruling, item 1): a compile with no shape header, at the shipping shape
     inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{args.stack/STACK_INCLUDE}", f"-I{output}",
            f"-I{ROOT/'sw/firmware/ctrl/loop'}", f"-I{ROOT/'sw/firmware/ctrl/mbx'}"]
     objects = []

@@ -144,8 +144,8 @@ def every_notice(build: dict) -> list[tuple[int, int, int]]:
 
 def notices_most(build: dict) -> int:
     """AECP_NOTICES_MOST (aecp.h) at the build's shape: the most notices a reset can leave pending, derived at one
-    interface from the descriptors the build's shape header states (shape_costs.notices_most; #894's ruling
-    issuecomment-6871343905, item (b)(iv))."""
+    interface from the descriptors the build's shape header states (shape_costs.notices_most; #894's held-egress
+    ruling, item (b)(iv))."""
     return shape_costs.notices_most(scenario.ROOT / 'configs' / f"{build['shape']}.yaml", build['interfaces'])
 
 

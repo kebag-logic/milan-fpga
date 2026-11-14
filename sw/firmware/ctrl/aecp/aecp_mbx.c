@@ -3,8 +3,8 @@
 #include "mbx_hal.h"
 #include <string.h>
 
-// The most a reset leaves pending is at least what the image's descriptors hold (aecp.h; #894's ruling
-// issuecomment-6871343905, item (b)(iv)): a shape whose descriptors hold more fails the build.
+// The most a reset leaves pending is at least what the image's descriptors hold (aecp.h; #894's held-egress
+// ruling, item (b)(iv)): a shape whose descriptors hold more fails the build.
 _Static_assert(AECP_NOTICES_HELD <= AECP_NOTICES_MOST, "AECP_NOTICES_MOST: the descriptors hold more notices");
 
 static uint16_t tx_count(uint32_t reg)

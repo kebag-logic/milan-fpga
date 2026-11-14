@@ -4,7 +4,7 @@
 its last recipient's commit, a row later than its 20 ms fails the run whatever its options record, build.py's age-less
 plant is caught only when every group's row is late, its aged build's plant only when every group's timer-driven MRPDU
 is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's, held
-to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's ruling issuecomment-6871343905, item (b)(i)).
+to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's held-egress ruling, item (b)(i)).
 
 selftest.py passes its synthetic-log helpers in, so this module imports nothing of it.
 """
@@ -87,7 +87,7 @@ def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
     late = timer_rows(synthetic, tx_sequence, TICK_AT + (bound + 1) * ms)
     none = timer_rows(synthetic, tx_sequence, TICK_AT + (bound - 1) * ms, built=False)
     return [("THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure "
-             "(#894's ruling issuecomment-6871343905, item (b)(i))",
+             "(#894's held-egress ruling, item (b)(i))",
              mrpdu_grade.BUDGET_MS == bound and [r['budget_ms'] for r in within] == [float(bound)],
              str((mrpdu_grade.BUDGET_MS, bound, [r['budget_ms'] for r in within]))),
             (f"a timer's MRPDU is timed from its TICK to its commit, at its bound, {bound} ms, within it",

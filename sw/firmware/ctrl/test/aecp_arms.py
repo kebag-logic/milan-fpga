@@ -108,8 +108,8 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
         inc += extra
         sources += modules
         host_sources += host
-    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's ruling
-    # issuecomment-6878014227, item 1): after a mailbox group's, whose contract is its interfaces' own
+    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's
+    # retry-cost ruling, item 1): after a mailbox group's, whose contract is its interfaces' own
     inc += [f"-I{tree.src / 'loop'}", f"-I{tree.src / 'mbx'}"]
     if debug:
         inc += ["-DCTRL_REENTRY_ASSERT"]
@@ -153,9 +153,9 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
 
 
 #: The mailbox tests run at the 8x8 shape at one interface: the notices a datapath reset leaves, where the most is its
-#: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)), and THE RETRY's
-#: round's refused attempts charged at its shape's cost beside its shape's cold start (THE SHAPES; the ruling
-#: issuecomment-6878014227, item 1).
+#: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's held-egress ruling, item (b)(iv)), and THE RETRY's
+#: round's refused attempts charged at its shape's cost beside its shape's cold start (THE SHAPES; the retry-cost
+#: ruling, item 1).
 EIGHT_ONE = ("Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:"
              "Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort")
 

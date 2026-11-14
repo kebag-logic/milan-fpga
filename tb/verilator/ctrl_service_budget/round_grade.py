@@ -8,7 +8,7 @@ loop calls (ctrl_loop.c's round_of, a SPAN line) is held here to AECP_ROUND_COLD
 AECP_ATTEMPT_US, n the notices it built, each a success of the event scan (aecp.c's finish, a CALL line inside the
 round), and k its refused attempts, its aecp_command calls (CALL lines) less n. Each cost is read at the image's shape
 (THE SHAPES, shape_costs.py): AECP_ROUND_COLD_US and AECP_ATTEMPT_US are the shape's own, never the interface count's
-(#894's ruling issuecomment-6878014227, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
+(#894's retry-cost ruling, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
 """
 from __future__ import annotations
 

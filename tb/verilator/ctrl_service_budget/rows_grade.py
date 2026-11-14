@@ -117,7 +117,7 @@ NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'C
 def header(root: Path, n_if: int | shape_costs.Shape, texts: dict[str, str] | None = None) -> dict[str, int]:
     """The loop's and AECP's constants at a shape's interfaces, or at that many, each expression evaluated (or a
     planted header's); THE TRANSMIT's builds as ctrl_loop.h lists them at the shape, or with an interface count at the
-    shipping shape's streams (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
+    shipping shape's streams (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
     text = ''.join((texts or {}).get(p) or (root / p).read_text() for p in load_grade.ROW_HEADERS)
     macros = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
     macros['MBX_N_IF'] = str(shape_costs.interfaces(n_if))

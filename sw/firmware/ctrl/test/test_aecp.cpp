@@ -3300,8 +3300,8 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
 }
 
-// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's ruling
-// issuecomment-6871343905, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
+// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's held-egress
+// ruling, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
 // exactly the most its shape header's descriptors derive, and each is built and sent once as its port answers.
 TEST_F(Mailbox, EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce)
 {

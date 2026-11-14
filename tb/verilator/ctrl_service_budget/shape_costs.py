@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)): the static shape an image is built at, as its
+"""THE SHAPES (#894's shape ruling, item (b)): the static shape an image is built at, as its
 builder states it, and tier 2's slice, THE TRANSMIT's builds' stated costs, an SRP record's stated cost and THE RETRY's
-round costs that ctrl_loop.h lists for it (the ruling issuecomment-6871343905, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per
-shape; the ruling issuecomment-6878014227, item 1: a round's cold start and a refused attempt per shape).
+round costs that ctrl_loop.h lists for it (the held-egress ruling, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per
+shape; the retry-cost ruling, item 1: a round's cold start and a refused attempt per shape).
 
 A shape is (interfaces, talker sources, listener sinks): MBX_N_IF, from the mailbox contract the builder compiles an
 image against, and CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes from the configuration into the shape
@@ -16,11 +16,11 @@ streams, the ones ctrl_loop.h states as CTRL_LOOP_SOURCES and CTRL_LOOP_SINKS wi
 srp_entity.py writes for the shipping configuration (srp_arms.DEFAULT_ENTITY; findings).
 
 The shape header also states the AEM descriptors that bear AECP's change notices (CTRL_AEM_STREAM_INPUTS and the rest),
-from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's ruling
-issuecomment-6871343905, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
+from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's held-egress
+ruling, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
 apart from aecp.h (notices_held), at one interface exactly. And it states the key domain of an AUDIO_MAP edit, which
-sizes the map edits' direct index (aecp_maps.c; #894's ruling issuecomment-6870437042, item 1), as its single source
-in every unit an image compiles (the ruling issuecomment-6871343905, item (c)): aecp_entity_gen.h states it only for a
+sizes the map edits' direct index (aecp_maps.c; #894's map-keying ruling, item 1), as its single source
+in every unit an image compiles (the held-egress ruling, item (c)): aecp_entity_gen.h states it only for a
 compile given no shape header, by the same derivation (key_findings).
 
 The harness and the model key these costs on the shape the builder writes for a point's configuration and interfaces
@@ -49,11 +49,11 @@ NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_P
          'CTRL_LOOP_RETRY_COLD_US', 'CTRL_LOOP_RETRY_ATTEMPT_US')
 SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
-#: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's ruling
-#: issuecomment-6878014227, item 1).
+#: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's retry-cost
+#: ruling, item 1).
 RETRY = {'AECP_ROUND_COLD_US': ('sw/firmware/ctrl/aecp/aecp_mbx.h', RETRY_COLD),
          'AECP_ATTEMPT_US': ('sw/firmware/ctrl/aecp/aecp.h', RETRY_ATTEMPT)}
-#: The most a slice may be, in microseconds: the ruling issuecomment-6867393730, item (b), which re-rules the cap from
+#: The most a slice may be, in microseconds: #894's shape ruling, item (b), which re-rules the cap from
 #: 1,300 us; a design parameter, the rows and the load the owner's gate.
 SLICE_MOST_US = 1600
 #: The shipping configuration, a compile's shape without a shape header (srp_arms.DEFAULT_ENTITY).
@@ -322,7 +322,7 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
 
 
 def retry_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
-    """THE RETRY's round costs keyed on the shape (#894's ruling issuecomment-6878014227, item 1): AECP_ROUND_COLD_US
+    """THE RETRY's round costs keyed on the shape (#894's retry-cost ruling, item 1): AECP_ROUND_COLD_US
     and AECP_ATTEMPT_US each defined once as the name the table states it by (RETRY), not a figure of its own nor a
     ternary on the interface count; and at each point, each evaluated as its header derives it there, the costs the
     table lists for that point's shape. A point whose cost falls back to the interface count's, or to one figure at
@@ -438,7 +438,7 @@ def controls(root: Path = ROOT) -> list[str]:
                     line, f'#define {BUILD} {2 * c[BUILD_ONE]}u\n#define {BUILD_ONE} {c[BUILD_ONE]}u\n')}):
                 escaped.append('a build of both at two builds of one')
             break
-    # the cap itself, the ruling's (issuecomment-6867393730, item (b): re-ruled from 1,300 to 1,600 us)
+    # the cap itself, the shape ruling's (item (b): re-ruled from 1,300 to 1,600 us)
     if SLICE_MOST_US != 1600:
         escaped.append('the slice cap not the ruling\'s 1,600 us')
     # the model's points built at another configuration than the harness's

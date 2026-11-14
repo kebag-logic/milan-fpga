@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Generate the static entity shape from the authoritative builder counts: the streams ADP advertises, which size
 the SRP tables and pool, the AEM descriptors that bear AECP's change notices, from which aecp.h derives the
-most notices a datapath reset can leave pending (AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item
-(b)(iv)), and the key domain of an AUDIO_MAP edit, which sizes the map edits' direct index (aecp_maps.c;
-aecp_shape.key_domain of the image's own descriptors; #894's ruling issuecomment-6870437042, item 1, with the
-shape header its single source, issuecomment-6871343905, item (c))."""
+most notices a datapath reset can leave pending (AECP_NOTICES_MOST; #894's held-egress ruling, item (b)(iv)), and
+the key domain of an AUDIO_MAP edit, which sizes the map edits' direct index (aecp_maps.c;
+aecp_shape.key_domain of the image's own descriptors; #894's map-keying ruling, item 1, with the
+shape header its single source, the held-egress ruling, item (c))."""
 from __future__ import annotations
 import argparse
 import sys

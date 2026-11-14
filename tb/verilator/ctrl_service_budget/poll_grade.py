@@ -66,13 +66,13 @@ import shape_costs
 #: A pass's first and last firmware poll, and each item's traced function and its sending channel (poll_items).
 FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: The stated costs in microseconds at each shape ctrl_loop.h lists (THE SHAPES, shape_costs.Shape: MBX_N_IF,
-#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's ruling issuecomment-6871343905, item (b)(iii)), at 1x1/1if and 8x8/2if each
+#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's held-egress ruling, item (b)(iii)), at 1x1/1if and 8x8/2if each
 #: the most measured over every group of arm A and the answering-every-port arm at its point plus 5 %, rounded up to
 #: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (725 us at 1x1/1if and
-#: 1,215 at 8x8/2if; #894's ruling issuecomment-6867393730, item (b)), which stated_us reads where the table holds 0.
+#: 1,215 at 8x8/2if; #894's shape ruling, item (b)), which stated_us reads where the table holds 0.
 #: The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
@@ -95,7 +95,7 @@ TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
            aecp_long=655, acmp_declined=20)
 #: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the
 #: answering-every-port arm and the answering-ports arm's aecp-largest-notice on the tree that merges #902 (#894's
-#: round 2 ruling issuecomment-6871343905, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
+#: held-egress ruling, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
 #: the withdrawal 10,317, the rebuild 55,813, the walk 4,701, the reclaim 2,604, ACMP's owed frame 6,813 and a declined
 #: offer 2,542, a notice 13,297 (the answering-every-port arm) and a long one 30,097; a retained record's retry at the
 #: SRP record's cost there (CTRL_LOOP_SRP_UNIT_US, 32,421 cycles).

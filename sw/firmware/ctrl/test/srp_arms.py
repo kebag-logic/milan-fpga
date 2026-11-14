@@ -130,8 +130,8 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
     return Outcome(name,bool(failures),log)
 
 
-#: The words the build fails with at a shape ctrl_loop.h does not list (its #error; THE SHAPES, #894's ruling
-#: issuecomment-6867393730, item (b)).
+#: The words the build fails with at a shape ctrl_loop.h does not list (its #error; THE SHAPES, #894's shape
+#: ruling, item (b)).
 UNLISTED = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 
 

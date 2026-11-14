@@ -22,7 +22,7 @@ when a channel the loop serves has no row (rows_tiers.unrowed, the channels read
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
-8x8/1if is the flip's other point (#894's ruling issuecomment-6867393730, items (a) and (b)), held by --check --point
+8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
 8x8/1if to its load, at most 0.75, the 8x8 shape's stated costs with THE TRANSMIT's builds at its own shape
 (load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
 measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
@@ -52,7 +52,7 @@ import shape_costs  # noqa: E402
 
 ROOT = load_grade.ROOT
 #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
-#: 0.75 (#894's ruling issuecomment-6867393730, item (b)).
+#: 0.75 (#894's shape ruling, item (b)).
 FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
 #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
@@ -139,7 +139,7 @@ def controls(root: Path) -> list[str]:
         escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if')
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
-    # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's ruling issuecomment-6867393730,
+    # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
     # item (b): the slice at most 1,600 us, a shape not listed failing the build)
     escaped += [f'the table of shapes: {name}' for name in shape_costs.controls(root)]
     return escaped + row_controls(root) + built_controls(root)

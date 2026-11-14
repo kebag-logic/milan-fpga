@@ -101,8 +101,8 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
               f"#define AECP_ENTITY_MAP_ROWS {total}u", f"#define AECP_ENTITY_MAP_MAX {maximum}u",
               f"#define AECP_ENTITY_OUTPUTS {overlay['descriptor_counts']['STREAM_OUTPUT']}u"]
     # the key domain is the shape header's in every unit an image compiles (srp_entity.py, force-included first); a
-    # compile given none, a host arm, takes the image's own from here, by the same derivation (#894's ruling
-    # issuecomment-6871343905, item (c))
+    # compile given none, a host arm, takes the image's own from here, by the same derivation (#894's held-egress
+    # ruling, item (c))
     result += ["#ifndef CTRL_SRP_ENTITY_H", *key_domain(blob), "#endif"]
     result += table_macro("AECP_ENTITY_NAMES_INIT", ordinals)
     result += table_macro("AECP_ENTITY_MAPS_INIT(rows)", maps)

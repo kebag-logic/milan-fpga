@@ -29,7 +29,7 @@ ROUND_IDLE_CYCLES = 1000
 
 def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
     """Each kind's stated cost in microseconds at a shape, or at that many interfaces at the shipping shape's streams
-    (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's ruling issuecomment-6867393730, item
+    (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's shape ruling, item
     (b)), the step's by the interface count."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
     pattern = r'#define {} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)'

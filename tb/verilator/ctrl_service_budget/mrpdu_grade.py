@@ -3,7 +3,7 @@
 """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
 periodic or LeaveAll timer made owed, timed from the deadline, the centisecond whose TICK ran the timer out, to the TX
 commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives
-it (BUDGET_MS; #894's ruling issuecomment-6871343905, item (b)(i)), where the family's T_svc held it before THE TIERS.
+it (BUDGET_MS; #894's held-egress ruling, item (b)(i)), where the family's T_svc held it before THE TIERS.
 
 A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
 no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
@@ -35,7 +35,7 @@ PATH = 'mrpdu'
 #: a run-out's build past it is late, and a log that runs on past it with no build after a run-out has none.
 LATE_MS = tx_budget_ms((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
 #: The row's harness budget in ms: that bound, read once (LATE_MS), where the family's T_svc held it before THE TIERS
-#: (#894's ruling issuecomment-6871343905, item (b)(i): the MRP timer budget's lateness).
+#: (#894's held-egress ruling, item (b)(i): the MRP timer budget's lateness).
 BUDGET_MS = LATE_MS
 #: The outcomes of a timer's run-out (resolve), and those that fail a run.
 OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
