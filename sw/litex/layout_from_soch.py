@@ -63,6 +63,28 @@ def _flashboot_payloads(text):
     return payloads
 
 
+def _flash_device(text):
+    """(litespi module name, JEDEC ID) of the flash soc.h was compiled for.
+
+    The name is LiteX's SPIFLASH_MODULE_NAME; the ID is read off that same
+    litespi module, the one the SoC build records (#911), never a table here.
+    """
+    m = re.search(r'#define SPIFLASH_MODULE_NAME\s+"([a-z0-9_]+)"', text)
+    if not m:
+        raise SystemExit("layout: soc.h names no SPIFLASH_MODULE_NAME; "
+                         "refusing a layout with no flash device")
+    try:
+        from litespi import modules
+    except ImportError as exc:
+        raise SystemExit("layout: the flash device's JEDEC ID is read from "
+                         f"litespi, which is not importable here ({exc})") from exc
+    module = getattr(modules, m.group(1).upper(), None)
+    if module is None or getattr(module, "name", None) != m.group(1):
+        raise SystemExit(f"layout: litespi has no module {m.group(1)!r}")
+    jedec = (int(module.manufacturer_id.value) << 16) | int(module.device_id)
+    return m.group(1), jedec
+
+
 def _manifest_and_images(payloads):
     """(manifest kind, the offset-sorted image table) for those payloads."""
     names = {row["name"] for row in payloads}
@@ -157,6 +179,8 @@ def main(build_dir: str, bit_path: str | None = None) -> None:
               "images": images}
     if any(row["name"] == "aem" for row in payloads):
         layout.update(_aem_binding(text, build))
+    if images:
+        layout["flash_device"], layout["flash_jedec_id"] = _flash_device(text)
     if images:
         layout.update(_payload_bitstream_binding(build, bit_path))
 

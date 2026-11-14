@@ -213,6 +213,44 @@ run_ofl() {
     fi
 }
 
+run_detect() {
+    # One read-only identification run, its whole output kept in "$1" for
+    # check-board to parse. No error-word scan here: the refusal is decided
+    # on what the output names, and a non-zero exit is a refusal by itself.
+    local out="$1"; shift
+    if ! $OFL "$@" > "$out" 2>&1; then
+        cat "$out" >&2
+        echo "[deploy] board identification failed: openFPGALoader $*" >&2
+        return 1
+    fi
+}
+
+prove_board() {
+    # #911: the board on the cable must be the one the image set was built
+    # for, proved before the first programmer write. The die comes from the
+    # JTAG IDCODE (--detect touches neither SRAM nor flash), checked before
+    # any bridge is loaded; the flash device from its JEDEC ID, read through
+    # the JTAG-to-SPI bridge FPGA_PART selects. check-board refuses either
+    # mismatch, and a layout that names no flash device.
+    local layout="$1" bit="$2" scratch="$3" line
+    echo "[deploy] identify the board on serial $SERIAL (FPGA die, then flash JEDEC ID)"
+    run_detect "$scratch/jtag-detect.txt" -c "$CABLE" --detect || return 2
+    "$PYTHON" "$HERE/qspi_owner_transition.py" check-board --layout "$layout" \
+        --bit "$bit" --detect "$scratch/jtag-detect.txt" > /dev/null || {
+        echo "[deploy] REFUSED: the FPGA on the cable is not the image set's part." >&2
+        return 2
+    }
+    run_detect "$scratch/flash-detect.txt" -c "$CABLE" --fpga-part "$FPGA_PART" \
+        --detect -f --verbose || return 2
+    line=$("$PYTHON" "$HERE/qspi_owner_transition.py" check-board --layout "$layout" \
+        --bit "$bit" --detect "$scratch/jtag-detect.txt" \
+        --flash "$scratch/flash-detect.txt") || {
+        echo "[deploy] REFUSED: the board's flash device is not the layout's." >&2
+        return 2
+    }
+    echo "[deploy] board matches the image set: $line"
+}
+
 prepare_images() {
     local tmp="$1" rows="$2" layout="${3:-$LAYOUT}"
     local bit="${4:-$BIT}" aem="${5:-${AEM:-}}"
@@ -424,6 +462,7 @@ do_flash() (
             echo "[deploy] flash REFUSED: BIT payload hash/part is not bound to LAYOUT." >&2
             exit 2
         }
+    prove_board "$layout" "$bit" "$tmp" || exit 2
     write_target_bit "$bit"
 )
 
@@ -440,6 +479,7 @@ do_flash_images() (
     bit="$target/gateware/target.bit"
     aem="$target/aem_desc.bin"
     prepare_images "$tmp" "$rows" "$layout" "$bit" "$aem"
+    prove_board "$layout" "$bit" "$tmp" || exit 2
     write_prepared_images "$rows"
 )
 
@@ -482,6 +522,7 @@ do_flash_pair() (
         dump_bytes target_profile <<< "$plan_line"
 
     prepare_images "$tmp" "$rows" "$target_layout" "$target_bit" "$target_aem"
+    prove_board "$target_layout" "$target_bit" "$tmp" || exit 2
 
     echo "[deploy] prove live QSPI bitstream on serial $SERIAL ($dump_bytes B)"
     run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -o 0 --dump-flash \

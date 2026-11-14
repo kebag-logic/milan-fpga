@@ -18660,6 +18660,21 @@ serial = value("--ftdi-serial")
 if serial != os.environ.get("OFL_EXPECT_SERIAL", serial):
     raise SystemExit(88)
 
+if "--detect" in args:
+    # #911: the board on the cable. The die is OFL_MODEL as --detect prints
+    # it; with -f, the flash JEDEC ID is OFL_JEDEC as --verbose prints it
+    # (empty: the read printed no ID).
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write("DETECT\t" + ("flash" if "-f" in args else "jtag") + "\n")
+    print("index 0:\n\tidcode 0x3631093\n\tmanufacturer xilinx\n"
+          "\tfamily artix a7\n\tmodel  " + os.environ.get("OFL_MODEL", "xc7a100")
+          + "\n\tirlength 6")
+    jedec = os.environ.get("OFL_JEDEC", "20ba18")
+    if "-f" in args and jedec:
+        ident = bytes.fromhex(jedec)
+        print(" ".join(f"{byte:x}" for byte in ident) + f" read {int(jedec, 16):x}")
+    raise SystemExit(0)
+
 if "--dump-flash" in args:
     size = int(value("--file-size"), 0)
     off = int(value("-o", "0"), 0)
@@ -18726,7 +18741,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         def make_build(name: str, owner: str, serial_payload: bytes,
                        manifest: str = "baremetal",
                        extra_rows: tuple[dict[str, Any], ...] = (),
-                       cpu_xlen: int | None = 32) -> dict[str, Any]:
+                       cpu_xlen: int | None = 32,
+                       part: bytes = b"7a100tfgg484\0") -> dict[str, Any]:
             """One staged build tree - gateware bitstream, AEM image and the
             flashboot layout binding both - plus what the arms below need to
             reset the fake flash to it and to recognise it once live."""
@@ -18734,14 +18750,16 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             (build / "gateware").mkdir(parents=True)
             bit = build / "gateware" / "alinx_ax7101.bit"
             payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" + serial_payload)
-            qspi_transition._fake_bit(bit, payload, name.encode())
+            qspi_transition._fake_bit(bit, payload, name.encode(), part)
             layout = build / "flashboot_layout.json"
             images = [
                 {"name": "bitstream", "offset": 0, "budget": 0x400000},
                 {"name": "aem", "offset": 0x400000, "budget": 0x10000},
             ] + [dict(row) for row in extra_rows]
             body = {"manifest": manifest, "gptp_owner": owner,
-                    "complete": False, "images": images}
+                    "complete": False, "images": images,
+                    # the board's N25Q128A13, as milan_soc.py records it
+                    "flash_device": "n25q128a13", "flash_jedec_id": 0x20BA18}
             if cpu_xlen is not None:
                 body["cpu_xlen"] = cpu_xlen
             aem = build / "aem_desc.bin"
@@ -18836,6 +18854,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                      fail: tuple[str, int] | None = None,
                      reset: bool = True, named: bool = False,
                      env_over: dict[str, str] | None = None,
+                     recipe: str = "ax7101",
                      ) -> subprocess.CompletedProcess[str]:
             """One source -> target flash-pair run, reached either through
             deploy.sh or through the named build.sh launcher."""
@@ -18850,7 +18869,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             if env_over:
                 env.update(env_over)
             if named:
-                argv = [str(BUILD_SH), "flash", f"ax7101:{target['dir']}"]
+                argv = [str(BUILD_SH), "flash", f"{recipe}:{target['dir']}"]
             else:
                 argv = [str(deploy), "flash-pair"]
             return invoke_deploy(argv, env)
@@ -18868,6 +18887,16 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                         rows.append((int(fields[1]), int(fields[2]),
                                      fields[3], fields[4]))
             return rows
+
+        def flash_io() -> list[str]:
+            """Every logged programmer operation that is not a JTAG die read:
+            the flash ID read, dumps and writes. Empty is how "refused before
+            the bridge" is proved."""
+            if not log.exists():
+                return []
+            with open(log, encoding="utf-8") as handle:
+                return [line.rstrip("\n") for line in handle
+                        if line.rstrip("\n") != "DETECT\tjtag"]
 
         def live_bit(source: dict[str, Any],
                      target: dict[str, Any]) -> dict[str, Any]:
@@ -19033,6 +19062,75 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         # An identical-payload refresh is ambiguous and refused.
         refuse_before_io("identical payloads", fabric, fabric, "identical")
 
+        # #911: the board on the cable must be the image set's. Each refusal
+        # stops before the first dump or write, on every persistent path.
+        def refuse_board(label: str, env_over: dict[str, str], needle: str,
+                         bridge: bool) -> None:
+            """flash-pair, flash and flash-images on fabric -> fabric2 with
+            the fake board changed by `env_over`: each must decline saying
+            `needle`, dump and write nothing, and (bridge False) refuse on the
+            die alone, before the flash ID read loads a bridge."""
+            for step in ("flash-pair", "flash", "flash-images"):
+                reset_flash(fabric)
+                env = env_for(fabric, fabric2)
+                env.update(env_over)
+                if step != "flash-pair":
+                    env["ALLOW_NONATOMIC_FLASH"] = "1"
+                refused = invoke_deploy([str(deploy), step], env)
+                output = refused.stdout + refused.stderr
+                assert refused.returncode != 0, f"{label} {step}: accepted\n{output}"
+                assert needle in output, f"{label} {step}: no {needle!r}\n{output}"
+                io = flash_io()
+                assert not [row for row in io if not row.startswith("DETECT")], \
+                    f"{label} {step}: dumped or wrote after the refusal: {io}"
+                if not bridge:
+                    assert not io, f"{label} {step}: loaded the bridge: {io}"
+
+        refuse_board("XC7A200T on the cable", {"OFL_MODEL": "xc7a200"},
+                     "JTAG-detected part xc7a200t does not match", False)
+        refuse_board("no FPGA model in the detect output",
+                     {"OFL_MODEL": "unknown"}, "names no single FPGA model",
+                     False)
+        refuse_board("a 256 Mbit flash on the board", {"OFL_JEDEC": "20ba19"},
+                     "flash device JEDEC ID 0x20ba19 does not match", True)
+        refuse_board("no JEDEC ID in the flash read", {"OFL_JEDEC": ""},
+                     "names no single JEDEC ID", True)
+        with open(fabric2["layout"], encoding="utf-8") as source:
+            deviceless_body = json.load(source)
+        for key in ("flash_device", "flash_jedec_id"):
+            deviceless_body.pop(key)
+        deviceless_layout = fabric2["dir"] / "deviceless-layout.json"
+        with open(deviceless_layout, "w", encoding="utf-8") as out:
+            json.dump(deviceless_body, out)
+        refuse_board("a layout naming no flash device",
+                     {"LAYOUT": str(deviceless_layout)},
+                     "names no flash device", False)
+        deviceless_layout.unlink()
+
+        # The XC7A200T variant through the named launcher: its board facts
+        # carry the 200T programmer part, so a 200T image set on a 200T
+        # board flashes, and the same set on the AX7101's die refuses.
+        fabric200 = make_build("fabric200", "fabric", b"FABRIC-200T-A",
+                               part=b"7a200tfbg484\0")
+        fabric200b = make_build("fabric200b", "fabric", b"FABRIC-200T-B",
+                                part=b"7a200tfbg484\0")
+        variant = run_pair(fabric200, fabric200b, named=True,
+                           recipe="ax7a200t", env_over={"OFL_MODEL": "xc7a200"})
+        assert variant.returncode == 0, variant.stdout + variant.stderr
+        assert [row[1] for row in writes()] == wanted_offsets
+        assert live_bit(fabric200, fabric200b) is fabric200b
+        wrong_die = run_pair(fabric200, fabric200b, named=True,
+                             recipe="ax7a200t")
+        assert wrong_die.returncode != 0, wrong_die.stdout + wrong_die.stderr
+        assert "JTAG-detected part xc7a100t does not match" in \
+            wrong_die.stdout + wrong_die.stderr
+        assert not writes(), "a 200T image set on a 100T board was written"
+        ax7101_on_200t = run_pair(fabric200, fabric200b, named=True)
+        assert ax7101_on_200t.returncode != 0
+        assert "differs from programmer part" in \
+            ax7101_on_200t.stdout + ax7101_on_200t.stderr
+        assert not log.exists(), "the ax7101 recipe took a 200T image set to I/O"
+
     print(f"  [gate 1e] {checked_prefixes} injected before/after-write "
           "prefixes across the fabric-baremetal refresh retain one live "
           "owner and every prefix resumes; all writes verify; a live target "
@@ -19042,7 +19140,12 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
           "staged transaction set; the "
           "ownerless owner, malformed/collision layouts, missing artifacts, "
           "missing cpu_xlen x2 and an unidentified live bit all refuse "
-          "before programmer I/O")
+          "before programmer I/O; on flash-pair, flash and flash-images a "
+          "JTAG die other than the bitstream's, an unreadable die, a flash "
+          "JEDEC ID other than the layout's, an unreadable ID and a layout "
+          "naming no flash device all refuse before a dump or write (#911); "
+          "build.sh flash ax7a200t flashes a 200T set on a 200T die and "
+          "refuses it on the AX7101's")
 
 
 

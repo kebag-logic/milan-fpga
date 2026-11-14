@@ -176,6 +176,11 @@ FLASHBOOT_RESERVED = {
 }
 
 
+def flash_jedec_id(module) -> int:
+    """The 24-bit JEDEC ID (manufacturer, then device) a litespi module names."""
+    return (int(module.manufacturer_id.value) << 16) | int(module.device_id)
+
+
 def flash_map() -> list[tuple[str, int, int, str]]:
     """Every slot on the device, ordered by offset: [(name, offset, size, kind)].
 
@@ -3327,7 +3332,7 @@ class MilanSoC(SoCCore):
             # length word read as garbage). The compiled divisor is the one with
             # margin; skip the calibration so it actually holds.
             self.add_constant("SPIFLASH_SKIP_FREQ_INIT")
-            self._add_flashboot_constants(flashboot)
+            self._add_flashboot_constants(flashboot, flash_module)
 
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
@@ -3831,8 +3836,12 @@ class MilanSoC(SoCCore):
                              rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
         return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
-    def _add_flashboot_constants(self, manifest_name):
-        """Emit the product flash constants and deployment manifest."""
+    def _add_flashboot_constants(self, manifest_name, flash_module):
+        """Emit the product flash constants and deployment manifest.
+
+        `flash_module` is the litespi module the SoC drives the flash with;
+        the manifest names it and its JEDEC ID so deploy.sh can refuse a
+        board whose flash reads otherwise (#911)."""
         # A build must never emit a flash map that cannot be erased safely.
         problems = check_flash_map()
         if problems:
@@ -3849,6 +3858,8 @@ class MilanSoC(SoCCore):
                                   "complete": False,
                                   "flash_size": FLASH_SIZE,
                                   "erase_block": FLASH_ERASE_BLOCK,
+                                  "flash_device": flash_module.name,
+                                  "flash_jedec_id": flash_jedec_id(flash_module),
                                   "images": [],
                                   # deploy.sh includes these boundaries in its
                                   # per-image write ceilings, so a manifest can
