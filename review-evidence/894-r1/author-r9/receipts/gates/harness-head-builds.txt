@@ -1,0 +1,176 @@
+# the CPU budget harness built at 5b264bf26416108add32d7fe5abca5252ffde2cb on a clean clone (leg.sh: run.py --point P --groups G), the committed ledger;
+# each build's first and last lines and its image plan
+== H-L1A
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --groups datapath-events start 2026-11-14T06:01:43
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 4849 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,869, THE RETRY's round 8,059 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS datapath-events: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 117 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:04:59
+image plan: rom 110576 B in 110592, sram 55152 B in 55296, 40.5 RAMB36, ledgered None None
+== H-L1N
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T06:02:03
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 18363 tier-2 slices; the longest SRP's records 75,251, THE TRANSMIT's build 42,976, THE RETRY's round 49,784 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-0: 3 join interval(s), the shortest 188.043 ms and the longest 189.949 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 18 probe instances, 0 of 7 paths), 0 of 1583 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:14:52
+image plan: rom 110884 B in 112640, sram 55152 B in 55296, 41.0 RAMB36, ledgered None None
+== H-L8A
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8 jobs 1 args --groups datapath-events start 2026-11-14T06:02:23
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 3189 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,825, THE RETRY's round 9,796 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS datapath-events: 6 join interval(s), the shortest 186.583 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 158 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:06:14
+image plan: rom 125368 B in 126976, sram 113168 B in 114688, 59.0 RAMB36, ledgered 8x8-two-interfaces 59.0
+== H-L8N
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T06:02:43
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 11027 tier-2 slices; the longest SRP's records 104,915, THE TRANSMIT's build 93,663, THE RETRY's round 69,053 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS notice-every-0: 6 join interval(s), the shortest 186.528 ms and the longest 190.040 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 47 probe instances, 0 of 8 paths), 0 of 1092 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:16:28
+image plan: rom 125676 B in 126976, sram 113232 B in 114688, 59.0 RAMB36, ledgered 8x8-two-interfaces 59.0
+== H-L1L
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --groups aecp-largest-notice start 2026-11-14T06:03:03
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 5346 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,869, THE RETRY's round 2,104 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:06:37
+image plan: rom 110576 B in 110592, sram 55152 B in 55296, 40.5 RAMB36, ledgered None None
+== H-L8L
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8 jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T06:03:23
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 139 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 254,919 (2.549 ms)
+SLICES 3615 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,600, THE RETRY's round 3,318 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-largest-notice: 6 join interval(s), the shortest 187.631 ms and the longest 189.809 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 139 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:07:46
+image plan: rom 125528 B in 126976, sram 113168 B in 114688, 59.0 RAMB36, ledgered 8x8-two-interfaces 59.0
+== H-81L
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T06:05:13
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 213,816 (2.138 ms)
+SLICES 4384 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 94,441, THE RETRY's round 1,922 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.440 ms and the longest 190.006 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED aecp-largest-notice: a build-one pass of 94,441 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 91,757 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 92,149 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a pass's polls base of 21,015 CPU cycles, over its stated 20,500
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 94,441 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 91,757 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 92,149 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T06:09:00
+image plan: rom 124264 B in 124928, sram 96240 B in 96256, 54.0 RAMB36, ledgered None None
+== H-81A
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8-1if jobs 1 args --groups datapath-events start 2026-11-14T06:06:33
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 4045 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 94,982, THE RETRY's round 7,106 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS datapath-events: 3 join interval(s), the shortest 188.028 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 118 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED datapath-events: a build-one pass of 94,982 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,370 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,696 CPU cycles, over its stated 72,500
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 94,982 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,370 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,696 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T06:09:57
+image plan: rom 124104 B in 124928, sram 96240 B in 96256, 54.0 RAMB36, ledgered None None
+== H-81N
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8-1if jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T06:07:23
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=1 2026-11-14T06:07:52
+image plan: rom 124412 B in 124928, sram 96304 B in 98304, 54.5 RAMB36, ledgered None None
+== H-L1O
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --groups backlog-owed start 2026-11-14T06:08:13
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 19332 tier-2 slices; the longest SRP's records 71,792, THE TRANSMIT's build 41,869, THE RETRY's round 1,884 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 310 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:19:15
+image plan: rom 110576 B in 110592, sram 55152 B in 55296, 40.5 RAMB36, ledgered None None
+== H-L8O
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8 jobs 1 args --groups backlog-owed start 2026-11-14T06:08:33
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 12041 tier-2 slices; the longest SRP's records 103,573, THE TRANSMIT's build 89,825, THE RETRY's round 2,242 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS backlog-owed: 6 join interval(s), the shortest 186.583 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 318 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:20:35
+image plan: rom 125368 B in 126976, sram 113168 B in 114688, 59.0 RAMB36, ledgered 8x8-two-interfaces 59.0
+== C-R1
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --mutation acmp-redelivered-every-poll start 2026-11-14T06:09:23
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 18883 tier-2 slices; the longest SRP's records 73,394, THE TRANSMIT's build 41,869, THE RETRY's round 1,884 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.038 ms and the longest 189.996 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 309 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-owed: a pass's polls base of 39,921 CPU cycles, over its stated 20,500
+STATED backlog-owed: a declined ACMP offer of 2,021 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: 317 declined ACMP offers, over their bound of two a sent owed frame and one (12 sent)
+CONTROL acmp-redelivered-every-poll caught: 1 of 1 group(s) with 'declined ACMP offers, over their bound' over its stated cost (backlog-owed), 0 refusal(s)
+END rc=0 2026-11-14T06:20:16
+image plan: rom 110576 B in 110592, sram 55152 B in 55296, 40.5 RAMB36, ledgered None None
+== H-J1
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 1x1 jobs 1 args --groups srp start 2026-11-14T06:10:13
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 19031 tier-2 slices; the longest SRP's records 29,736, THE TRANSMIT's build 68,937, THE RETRY's round 1,913 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 289 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T06:21:01
+image plan: rom 110576 B in 110592, sram 55152 B in 55296, 40.5 RAMB36, ledgered None None
+== H-J8
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8 jobs 1 args --groups srp start 2026-11-14T06:15:03
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 12189 tier-2 slices; the longest SRP's records 33,099, THE TRANSMIT's build 147,814, THE RETRY's round 2,242 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp: 6 join interval(s), the shortest 185.485 ms and the longest 190.026 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 0 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 138,054 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 147,814 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 138,054 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 147,814 CPU cycles, over the stated slice 130,000
+END rc=1 2026-11-14T06:26:44
+image plan: rom 125368 B in 126976, sram 113168 B in 114688, 59.0 RAMB36, ledgered 8x8-two-interfaces 59.0
+== H-J81
+HEAD 5b264bf26416108add32d7fe5abca5252ffde2cb DIRTY 0 point 8x8-1if jobs 1 args --groups srp start 2026-11-14T06:16:53
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 15874 tier-2 slices; the longest SRP's records 34,120, THE TRANSMIT's build 137,924, THE RETRY's round 1,750 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 188.028 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 290 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 94,982 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,370 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,696 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,673 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,850 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 137,924 CPU cycles, over its stated 72,500
+STATED srp: a walk item of 4,701 CPU cycles, over its stated 3,500
+STATED srp: an SRP record's apply of 29,586 CPU cycles, over its stated 28,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 94,982 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,370 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,696 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,673 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,850 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 137,924 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T06:27:51
+image plan: rom 124104 B in 124928, sram 96240 B in 96256, 54.0 RAMB36, ledgered None None

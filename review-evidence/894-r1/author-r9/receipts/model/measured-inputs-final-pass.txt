@@ -1,0 +1,43 @@
+# the model's measured inputs from the final pass's legs at 5b264bf2 (round 7's measured_inputs.py: the longest aecp_mbx:frame records and poll_grade.held's heaviest items, each by the +5 % rule; 8x8/2if legs graded at two interfaces, the rest at one); the datapath-events and srp legs carry no AECP record and are left out. Stated: LONG_RECORD_US 975 us at 1x1/1if, 1,650 us at 8x8/2if (rows_tiers.py:132)
+H-L1L: the two longest aecp_mbx:frame records [83716, 91625] CPU cycles, rule 965 us
+  aecp_long: heaviest 34370 CPU cycles, rule 365 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 15305 CPU cycles, rule 165 us, stated 205 us
+  items over their stated cost: 0 []
+  heaviest work passes: 93346 95503 138064 149490 
+H-L8L: the two longest aecp_mbx:frame records [148890, 156716] CPU cycles, rule 1650 us
+  aecp_long: heaviest 61857 CPU cycles, rule 650 us, stated 655 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 275 us
+  base: heaviest 27997 CPU cycles, rule 295 us, stated 325 us
+  items over their stated cost: 0 []
+  heaviest work passes: 138436 177514 243386 254919 
+H-81L: the two longest aecp_mbx:frame records [150092, 154850] CPU cycles, rule 1630 us
+  aecp_long: heaviest 30097 CPU cycles, rule 320 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 21015 CPU cycles, rule 225 us, stated 205 us
+  items over their stated cost: 1 ['base']
+  heaviest work passes: 129434 166947 206454 213816 
+H-L1O: the two longest aecp_mbx:frame records [14161, 15634] CPU cycles, rule 165 us
+  aecp_long: heaviest 0 CPU cycles, rule 0 us, stated 365 us
+  aecp: heaviest 2279 CPU cycles, rule 25 us, stated 210 us
+  base: heaviest 14065 CPU cycles, rule 150 us, stated 205 us
+  items over their stated cost: 0 []
+  heaviest work passes: 97152 107861 126638 136975 
+H-L8O: the two longest aecp_mbx:frame records [14275, 14761] CPU cycles, rule 155 us
+  aecp_long: heaviest 0 CPU cycles, rule 0 us, stated 655 us
+  aecp: heaviest 2293 CPU cycles, rule 25 us, stated 275 us
+  base: heaviest 23323 CPU cycles, rule 245 us, stated 325 us
+  items over their stated cost: 0 []
+  heaviest work passes: 130817 131322 154756 155424 
+H-L1N: the two longest aecp_mbx:frame records [16865, 21957] CPU cycles, rule 235 us
+  aecp_long: heaviest 0 CPU cycles, rule 0 us, stated 365 us
+  aecp: heaviest 18009 CPU cycles, rule 190 us, stated 210 us
+  base: heaviest 16089 CPU cycles, rule 170 us, stated 205 us
+  items over their stated cost: 0 []
+  heaviest work passes: 150477 151229 152192 153136 
+H-L8N: the two longest aecp_mbx:frame records [18920, 23707] CPU cycles, rule 250 us
+  aecp_long: heaviest 0 CPU cycles, rule 0 us, stated 655 us
+  aecp: heaviest 26016 CPU cycles, rule 275 us, stated 275 us
+  base: heaviest 28065 CPU cycles, rule 295 us, stated 325 us
+  items over their stated cost: 0 []
+  heaviest work passes: 161508 163157 168350 169441 

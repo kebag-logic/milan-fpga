@@ -1,0 +1,99 @@
+# the two passes stopped part-way this round, each when a leg showed a stated input under its measurement; neither is the final pass. Each dispatcher's log as it stood when stopped (host paths replaced).
+== precheck-5cfa32c2
+04:46:28 queue queue-wf.txt: 18 lines, at most 4 at once, floor 20.0 GB, CPUs 32-63
+04:46:28 W-fw-boundary started (MemAvailable 50 GB)
+04:46:30 queue queue-legs.txt: 15 lines, at most 6 at once, floor 20.0 GB, CPUs 64-79,88-95
+04:46:30 H-L1A started (MemAvailable 50 GB)
+04:46:48 W-fw-control started (MemAvailable 50 GB)
+04:46:50 H-L1N started (MemAvailable 49 GB)
+04:47:08 W-fw-aecp started (MemAvailable 49 GB)
+04:47:10 H-L8A started (MemAvailable 48 GB)
+04:47:28 W-fw-srp started (MemAvailable 48 GB)
+04:47:30 H-L8N started (MemAvailable 48 GB)
+04:47:50 H-L1L started (MemAvailable 48 GB)
+04:48:10 H-L8L started (MemAvailable 47 GB)
+04:50:00 H-L1A ended rc=0
+04:50:00 H-81L started (MemAvailable 48 GB)
+04:51:20 H-L8A ended rc=0
+04:51:20 H-81A started (MemAvailable 48 GB)
+04:52:10 H-L1L ended rc=0
+04:52:10 H-81N started (MemAvailable 54 GB)
+04:53:00 H-L8L ended rc=0
+04:53:00 H-81N ended rc=1
+04:53:00 H-L1O started (MemAvailable 53 GB)
+04:53:20 H-L8O started (MemAvailable 52 GB)
+04:54:10 H-81L ended rc=1
+04:54:10 C-R1 started (MemAvailable 51 GB)
+04:55:00 H-81A ended rc=1
+04:55:00 H-J1 started (MemAvailable 52 GB)
+05:00:21 H-L1N ended rc=0
+05:00:21 H-J8 started (MemAvailable 55 GB)
+05:01:41 H-L8N ended rc=0
+05:01:41 H-J81 started (MemAvailable 52 GB)
+05:03:20 W-fw-aecp ended rc=0
+05:03:20 W-fw-unit started (MemAvailable 53 GB)
+05:04:10 W-fw-srp ended rc=0
+05:04:10 lane-b started (MemAvailable 53 GB)
+05:04:31 H-L1O ended rc=0
+05:05:31 H-L8O ended rc=0
+05:05:31 C-R1 ended rc=0
+05:06:01 H-J1 ended rc=0
+05:10:30 W-fw-boundary ended rc=0
+05:10:30 lane-a started (MemAvailable 54 GB)
+05:12:31 H-J8 ended rc=1
+05:13:01 H-J81 ended rc=1
+05:13:31 queue done
+05:13:41 queue queue-wf2.txt: 11 lines, at most 4 at once, floor 20.0 GB, CPUs 64-79,88-95
+05:13:41 lane-c started (MemAvailable 53 GB)
+05:14:01 W-rtl-fast started (MemAvailable 54 GB)
+05:14:21 W-docs-gates-0 started (MemAvailable 53 GB)
+05:14:41 W-docs-gates-1 started (MemAvailable 50 GB)
+== stopped-88ed7082
+05:17:59 queue queue-wf.txt: 18 lines, at most 4 at once, floor 20.0 GB, CPUs 32-63
+05:17:59 W-fw-boundary started (MemAvailable 56 GB)
+05:18:01 queue queue-legs.txt: 15 lines, at most 6 at once, floor 20.0 GB, CPUs 64-95
+05:18:01 H-L1A started (MemAvailable 56 GB)
+05:18:19 W-fw-control started (MemAvailable 56 GB)
+05:18:21 H-L1N started (MemAvailable 55 GB)
+05:18:39 W-fw-aecp started (MemAvailable 54 GB)
+05:18:41 H-L8A started (MemAvailable 53 GB)
+05:18:59 W-fw-srp started (MemAvailable 54 GB)
+05:19:01 H-L8N started (MemAvailable 53 GB)
+05:19:21 H-L1L started (MemAvailable 54 GB)
+05:19:41 H-L8L started (MemAvailable 53 GB)
+05:21:31 H-L1A ended rc=0
+05:21:31 H-81L started (MemAvailable 53 GB)
+05:22:51 H-L8A ended rc=0
+05:22:51 H-81A started (MemAvailable 51 GB)
+05:23:41 H-L1L ended rc=0
+05:23:41 H-81N started (MemAvailable 53 GB)
+05:24:31 H-L8L ended rc=0
+05:24:31 H-81N ended rc=1
+05:24:31 H-L1O started (MemAvailable 53 GB)
+05:24:51 H-L8O started (MemAvailable 53 GB)
+05:25:41 H-81L ended rc=1
+05:25:41 C-R1 started (MemAvailable 52 GB)
+05:26:31 H-81A ended rc=1
+05:26:31 H-J1 started (MemAvailable 53 GB)
+05:31:21 H-L1N ended rc=0
+05:31:21 H-J8 started (MemAvailable 55 GB)
+05:32:41 H-L8N ended rc=0
+05:32:41 H-J81 started (MemAvailable 52 GB)
+05:34:19 W-fw-aecp ended rc=0
+05:34:19 W-fw-unit started (MemAvailable 52 GB)
+05:35:09 W-fw-srp ended rc=0
+05:35:09 lane-b started (MemAvailable 53 GB)
+05:36:01 H-L1O ended rc=0
+05:37:01 H-L8O ended rc=0
+05:37:01 C-R1 ended rc=0
+05:37:31 H-J1 ended rc=0
+05:42:29 W-fw-boundary ended rc=0
+05:42:29 lane-a started (MemAvailable 55 GB)
+05:43:32 H-J8 ended rc=1
+05:44:02 H-J81 ended rc=1
+05:44:32 queue done
+05:44:53 queue queue-wf2.txt: 11 lines, at most 4 at once, floor 20.0 GB, CPUs 64-95
+05:44:53 lane-c started (MemAvailable 53 GB)
+05:45:13 W-rtl-fast started (MemAvailable 55 GB)
+05:45:33 W-docs-gates-0 started (MemAvailable 53 GB)
+05:45:53 W-docs-gates-1 started (MemAvailable 53 GB)

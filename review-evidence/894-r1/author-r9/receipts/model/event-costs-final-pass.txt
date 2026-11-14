@@ -1,0 +1,91 @@
+# eventcost.py (each datapath event's take and every sink's work, by type; stated_us is its max x 1.05 up to 5 us) from the final pass's datapath-events legs at 5b264bf2, against rows_tiers.DATAPATH_US: 1x1/1if AVB_INFO_CHANGED 35, AS_PATH_CHANGED 35, AMAP_LIVE_WRITE 30; 8x8/2if 40, 40, 25. Its provenance: on the legs of the heads before (builds-old, builds-11c586a8) the same script gives 31.96, 29.06, 23.33 at 1x1/1if, the figures rows_tiers.py records; at round 8's head dd01b0af 30.48, 30.29, 25.32.
+== H-L1A
+{
+ "AMAP_LIVE_WRITE": {
+  "count": 8,
+  "max_cycles": 2551,
+  "max_us": 25.51,
+  "at": "datapath-events.log@67928115",
+  "stated_us": 30
+ },
+ "AS_PATH_CHANGED": {
+  "count": 8,
+  "max_cycles": 3157,
+  "max_us": 31.57,
+  "at": "datapath-events.log@70730523",
+  "stated_us": 35
+ },
+ "AVB_INFO_CHANGED": {
+  "count": 8,
+  "max_cycles": 3055,
+  "max_us": 30.55,
+  "at": "datapath-events.log@67527812",
+  "stated_us": 35
+ },
+ "LINK": {
+  "count": 1,
+  "max_cycles": 12059,
+  "max_us": 120.59,
+  "at": "datapath-events.log@7488062",
+  "stated_us": 130
+ },
+ "TICK": {
+  "count": 70,
+  "max_cycles": 6025,
+  "max_us": 60.25,
+  "at": "datapath-events.log@3300722",
+  "stated_us": 65
+ },
+ "TIMER": {
+  "count": 9,
+  "max_cycles": 8016,
+  "max_us": 80.16,
+  "at": "datapath-events.log@61313729",
+  "stated_us": 85
+ }
+}
+== H-L8A
+{
+ "AMAP_LIVE_WRITE": {
+  "count": 16,
+  "max_cycles": 2265,
+  "max_us": 22.65,
+  "at": "datapath-events.log@80792951",
+  "stated_us": 25
+ },
+ "AS_PATH_CHANGED": {
+  "count": 16,
+  "max_cycles": 3279,
+  "max_us": 32.79,
+  "at": "datapath-events.log@80398131",
+  "stated_us": 35
+ },
+ "AVB_INFO_CHANGED": {
+  "count": 16,
+  "max_cycles": 3576,
+  "max_us": 35.76,
+  "at": "datapath-events.log@71591047",
+  "stated_us": 40
+ },
+ "LINK": {
+  "count": 2,
+  "max_cycles": 15171,
+  "max_us": 151.71,
+  "at": "datapath-events.log@11538525",
+  "stated_us": 160
+ },
+ "TICK": {
+  "count": 75,
+  "max_cycles": 9941,
+  "max_us": 99.41,
+  "at": "datapath-events.log@7201992",
+  "stated_us": 105
+ },
+ "TIMER": {
+  "count": 16,
+  "max_cycles": 12458,
+  "max_us": 124.58,
+  "at": "datapath-events.log@67909294",
+  "stated_us": 135
+ }
+}

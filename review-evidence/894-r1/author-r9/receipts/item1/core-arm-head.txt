@@ -1,0 +1,28 @@
+# the core arm at 992e52a0's source (the floored table; the head's firmware), map, restore, boot and output tests
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[       OK ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow (8 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (0 ms)
+[ RUN      ] Core.EveryKeyOfTheDomainIsItsOwn
+[       OK ] Core.EveryKeyOfTheDomainIsItsOwn (0 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[       OK ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (0 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[  PASSED  ] 13 tests.

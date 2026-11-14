@@ -1,0 +1,19 @@
+# the core arm at the working tree after item 1 alone (the direct index, before item 2's tests): every Core.Map*, Restored*, Boot* test; only the round 8 hash test fails (its key, channel 256 of a 1023-channel stream, is outside the domain)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow (8 ms)
+[ RUN      ] Core.MapKeysThatShareASlotAreTheirOwn
+[  FAILED  ] Core.MapKeysThatShareASlotAreTheirOwn (0 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapKeysThatShareASlotAreTheirOwn
+ 1 FAILED TEST

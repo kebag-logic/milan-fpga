@@ -1,0 +1,82 @@
+endstation_arty_4x4: constants {'STREAMS': 5, 'STREAM_CHANNELS': 4, 'CLUSTERS': 4, 'CLUSTER_CHANNELS': 1}; domain 5 x 4 = 20, table 256 slots
+  input port 0: 4 accepted keys, slots 0..12, each in the table and its own: True
+  input port 1: 4 accepted keys, slots 0..12, each in the table and its own: True
+  input port 2: 4 accepted keys, slots 0..12, each in the table and its own: True
+  input port 3: 4 accepted keys, slots 0..12, each in the table and its own: True
+endstation_arty_8ch: constants {'STREAMS': 5, 'STREAM_CHANNELS': 8, 'CLUSTERS': 8, 'CLUSTER_CHANNELS': 1}; domain 8 x 8 = 64, table 256 slots
+  input port 0: 8 accepted keys, slots 0..56, each in the table and its own: True
+  input port 1: 8 accepted keys, slots 0..56, each in the table and its own: True
+  input port 2: 8 accepted keys, slots 0..56, each in the table and its own: True
+  input port 3: 8 accepted keys, slots 0..56, each in the table and its own: True
+endstation_arty_current: constants {'STREAMS': 1, 'STREAM_CHANNELS': 2, 'CLUSTERS': 8, 'CLUSTER_CHANNELS': 1}; domain 8 x 2 = 16, table 256 slots
+  input port 0: 8 accepted keys, slots 0..14, each in the table and its own: True
+endstation_ax7101_1x1_tdm8: constants {'STREAMS': 2, 'STREAM_CHANNELS': 8, 'CLUSTERS': 8, 'CLUSTER_CHANNELS': 1}; domain 8 x 8 = 64, table 256 slots
+  input port 0: 8 accepted keys, slots 0..56, each in the table and its own: True
+  output port 0: 8 accepted keys, slots 0..7, each in the table and its own: True
+endstation_ax7101_8x8: constants {'STREAMS': 9, 'STREAM_CHANNELS': 8, 'CLUSTERS': 0, 'CLUSTER_CHANNELS': 0}; domain 9 x 8 = 72, table 256 slots
+  input port 0: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 1: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 2: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 3: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 4: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 5: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 6: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 7: 0 accepted keys, slots 0..0, each in the table and its own: True
+  output port 0: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 1: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 2: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 3: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 4: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 5: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 6: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 7: 64 accepted keys, slots 0..63, each in the table and its own: True
+keys-16x4: constants {'STREAMS': 17, 'STREAM_CHANNELS': 4, 'CLUSTERS': 0, 'CLUSTER_CHANNELS': 0}; domain 17 x 4 = 68, table 256 slots
+  input port 0: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 1: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 2: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 3: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 4: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 5: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 6: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 7: 0 accepted keys, slots 0..0, each in the table and its own: True
+  output port 0: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 1: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 2: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 3: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 4: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 5: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 6: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 7: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 8: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 9: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 10: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 11: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 12: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 13: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 14: 64 accepted keys, slots 0..63, each in the table and its own: True
+  output port 15: 64 accepted keys, slots 0..63, each in the table and its own: True
+keys-16x32: constants {'STREAMS': 17, 'STREAM_CHANNELS': 32, 'CLUSTERS': 0, 'CLUSTER_CHANNELS': 0}; domain 17 x 32 = 544, table 544 slots
+  input port 0: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 1: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 2: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 3: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 4: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 5: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 6: 0 accepted keys, slots 0..0, each in the table and its own: True
+  input port 7: 0 accepted keys, slots 0..0, each in the table and its own: True
+  output port 0: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 1: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 2: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 3: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 4: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 5: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 6: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 7: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 8: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 9: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 10: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 11: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 12: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 13: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 14: 488 accepted keys, slots 0..511, each in the table and its own: True
+  output port 15: 488 accepted keys, slots 0..511, each in the table and its own: True

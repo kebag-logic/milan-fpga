@@ -1,0 +1,35 @@
+# the 32 plants on aecp_maps.c and THE PACE (subset_mutants.py, aecp), at 992e52a0's source: name, caught
+planting 32
+[ok] map-body-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+[ok] boot-clip-boundary: Core.RestoreMapWholeSetClipAndDefaults:Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[ok] map-capacity-ignored: Core.MapsAreAtomicAndPaginated
+[ok] static-map-orphan-accepted: Core.StaticMapsPreventOrphaningFormats
+[ok] output-owner-crossed: Core.OutputMappingsHaveOneGlobalOwner
+[ok] empty-map-no-page: Core.MapTopologyFailuresAndEmptyPartitions:Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[ok] boot-map-capacity-ignored: Core.BootMapFaultsCannotPartlyReplaceTheSet
+[ok] map-cluster-channel-ignored: Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[ok] restore-cluster-channel-ignored: Core.RestoredOutputMapsHaveOneGlobalOwner
+[ok] restore-owner-unchecked: Core.RestoredOutputMapsHaveOneGlobalOwner
+[ok] restore-conflict-unchecked: Core.RestoredOutputMapsHaveOneGlobalOwner
+[ok] map-index-channel-dropped: Core.EveryAcceptedMapKeyIsItsOwn
+[ok] map-index-stream-or-cluster-dropped: Core.EveryAcceptedMapKeyIsItsOwn
+[ok] map-index-stride-short: Core.EveryKeyOfTheDomainIsItsOwn
+[ok] map-domain-a-channel-wide: Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[ok] map-outside-row-looked-up: Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[ok] map-value-cluster-channel-ignored: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-add-stops-early: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-illegal-ends-early: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-illegal-unflagged: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-port-rows-unread: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-owners-unread: Core.MapEditsAreTheirDefinitionRowForRow:Core.OutputMappingsHaveOneGlobalOwner
+[ok] map-checked-before-its-read: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-repeat-counted: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-remove-every-copy: Core.MapEditsAreTheirDefinitionRowForRow
+[ok] map-remove-values-rewalked: Core.MapEditWorkIsLinearInItsMappings
+[ok] map-table-scanned: Core.MapEditWorkIsLinearInItsMappings
+[ok] pace-not-held: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[ok] pace-a-millisecond-short: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[ok] pace-from-boot: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[ok] pace-unstamped: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[ok] pace-a-refused-edit: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+SUBSET: PASS

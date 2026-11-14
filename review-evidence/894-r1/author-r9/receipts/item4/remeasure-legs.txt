@@ -1,0 +1,35 @@
+# the aecp-largest-notice legs (measured_inputs.py, round 7's): the 64-slot table at 58e6b60f (L1L, L8L, 81L), the same source with the table floored at 256 slots, which is the head's firmware (pad-L1L), and the full pass's H-L1L at the head 5cfa32c2; every aecp_mbx:frame record sorted and the six heaviest work passes, CPU cycles
+L1L: the two longest aecp_mbx:frame records [92801, 98720] CPU cycles, rule 1040 us
+  aecp_long: heaviest 34447 CPU cycles, rule 365 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 15276 CPU cycles, rule 165 us, stated 205 us
+  items over their stated cost: 0 []
+  every aecp_mbx:frame record: 8743 8930 8931 9007 9023 9112 9156 9262 9306 9456 9498 9531 9637 9681 9752 11276 23956 83016 83664 92801 98720 
+  heaviest work passes: 41666 42291 101444 106977 147149 155948 
+pad-L1L: the two longest aecp_mbx:frame records [83716, 91625] CPU cycles, rule 965 us
+  aecp_long: heaviest 34370 CPU cycles, rule 365 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 15305 CPU cycles, rule 165 us, stated 205 us
+  items over their stated cost: 0 []
+  every aecp_mbx:frame record: 8908 9092 9096 9127 9236 9277 9321 9427 9471 9621 9663 9696 9802 9846 9917 11603 23883 75481 75892 83716 91625 
+  heaviest work passes: 41869 42498 93335 93813 138064 149490 
+H-L1L: the two longest aecp_mbx:frame records [83716, 91625] CPU cycles, rule 965 us
+  aecp_long: heaviest 34370 CPU cycles, rule 365 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 15305 CPU cycles, rule 165 us, stated 205 us
+  items over their stated cost: 0 []
+  every aecp_mbx:frame record: 8908 9092 9096 9127 9236 9277 9321 9427 9471 9621 9663 9696 9802 9846 9917 11603 23883 75481 75892 83716 91625 
+  heaviest work passes: 41869 42498 93335 93813 138064 149490 
+L8L: the two longest aecp_mbx:frame records [138456, 146010] CPU cycles, rule 1535 us
+  aecp_long: heaviest 61832 CPU cycles, rule 650 us, stated 655 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 275 us
+  base: heaviest 28787 CPU cycles, rule 305 us, stated 325 us
+  items over their stated cost: 0 []
+  heaviest work passes: 88350 89733 133258 167784 233835 245030 
+81L: the two longest aecp_mbx:frame records [151117, 155625] CPU cycles, rule 1635 us
+  aecp_long: heaviest 30078 CPU cycles, rule 320 us, stated 365 us
+  aecp: heaviest 0 CPU cycles, rule 0 us, stated 210 us
+  base: heaviest 20419 CPU cycles, rule 215 us, stated 205 us
+  items over their stated cost: 0 []
+  heaviest work passes: 92346 94588 130342 168150 207456 214156 
+# round 8's head dd01b0af, its final pass's H-L1L, for comparison: every aecp_mbx:frame record: 8912 9096 9100 9131 9240 9281 9325 9431 9475 9625 9667 9700 9806 9850 9921 11615 23014 78420 79384 86504 92766 ; heaviest work passes: 41545 41876 96311 103615 140498 150004 

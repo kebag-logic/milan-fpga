@@ -1,0 +1,10 @@
+# every image at the final head 5b264bf26416108add32d7fe5abca5252ffde2cb (its own clean clone), qall.sh: ctrl_srp_image.py (the size fixture) and ctrl_plat_image.py (the platform) against round 7's final pass's harness flash maps and runtimes (read only) and the suite's CSR map. Caps: 56 everywhere; at 8x8/2if 59.0 (fixture) and 60.5 (platform). Every rc 0.
+fixture-1x1-1if: rc 0 rom 110576 in 110592, sram 55152 in 55296, tiles 40.5, ledgered None None
+fixture-1x1-2if: rc 0 rom 111872 in 112640, sram 57312 in 57344, tiles 41.5, ledgered None None
+fixture-8x8-1if: rc 0 rom 124104 in 124928, sram 96240 in 96256, tiles 54.0, ledgered None None
+fixture-8x8-2if: rc 0 rom 125368 in 126976, sram 113168 in 114688, tiles 59.0, ledgered 8x8-two-interfaces 59.0
+platform-1x1-1if: rc 0 rom 115632 in 116736, sram 56224 in 57344, tiles 42.5, ledgered None None
+platform-1x1-2if: rc 0 rom 116944 in 118784, sram 58336 in 59392, tiles 43.5, ledgered None None
+platform-8x8-1if: rc 0 rom 129200 in 131072, sram 97264 in 98304, tiles 56.0, ledgered None None
+platform-8x8-2if: rc 0 rom 130496 in 131072, sram 114160 in 114688, tiles 60.0, ledgered platform-8x8-two-interfaces 60.0
+# against round 8's head dd01b0af (round 8's receipts/images/every-image-final.txt): rom equal or 8 B smaller, every sram and every tile count equal; the same bytes as 5cfa32c2's and 88ed7082's (THE PACE's 7 -> 8 changes an immediate only)

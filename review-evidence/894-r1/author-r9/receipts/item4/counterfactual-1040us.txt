@@ -1,0 +1,56 @@
+# the counterfactual: the 64-slot table's record restated by the rule, 98,720 cycles -> 1,040 us, at 58e6b60f's model (a scratch clone, its rows_tiers.LONG_RECORD_US edited, then restored)
+# THE PACE at 58e6b60fe12627a2cc39c4ba44280f1ed443e084 (1 changed paths), 1x1/1if, the built design: the tree states AECP_PACE_MS 7, slice 900 us, record.aecp.long 1040 us; txL bound 49 ms, R4L bound 238 ms
+| P, ms | txL, ms (49) | R4L, ms (238) | holds both |
+|---:|---:|---:|---|
+| 1 | 109.4 | 83.44 | no |
+| 2 | 109.4 | 98.44 | no |
+| 3 | 109.4 | 113.44 | no |
+| 4 | 74.19 | 128.44 | no |
+| 5 | 58.99 | 143.44 | no |
+| 6 | 55.81 | 158.44 | no |
+| 7 | 52.9 | 173.44 | no |
+| 8 | 49.28 | 188.44 | no |
+| 9 | 47.63 | 203.44 | yes |
+| 10 | 45.97 | 218.44 | yes |
+| 11 | 45.97 | 233.44 | yes |
+| 12 | 43.8 | 248.44 | no |
+| 13 | 43.8 | 263.44 | no |
+paced_rows.choice: 9  statements (tree against model): ["aecp_mbx.h states AECP_PACE_MS 7 ms, not the model's 9 ms"]
+slice_choice: (900, -0.07959183673469385)  ruled(): 800
+
+## tier_grid.py --point 1x1/1if at 1,040 us
+Point 1x1/1if: 420 candidates solved and 126 refused by their own rules; 0 hold every row and the load (load at the pin 0.513, 0.705 with every notice the largest legal one).
+
+| Order | Solved | Refused | Hold | Best: cap or quotas, slice, long notices | Its least margin | Its rows over their bounds |
+|---|---:|---:|---:|---|---:|---|
+| aecp-first | 84 | 42 | 0 | cap 2, 900 us, buffer | -0.0796 | txL 52.90 |
+| others-first | 84 | 42 | 0 | cap 2, 600 us, buffer | -0.1897 | R4 23.78, last 154.66, txL 49.74 |
+| aecp-quota | 84 | 42 | 0 | quotas 0/1/1/1, 600 us, buffer | -0.3657 | last 157.63, ACMP 32.72, txL 66.92 |
+| wrr | 168 | 0 | 0 | quotas 2/2/1/1, 600 us, buffer | -0.2235 | R4 24.47, last 154.66 |
+| turn (reported) | 42 | 0 | 0 | cap tree, 600 us, buffer | -0.2235 | R4 24.47, last 154.66, txL 49.74 |
+exit 1
+
+## tier_grid.py --point 1x1/1if at 1,040 us with AECP_PACE_MS 9 (the working tree before the floor, its aecp_mbx.h and rows_tiers.py edited, then restored): no candidate holds, the load with every command the largest legal one 0.705 over 0.70
+Point 1x1/1if: 420 candidates solved and 126 refused by their own rules; 0 hold every row and the load (load at the pin 0.513, 0.705 with every notice the largest legal one).
+
+| Order | Solved | Refused | Hold | Best: cap or quotas, slice, long notices | Its least margin | Its rows over their bounds |
+|---|---:|---:|---:|---|---:|---|
+| aecp-first | 84 | 42 | 0 | cap 2, 900 us, buffer | +0.0280 | none |
+| others-first | 84 | 42 | 0 | cap 2, 600 us, buffer | -0.1897 | R4 23.78, last 154.66 |
+| aecp-quota | 84 | 42 | 0 | quotas 0/2/2/2, 600 us, buffer | -0.2108 | R4 23.78, last 154.66, txL 59.33 |
+| wrr | 168 | 0 | 0 | quotas 2/1/1/1, 600 us, buffer | -0.2125 | R4 22.23, last 157.63, ACMP 32.72, txL 59.33 |
+| turn (reported) | 42 | 0 | 0 | cap tree, 600 us, buffer | -0.2235 | R4 24.47, last 154.66 |
+NO CANDIDATE HOLDS every row by every source within its bound and the load within 0.70 at 1x1/1if.
+## flip_grade.py --check --point 1x1/1if there: every row held (txL 47.63 of 49, R4L 203.44 of 238)
+| 1x1/1if | R4 | 12.82 | 20 | -7.18 | 5 | aecp 3.760, timers 1.435, passes 1.175 |
+| 1x1/1if | R5 | 72.71 | 90 | -17.29 | 39 | others 18.015, passes 9.165, srp 8.960 |
+| 1x1/1if | R6 | 68.62 | 90 | -21.38 | 36 | others 17.395, srp 8.960, passes 8.460 |
+| 1x1/1if | first | 14.50 | 20 | -5.50 | 2 | spacing 8.000, others 1.420, steps 0.975 |
+| 1x1/1if | last | 125.84 | 130 | -4.16 | 68 | srp 25.200, others 23.250, passes 15.980 |
+| 1x1/1if | R4L | 203.44 | 238 | -34.56 | 3 | pace 195.000, item.aecp 1.095, timers 1.075 |
+| 1x1/1if | ACMP | 28.35 | 30 | -1.65 | 17 | aecp 4.935, own 4.480, passes 3.995 |
+| 1x1/1if | ADP | 26.76 | 30 | -3.24 | 13 | others 6.690, aecp 4.935, passes 3.055 |
+| 1x1/1if | MAAP | 26.88 | 30 | -3.12 | 13 | others 6.930, aecp 4.935, passes 3.055 |
+| 1x1/1if | tx | 29.78 | 49 | -19.22 | 16 | others 12.675, passes 3.760, item.aecp 3.360 |
+| 1x1/1if | txL | 47.63 | 49 | -1.37 | 23 | others 19.865, item.aecp 8.395, passes 5.405 |
+RESULT: PASS

@@ -1,0 +1,43 @@
+# R838-3-F3: each image's rom layout from its ELF (rom_layout.py): round 8's start head 8a3791e4 (r8-start), its final head dd01b0af (r8-head), and this round's final head 5b264bf2 (r9-head, its own clean clone). The rom figure is the end of .data's load image: .text, then .rodata at an 8-byte boundary, then .data at a 4-byte one. Round 8's rewrite grew .text by 180 B in every image; the 8-byte alignment then added 4 B of padding at the 1x1/1if fixture, whose .text had ended on a boundary (+184 B of rom), and removed 4 B at the other seven (+176 B). Both of round 8's endpoints stand; its summary's 'every image +176 B' was wrong for the fixture and for the code's own growth.
+r8-start fixture-1x1-1if: .text 97776, pad 0, .rodata 12566, rom 110400
+r8-start fixture-1x1-2if: .text 99076, pad 4, .rodata 12558, rom 111696
+r8-start fixture-8x8-1if: .text 97708, pad 4, .rodata 25774, rom 123936
+r8-start fixture-8x8-2if: .text 98980, pad 4, .rodata 25766, rom 125200
+r8-start platform-1x1-1if: .text 101988, pad 4, .rodata 13350, rom 115456
+r8-start platform-1x1-2if: .text 103308, pad 4, .rodata 13342, rom 116768
+r8-start platform-8x8-1if: .text 101908, pad 4, .rodata 26614, rom 129032
+r8-start platform-8x8-2if: .text 103212, pad 4, .rodata 26606, rom 130328
+ r8-head fixture-1x1-1if: .text 97956, pad 4, .rodata 12566, rom 110584
+ r8-head fixture-1x1-2if: .text 99256, pad 0, .rodata 12558, rom 111872
+ r8-head fixture-8x8-1if: .text 97888, pad 0, .rodata 25774, rom 124112
+ r8-head fixture-8x8-2if: .text 99160, pad 0, .rodata 25766, rom 125376
+ r8-head platform-1x1-1if: .text 102168, pad 0, .rodata 13350, rom 115632
+ r8-head platform-1x1-2if: .text 103488, pad 0, .rodata 13342, rom 116944
+ r8-head platform-8x8-1if: .text 102088, pad 0, .rodata 26614, rom 129208
+ r8-head platform-8x8-2if: .text 103392, pad 0, .rodata 26606, rom 130504
+ r9-head fixture-1x1-1if: .text 97952, pad 0, .rodata 12566, rom 110576
+ r9-head fixture-1x1-2if: .text 99252, pad 4, .rodata 12558, rom 111872
+ r9-head fixture-8x8-1if: .text 97876, pad 4, .rodata 25774, rom 124104
+ r9-head fixture-8x8-2if: .text 99148, pad 4, .rodata 25766, rom 125368
+ r9-head platform-1x1-1if: .text 102164, pad 4, .rodata 13350, rom 115632
+ r9-head platform-1x1-2if: .text 103484, pad 4, .rodata 13342, rom 116944
+ r9-head platform-8x8-1if: .text 102076, pad 4, .rodata 26614, rom 129200
+ r9-head platform-8x8-2if: .text 103380, pad 4, .rodata 26606, rom 130496
+# r8-start -> r8-head: .text delta, padding delta, rom delta
+#   fixture-1x1-1if: .text +180, pad +4, rom +184
+#   fixture-1x1-2if: .text +180, pad -4, rom +176
+#   fixture-8x8-1if: .text +180, pad -4, rom +176
+#   fixture-8x8-2if: .text +180, pad -4, rom +176
+#   platform-1x1-1if: .text +180, pad -4, rom +176
+#   platform-1x1-2if: .text +180, pad -4, rom +176
+#   platform-8x8-1if: .text +180, pad -4, rom +176
+#   platform-8x8-2if: .text +180, pad -4, rom +176
+# r8-head -> r9-head: .text delta, padding delta, rom delta
+#   fixture-1x1-1if: .text -4, pad -4, rom -8
+#   fixture-1x1-2if: .text -4, pad +4, rom +0
+#   fixture-8x8-1if: .text -12, pad +4, rom -8
+#   fixture-8x8-2if: .text -12, pad +4, rom -8
+#   platform-1x1-1if: .text -4, pad +4, rom +0
+#   platform-1x1-2if: .text -4, pad +4, rom +0
+#   platform-8x8-1if: .text -12, pad +4, rom -8
+#   platform-8x8-2if: .text -12, pad +4, rom -8

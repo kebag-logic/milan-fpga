@@ -1,0 +1,20 @@
+# each new or re-anchored plant's failing words (its campaign log, the first run at 58e6b60f's source)
+== map-index-channel-dropped
+an ADD of every key the port accepts holds each as its own
+== map-index-stream-or-cluster-dropped
+an ADD of every key the port accepts holds each as its own
+== map-index-stride-short
+an ADD of every key of the domain holds each as its own
+an ADD of every key of the domain holds each as its own
+== map-domain-a-channel-wide
+a key outside the domain is refused at its turn, before its port is read
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: a key outside the domain is refused at its turn, before its port is read
+== map-outside-row-looked-up
+a row outside the domain bars no mapping
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: a row outside the domain bars no mapping
+== map-table-scanned
+an edit of 8 mappings reading 1 rows visits 593 slots and held mappings, past twice their sum
+a collision of 8 mappings visits 593, not under n(n+1)/2
+== map-remove-values-rewalked
+an edit of 8 mappings reading 1 rows visits 38 slots and held mappings, past twice their sum
+a collision of 8 mappings visits 38, not under n(n+1)/2
