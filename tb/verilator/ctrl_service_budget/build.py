@@ -96,7 +96,7 @@ MUTATIONS = {
                       '(!l->round_one || l->retry_first) && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
-    # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
+    # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),

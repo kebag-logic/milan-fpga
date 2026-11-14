@@ -93,14 +93,14 @@ ONE = dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280
            aecp_long=365, acmp_declined=20)
 TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=65, aecp=275,
            aecp_long=655, acmp_declined=20)
-#: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image and the
-#: answering-ports arm's aecp-largest-notice (#894, at 93afe385) plus 5 %, rounded up to 5 us: the base
-#: 22,478 CPU cycles, the withdrawal 10,238, the rebuild 56,003, the walk 4,829, the reclaim 2,460, ACMP's owed frame
-#: 6,936 and a declined offer 2,600, a notice 13,041 and a long one 29,860; a retained record's retry at the SRP
-#: record's cost there (CTRL_LOOP_SRP_UNIT_US, 32,401 cycles). Provisional: the answering-every-port arm, which stages
-#: the heaviest notices at the other points, is measured there, and every cost again, on the tree that merges #902.
-EIGHT_ONE = dict(base=240, withdraw=110, rebuild=590, walk=55, reclaim=30, retained=345, mrpdu=0, acmp=75, aecp=140,
-                 aecp_long=315, acmp_declined=30)
+#: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the
+#: answering-every-port arm and the answering-ports arm's aecp-largest-notice on the tree that merges #902 (#894's
+#: round 2 ruling issuecomment-6871343905, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
+#: the withdrawal 10,317, the rebuild 55,813, the walk 4,701, the reclaim 2,604, ACMP's owed frame 6,813 and a declined
+#: offer 2,542, a notice 13,297 (the answering-every-port arm) and a long one 30,097; a retained record's retry at the
+#: SRP record's cost there (CTRL_LOOP_SRP_UNIT_US, 32,421 cycles).
+EIGHT_ONE = dict(base=235, withdraw=110, rebuild=590, walk=50, reclaim=30, retained=345, mrpdu=0, acmp=75, aecp=140,
+                 aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
 

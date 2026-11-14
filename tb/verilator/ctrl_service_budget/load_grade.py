@@ -112,9 +112,9 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
 #: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
 #: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
-#: the polls' base and items its own shape's (poll_grade.STATED_US, provisional; the ruling issuecomment-6871343905,
-#: item (b)(iii)), each measured on its built image. stated() reads them so; its own measurement of the rest is owed to
-#: #872.
+#: the polls' base and items its own shape's (poll_grade.STATED_US; the ruling issuecomment-6871343905, item (b)(iii)),
+#: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
+#: rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and

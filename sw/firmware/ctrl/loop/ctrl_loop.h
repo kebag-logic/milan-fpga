@@ -293,8 +293,8 @@ extern "C" {
 // past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). A
 // shape not listed fails the build. Both two-interface shapes keep the costs
 // measured at 8x8/2if. At 8x8/1if the unit is the heaviest SRP record measured
-// there, srp_mbx's receive, 32,401 CPU cycles, plus 5 %, rounded up to 5 us:
-// 345 us, provisional until it is measured again on the tree that merges #902.
+// there on the tree that merges #902, srp_mbx's receive, 32,421 CPU cycles,
+// plus 5 %, rounded up to 5 us: 345 us.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
