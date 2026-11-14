@@ -1,0 +1,28 @@
+# quick gates (quick_gates.sh) at 6122db33 on clean clone qB: one rc each, never piped
+shape_costs rc=0
+flip_check_1x1 rc=0
+flip_check_8x8_1if rc=0
+flip_check_8x8_exits_1 rc=1
+flip_selftest rc=0
+load_check rc=0
+load_selftest rc=0
+rows_tiers_selftest rc=0
+tier_grid rc=0
+docs_check rc=0
+em_dash rc=0
+py_idiom rc=1
+cpp_idiom rc=0
+diffcheck_lane_start rc=0
+ctrl_hot_check rc=0
+# py_idiom's finding:
+FAIL: over-long line 1 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+# fixed in 15b36a9c (the line wrapped); the gate again on the worktree at 15b36a9c: over-long line 0 <= 0
+# flip 8x8/1if:
+| 8x8/1if | 0.710 | 0.75 | 1.00x | srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053, timers 0.036
+RESULT: PASS
+# load --check:
+| 1x1/1if | 0.513 | 0.509 | 0.70, both columns | 1.00x | 235 | srp 0.168, rec.acmp 0.053, ticks 0.048, rec.aecp 0.047, item.aecp 0.046, steps 0.033, item.reclai
+HELD 1x1/1if at the pin: the load 0.513, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70
+RESULT: PASS
+# tree after:

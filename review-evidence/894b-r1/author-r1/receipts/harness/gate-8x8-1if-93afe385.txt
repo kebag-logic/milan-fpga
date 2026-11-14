@@ -1,0 +1,253 @@
+# the 8x8/1if gate (#894 issuecomment-6867393730, item (b)): arm A, every group (95, in four parts A0-A3, balanced by simulated time), and the answering-ports arm's aecp-largest-notice (AL), on the built image at the code head 93afe385fb07623b34d3ae9f8c194c2744458bb5 (a clean clone), slice 1,475 us; run.py --point 8x8-1if --record-budget-findings --record-share-findings; gate_8x8_1if.py over every group's grade and each leg's log
+# 96 groups graded over 5 leg(s); 949 probe instances
+| Family | Row (ruling) | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Misses of the budget |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 177 | 64.196 | `backlog.owed_behind3.if0` (backlog-owed) | 20.0 | 30 | 6 |
+| adp | ADP | 174 | 5.581 | `backlog-adp@program-aged2-7.service.adp.last.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| aecp | AECP | 181 | 61.830 | `backlog-owed.service.aecp.last.if0` (backlog-owed) | 20.0 | 20 | 1 |
+| disc | ADP (a bound talker's ENTITY_AVAILABLE) | 78 | 4.586 | `backlog-adp@program-aged2-7.adp_available.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| maap | MAAP | 162 | 5.618 | `backlog-adp@program-aged2-7.service.maap.last.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 6 | 31.653 | `save-held.mrpdu.join.if0` (save-held) | 20.0 | 50 | 2 |
+| notify | AECP's notices (the first queued notice's 20; the last's 130) | 10 | 2.031 | `aecp_long.add_audio_mappings.if0` (aecp-largest-notice) | 20.0 | 20 | 0 |
+| srp | SRP | 161 | 9.823 | `backlog-adp@verify-aged2-6.service.srp.last.if0` (backlog-adp@verify-aged2-6) | 20.0 | 90 | 0 |
+
+Instances not measured: 0
+Instances over the ruling's bound: 7
+- backlog.owed.if0 (backlog-owed): 63.242 ms
+- backlog.owed_behind0.if0 (backlog-owed): 63.466 ms
+- backlog.owed_behind1.if0 (backlog-owed): 63.689 ms
+- backlog.owed_behind2.if0 (backlog-owed): 63.913 ms
+- backlog.owed_behind3.if0 (backlog-owed): 64.196 ms
+- backlog-owed.service.acmp.last.if0 (backlog-owed): 62.177 ms
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 61.830 ms
+Instances over their budget: 9
+- backlog.owed.if0 (backlog-owed): 63.242 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog.owed_behind0.if0 (backlog-owed): 63.466 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog.owed_behind1.if0 (backlog-owed): 63.689 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog.owed_behind2.if0 (backlog-owed): 63.913 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog.owed_behind3.if0 (backlog-owed): 64.196 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog-owed.service.acmp.last.if0 (backlog-owed): 62.177 ms, budget 20.0 ms, the ruling's 30 ms
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 61.830 ms, budget 20.0 ms, the ruling's 20 ms
+- save-held.mrpdu.join.if0 (save-held): 31.653 ms, budget 20.0 ms, the ruling's 50 ms
+- save-starved.mrpdu.join.if0 (save-starved): 31.637 ms, budget 20.0 ms, the ruling's 50 ms
+
+Join intervals: 300 in 95 groups, the shortest 186.298 ms (save-starved), the longest 192.080 ms (save-starved), against 180.0 to 240.0
+
+The longest tier-2 slice of each kind, against the stated slice 147,500 CPU cycles:
+- build: 140,273 (srp)
+- round: 8,349 (backlog-adp@blank-aged2-5)
+- srp: 156,198 (backlog-adp@blank-aged2-7)
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+- build: 0 (srp), stated 179,500
+- build-one: 140,273 (srp), stated 147,500
+- step: 82,110 (backlog-adp@program-aged2-6), stated 97,500
+
+Groups with work passes over THE SHARE: 1
+- aecp-largest-notice: 2 pass(es), the longest 209,290 CPU cycles
+
+The legs' own lines:
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 152530 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED save-second: a pass's polls base of 21,653 CPU cycles, over its stated 20,500
+STATED save-second: a pass's polls base of 21,945 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-6: an SRP record's apply of 31,733 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-2: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-6: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-2: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-6: an SRP record's apply of 31,541 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-2: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-6: an SRP record's apply of 31,733 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-2: an SRP record's apply of 31,950 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-6: an SRP record's apply of 31,733 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-2: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-6: an SRP record's apply of 31,059 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-2: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-6: an SRP record's apply of 30,945 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-2: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-6: an SRP record's apply of 31,511 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-2: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-6: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-6: an SRP record's apply of 31,625 CPU cycles, over its stated 28,000
+STATED save: a pass's polls base of 21,557 CPU cycles, over its stated 20,500
+STATED backlog-owed: a acmp item of 6,899 CPU cycles, over its stated 5,000
+STATED backlog-owed: a acmp item of 6,936 CPU cycles, over its stated 5,000
+STATED backlog-owed: a acmp item of 6,139 CPU cycles, over its stated 5,000
+STATED backlog-owed: a acmp item of 5,254 CPU cycles, over its stated 5,000
+STATED backlog-owed: a declined ACMP offer of 2,600 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,542 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,542 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,542 CPU cycles, over its stated 2,000
+STATED backlog-owed: an SRP record's apply of 31,221 CPU cycles, over its stated 28,000
+STATED acmp-cmd: a pass's polls base of 22,063 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-6: a tier-2 slice of SRP's records of 150,664 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-6: a tier-2 slice of SRP's records of 150,562 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged2-6: a tier-2 slice of SRP's records of 150,664 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged1-6: a tier-2 slice of SRP's records of 152,252 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@program-aged2-6: a tier-2 slice of SRP's records of 155,233 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@program-aged1-6: a tier-2 slice of SRP's records of 149,775 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-aged2-6: a tier-2 slice of SRP's records of 150,435 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-aged1-6: a tier-2 slice of SRP's records of 152,952 CPU cycles, over the stated slice 147,500
+END rc=1 2026-11-14T03:53:51
+24 groups graded, 0 refusals, 1 budget misses (1 of 250 probe instances, 1 of 37 paths), 0 of 23277 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED save-held: a pass's polls base of 22,478 CPU cycles, over its stated 20,500
+STATED save-held: a walk item of 4,040 CPU cycles, over its stated 3,500
+STATED save-held: an SRP record's apply of 30,684 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-1: an SRP record's apply of 31,796 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-4: an SRP record's apply of 31,887 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-0: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-4: an SRP record's apply of 30,886 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-0: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-4: an SRP record's apply of 31,758 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-0: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-4: an SRP record's apply of 31,796 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-0: an SRP record's apply of 31,796 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-4: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-0: an SRP record's apply of 31,129 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-4: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-0: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-4: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-0: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-4: an SRP record's apply of 31,758 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-0: an SRP record's apply of 31,758 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-4: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-4: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp: an SRP record's apply of 31,257 CPU cycles, over its stated 28,000
+STATED fixture: a rebuild item of 56,003 CPU cycles, over its stated 29,000
+STATED fixture: an SRP record's apply of 29,769 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-4: a tier-2 slice of SRP's records of 147,931 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-4: a tier-2 slice of SRP's records of 148,079 CPU cycles, over the stated slice 147,500
+END rc=1 2026-11-14T03:09:41
+24 groups graded, 0 refusals, 1 budget misses (1 of 253 probe instances, 1 of 54 paths), 0 of 85781 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED save-starved: a pass's polls base of 22,478 CPU cycles, over its stated 20,500
+STATED save-starved: a pass's polls base of 20,593 CPU cycles, over its stated 20,500
+STATED save-starved: a walk item of 4,054 CPU cycles, over its stated 3,500
+STATED save-starved: an SRP record's apply of 30,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-2: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-2: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-5: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-1: an SRP record's apply of 31,192 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-5: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-1: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-5: an SRP record's apply of 31,511 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-1: an SRP record's apply of 31,887 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-5: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-1: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-5: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-1: an SRP record's apply of 31,008 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-5: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-1: an SRP record's apply of 31,192 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-5: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-1: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-5: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-1: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-1: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-5: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-5: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog: a withdraw item of 10,238 CPU cycles, over its stated 9,000
+STATED backlog: a rebuild item of 54,982 CPU cycles, over its stated 29,000
+STATED backlog-adp@verify-5: a tier-2 slice of SRP's records of 150,141 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged2-1: a tier-2 slice of SRP's records of 148,000 CPU cycles, over the stated slice 147,500
+END rc=1 2026-11-14T03:10:31
+25 groups graded, 0 refusals, 0 budget misses (0 of 231 probe instances, 0 of 21 paths), 0 of 24320 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED backlog-adp@blank-0: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-0: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-3: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-7: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-3: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-7: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-3: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-7: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-3: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged2-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged2-7: an SRP record's apply of 32,023 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-3: an SRP record's apply of 31,887 CPU cycles, over its stated 28,000
+STATED backlog-adp@blank-aged1-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@blank-aged1-7: an SRP record's apply of 31,766 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-3: an SRP record's apply of 31,038 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged2-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged2-7: an SRP record's apply of 31,174 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-3: an SRP record's apply of 31,090 CPU cycles, over its stated 28,000
+STATED backlog-adp@program-aged1-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@program-aged1-7: an SRP record's apply of 31,262 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-3: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged2-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged2-7: an SRP record's apply of 31,638 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-3: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-3: an SRP record's apply of 31,574 CPU cycles, over its stated 28,000
+STATED backlog-adp@verify-aged1-7: a pass's polls base of 21,623 CPU cycles, over its stated 20,500
+STATED backlog-adp@verify-aged1-7: an SRP record's apply of 31,604 CPU cycles, over its stated 28,000
+STATED srp: a walk item of 4,829 CPU cycles, over its stated 3,500
+STATED srp: an SRP record's apply of 29,720 CPU cycles, over its stated 28,000
+STATED backlog-adp-refill: an SRP record's apply of 31,172 CPU cycles, over its stated 28,000
+STATED adp-link: a rebuild item of 55,677 CPU cycles, over its stated 29,000
+STATED backlog-adp@blank-7: a tier-2 slice of SRP's records of 151,580 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@program-3: a tier-2 slice of SRP's records of 151,155 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@program-7: a tier-2 slice of SRP's records of 150,122 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-7: a tier-2 slice of SRP's records of 151,502 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged2-7: a tier-2 slice of SRP's records of 156,198 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged1-3: a tier-2 slice of SRP's records of 148,000 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@blank-aged1-7: a tier-2 slice of SRP's records of 151,590 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@program-aged2-7: a tier-2 slice of SRP's records of 153,075 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-aged2-7: a tier-2 slice of SRP's records of 151,159 CPU cycles, over the stated slice 147,500
+STATED backlog-adp@verify-aged1-7: a tier-2 slice of SRP's records of 154,344 CPU cycles, over the stated slice 147,500
+END rc=1 2026-11-14T03:05:04
+1 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 2 of 101 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T01:31:43

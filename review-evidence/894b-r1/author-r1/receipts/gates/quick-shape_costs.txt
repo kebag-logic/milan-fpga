@@ -1,0 +1,10 @@
+# head c9226ff3a71777c8b92da17c8f839eb9a1dc5467 gate shape_costs: python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check --selftest
+the table of shapes: 11 of 11 planted controls refused
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | Points |
+|---|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 725 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS

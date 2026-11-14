@@ -1,0 +1,20 @@
+# rows_8x8_1if.py at the head c9226ff3a71777c8b92da17c8f839eb9a1dc5467 (a clean clone)
+# 8x8/1if, derived, at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475} (shape (1, 9, 9)): slice 1475 us, pace 6 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1590 us, item.aecp.long 315 us
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 19.77 | 20 | -0.23 | aecp 4.24, timers 3.67, passes 2.13 |
+| R5 | 129.42 | 90 | +39.42 | others 35.52, passes 16.33, item.aecp 12.65 |
+| R6 | 126.36 | 90 | +36.36 | others 35.52, passes 15.62, item.aecp 12.10 |
+| first | 17.40 | 20 | -2.60 | spacing 8.00, others 2.15, slice 1.48 |
+| last | 297.92 | 130 | +167.92 | srp 64.24, others 62.97, passes 41.18 |
+| R4L | 162.99 | 240 | -77.01 | pace 150.00, timers 1.94, others 1.62 |
+| ACMP | 49.45 | 30 | +19.45 | passes 7.10, own 7.04, timers 6.79 |
+| ADP | 48.67 | 30 | +18.67 | others 12.30, aecp 6.62, timers 6.38 |
+| MAAP | 49.37 | 30 | +19.37 | others 13.88, aecp 6.62, timers 6.38 |
+| tx | 69.25 | 50 | +19.25 | others 25.23, passes 10.29, timers 7.98 |
+| txL | 207.51 | 50 | +157.51 | others 95.62, passes 34.44, item.aecp 23.00 |
+
+Long-window load at the pin: 0.706 (the ruling holds 0.75); largest terms srp 0.219, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.672 (the ruling holds 0.75); largest terms srp 0.219, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 0.979

@@ -1,0 +1,25 @@
+# The 8x8/1if images at step 1 (identical to 184d47ca's) against step 2 (165 and 25 us): objdump -d --no-show-raw-insn of each ELF, diffed; every other line and every section size identical
+## fixture-8x8-1if
+1698c1698
+<     1974:	addi	a5,a5,-34
+---
+>     1974:	addi	a5,a5,-25
+19981c19981
+<    12cb8:	addi	a2,a2,-85
+---
+>    12cb8:	addi	a2,a2,-165
+section headers identical
+## platform-8x8-1if
+1694c1694
+<     196c:	addi	a5,a5,-34
+---
+>     196c:	addi	a5,a5,-25
+21079c21079
+<    13d20:	addi	a2,a2,-85
+---
+>    13d20:	addi	a2,a2,-165
+section headers identical
+fixture:     1974:	addi	a5,a5,-25 in <scan>:
+fixture:    12cb8:	addi	a2,a2,-165 in <retry>:
+platform:     196c:	addi	a5,a5,-25 in <scan>:
+platform:    13d20:	addi	a2,a2,-165 in <retry>:

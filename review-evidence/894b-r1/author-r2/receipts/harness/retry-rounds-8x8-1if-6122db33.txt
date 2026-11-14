@@ -1,0 +1,6 @@
+# THE RETRY's rounds over their stated cost at 8x8/1if (the answering-every-port arm, B-AE at 6122db33)
+| Notices n | Refused k | Rounds over | Worst, CPU cycles | Group | Stated at one interface (85 + n x 255 + k x 34 us) | At two interfaces (185 + n x 365 + k x 34 us) |
+|---:|---:|---:|---:|---|---:|---:|
+| 0 | 1 | 80 | 12,547 | notice-burst-1 | 11,900 | 21,900 |
+| 0 | 2 | 1551 | 19,326 | notice-burst-3 | 15,300 | 25,300 |
+| 0 | 4 | 23 | 23,343 | notice-every-6 | 22,100 | 32,100 |

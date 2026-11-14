@@ -1,0 +1,61 @@
+# the model's, the table's and the style gates at bc8acc76fc524c167aa47613e54968e66ff02a17 (a clean clone; quick_gates.sh), each gate's rc and its last lines
+shape_costs rc=0
+flip_check_1x1 rc=0
+flip_check_8x8_1if rc=0
+flip_check_8x8_exits_1 rc=1
+flip_selftest rc=0
+load_check rc=0
+load_selftest rc=0
+rows_tiers_selftest rc=0
+tier_grid rc=0
+docs_check rc=0
+em_dash rc=0
+py_idiom rc=0
+cpp_idiom rc=0
+diffcheck_lane_start rc=0
+ctrl_hot_check rc=0
+== shape_costs
+with no shape header: (2, 2) streams
+RESULT: PASS
+== flip_check_1x1
+with no shape header: (2, 2) streams
+RESULT: PASS
+== flip_check_8x8_1if
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+RESULT: PASS
+== flip_check_8x8_exits_1
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 687.35 ms, over its bound 50 ms; the largest term others 279.92 ms
+RESULT: FAIL
+== flip_selftest
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate flip_selftest: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+flip check: 575 of 575 planted controls refused
+== load_check
+HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70
+RESULT: PASS
+== load_selftest
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate load_selftest: python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest
+load gate: 25 of 25 planted controls refused
+== rows_tiers_selftest
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate rows_tiers_selftest: python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+rows_tiers: 969 of 969 planted controls refused
+== tier_grid
+
+CHOSEN: slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0002
+== docs_check
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate docs_check: python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 219 md files + 1596 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== em_dash
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate em_dash: <a markdown venv>/python3 -B scripts/check_em_dash.py --base 66adb9a987b56c2b1a12ce92d058e0bc1a57bc3a
+check_em_dash: 0 finding(s) over 2205 added line(s) in 26 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66adb9a9..HEAD]
+== py_idiom
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== cpp_idiom
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+== diffcheck_lane_start
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate diffcheck_lane_start: git diff --check 8a3791e44533d6b1cc26d486d0b18e7d83470dc1 HEAD
+== ctrl_hot_check
+# head bc8acc76fc524c167aa47613e54968e66ff02a17 gate ctrl_hot_check: python3 -B sw/firmware/ctrl/test/ctrl_hot.py --check
+hot list: 206 entries, in the recorded order
+== the tree after

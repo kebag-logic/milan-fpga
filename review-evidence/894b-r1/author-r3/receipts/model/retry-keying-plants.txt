@@ -1,0 +1,11 @@
+# THE RETRY keying (shape_costs.retry_findings), each plant's findings at the worktree (165 and 25 us at 8x8/1if)
+unplanted findings: none
+## plant: a round's cold start keyed on the interface count (earlier rule)
+FINDING aecp_mbx.h keys AECP_ROUND_COLD_US on the interface count (MBX_N_IF), not as CTRL_LOOP_RETRY_COLD_US, which THE SHAPES state for each shape
+FINDING 8x8/1if: AECP_ROUND_COLD_US is 85 us at its shape (1, 9, 9), not the 165 us THE SHAPES state for it (CTRL_LOOP_RETRY_COLD_US)
+## plant: a refused attempt one figure at every shape (earlier rule)
+FINDING aecp.h states AECP_ATTEMPT_US as '34u', not as CTRL_LOOP_RETRY_ATTEMPT_US, which THE SHAPES state for each shape
+FINDING 8x8/1if: AECP_ATTEMPT_US is 34 us at its shape (1, 9, 9), not the 25 us THE SHAPES state for it (CTRL_LOOP_RETRY_ATTEMPT_US)
+## plant: a shape's round costs falling back to the interface count
+FINDING ctrl_loop.h states '#define CTRL_LOOP_RETRY_COLD_US (MBX_N_IF == 1u ? 85u : 185u)' for the shape (1, 9, 9) (8x8/1if)
+## the controls: 24 of 24 refused

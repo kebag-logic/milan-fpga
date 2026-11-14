@@ -1,0 +1,28 @@
+# quick gates (quick_gates.sh) at 184d47ca on clean clone fC: one rc each, never piped
+shape_costs rc=0
+flip_check_1x1 rc=0
+flip_check_8x8_1if rc=0
+flip_check_8x8_exits_1 rc=1
+flip_selftest rc=0
+load_check rc=0
+load_selftest rc=0
+rows_tiers_selftest rc=0
+tier_grid rc=0
+docs_check rc=0
+em_dash rc=0
+py_idiom rc=0
+cpp_idiom rc=0
+diffcheck_lane_start rc=0
+ctrl_hot_check rc=0
+# flip 8x8/1if:
+| 8x8/1if | 0.709 | 0.75 | 1.00x | srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053, timers 0.036
+RESULT: PASS
+# flip 8x8/2if (exits 1 by design, reported):
+OVER 8x8/2if: the load 0.792 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 42.09 ms, over its bound 20 ms; the largest term timers 11.18 
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 189.14 ms, over its bound 90 ms; the largest term others 45.81
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 177.28 ms, over its bound 90 ms; the largest term others 44.03
+# table of shapes:
+the table of shapes: 21 of 21 planted controls refused
+RESULT: PASS
+# tree after:

@@ -1,0 +1,44 @@
+# the harness self-test (run.py --self-test) at the head c9226ff3a71777c8b92da17c8f839eb9a1dc5467 on a clean clone, its own unit: tallies, the lines of this lane's checks and mutants, and its last line
+^PASS:  lines: 846
+^FAIL:  lines: 0
+^MUTANT caught lines: 246
+^MUTANT ESCAPED lines: 0
+PASS: THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+PASS: a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+PASS: the table of shapes holds its rules at the tree
+PASS: the table of shapes refuses a shape the table does not list
+PASS: the table of shapes refuses a slice over the cap
+PASS: the table of shapes refuses a build of one over its slice
+PASS: the table of shapes refuses the table with no #error
+PASS: the table of shapes refuses a shape listed twice
+PASS: the table of shapes refuses a cost missing from a shape
+PASS: the table of shapes refuses the default streams not the shipping configuration's
+PASS: the table of shapes refuses a build of both at two builds of one
+PASS: the table of shapes refuses the slice cap not the ruling's 1,600 us
+PASS: the table of shapes refuses a model point built at another configuration than the harness's
+PASS: the table of shapes refuses a point whose shape is not listed
+PASS: the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if
+PASS: the flip check refuses an over-ceiling row at 8x8/1if
+PASS: the flip check refuses a row within its ceiling at 8x8/1if
+PASS: the flip check refuses the table of shapes: a shape the table does not list
+PASS: the flip check refuses the table of shapes: a slice over the cap
+PASS: the flip check refuses the table of shapes: a build of one over its slice
+PASS: the flip check refuses the table of shapes: the table with no #error
+PASS: the flip check refuses the table of shapes: a shape listed twice
+PASS: the flip check refuses the table of shapes: a cost missing from a shape
+PASS: the flip check refuses the table of shapes: the default streams not the shipping configuration's
+PASS: the flip check refuses the table of shapes: a build of both at two builds of one
+PASS: the flip check refuses the table of shapes: the slice cap not the ruling's 1,600 us
+PASS: the flip check refuses the table of shapes: a model point built at another configuration than the harness's
+PASS: the flip check refuses the table of shapes: a point whose shape is not listed
+MUTANT caught: flip: 8x8/1if held to a looser ceiling: the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if (escaped)
+MUTANT caught: shapes: the slice and builds keyed on the interface count alone (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's rul
+MUTANT caught: shapes: a shape not listed taken at the shipping shape's costs: the table of shapes refuses a shape the table does not list (escaped)
+MUTANT caught: shapes: the slice held at the interface count (earlier rule): a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item
+MUTANT caught: shapes: a pass given whole held to its builds at the interface count (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894'
+MUTANT caught: shapes: an owed MRPDU held to the interface count's build of one (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ru
+MUTANT caught: shapes: the slice cap not held: the table of shapes refuses the slice cap not the ruling's 1,600 us (escaped)
+MUTANT caught: polls: one point's costs at both: THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b)) (({'ste
+self-test: 0 failures
+
+# the pre-check on m1 (8a3791e4 with the working diff at 01:0x, the final Python but the idiom split and the point-list check): PASS lines 844, FAIL 0, caught 246, escaped 0; self-test: 0 failures

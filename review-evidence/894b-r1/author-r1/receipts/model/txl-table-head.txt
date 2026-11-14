@@ -1,0 +1,12 @@
+# txL at 1x1/1if for P = 6 to 11 at the head c9226ff3a71777c8b92da17c8f839eb9a1dc5467 (a clean clone): the TAKEN table's, unchanged
+# txL at 1x1/1if, model only, at c9226ff3a71777c8b92da17c8f839eb9a1dc5467, the built design: the tree states AECP_PACE_MS 6, slice 900 us, the MRPDU bound 50 ms, R4L bound 240 ms (paced)
+# bounds_at at the tree: txL 50 ms, R4L 240 ms
+| P, ms | txL, ms (bound 50) | margin, ms | R4L, ms (bound 240) | margin, ms | both hold |
+|---:|---:|---:|---:|---:|---|
+| 6 | 49.99 | +0.01 | 158.34 | +81.66 | yes |
+| 7 | 47.73 | +2.27 | 173.34 | +66.66 | yes |
+| 8 | 47.03 | +2.97 | 188.34 | +51.66 | yes |
+| 9 | 44.96 | +5.04 | 203.34 | +36.66 | yes |
+| 10 | 44.96 | +5.04 | 218.34 | +21.66 | yes |
+| 11 | 43.40 | +6.60 | 233.34 | +6.66 | yes |
+# paced_rows.choice: 6; statements (tree against model): none

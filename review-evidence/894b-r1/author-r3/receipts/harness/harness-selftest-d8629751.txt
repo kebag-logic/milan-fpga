@@ -1,0 +1,63 @@
+# The harness self-test (run.py --self-test) at d8629751 on clean clone hC: 879 checks pass, 0 fail; 259 mutants caught, 0 escaped; exit 0
+## THE RETRY's round checks and mutants
+PASS: a pass whose round did something is not its work alone, and a pass that neither built nor stepped has no stated cost
+PASS: a round that found nothing to do leaves the pass its work alone
+PASS: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32
+PASS: the testbench traces the round and the calls that count its notices and attempts
+PASS: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not
+PASS: calls outside a round count none of its notices or attempts
+PASS: a round at one interface is held to that point's costs
+PASS: a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1)
+PASS: a round over its stated cost is named, with its notices, its refused attempts and the cost it passed
+PASS: a round over its stated cost fails a run whatever findings it records
+PASS: the testbench traces SRP's record handler and THE RETRY's round
+PASS: a slice of THE RETRY's round at the stated length fits it and one a cycle over does not
+PASS: a round in a pass given whole to a build is that slice's, not one of its own
+PASS: the table of shapes refuses a round's cold start keyed on the interface count (earlier rule)
+PASS: the table of shapes refuses a shape's round costs falling back to the interface count
+PASS: the flip check refuses the table of shapes: a round's cold start keyed on the interface count (earlier rule)
+PASS: the flip check refuses the table of shapes: a shape's round costs falling back to the interface count
+PASS: the flip check refuses 1x1/1if R4: the source rounds not counted
+PASS: the flip check refuses 1x1/1if R5: the source rounds not counted
+PASS: the flip check refuses 1x1/1if R6: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R4: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R5: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R6: the source rounds not counted
+PASS: the flip check refuses built 1x1/1if last: the source rounds not counted
+PASS: the flip check refuses built 8x8/2if last: the source rounds not counted
+MUTANT caught: round: no round is held to its cost: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not (([True, True, True, True, True], [False, False, False, False, False]))
+MUTANT caught: round: a refused attempt is free: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 (({'cold': 85, 'notice': 255, 'attempt': 0}, {'cold': 185, 'notice': 365, 'attempt': 0}))
+MUTANT caught: round: one point's costs at both: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 (({'cold': 185, 'notice': 365, 'attempt': 34}, {'cold': 185, 'notice': 365, 'attempt': 34}))
+MUTANT caught: round: 8x8/1if's round costs at the interface count's (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count
+MUTANT caught: round: a round held at its point's interface count, not the image's shape (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from
+MUTANT caught: round: the notices it built are not counted: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not (([True, False, False, False, True], [True, False, False, False, True]))
+MUTANT caught: round: calls outside it are counted: calls outside a round count none of its notices or attempts
+MUTANT caught: round: in bus cycles, not CPU time: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not (([True, True, True, True, True], [False, False, False, False, False]))
+## the table of shapes' checks
+PASS: the table of shapes holds its rules at the tree
+PASS: the table of shapes refuses a shape the table does not list
+PASS: the table of shapes refuses a slice over the cap
+PASS: the table of shapes refuses a build of one over its slice
+PASS: the table of shapes refuses an SRP record over its slice
+PASS: the table of shapes refuses the table with no #error
+PASS: the table of shapes refuses a shape listed twice
+PASS: the table of shapes refuses a cost missing from a shape
+PASS: the table of shapes refuses the default streams not the shipping configuration's
+PASS: the table of shapes refuses a build of both at two builds of one
+PASS: the table of shapes refuses the slice cap not the ruling's 1,600 us
+PASS: the table of shapes refuses a model point built at another configuration than the harness's
+PASS: the table of shapes refuses a point whose shape is not listed
+PASS: the table of shapes refuses a listed shape whose polls are not stated
+PASS: the table of shapes refuses the notices most typed at the 1x1's 12 at one interface (earlier rule)
+PASS: the table of shapes refuses an AVB interface's notices counted as two
+PASS: the table of shapes refuses two interfaces' most under the 8x8's descriptors
+PASS: the table of shapes refuses the notices with no shape header not the shipping configuration's
+PASS: the table of shapes refuses a load point counting other descriptors with counters than the shape header states
+PASS: the table of shapes refuses the shape header not stating the map edits' key domain
+PASS: the table of shapes refuses aecp_entity_gen.h stating the key domain beside the shape header
+PASS: the table of shapes refuses the shape header's key domain not the image's
+PASS: the table of shapes refuses a round's cold start keyed on the interface count (earlier rule)
+PASS: the table of shapes refuses a refused attempt one figure at every shape (earlier rule)
+PASS: the table of shapes refuses a shape's round costs falling back to the interface count
+## last line
+self-test: 0 failures

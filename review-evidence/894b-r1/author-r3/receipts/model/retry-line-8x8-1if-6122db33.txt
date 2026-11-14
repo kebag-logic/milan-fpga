@@ -1,0 +1,12 @@
+# THE RETRY's line at 8x8/1if from round 2 phase B's measurement at 6122db33 (the answering-every-port arm, B-AE, 16 groups; its 8x8/1if image identical to 184d47ca's). Arm A (95 groups) and the answering-ports arm's aecp-largest-notice exited 0 with no STATED line, so every round there is within 85 + n x 255 + k x 34 us, which the --old check places under the line.
+# 256,317 rounds in 16 logs; notices charged at 255 us; ports 4
+| Refused attempts k | The dearest round, notices charged (cycles) | Round |
+|---:|---:|---|
+| 0 | 2,206 | notice-every-0: 0 notice(s), 0 refused, 2,206 cycles |
+| 1 | 12,547 | notice-burst-1: 0 notice(s), 1 refused, 12,547 cycles |
+| 2 | 19,326 | notice-burst-3: 0 notice(s), 2 refused, 19,326 cycles |
+| 4 | 23,343 | notice-every-6: 0 notice(s), 4 refused, 23,343 cycles |
+The line: cold start 15,309.0 cycles (153.09 us), a refused attempt 2,008.5 cycles (20.09 us); rounds over it: 0
+Stated at the measurement plus 5 %, rounded up to 5 us: AECP_ROUND_COLD_US 165 us, AECP_ATTEMPT_US 25 us
+At the statement every round within: True; the closest notice-burst-3 (0 notice(s), 2 refused) 19,326 of 21,500 cycles (89.9 %)
+The statement 85 + k x 34 us (notices alike) under the measured line for every k up to 4: True

@@ -1,0 +1,10 @@
+# 184d47ca, the full pass (clean clone): every image against #902's head 7398ec0a
+fixture-1x1-1if: identical (ELF 8ea77fe075ad, loadable fd8bc7d45e6b), tiles 40.5
+fixture-1x1-2if: identical (ELF a0d62ecf778d, loadable 7ad287bab38d), tiles 41.5
+fixture-8x8-1if: moved from the start (ELF 9a3c201663cc), tiles 54.0
+fixture-8x8-2if: identical (ELF bfa62853df8a, loadable 6a976c31a97f), tiles 59.0
+platform-1x1-1if: identical (ELF 5cccda2c699f, loadable 8657d368cc6f), tiles 42.5
+platform-1x1-2if: identical (ELF 6510f02f9cca, loadable a36a8d929d5e), tiles 43.5
+platform-8x8-1if: moved from the start (ELF 4b4fdb307072), tiles 56.0, at most 56.0
+platform-8x8-2if: identical (ELF fb6c39b28689, loadable ca8d8e21329f), tiles 60.0
+RESULT: PASS: every fixed image identical, platform-8x8-1if within 56.0

@@ -1,0 +1,20 @@
+# 8x8/1if's rows by every source, DERIVED and reported (owed to #872), at d8629751 (clean clone mC), round 2's restated polls (rows_8x8_1if_r3.py, round 2's rows_8x8_1if_b.py): 40 notices, the shape's polls, the largest command at 1,630 and 320 us, THE RETRY's cold start at the shape's 165 us
+# 8x8/1if, derived, at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475, 'CTRL_LOOP_SRP_UNIT_US': 345, 'CTRL_LOOP_RETRY_COLD_US': 165, 'CTRL_LOOP_RETRY_ATTEMPT_US': 25} (shape (1, 9, 9)): slice 1475 us, pace 8 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1630 us, item.aecp.long 320 us, notices 40
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 18.64 | 20 | -1.36 | aecp 4.24, timers 3.67, others 1.62 |
+| R5 | 113.95 | 90 | +23.95 | others 33.04, srp 11.68, passes 11.66 |
+| R6 | 108.80 | 90 | +18.80 | others 32.09, srp 11.68, passes 10.87 |
+| first | 17.07 | 20 | -2.93 | spacing 8.00, others 2.15, slice 1.48 |
+| last | 274.91 | 130 | +144.91 | srp 60.23, others 59.53, passes 31.00 |
+| R4L | 192.91 | 238 | -45.09 | pace 180.00, timers 1.94, aecp 1.63 |
+| ACMP | 45.56 | 30 | +15.56 | own 7.04, timers 6.79, aecp 6.62 |
+| ADP | 44.85 | 30 | +14.85 | others 11.86, timers 6.38, aecp 6.36 |
+| MAAP | 46.26 | 30 | +16.26 | others 13.88, aecp 6.62, timers 6.38 |
+| tx | 58.61 | 49 | +9.61 | others 23.45, timers 7.65, passes 7.16 |
+| txL | 147.06 | 49 | +98.06 | others 64.89, item.aecp 19.52, passes 18.02 |
+
+Long-window load at the pin: 0.711 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.671 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 0.993

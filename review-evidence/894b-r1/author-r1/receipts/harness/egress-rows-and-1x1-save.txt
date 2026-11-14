@@ -1,0 +1,20 @@
+# the rows the egress decides, backlog-owed's budget misses at each point (#894's REVIEW READY head 8a3791e4: round 7's own legs H-L1O at 1x1 and H-L8O at 8x8/2if; and this lane's arm A part A0 at 8x8-1if at 93afe385): the scenario's 60 ms egress hold, which SPLIT_CONTROL_MEMORY section 13 ('What is left') records as a row no CPU lever moves (tsn-c-stack #26)
+1x1 at 8a3791e4 (round 7, H-L1O): backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, service.acmp.last.if0 62.08, service.aecp.last.if0 61.82
+8x8/2if at 8a3791e4 (round 7, H-L8O): backlog.owed.if0 63.78, backlog.owed_behind0.if0 64.03, backlog.owed_behind1.if0 64.28, backlog.owed_behind2.if0 64.54, backlog.owed_behind3.if0 64.79, service.acmp.last.if0 62.51, service.aecp.last.if1 61.82
+8x8-1if at 93afe385 (A0): backlog.owed.if0 63.24, backlog.owed_behind0.if0 63.47, backlog.owed_behind1.if0 63.69, backlog.owed_behind2.if0 63.91, backlog.owed_behind3.if0 64.20, service.acmp.last.if0 62.18, service.aecp.last.if0 61.83
+
+# the 1x1 save groups at 93afe385 (S1: save-held, save-starved), against 8x8-1if's save-held and save-starved MRPDU rows
+# 2 groups graded over 1 leg(s); 12 probe instances
+| Family | Row (ruling) | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Misses of the budget |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 2 | 2.194 | `save-held.held.acmp.if0` (save-held) | 20.0 | 30 | 0 |
+| adp | ADP | 2 | 1.538 | `save-held.held.adp.if0` (save-held) | 20.0 | 30 | 0 |
+| aecp | AECP | 2 | 2.805 | `save-starved.held.aecp.if0` (save-starved) | 20.0 | 20 | 0 |
+| maap | MAAP | 2 | 1.834 | `save-starved.held.maap.if0` (save-starved) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 2 | 3.000 | `save-starved.mrpdu.periodic.if0` (save-starved) | 20.0 | 50 | 0 |
+| srp | SRP | 2 | 8.670 | `save-starved.held.srp.if0` (save-starved) | 20.0 | 90 | 0 |
+
+Instances not measured: 0
+Instances over the ruling's bound: 0
+Instances over their budget: 0
+

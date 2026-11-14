@@ -1,0 +1,19 @@
+# firmware-verilator ci_step_14 at bae44edf (the first pass): REFUSED, aecp_wire.py exits 1
+# head bae44edfaaaef3e8927060fad5335273611308e1 workflow rtl-fast.yml job firmware-verilator step ci_step_14: Hold the TSN stack boundary over the Verilator builders' compiles
+# clone 
+# venv 
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (185 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (175 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 1 (18 s)
+REFUSED: sw/firmware/ctrl/test/aecp_wire.py exited 1 under the capture, so it may have compiled less than it does: or', '-Isw/firmware/ctrl/aecp', '-I', '-I', '-c', 'sw/firmware/ctrl/aecp/aecp.c', '-o', '']' returned non-zero exit status 1.
+# the wire comparison before the fix, in the worktree:
+sw/firmware/ctrl/aecp/aecp.c:6:10: fatal error: ctrl_loop.h: No such file or directory
+# after it:
+wire comparison PASS: 1 ingress paths, 142 observations; [11] oracle controls by ingress
+wire comparison PASS: 2 ingress paths, 294 observations; [11, 11] oracle controls by ingress
+# ctrl_boundary.py --require-rv32 --selftest --only verilator on the worktree with the fix:
+ctrl_boundary: 1128 compiled sources of 1276 recorded invocations (541 the firmware's, 103 the stack's, 484 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boun
+ctrl_boundary: PASS

@@ -1,0 +1,45 @@
+# rtl-fast.yml's firmware jobs at bc8acc76fc524c167aa47613e54968e66ff02a17, each on its own fresh clone (run_wf.py: the workflow's own step list), never piped; each step's rc and the summary lines of the long steps
+== firmware-unit
+rtl-fast__firmware-unit__ci_step_10 rc=0
+rtl-fast__firmware-unit__ci_step_11 rc=0
+rtl-fast__firmware-unit__ci_step_12 rc=0
+rtl-fast__firmware-unit__ci_step_1 rc=0
+rtl-fast__firmware-unit__ci_step_3 rc=0
+rtl-fast__firmware-unit__ci_step_7 rc=0
+== firmware-control-mutants
+rtl-fast__firmware-control-mutants__ci_step_1 rc=0
+rtl-fast__firmware-control-mutants__ci_step_3 rc=0
+rtl-fast__firmware-control-mutants__ci_step_9 rc=0
+== firmware-aecp-mutants
+rtl-fast__firmware-aecp-mutants__ci_step_1 rc=0
+rtl-fast__firmware-aecp-mutants__ci_step_3 rc=0
+rtl-fast__firmware-aecp-mutants__ci_step_9 rc=0
+== firmware-srp-mutants
+rtl-fast__firmware-srp-mutants__ci_step_1 rc=0
+rtl-fast__firmware-srp-mutants__ci_step_3 rc=0
+rtl-fast__firmware-srp-mutants__ci_step_9 rc=0
+== firmware-unit step 10 (the suites): the 8x8 one-interface AECP arm
+[ok] arm aecp-mailbox-endstation_ax7101_8x8-if1
+test_ctrl_firmware: PASS
+== firmware-unit step 12 (coverage)
+firmware coverage: PASS (39 files)
+== firmware-control-mutants step 9 (the campaign shard)
+[ok] lines (each a planted control caught or an arm passed): 716; lines naming ESCAPED: 0
+test_ctrl_firmware: PASS
+== firmware-aecp-mutants step 9 (the campaign shard)
+[ok] lines (each a planted control caught or an arm passed): 266; lines naming ESCAPED: 0
+[ok] notice-dropped-with-its-descriptors-next: Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce
+test_ctrl_firmware: PASS
+== firmware-srp-mutants step 9 (the campaign shard)
+[ok] lines (each a planted control caught or an arm passed): 345; lines naming ESCAPED: 0
+test_ctrl_firmware: PASS
+== firmware-boundary, first run (the default gates venv): step 9 rc=2, an environment refusal, not the tree's: that venv has no migen, which sw/litex/test_ctrl_memory.py imports (the hosted job installs it)
+REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: Traceback (most recent call last):
+ModuleNotFoundError: No module named 'migen'
+== firmware-boundary, rerun on a fresh clone with the LiteX venv (as round 1 ran it)
+rtl-fast__firmware-boundary__ci_step_1 rc=0
+rtl-fast__firmware-boundary__ci_step_3 rc=0
+rtl-fast__firmware-boundary__ci_step_9 rc=0
+capture: 3460 compiler invocations from 26 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ct
+ctrl_boundary: 3207 compiled sources of 3460 recorded invocations (1892 the firmware's, 359 the stack's, 956 test equipment's and builders' own), each judged by what its dependency output lists, host 
+ctrl_boundary: PASS

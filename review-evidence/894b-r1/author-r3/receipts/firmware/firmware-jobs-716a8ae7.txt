@@ -1,0 +1,26 @@
+# the firmware jobs at 716a8ae7 (run_wf.py, each on its own fresh clean clone): every step's rc, and the campaigns' tallies
+firmware-unit: ci_step_1=0, ci_step_10=0, ci_step_11=0, ci_step_12=0, ci_step_3=0, ci_step_7=0
+  ci_step_10: [ok] 77, ESCAPED 0
+  test_ctrl_firmware: PASS
+  ci_step_12: [ok] 32, ESCAPED 0
+  ci_step_7: [ok] 18, ESCAPED 0
+firmware-boundary: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9: [ok] 299, ESCAPED 0
+  ctrl_boundary: PASS
+firmware-control-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9: [ok] 716, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-aecp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9: [ok] 275, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-srp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9: [ok] 345, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-verilator: ci_step_1=0, ci_step_11=0, ci_step_14=0, ci_step_3=0
+  ci_step_14: [ok] 193, ESCAPED 0
+  sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (236 s)
+  ctrl_boundary: PASS
+aecp campaign notice-dropped-with-its-descriptors-next: [ok] notice-dropped-with-its-descriptors-next: Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce
+aecp campaign map-table-each-direction-alone: [ok] map-table-each-direction-alone: Build.refused
+aecp campaign retry-round-cold-uncharged: [ok] retry-round-cold-uncharged: Mailbox.ARoundFillsWhatItsPassHasLeft
+firmware-unit, the 8x8/1if mailbox arm (aecp_arms.EIGHT_ONE: the notice tests and THE RETRY's two attempt tests): [ok] arm aecp-mailbox-endstation_ax7101_8x8-if1

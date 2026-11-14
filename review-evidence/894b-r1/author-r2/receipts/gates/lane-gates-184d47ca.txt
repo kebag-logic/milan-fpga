@@ -1,0 +1,65 @@
+# the lane gates (lane_gates.sh, parts a, b, c, each on its own clean clone) at 184d47ca: each gate's rc, never piped
+attribute_grep rc=0
+baremetal rc=0
+behave rc=0
+boot_1x1 rc=0
+boot_8x8 rc=0
+boot_native rc=0
+boot_plants rc=0
+cpp_idiom rc=0
+ctrl_hot_check rc=0
+ctrl_hot_selftest rc=0
+ctrl_memory rc=0
+diffcheck_810_084cf7a8 rc=0
+diffcheck_810 rc=0
+diffcheck_902_head rc=0
+diffcheck_902_round9_start rc=0
+diffcheck_lane_start rc=0
+diffcheck_merge_base rc=0
+diffcheck_phase_a rc=0
+diffcheck_round1 rc=0
+diffcheck_round3 rc=0
+diffcheck_round4 rc=0
+diffcheck_round5 rc=0
+diffcheck_round6 rc=0
+diffcheck_round7_start rc=0
+docs_check rc=0
+em_dash rc=0
+flip_check_1x1_as_built_exits_1 rc=1
+flip_check_1x1 rc=0
+flip_check_8x8_1if rc=0
+flip_check_8x8_exits_1 rc=1
+flip_check_exits_1 rc=1
+flip_selftest rc=0
+fw_coverage_selftest rc=0
+gen_mailbox rc=0
+gen_mailbox_selftest rc=0
+harness_selftest rc=0
+hooks_selftest rc=0
+lint_rtl rc=0
+load_check rc=0
+load_selftest rc=0
+nvm_selftest rc=0
+probe_r711_1x1_column rc=0
+probe_r712_pin_1x1 rc=0
+py_idiom rc=0
+rows_tiers_report_exits_1 rc=1
+rows_tiers_selftest rc=0
+shape_costs rc=0
+soc_options rc=0
+target_selftest rc=0
+test_builder rc=0
+tier_grid rc=0
+twin_plants rc=0
+twin rc=0
+# exit 1 by design: rows_tiers --terms (8x8/2if reported), flip --check (both points, 8x8/2if reported), flip --point 1x1/1if --design as-built (R4), flip --point 8x8/2if (reported, #872)
+# harness self-test: 872 PASS, 0 FAIL, 257 mutants caught, 0 escaped; self-test: 0 failures
+# rows_tiers_selftest: rows_tiers: 971 of 971 planted controls refused
+# flip_selftest: flip check: 578 of 578 planted controls refused
+# load_selftest: load gate: 25 of 25 planted controls refused
+# flip 8x8/1if: | 8x8/1if | 0.709 | 0.75 | 1.00x | srp 0.217, rec.acmp 0.088 RESULT: PASS
+# flip 1x1/1if: RESULT: PASS
+# load --check: HELD 1x1/1if at the pin: the load 0.513, its ceiling 0.70 HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70 RESULT: PASS 
+# tier_grid 1x1/1if: CHOSEN: slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0186
+# shape_costs: the table of shapes: 21 of 21 planted controls refused RESULT: PASS 
+# trees after:

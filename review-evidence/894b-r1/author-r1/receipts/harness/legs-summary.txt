@@ -1,0 +1,74 @@
+# the CPU budget harness legs of this lane (leg.sh: run.py --point P --build-dir B --record-budget-findings --record-share-findings --jobs J ARGS), each its first line, its SLICES, JOINS and SHARE lines, its summary, its STATED lines counted by kind, and its end; arm A at 8x8-1if in four parts (A0-A3) and AL at the code head 93afe385 (clean clone c1); S1 the 1x1 save groups at the same head; M1L and M1S the first measurement (a clone of 8a3791e4 with the working diff, superseded, kept as the record of the fixed point)
+== A0
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 8x8-1if jobs 8 args --groups save-second,backlog-adp@blank-6,backlog-adp@program-2,backlog-adp@program-6,backlog-adp@verify-2,backlog-adp@ve
+SLICES 495585 tier-2 slices; the longest SRP's records 155,233, THE TRANSMIT's build 105,630, THE RETRY's round 8,344 CPU cycles, against the stated slice 147,500 (THE TIERS)
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 152530 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=1 2026-11-14T03:53:51
+JOINS lines: 22
+STATED kind:       4 acmp item
+STATED kind:       4 declined ACMP offer
+STATED kind:      21 pass's polls base
+STATED kind:      18 SRP record's apply
+STATED kind:       8 tier-2 slice of SRP's records
+== A1
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 8x8-1if jobs 8 args --groups save-held,backlog-adp@blank-1,backlog-adp@blank-4,backlog-adp@program-0,backlog-adp@program-4,backlog-adp@verif
+SLICES 589692 tier-2 slices; the longest SRP's records 148,079, THE TRANSMIT's build 108,240, THE RETRY's round 7,912 CPU cycles, against the stated slice 147,500 (THE TIERS)
+24 groups graded, 0 refusals, 1 budget misses (1 of 250 probe instances, 1 of 37 paths), 0 of 23277 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=1 2026-11-14T03:09:41
+JOINS lines: 23
+STATED kind:      19 pass's polls base
+STATED kind:       1 rebuild item
+STATED kind:      21 SRP record's apply
+STATED kind:       2 tier-2 slice of SRP's records
+STATED kind:       1 walk item
+== A2
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 8x8-1if jobs 8 args --groups save-starved,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@program-1,backlog-adp@program-5,backlog-adp@ve
+SLICES 531356 tier-2 slices; the longest SRP's records 150,141, THE TRANSMIT's build 108,535, THE RETRY's round 8,349 CPU cycles, against the stated slice 147,500 (THE TIERS)
+24 groups graded, 0 refusals, 1 budget misses (1 of 253 probe instances, 1 of 54 paths), 0 of 85781 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=1 2026-11-14T03:10:31
+JOINS lines: 24
+STATED kind:      20 pass's polls base
+STATED kind:       1 rebuild item
+STATED kind:      19 SRP record's apply
+STATED kind:       2 tier-2 slice of SRP's records
+STATED kind:       1 walk item
+STATED kind:       1 withdraw item
+== A3
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 8x8-1if jobs 8 args --groups acmp-notk,backlog-adp@blank-0,backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@program-3,backlog-adp@program
+SLICES 562324 tier-2 slices; the longest SRP's records 156,198, THE TRANSMIT's build 140,273, THE RETRY's round 7,912 CPU cycles, against the stated slice 147,500 (THE TIERS)
+25 groups graded, 0 refusals, 0 budget misses (0 of 231 probe instances, 0 of 21 paths), 0 of 24320 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=1 2026-11-14T03:05:04
+JOINS lines: 25
+STATED kind:      19 pass's polls base
+STATED kind:       1 rebuild item
+STATED kind:      21 SRP record's apply
+STATED kind:      10 tier-2 slice of SRP's records
+STATED kind:       1 walk item
+== AL
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T01:28:06
+SHARE aecp-largest-notice: 2 of 101 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 209,290 (2.093 ms)
+SLICES 4324 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 95,074, THE RETRY's round 2,051 CPU cycles, against the stated slice 147,500 (THE TIERS)
+1 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 2 of 101 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T01:31:43
+JOINS lines: 1
+== S1
+HEAD 93afe385fb07623b34d3ae9f8c194c2744458bb5 DIRTY 0 point 1x1 jobs 2 args --groups save-held,save-starved start 2026-11-14T03:25:24
+SLICES 65248 tier-2 slices; the longest SRP's records 76,072, THE TRANSMIT's build 42,491, THE RETRY's round 1,873 CPU cycles, against the stated slice 90,000 (THE TIERS)
+2 groups graded, 0 refusals, 0 budget misses (0 of 12 probe instances, 0 of 6 paths), 0 of 28010 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T03:53:40
+JOINS lines: 2
+== M1L
+HEAD 8a3791e44533d6b1cc26d486d0b18e7d83470dc1 DIRTY 14 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T00:56:18
+SHARE aecp-largest-notice: 2 of 101 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 209,290 (2.093 ms)
+SLICES 4324 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 95,074, THE RETRY's round 2,051 CPU cycles, against the stated slice 147,500 (THE TIERS)
+1 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 2 of 101 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T00:59:54
+JOINS lines: 1
+== M1S
+HEAD 8a3791e44533d6b1cc26d486d0b18e7d83470dc1 DIRTY 15 point 8x8-1if jobs 2 args --groups srp,datapath-events start 2026-11-14T01:09:41
+SLICES 19754 tier-2 slices; the longest SRP's records 34,409, THE TRANSMIT's build 140,273, THE RETRY's round 7,272 CPU cycles, against the stated slice 147,500 (THE TIERS)
+2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 408 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=1 2026-11-14T01:20:49
+JOINS lines: 2
+STATED kind:       1 SRP record's apply
+STATED kind:       1 walk item

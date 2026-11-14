@@ -1,0 +1,23 @@
+# 8x8/1if's rows by every source, DERIVED and reported (owed to #872), at the worktree on 15b36a9c with phase B's restated polls (scripts/rows_8x8_1if_b.py): 40 notices, the shape's polls, the largest command at 1,630 and 320 us
+# 8x8/1if, derived, at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475, 'CTRL_LOOP_SRP_UNIT_US': 345} (shape (1, 9, 9)): slice 1475 us, pace 8 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1630 us, item.aecp.long 320 us, notices 40
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 18.56 | 20 | -1.44 | aecp 4.24, timers 3.67, others 1.62 |
+| R5 | 113.87 | 90 | +23.87 | others 33.04, srp 11.68, passes 11.66 |
+| R6 | 108.72 | 90 | +18.72 | others 32.09, srp 11.68, passes 10.87 |
+| first | 16.99 | 20 | -3.01 | spacing 8.00, others 2.15, slice 1.48 |
+| last | 266.70 | 130 | +136.70 | srp 58.77, others 57.76, passes 29.68 |
+| R4L | 192.83 | 238 | -45.17 | pace 180.00, timers 1.94, aecp 1.63 |
+| ACMP | 45.48 | 30 | +15.48 | own 7.04, timers 6.79, aecp 6.62 |
+| ADP | 44.77 | 30 | +14.77 | others 11.86, timers 6.38, aecp 6.36 |
+| MAAP | 46.18 | 30 | +16.18 | others 13.88, aecp 6.62, timers 6.38 |
+| tx | 58.53 | 49 | +9.53 | others 23.45, timers 7.65, passes 7.16 |
+| txL | 146.97 | 49 | +97.97 | others 64.89, item.aecp 19.52, passes 18.02 |
+
+Long-window load at the pin: 0.709 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.670 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 0.991
+# the same at 12 notices, rows_grade's no-shape-header count, for comparison: the first and last queued notice
+| first | 16.99 | 20 | -3.01 | spacing 8.00, others 2.15, slice 1.48 |
+| last | 235.77 | 130 | +105.77 | srp 52.92, others 52.67, passes 25.97 |

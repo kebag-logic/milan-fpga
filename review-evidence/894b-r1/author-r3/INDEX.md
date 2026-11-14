@@ -1,0 +1,53 @@
+# 894b-a781 round 3 output index
+
+Generated from the 47 files present (`index.py`).
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `HANDOFF-r3.md` | 24,437 | `f61b51e84368fe330e9240987d58821617f487be05dd50505cf5b6c2186b3372` |
+| `PR-BODY.md` | 18,726 | `5a2808c202d93a84b409547bb9ca7539c7b433be9a884a59ddd823b6fb1cfc31` |
+| `REVIEW-READY-COMMENT.md` | 12,148 | `5a5d71897ba931f4253befd3a97b40031f8f66e7db30f04414d854ae77973921` |
+| `receipts/firmware/aecp-round-tests-8x8-1if.txt` | 1,691 | `dfea4f6b18e8428ecaaf9106485c7eec156e6e5e795f258cbcb8e6be4ae919e2` |
+| `receipts/firmware/firmware-jobs-716a8ae7.txt` | 1,541 | `50fd29704d079e1f20b4ba06635e3ad8e3e60bd257befe264521b2213baed827` |
+| `receipts/gates/firmware-verilator-step14-bae44edf-and-fix.txt` | 1,734 | `9c242e0200bb6b3953f8a0fe5d9c24f3487d2622c4ce62bd628b655cf30f5164` |
+| `receipts/gates/lane-gates-716a8ae7.txt` | 6,010 | `cda003d690df02d487e82922a9ec9e4899f88558822a9a51dcc750e22c710a00` |
+| `receipts/gates/sweep-shard0-716a8ae7.txt` | 620 | `916e2d3df8ca7f1ff9c08ec272cc38d590c22cb3c13f9bd0395f25cfa1417bbb` |
+| `receipts/gates/sweep-shard1-716a8ae7.txt` | 725 | `3f5b00055575cfb41639685d9d85b0f899abeda7d1a6675a1aa9421aaceacb38` |
+| `receipts/gates/sweep-shard2-716a8ae7.txt` | 723 | `5c0d31a49e2a92ddfc15fb44bef4d7a3204fed43aa77db7bf0016fef104e5f69` |
+| `receipts/gates/sweep-shard3-716a8ae7.txt` | 660 | `9baaedd881ae7f639e326161447d4edf68ecc2a62b1515f97c4f830c918bbc2e` |
+| `receipts/gates/workflows-verify-716a8ae7.md` | 57,803 | `d3b80e438981f05b4a0d350abd850915d4cb9c2668099780c5d291dde309ea14` |
+| `receipts/gates/workflows-verify-bae44edf-first.md` | 57,771 | `02caa8a855223eb3f558b5ec27fd64b0cbf38fa49a83a5c505ea990a7d40e28f` |
+| `receipts/harness/control-transmit-aged-8x8-1if-d8629751.txt` | 2,987 | `af41f0cf3018f79d0244be8fbcca904f4033c935387440d73283a7fa29c6675b` |
+| `receipts/harness/gate-8x8-1if-d8629751.txt` | 11,045 | `f2795dfd4c18a1ae5e8ba95c29a24506bc26b918a59edc1956027c15495b5948` |
+| `receipts/harness/harness-selftest-d8629751.txt` | 6,306 | `5a4e7b6266127da097659a8ea3f4aee5233fabab9787dbe43abf044e6632db9c` |
+| `receipts/harness/legs-1x1-8x8-716a8ae7.txt` | 10,481 | `a55e15d51cd6ebc2e8acb7445bb5bbacfb38f4bd94a9cdc6f238241766e99854` |
+| `receipts/images/disasm-8x8-1if-step1-vs-step2.txt` | 745 | `5fb2af812bb1bfb36e2c75fffadb8ece284daac5476dfef11b649543d1e05d86` |
+| `receipts/images/img-1-keying-only.txt` | 674 | `86ce28c2a5473a0b56cce11c6ce67183a00ca4d728f5c27e165386380b02d9ba` |
+| `receipts/images/img-2-8x8-1if-165-25.txt` | 842 | `68bac094dc4a37eca2e9ece910d6de863bb625db6b3a5702862eadc5ef1b0b7f` |
+| `receipts/images/img-3-fullpass-bae44edf.txt` | 1,075 | `7fd4d279c7323d365a8538c592f1c779f2d5fe860a6d22793232c4327d8a44e6` |
+| `receipts/images/img-4-fullpass-716a8ae7.txt` | 1,111 | `513e029968ac6312acd38bf30300248d6f36a5a9032a7cc8985460c9c866d53b` |
+| `receipts/images/measured-image-d8629751.txt` | 1,246 | `bd0882baeece7c7571b6c80715d1bd3fad69edbbbb3896071fd8c579f43e189a` |
+| `receipts/images/raw-1-keying-only.txt` | 2,157 | `35a5966367604c141479fc4bef4e4d49105353d073a494d867ad939224524f0f` |
+| `receipts/images/raw-2-8x8-1if-165-25.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-3-fullpass-bae44edf.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-4-fullpass-716a8ae7.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-base-184d47ca.txt` | 2,242 | `1cb09069c60172a554869c68296f6517a1d47a1eea2244a146a7d0565d6d098e` |
+| `receipts/model/restate-check-8x8-1if-d8629751.txt` | 1,311 | `bd2cc0e67fbb1ee8b0f65f9b838fa4388f0fc0f34006bf268a2114418f3d798c` |
+| `receipts/model/retry-keying-plants.txt` | 1,046 | `344121397ce2affaba859c1f739068b54c7eb45933653eae5298e822cf5d8274` |
+| `receipts/model/retry-line-8x8-1if-6122db33.txt` | 1,249 | `ccad47950f153f9ddf5ff0cba6058a9319b62eb48352646a30f6f453ff06631f` |
+| `receipts/model/retry-line-8x8-1if-d8629751-AE.txt` | 1,006 | `04f4080f5b1533d71d3bb525f54f5fdc897bb2f4f57816ab96d87e262161a5ef` |
+| `receipts/model/rows-8x8-1if-d8629751.txt` | 1,921 | `9bc71851723dc199bb2243a32200bf6215b6c934734ca110e242ae2cdafde38f` |
+| `scripts/arm8.py` | 867 | `83c5204be28d346ed94278a313a71494b6babde5edd4efcd2148ece28543b65c` |
+| `scripts/gate_r3.py` | 14,120 | `1e02230ed011ea737c335169b5c75bec7c7f7d1f25bd8e55cdf947090d2313c7` |
+| `scripts/img_all8.py` | 1,096 | `db912e4852546d408f3bf950c2825a61f86f1e5d46ecccb1427e4b2e147b4d9e` |
+| `scripts/img_check_base.py` | 2,631 | `130f3f53d1d6b68b3a56b03d4d7410db1a0b3583bd130b31d60dc5064401b929` |
+| `scripts/index.py` | 1,212 | `2bbdd9693cceea11e51a6dd14671907865e4ecf3acbbdc73ae0b830437b5b721` |
+| `scripts/lane_gates_r3.sh` | 7,586 | `b93a225f86354c04ca6c7f4534218dc822d7a1616925642c8c527766907b1af9` |
+| `scripts/lane_gates_r3d.sh` | 7,586 | `476b004c74df2e4fe83bab4765e8faf1e7fbcbcf1f56feef91f4dad20ab2724d` |
+| `scripts/launchC.py` | 3,925 | `fa038f3256be8ea6f3abfd687f96b60927487f385b6942e80e611e1e1faa1371` |
+| `scripts/launchM.py` | 2,936 | `1baaef175da0ab7a83824b7d86993297ac9041cf7b1880c6fa89f45124931582` |
+| `scripts/legB.py` | 2,381 | `d7aa0bbaa0e38ef6f23b0370d3e64fcce929df4a64e39e68336950a1308d4c81` |
+| `scripts/mkqueueC.sh` | 3,195 | `d98f4060e7d9eeaa596117a2b7179e48626b706297f9c9ae466537bc97fe0e15` |
+| `scripts/mkqueueD.sh` | 3,196 | `d1441decde9674ddf9eff6f0f7f969bde2b7a159add6d7de7edf1f8948d7db3a` |
+| `scripts/retry_line.py` | 5,508 | `b398a7bc5d3f3324abfaa30801c10e3e5adc3e20bb3e3f9ea0ad4cb4d8ce1eae` |
+| `scripts/rows_8x8_1if_r3.py` | 3,559 | `918d5faeebf1c1eb7d03857e3463986f8197914312610688ac108d7e12aa02fa` |

@@ -1,0 +1,46 @@
+# THE RETRY's mailbox tests at the 8x8 shape at one interface (aecp_arms.core_arm, mode mailbox), each from its run.log
+## worktree-165-25
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft (1 ms)
+[       OK ] Mailbox.ARefusedAttemptIsChargedToItsRound (1 ms)
+[       OK ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (1 ms)
+[       OK ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound (1 ms)
+[       OK ] Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce (1 ms)
+[  PASSED  ] 4 tests.
+sw/firmware/ctrl/test/test_aecp.cpp:3121: Failure
+Expected equality of these values:
+  adapter.yields
+    Which is: 3
+  0u
+    Which is: 0
+a queue served to its end starts the next with them all
+--
+## worktree-at-85-34
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft (1 ms)
+[  PASSED  ] 0 tests.
+sw/firmware/ctrl/test/test_aecp.cpp:3121: Failure
+Expected equality of these values:
+  adapter.yields
+    Which is: 3
+  0u
+    Which is: 0
+a queue served to its end starts the next with them all
+--
+## clean-clone-184d47ca
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft (1 ms)
+[       OK ] Mailbox.ARefusedAttemptIsChargedToItsRound (1 ms)
+[       OK ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (1 ms)
+[  PASSED  ] 2 tests.
+sw/firmware/ctrl/test/test_aecp.cpp:3121: Failure
+Expected equality of these values:
+  adapter.yields
+    Which is: 3
+  0u
+    Which is: 0
+a queue served to its end starts the next with them all
+--

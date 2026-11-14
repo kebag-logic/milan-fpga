@@ -1,0 +1,12 @@
+# Plant: the shape header (srp_entity.py) states AECP_ENTITY_KEY_STREAMS 64u, aecp_entity_gen.h unchanged (its key
+# domain under #ifndef CTRL_SRP_ENTITY_H). Every image an image builder compiles must change: its map table is sized
+# from the shape header (MAP_SLOTS 64 x 8 = 512, over the floor of 256), not from aecp_entity_gen.h. At 6122db33.
+fixture-1x1-1if: rc 0, ELF changed (320f5748d10f vs 8ea77fe075ad), rom 110560, sram 55152
+fixture-1x1-2if: rc 0, ELF changed (1992a2eb1275 vs a0d62ecf778d), rom 111856, sram 57312
+fixture-8x8-1if: rc 0, ELF changed (9a2f85095d16 vs 9a3c201663cc), rom 124096, sram 96240
+fixture-8x8-2if: rc 0, ELF changed (0d42755f73dc vs bfa62853df8a), rom 125360, sram 113168
+platform-1x1-1if: rc 0, ELF changed (53a44e6dd45d vs 5cccda2c699f), rom 115616, sram 56224
+platform-1x1-2if: rc 0, ELF changed (887f0c7c4783 vs 6510f02f9cca), rom 116928, sram 58336
+platform-8x8-1if: rc 0, ELF changed (9564a22c319a vs 4b4fdb307072), rom 129192, sram 97264
+platform-8x8-2if: rc 0, ELF changed (99e237a1f484 vs fb6c39b28689), rom 130488, sram 114160
+RESULT: CAUGHT: 8 of 8 images changed

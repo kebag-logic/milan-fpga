@@ -1,0 +1,57 @@
+# pre-checks at the code head 93afe385fb07623b34d3ae9f8c194c2744458bb5: three hosted jobs of rtl-fast.yml run step by step on their own fresh clones (run_wf.py), never piped; each run: step's rc, and the summary lines of the long steps. The head has since gained 7405720e, 06147ff9 (harness Python on
+== firmware-boundary
+rtl-fast__firmware-boundary__ci_step_1 rc=0
+rtl-fast__firmware-boundary__ci_step_3 rc=0
+rtl-fast__firmware-boundary__ci_step_9 rc=0
+== firmware-unit
+rtl-fast__firmware-unit__ci_step_1 rc=0
+rtl-fast__firmware-unit__ci_step_3 rc=0
+rtl-fast__firmware-unit__ci_step_7 rc=0
+rtl-fast__firmware-unit__ci_step_10 rc=0
+rtl-fast__firmware-unit__ci_step_11 rc=0
+rtl-fast__firmware-unit__ci_step_12 rc=0
+== firmware-srp-mutants
+rtl-fast__firmware-srp-mutants__ci_step_1 rc=0
+rtl-fast__firmware-srp-mutants__ci_step_3 rc=0
+rtl-fast__firmware-srp-mutants__ci_step_9 rc=0
+== firmware-unit step 10 (the control-plane firmware suites and RV32 builds, --self-test --shard 0/4)
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    RESULT: PASS
+test_ctrl_firmware: PASS
+the 12 arty arms, each refused in THE SHAPES' words:
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if1-endstation_arty_4x4
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if2-endstation_arty_4x4
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if1-endstation_arty_8ch
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if2-endstation_arty_8ch
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if1-endstation_arty_current
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+[ok] arm srp-rv32-if2-endstation_arty_current
+    317 | #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+== firmware-unit step 11 (the store)
+saved-state store gate (#665 F1): OK across 5 shape(s), 526 tests
+== firmware-unit step 12 (the coverage ratchet)
+firmware coverage: PASS (39 files)
+== firmware-boundary step 9
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 3179 compiled sources of 3430 recorded invocations (1874 the firmware's, 359 the stack's, 946 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 b
+ctrl_boundary: PASS
+== firmware-srp-mutants step 9
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS

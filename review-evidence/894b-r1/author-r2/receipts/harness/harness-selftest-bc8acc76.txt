@@ -1,0 +1,33 @@
+# the CPU budget harness self-test (run.py --self-test) at bc8acc76fc524c167aa47613e54968e66ff02a17, a clean clone; unit R2-st, rc 0
+checks PASS: 863, FAIL: 0; mutants caught: 250, escaped: 0
+self-test: 0 failures
+# the new and changed checks
+PASS: a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+PASS: 8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records and events at 8x8/2if's (load_grade.stated, NEAREST)
+PASS: the table of shapes holds its rules at the tree
+PASS: the table of shapes refuses a shape the table does not list
+PASS: the table of shapes refuses a slice over the cap
+PASS: the table of shapes refuses a build of one over its slice
+PASS: the table of shapes refuses an SRP record over its slice
+PASS: the table of shapes refuses the table with no #error
+PASS: the table of shapes refuses a shape listed twice
+PASS: the table of shapes refuses a cost missing from a shape
+PASS: the table of shapes refuses the default streams not the shipping configuration's
+PASS: the table of shapes refuses a build of both at two builds of one
+PASS: the table of shapes refuses the slice cap not the ruling's 1,600 us
+PASS: the table of shapes refuses a model point built at another configuration than the harness's
+PASS: the table of shapes refuses a point whose shape is not listed
+PASS: the table of shapes refuses a listed shape whose polls are not stated
+PASS: the table of shapes refuses the notices most typed at the 1x1's 12 at one interface (earlier rule)
+PASS: the table of shapes refuses an AVB interface's notices counted as two
+PASS: the table of shapes refuses two interfaces' most under the 8x8's descriptors
+PASS: the table of shapes refuses the notices with no shape header not the shipping configuration's
+PASS: the table of shapes refuses a load point counting other descriptors with counters than the shape header states
+PASS: THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i))
+PASS: a timer's MRPDU is timed from its TICK to its commit, at its bound, 50 ms, within it
+PASS: one 1 ms over its bound, at 51 ms, misses it
+# the new mutants
+MUTANT caught: shapes: 8x8/1if's polls held at the interface count's (earlier rule): a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it (({'base': 205, 'withdraw': 90, 'rebuild': 290, 'walk': 35, 'reclaim': 25, 'retained': 280, 'mrpdu': 1475, 'acmp': 50, 'aecp': 210, 'aecp_long': 365, 'acmp_decli)
+MUTANT caught: load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule): 8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records and events at 8x8/2if's (load_grade.stated, NEAREST) ({'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130, 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'even)
+MUTANT caught: transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS: THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i)) ((51, 50, [51.0]))
+MUTANT caught: transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule): THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i)) ((50, 50, [20.0]))

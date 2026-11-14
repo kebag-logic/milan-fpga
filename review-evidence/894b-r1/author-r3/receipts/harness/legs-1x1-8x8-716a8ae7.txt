@@ -1,0 +1,104 @@
+# the harness legs at 1x1 and 8x8/2if at 716a8ae7 (clean clone, leg.sh, one job each), as #902's pass runs them: each leg's own lines
+== H-L1A (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --groups datapath-events start 2026-11-14T22:01:41
+SLICES 4849 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,869, THE RETRY's round 8,059 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS datapath-events: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 117 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:05:44
+== H-L1N (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T22:06:46
+SLICES 18363 tier-2 slices; the longest SRP's records 75,251, THE TRANSMIT's build 42,976, THE RETRY's round 49,784 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-0: 3 join interval(s), the shortest 188.043 ms and the longest 189.949 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 18 probe instances, 0 of 7 paths), 0 of 1583 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:20:24
+== H-L8A (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 8x8 jobs 1 args --groups datapath-events start 2026-11-14T22:10:37
+SLICES 3189 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,825, THE RETRY's round 9,796 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS datapath-events: 6 join interval(s), the shortest 186.583 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 158 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:14:33
+== H-L8N (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 8x8 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T22:14:37
+SLICES 11027 tier-2 slices; the longest SRP's records 104,915, THE TRANSMIT's build 93,663, THE RETRY's round 69,053 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS notice-every-0: 6 join interval(s), the shortest 186.528 ms and the longest 190.040 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 47 probe instances, 0 of 8 paths), 0 of 1092 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:28:58
+== H-L1L (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --groups aecp-largest-notice start 2026-11-14T22:19:41
+SLICES 5346 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,869, THE RETRY's round 2,104 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:23:24
+== H-L8L (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 8x8 jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T22:24:43
+SHARE aecp-largest-notice: 2 of 139 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 254,919 (2.549 ms)
+SLICES 3615 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,600, THE RETRY's round 3,318 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-largest-notice: 6 join interval(s), the shortest 187.631 ms and the longest 189.809 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 139 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:29:21
+== H-L1O (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --groups backlog-owed start 2026-11-14T22:27:40
+BUDGET backlog.owed.if0: 62.928 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.105 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.283 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.460 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.638 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.071 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.538 ms over its budget 20 ms
+SLICES 19332 tier-2 slices; the longest SRP's records 71,792, THE TRANSMIT's build 41,869, THE RETRY's round 1,884 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 310 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:39:01
+== H-L8O (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 8x8 jobs 1 args --groups backlog-owed start 2026-11-14T22:29:00
+BUDGET backlog.owed.if0: 63.760 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 64.022 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.283 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.544 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.805 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.451 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 62.113 ms over its budget 20 ms
+SLICES 12041 tier-2 slices; the longest SRP's records 103,573, THE TRANSMIT's build 89,825, THE RETRY's round 2,242 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS backlog-owed: 6 join interval(s), the shortest 186.583 ms and the longest 190.027 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 318 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:40:52
+== C-R1 (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --mutation acmp-redelivered-every-poll start 2026-11-14T22:34:05
+BUDGET backlog.owed.if0: 62.799 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 62.977 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.154 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.331 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.509 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 61.942 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.689 ms over its budget 20 ms
+SLICES 18883 tier-2 slices; the longest SRP's records 73,394, THE TRANSMIT's build 41,869, THE RETRY's round 1,884 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.038 ms and the longest 189.996 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 309 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED backlog-owed: a pass's polls base of 39,921 CPU cycles, over its stated 20,500
+STATED backlog-owed: a declined ACMP offer of 2,021 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,036 CPU cycles, over its stated 2,000
+STATED backlog-owed: 317 declined ACMP offers, over their bound of two a sent owed frame and one (12 sent)
+CONTROL acmp-redelivered-every-poll caught: 1 of 1 group(s) with 'declined ACMP offers, over their bound' over its stated cost (backlog-owed), 0 refusal(s)
+END rc=0 2026-11-14T22:52:55
+== H-J1 (unit rc 0)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 1x1 jobs 1 args --groups srp start 2026-11-14T22:39:06
+SLICES 19031 tier-2 slices; the longest SRP's records 29,736, THE TRANSMIT's build 68,937, THE RETRY's round 1,913 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 188.087 ms and the longest 190.013 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 289 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T22:49:58
+== H-J8 (unit rc 1)
+HEAD 716a8ae7979a31315a6e085959dc4dcc8b7ee022 DIRTY 0 point 8x8 jobs 1 args --groups srp start 2026-11-14T22:44:09
+SLICES 12189 tier-2 slices; the longest SRP's records 33,099, THE TRANSMIT's build 147,814, THE RETRY's round 2,242 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp: 6 join interval(s), the shortest 185.485 ms and the longest 190.026 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 0 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED srp: a build-one pass of 138,054 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 147,814 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 138,054 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 147,814 CPU cycles, over the stated slice 130,000
+END rc=1 2026-11-14T23:07:01
+joins: 48 in 11 group runs, 185.485 to 190.040 ms; run-outs {'released': 110, 'empty': 62}

@@ -1,0 +1,58 @@
+# the lane gates at 716a8ae7 (lane_gates_r3d.sh, parts a, b and c, each on its own clean clone, never piped): each gate's rc and its last line
+diffcheck_merge_base rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_merge_base: git diff --check 1d6bf5556ae28764361d85012b86394eb467d294 HEAD
+diffcheck_round1 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round1: git diff --check f9442a10ff7e673c6e65874ca7629b49201c589d HEAD
+diffcheck_810 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_810: git diff --check 66f713267f201d1a00d7f711e04b3a996d804dee HEAD
+diffcheck_round3 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round3: git diff --check 64688da3b211e8e0e2b92b6c24e5ad3bd7490104 HEAD
+diffcheck_round4 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round4: git diff --check 66adb9a987b56c2b1a12ce92d058e0bc1a57bc3a HEAD
+diffcheck_round5 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round5: git diff --check 9d7167bd35afbf888ff0dcc1c10fe0e572ff6312 HEAD
+diffcheck_810_084cf7a8 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_810_084cf7a8: git diff --check 084cf7a8455e9fa8e24a0e5bcf57c9557816c819 HEAD
+diffcheck_round6 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round6: git diff --check eebc37a32e15c81b3a855cdee49427e02c961590 HEAD
+diffcheck_round7_start rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round7_start: git diff --check ccb47e39a534f4c8d02af826fa50fcd6578a38de HEAD
+diffcheck_lane_start rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_lane_start: git diff --check 8a3791e44533d6b1cc26d486d0b18e7d83470dc1 HEAD
+diffcheck_902_round9_start rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_902_round9_start: git diff --check dd01b0afef87037ec485cd49b40a26b542854bdd HEAD
+diffcheck_902_head rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_902_head: git diff --check 5b264bf26416108add32d7fe5abca5252ffde2cb HEAD
+diffcheck_phase_a rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_phase_a: git diff --check bc8acc76fc524c167aa47613e54968e66ff02a17 HEAD
+diffcheck_902_7398 rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_902_7398: git diff --check 7398ec0aeea468d92ff642a03a06e291a0cd58d1 HEAD
+diffcheck_round2_head rc=0: # head 716a8ae7979a31315a6e085959dc4dcc8b7ee022 gate diffcheck_round2_head: git diff --check 184d47cacc0b4eccb923cfbd4f2df9c3a05f5638 HEAD
+em_dash rc=0: check_em_dash: 0 finding(s) over 2291 added line(s) in 26 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66adb9a9..HEAD]
+tier_grid rc=0: CHOSEN: slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0186
+fw_coverage_selftest rc=0: coverage self-test: 29 of 29 planted cases read as planted
+py_idiom rc=0: over-long line: 0 <= 0
+cpp_idiom rc=0: build without warnings: 0 <= 0
+baremetal rc=0: baremetal-only: OK (0 findings across 1594 tracked first-party file(s))
+docs_check rc=0: docs_check: 0 finding(s) across 219 md files + 1596 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+ctrl_hot_selftest rc=0: self-test: 0 failure(s)
+ctrl_hot_check rc=0: hot list: 206 entries, in the recorded order
+harness_selftest rc=0: self-test: 0 failures
+rows_tiers_selftest rc=0: rows_tiers: 971 of 971 planted controls refused
+rows_tiers_report_exits_1 rc=1: OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 446.92 ms, over its bound 49 ms; the largest term others 167.97 ms
+load_selftest rc=0: load gate: 25 of 25 planted controls refused
+load_check rc=0: RESULT: PASS
+flip_selftest rc=0: flip check: 581 of 581 planted controls refused
+flip_check_exits_1 rc=1: RESULT: FAIL
+flip_check_1x1 rc=0: RESULT: PASS
+flip_check_8x8_1if rc=0: RESULT: PASS
+shape_costs rc=0: RESULT: PASS
+flip_check_1x1_as_built_exits_1 rc=1: RESULT: FAIL
+flip_check_8x8_exits_1 rc=1: RESULT: FAIL
+probe_r711_1x1_column rc=0: event.ACMP at the pin raised to 100000 us: load at the pin 1.511, graded 0.509; merge gate findings: ['1x1/1if: the load 1.511 at the pin is over its ceiling 0.70']
+probe_r712_pin_1x1 rc=0: plant pin 1x1/1if base=400: pin load 0.513 (> 0.70: False); merge gate findings: []; held
+attribute_grep rc=0: sw/firmware/ctrl/plat/ctrl_cc.h:32:typedef void *__attribute__((may_alias)) ctrl_cc_ptr;
+hooks_selftest rc=0: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+target_selftest rc=0: checks: 73   failures: 0
+gen_mailbox rc=0: gen_mailbox: 0 finding(s)
+gen_mailbox_selftest rc=0: selftest: 0 arm(s) failed
+lint_rtl rc=0: LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+soc_options rc=0: RESULT: PASS
+test_builder rc=0: ALL GATES PASS EXCEPT 2 NOT RUN
+ctrl_memory rc=0: RESULT: PASS
+behave rc=0: Took 0min 2.966s
+twin rc=0: twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 99, 'MVRP': 16}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 49, 'MAAP': 8, 'M
+twin_plants rc=0: plant vid2-registrar-in: REFUSED by "owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv 
+nvm_selftest rc=0: saved-state store gate (#665 F1): OK across 5 shape(s), 526 tests, and all 144 planted defects reddened
+boot_1x1 rc=0: ctrl_split_boot: PASS (0 finding(s))
+boot_8x8 rc=0: ctrl_split_boot: PASS (0 finding(s))
+boot_native rc=0: ctrl_split_boot native controls: 6 of 6 as required
+boot_plants rc=0: ctrl_split_boot self-test: 6 of 6 native controls as required; 3 of 3 plants caught; 0 placement controls wrong
+55 gates: 51 at 0; exit 1 by design: ['flip_check_1x1_as_built_exits_1', 'flip_check_8x8_exits_1', 'flip_check_exits_1', 'rows_tiers_report_exits_1']; others not 0: []
+harness self-test: 879 checks, 0 failed; 259 mutants caught, 0 escaped

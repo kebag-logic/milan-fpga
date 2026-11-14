@@ -1,0 +1,116 @@
+# round 3's 8x8/1if gate (scripts/gate_r3.py) at d8629751 on clean clone mC, the built image at 1,475 us with THE RETRY at 165 and 25 us: arm A every group in four parts (C-A0..C-A3, 95 groups), the answering-every-port arm (C-AE, 16), the answering-ports arm's aecp-largest-notice (C-AL)
+# 112 groups graded over 6 leg(s); 1680 probe instances, 1680 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 187 | 6.813 | `notice-every-6.held.acmp.if0` (notice-every-6) | 20.0 | 30 | 0 |
+| adp | ADP | 190 | 5.897 | `notice-burst-1.held.adp.if0` (notice-burst-1) | 20.0 | 30 | 0 |
+| aecp | AECP | 196 | 4.693 | `notice-every-7.held.aecp.if0` (notice-every-7) | 20.0 | 20 | 0 |
+| disc | ADP (a bound talker's ENTITY_AVAILABLE) | 78 | 4.413 | `backlog-adp@program-aged2-7.adp_available.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| maap | MAAP | 178 | 6.020 | `notice-every-0.held.maap.if0` (notice-every-0) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 14 | 3.578 | `save-starved.mrpdu.periodic.if0` (save-starved) | 49.0 | 49 | 0 |
+| notify | AECP's notices (retried, the largest notice's fan-out) | 8 | 0.624 | `aecp_fanout.set_name.if0` (aecp-fanout) | 20.0 | 20 | 0 |
+| srp | SRP | 177 | 10.284 | `notice-every-6.held.srp.if0` (notice-every-6) | 20.0 | 90 | 0 |
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+| Group | Notices | First, ms | Last, ms | Last instance | Its budget, ms |
+|---|---:|---:|---:|---|---:|
+| notice-burst-0 | 40 | 2.175 | 25.687 | `notice-burst-0.notices.29.36.0.if0` | 130.0 |
+| notice-burst-1 | 40 | 2.028 | 24.571 | `notice-burst-1.notices.29.36.0.if0` | 130.0 |
+| notice-burst-2 | 40 | 1.640 | 26.125 | `notice-burst-2.notices.29.36.0.if0` | 130.0 |
+| notice-burst-3 | 40 | 2.184 | 26.195 | `notice-burst-3.notices.29.9.0.if0` | 130.0 |
+| notice-burst-4 | 40 | 2.259 | 25.169 | `notice-burst-4.notices.29.36.0.if0` | 130.0 |
+| notice-burst-5 | 40 | 2.201 | 26.108 | `notice-burst-5.notices.29.9.0.if0` | 130.0 |
+| notice-burst-6 | 40 | 2.253 | 25.710 | `notice-burst-6.notices.29.36.0.if0` | 130.0 |
+| notice-burst-7 | 40 | 2.229 | 24.629 | `notice-burst-7.notices.29.36.0.if0` | 130.0 |
+| notice-every-0 | 40 | 2.130 | 20.669 | `notice-every-0.notices.29.36.0.if0` | 130.0 |
+| notice-every-1 | 40 | 1.795 | 21.780 | `notice-every-1.notices.29.36.0.if0` | 130.0 |
+| notice-every-2 | 40 | 2.125 | 20.650 | `notice-every-2.notices.29.36.0.if0` | 130.0 |
+| notice-every-3 | 40 | 2.124 | 20.651 | `notice-every-3.notices.29.36.0.if0` | 130.0 |
+| notice-every-4 | 40 | 1.562 | 21.844 | `notice-every-4.notices.29.36.0.if0` | 130.0 |
+| notice-every-5 | 40 | 1.785 | 22.025 | `notice-every-5.notices.29.36.0.if0` | 130.0 |
+| notice-every-6 | 40 | 1.560 | 21.817 | `notice-every-6.notices.29.36.0.if0` | 130.0 |
+| notice-every-7 | 40 | 2.129 | 20.668 | `notice-every-7.notices.29.36.0.if0` | 130.0 |
+
+Over every group: the first at most 2.259 ms, the last at most 26.195 ms; 640 queued notices in 16 groups
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+| Instance | Family | ms | Its budget, ms |
+|---|---|---:|---:|
+| `aecp_long.refused.collision_values.if0` | aecp | 2.442 | 20.0 |
+| `aecp_long.refused.conflict_last.if0` | aecp | 2.442 | 20.0 |
+| `aecp_long.remove_audio_mappings.if0` | notify | 2.069 | 20.0 |
+| `aecp_long.add_audio_mappings.if0` | notify | 1.981 | 20.0 |
+| `aecp_long.refused.collision_indices.if0` | aecp | 0.477 | 20.0 |
+
+The most: 2.442 ms (`aecp_long.refused.collision_values.if0`), against 238 ms
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses
+
+| Row | Measured, ms | Ledger at 8x8/1if, ms | Difference, ms | 1x1/1if at 8a3791e4, ms | Within its budget |
+|---|---:|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.083 | 63.24 | -0.157 | 62.94 | False |
+| `backlog.owed_behind0.if0` | 63.305 | 63.47 | -0.165 | 63.11 | False |
+| `backlog.owed_behind1.if0` | 63.526 | 63.69 | -0.164 | 63.29 | False |
+| `backlog.owed_behind2.if0` | 63.747 | 63.91 | -0.163 | 63.46 | False |
+| `backlog.owed_behind3.if0` | 63.969 | 64.2 | -0.231 | 63.64 | False |
+| `backlog-owed.service.acmp.last.if0` | 62.025 | 62.18 | -0.155 | 62.08 | False |
+| `backlog-owed.service.aecp.last.if0` | 61.680 | 61.83 | -0.150 | 61.82 | False |
+
+Instances not measured: 0
+Instances over their budget: 7, of which 7 are the recorded held-egress rows and 0 new
+
+Join intervals: 346 in 111 groups, the shortest 186.687 ms (save-starved), the longest 190.705 ms (save-held), against the commit-side gate 181.0 to 239.0
+
+The longest tier-2 slice of each kind, against the stated slice 147,500 CPU cycles:
+- build: 137,924 (srp)
+- round: 89,462 (notice-burst-2)
+- srp: 146,052 (backlog-adp@blank-aged2-1)
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+- build: 0 (srp), stated 179,500
+- build-one: 137,924 (srp), stated 147,500
+- step: 81,053 (backlog-adp@program-aged2-7), stated 97,500
+
+Groups with work passes over THE SHARE: 1
+- aecp-largest-notice: 2 pass(es), the longest 213,816 CPU cycles
+
+THE RETRY's rounds: 2,455,411, held to attempt 25 us, cold 165 us, notice 255 us; the heaviest by notices built: 0: 23,343 (notice-every-6), 1: 21,875 (notice-burst-5), 3: 70,059 (notice-burst-5), 4: 89,462 (notice-burst-2); over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-second,backlog-adp@blank-6,backlog-adp@blank-aged1-2,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-2,backlog-adp@blank-aged2-6,backlog-adp@program-2,backlog-adp@program-6,backlog-adp@program-aged1-2,backlog-adp@program-aged1-6,backlog-adp@program-aged2-2,backlog-adp@program-aged2-6,backlog-adp@verify-2,backlog-adp@verify-6,backlog-adp@verify-aged1-2,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-2,backlog-adp@verify-aged2-6,save,backlog-owed,adp-gm,acmp-cmd start 2026-11-14T15:10:16
+BUDGET backlog.owed.if0: 63.083 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.305 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.526 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.747 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.969 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.025 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.680 ms over its budget 20 ms
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 157532 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T17:35:34
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-held,backlog-adp@blank-1,backlog-adp@blank-4,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-4,backlog-adp@blank-aged2-0,backlog-adp@blank-aged2-4,backlog-adp@program-0,backlog-adp@program-4,backlog-adp@program-aged1-0,backlog-adp@program-aged1-4,backlog-adp@program-aged2-0,backlog-adp@program-aged2-4,backlog-adp@verify-0,backlog-adp@verify-4,backlog-adp@verify-aged1-0,backlog-adp@verify-aged1-4,backlog-adp@verify-aged2-0,backlog-adp@verify-aged2-4,adp-advertise,backlog-adp,maap,aecp-fanout,fixture start 2026-11-14T15:27:20
+24 groups graded, 0 refusals, 0 budget misses (0 of 250 probe instances, 0 of 37 paths), 0 of 23584 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T17:04:08
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-starved,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@blank-aged1-1,backlog-adp@blank-aged1-5,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-5,backlog-adp@program-1,backlog-adp@program-5,backlog-adp@program-aged1-1,backlog-adp@program-aged1-5,backlog-adp@program-aged2-1,backlog-adp@program-aged2-5,backlog-adp@verify-1,backlog-adp@verify-5,backlog-adp@verify-aged1-1,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-5,acmp-noresp,backlog,acmp-disc,adp-link,aecp start 2026-11-14T15:30:05
+24 groups graded, 0 refusals, 0 budget misses (0 of 253 probe instances, 0 of 54 paths), 0 of 87917 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T17:12:57
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups acmp-notk,backlog-adp@blank-0,backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-7,backlog-adp@blank-aged2-3,backlog-adp@blank-aged2-7,backlog-adp@program-3,backlog-adp@program-7,backlog-adp@program-aged1-3,backlog-adp@program-aged1-7,backlog-adp@program-aged2-3,backlog-adp@program-aged2-7,backlog-adp@verify-3,backlog-adp@verify-7,backlog-adp@verify-aged1-3,backlog-adp@verify-aged1-7,backlog-adp@verify-aged2-3,backlog-adp@verify-aged2-7,srp,backlog-adp-refill,adp-discover,control,datapath-events start 2026-11-14T15:34:46
+25 groups graded, 0 refusals, 0 budget misses (0 of 231 probe instances, 0 of 20 paths), 0 of 24459 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T17:12:30
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups notice-burst-0,notice-burst-1,notice-burst-2,notice-burst-3,notice-burst-4,notice-burst-5,notice-burst-6,notice-burst-7,notice-every-0,notice-every-1,notice-every-2,notice-every-3,notice-every-4,notice-every-5,notice-every-6,notice-every-7 --variant answering-every-port start 2026-11-14T15:12:34
+16 groups graded, 0 refusals, 0 budget misses (0 of 728 probe instances, 0 of 7 paths), 0 of 19899 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T15:56:31
+HEAD d86297516337b2d45d559949fd15dcb4418cb298 DIRTY 0 point 8x8-1if jobs 1 args --reuse-build --groups aecp-largest-notice --variant answering-ports start 2026-11-14T15:05:24
+SHARE aecp-largest-notice: 2 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 213,816 (2.138 ms)
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T15:09:19
+
+RESULT: PASS: every row the CPU decides within its bound, no new budget miss, the joins within the gate
+gate exit 0
+['C-A0', 'C-A1', 'C-A2', 'C-A3', 'C-AE', 'C-AL'] {'released': 1332, 'empty': 979, 'late': 0, 'absent': 0, 'unresolved': 0} total 2311 failing/over 0
+['C-A0', 'C-A1', 'C-A2', 'C-A3'] {'released': 1168, 'empty': 866, 'late': 0, 'absent': 0, 'unresolved': 0} total 2034 failing/over 0

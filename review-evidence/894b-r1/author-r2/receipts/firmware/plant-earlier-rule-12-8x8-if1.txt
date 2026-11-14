@@ -1,0 +1,5 @@
+# ad hoc plant in aecp/aecp.h: '#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? AECP_NOTICES_HELD : 40u)' -> '#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)'; endstation_ax7101_8x8.yaml at 1 interface(s), mailbox mode
+the build refused
+<scratch>/work/ctrl/aecp/aecp_mbx.c:8:1: error: static assertion failed: "AECP_NOTICES_MOST: the descriptors hold more notices"
+    8 | _Static_assert(AECP_NOTICES_HELD <= AECP_NOTICES_MOST, "AECP_NOTICES_MOST: the descriptors hold more notices");
+CAUGHT by the words 'AECP_NOTICES_MOST: the descriptors hold more notices'

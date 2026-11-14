@@ -1,0 +1,12 @@
+# THE TRANSMIT's builds measured on 8x8/1if's built image at 93afe385 (slice 1,475 us), every group of arm A (A0-A3) and the answering-ports arm's aecp-largest-notice (AL): build_pairs.py per part, the heaviest build-one pass and the heaviest pair of consecutive build-one passes within 20 ms, with the rule's statement (plus 5 %, rounded up to 5 us)
+A0 heaviest build of one: 105,630 CPU cycles (save-second), stated by the rule at 1110 us
+A0 heaviest build of both in two slices: 122,645 CPU cycles (save-second), stated by the rule at 1290 us
+A1 heaviest build of one: 108,240 CPU cycles (save-held), stated by the rule at 1140 us
+A1 heaviest build of both in two slices: 123,385 CPU cycles (save-held), stated by the rule at 1300 us
+A2 heaviest build of one: 108,535 CPU cycles (save-starved), stated by the rule at 1140 us
+A2 heaviest build of both in two slices: 124,010 CPU cycles (save-starved), stated by the rule at 1305 us
+A3 heaviest build of one: 140,273 CPU cycles (srp), stated by the rule at 1475 us
+A3 heaviest build of both in two slices: 170,886 CPU cycles (srp), stated by the rule at 1795 us
+AL heaviest build of one: 95,074 CPU cycles (aecp-largest-notice), stated by the rule at 1000 us
+AL heaviest build of both in two slices: 122,700 CPU cycles (aecp-largest-notice), stated by the rule at 1290 us
+# the same at round 7's head 8a3791e4 (slice 900 us), round 7's srp legs: 1x1 68,951 and 99,546 (725 and 1,050 us); 8x8-1if 140,273 and 170,886 (1,475 and 1,795 us); 8x8/2if 147,613 and 179,259 (1,550 and 1,885 us)

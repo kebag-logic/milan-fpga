@@ -1,0 +1,18 @@
+# legs: A0 A1 A2 A3 AL
+# poll kinds, heaviest CPU cycles (grade JSON passes.polls.heaviest)
+acmp                 6,936 A0/backlog-owed
+acmp_declined        2,600 A0/backlog-owed
+acmp_kept            8,851 A0/backlog-owed
+aecp                13,041 A1/aecp-fanout
+aecp_long           29,860 AL/aecp-largest-notice
+base                22,478 A1/save-held
+rebuild             56,003 A1/fixture
+reclaim              2,460 A1/save-held
+record              32,023 A3/backlog-adp@blank-aged2-7
+walk                 4,829 A3/srp
+withdraw            10,238 A2/backlog
+# traced spans, heaviest CPU cycles
+mrp_attr_visit               4,829 A3/srp
+srp_mbx:apply_receive       32,023 A3/backlog-adp@blank-aged2-7
+srp_mbx:build_mrpdu        104,107 A2/save-starved
+srp_mbx:receive             32,401 A3/backlog-adp@blank-aged2-7

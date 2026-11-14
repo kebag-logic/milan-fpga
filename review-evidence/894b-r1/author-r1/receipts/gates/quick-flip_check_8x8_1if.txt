@@ -1,0 +1,15 @@
+# head c9226ff3a71777c8b92da17c8f839eb9a1dc5467 gate flip_check_8x8_1if: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/1if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.706 | 0.75 | 1.00x | srp 0.219, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053, item.reclaim 0.036, timers 0.036, steps 0.034, item.mrpdu 0.031, rec.adp 0.024, item.acmp 0.022, builds 0.016, item.acmp_declined 0.014, item.walk 0.007, rec.maap 0.006, notices 0.006, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | Points |
+|---|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 725 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+RESULT: PASS

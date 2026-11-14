@@ -1,0 +1,16 @@
+# every 8x8/1if stated cost against round 3's measurement at d8629751 (round 2's restate.py, read only): the most measured plus 5 %, rounded up to 5 us, against the statement; none is restated (the polls and the SRP record each within their statement)
+# legs: C-A0 C-A1 C-A2 C-A3 C-AE C-AL; at 100 MHz, the most measured plus 5 %, rounded up to 5 us
+| Figure | Heaviest, CPU cycles | Where | Plus 5 %, us | Stated now, us | Restated, us |
+|---|---:|---|---:|---:|---:|
+| CTRL_LOOP_SRP_UNIT_US (srp_mbx:receive), and EIGHT_ONE retained | 32,421 | C-A0/backlog-adp@verify-aged2-6 | 340.4 | 345 (retained 345) | 345 |
+| base | 21,995 | C-A0/acmp-cmd | 230.9 | 235 | 235 |
+| withdraw | 10,317 | C-A2/backlog | 108.3 | 110 | 110 |
+| rebuild | 55,813 | C-A1/fixture | 586.0 | 590 | 590 |
+| walk | 4,701 | C-A3/srp | 49.4 | 50 | 50 |
+| reclaim | 2,604 | C-A2/save-starved | 27.3 | 30 | 30 |
+| acmp | 6,813 | C-A0/backlog-owed | 71.5 | 75 | 75 |
+| acmp_declined | 2,542 | C-A0/backlog-owed | 26.7 | 30 | 30 |
+| aecp | 13,297 | C-AE/notice-burst-0 | 139.6 | 140 | 140 |
+| aecp_long | 30,097 | C-AL/aecp-largest-notice | 316.0 | 320 | 320 |
+| record | 32,043 | C-A0/backlog-adp@verify-aged2-6 | 336.5 | held to retained | (340) |
+| acmp_kept | 8,807 | C-A0/backlog-owed | 92.5 | held to record.acmp (load_grade) | (95) |

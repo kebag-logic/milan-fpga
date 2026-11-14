@@ -1,0 +1,11 @@
+# the long-window load at 8x8/1if (load_grade.py --check) at bc8acc76 (a clean clone), against round 1's head c9226ff3 (receipts/gates/quick-load_check.txt of round 1): its polls now its own shape's (poll_grade.STATED_US at (1, 9, 9)) and its descriptors with counters 20
+== at bc8acc76
+| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+| 8x8/1if | 0.710 | 0.670 | the flip check, 0.75 at the pin (flip_grade.py) | 1.00x | 270 | srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, steps 0.034, item.mrpdu 0.031, timers 0.031, item.reclaim 0.031, item.acmp 0.026, item.acmp_declined 0.020, builds 0.016, rec.adp 0.013, notices 0.007, rec.maap 0.006, item.walk 0.006, gm 0.001 |
+HELD 1x1/1if at the pin: the load 0.513, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70
+RESULT: PASS
+== at c9226ff3 (round 1)
+| 8x8/1if | 0.706 | 0.672 | the flip check, 0.75 at the pin (flip_grade.py) | 1.00x | 355 | srp 0.219, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, item.mrpdu 0.031, timers 0.030, item.acmp 0.022, builds 0.016, item.acmp_declined 0.014, rec.adp 0.013, item.walk 0.007, rec.maap 0.006, notices 0.006, gm 0.001 |
+== 8x8/1if's stated costs at bc8acc76 (load_grade.stated, the pin column)
+{'base': 240, 'build': 1795, 'build_one': 1475, 'item.acmp': 75, 'item.acmp_declined': 30, 'item.aecp.notice': 275, 'item.aecp.probe': 65, 'item.aecp.response': 65, 'item.mrpdu': 1475, 'item.reclaim': 30, 'item.retained': 345, 'item.walk': 55, 'record.srp': 365}

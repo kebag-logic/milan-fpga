@@ -1,0 +1,13 @@
+# the firmware jobs of rtl-fast.yml at 184d47ca (run_wf.py, each on its own fresh clone; verilator, aecp and srp from the run killed by the second host reset, every step done; the rest from the run after it)
+firmware-unit: ci_step_1=0 ci_step_3=0 ci_step_7=0 ci_step_10=0 ci_step_11=0 ci_step_12=0 
+firmware-control-mutants: ci_step_1=0 ci_step_3=0 ci_step_9=0 
+firmware-aecp-mutants: ci_step_1=0 ci_step_3=0 ci_step_9=0 
+firmware-srp-mutants: ci_step_1=0 ci_step_3=0 ci_step_9=0 
+firmware-boundary: ci_step_1=0 ci_step_3=0 ci_step_9=0 
+firmware-verilator: ci_step_1=0 ci_step_3=0 ci_step_11=0 ci_step_14=0 
+firmware-control-mutants campaign (rtl-fast__firmware-control-mutants__ci_step_9.log): [ok] 716, escaped or failed 0; last line: test_ctrl_firmware: PASS
+firmware-aecp-mutants campaign (rtl-fast__firmware-aecp-mutants__ci_step_9.log): [ok] 275, escaped or failed 0; last line: test_ctrl_firmware: PASS
+firmware-srp-mutants campaign (rtl-fast__firmware-srp-mutants__ci_step_9.log): [ok] 345, escaped or failed 0; last line: test_ctrl_firmware: PASS
+AECP campaign rows of this lane and #902's round 9/10: [ok] notice-dropped-with-its-descriptors-next;[ok] map-index-channel-dropped;[ok] map-index-stream-or-cluster-dropped;[ok] map-index-stride-short;[ok] map-table-each-direction-alone;
+firmware-boundary: ctrl_boundary: PASS
+firmware-unit: [ok] ctrl_nvm coverage run;saved-state store coverage run: PASS;firmware coverage: PASS (39 files);
