@@ -1,0 +1,21 @@
+clone at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, clean: True
+BASELINE gate 1e rc=0: ALL GATES PASS
+BASELINE test_timing_grade.py rc=0:   [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+BASELINE builder gate test_commercial_timing_grade rc=0: ALL GATES PASS
+KILLED   K3 two disagreeing JEDEC forms accepted (first wins) (sw/litex/qspi_owner_transition.py: 'if len(ids) != 1:' -> 'if not ids:')
+    gate 1e rc=1: AssertionError: two disagreeing JEDEC IDs in the flash read flash-pair: accepted
+    clone restored clean: True
+KILLED   K4 several FPGA models on the chain accepted (sw/litex/qspi_owner_transition.py: 'if len(models) != 1:' -> 'if not models:')
+    gate 1e rc=1: AssertionError: an XC7A100T and an XC7A200T on one chain flash-pair: accepted
+    clone restored clean: True
+KILLED   K7 layout_from_soch reverts to the fixed 4 MiB bitstream budget (sw/litex/layout_from_soch.py: '"addr": 0x0, "budget": aem["offset"]})' -> '"addr": 0x0, "budget": 0x40_0000})')
+    test_timing_grade.py rc=1: AssertionError: ('xc7a200t-fbg484-2', [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 4194304}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}])
+    builder gate test_commercial_timing_grade rc=1: AssertionError: ('xc7a200t-fbg484-2', [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 4194304}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}])
+    gate 1e rc=0: ALL GATES PASS
+    clone restored clean: True
+KILLED   K9 the deploy bitstream budget is capped at the AX7101's 4 MiB (sw/litex/qspi_owner_transition.py: 'budget = bit_rows[0].get("budget", bit_rows[0].get("size"))' -> 'budget = min(bit_rows[0].get("budget", bit_rows[0].get("size")), 0x40_0000)')
+    gate 1e rc=1: AssertionError: == flash-pair [ax7a200t] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET ==
+    test_timing_grade.py rc=1: qspi_owner_transition.TransitionError: artifact bitstream payload 9730652 B exceeds 4194304 B slot
+    builder gate test_commercial_timing_grade rc=1: qspi_owner_transition.TransitionError: artifact bitstream payload 9730652 B exceeds 4194304 B slot
+    clone restored clean: True
+4 killed, 0 survived; baseline all rc 0: True

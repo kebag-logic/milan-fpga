@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""dispatch.py QUEUE LOG MAX: each queue line as its own transient unit (unit.sh, MemoryMax 10G) on an 8-wide range
+booked by `cpu_ranges.py pick` (0-95) at launch; when no range has come free for FALLBACK_S, the line runs on the
+author session pool 96-127 instead (logged). At most MAX at once, and only while MemAvailable is above 20 GB."""
+import subprocess, sys, time
+from pathlib import Path
+R2 = Path("<scratch>/r2")
+PICK = ["python3", "<home>/milan-fpga-management/2026-09-23/cpu_ranges.py", "pick"]
+q, log, MAX = Path(sys.argv[1]), Path(sys.argv[2]), int(sys.argv[3])
+FALLBACK_S = 600
+lines = [l.split(" ", 1) for l in q.read_text().splitlines() if l.strip() and not l.startswith("#")]
+running = []
+def note(s):
+    with log.open("a") as f: f.write(f"{time.strftime('%T')} {s}\n")
+def avail_gb():
+    return next(int(l.split()[1]) for l in open("/proc/meminfo") if l.startswith("MemAvailable")) / 1048576
+def active(n):
+    return subprocess.run(["systemctl", "--user", "is-active", "--quiet", f"milan-911-a782-{n}.service"]).returncode == 0
+note(f"queue {q.name}: {len(lines)} lines, at most {MAX} at once")
+waiting_since = time.time()
+while lines or running:
+    for n in list(running):
+        if not active(n):
+            running.remove(n); rc = R2 / "units" / f"{n}.rc"
+            note(f"{n} ended rc={rc.read_text().strip() if rc.exists() else '?'}")
+    if lines and len(running) < MAX and avail_gb() > 20:
+        r = subprocess.run(PICK, capture_output=True, text=True)
+        cpus = r.stdout.strip() if r.returncode == 0 else ""
+        if not cpus and time.time() - waiting_since > FALLBACK_S:
+            cpus = "96-127"
+        if cpus:
+            n, cmd = lines.pop(0)
+            subprocess.run(["bash", str(R2 / "scripts/unit.sh"), n, cpus, str(R2), "bash", "-c", cmd], check=True)
+            running.append(n); note(f"{n} started on {cpus} (MemAvailable {avail_gb():.0f} GB)")
+            waiting_since = time.time()
+            time.sleep(8); continue
+    else:
+        waiting_since = time.time() if not lines or len(running) >= MAX else waiting_since
+    time.sleep(10)
+note("queue done")

@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""identity.py <clone> <elab path> <elab A> <elab B> <label A> <label B> [<buildC gateware dir> <buildC clone>]
+
+<elab path> is the one output directory both elaborations were written to (each then moved to <elab A> / <elab B>), so
+generated names that embed it agree.
+
+Two elaborations of one recipe in one clone path (no Vivado): every output file's sha256 (litex.log aside), the files
+that differ and their comparison once the generated-on stamps are removed; and the build inputs the generated Tcl reads
+(read_verilog / read_xdc / source paths, every file of its -include_dirs, and the $readmemh files of the
+Verilog it reads), hashed in the clone at each commit's
+checkout. With a build C gateware dir and its clone, also the final elaboration's Tcl inputs against build C's own Tcl
+inputs hashed in build C's clone, and the gateware files against build C's (clone paths and the thread cap aside).
+Prints a report; the full lists go to <elab>.outputs.sha256 / <elab>.inputs.sha256 beside each elaboration.
+"""
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+STAMP = re.compile(r"^(// Date\s+: .*|.*Auto-[Gg]enerated by LiteX.* on \d{4}-\d\d-\d\d .*)$", re.M)
+
+
+def body(text: str) -> str:
+    """The generated Verilog from its first module line on, without the stamps and the "Hierarchy" comment block:
+    the header carries the date, and the hierarchy tree's order differs between any two elaborations of one commit."""
+    at = text.find("\nmodule ")
+    text = text[at:] if at >= 0 else text
+    text = re.sub(r"^// Hierarchy\n//-+\n\s*/\*\n.*?^\*/\n", "", text, count=1, flags=re.M | re.S)
+    return STAMP.sub("", text)
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def outputs(d: Path) -> dict:
+    return {str(p.relative_to(d)): sha(p.read_bytes()) for p in sorted(d.rglob("*"))
+            if p.is_file() and p.name != "litex.log"}
+
+
+def tcl_inputs(tcl: Path, roots: list, moved: tuple = ("", "")) -> dict:
+    """{normalised path: sha256} of every file the Tcl reads, at the checkout it was written from; a path under
+    moved[0] is read from moved[1], where that output directory now is."""
+    text = tcl.read_text()
+    paths = set(re.findall(r"^(?:read_verilog(?: -\w+)*|read_xdc|source|read_vhdl(?: -\w+)*) \{([^}]+)\}", text, re.M))
+    for v in [q for q in paths if q.endswith(".v")]:
+        real_v = moved[1] + v[len(moved[0]):] if moved[0] and v.startswith(moved[0] + "/") else v
+        paths |= {str(Path(v).parent / r) for r in
+                  re.findall(r'\$readmemh\("([^"]+)"', Path(real_v).read_text(errors="replace"))}
+    for group in re.findall(r"-include_dirs \{([^}]+)\}", text):
+        for inc in group.split():
+            paths |= {str(p) for p in Path(inc).iterdir() if p.is_file()}
+    out = {}
+    for p in sorted(paths):
+        name = p
+        for root, tag in roots:
+            if p.startswith(str(root) + "/"):
+                name = tag + p[len(str(root)):]
+                break
+        real = moved[1] + p[len(moved[0]):] if moved[0] and p.startswith(moved[0] + "/") else p
+        if name.startswith("<elab>/") and name.endswith(".v"):
+            text = Path(real).read_text(errors="replace")
+            for root, tag in roots:
+                text = text.replace(str(root), tag)
+            out[name + " (body, paths and stamps aside)"] = sha(body(text).encode())
+            continue
+        out[name] = sha(Path(real).read_bytes())
+    return out
+
+
+def checkout(clone: Path, rev: str) -> None:
+    subprocess.run(["git", "-C", str(clone), "checkout", "-q", rev], check=True)
+    subprocess.run(["git", "-C", str(clone), "-c", "protocol.file.allow=always", "submodule", "update", "-q",
+                    "protocol-processor", "gptp-processor", "third_party/lwSRP", "third_party/tsn-c-stack",
+                    "third_party/verilog-axis"], check=True)
+
+
+def write_list(path: Path, d: dict) -> str:
+    text = "".join(f"{v}  {k}\n" for k, v in sorted(d.items()))
+    path.write_text(text)
+    return sha(text.encode())
+
+
+def main() -> int:
+    clone, ep, a, b, la, lb = (Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]), Path(sys.argv[4]), sys.argv[5],
+                               sys.argv[6])
+    ok = True
+    oa, ob = outputs(a), outputs(b)
+    print(f"## {a.name} ({la}) against {b.name} ({lb}), one clone path\n")
+    print(f"elaboration outputs: {len(oa)} files at {la}, {len(ob)} at {lb}; list sha256 "
+          f"{write_list(a.with_suffix('.outputs.sha256'), oa)[:16]} / {write_list(b.with_suffix('.outputs.sha256'), ob)[:16]}")
+    only = sorted(set(oa) ^ set(ob))
+    print(f"files in one only: {only or 'none'}")
+    ok &= not only
+    for f in sorted(k for k in set(oa) & set(ob) if oa[k] != ob[k]):
+        if f == "flashboot_layout.json":
+            ja, jb = (json.loads((d / f).read_text()) for d in (a, b))
+            added = sorted(set(jb) - set(ja))
+            same = (added == ["flash_device", "flash_jedec_id"] and not set(ja) - set(jb)
+                    and all(ja[k] == jb[k] for k in ja))
+            ok &= same
+            print(f"differs: {f}; keys added {added}, every other key equal: {same} (the #911 flash-device fields)")
+            continue
+        ta, tb = ((body if f.endswith(".v") else STAMP.sub)("", (d / f).read_text(errors="replace"))
+                  if not f.endswith(".v") else body((d / f).read_text(errors="replace")) for d in (a, b))
+        same = ta == tb
+        ok &= same
+        how = "body (stamps and hierarchy comment aside)" if f.endswith(".v") else "without the generated-on stamp lines"
+        print(f"differs: {f}; {how}: {'identical' if same else 'DIFFERENT'}")
+    ins = {}
+    for d, rev, lab in ((a, la, "A"), (b, lb, "B")):
+        checkout(clone, rev)
+        ins[lab] = tcl_inputs(d / "gateware/alinx_ax7101.tcl", [(clone, "<clone>"), (ep, "<elab>"),
+                                                                  (Path("<home>/litex-milan"), "<litex>")],
+                              (ep, str(d)))
+    print(f"build inputs the Tcl reads: {len(ins['A'])} at {la}, {len(ins['B'])} at {lb}; list sha256 "
+          f"{write_list(a.with_suffix('.inputs.sha256'), ins['A'])[:16]} / "
+          f"{write_list(b.with_suffix('.inputs.sha256'), ins['B'])[:16]}; identical: {ins['A'] == ins['B']}")
+    ok &= ins["A"] == ins["B"]
+    if len(sys.argv) > 7:
+        gw, cclone = Path(sys.argv[7]), Path(sys.argv[8])
+        cin = tcl_inputs(gw / "alinx_ax7101.tcl", [(cclone, "<clone>"), (gw.parent, "<elab>"),
+                                                  (Path("<home>/litex-milan"), "<litex>")])
+        same = cin == ins["B"]
+        ok &= same
+        print(f"\nbuild C's own Tcl inputs (hashed in its clone at 1e604e1b): {len(cin)}; list sha256 "
+              f"{write_list(b.with_suffix('.buildC-inputs.sha256'), cin)[:16]}; identical to {lb}'s: {same}")
+        for f in ("alinx_ax7101.v", "alinx_ax7101.xdc", "alinx_ax7101_rom.init", "alinx_ax7101_mem.init",
+                  "alinx_ax7101_sram.init", "alinx_ax7101.tcl"):
+            tc = (gw / f).read_text(errors="replace").replace(str(cclone), "<clone>").replace(str(gw.parent), "<elab>")
+            te = (b / "gateware" / f).read_text(errors="replace").replace(str(clone), "<clone>").replace(ep, "<elab>")
+            tc, te = (body(x) if f.endswith(".v") else STAMP.sub("", x) for x in (tc, te))
+            if f.endswith(".tcl"):
+                tc = tc.replace("set_param general.maxThreads 8", "set_param general.maxThreads <n>")
+                te = te.replace("set_param general.maxThreads 32", "set_param general.maxThreads <n>")
+            same = tc == te
+            ok &= same
+            print(f"build C gateware/{f} against {lb}'s ({'body, ' if f.endswith('.v') else ''}clone paths, stamps"
+                  f"{', thread cap' if f.endswith('.tcl') else ''} aside): {'identical' if same else 'DIFFERENT'}")
+        for f in ("aem_desc.bin", "software/include/generated/soc.h"):
+            tc = STAMP.sub("", (gw.parent / f).read_text(errors="replace"))
+            te = STAMP.sub("", (b / f).read_text(errors="replace"))
+            same = tc == te
+            ok &= same
+            print(f"build C {f} against {lb}'s (stamps aside): {'identical' if same else 'DIFFERENT'}")
+    print(f"\nverdict: {'IDENTICAL' if ok else 'DIFFERENT'}")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,8 @@
+clone 8e523a2b17faf17c4564e5af155b73f95dc2a0a5
+K9 (gate 1e, the refusal words inside the failing assertion): gate 1e rc=1
+    qspi owner transition REFUSED: installed bitstream payload 9730652 B exceeds 4194304 B slot
+C1 the chain count reverts to distinct models (round 1's set): gate 1e rc=1
+    AssertionError: two XC7A100T devices on one chain flash-pair: accepted
+C2 the 200T arm expects the AX7101's AEM offset (the test's own control): gate 1e rc=1
+    AssertionError: [(1, 10485760, 'verify', 'aem.fbi'), (2, 0, 'verify', 'target.bit')]
+clone restored clean: True

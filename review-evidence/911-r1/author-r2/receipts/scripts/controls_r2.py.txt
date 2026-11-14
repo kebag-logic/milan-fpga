@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""controls_r2.py (run in a clean clone): gate 1e's failing words under K9, and two more controls: C1 the chain count
+back to round 1's set of distinct models, C2 the 200T arm expecting the AX7101's AEM offset. Each planted alone,
+the file restored, the clone checked clean."""
+import subprocess, re
+from pathlib import Path
+G = ["python3", "-B", "sw/builder/test_builder.py", "--gates", "test_qspi_owner_transition_completed_write_prefixes"]
+cases = [
+ ("K9 (gate 1e, the refusal words inside the failing assertion)", "sw/litex/qspi_owner_transition.py",
+  '    budget = bit_rows[0].get("budget", bit_rows[0].get("size"))\n',
+  '    budget = min(bit_rows[0].get("budget", bit_rows[0].get("size")), 0x40_0000)\n', r".*exceeds.*slot.*"),
+ ("C1 the chain count reverts to distinct models (round 1's set)", "sw/litex/qspi_owner_transition.py",
+  '    models = _DETECT_MODEL.findall(_read_text(detect_path, "JTAG detect output"))\n',
+  '    models = sorted(set(_DETECT_MODEL.findall(_read_text(detect_path, "JTAG detect output"))))\n',
+  r"AssertionError.*"),
+ ("C2 the 200T arm expects the AX7101's AEM offset (the test's own control)", "sw/builder/test_builder.py",
+  '        assert [row[1] for row in writes()] == [0xA00000, 0], writes()\n',
+  '        assert [row[1] for row in writes()] == [0x400000, 0], writes()\n', r"AssertionError.*"),
+]
+print("clone", subprocess.run(["git", "rev-parse", "HEAD"], text=True, capture_output=True).stdout.strip())
+for label, rel, old, new, pat in cases:
+    p = Path(rel); orig = p.read_text()
+    assert orig.count(old) == 1, label
+    p.write_text(orig.replace(old, new))
+    try:
+        r = subprocess.run(G, text=True, capture_output=True, timeout=1500)
+    finally:
+        p.write_text(orig)
+    words = sorted(set(m.strip() for m in re.findall(pat, r.stdout + r.stderr)))[:3]
+    print(f"{label}: gate 1e rc={r.returncode}")
+    for w in words:
+        print("    " + w[:300])
+st = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], text=True, capture_output=True).stdout
+print("clone restored clean:", st == "")

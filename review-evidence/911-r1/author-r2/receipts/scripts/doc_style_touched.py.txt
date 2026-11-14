@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""doc_style_touched.py <repo> <base>: scripts/check_doc_style.py's own analysis (its word and paragraph limits) on
+every Markdown page <base>..working tree touches, counted on what this branch wrote: a sentence over the limit counts
+when its normalised text does not occur in the page at <base>; a paragraph over a limit counts when any of its
+sentences is new. Pages on the gate's own list must have no finding at all (the gate itself)."""
+import re, subprocess, sys
+from pathlib import Path
+repo, base = Path(sys.argv[1]), sys.argv[2]
+sys.path.insert(0, str(repo / "scripts"))
+import check_doc_style as s
+run = lambda *a: subprocess.run(a, cwd=repo, capture_output=True, text=True).stdout
+pages = run("git", "diff", "--name-only", base, "--", "*.md").split()
+listed = {str(p.relative_to(s.ROOT)) for p in s.DOCUMENTS}
+head = run("git", "rev-parse", "HEAD").strip()
+dirty = run("git", "status", "--porcelain").strip()
+print(f"# check_doc_style.analyze() on every page {base[:8]}..{'working tree on ' if dirty else ''}{head[:8]} touches")
+bad = 0
+for page in pages:
+    old = run("git", "show", f"{base}:{page}")
+    # the em-dash gate's contents separator: "--" replaced "\u2014" on lines this branch otherwise kept
+    norm = lambda x: x.replace(" \u2014 ", " -- ")
+    old_sentences = {norm(x) for b in s.prose_blocks(old) for x in s.sentences(b.text)}
+    text = (repo / page).read_text(encoding="utf-8")
+    found = 0
+    mine = []
+    for block in s.prose_blocks(text):
+        sents = s.sentences(block.text)
+        new = [x for x in sents if norm(x) not in old_sentences]
+        for x in new:
+            n = len(s.WORD.findall(x))
+            if n > s.MAX_SENTENCE_WORDS:
+                mine.append(f"{page}:{block.line}: sentence has {n} words: {x[:140]}")
+        if block.paragraph and new:
+            words = sum(len(s.WORD.findall(x)) for x in sents)
+            if words > s.MAX_PARAGRAPH_WORDS:
+                mine.append(f"{page}:{block.line}: paragraph has {words} words (new sentence in it): {block.text[:100]}")
+            if len(sents) > s.MAX_PARAGRAPH_SENTENCES:
+                mine.append(f"{page}:{block.line}: paragraph has {len(sents)} sentences (new sentence in it): {block.text[:100]}")
+    all_found = len(s.analyze(text))
+    tag = "on the gate's list" if page in listed else "not on the gate's list"
+    print(f"{page} ({tag}): {all_found} findings on the page, {len(mine)} on this branch's prose")
+    for m in mine:
+        print("  " + " ".join(m.split()))
+    bad += len(mine) + (all_found if page in listed else 0)
+print(f"\n{bad} findings on this branch's prose")
+sys.exit(1 if bad else 0)

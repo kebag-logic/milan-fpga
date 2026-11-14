@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""compare_ax7101.py <AX7101 release gateware dir> <200T build C gateware dir>: the clock interaction, CDC and used-I/O
+comparisons round 1 stated, read from the two builds' own Vivado signoff reports (both published beside this receipt).
+
+Clock interaction: the set of (from clock, to clock) pairs, each pair's setup and hold endpoint counts, its
+classification and inter-clock constraint; slack values are each build's own and are not compared.
+CDC: the report_cdc -details summary table (rule, severity, count). I/O: every used pin's (pin number, signal, pin
+name, use, I/O standard, bank) row from report_io.
+"""
+import re
+import sys
+from pathlib import Path
+
+A, B = (Path(p) for p in sys.argv[1:3])
+
+
+def clocks(d):
+    """{(from, to): (setup total endpoints, hold total endpoints, classification, inter-clock constraints)}, the
+    columns cut at the report's own dash line (16 columns in Vivado 2026.1)."""
+    rows, spans = {}, None
+    for line in (d / "alinx_ax7101_signoff_clock_interaction.rpt").read_text().splitlines():
+        if spans is None:
+            if line.startswith("-----") and len(re.findall(r"-+", line)) == 16:
+                spans = [m.span() for m in re.finditer(r"-+", line)]
+            continue
+        if not line.strip():
+            break
+        cell = [line[a:b].strip() for a, b in spans]
+        rows[(cell[0], cell[1])] = (cell[6], cell[12], cell[14], cell[15])
+    return rows
+
+
+def cdc(d):
+    out = {}
+    for line in (d / "alinx_ax7101_signoff_cdc.rpt").read_text().splitlines():
+        m = re.match(r"^(CDC-\d+)\s+(\w+)\s+(\d+)\s+(.*)$", line)
+        if m:
+            out[m[1]] = (m[2], int(m[3]), m[4].strip())
+    return out
+
+
+def io(d):
+    rows = {}
+    for line in (d / "alinx_ax7101_io.rpt").read_text().splitlines():
+        if not line.startswith("| ") or "Pin Number" in line:
+            continue
+        f = [c.strip() for c in line.strip("|").split("|")]
+        if len(f) > 7 and f[1]:
+            rows[f[0]] = (f[1], f[3], f[4], f[5], f[6])
+    return rows
+
+
+def header(d, name):
+    text = (d / name).read_text()
+    dev = re.search(r"\| Device\s+: (\S+)", text)
+    return dev[1] if dev else "?"
+
+
+print("# AX7101 release (b7d69295) against the XC7A200T image build C (1e604e1b): clock interaction, CDC, used I/O\n")
+print(f"Devices in the reports: AX7101 {header(A, 'alinx_ax7101_signoff_clock_interaction.rpt')}, "
+      f"200T {header(B, 'alinx_ax7101_signoff_clock_interaction.rpt')}.\n")
+ca, cb = clocks(A), clocks(B)
+print(f"## Clock interaction\n\nclock pairs: AX7101 {len(ca)}, 200T {len(cb)}; pairs in one only: "
+      f"{sorted(set(ca) ^ set(cb)) or 'none'}")
+print("\n| from | to | AX7101 (setup, hold endpoints, class, constraint) | 200T | same |")
+print("|---|---|---|---|---|")
+same_all = set(ca) == set(cb)
+for k in sorted(set(ca) | set(cb)):
+    a, b = ca.get(k), cb.get(k)
+    same = a == b
+    same_all &= same
+    print(f"| {k[0]} | {k[1]} | {', '.join(a) if a else '-'} | {', '.join(b) if b else '-'} | {same} |")
+print(f"\nclock pairs, their endpoint counts, classification and inter-clock constraint identical: {same_all}")
+xa, xb = cdc(A), cdc(B)
+print("\n## CDC (report_cdc -details summary)\n\n| rule | severity | AX7101 | 200T | description |\n|---|---|---:|---:|---|")
+for k in sorted(set(xa) | set(xb), key=lambda r: int(r.split("-")[1])):
+    a, b = xa.get(k, ("-", "-", "")), xb.get(k, ("-", "-", ""))
+    print(f"| {k} | {a[0]}/{b[0]} | {a[1]} | {b[1]} | {a[2] or b[2]} |")
+print(f"\nCDC rules, severities and counts identical: {xa == xb}")
+ia, ib = io(A), io(B)
+diff = sorted(p for p in set(ia) | set(ib) if ia.get(p) != ib.get(p))
+print(f"\n## Used I/O (report_io)\n\nused pins: AX7101 {len(ia)}, 200T {len(ib)}; pins whose (signal, pin name, use, "
+      f"I/O standard, bank) differ: {len(diff)} {diff[:10] if diff else ''}")
+banks = sorted({(v[4], v[3]) for v in ib.values()})
+print(f"200T (bank, I/O standard): {banks}")

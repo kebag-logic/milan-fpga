@@ -1,0 +1,15 @@
+#!/bin/bash
+# final_verify_r2.sh: the round-2 gate table into the output receipts (host paths replaced by placeholders).
+set -u
+T=<scratch> R2=$T/r2 H=6ae7d9762830f87be03b4dcbc4f54551300feac4
+R=<home>/milan-fpga-management/2026-09-23/911-a782/round2/receipts/gates
+mkdir -p "$R"
+python3 $R2/gates/verify_wf.py $H $R2/full/wf rtl-fast.yml rtl.yml docs.yml elaborate.yml \
+    --matrix=yosys-shards=shard:0-4,1-4,2-4,3-4 --matrix=verilator-shards=shard:0-19,1-19,2-19,3-19,4-19,5-19,6-19,7-19,8-19,9-19,10-19,11-19,12-19,13-19,14-19,15-19,16-19,17-19,18-19 > "$R/workflow-steps.md" 2>&1
+echo "verify_wf rc=$?" >> "$R/workflow-steps.md"
+{ echo "# lane gates at $H (clean clone)"; cat $R2/full/lane/summary.txt; } > "$R/lane-gates.txt"
+cp $R2/gates/not_run.json "$R/not_run.json"
+cp $R2/full/dispatch.log "$R/dispatch.log"
+{ echo "# unit rc files"; for f in $R2/units/*.rc; do echo "$(basename $f .rc) rc=$(cat $f) cpus=$(cat ${f%.rc}.cpus 2>/dev/null)"; done; } > "$R/units.txt"
+sed -i "s|$R2|<scratch>/r2|g; s|$T|<scratch>|g; s|<home>|<home>|g; s|<lane>|<lane>|g" "$R"/*.md "$R"/*.txt "$R"/*.log "$R"/*.json
+tail -3 "$R/workflow-steps.md"

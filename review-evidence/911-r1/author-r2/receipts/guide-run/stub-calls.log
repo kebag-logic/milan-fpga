@@ -1,0 +1,23 @@
+== 01-read-layout-D
+== 02-update-200t-D-to-R
+--ftdi-serial STUB-SERIAL -c ft232 --detect
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 --detect -f --verbose
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -o 0 --dump-flash --file-size 9730652 <run>/tmp/tmp.yYOghX8MUq/qspi-offset-zero.bin
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -o 10485760 --write-flash --file-type raw --verify <run>/tmp/tmp.yYOghX8MUq/aem.fbi
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -f --verify <run>/tmp/tmp.yYOghX8MUq/target/gateware/target.bit
+== 03-update-200t-R-to-D
+--ftdi-serial STUB-SERIAL -c ft232 --detect
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 --detect -f --verbose
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -o 0 --dump-flash --file-size 9730652 <run>/tmp/tmp.Csq1tzOeaG/qspi-offset-zero.bin
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -o 10485760 --write-flash --file-type raw --verify <run>/tmp/tmp.Csq1tzOeaG/aem.fbi
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a200tfbg484 -f --verify <run>/tmp/tmp.Csq1tzOeaG/target/gateware/target.bit
+== 04-read-layout-old-X-no-flash-id
+== 05-update-ax7101-old-target-refused
+--ftdi-serial STUB-SERIAL -c ft232 --detect
+== 06-regenerate-layout-from-soch
+== 07-update-ax7101-regenerated-target
+--ftdi-serial STUB-SERIAL -c ft232 --detect
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a100tfgg484 --detect -f --verbose
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a100tfgg484 -o 0 --dump-flash --file-size 3825788 <run>/tmp/tmp.hUTrK25nzL/qspi-offset-zero.bin
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a100tfgg484 -o 4194304 --write-flash --file-type raw --verify <run>/tmp/tmp.hUTrK25nzL/aem.fbi
+--ftdi-serial STUB-SERIAL -c ft232 --fpga-part xc7a100tfgg484 -f --verify <run>/tmp/tmp.hUTrK25nzL/target/gateware/target.bit

@@ -1,0 +1,24 @@
+D: R with payload byte 1000000 flipped, layout rebound; payload sha256 5f5fba9338b5ca1d; layout keys ['aem_image_bytes', 'aem_image_crc32', 'aem_image_sha256', 'bitstream_fpga_part', 'bitstream_payload_sha256', 'complete', 'cpu_xlen', 'entry', 'erase_block', 'flash_device', 'flash_jedec_id', 'flash_size', 'gptp_owner', 'images', 'manifest', 'reserved']
+XD: X with payload byte 1000000 flipped, layout rebound; payload sha256 87494410f1c73de6; layout keys ['aem_image_bytes', 'aem_image_crc32', 'aem_image_sha256', 'bitstream_fpga_part', 'bitstream_payload_sha256', 'complete', 'cpu_xlen', 'entry', 'erase_block', 'flash_size', 'gptp_owner', 'images', 'manifest', 'reserved']
+01-read-layout-D rc=0
+02-update-200t-D-to-R rc=0
+set R (part 7a200tfbg484, payload 9730652 B, AEM 7512 B at 0xa00000)
+stub flash holds the bitstream payload at 0: True
+stub flash holds aem_desc.bin at 0xa00000: True
+03-update-200t-R-to-D rc=0
+set D (part 7a200tfbg484, payload 9730652 B, AEM 7512 B at 0xa00000)
+stub flash holds the bitstream payload at 0: True
+stub flash holds aem_desc.bin at 0xa00000: True
+04-read-layout-old-X-no-flash-id rc=0
+05-update-ax7101-old-target-refused rc=2
+set XD (part 7a100tfgg484, payload 3825788 B, AEM 7512 B at 0x400000)
+stub flash holds the bitstream payload at 0: True
+stub flash holds aem_desc.bin at 0x400000: True
+06-regenerate-layout-from-soch rc=0
+keys added: ['flash_device', 'flash_jedec_id'] keys dropped: ['erase_block', 'flash_size', 'reserved']
+flash_device n25q128a13 flash_jedec_id 0x20ba18
+images [('bitstream', '0x0', '0x400000'), ('aem', '0x400000', '0x10000')]
+07-update-ax7101-regenerated-target rc=0
+set X (part 7a100tfgg484, payload 3825788 B, AEM 7512 B at 0x400000)
+stub flash holds the bitstream payload at 0: True
+stub flash holds aem_desc.bin at 0x400000: True
