@@ -72,11 +72,25 @@ FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
-    """Every Talker declaration defect, built with srp_mutants.Defect."""
+    """Every Talker declaration defect, built with srp_mutants.Defect: the declarations', then the entry's and the
+    stream_id's, in that order."""
+    return declaration_defects(kind) + entry_defects(kind)
+
+
+def planter(kind: Callable[..., T]) -> Callable[..., T]:
+    """The defect builder the tables use: one defect, its suite read off its test's name, planted at 8x8/2if by the
+    two-interface campaign."""
     def d(name: str, test: str, old: str, new: str, needle: str, path: str = "srp/srp_mbx.c") -> T:
         """One defect, its suite read off its test's name, planted at 8x8/2if by the two-interface campaign."""
         return kind(name, test, old, new, needle, path=path, suite=COMPOSED if test.startswith("SrpGate.") else SUITE,
                     entity=ENTITY)
+    return d
+
+
+def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """The declarations' defects: validity, the lapse, the hold-off, the admission's swap, the withdrawal's Leave and
+    THE TRANSMIT's publications (srp_mbx.c)."""
+    d = planter(kind)
     return (
         d("talker-declared-while-not-valid", VALID, DECLARES, DECLARES.replace("if (valid && !waits", "if (!waits"),
           "a source whose SRP parameters are not valid declares nothing"),
@@ -149,6 +163,14 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-transmit-publishes-past-its-terms", TERMS, "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass"),
+    )
+
+
+def entry_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """The gate entry's defects, the composition's feed and a Listener's demand (ctrl_app_srp.c), and each source's
+    stream_id in SRC_SID (#905; maap_mbx.c, mbx.c)."""
+    d = planter(kind)
+    return (
         d("talker-gate-before-attach", ENTRY, "    const bool ok = m->loop != NULL && interface < MBX_N_IF;\n",
           "    const bool ok = (m->loop != NULL || m->initialized) && interface < MBX_N_IF;\n",
           "refused before attach"),

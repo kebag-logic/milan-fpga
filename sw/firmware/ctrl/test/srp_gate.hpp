@@ -130,7 +130,9 @@ protected:
         const std::uint32_t entry = block + MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * source;
         History h;
         std::uint32_t gate = 0;
-        bool closed = false, lo_again = false, hi_again = false;
+        bool closed = false;
+        bool lo_again = false;
+        bool hi_again = false;
         for (std::size_t n = 0; n < sid_writes.size(); ++n) {
             const SidWrite& w = sid_writes[n];
             const bool open = (gate >> source & 1u) != 0u;
