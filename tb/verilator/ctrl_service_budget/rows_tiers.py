@@ -929,9 +929,9 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)

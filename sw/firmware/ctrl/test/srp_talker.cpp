@@ -49,9 +49,10 @@ constexpr uint32_t kAdmittedBps=17024000u;
 constexpr uint64_t kBaseA=0x91e0f000aa00ull;
 constexpr uint64_t kBaseB=0x91e0f000bb00ull;
 // The withdrawal's hold-off in ms: two LeaveAllTime periods (Table 10-7, 1000 cs each), and the hold-off as
-// srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's bound added.
+// srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's MRPDU by every source added in
+// whole centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS): 20,230 ms at one interface, 20,290 at two.
 constexpr uint32_t kTwoLeaveAllMs=20000u;
-constexpr uint32_t kHoldOffMs=20220u;
+constexpr uint32_t kHoldOffMs=kTwoLeaveAllMs+10u*(CTRL_LOOP_JOIN_CS+(CTRL_LOOP_TX_MS+9u)/10u);
 
 bool declares(unsigned event) { return event==0u || event==1u || event==3u; }
 
