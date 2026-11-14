@@ -288,13 +288,6 @@ _io = [
 
 _connectors = []
 
-#: The dies whose configuration image is written compressed (#911). An
-#: uncompressed XC7A200T image is 9,730,652 B and overruns the 4 MiB
-#: bitstream slot below the AEM region at 0x00400000
-#: (docs/integration/QSPI_FLASHBOOT.md); the AX7101's XC7A100T image
-#: (3,825,992 B) fits it uncompressed and is left exactly as it was.
-COMPRESSED_PARTS = frozenset({"xc7a200t-fbg484-2"})
-
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
@@ -324,9 +317,6 @@ class Platform(Xilinx7SeriesPlatform):
             "set_property CFGBVS VCCO [current_design]",
             "set_property CONFIG_VOLTAGE 3.3 [current_design]",
         ]
-        if part in COMPRESSED_PARTS:
-            self.toolchain.bitstream_commands.append(
-                "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
 
     def create_programmer(self) -> OpenFPGALoader:
         """The loader that reaches this board's JTAG, which is not a choice.

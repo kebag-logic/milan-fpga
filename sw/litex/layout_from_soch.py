@@ -98,12 +98,14 @@ def _manifest_and_images(payloads):
 
     images = []
     if payloads:
-        # The bitstream slot is fixed by the v3 flash contract.  The BIOS does
-        # not consume it, so historical soc.h files have no constants for it;
-        # retaining the established values makes reconstructed sweep layouts
-        # byte-for-byte equivalent in meaning to main()'s layout.
+        # The bitstream slot runs from offset 0 to the AEM region, which is
+        # where milan_soc.py's flashboot_layout() puts the AEM for every die
+        # (4 MiB on the XC7A100T, 10 MiB on the XC7A200T, #911). The BIOS
+        # does not consume the slot, so soc.h has no constant for it; the
+        # compiled AEM offset bounds it, as it does main()'s layout.
+        aem = next(row for row in payloads if row["name"] == "aem")
         images.append({"name": "bitstream", "offset": 0x0,
-                       "addr": 0x0, "budget": 0x40_0000})
+                       "addr": 0x0, "budget": aem["offset"]})
         images.extend(payloads)
     images.sort(key=lambda i: i["offset"])
     return manifest, images
