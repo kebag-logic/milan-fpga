@@ -918,13 +918,20 @@ def caught(test: str, words: str, result: Outcome) -> bool:
     return match is not None and words in match[1]
 
 
+def refused(d: Defect, refusal: str) -> bool:
+    """A build row (aecp_map_mutants.BUILD) is caught only by its own file's compile refusal, on each of its words."""
+    return (all(test == aecp_map_mutants.BUILD for test, _ in d.checks) and
+            refusal.startswith(Path(d.path).name + " does not compile:\n") and
+            all(words in refusal for _, words in d.checks))
+
+
 def controls() -> None:
     """Refuse unowned checks and prove the diagnostic reader cannot grade a crash."""
     expected = set()
     for name in ("test_aecp.cpp", "test_aecp_image.cpp", "test_aecp_debug.cpp"):
         expected.update(a + "." + b for a, b in
                         re.findall(r"TEST(?:_F)?\((\w+),\s*(\w+)\)", (HERE / name).read_text()))
-    claimed = {test for d in DEFECTS for test, _ in d.checks}
+    claimed = {test for d in DEFECTS for test, _ in d.checks} - {aecp_map_mutants.BUILD}
     if claimed != expected or len({d.name for d in DEFECTS}) != len(DEFECTS):
         raise Refusal(f"AECP plant table drift: missing={expected-claimed}, extra={claimed-expected}")
     log = ("[ RUN      ] Fixture.Check\nnamed failure\n[  FAILED  ] Fixture.Check (0 ms)\n"
@@ -935,11 +942,17 @@ def controls() -> None:
     assert not caught("Fixture.Check", "other failure", result)
     assert not caught("Fixture.Check", "named failure", Outcome("reader", 0, log))
     assert not caught("Fixture.Check", "named failure", Outcome("reader", 1, log.split("verdict:")[0]))
+    row = Defect("reader", "aecp/aecp_maps.c", "", "", ((aecp_map_mutants.BUILD, "named words"),))
+    assert refused(row, "aecp_maps.c does not compile:\nnamed words")
+    assert not refused(row, "aecp_maps.c does not compile:\nother words")
+    assert not refused(row, "aecp.c does not compile:\nnamed words")
+    assert not refused(Defect("reader", row.path, "", "", (("Fixture.Check", "named words"),)),
+                       "aecp_maps.c does not compile:\nnamed words")
 
 
 def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: Path = STACK) -> bool:
-    """Reuse one isolated copy; compile failures and missing diagnoses are escapes. The stack is the
-    caller's, already pinned."""
+    """Reuse one isolated copy; compile failures, but a build row's own (refused), and missing diagnoses are
+    escapes. The stack is the caller's, already pinned."""
     controls()
     root.mkdir(parents=True, exist_ok=True)
     src = root / "work/ctrl"
@@ -968,7 +981,7 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:
-            ok = False
+            ok = refused(d, str(error))
             (root / (d.name + ".log")).write_text(str(error))
         finally:
             target.write_text(original)

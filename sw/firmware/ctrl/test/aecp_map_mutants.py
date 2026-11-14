@@ -14,6 +14,9 @@ WORK = 'Core.MapEditWorkIsLinearInItsMappings'
 KEYS = 'Core.EveryAcceptedMapKeyIsItsOwn'
 DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
 OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
+#: Not a test: a row whose check this is is caught only by its own file's compile refusal on the words
+#: (aecp_mutants.refused), at the campaign's configuration, 1x1/1if.
+BUILD = 'Build.refused'
 
 #: (name, file, planted text, its replacement, (test, failing words), ...)
 ROWS = (
@@ -52,6 +55,13 @@ ROWS = (
      'for (size_t v = s < MAP_SLOTS ? e->slot[s] : 0u; v != 0u; v = e->next[v - 1u]) {',
      'for (size_t v = e->slot[s < MAP_SLOTS ? s : 0u]; v != 0u; v = e->next[v - 1u]) {',
      (OUTSIDE, 'a row outside the domain bars no mapping')),
+    # the table's declared slots hold every position place() forms, MAP_FIRSTS x MAP_CHANNELS, at compile time: a
+    # table of the larger direction's own product is 16 slots at 1x1/1if, where an input key's index reaches 56
+    ('map-table-each-direction-alone', 'aecp_maps.c',
+     '#define MAP_SLOTS MAP_MOST(MAP_DOMAIN, MAP_FLOOR)',
+     '#define MAP_SLOTS MAP_MOST(AECP_ENTITY_KEY_STREAMS * AECP_ENTITY_KEY_STREAM_CHANNELS, '
+     'AECP_ENTITY_KEY_CLUSTERS * AECP_ENTITY_KEY_CLUSTER_CHANNELS)',
+     (BUILD, 'static assertion failed: "the table holds every position place() forms"')),
     ('map-value-cluster-channel-ignored', 'aecp_maps.c',
      'return x->w[0] == y->w[0] && x->w[1] == y->w[1];',
      'return x->w[0] == y->w[0] && (uint16_t)(x->w[1] ^ y->w[1]) == 0u;',

@@ -14,8 +14,9 @@ WORK = "Core.MapEditWork*"
 #: edit's work 2 (n + R) (#894's ruling of 2026-11-14, item 2).
 KEYS = "Core.EveryAcceptedMapKeyIsItsOwn"
 #: Geometries the builder accepts past the checked-in ones, from the 8x8 configuration, each its talkers' channels:
-#: 16 talkers of 4 channels (the review's), and the builder's most, 16 talkers (endstation_builder.py, _streams), one
-#: of 8 channels, a Base format a Talker must list (Milan v1.2 6.3), and 15 of 32.
+#: 16 talkers of 4 channels, a geometry whose keys shared a slot under the former hash, and the builder's most, 16
+#: talkers (endstation_builder.py, _streams), one of 8 channels, a Base format a Talker must list (Milan v1.2 6.3),
+#: and 15 of 32.
 KEY_GEOMETRIES = (("16x4", (4,) * 16), ("16x32", (8,) + (32,) * 15))
 
 

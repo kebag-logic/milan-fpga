@@ -210,11 +210,15 @@ builder accepts. The domain is the build's shape, which
 [`aecp_shape.py`](aecp_shape.py) reads from the image's descriptors
 (`key_domain`, `AECP_ENTITY_KEY_*` in `aecp_entity_gen.h`): at an output port
 every STREAM_OUTPUT and the channels of each format it advertises, at an input
-port each of its clusters and its channels; a static assertion holds the table
-to the whole domain, at least the 256 slots it held before, so the edit's stack
-frame stays where every measured cost was taken (the domain's 64 slots at
-1x1/1if move it 192 B and the largest legal command's record from 91,625 CPU
-cycles to 98,720, by the data cache). A mapping its port's geometry refuses is refused at its
+port each of its clusters and its channels. A static assertion holds the
+table's declared slots to every position the index forms, the most streams or
+clusters times the most channels, so a table that would overflow is refused at
+compile time (the AECP campaign's `map-table-each-direction-alone` plants one).
+Apart from that bound, the table keeps at least the 256 slots it held before, a
+layout choice ([#909](https://github.com/kebag-logic/milan-fpga/issues/909)):
+the edit's stack frame stays where every measured cost was taken (the domain's
+64 slots at 1x1/1if move it 192 B and the largest legal command's record from
+91,625 CPU cycles to 98,720, by the data cache). A mapping its port's geometry refuses is refused at its
 turn as before, and so is one whose key lies outside the domain, which no
 format or cluster of the build lets a legal mapping do, so no such key forms
 an index; a map row outside it holds no mapping's key. Each mapping's checks
@@ -233,8 +237,9 @@ at every checked-in configuration and at two wider geometries the builder
 accepts, 16 talkers of 4 channels and 16 of up to 32
 ([`aecp_arms.py`](../test/aecp_arms.py), `KEY_GEOMETRIES`), each edit within
 twice its mappings and rows. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py)
-plants a defect in each pass, indices that collide and a domain one channel
-wide, and a walk of a key's values and a scan of the table, which change no
+plants a defect in each pass, indices that collide, a domain one channel
+wide and a table smaller than the domain, which the build refuses, and a walk
+of a key's values and a scan of the table, which change no
 outcome and only the count refuses. An edit that is checked paces AECP's next record
 (THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
 rx-ready gate holds the channel's next record in its ring, never dropped,
