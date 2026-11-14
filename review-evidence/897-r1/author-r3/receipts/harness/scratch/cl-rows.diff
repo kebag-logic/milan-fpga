@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 5d75589a60..d4736a875d 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -320,7 +320,7 @@ extern "C" {
+ // refuted, with its rows (#894, owed to #872).
+ #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
+ #define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
+-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 725u : 1215u)
++#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 730u : 1215u)
+ // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
+ // interface's where the slice holds that build, else one, and the next slice
+ // makes the other.
