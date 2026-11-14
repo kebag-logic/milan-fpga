@@ -1,0 +1,14 @@
+[R838] NEGATIVE - exact head dd01b0afef87037ec485cd49b40a26b542854bdd
+Independent delta pass recorded before opening prior public review findings.
+
+Finding: the new map work bound relies on injective hashing but the builder accepts legal key geometries that violate it. Exact-source counting probe on generated 16-output, four-channel descriptors accepts ADD and REMOVE commands, yet ADD of 63 takes 714 visits against 126; REMOVE takes 2268 against 378. No generation-time guard enforces the hash geometry. The documented unconditional linear-work claim and counting coverage are not established.
+
+Independent ledger (before reconciliation):
+lens | status | artifacts | covering round | exact head
+Conformance | UNCLEAN | issue 894 ruling 6867990126 item 3; aecp_maps.c; generated legal-key probe | R838-3 | dd01b0afef87037ec485cd49b40a26b542854bdd
+RTL | UNCLEAN | aecp_maps.c place/look and command; ctrl_loop.h; aecp_mbx.h; no HDL delta | R838-3 | dd01b0afef87037ec485cd49b40a26b542854bdd
+Robustness | UNCLEAN | accepted legal hash collisions, refused-key chains, absent/late/unresolved timer logic | R838-3 | dd01b0afef87037ec485cd49b40a26b542854bdd
+Tests | UNCLEAN | test_aecp.cpp work and definition tests; mrpdu/join and pace controls; flip 555/555 | R838-3 | dd01b0afef87037ec485cd49b40a26b542854bdd
+Docs | UNCLEAN | AECP README linear-work claim; FR_NFR allowances; service README still describes paced R4L as 240 ms | R838-3 | dd01b0afef87037ec485cd49b40a26b542854bdd
+
+Independent confirmations: source head/tree match; the 66 author-r8 published manifest entries hash correctly; flip check reproduces all 11 rows and passes; flip selftest refuses 555/555 controls. Image receipt keeps all listed caps, with 8 bytes remaining in the 1x1 fixture ROM granule. The timeout receipt records UNKNOWN and the separate same-head retry records eight passes. Those are author source receipts, not manager execution or hardware proof.

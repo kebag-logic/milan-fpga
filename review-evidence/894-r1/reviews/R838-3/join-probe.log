@@ -1,0 +1,17 @@
+PASS a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold
+{'count': 2, 'shortest': 181.0, 'longest': 239.0, 'over': [], 'runs': {'released': 2, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []}
+PASS a join interval under 181.0 ms or over 239.0 ms is named with its participant
+['j: a join interval of 180.000 ms (if0 MSRP), outside 181.0 to 239.0 ms', 'k: a join interval of 240.000 ms (if0 MVRP), outside 181.0 to 239.0 ms']
+PASS a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no join timer, between them are none
+({'count': 1, 'shortest': 190.0, 'longest': 190.0, 'over': [], 'runs': {'released': 1, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []}, {'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 2, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []}, {'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []})
+PASS a join timer that runs out with nothing to send, its build sending no frame, releases nothing and is empty, and the MRPDU a later request sends ends no join interval
+{'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 1, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []}
+PASS a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold
+{1191: (1, [], []), 1239: (1, [], []), 1241: (1, [241.0], [('late', 51.0)]), 1289: (1, [289.0], [('late', 99.0)]), 1291: (1, [291.0], [('late', 101.0)]), 1500: (1, [500.0], [('late', 310.0)])}
+PASS no build after a run-out is absent and named where the log runs on past THE TRANSMIT's bound, and unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes nothing
+({'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 0, 'late': 0, 'absent': 1, 'unresolved': 0}, 'failing': [{'kind': 'join', 'outcome': 'absent', 'at_ms': 1190.0, 'after_ms': 110.02}]}, {'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 1}, 'failing': []}, ["a: the join timer's run-out at 1190.000 ms, no build after it though the log runs on 110.020 ms (absent)"])
+PASS a frame its build left owed, which the poll sends a pass later, is that build's: the run-out released it and ends a join interval
+{'count': 1, 'shortest': 200.0, 'longest': 200.0, 'over': [], 'runs': {'released': 1, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []}
+PASS a join interval outside its range fails a run whatever findings it records
+
+Old-horizon mutant failures: ["a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold", "no build after a run-out is absent and named where the log runs on past THE TRANSMIT's bound, and unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes nothing"]

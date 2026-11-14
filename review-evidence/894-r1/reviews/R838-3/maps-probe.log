@@ -1,0 +1,45 @@
+Builder and entity generation accepted 16 outputs x 4 channels.
+Note: Google Test filter = Core.ReviewLegalHashCollisionWork
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ReviewLegalHashCollisionWork
+LEGAL ADD n=8 visits=8 stated_bound=16
+LEGAL REMOVE n=8 visits=40 stated_bound=48
+LEGAL ADD n=16 visits=16 stated_bound=32
+LEGAL REMOVE n=16 visits=80 stated_bound=96
+LEGAL ADD n=32 visits=144 stated_bound=64
+$REVIEWS/894-r838-3-packet/scratch/maps/tests/test_aecp.cpp:4220: Failure
+Expected: (visits) <= (2*n), actual: 144 vs 64
+legal distinct keys exceed the stated linear-work bound
+
+  [FAIL] Core.ReviewLegalHashCollisionWork: legal distinct keys exceed the stated linear-work bound
+LEGAL REMOVE n=32 visits=496 stated_bound=192
+$REVIEWS/894-r838-3-packet/scratch/maps/tests/test_aecp.cpp:4224: Failure
+Expected: (aecp_map_work) <= (6*n), actual: 496 vs 192
+
+  [FAIL] Core.ReviewLegalHashCollisionWork: Expected: (aecp_map_work) <= (6*n), actual: 496 vs 192
+LEGAL ADD n=63 visits=714 stated_bound=126
+$REVIEWS/894-r838-3-packet/scratch/maps/tests/test_aecp.cpp:4220: Failure
+Expected: (visits) <= (2*n), actual: 714 vs 126
+legal distinct keys exceed the stated linear-work bound
+
+  [FAIL] Core.ReviewLegalHashCollisionWork: legal distinct keys exceed the stated linear-work bound
+LEGAL REMOVE n=63 visits=2268 stated_bound=378
+$REVIEWS/894-r838-3-packet/scratch/maps/tests/test_aecp.cpp:4224: Failure
+Expected: (aecp_map_work) <= (6*n), actual: 2268 vs 378
+
+  [FAIL] Core.ReviewLegalHashCollisionWork: Expected: (aecp_map_work) <= (6*n), actual: 2268 vs 378
+[  FAILED  ] Core.ReviewLegalHashCollisionWork (2 ms)
+[----------] 1 test from Core (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ReviewLegalHashCollisionWork
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
