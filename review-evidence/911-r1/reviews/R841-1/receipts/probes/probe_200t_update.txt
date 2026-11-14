@@ -1,0 +1,7 @@
+PASS update A->B (200T map): rc 0, writes ['10485760', '0']
+PASS identical refresh refused: rc 2, writes []
+PASS 200T set on a 100T die refused: rc 2, writes []
+PASS other flash refused: rc 2, writes []
+PASS ax7101 recipe refuses a 200T set: rc 2, writes []
+PASS stale 4-MiB-map installed set: rc 2, writes []; qspi owner transition REFUSED: installed bitstream payload 9730652 B exceeds 4194304 B slot
+rc=0

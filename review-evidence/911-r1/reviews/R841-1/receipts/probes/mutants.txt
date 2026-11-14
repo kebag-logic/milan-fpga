@@ -1,0 +1,21 @@
+KILLED   K1 flash-pair dumps the live QSPI before proving the board
+    test_builder.py rc=1: AssertionError: XC7A200T on the cable flash-pair: dumped or wrote after the refusal: ['DUMP\t0\t34']
+KILLED   K2 die check compares the family only
+    test_builder.py rc=1: AssertionError: XC7A200T on the cable flash-pair: accepted
+SURVIVED K3 two disagreeing JEDEC forms accepted (first wins)
+    test_builder.py rc=0: ALL GATES PASS
+SURVIVED K4 several FPGA models on the chain accepted
+    test_builder.py rc=0: ALL GATES PASS
+KILLED   K5 flash-images writes before proving the board
+    test_builder.py rc=1: AssertionError: XC7A200T on the cable flash-images: dumped or wrote after the refusal: ['WRITE\t1\t4194304\tverify\taem.fbi']
+KILLED   K6 layout_for grows the slot but leaves the AEM at 0x400000
+    test_timing_grade.py rc=1: AssertionError: ['docs/guides/BOARD_DEPLOYMENT.md: board flash variant table differs from source']
+    board_variants.py rc=1: docs/guides/BOARD_DEPLOYMENT.md: board flash variant table differs from source
+SURVIVED K7 layout_from_soch reverts to the fixed 4 MiB bitstream budget
+    test_builder.py rc=0: ALL GATES PASS
+    board_variants.py rc=0: board variants: OK (2 rows agree with docs/guides/BOARD_DEPLOYMENT.md)
+KILLED   K8 the 200T recipe's programmer part reverts to the 100T
+    test_builder.py rc=1: AssertionError: == flash-pair [ax7a200t] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET ==
+SURVIVED K9 the deploy bitstream budget is capped at the AX7101's 4 MiB
+    test_builder.py rc=0: ALL GATES PASS
+5 killed, 4 survived
