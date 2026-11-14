@@ -1,0 +1,37 @@
+== BASE at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect green
+   gate 1e rc=0: ALL GATES PASS
+   test_timing_grade.py rc=0:   [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+   gate test_commercial_timing_grade rc=0: ALL GATES PASS
+   GREEN; expectation met; restored clean: True
+== K3 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: AssertionError: two disagreeing JEDEC IDs in the flash read flash-pair: accepted
+   RED; expectation met; restored clean: True
+== K4 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: AssertionError: an XC7A100T and an XC7A200T on one chain flash-pair: accepted
+   RED; expectation met; restored clean: True
+== K7 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   test_timing_grade.py rc=1: AssertionError: ('xc7a200t-fbg484-2', [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 4194304}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}])
+   gate test_commercial_timing_grade rc=1: AssertionError: ('xc7a200t-fbg484-2', [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 4194304}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}])
+   RED; expectation met; restored clean: True
+== K9 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: qspi owner transition REFUSED: installed bitstream payload 9730652 B exceeds 4194304 B slot
+   test_timing_grade.py rc=1: qspi_owner_transition.TransitionError: artifact bitstream payload 9730652 B exceeds 4194304 B slot
+   gate test_commercial_timing_grade rc=1: qspi_owner_transition.TransitionError: artifact bitstream payload 9730652 B exceeds 4194304 B slot
+   RED; expectation met; restored clean: True
+== R1-distinct-models at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: AssertionError: two XC7A100T devices on one chain flash-pair: accepted
+   RED; expectation met; restored clean: True
+== R2-aem-offset-pinned at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: AssertionError: [(1, 4194304, 'verify', 'aem.fbi'), (2, 0, 'verify', 'target.bit')]
+   RED; expectation met; restored clean: True
+== R3-slot-table-empty at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   test_timing_grade.py rc=1: AssertionError: ['docs/guides/BOARD_DEPLOYMENT.md: board flash variant table differs from source']
+   gate test_commercial_timing_grade rc=1: AssertionError: ['docs/guides/BOARD_DEPLOYMENT.md: board flash variant table differs from source']
+   RED; expectation met; restored clean: True
+== R4-arm-on-4MiB-map at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect red
+   gate 1e rc=1: qspi owner transition REFUSED: installed bitstream payload 9730652 B exceeds 4194304 B slot
+   RED; expectation met; restored clean: True
+== R5-first-message-reverted at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5, expect green
+   gate 1e rc=0: ALL GATES PASS
+   GREEN; expectation met; restored clean: True
+10/10 expectations met; not met: none

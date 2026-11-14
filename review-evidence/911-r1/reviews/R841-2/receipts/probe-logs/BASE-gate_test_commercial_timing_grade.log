@@ -1,0 +1,11 @@
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+board variants selftest: OK (6 mutation controls)
+  [timing grade] the guide's board variant table agrees with build.sh and the flash map; 6 mutations caught
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] the XC7A200T die reaches the platform and timing grade; two other parts refused; its layout and AEM constant move to 0xA00000 while the AX7101 keeps 0x400000; both name the N25Q128A13 (0x20BA18)
+  [timing grade] layout_from_soch.py rebuilds each die's exported layout from its soc.h: budget and AEM at 0x400000 (AX7101) and 0xA00000 (XC7A200T), the N25Q128A13 (0x20BA18); the 200T's 9,730,652-B payload passes the deploy validation
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+
+SUBSET: 1 of 109 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

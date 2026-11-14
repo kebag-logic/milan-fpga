@@ -1,0 +1,33 @@
+test_qspi_owner_transition_completed_write_prefixes:
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K3/sw/builder/test_builder.py", line 29972, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K3/sw/builder/test_builder.py", line 19105, in test_qspi_owner_transition_completed_write_prefixes
+    refuse_board("two disagreeing JEDEC IDs in the flash read",
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 {"OFL_JEDEC2": "20ba19"}, "names no single JEDEC ID", True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K3/sw/builder/test_builder.py", line 19088, in refuse_board
+    assert refused.returncode != 0, f"{label} {step}: accepted\n{output}"
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: two disagreeing JEDEC IDs in the flash read flash-pair: accepted
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/flashboot_layout.json (bound to $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/gateware/target.bit and $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem             18 B  -> flash @ 0x400000  (budget 65536 B, from $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] identify the board on serial TEST-SERIAL (FPGA die, then flash JEDEC ID)
+[deploy] board matches the image set: xc7a100t	n25q128a13	0x20ba18
+[deploy] prove live QSPI bitstream on serial TEST-SERIAL (34 B)
+
+[deploy] live bit identity: installed artifact; fabric -> fabric; images-first
+[deploy] write+verify aem @ 0x400000
+
+[deploy] write+verify bitstream @ 0x000000: $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K3/tmpur8_glyt/deploy-tmp/tmp.rF807InaHy/target/gateware/target.bit
+
+[deploy] flash-pair done. Power-cycle to boot the verified owner set.
+

@@ -1,0 +1,11 @@
+test_qspi_owner_transition_completed_write_prefixes:
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R4-arm-on-4MiB-map/sw/builder/test_builder.py", line 29971, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R4-arm-on-4MiB-map/sw/builder/test_builder.py", line 19150, in test_qspi_owner_transition_completed_write_prefixes
+    assert variant.returncode == 0, variant.stdout + variant.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: == flash-pair [ax7a200t] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET ==
+qspi owner transition REFUSED: installed bitstream payload 9730652 B exceeds 4194304 B slot
+

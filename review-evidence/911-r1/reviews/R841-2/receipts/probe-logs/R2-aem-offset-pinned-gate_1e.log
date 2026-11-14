@@ -1,0 +1,9 @@
+test_qspi_owner_transition_completed_write_prefixes:
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R2-aem-offset-pinned/sw/builder/test_builder.py", line 29972, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R2-aem-offset-pinned/sw/builder/test_builder.py", line 19152, in test_qspi_owner_transition_completed_write_prefixes
+    assert [row[1] for row in writes()] == [0xA00000, 0], writes()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [(1, 4194304, 'verify', 'aem.fbi'), (2, 0, 'verify', 'target.bit')]
