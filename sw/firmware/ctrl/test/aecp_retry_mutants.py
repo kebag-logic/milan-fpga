@@ -234,4 +234,11 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      '#define AECP_ROUND_PACE_MS 200u',
      ('Mailbox.EveryNoticePendingAtOnceMeetsItsBound',
       'every queued notice within AECP_QUEUED_MS')),
+    # the most a reset leaves pending (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)):
+    # a built notice that takes its descriptor's other kept notices with it drops them
+    ('notice-dropped-with-its-descriptors-next', 'aecp.c',
+     '\t\t\t\te->pending &= (uint8_t)~(1u << bit);\n',
+     '\t\t\t\te->pending = 0u;\n',
+     ('Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce',
+      'every notice the descriptors hold is sent, none dropped')),
 )

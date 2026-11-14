@@ -32,6 +32,7 @@ import re
 import frames as f
 import save_window
 import scenario
+import shape_costs
 
 #: NOW_MS from which the variant's stream observation answers, after the attempt there or next fails.
 ANSWER_MS = 3150
@@ -49,6 +50,10 @@ BURST_MS = ANSWER_MS + 6
 ROUND_MS = 2
 #: The first sequence_id of the registrations.
 SEQ = 0x5300
+#: The notices a descriptor of each kind is kept for (aecp.c: aecp_changed's kinds, scan's commands), by
+#: descriptor_type: a stream's GET_STREAM_INFO and GET_COUNTERS, an AVB interface's GET_AVB_INFO, GET_AS_PATH and
+#: GET_COUNTERS, a clock domain's GET_COUNTERS.
+KINDS = ((5, (15, 41)), (6, (15, 41)), (9, (39, 40, 41)), (36, (41,)))
 
 
 def names() -> list[str]:
@@ -125,7 +130,7 @@ def groups(p: scenario.Point) -> list[scenario.Group]:
 def every_notice(build: dict) -> list[tuple[int, int, int]]:
     """Each notice the model can hold: (command_type, descriptor_type, descriptor_index), in aecp.c's scan order."""
     out = []
-    for kind, commands in ((5, (15, 41)), (6, (15, 41)), (9, (39, 40, 41)), (36, (41,))):
+    for kind, commands in KINDS:
         index = 0
         while True:
             try:
@@ -137,18 +142,19 @@ def every_notice(build: dict) -> list[tuple[int, int, int]]:
     return out
 
 
-def notices_most(interfaces: int) -> int:
-    """AECP_NOTICES_MOST at that many interfaces (aecp.h): the most notices a reset can leave pending."""
-    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
-    one, two = re.search(r'#define AECP_NOTICES_MOST \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
-    return int(one if interfaces == 1 else two)
+def notices_most(build: dict) -> int:
+    """AECP_NOTICES_MOST (aecp.h) at the build's shape: the most notices a reset can leave pending, derived at one
+    interface from the descriptors the build's shape header states (shape_costs.notices_most; #894's ruling
+    issuecomment-6871343905, item (b)(iv))."""
+    return shape_costs.notices_most(scenario.ROOT / 'configs' / f"{build['shape']}.yaml", build['interfaces'])
 
 
 def every_group(p: scenario.Point, build: dict, k: int, name: str = 'notice-every',
                 load_ms: int = LOAD_MS) -> scenario.Group:
     """notice-every-<k>: group(), with every notice the model holds pending at once, each its own row."""
-    if len(every_notice(build)) != notices_most(p.interfaces):
-        raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}')
+    if len(every_notice(build)) != notices_most(build):
+        raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}, '
+                           f'{notices_most(build)}')
     g = group(p, k, load_ms)
     g.name = f'{name}-{k}'
     aecp = scenario.CH['aecp']

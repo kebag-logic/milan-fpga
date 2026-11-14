@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
 periodic or LeaveAll timer made owed, timed from the deadline, the centisecond whose TICK ran the timer out, to the TX
-commit of the frame that answers it.
+commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives
+it (BUDGET_MS; #894's ruling issuecomment-6871343905, item (b)(i)), where the family's T_svc held it before THE TIERS.
 
 A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
 no frame shows it. So a timer's row ends at the frames of the builds that follow it, the first and, where the other
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import grade
 import scenario
+from tier1_rows import built_value
 
 #: The lwSRP callbacks that end a timer (mrp_mad.c), and the row's name for each.
 TIMERS = {'on_join_timer': 'join', 'on_pt_timer': 'periodic', 'on_la_timer': 'leaveall'}
@@ -20,6 +22,11 @@ BUILD = 'build_mrpdu'
 #: MBX_EV_TYPE_TICK (mbx_contract.h): a TICK event's type, the low byte of its first word.
 TICK = 4
 PATH = 'mrpdu'
+#: The row's harness budget in ms: THE TRANSMIT's bound as ctrl_loop.h derives it, CTRL_LOOP_TX_BOUND_MS, read as the
+#: tier model reads the built constants (tier1_rows.built_value) and never typed (#894's ruling issuecomment-6871343905,
+#: item (b)(i): the MRP timer budget's lateness, 240 ms less the armed join time).
+BUDGET_MS = built_value((scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text(), 'CTRL_LOOP_TX_BOUND_MS',
+                        1, 0)
 #: How far a row looks for its builds: past any bound, so a build that is late is a row over it, never no row.
 LOOK_MS = 100
 
@@ -60,8 +67,15 @@ def released(log: grade.Log, entry: int) -> list[tuple[int, int]]:
     return out
 
 
+def wait_ms() -> float:
+    """The row's normative wait W (FR_NFR.md 3.4.1): what brings its family's budget, min(T_svc, the srp ceiling), to
+    BUDGET_MS (grade.budget_ms)."""
+    return BUDGET_MS - min(scenario.T_SVC_MS, scenario.CEILING_MS['srp'])
+
+
 def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
-    """A held group's timer rows: for each timer and interface the longest, each a row of its own."""
+    """A held group's timer rows: for each timer and interface the longest, each a row of its own, held to
+    BUDGET_MS."""
     if not group.save or not group.save.get('loaded'):
         return []
     log = grader.log
@@ -81,10 +95,12 @@ def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
     out = []
     for (kind, interface), (deadline, end) in sorted(worst.items()):
         probe = scenario.Probe(f'{group.name}.mrpdu.{kind}.if{interface}',
-                               f'an MRPDU its {kind} timer owes, the longest', 'srp', 'tick', [], path=PATH)
+                               f'an MRPDU its {kind} timer owes, the longest', 'srp', 'tick', [], path=PATH,
+                               wait_ms=wait_ms())
         ms = grader.ms(end - deadline)
         out.append(dict(probe=probe.name, row=probe.row, family=probe.family, interface=interface,
-                        path=list(probe.path_key()), start_sys=deadline, end_sys=end, wait_ms=0.0, ring='srp', ahead=0,
+                        path=list(probe.path_key()), start_sys=deadline, end_sys=end, wait_ms=probe.wait_ms, ring='srp',
+                        ahead=0,
                         sys_cycles=end - deadline, cpu_cycles=grader.cpu_cycles(end - deadline), ms=round(ms, 5),
                         passes=len(grader.window_passes(deadline, end)), status='measured',
                         **grade.verdicts(ms, probe)))

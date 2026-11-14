@@ -246,6 +246,11 @@ OUTSIDE = {
                                                       "polls' stated costs from poll_grade.py; it compiles nothing",
     "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model, and its controls plant "
                                                       "aecp_mbx.h's AECP_PACE_MS in memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/mrpdu_grade.py": "grades a run's MRP timers' builds and reads ctrl_loop.h's "
+                                                       "CTRL_LOOP_TX_BOUND_MS derivation; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/selftest_notice.py": "the notice rows' and THE TRANSMIT's self-test; it reads "
+                                                           "ctrl_loop.h's CTRL_LOOP_TX_BOUND_MS derivation and "
+                                                           "compiles nothing",
     "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
                                                         "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
                                                         "memory; it compiles nothing",

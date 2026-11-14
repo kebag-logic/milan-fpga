@@ -286,8 +286,14 @@ extern "C" {
 // streams (srp_arms.DEFAULT_ENTITY), as the tracked contract is at one
 // interface. Each shape listed states, in microseconds, its slice, its build of
 // both of an interface's MRPDUs and its build of one (CTRL_LOOP_BUILD_PASS_US,
-// CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below); a shape not listed fails
-// the build. Both two-interface shapes keep the costs measured at 8x8/2if.
+// CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
+// stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
+// has this left, so a unit under the record's measurement lets the slice run
+// past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). A
+// shape not listed fails the build. Both two-interface shapes keep the costs
+// measured at 8x8/2if. At 8x8/1if the unit is the heaviest SRP record measured
+// there, srp_mbx's receive, 32,401 CPU cycles, plus 5 %, rounded up to 5 us:
+// 345 us, provisional until it is measured again on the tree that merges #902.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -301,24 +307,25 @@ extern "C" {
 #define CTRL_LOOP_SLICE_US 900u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 725u
+#define CTRL_LOOP_SRP_UNIT_US 250u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+#define CTRL_LOOP_SRP_UNIT_US 345u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
 #elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
-// An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
-// slice starts a record only while it has this left.
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.

@@ -74,6 +74,16 @@ def _work_steps_unaged(log: grade.Log) -> grade.Log:
     return log
 
 
+def _load_polls_nearest(root: Path, point: str, table: dict | None = None, f: Callable = load_grade.stated) -> dict:
+    """load_grade.stated with a NEAREST point's polls at its nearest point's, as before they were keyed on the shape."""
+    c, near = f(root, point, table), load_grade.NEAREST.get(point, point)
+    if near != point:
+        polls, own = poll_grade.stated_us(load_grade.POINTS[near]['n_if']), (table or load_grade.GRADED)[near]
+        c.update({key: own.get(key, polls[k]) for k in load_grade.ITEMS
+                  for key in ('base' if k == 'base' else f'item.{k}',) if k != 'mrpdu'})
+    return c
+
+
 def _first_pass_only() -> list:
     """The composed window's passes cut to its first: the composed maximum is that pass."""
     original = grade.composed_passes
@@ -488,6 +498,10 @@ MUTANTS: dict[str, Patches] = {
     "shapes: an owed MRPDU held to the interface count's build of one (earlier rule)": lambda: [patch.object(
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
     'shapes: the slice cap not held': lambda: [patch.object(shape_costs, 'SLICE_MOST_US', 10_000)],
+    "shapes: 8x8/1if's polls held at the interface count's (earlier rule)": lambda: [patch.dict(
+        poll_grade.STATED_US, {shape_costs.of_point('8x8/1if'): poll_grade.ONE})],
+    "load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule)": lambda: [patch.object(
+        load_grade, 'stated', _load_polls_nearest)],
     'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
         load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
@@ -777,6 +791,10 @@ MUTANTS: dict[str, Patches] = {
         mrpdu_grade, 'commits', lambda grader, entry: [])],
     "transmit: a timer's row starts at its entry, not at the deadline": lambda: [patch.object(
         mrpdu_grade, 'ticks', lambda log: [c for c, _ in log.entries])],
+    "transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS": lambda: [patch.object(
+        mrpdu_grade, 'BUDGET_MS', mrpdu_grade.BUDGET_MS + 1)],
+    "transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule)": lambda: [patch.object(
+        mrpdu_grade, 'wait_ms', lambda: 0.0)],
     "notice: a queued notice's bound is the first's": lambda: [patch.object(
         notice_window, 'queued_ms', lambda interfaces: scenario.T_SVC_MS)],
     "notice: the first of a queue is held to the queue's bound": lambda: [patch.object(

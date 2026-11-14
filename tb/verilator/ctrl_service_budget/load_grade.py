@@ -102,17 +102,19 @@ PENDING = 'reported: the more-compute image, #872'
 TARGET = 0.70
 #: Each point's counts: interfaces, sinks an interface (counted all on each), registrations an interface
 #: (aecp.h, AECP_REGISTRATIONS) and the descriptors with counters (each stream's, each AVB interface's and each clock
-#: domain's; aecp.h, AECP_NOTICES_MOST's terms).
+#: domain's; aecp.h, AECP_NOTICES_MOST's terms), at a point an image is built at the descriptors the shape header states
+#: (shape_costs.findings holds them to it: the 8x8's 18 streams, one AVB interface and one clock domain).
 POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
-          '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=18),
+          '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's ruling
-#: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events, the polls' base and
-#: items and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
-#: there (the answering-every-port arm does not build at 8x8/1if), as #894 round 7 derived that load; THE TRANSMIT's
-#: builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), measured on its built
-#: image. stated() reads them so; its own measurement of the rest is owed to #872.
+#: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
+#: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
+#: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
+#: the polls' base and items its own shape's (poll_grade.STATED_US, provisional; the ruling issuecomment-6871343905,
+#: item (b)(iii)), each measured on its built image. stated() reads them so; its own measurement of the rest is owed to
+#: #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
@@ -303,14 +305,16 @@ def shape(point: str, root: Path = ROOT) -> int | shape_costs.Shape:
 
 def stated(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     """A point's stated costs: the table's, or its NEAREST point's, the polls' (poll_grade.py) and the headers'
-    where the table has none; THE TRANSMIT's builds and an owed MRPDU at the point's own shape."""
+    where the table has none; THE TRANSMIT's builds, an owed MRPDU and, at a NEAREST point, the polls at the point's own
+    shape."""
     import poll_grade
     near = NEAREST.get(point, point)
     c = dict((table or GRADED)[near])
     if point in shape_costs.BUILT:
-        polls = poll_grade.stated_us(POINTS[near]['n_if'])
+        polls = poll_grade.stated_us(shape(point, root))
         for k in ITEMS:
-            c.setdefault('base' if k == 'base' else f'item.{k}', polls[k])
+            key = 'base' if k == 'base' else f'item.{k}'
+            c[key] = polls[k] if near != point else c.get(key, polls[k])
         h = macros(root, shape(point, root))
         own = {'build': h['CTRL_LOOP_BUILD_PASS_US'], 'build_one': h['CTRL_LOOP_BUILD_ONE_PASS_US'],
                'item.mrpdu': poll_grade.stated_us(shape(point, root))['mrpdu']}

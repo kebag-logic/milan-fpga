@@ -1,15 +1,21 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)): the static shape an image is built at, as its
-builder states it, and tier 2's slice and THE TRANSMIT's builds' stated costs that ctrl_loop.h lists for it.
+builder states it, and tier 2's slice, THE TRANSMIT's builds' stated costs and an SRP record's stated cost that
+ctrl_loop.h lists for it (the ruling issuecomment-6871343905, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per shape).
 
 A shape is (interfaces, talker sources, listener sinks): MBX_N_IF, from the mailbox contract the builder compiles an
 image against, and CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes from the configuration into the shape
 header the builder force-includes into every unit an image compiles (srp_arms.prepared). ctrl_loop.h lists each shape
-with its CTRL_LOOP_SLICE_US, CTRL_LOOP_BUILD_PASS_US and CTRL_LOOP_BUILD_ONE_PASS_US, and a shape not listed fails the
-build there (its #error). A compile given no shape header is at the shipping shape's streams, the ones ctrl_loop.h
-states as CTRL_LOOP_SOURCES and CTRL_LOOP_SINKS without one (default), which must be what srp_entity.py writes for the
-shipping configuration (srp_arms.DEFAULT_ENTITY; findings).
+with its CTRL_LOOP_SLICE_US, CTRL_LOOP_BUILD_PASS_US, CTRL_LOOP_BUILD_ONE_PASS_US and CTRL_LOOP_SRP_UNIT_US, and a
+shape not listed fails the build there (its #error). A compile given no shape header is at the shipping shape's
+streams, the ones ctrl_loop.h states as CTRL_LOOP_SOURCES and CTRL_LOOP_SINKS without one (default), which must be what
+srp_entity.py writes for the shipping configuration (srp_arms.DEFAULT_ENTITY; findings).
+
+The shape header also states the AEM descriptors that bear AECP's change notices (CTRL_AEM_STREAM_INPUTS and the rest),
+from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's ruling
+issuecomment-6871343905, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
+apart from aecp.h (notices_held), at one interface exactly.
 
 The harness and the model key these costs on the shape the builder writes for a point's configuration and interfaces
 (of_config, of_point), never on the point's name. A shape given as an integer is that many interfaces at the shipping
@@ -23,6 +29,7 @@ usage: python3 -I shape_costs.py [--check] [--selftest]
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import sys
 from pathlib import Path
@@ -32,8 +39,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 #: Where the table is, and the constants each listed shape states, in its order.
 HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US')
-SLICE, BUILD, BUILD_ONE = NAMES
+NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SRP_UNIT_US')
+SLICE, BUILD, BUILD_ONE, SRP_UNIT = NAMES
 #: The most a slice may be, in microseconds: the ruling issuecomment-6867393730, item (b), which re-rules the cap from
 #: 1,300 us; a design parameter, the rows and the load the owner's gate.
 SLICE_MOST_US = 1600
@@ -43,6 +50,12 @@ DEFAULT_CONFIG = 'configs/endstation_ax7101_1x1_tdm8.yaml'
 #: same pairs as the harness's points (run.py, POINTS); its shape is what the builder writes for them (of_point).
 BUILT = {'1x1/1if': ('endstation_ax7101_1x1_tdm8', 1), '8x8/1if': ('endstation_ax7101_8x8', 1),
          '8x8/2if': ('endstation_ax7101_8x8', 2)}
+#: Where AECP_NOTICES_MOST is derived, and the notice-bearing descriptors the shape header states, by descriptor_type
+#: (IEEE 1722.1-2021 Table 7-1: STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE, CLOCK_DOMAIN;
+#: srp_entity.NOTICE_DESCRIPTORS).
+AECP_HEADER = 'sw/firmware/ctrl/aecp/aecp.h'
+NOTICE_DESCRIPTORS = {5: 'CTRL_AEM_STREAM_INPUTS', 6: 'CTRL_AEM_STREAM_OUTPUTS', 9: 'CTRL_AEM_AVB_INTERFACES',
+                      36: 'CTRL_AEM_CLOCK_DOMAINS'}
 #: The words the build fails with at a shape the table does not list (ctrl_loop.h's #error).
 UNLISTED = 'THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists'
 
@@ -137,14 +150,69 @@ def streams(header: str) -> tuple[int, int]:
     return int(found['CTRL_SRP_SOURCES']), int(found['CTRL_SRP_SINKS'])
 
 
-def of_config(config: Path, n_if: int, root: Path = ROOT) -> Shape:
-    """The shape the builder states for a configuration at that many interfaces: the interfaces, and the streams its own
-    shape header writer emits (srp_entity.emit)."""
+@functools.lru_cache(maxsize=None)
+def header_of(config: Path, root: Path = ROOT) -> str:
+    """The shape header the builder writes for a configuration (srp_entity.emit), once a configuration."""
     where = str(root / "sw/firmware/ctrl/srp")
     if where not in sys.path:
         sys.path.insert(0, where)
     import srp_entity
-    return Shape(n_if, *streams(srp_entity.emit(config)))
+    return srp_entity.emit(config)
+
+
+def of_config(config: Path, n_if: int, root: Path = ROOT) -> Shape:
+    """The shape the builder states for a configuration at that many interfaces: the interfaces, and the streams its own
+    shape header writer emits (srp_entity.emit)."""
+    return Shape(n_if, *streams(header_of(config, root)))
+
+
+def descriptors(header: str) -> dict[str, int]:
+    """The notice-bearing AEM descriptor counts a shape header states, by name (NOTICE_DESCRIPTORS)."""
+    return {name: int(n) for name, n in re.findall(r'^#define (CTRL_AEM_\w+) (\d+)u$', header, re.M)}
+
+
+def evaluated(text: str, name: str, values: dict[str, int], last: bool = False) -> int:
+    """A constant of a header's text, each name it reads `values`' or the text's own #define, its first (the branch a
+    shape header selects) or with `last` its last (a compile's with no shape header), a ternary on a comparison taken,
+    and the arithmetic evaluated (rows_grade.arithmetic)."""
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    from rows_grade import arithmetic
+    defines: dict[str, str] = {}
+    for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M):
+        if last or m[1] not in defines:
+            defines[m[1]] = m[2].split('//')[0].strip()
+
+    def value(key: str) -> int:
+        """One name's value."""
+        if key in values:
+            return values[key]
+        body = re.sub(r'[A-Z][A-Z0-9_]+', lambda m: str(value(m[0])), re.sub(r'(\d+)u\b', r'\1', defines[key]))
+        pick = re.fullmatch(r'\((.+?) == (\d+) \? (.+) : (.+)\)', body)
+        return arithmetic(pick[3] if arithmetic(pick[1]) == int(pick[2]) else pick[4]) if pick else arithmetic(body)
+    return value(name)
+
+
+def aecp_text(root: Path, texts: dict[str, str] | None = None) -> str:
+    """aecp.h's text, or its planted copy."""
+    return (texts or {}).get(AECP_HEADER) or (root / AECP_HEADER).read_text()
+
+
+def notices_most(config: Path, n_if: int, root: Path = ROOT, texts: dict[str, str] | None = None) -> int:
+    """AECP_NOTICES_MOST as aecp.h derives it for an image of a configuration at that many interfaces, through the shape
+    header the builder writes for it."""
+    return evaluated(aecp_text(root, texts), 'AECP_NOTICES_MOST',
+                     {**descriptors(header_of(config, root)), 'MBX_N_IF': n_if})
+
+
+def notices_held(config: Path, root: Path = ROOT) -> int:
+    """The notices a configuration's descriptors hold, counted apart from aecp.h: each notice-bearing descriptor the
+    shape header states, times the notices the harness reads a descriptor of its kind for (notice_window.KINDS)."""
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    import notice_window
+    counts = descriptors(header_of(config, root))
+    return sum(len(commands) * counts[NOTICE_DESCRIPTORS[kind]] for kind, commands in notice_window.KINDS)
 
 
 def of_point(point: str, root: Path = ROOT) -> Shape:
@@ -154,9 +222,10 @@ def of_point(point: str, root: Path = ROOT) -> Shape:
 
 
 def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
-    """Each way the table breaks its rules: a slice over the cap or one that cannot hold a build of one, a build of both
-    not over the slice that holds one build only or not under two builds of one, a point whose shape is not listed,
-    and a default that is not the shipping configuration's streams."""
+    """Each way the table breaks its rules: a slice over the cap or one that cannot hold a build of one or an SRP record
+    (ctrl_loop.c's _Static_assert), a build of both not over the slice that holds one build only or not under two builds
+    of one, a point whose shape is not listed, a listed shape whose polls poll_grade.py does not state, and a default
+    that is not the shipping configuration's streams; and AECP_NOTICES_MOST (notice_findings)."""
     text = text_of(root, texts)
     try:
         table = listed(text)
@@ -170,6 +239,8 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
             out.append(f'{name}: a slice of {c[SLICE]} us, over the ruling\'s {SLICE_MOST_US} us')
         if c[BUILD_ONE] > c[SLICE]:
             out.append(f'{name}: a build of one of {c[BUILD_ONE]} us, over its slice of {c[SLICE]} us')
+        if c[SRP_UNIT] > c[SLICE]:
+            out.append(f'{name}: an SRP record of {c[SRP_UNIT]} us, over its slice of {c[SLICE]} us')
         if c[BUILD] >= 2 * c[BUILD_ONE] and c[SLICE] < c[BUILD]:
             out.append(f'{name}: a build of both of {c[BUILD]} us, not under two builds of one of {c[BUILD_ONE]} us, '
                        'where its slice holds one build')
@@ -187,18 +258,46 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
     if default != (shipping.sources, shipping.sinks):
         out.append(f'ctrl_loop.h takes {default} streams with no shape header, not the shipping configuration\'s '
                    f'{(shipping.sources, shipping.sinks)}')
+    import poll_grade
+    if set(poll_grade.STATED_US) != set(table):
+        out.append(f'poll_grade.py states the polls at {sorted(map(tuple, poll_grade.STATED_US))}, not at the shapes '
+                   f'ctrl_loop.h lists, {sorted(map(tuple, table))}')
+    return out + notice_findings(root, texts)
+
+
+def notice_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
+    """AECP_NOTICES_MOST (aecp.h) at each point under the notices its descriptors hold, or at one interface not those
+    exactly; with no shape header not the shipping configuration's; and a load point counting other descriptors with
+    counters than the shape header states (load_grade.POINTS)."""
+    import load_grade
+    out = []
+    for point, (config, n_if) in BUILT.items():
+        path = root / 'configs' / f'{config}.yaml'
+        most, held = notices_most(path, n_if, root, texts), notices_held(path, root)
+        if most < held:
+            out.append(f'{point}: AECP_NOTICES_MOST is {most}, under the {held} notices its descriptors hold')
+        elif n_if == 1 and most != held:
+            out.append(f'{point}: AECP_NOTICES_MOST is {most}, not the {held} notices its descriptors hold')
+        counted = sum(descriptors(header_of(path, root)).values())
+        if load_grade.POINTS[point]['counter_descriptors'] != counted:
+            out.append(f'{point}: load_grade.py counts {load_grade.POINTS[point]["counter_descriptors"]} descriptors '
+                       f'with counters, not the {counted} the shape header states')
+    alone, shipping = evaluated(aecp_text(root, texts), 'AECP_NOTICES_HELD', {}, last=True), \
+        notices_held(root / DEFAULT_CONFIG, root)
+    if alone != shipping:
+        out.append(f'aecp.h holds {alone} notices with no shape header, not the shipping configuration\'s {shipping}')
     return out
 
 
 def report(root: Path = ROOT) -> list[str]:
     """Every listed shape's costs, and each point's shape."""
     table = listed(text_of(root))
-    lines = ['| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | Points |',
-             '|---|---:|---:|---:|---|']
+    lines = ['| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us '
+             '| Points |', '|---|---:|---:|---:|---:|---|']
     points = {p: of_point(p, root) for p in BUILT}
     for s, c in table.items():
         named = ', '.join(p for p, at_ in points.items() if at_ == s) or 'none the model names'
-        lines.append(f'| {tuple(s)} | {c[SLICE]} | {c[BUILD]} | {c[BUILD_ONE]} | {named} |')
+        lines.append(f'| {tuple(s)} | {c[SLICE]} | {c[BUILD]} | {c[BUILD_ONE]} | {c[SRP_UNIT]} | {named} |')
     lines.append(f'with no shape header: {default_streams(text_of(root))} streams')
     return lines
 
@@ -216,8 +315,7 @@ def controls(root: Path = ROOT) -> list[str]:
 
     first = next(iter(listed(text)))
     one = listed(text)[first]
-    block = (f'#define {SLICE} {one[SLICE]}u\n#define {BUILD} {one[BUILD]}u\n'
-             f'#define {BUILD_ONE} {one[BUILD_ONE]}u\n')
+    block = ''.join(f'#define {name} {one[name]}u\n' for name in NAMES)
     unlisted = Shape(first.interfaces, 3, 3)
     try:
         at(unlisted, root)
@@ -229,6 +327,8 @@ def controls(root: Path = ROOT) -> list[str]:
         'a slice over the cap': planted(f'#define {SLICE} {one[SLICE]}u\n', f'#define {SLICE} {SLICE_MOST_US + 5}u\n'),
         'a build of one over its slice': planted(block, block.replace(f'{BUILD_ONE} {one[BUILD_ONE]}u',
                                                                       f'{BUILD_ONE} {one[SLICE] + 5}u')),
+        'an SRP record over its slice': planted(block, block.replace(f'{SRP_UNIT} {one[SRP_UNIT]}u',
+                                                                     f'{SRP_UNIT} {one[SLICE] + 5}u')),
         'the table with no #error': planted(f'#error "{UNLISTED}"\n', '#define CTRL_LOOP_SHAPE_UNLISTED 1u\n'),
         'a shape listed twice': planted(block + '#elif', block + f'#elif CTRL_LOOP_SHAPE({first.interfaces}u, '
                                         f'{first.sources}u, {first.sinks}u)\n' + block + '#elif'),
@@ -262,15 +362,62 @@ def controls(root: Path = ROOT) -> list[str]:
     head = f'CTRL_LOOP_SHAPE({s.interfaces}u, {s.sources}u, {s.sinks}u)'
     if not any(point in f for f in findings(root, planted(head, f'CTRL_LOOP_SHAPE({s.interfaces}u, 3u, 3u)'))):
         escaped.append('a point whose shape is not listed')
+    # a listed shape whose polls poll_grade.py does not state: it would be graded at none
+    import poll_grade
+    with mock.patch.dict(poll_grade.STATED_US):
+        del poll_grade.STATED_US[of_point('8x8/1if', root)]
+        if not any('poll_grade.py states the polls' in f for f in findings(root)):
+            escaped.append('a listed shape whose polls are not stated')
+    return escaped + notice_controls(root)
+
+
+def notice_controls(root: Path = ROOT) -> list[str]:
+    """Each planted defect of AECP_NOTICES_MOST's derivation notice_findings must refuse: the planted names that
+    escaped."""
+    text = aecp_text(root)
+    escaped = []
+
+    def planted(old: str, new: str) -> dict[str, str]:
+        """aecp.h with one substitution, refused if it does not apply once."""
+        if text.count(old) != 1:
+            raise AssertionError(f'control fixture {old!r} does not occur exactly once in {AECP_HEADER}')
+        return {AECP_HEADER: text.replace(old, new)}
+    plants = {
+        # the earlier rule: one interface's most typed at the 1x1's count, under the 8x8's 40 at 8x8/1if
+        'the notices most typed at the 1x1\'s 12 at one interface (earlier rule)': (planted(
+            '#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? AECP_NOTICES_HELD : 40u)',
+            '#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)'), '8x8/1if: AECP_NOTICES_MOST is 12, under'),
+        'an AVB interface\'s notices counted as two': (planted(
+            '3u * CTRL_AEM_AVB_INTERFACES', '2u * CTRL_AEM_AVB_INTERFACES'), 'notices its descriptors hold'),
+        'two interfaces\' most under the 8x8\'s descriptors': (planted(
+            'AECP_NOTICES_HELD : 40u)', 'AECP_NOTICES_HELD : 12u)'), '8x8/2if: AECP_NOTICES_MOST is 12, under'),
+        'the notices with no shape header not the shipping configuration\'s': (planted(
+            '#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * 1u + 1u)',
+            '#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * 1u)'), 'with no shape header'),
+    }
+    for name, (texts, words) in plants.items():
+        if not any(words in f for f in notice_findings(root, texts)):
+            escaped.append(name)
+    import load_grade
+    from unittest import mock
+    with mock.patch.dict(load_grade.POINTS, {'8x8/1if': dict(load_grade.POINTS['8x8/1if'], counter_descriptors=18)}):
+        if not any('8x8/1if: load_grade.py counts 18' in f for f in notice_findings(root)):
+            escaped.append('a load point counting other descriptors with counters than the shape header states')
     return escaped
 
 
 #: The planted defects controls() plants, in its order.
 CONTROLS = ('a shape the table does not list', 'a slice over the cap', 'a build of one over its slice',
-            'the table with no #error', 'a shape listed twice', 'a cost missing from a shape',
+            'an SRP record over its slice', 'the table with no #error', 'a shape listed twice',
+            'a cost missing from a shape',
             'the default streams not the shipping configuration\'s', 'a build of both at two builds of one',
             'the slice cap not the ruling\'s 1,600 us',
-            'a model point built at another configuration than the harness\'s', 'a point whose shape is not listed')
+            'a model point built at another configuration than the harness\'s', 'a point whose shape is not listed',
+            'a listed shape whose polls are not stated',
+            'the notices most typed at the 1x1\'s 12 at one interface (earlier rule)',
+            'an AVB interface\'s notices counted as two', 'two interfaces\' most under the 8x8\'s descriptors',
+            'the notices with no shape header not the shipping configuration\'s',
+            'a load point counting other descriptors with counters than the shape header states')
 
 
 def shape_checks() -> list[tuple[str, bool, str]]:

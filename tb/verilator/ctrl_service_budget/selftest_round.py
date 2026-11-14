@@ -13,6 +13,7 @@ from collections.abc import Callable
 import build
 import datapath_window
 import grade
+import load_grade
 import round_grade
 import run
 import scenario
@@ -133,7 +134,8 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
             not held('build', wide_cycles, shapes['8x8/1if'])['over'] and
             [o['kind'] for o in held('build', wide_cycles, 1)['over']] == ['build'], str(wide)),
            ("the testbench traces SRP's record handler and THE RETRY's round",
-            {('srp_mbx', 'receive'), ('ctrl_loop', 'round_of')} <= set(build.SPAN_SYMBOLS), '')]
+            {('srp_mbx', 'receive'), ('ctrl_loop', 'round_of')} <= set(build.SPAN_SYMBOLS), ''),
+           *polls_at_shape(synthetic, sys_hz, cpu_hz, shapes['8x8/1if'])]
     for kind in ('srp', 'build', 'round'):
         at, over = held(kind, limit), held(kind, limit + 1)
         out.append((f"a slice of {run.SLICE_KINDS[kind]} at the stated length fits it and one a cycle over does not",
@@ -153,6 +155,37 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     out.append(('a slice over the stated length fails a run whatever findings it records',
                 run.verdict(args, [scenario.Group('g')], [], [], [], named) == 1, ''))
     return out
+
+
+def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
+                   shape: shape_costs.Shape) -> list[Check]:
+    """A pass's polls at a shape of its own (8x8/1if) held to that shape's stated costs, not the interface count's
+    (poll_grade.STATED_US; #894's ruling issuecomment-6871343905, item (b)(iii)): its base at the shape's cost fits it
+    and a cycle over does not, where the interface count's cost refuses it."""
+    ratio, start = sys_hz // cpu_hz, 10_000
+
+    def held(base: int, given: int | shape_costs.Shape) -> list[tuple[str, int]]:
+        """The polls over their stated costs of one pass whose polls' base is that many CPU cycles."""
+        lines = [f'PASS 1 {ratio * (start - 10)} {start - 10} {base + 600} instr=10 store_mbx=1 W {ratio * start}:1:0',
+                 f'SPAN {ratio * start} {start} 50 00002000 {poll_grade.FIRST}',
+                 f'SPAN {ratio * (start + base - 40)} {start + base - 40} 40 00002000 {poll_grade.LAST}']
+        polls = grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(given),
+                            given if isinstance(given, shape_costs.Shape) else None)['passes']['polls']
+        return [(o['kind'], o['cycles']) for o in polls['over']]
+    own, count = poll_grade.stated_us(shape), poll_grade.stated_us(shape.interfaces)
+    limit = own['base'] * cpu_hz // 1_000_000
+    return [("a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE "
+             "SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over "
+             "does not, where 1x1/1if's refuses it",
+             own != count and own['base'] > count['base'] and held(limit, shape) == [] and
+             held(limit + 1, shape) == [('base', limit + 1)] and held(limit, shape.interfaces) == [('base', limit)],
+             str((own, count))),
+            ("8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records "
+             "and events at 8x8/2if's (load_grade.stated, NEAREST)",
+             all(load_grade.stated(scenario.ROOT, '8x8/1if', column)['base' if k == 'base' else f'item.{k}'] == own[k]
+                 for column in (load_grade.STATED_US, load_grade.STATED_US_DONOR) for k in load_grade.ITEMS) and
+             load_grade.stated(scenario.ROOT, '8x8/1if')['record.srp'] == load_grade.GRADED['8x8/2if']['record.srp'],
+             str(load_grade.stated(scenario.ROOT, '8x8/1if')))]
 
 
 def datapath_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:

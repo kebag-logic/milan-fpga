@@ -115,9 +115,13 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
 
 
 def all_arms(tree: Tree) -> list[Outcome]:
-    """Full application on both contracts, plus every builder image and the debug guard."""
+    """Full application on both contracts, plus every builder image and the debug guard; and the notices a datapath
+    reset leaves at the 8x8 shape at one interface, where the most is its own descriptors' (aecp.h, AECP_NOTICES_MOST;
+    #894's ruling issuecomment-6871343905, item (b)(iv))."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
+    results.append(core_arm(tree, ROOT / "configs/endstation_ax7101_8x8.yaml", 1, mode="mailbox",
+                            selected="Mailbox.EveryNotice*"))
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,

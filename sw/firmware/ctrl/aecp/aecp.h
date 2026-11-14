@@ -62,10 +62,23 @@ extern "C" {
 // first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
 // read, which answers for all it serves or for none (#665).
 #define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
-// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
-// each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each
-// clock domain's GET_COUNTERS, at the fixture's two shapes. The CPU budget harness holds the model to it.
-#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)
+// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one
+// (aecp_changed's kinds): each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO,
+// GET_AS_PATH and GET_COUNTERS, each clock domain's GET_COUNTERS. Each is kept in its descriptor's event
+// (aecp_config.events), so none is dropped at any count: this is what a round may take and what the bound on queued
+// notices counts. At one interface it is the image's own descriptors', which the shape header states
+// (CTRL_AEM_STREAM_INPUTS and the rest, srp_entity.py; THE SHAPES, ctrl_loop.h; #894's ruling
+// issuecomment-6871343905, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
+// shipping 1x1's descriptors. At two interfaces it is 40, the 8x8's, which no two-interface shape's descriptors pass.
+// The CPU budget harness holds the model to it.
+#ifdef CTRL_AEM_STREAM_INPUTS
+#define AECP_NOTICE_STREAMS (CTRL_AEM_STREAM_INPUTS + CTRL_AEM_STREAM_OUTPUTS)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * CTRL_AEM_AVB_INTERFACES + CTRL_AEM_CLOCK_DOMAINS)
+#else
+#define AECP_NOTICE_STREAMS (2u + 2u)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * 1u + 1u)
+#endif
+#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? AECP_NOTICES_HELD : 40u)
 // A notification's bound, min(T_svc, the 24 ms notification ceiling), of
 // FR_NFR.md 3.4.1: from a retried notice's port answer to its last
 // recipient's commit, no extra budget at a retry.

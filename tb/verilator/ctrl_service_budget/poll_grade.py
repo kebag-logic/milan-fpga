@@ -65,8 +65,10 @@ import shape_costs
 
 #: A pass's first and last firmware poll, and each item's traced function and its sending channel (poll_items).
 FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
-#: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
-#: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
+#: The stated costs in microseconds at each shape ctrl_loop.h lists (THE SHAPES, shape_costs.Shape: MBX_N_IF,
+#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's ruling issuecomment-6871343905, item (b)(iii)), at 1x1/1if and 8x8/2if each
+#: the most measured over every group of arm A and the answering-every-port arm at its point plus 5 %, rounded up to
+#: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (725 us at 1x1/1if and
@@ -87,10 +89,20 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: (#908): measured over backlog-owed, the one group that stages owed ACMP frames, on the image that traces acmp_rx at
 #: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
 #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if.
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=50,
-                    aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=65,
-                    aecp=275, aecp_long=655, acmp_declined=20)}
+ONE = dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=50, aecp=210,
+           aecp_long=365, acmp_declined=20)
+TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=65, aecp=275,
+           aecp_long=655, acmp_declined=20)
+#: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image and the
+#: answering-ports arm's aecp-largest-notice (#894, at 93afe385) plus 5 %, rounded up to 5 us: the base
+#: 22,478 CPU cycles, the withdrawal 10,238, the rebuild 56,003, the walk 4,829, the reclaim 2,460, ACMP's owed frame
+#: 6,936 and a declined offer 2,600, a notice 13,041 and a long one 29,860; a retained record's retry at the SRP
+#: record's cost there (CTRL_LOOP_SRP_UNIT_US, 32,401 cycles). Provisional: the answering-every-port arm, which stages
+#: the heaviest notices at the other points, is measured there, and every cost again, on the tree that merges #902.
+EIGHT_ONE = dict(base=240, withdraw=110, rebuild=590, walk=55, reclaim=30, retained=345, mrpdu=0, acmp=75, aecp=140,
+                 aecp_long=315, acmp_declined=30)
+STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
+             shape_costs.Shape(2, 9, 9): TWO}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
@@ -119,11 +131,14 @@ def long_notices(log: grade.Log) -> list[int]:
 
 
 def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
-    """The base's and each item's stated cost in microseconds at a shape's interfaces, or at that many interfaces; an
-    owed MRPDU's a build of one's at the shape (shape_costs.at), or with an interface count at the shipping shape's
-    streams."""
-    out = dict(STATED_US[shape_costs.interfaces(interfaces)])
-    out['mrpdu'] = shape_costs.at(interfaces, scenario.ROOT)[shape_costs.BUILD_ONE]
+    """The base's and each item's stated cost in microseconds at a shape, or at that many interfaces at the shipping
+    shape's streams (shape_costs.shape); an owed MRPDU's a build of one's at the shape (shape_costs.at). A shape
+    STATED_US does not state is refused."""
+    shape = shape_costs.shape(interfaces, scenario.ROOT)
+    if shape not in STATED_US:
+        raise ValueError(f'poll_grade.py states no polls at the shape {tuple(shape)}')
+    out = dict(STATED_US[shape])
+    out['mrpdu'] = shape_costs.at(shape, scenario.ROOT)[shape_costs.BUILD_ONE]
     return out
 
 
