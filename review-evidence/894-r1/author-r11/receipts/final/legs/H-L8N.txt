@@ -1,0 +1,15 @@
+# H-L8N
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-L8N\ 8x8\ 1\ --variant\ answering-every-port\ --groups\ notice-every-0 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T16:43:49
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 303 passes carry the store's step; the longest 87,155 CPU cycles (0.872 ms), notice-every-0; the longest step 48,736 (0.487 ms), notice-every-0
+SLICES 11057 tier-2 slices; the longest SRP's records 115,393, THE TRANSMIT's build 94,321, THE RETRY's round 69,353 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS notice-every-0: 6 join interval(s), the shortest 186.729 ms and the longest 190.006 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 47 probe instances, 0 of 8 paths), 0 of 1089 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T17:10:02
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8 jobs 1 args --variant answering-every-port --groups notice-every-0 --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-L8N/results start 2026-11-14T19:42:33
+JOINS notice-every-0: 6 join interval(s), the shortest 186.729 ms and the longest 190.006 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 47 probe instances, 0 of 8 paths), 0 of 1089 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T19:42:38

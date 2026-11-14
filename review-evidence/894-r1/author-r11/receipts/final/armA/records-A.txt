@@ -1,0 +1,98 @@
+# stated: load_grade.GRADED record.aecp 235 us (STATED_US pin column 235); rows_tiers.LONG_RECORD_US 975 us for aecp-largest-notice; rule = cycles/100 x 1.05 rounded up to 5 us
+group                              records most cycles      us  rule stated over  command
+A/results-merged/aecp-largest-notice      21      86,978  869.78   915    975 -     AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+A/results-merged/aecp-fanout            25      22,728  227.28   240    235 rule  AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+A/results-merged/save-second             2      20,152  201.52   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged1-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@blank-aged2-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged1-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@program-aged2-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged1-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-0      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-1      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-2      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-3      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-4      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-5      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-6      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/backlog-adp@verify-aged2-7      17      20,021  200.21   215    235 -     AEM_COMMAND SET_NAME
+A/results-merged/save-held             929      19,956  199.56   210    235 -     AEM_COMMAND SET_NAME
+A/results-merged/save-starved          929      19,956  199.56   210    235 -     AEM_COMMAND SET_NAME
+A/results-merged/save                    1      19,781  197.81   210    235 -     AEM_COMMAND SET_NAME
+A/results-merged/fixture                 3      19,397  193.97   205    235 -     AEM_COMMAND SET_NAME (fixture.set_name.if0)
+A/results-merged/aecp                   25      17,589  175.89   185    235 -     AEM_COMMAND SET_NAME (aecp.set_name.if0)
+A/results-merged/backlog-owed           16      15,390  153.90   165    235 -     AEM_COMMAND READ_DESCRIPTOR
+A/results-merged/backlog                16      15,314  153.14   165    235 -     AEM_COMMAND READ_DESCRIPTOR
+A/results-merged/backlog-adp-refill      16      14,612  146.12   155    235 -     AEM_COMMAND READ_DESCRIPTOR
+A/results-merged/backlog-adp            16      14,612  146.12   155    235 -     AEM_COMMAND READ_DESCRIPTOR
+A/results-merged/acmp-cmd                0
+A/results-merged/acmp-disc               0
+A/results-merged/acmp-noresp             0
+A/results-merged/acmp-notk               0
+A/results-merged/adp-advertise           0
+A/results-merged/adp-discover            0
+A/results-merged/adp-gm                  0
+A/results-merged/adp-link                0
+A/results-merged/control                 0
+A/results-merged/datapath-events         0
+A/results-merged/maap                    0
+A/results-merged/srp                     0

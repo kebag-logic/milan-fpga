@@ -1,0 +1,66 @@
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          27,949   279.49   295    325 within   load_grade.GRADED base; H-L8L/aecp-largest-notice
+base                                          27,949   279.49   295    325 within   poll_grade.STATED_US[2] base; H-L8L/aecp-largest-notice
+build                                              0     0.00     0   2035 within   load_grade.GRADED build; H-L8A/datapath-events
+build                                              0     0.00     0   1995 within   whole_grade.stated_us(2) build (ctrl_loop.h); H-L8A/datapath-events
+build_one                                    146,376  1463.76  1540   1215 OVER-raw load_grade.GRADED build_one; H-J8/srp
+build_one                                    146,376  1463.76  1540   1215 OVER-raw whole_grade.stated_us(2) build-one (ctrl_loop.h); H-J8/srp
+centisecond                                   44,122   441.22   465    510 within   load_grade.GRADED centisecond; H-B8F/aecp-fanout.log
+centisecond                                   44,122   441.22   465    510 within   load_grade.STATED_US centisecond; H-B8F/aecp-fanout.log
+event.ACMP                                     2,160    21.60    25    210 within   load_grade.GRADED event.ACMP; TIMER#2, 1 taken
+event.ACMP                                     2,160    21.60    25    350 within   load_grade.STATED_US event.ACMP; TIMER#2, 1 taken
+event.ADP                                      7,913    79.13    85    120 within   load_grade.GRADED event.ADP; TIMER#0, 5 taken
+event.ADP                                      7,913    79.13    85    120 within   load_grade.STATED_US event.ADP; TIMER#0, 5 taken
+event.AECP                                     8,319    83.19    90    110 within   load_grade.GRADED event.AECP; TIMER#6, 83 taken
+event.AECP                                     8,319    83.19    90    105 within   load_grade.STATED_US event.AECP; TIMER#6, 83 taken
+event.GM                                      15,269   152.69   165    320 within   load_grade.GRADED event.GM; 259, 394 taken
+event.GM                                      15,269   152.69   165    320 within   load_grade.STATED_US event.GM; 259, 394 taken
+event.LINK                                    15,381   153.81   165    300 within   rows_grade.ROW_COSTS event.LINK; LINK, 6 taken
+event.MAAP                                    16,514   165.14   175    215 within   load_grade.GRADED event.MAAP; TIMER#4, 12 taken
+event.MAAP                                    16,514   165.14   175    215 within   load_grade.STATED_US event.MAAP; TIMER#4, 12 taken
+event.TICK                                     3,067    30.67    35     85 within   load_grade.GRADED event.TICK; TICK, 1140 taken
+event.TICK                                     3,067    30.67    35     40 within   load_grade.STATED_US event.TICK; TICK, 1140 taken
+events_none                                    2,859    28.59    35     35 within   load_grade.GRADED events_none; H-L8N/notice-every-0.log
+events_none                                    2,859    28.59    35     35 within   load_grade.STATED_US events_none; H-L8N/notice-every-0.log
+item.acmp                                      6,193    61.93    70     70 within   load_grade.GRADED item.acmp; H-L8O/backlog-owed
+item.acmp                                      6,193    61.93    70     70 within   poll_grade.STATED_US[2] acmp; H-L8O/backlog-owed
+item.acmp_declined                             1,399    13.99    15     20 within   poll_grade.STATED_US[2] acmp_declined; H-L8O/backlog-owed
+item.acmp_kept                                 8,109    81.09    90    440 within   poll_grade.record_us (load_grade.STATED_US record.acmp); H-L8O/backlog-owed
+item.aecp                                     25,674   256.74   270    275 within   poll_grade.STATED_US[2] aecp; H-L8N/notice-every-0
+item.aecp_long                                61,637   616.37   650    655 within   poll_grade.STATED_US[2] aecp_long; H-L8L/aecp-largest-notice
+item.aecp_long                                61,637   616.37   650    655 within   rows_tiers.LONG_NOTICE_US; H-L8L/aecp-largest-notice
+item.mrpdu                                         0     0.00     0   1215 within   load_grade.GRADED item.mrpdu; H-L8A/datapath-events
+item.mrpdu                                         0     0.00     0   1215 within   poll_grade.STATED_US[2] mrpdu; H-L8A/datapath-events
+item.rebuild                                       0     0.00     0    690 within   poll_grade.STATED_US[2] rebuild; H-L8A/datapath-events
+item.reclaim                                   3,174    31.74    35     40 within   load_grade.GRADED item.reclaim; H-J8/srp
+item.reclaim                                   3,174    31.74    35     35 within   poll_grade.STATED_US[2] reclaim; H-J8/srp
+item.record                                   30,520   305.20   325    365 within   poll_grade.STATED_US[2] retained; H-L8N/notice-every-0
+item.retained                                      0     0.00     0    365 within   load_grade.GRADED item.retained; H-L8A/datapath-events
+item.retained                                      0     0.00     0    365 within   load_grade.STATED_US item.retained; H-L8A/datapath-events
+item.retained                                      0     0.00     0    365 within   poll_grade.STATED_US[2] retained; H-L8A/datapath-events
+item.walk                                      3,885    38.85    45     60 within   load_grade.GRADED item.walk; H-J8/srp
+item.walk                                      3,885    38.85    45     60 within   poll_grade.STATED_US[2] walk; H-J8/srp
+item.withdraw                                      0     0.00     0    245 within   poll_grade.STATED_US[2] withdraw; H-L8A/datapath-events
+record.acmp                                   21,736   217.36   230    305 within   load_grade.GRADED record.acmp; H-L8N/notice-every-0.log
+record.acmp                                   21,736   217.36   230    440 within   load_grade.STATED_US record.acmp; H-L8N/notice-every-0.log
+record.adp                                     2,042    20.42    25    125 within   load_grade.GRADED record.adp; H-L8N/notice-every-0.log
+record.adp                                     2,042    20.42    25    240 within   load_grade.STATED_US record.adp; H-L8N/notice-every-0.log
+record.maap                                    9,193    91.93   100    130 within   load_grade.GRADED record.maap; H-L8N/notice-every-0.log
+record.maap                                    9,193    91.93   100    130 within   load_grade.STATED_US record.maap; H-L8N/notice-every-0.log
+record.srp                                    30,912   309.12   325    365 within   load_grade.GRADED record.srp; H-L8N/notice-every-0.log
+record.srp                                    30,912   309.12   325    365 within   load_grade.STATED_US record.srp; H-L8N/notice-every-0.log
+step                                          23,126   231.26   245   1030 within   load_grade.GRADED step; H-L8N/notice-every-0
+step                                          23,126   231.26   245   1030 within   whole_grade.stated_us(2) step (ctrl_loop.h); H-L8N/notice-every-0
+item.aecp.notice                              61,637   616.37   650    275 OVER-raw load_grade.GRADED item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))
+item.aecp.notice                              61,637   616.37   650    275 OVER-raw load_grade.STATED_US item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))
+item.aecp.response                             2,217    22.17    25     65 within   load_grade.GRADED item.aecp.response; H-L8O/backlog-owed (1 frame(s))
+item.aecp.response                             2,217    22.17    25     65 within   load_grade.STATED_US item.aecp.response; H-L8O/backlog-owed (1 frame(s))
+event.AMAP_LIVE_WRITE                          2,137    21.37    25     25 within   rows_tiers.DATAPATH_US AMAP_LIVE_WRITE; datapath-events.log@80978262
+event.AS_PATH_CHANGED                          3,230    32.30    35     40 within   rows_tiers.DATAPATH_US AS_PATH_CHANGED; datapath-events.log@79186867
+event.AVB_INFO_CHANGED                         3,362    33.62    40     40 within   rows_tiers.DATAPATH_US AVB_INFO_CHANGED; datapath-events.log@71577063
+
+# 4 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+build_one                                    146,376  1463.76  1540   1215 OVER-raw load_grade.GRADED build_one; H-J8/srp
+build_one                                    146,376  1463.76  1540   1215 OVER-raw whole_grade.stated_us(2) build-one (ctrl_loop.h); H-J8/srp
+item.aecp.notice                              61,637   616.37   650    275 OVER-raw load_grade.GRADED item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))
+item.aecp.notice                              61,637   616.37   650    275 OVER-raw load_grade.STATED_US item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))

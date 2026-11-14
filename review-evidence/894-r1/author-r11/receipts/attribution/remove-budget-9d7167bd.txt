@@ -1,0 +1,40 @@
+                        commits   short   fetch    data   total
+aecp_rx                     408    1302    1126     367    3203
+aecp_map_command            233     803    1749     148    2933
+forward                     208     491     352       0    1051
+valid                        89     327     255     338    1009
+arm                         272     387       0     144     803
+position                    176     338     171       0     685
+applied                      59     219     360       0     638
+transmit                     52     206     352       0     610
+mbx_tx_begin                 88     378      83       0     549
+changed                      89     113     168     148     518
+header                       69     241     185       0     495
+equal                       174     278       0       0     452
+aecp_find                    57     163     225       0     445
+wire_be32                    66     150       0     144     360
+aecp_command                 49     124     156       0     329
+decode                       78     228       0       0     306
+wire_be64                    47     118     131       0     296
+memset                       48      99       0     147     294
+aecp_put48                   10       9     247       0     266
+owe                          42     142      81       0     265
+mbx_tx_commit                49     201       0       0     250
+aecp_port_begin               5       5      83     148     241
+finish                       13      42     176       0     231
+aecp_put32                   48     131       0       0     179
+aecp_nvm_changed             28     151       0       0     179
+span                       2699    7311    6338    1584   17932
+114 refills, 113 distinct lines, 1 refetched
+  refetched x2: 00004f40 set  61 forward
+sets holding more than two of the span's lines:
+  set  12: 00006300 aecp_rx; 00008300 mbx_tx_begin; 00010300 aecp_note
+  set  13: 00006340 aecp_rx; 00008340 mbx_tx_begin; 00010340 aecp_note,running
+  set  69: 0000f140 finish,monitor; 00011140 aecp_map_command,aecp_maps_allow_format; 00013140 aecp_nvm_changed
+  set  70: 0000f180 finish,swap; 00011180 aecp_map_command; 00013180 aecp_nvm_changed
+  set  72: 0000f200 sent_frame,swap; 00011200 aecp_map_command; 00013200 aecp_nvm_changed,applied,path,random_value
+  set  73: 0000f240 sent_frame; 00011240 aecp_map_command; 00013240 applied
+  set  74: 0000f280 owe,sent_frame; 00011280 aecp_map_command; 00013280 applied,counters
+  set  91: 000056c0 mbx_tx_send,port_send; 000076c0 aecp_command; 000116c0 aecp_map_command,aecp_map_restore
+  set 123: 00005ec0 aecp_rx; 00007ec0 send_frame,transmit; 00013ec0 applied,avb,counters,format,path
+  set 124: 00005f00 aecp_rx; 00007f00 transmit; 00013f00 applied,changed,locked

@@ -1,0 +1,12 @@
+# H-81N
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-81N\ 8x8-1if\ 1\ --variant\ answering-every-port\ --groups\ notice-every-0 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8-1if jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T16:59:10
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+    raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}')
+RuntimeError: the model holds 40 notices, not AECP_NOTICES_MOST at 8x8-1if
+END rc=1 2026-11-14T17:00:07
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8-1if jobs 1 args --variant answering-every-port --groups notice-every-0 --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-81N/results start 2026-11-14T19:44:53
+    raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}')
+RuntimeError: the model holds 40 notices, not AECP_NOTICES_MOST at 8x8-1if
+END rc=1 2026-11-14T19:44:53

@@ -1,0 +1,27 @@
+# H-81A
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-81A\ 8x8-1if\ 1\ --groups\ datapath-events 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8-1if jobs 1 args --groups datapath-events start 2026-11-14T16:53:19
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 70 passes carry the store's step; the longest 26,144 CPU cycles (0.261 ms), datapath-events; the longest step 2,338 (0.023 ms), datapath-events
+SLICES 4029 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 94,842, THE RETRY's round 7,121 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS datapath-events: 3 join interval(s), the shortest 187.502 ms and the longest 190.029 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 116 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED datapath-events: a build-one pass of 94,842 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,069 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,452 CPU cycles, over its stated 72,500
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 94,842 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,069 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,452 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T17:00:28
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8-1if jobs 1 args --groups datapath-events --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-81A/results start 2026-11-14T19:44:03
+JOINS datapath-events: 3 join interval(s), the shortest 187.502 ms and the longest 190.029 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 116 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED datapath-events: a build-one pass of 94,842 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,069 CPU cycles, over its stated 72,500
+STATED datapath-events: a build-one pass of 92,452 CPU cycles, over its stated 72,500
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 94,842 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,069 CPU cycles, over the stated slice 90,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 92,452 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T19:44:04

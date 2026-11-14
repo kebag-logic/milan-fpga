@@ -1,0 +1,23 @@
+# H-J8
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-J8\ 8x8\ 1\ --groups\ srp 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8 jobs 1 args --groups srp start 2026-11-14T17:07:10
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 278 passes carry the store's step; the longest 34,909 CPU cycles (0.349 ms), srp; the longest step 2,809 (0.028 ms), srp
+SLICES 11655 tier-2 slices; the longest SRP's records 32,947, THE TRANSMIT's build 146,376, THE RETRY's round 2,269 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp: 6 join interval(s), the shortest 186.536 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 0 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 136,220 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 146,376 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 136,220 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 146,376 CPU cycles, over the stated slice 130,000
+END rc=1 2026-11-14T17:21:36
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8 jobs 1 args --groups srp --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-J8/results start 2026-11-14T19:46:23
+JOINS srp: 6 join interval(s), the shortest 186.536 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 0 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED srp: a build-one pass of 136,220 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 146,376 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 136,220 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 146,376 CPU cycles, over the stated slice 130,000
+END rc=1 2026-11-14T19:46:25

@@ -1,0 +1,168 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_maps.c b/sw/firmware/ctrl/aecp/aecp_maps.c
+index 7bc6a3df00..fc14d3ffeb 100644
+--- a/sw/firmware/ctrl/aecp/aecp_maps.c
++++ b/sw/firmware/ctrl/aecp/aecp_maps.c
+@@ -175,6 +175,9 @@ unsigned aecp_map_work;
+ // port's map for an ADD, or any in another output port's map; ILLEGAL: its
+ // port's geometry refuses it, or its key lies outside the domain.
+ enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u, ILLEGAL = 8u };
++#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
++#error "a held mapping's words are its coordinates in little-endian order (place, look)"
++#endif
+ struct edit {
+ 	bool input;
+ 	union held {
+@@ -213,13 +216,25 @@ static size_t place(const struct edit *e, const union held *x)
+ 	return first < MAP_FIRSTS && channel < MAP_CHANNELS ? first * MAP_CHANNELS + channel : MAP_SLOTS;
+ }
+ 
++// A mapping copied a coordinate at a time. A whole one is a call of memcpy on
++// the image, a map's rows being 2-byte aligned, and an edit copies one for
++// each row it reads (#894).
++static void assign(struct aecp_mapping *to, const struct aecp_mapping *from)
++{
++	to->stream = from->stream;
++	to->channel = from->channel;
++	to->cluster = from->cluster;
++	to->cluster_channel = from->cluster_channel;
++}
++
+ // A map's row looked up: each held mapping of its key is marked `match` where
+ // it equals the row and `other` where it differs. Returns one plus the first
+ // equal one with an occurrence left, else 0. A row whose key lies outside the
+ // domain holds no mapping's key.
+ static size_t look(struct edit *e, const struct aecp_mapping *r, unsigned other, unsigned match)
+ {
+-	union held x = {*r};
++	// the row's words as a held mapping's, in registers, not copied (#894)
++	union held x = {.w = {r->stream | (uint32_t)r->channel << 16, r->cluster | (uint32_t)r->cluster_channel << 16}};
+ 	size_t left = 0, s = place(e, &x);
+ 	for (size_t v = s < MAP_SLOTS ? e->slot[s] : 0u; v != 0u; v = e->next[v - 1u]) {
+ 		VISIT();
+@@ -237,16 +252,17 @@ static size_t look(struct edit *e, const struct aecp_mapping *r, unsigned other,
+ // in turn did, and the rows kept keep their order.
+ static void mark(struct edit *e, struct aecp_map *m, unsigned other, unsigned match)
+ {
+-	size_t kept = 0;
+-	for (size_t k = 0; k < m->count; ++k) {
+-		size_t v = look(e, &m->rows[k], other, match);
++	struct aecp_mapping *rows = m->rows; // read once: a mark's byte stores could alias them
++	size_t count = m->count, kept = 0;
++	for (size_t k = 0; k < count; ++k) {
++		size_t v = look(e, &rows[k], other, match);
+ 		if (match != 0u) {
+ 			continue;
+ 		}
+ 		if (v != 0u) {
+ 			--e->copies[v - 1u];
+-		} else {
+-			m->rows[kept++] = m->rows[k];
++		} else if (kept++ != k) {
++			assign(&rows[kept - 1u], &rows[k]); // a row kept in its place is not copied
+ 		}
+ 	}
+ 	if (match == 0u) {
+@@ -297,6 +313,33 @@ static size_t coordinate(struct aecp *a, const struct aecp_descriptor *port, con
+ 	return value;
+ }
+ 
++// GET_AUDIO_MAP's page of a port's map (IEEE 1722.1-2021 7.4.44), out of the
++// edits' code, which a map's every row reads for each edit (#894).
++static unsigned map_page(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_map *m,
++			 const uint8_t *in, uint8_t *out, size_t *bytes)
++{
++	struct aecp_mapping end = {UINT16_MAX, 0, (uint16_t)wire_be16(port->value + 12), 0};
++	size_t width = coordinate(a, port, &end);
++	size_t pages = (width + m->page_channels - 1u) / m->page_channels;
++	// A zero-cluster model port still has an enumerable empty partition.
++	if (pages == 0u) {
++		pages = 1u;
++	}
++	aecp_put16(out + 6, pages);
++	size_t page = (size_t)wire_be16(in + 4), count = 0;
++	if (page >= pages) {
++		return AECP_BAD_ARGUMENTS;
++	}
++	for (size_t n = 0; n < m->count; ++n) {
++		if (coordinate(a, port, &m->rows[n]) / m->page_channels == page) {
++			encode(out + 12u + 8u * count++, &m->rows[n]);
++		}
++	}
++	aecp_put16(out + 8, count);
++	*bytes += count * 8u;
++	return AECP_SUCCESS;
++}
++
+ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t len,
+ 			  uint8_t *out, size_t *bytes)
+ {
+@@ -305,7 +348,10 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 	if (len < 8u) {
+ 		return AECP_BAD_ARGUMENTS;
+ 	}
+-	memcpy(out, in, cmd == 43u ? 6u : 4u);
++	// the descriptor's type and index, and GET_AUDIO_MAP's page, echoed a byte at a time, not by a call (#894)
++	for (size_t k = 0; k < (cmd == 43u ? 6u : 4u); ++k) {
++		out[k] = in[k];
++	}
+ 	uint16_t type = (uint16_t)wire_be16(in), index = (uint16_t)wire_be16(in + 2);
+ 	if (type != 14u && type != 15u) {
+ 		return AECP_NOT_SUPPORTED;
+@@ -332,26 +378,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 		return AECP_ENTITY_MISBEHAVING;
+ 	}
+ 	if (cmd == 43u) {
+-		struct aecp_mapping end = {UINT16_MAX, 0, (uint16_t)wire_be16(port->value + 12), 0};
+-		size_t width = coordinate(a, port, &end);
+-		size_t pages = (width + m->page_channels - 1u) / m->page_channels;
+-		// A zero-cluster model port still has an enumerable empty partition.
+-		if (pages == 0u) {
+-			pages = 1u;
+-		}
+-		aecp_put16(out + 6, pages);
+-		size_t page = (size_t)wire_be16(in + 4), count = 0;
+-		if (page >= pages) {
+-			return AECP_BAD_ARGUMENTS;
+-		}
+-		for (size_t n = 0; n < m->count; ++n) {
+-			if (coordinate(a, port, &m->rows[n]) / m->page_channels == page) {
+-				encode(out + 12u + 8u * count++, &m->rows[n]);
+-			}
+-		}
+-		aecp_put16(out + 8, count);
+-		*bytes += count * 8u;
+-		return AECP_SUCCESS;
++		return map_page(a, port, m, in, out, bytes);
+ 	}
+ 	if (aecp_foreign_lock(a)) {
+ 		return AECP_ENTITY_LOCKED;
+@@ -367,7 +394,11 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 	a->edited_ms = a->now;
+ 	bool adding = cmd == 44u;
+ 	struct edit e;
+-	memset(e.slot, 0, sizeof e - offsetof(struct edit, slot));
++	// What the edit reads before it writes is cleared, and only that (#894):
++	// the slots place() forms, MAP_DOMAIN of them, here, and each mapping's
++	// link, marks and occurrences at its turn in the table, which no read
++	// reaches past.
++	memset(e.slot, 0, MAP_DOMAIN);
+ 	e.input = type == 14u;
+ 	// The mappings in order: the first held equal to each is its own, and a held
+ 	// one of its key that differs is an earlier conflict. A mapping its port's
+@@ -380,6 +411,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 		e.rows[n].r = (struct aecp_mapping){(uint16_t)(first >> 16), (uint16_t)first, (uint16_t)(second >> 16),
+ 			(uint16_t)second};
+ 		e.rep[n] = (uint8_t)n;
++		e.next[n] = e.flags[n] = e.copies[n] = 0u;
+ 		size_t s = legal(a, port, &e.rows[n].r) ? place(&e, &e.rows[n]) : MAP_SLOTS;
+ 		if (s == MAP_SLOTS) {
+ 			e.flags[n] = ILLEGAL;
+@@ -426,7 +458,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 	if (adding) {
+ 		for (size_t n = 0; n < count; ++n) {
+ 			if (e.rep[n] == n && (e.flags[n] & FOUND) == 0u) {
+-				m->rows[m->count++] = e.rows[n].r;
++				assign(&m->rows[m->count++], &e.rows[n].r);
+ 			}
+ 		}
+ 	} else {

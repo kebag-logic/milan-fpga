@@ -1,0 +1,61 @@
+# span frame from CPU cycle 80104010: 16047 cycles, 2813 commits
+function (self)                     cycles commits
+aecp_rx                               3129     408
+aecp_map_command                      2057     319
+forward                                969     216
+arm@1864                               803     272
+transmit@7edc                          610      52
+mbx_tx_begin                           558      88
+header                                 495      69
+position                               491     164
+valid                                  467      89
+aecp_find                              390      57
+wire_be32@6498                         360      66
+equal                                  322     140
+memset                                 294      48
+changed@13904                          290      58
+applied@f0a8                           281      20
+decode                                 276      78
+owe                                    265      42
+aecp_command                           261      49
+mbx_tx_commit                          250      49
+aecp_port_begin                        241       5
+finish@f17c                            231      13
+applied@13228                          218      29
+conflict                               214      70
+changed@13f0c                          202      25
+aecp_put48                             198      10
+
+# by call path (depth 3)
+   6679  frame > aecp_rx > aecp_command > aecp_map_command
+   3129  frame > aecp_rx
+   1039  frame > aecp_rx > transmit@7edc > send@8418
+    803  frame > aecp_rx > arm@1864
+    610  frame > aecp_rx > transmit@7edc
+    544  frame > aecp_rx > applied@f0a8 > applied@12758
+    495  frame > aecp_rx > header
+    281  frame > aecp_rx > applied@f0a8
+    265  frame > aecp_rx > owe
+    264  frame > aecp_rx > wire_be64@64c4 > wire_be32@6498
+    261  frame > aecp_rx > aecp_command
+    248  frame > aecp_rx > header > aecp_put48
+    241  frame > aecp_rx > owe > memcpy
+    231  frame > aecp_rx > finish@f17c
+    190  frame > aecp_rx > wire_be64@64c4
+    158  frame > aecp_rx > header > aecp_put64
+    133  frame > aecp_rx > transmit@7edc > sent_frame
+    122  frame > aecp_rx > now@14d0
+    103  frame > aecp_rx > aecp_ready > aecp_enter
+     96  frame > aecp_rx > wire_be32@6498
+     64  frame > aecp_rx > aecp_ready
+     34  frame > aecp_rx > arm@1864 > timer
+     24  frame > aecp_rx > aecp_enter
+     24  frame > aecp_rx > now@14d0 > now@1524
+      9  frame
+
+# aecp_map_command: 6679 cycles by pass (callees charged to the line of their call)
+   2252  entry and refusals before the edit
+   2195  each mapping checked in its turn (valid, earlier, position, conflicts)
+     12  capacity
+    796  commit (position again, append or memmove)
+   1424  change notice

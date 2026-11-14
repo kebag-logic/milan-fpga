@@ -1,0 +1,42 @@
+                        commits   short   fetch    data   total
+aecp_map_command            326    1084    2560     227    4197
+aecp_rx                     408    1404    1918     144    3874
+forward                    1030    1984     675     158    3847
+mark                        710    1477     475       0    2662
+memset                      438     524       0    1581    2543
+arm                         272     511     281     158    1222
+legal                        86     265     570     291    1212
+changed                      89     310     613       0    1012
+mbx_tx_begin                 88     378     285       0     751
+applied                      59     185     398       0     642
+wire_be32                   110     240     162       0     512
+aecp_command                 49      92     364       0     505
+transmit                     52     228     223       0     503
+aecp_note                    30     140     182     144     496
+header                       69     135     182      81     467
+aecp_find                    57     196     189       0     442
+owe                          42     124     262       0     428
+aecp_nvm_changed             28      72     300       0     400
+mbx_tx_commit                52     178     126       0     356
+now                          22      23     163       0     208
+wire_be64                    39      59      84       0     182
+memcpy                       26     128       0       0     154
+aecp_put32                   48     102       0       0     150
+send                         10      43      92       0     145
+mbx_tx_send                  17      30      94       0     141
+span                       4321   10397   10349    2784   27851
+143 refills, 140 distinct lines, 3 refetched
+  refetched x2: 000050c0 set  67 forward
+  refetched x2: 00006500 set  20 aecp_rx
+  refetched x2: 00006640 set  25 aecp_rx
+sets holding more than two of the span's lines:
+  set  19: 000064c0 aecp_rx; 000084c0 mbx_tx_begin; 000104c0 aecp_other_lock; 000144c0 ctrl_app_aecp_store_words
+  set  20: 00006500 aecp_rx; 00008500 mbx_tx_begin; 00010500 aecp_foreign_lock,aecp_overridden
+  set  23: 000065c0 aecp_rx; 000085c0 mbx_tx_commit,send; 000105c0 aecp_note,aecp_override
+  set  24: 00006600 aecp_rx; 00008600 mbx_hal_read32,reset_interface,send; 00010600 aecp_note
+  set  66: 00005080 forward; 00011080 legal; 00013080 mark,settle
+  set  67: 000050c0 forward; 000110c0 aecp_maps_allow_format,legal; 000130c0 map.isra.0,mark
+  set 102: 00001980 arm,scan; 00007980 aecp_command,aecp_find,body; 00011980 aecp_map_command
+  set 103: 000019c0 arm; 000079c0 aecp_find; 000119c0 aecp_map_command
+  set 104: 00001a00 arm; 00007a00 aecp_find; 00011a00 aecp_map_command
+  set 105: 00001a40 arm; 00007a40 aecp_find,aecp_port_begin,available_index; 00011a40 aecp_map_command

@@ -1,0 +1,64 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_maps.c b/sw/firmware/ctrl/aecp/aecp_maps.c
+index 7bc6a3df00..b211db075e 100644
+--- a/sw/firmware/ctrl/aecp/aecp_maps.c
++++ b/sw/firmware/ctrl/aecp/aecp_maps.c
+@@ -213,13 +213,25 @@ static size_t place(const struct edit *e, const union held *x)
+ 	return first < MAP_FIRSTS && channel < MAP_CHANNELS ? first * MAP_CHANNELS + channel : MAP_SLOTS;
+ }
+ 
++// A mapping copied a coordinate at a time. A whole one is a call of memcpy on
++// the image, a map's rows being 2-byte aligned, and an edit copies one for
++// each row it reads (#894).
++static void assign(struct aecp_mapping *to, const struct aecp_mapping *from)
++{
++	to->stream = from->stream;
++	to->channel = from->channel;
++	to->cluster = from->cluster;
++	to->cluster_channel = from->cluster_channel;
++}
++
+ // A map's row looked up: each held mapping of its key is marked `match` where
+ // it equals the row and `other` where it differs. Returns one plus the first
+ // equal one with an occurrence left, else 0. A row whose key lies outside the
+ // domain holds no mapping's key.
+ static size_t look(struct edit *e, const struct aecp_mapping *r, unsigned other, unsigned match)
+ {
+-	union held x = {*r};
++	union held x;
++	assign(&x.r, r);
+ 	size_t left = 0, s = place(e, &x);
+ 	for (size_t v = s < MAP_SLOTS ? e->slot[s] : 0u; v != 0u; v = e->next[v - 1u]) {
+ 		VISIT();
+@@ -246,7 +258,7 @@ static void mark(struct edit *e, struct aecp_map *m, unsigned other, unsigned ma
+ 		if (v != 0u) {
+ 			--e->copies[v - 1u];
+ 		} else {
+-			m->rows[kept++] = m->rows[k];
++			assign(&m->rows[kept++], &m->rows[k]);
+ 		}
+ 	}
+ 	if (match == 0u) {
+@@ -367,7 +379,13 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 	a->edited_ms = a->now;
+ 	bool adding = cmd == 44u;
+ 	struct edit e;
+-	memset(e.slot, 0, sizeof e - offsetof(struct edit, slot));
++	// What the edit reads before it writes is cleared, and only that (#894):
++	// the slots place() forms, MAP_DOMAIN of them, and the command's mappings'
++	// links, marks and occurrences. Their rows and firsts are written first.
++	memset(e.slot, 0, MAP_DOMAIN);
++	memset(e.next, 0, count);
++	memset(e.flags, 0, count);
++	memset(e.copies, 0, count);
+ 	e.input = type == 14u;
+ 	// The mappings in order: the first held equal to each is its own, and a held
+ 	// one of its key that differs is an earlier conflict. A mapping its port's
+@@ -426,7 +444,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
+ 	if (adding) {
+ 		for (size_t n = 0; n < count; ++n) {
+ 			if (e.rep[n] == n && (e.flags[n] & FOUND) == 0u) {
+-				m->rows[m->count++] = e.rows[n].r;
++				assign(&m->rows[m->count++], &e.rows[n].r);
+ 			}
+ 		}
+ 	} else {

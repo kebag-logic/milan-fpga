@@ -1,0 +1,33 @@
+# C-R1
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/C-R1\ 1x1\ 1\ --mutation\ acmp-redelivered-every-poll 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 1x1 jobs 1 args --mutation acmp-redelivered-every-poll start 2026-11-14T17:00:50
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 276 passes carry the store's step; the longest 21,294 CPU cycles (0.213 ms), backlog-owed; the longest step 2,213 (0.022 ms), backlog-owed
+SLICES 19385 tier-2 slices; the longest SRP's records 74,528, THE TRANSMIT's build 41,524, THE RETRY's round 1,835 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.084 ms and the longest 190.000 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 309 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-owed: a pass's polls base of 39,997 CPU cycles, over its stated 20,500
+STATED backlog-owed: a declined ACMP offer of 2,053 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: 324 declined ACMP offers, over their bound of two a sent owed frame and one (12 sent)
+END rc=0 2026-11-14T17:16:17
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 1x1 jobs 1 args --mutation acmp-redelivered-every-poll --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/C-R1/results start 2026-11-14T19:45:33
+JOINS backlog-owed: 3 join interval(s), the shortest 188.084 ms and the longest 190.000 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 309 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED backlog-owed: a pass's polls base of 39,997 CPU cycles, over its stated 20,500
+STATED backlog-owed: a declined ACMP offer of 2,053 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,068 CPU cycles, over its stated 2,000
+STATED backlog-owed: 324 declined ACMP offers, over their bound of two a sent owed frame and one (12 sent)
+END rc=0 2026-11-14T19:45:36

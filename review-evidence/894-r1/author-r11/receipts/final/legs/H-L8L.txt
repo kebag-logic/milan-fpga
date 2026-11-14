@@ -1,0 +1,17 @@
+# H-L8L
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-L8L\ 8x8\ 1\ --variant\ answering-ports\ --groups\ aecp-largest-notice 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8 jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T16:44:09
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 138 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 244,041 (2.440 ms)
+STEPS 89 passes carry the store's step; the longest 33,492 CPU cycles (0.335 ms), aecp-largest-notice; the longest step 3,417 (0.034 ms), aecp-largest-notice
+SLICES 3623 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 90,149, THE RETRY's round 3,300 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-largest-notice: 6 join interval(s), the shortest 186.492 ms and the longest 190.025 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 138 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T16:53:14
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8 jobs 1 args --variant answering-ports --groups aecp-largest-notice --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-L8L/results start 2026-11-14T19:43:23
+SHARE aecp-largest-notice: 2 of 138 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 244,041 (2.440 ms)
+JOINS aecp-largest-notice: 6 join interval(s), the shortest 186.492 ms and the longest 190.025 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 138 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T19:43:24

@@ -1,0 +1,43 @@
+# H-J81
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-J81\ 8x8-1if\ 1\ --groups\ srp 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8-1if jobs 1 args --groups srp start 2026-11-14T17:10:30
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 271 passes carry the store's step; the longest 26,176 CPU cycles (0.262 ms), srp; the longest step 2,338 (0.023 ms), srp
+SLICES 15800 tier-2 slices; the longest SRP's records 34,525, THE TRANSMIT's build 139,210, THE RETRY's round 1,838 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 187.502 ms and the longest 190.029 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 290 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 94,842 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,069 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,452 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,199 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 91,959 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 139,210 CPU cycles, over its stated 72,500
+STATED srp: a walk item of 4,780 CPU cycles, over its stated 3,500
+STATED srp: an SRP record's apply of 29,764 CPU cycles, over its stated 28,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 94,842 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,069 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,452 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,199 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 91,959 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 139,210 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T17:22:30
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8-1if jobs 1 args --groups srp --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-J81/results start 2026-11-14T19:46:43
+JOINS srp: 3 join interval(s), the shortest 187.502 ms and the longest 190.029 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 290 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED srp: a build-one pass of 94,842 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,069 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,452 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 92,199 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 91,959 CPU cycles, over its stated 72,500
+STATED srp: a build-one pass of 139,210 CPU cycles, over its stated 72,500
+STATED srp: a walk item of 4,780 CPU cycles, over its stated 3,500
+STATED srp: an SRP record's apply of 29,764 CPU cycles, over its stated 28,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 94,842 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,069 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,452 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 92,199 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 91,959 CPU cycles, over the stated slice 90,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 139,210 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T19:46:45

@@ -1,0 +1,71 @@
+diff --git a/tb/verilator/ctrl_service_budget/flip_grade.py b/tb/verilator/ctrl_service_budget/flip_grade.py
+index 5cff9bda3c..5052f3cfcd 100644
+--- a/tb/verilator/ctrl_service_budget/flip_grade.py
++++ b/tb/verilator/ctrl_service_budget/flip_grade.py
+@@ -171,8 +171,8 @@ def channel_controls(root: Path) -> list[str]:
+             escaped.append(CHANNEL_CONTROLS[0])
+     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+     text = (root / loop).read_text()
+-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
+-    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
++    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
++    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
+     with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
+                            f(r, p, under)):
+         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index 831ac95b33..c3855758e7 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -125,7 +125,8 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
+ #: the merge of dev-soft-core 0fb66211 (#665), 8x8/2if on the image whose round's cold start is 185 us, each cost the
+ #: larger of that measurement and this table's; on #894's round 11 a TICK at 1x1/1if 45 to 50 us, the larger of this
+ #: table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an owed
+-#: frame inside it (the same TICK under the one-row edit's cut is 3,242). 32x32/2if is measured on the 32x32
++#: frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and ACMP's
++#: owed frame 50 to 55 us (poll_grade.py). 32x32/2if is measured on the 32x32
+ #: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
+ #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
+ #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
+@@ -168,7 +169,7 @@ STATED_US_DONOR = {
+                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 65, 'event.TICK': 50,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
+-                'item.mrpdu': 725, 'item.acmp': 50, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
++                'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
+                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,
+                 'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 275,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index c8d4541bce..27a5c75247 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -83,8 +83,10 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: ACMP's item is its send less the offers THE KEPT COMMAND's redelivery nests in it, and a declined offer is its own
+ #: (#908): measured over backlog-owed, the one group that stages owed ACMP frames, on the image that traces acmp_rx at
+ #: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
+-#: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if.
+-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=50,
++#: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. On #894's round 11 ACMP's item at 1x1/1if is 55 us, the
++#: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
++#: 7398ec0a), the code after the map edit's moved by the cut.
++STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=55,
+                     aecp=210, aecp_long=365, acmp_declined=20),
+              2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=65,
+                     aecp=275, aecp_long=655, acmp_declined=20)}
+diff --git a/tb/verilator/ctrl_service_budget/rows_tiers.py b/tb/verilator/ctrl_service_budget/rows_tiers.py
+index ed1fb68fc6..43ebde6933 100644
+--- a/tb/verilator/ctrl_service_budget/rows_tiers.py
++++ b/tb/verilator/ctrl_service_budget/rows_tiers.py
+@@ -929,9 +929,9 @@ def channel_controls(root: Path) -> list[str]:
+     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
+     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+     header = (root / loop).read_text()
+-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
++    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
+     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
+-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
++    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
+     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
+         escaped.append("THE TRANSMIT's stated figure under its row")
+     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)

@@ -1,0 +1,15 @@
+# H-L8O
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-L8O\ 8x8\ 1\ --groups\ backlog-owed 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8 jobs 1 args --groups backlog-owed start 2026-11-14T17:00:30
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 277 passes carry the store's step; the longest 33,221 CPU cycles (0.332 ms), backlog-owed; the longest step 2,809 (0.028 ms), backlog-owed
+SLICES 11578 tier-2 slices; the longest SRP's records 95,467, THE TRANSMIT's build 89,650, THE RETRY's round 2,269 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS backlog-owed: 6 join interval(s), the shortest 187.688 ms and the longest 189.889 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 318 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T17:17:35
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8 jobs 1 args --groups backlog-owed --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-L8O/results start 2026-11-14T19:45:13
+JOINS backlog-owed: 6 join interval(s), the shortest 187.688 ms and the longest 189.889 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 318 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T19:45:14

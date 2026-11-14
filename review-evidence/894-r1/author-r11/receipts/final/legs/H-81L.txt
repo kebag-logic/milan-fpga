@@ -1,0 +1,31 @@
+# H-81L
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-81L\ 8x8-1if\ 1\ --variant\ answering-ports\ --groups\ aecp-largest-notice 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-14T16:51:29
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 200,295 (2.003 ms)
+STEPS 78 passes carry the store's step; the longest 26,372 CPU cycles (0.264 ms), aecp-largest-notice; the longest step 2,529 (0.025 ms), aecp-largest-notice
+SLICES 4415 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 95,223, THE RETRY's round 2,063 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.586 ms and the longest 189.971 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED aecp-largest-notice: a build-one pass of 95,223 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 92,237 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 92,586 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a pass's polls base of 20,911 CPU cycles, over its stated 20,500
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 95,223 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 92,237 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 92,586 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T16:59:08
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-81L/results start 2026-11-14T19:43:43
+SHARE aecp-largest-notice: 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 200,295 (2.003 ms)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.586 ms and the longest 189.971 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED aecp-largest-notice: a build-one pass of 95,223 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 92,237 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a build-one pass of 92,586 CPU cycles, over its stated 72,500
+STATED aecp-largest-notice: a pass's polls base of 20,911 CPU cycles, over its stated 20,500
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 95,223 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 92,237 CPU cycles, over the stated slice 90,000
+STATED aecp-largest-notice: a tier-2 slice of THE TRANSMIT's build of 92,586 CPU cycles, over the stated slice 90,000
+END rc=1 2026-11-14T19:43:44

@@ -1,0 +1,15 @@
+# H-B1F
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r11/fp-wt\ $SCRATCH/r11/gates-out/builds/H-B1F\ 1x1\ 1\ --variant\ answering-ports\ --groups\ aecp-fanout 
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 1x1 jobs 1 args --variant answering-ports --groups aecp-fanout start 2026-11-14T17:16:21
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 83 passes carry the store's step; the longest 22,527 CPU cycles (0.225 ms), aecp-fanout; the longest step 3,511 (0.035 ms), aecp-fanout
+SLICES 5733 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,829, THE RETRY's round 26,747 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.065 ms and the longest 189.978 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 13 paths), 0 of 119 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T17:20:00
+# regraded with the final head's graders on the build's own clone
+HEAD 9fda93a130334d753c5dad45fcba156a531ff291 DIRTY 4 point 1x1 jobs 1 args --variant answering-ports --groups aecp-fanout --reuse-build --regrade --out $SCRATCH/r11/gates-out/builds/H-B1F/results start 2026-11-14T19:47:03
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.065 ms and the longest 189.978 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 13 paths), 0 of 119 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-14T19:47:04

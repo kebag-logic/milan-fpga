@@ -1,0 +1,64 @@
+# span frame from CPU cycle 79788030: 27851 cycles, 4321 commits, 143 fetch refills
+function (self)                     cycles commits refills
+aecp_map_command                      4197     326      33
+aecp_rx                               3874     408      30
+forward                               3847    1030       6
+memset                                2543     438       1
+mark@10db8                            2468     690       6
+arm@1994                              1222     272       4
+legal                                 1212      86       4
+mbx_tx_begin                           751      88       6
+changed@13e54                          601      58       5
+aecp_command                           505      49       4
+transmit@80b4                          503      52       6
+aecp_note                              496      30       3
+header                                 467      69       3
+aecp_find                              442      57       2
+owe                                    428      42       2
+aecp_nvm_changed                       400      28       3
+wire_be32@66c0                         392      66       2
+changed@1445c                          385      25       4
+applied@13778                          363      29       3
+mbx_tx_commit                          356      52       1
+now@1600                               202      21       0
+mark@13088                             194      20       2
+memcpy                                 154      26       0
+wire_be64@66ec                         150      26       0
+aecp_put32                             150      48       0
+
+# by call path (depth 3)
+  17068  frame > aecp_rx > aecp_command > aecp_map_command
+   3874  frame > aecp_rx
+   1393  frame > aecp_rx > transmit@80b4 > send@85f8
+   1222  frame > aecp_rx > arm@1994
+    599  frame > aecp_rx > applied@f3a0 > applied@12cac
+    505  frame > aecp_rx > aecp_command
+    503  frame > aecp_rx > transmit@80b4
+    467  frame > aecp_rx > header
+    428  frame > aecp_rx > owe
+    325  frame > aecp_rx > owe > memcpy
+    317  frame > aecp_rx > wire_be64@66ec > wire_be32@66c0
+    202  frame > aecp_rx > now@1600
+    158  frame > aecp_rx > header > aecp_put64
+    150  frame > aecp_rx > wire_be64@66ec
+    103  frame > aecp_rx > aecp_ready > aecp_enter
+     97  frame > aecp_rx > header > aecp_put48
+     75  frame > aecp_rx > wire_be32@66c0
+     74  frame > aecp_rx > finish@f474
+     73  frame > aecp_rx > applied@f3a0
+     64  frame > aecp_rx > aecp_ready
+     54  frame > aecp_rx > transmit@80b4 > sent_frame
+     34  frame > aecp_rx > arm@1994 > timer
+     25  frame > aecp_rx > now@1600 > now@1654
+     24  frame > aecp_rx > aecp_enter
+     17  frame
+
+# aecp_map_command: 17068 cycles by pass (callees charged to the line of their call)
+   3355   21 refills  entry and refusals before the edit
+   2616    1 refills  clear of struct edit
+   2388   15 refills  table of the mappings
+   2899    9 refills  marks of the maps
+    425    4 refills  each mapping checked in its turn
+     12    0 refills  capacity
+   2813    0 refills  commit (append, or the REMOVE pass)
+   2560   22 refills  change notice
