@@ -18,6 +18,20 @@ TIMING_GRADE = {
     "corners": ("Slow", "Fast"),
 }
 
+#: The dies this board is built for (#911). The XC7A200T variant is the same
+#: board in the pin-compatible FBG484 footprint, so it keeps the release grade,
+#: Tj range, corners and speed grade above and differs only in the part.
+BOARD_PARTS = ("xc7a100t-fgg484-2", "xc7a200t-fbg484-2")
+
+
+def board_part(part: str | None = None) -> str:
+    """The die a build targets: `part`, or the declaration's own when None."""
+    if part is None or part == TIMING_GRADE["part"]:
+        return TIMING_GRADE["part"]
+    if part not in BOARD_PARTS:
+        raise ValueError(f"part {part!r} is not one of {BOARD_PARTS}")
+    return part
+
 
 def tcl_word(value: str | Path) -> str:
     """Quote a literal path or declaration word without Tcl substitution."""
@@ -27,12 +41,16 @@ def tcl_word(value: str | Path) -> str:
     return "{" + text + "}"
 
 
-def configure_commands() -> list[str]:
-    """Derive the pre-placement and read-only checkpoint setup from one declaration."""
+def configure_commands(part: str | None = None) -> list[str]:
+    """Derive the pre-placement and read-only checkpoint setup from one declaration.
+
+    `part` is the die the build targets, one of BOARD_PARTS; None is the
+    declaration's own part, read when called.
+    """
     script = Path(__file__).resolve().parents[1] / "timing_grade.tcl"
     if not script.is_file():
         raise FileNotFoundError(f"missing timing grade hook: {script}")
-    grade = TIMING_GRADE
+    grade = dict(TIMING_GRADE, part=board_part(part))
     return [
         f"source {tcl_word(script)}",
         "kl_timing_grade_configure " + " ".join(tcl_word(str(value)) for value in (

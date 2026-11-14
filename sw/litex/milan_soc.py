@@ -85,6 +85,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
 import board_audio_routing
+from platforms.ax7101_timing import BOARD_PARTS
 
 # The saved-state record contract (design page section 4.2): the firmware's
 # record-set constants come from the SAME derivation the record-space gate and
@@ -3996,6 +3997,12 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
+    ap.add_argument("--fpga-part", default=None,
+                    choices=BOARD_PARTS,
+                    help="the die the ax7101 board is fitted with (#911): "
+                         "omitted is the AX7101's XC7A100T; xc7a200t-fbg484-2 "
+                         "is the same board in the pin-compatible FBG484 "
+                         "footprint")
     ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
                     help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -4396,13 +4403,15 @@ def main() -> None:
                    AUDIO_IF_WORD_BITS_DEFAULT))
 
     if args.board == "arty":
+        if args.fpga_part is not None:
+            ap.error("--fpga-part names a die of the ax7101 board, not the arty")
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
         # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
         # cable. Second Milan node for AVDECC/Milan interop (100M CBS point).
         from litex_boards.platforms import digilent_arty
         platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
     else:
-        platform = alinx_ax7101.Platform()
+        platform = alinx_ax7101.Platform(part=args.fpga_part)
     # QSPI-bootable bitstreams (user directive 2026-07-12): compress (a 100t
     # frame is 3.65 MiB raw — the 16 MiB flash only fits it compressed) and
     # pin the SPI config settings the ARTY's flash part supports. ARTY ONLY:
