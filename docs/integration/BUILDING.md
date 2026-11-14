@@ -299,6 +299,28 @@ mismatched generated-entity directory fails the gate.
 change the build** — the two must be changed together, and the cable is the
 side that decides.
 
+### `ax7a200t`  -  the AX7101 board fitted with an XC7A200T (#911)
+
+It builds the `ax7101` shipping config for xc7a200t**fbg484-2**.
+
+FBG484 and FGG484 share the footprint, pins and constraints.
+
+`cfg_ax7a200t` is `cfg_ax7101` plus `--fpga-part xc7a200t-fbg484-2`.
+
+The shape gate allows that flag on this recipe alone.
+
+`BUILD_DIES` in `scripts/check_sweep_shape.py` says so.
+
+The part reaches the platform, PLL and timing grade.
+
+`BOARD_PARTS` in `sw/litex/platforms/ax7101_timing.py` lists the dies.
+
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant) holds its flash layout.
+
+The
+[deployment guide](../guides/BOARD_DEPLOYMENT.md#flash-an-image-set-over-jtag)
+holds its flash commands.
+
 ### `arty`  -  Digilent Arty A7-100, the retired bring-up recipe
 
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
@@ -335,6 +357,11 @@ elaborates and drives the complete five-signal header.
 3. The pairing contract for its board (flashboot, prunes, clocks) is the
    config's; keep the function comment to the flow choices and what
    measured them.
+4. A die variant (`ax7a200t`) reuses its board's config:
+   - bind that YAML in `recipe_config`;
+   - derive `cfg_<name>()` from the board's recipe plus `--fpga-part`;
+   - add the part to `BOARD_PARTS`, and the recipe to `BUILD_DIES`;
+   - give `board_facts` its programmer part.
 
 ## 3. The launch discipline (why the script is not just a for-loop)
 
@@ -442,9 +469,28 @@ select the cable by serial and the console by `/dev/serial/by-id/` path:
 The Arty is a retired DUT: its recipe elaborates under gate 23g (section 2)
 and the board is not powered, loaded or flashed.
 
-Every profile keeps the bitstream at QSPI offset 0 in a dedicated 4 MiB slot.
-The bare-metal manifest carries only raw `aem_desc.bin` at 4 MiB in a 64 KiB
-slot; firmware itself is linked into ROM. (Historical, retired #259: the
+Every profile keeps the bitstream at QSPI offset 0.
+
+Its slot size is the die's.
+
+The bare-metal manifest carries only raw `aem_desc.bin`.
+
+Its 64 KiB slot starts where the bitstream slot ends:
+
+| Board | Bitstream slot | `aem_desc.bin` at |
+|---|---|---|
+| AX7101 (XC7A100T) | 4 MiB | `0x400000` |
+| `ax7a200t` (XC7A200T) | 10 MiB | `0xA00000` |
+
+`FLASHBOOT_BITSTREAM_SLOT` in `sw/litex/milan_soc.py` holds the slot sizes.
+
+`layout_for()` in `sw/litex/flash_map.py` derives each die's layout.
+
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant) draws both maps.
+
+Firmware itself is linked into ROM.
+
+(Historical, retired #259: the
 multi-image manifest carried a second-stage boot chain.) Always read the build's
 `flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with

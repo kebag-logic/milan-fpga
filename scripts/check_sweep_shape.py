@@ -64,9 +64,13 @@ BUILD = ROOT / "sw/litex/build.sh"
 # sweep; cfg_ax8x8 has never produced a bitstream.
 BUILD_CFGS = {
     "ax7101": "configs/endstation_ax7101_1x1_tdm8.yaml",
+    "ax7a200t": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax8x8": "configs/endstation_ax7101_8x8.yaml",
     "arty":  "configs/endstation_arty_current.yaml",
 }
+
+# #911: the die a recipe adds to its config's emission; every other recipe adds none.
+BUILD_DIES = {"ax7a200t": ["--fpga-part", "xc7a200t-fbg484-2"]}
 
 # FLOW flags, not DESIGN flags: launch directives and per-run paths that
 # emit_soc_argv deliberately does not own. The config comparison ignores only
@@ -117,6 +121,10 @@ BUILD_PLANTS = [
      "exec python3 milan_soc.py $args ", "exec python3 milan_soc.py ",
      ("cfg_ax7101: no --entity-gen-dir", "cfg_ax8x8: no --entity-gen-dir",
       "cfg_arty: no --entity-gen-dir")),
+    ("cfg_ax7101 gains the XC7A200T die", 'ExtraPostPlacementOpt"',
+     'ExtraPostPlacementOpt --fpga-part xc7a200t-fbg484-2"', ("cfg_ax7101: design flag --fpga-part:",)),
+    ("cfg_ax7a200t loses its die", 'echo "$(cfg_ax7101) --fpga-part xc7a200t-fbg484-2"', 'echo "$(cfg_ax7101)"',
+     ("cfg_ax7a200t: design flag --fpga-part:",)),
 ]
 
 # Ways build.sh's regeneration can FAIL, planted in its text and executed in
@@ -457,7 +465,7 @@ def check_recipe(name: str, cfg_path: str, run: DryRun,
     bad = _entity_gen_dir_agrees(name, cfg_path, flags)
     got = design_flags(flags)
     got.pop("--entity-gen-dir", None)  # checked above, by config basename
-    want = design_flags(parse_flags(design_opts_expected(cfg_path)))
+    want = design_flags(parse_flags(design_opts_expected(cfg_path) + BUILD_DIES.get(name, [])))
     n_ok = 0
     for k in sorted(set(got) | set(want)):
         g, w = got.get(k, "(absent)"), want.get(k, "(absent)")

@@ -285,6 +285,82 @@ def validate_artifact_pair(layout_path: str | Path, bit_path: str | Path,
     }
 
 
+#: The die `openFPGALoader --detect` reads from the JTAG IDCODE, printed as
+#: "model  xc7a200". The IDCODE names the die and never the package.
+_DETECT_MODEL = re.compile(r"^\s*model\s+(xc7a\d+)\s*$", re.M)
+#: The flash JEDEC ID `openFPGALoader --detect -f --verbose` reads through its
+#: JTAG-to-SPI bridge: the three ID bytes and "read <id>" on one line, or the
+#: "JEDEC ID: 0x<id>" line. Every form present must name the same ID.
+_JEDEC_FORMS = (
+    re.compile(r"^(?:[0-9a-fA-F]{1,2} ){3}read ([0-9a-fA-F]{1,6})\s*$", re.M),
+    re.compile(r"\bJEDEC ID: 0x([0-9a-fA-F]{6})\b"),
+)
+
+
+def _die(part: str) -> str:
+    """The 7-series die a part names: xc7a200t for 7a200tfbg484 or xc7a200t-fbg484-2."""
+    found = re.match(r"(?:xc)?(7a\d+t)", part.strip().lower())
+    if found is None:
+        raise TransitionError(f"cannot read a 7-series die from part {part!r}")
+    return "xc" + found.group(1)
+
+
+def _read_text(path: str | Path, what: str) -> str:
+    try:
+        with open(path, encoding="utf-8", errors="replace") as stream:
+            return stream.read()
+    except OSError as exc:
+        raise TransitionError(f"cannot read the {what} {path}: {exc}") from exc
+
+
+def check_board(layout_path: str | Path, bit_path: str | Path,
+                detect_path: str | Path,
+                flash_path: str | Path | None = None) -> dict[str, str]:
+    """Refuse an image set the board on the cable cannot carry (#911).
+
+    The bitstream's part must be the die the JTAG IDCODE reports, and the
+    flash's JEDEC ID, when `flash_path` holds the bridge's read of it, must be
+    the one the layout names. The layout's flash device is checked first, so
+    a layout that names none is refused before the bridge is ever loaded.
+    """
+    layout, _payload, part = _bound_payload(layout_path, bit_path, "target")
+    device, jedec = layout.get("flash_device"), layout.get("flash_jedec_id")
+    if (not isinstance(device, str) or not device or type(jedec) is not int
+            or not 0 < jedec <= 0xFF_FFFF):
+        raise TransitionError(
+            "target layout names no flash device (flash_device and "
+            "flash_jedec_id); rebuild it, or regenerate it from the build's "
+            "soc.h with layout_from_soch.py")
+    # One entry per chain device, so a chain of two equal dies is refused
+    # too: the board then has more than the one FPGA the write would reach.
+    models = _DETECT_MODEL.findall(_read_text(detect_path, "JTAG detect output"))
+    if len(models) != 1:
+        raise TransitionError(
+            "JTAG detect output names no single FPGA model "
+            f"({models or 'none'}); is the cable on this board?")
+    detected = models[0] + "t"
+    if detected != _die(part):
+        raise TransitionError(
+            f"JTAG-detected part {detected} does not match the image set's "
+            f"bitstream part {part!r}; this image set is for another die")
+    result = {"die": detected, "flash_device": device,
+              "flash_jedec_id": f"0x{jedec:06x}"}
+    if flash_path is None:
+        return result
+    text = _read_text(flash_path, "flash detect output")
+    ids = {int(value, 16) for form in _JEDEC_FORMS for value in form.findall(text)}
+    if len(ids) != 1:
+        raise TransitionError(
+            "flash detect output names no single JEDEC ID "
+            f"({sorted(f'0x{i:06x}' for i in ids) or 'none'})")
+    read = ids.pop()
+    if read != jedec:
+        raise TransitionError(
+            f"flash device JEDEC ID 0x{read:06x} does not match the layout's "
+            f"{device} (0x{jedec:06x}); this image set is for another flash")
+    return result
+
+
 def plan(installed_layout: str | Path, installed_bit: str | Path,
          target_layout: str | Path, target_bit: str | Path,
          expected_target_owner: str | None = None,
@@ -557,7 +633,7 @@ def self_test() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """The four subcommands deploy.sh drives, printing tab-separated fields.
+    """The five subcommands deploy.sh drives, printing tab-separated fields.
 
     A refusal is exit 2 with the reason on stderr, distinct from a subcommand
     that ran and answered: the caller is a shell script deciding whether to
@@ -580,6 +656,11 @@ def main(argv: list[str] | None = None) -> int:
     p_validate_aem = sub.add_parser("validate-aem")
     p_validate_aem.add_argument("--layout", required=True)
     p_validate_aem.add_argument("--aem", required=True)
+    p_board = sub.add_parser("check-board")
+    p_board.add_argument("--layout", required=True)
+    p_board.add_argument("--bit", required=True)
+    p_board.add_argument("--detect", required=True)
+    p_board.add_argument("--flash")
     p_ident = sub.add_parser("identify")
     p_ident.add_argument("--dump", required=True)
     p_ident.add_argument("--installed-bit", required=True)
@@ -608,12 +689,18 @@ def main(argv: list[str] | None = None) -> int:
             result = validate_aem_artifact(args.layout, args.aem)
             print("\t".join(str(result[key]) for key in AEM_BINDING_KEYS))
             return 0
+        if args.command == "check-board":
+            result = check_board(args.layout, args.bit, args.detect, args.flash)
+            print("\t".join(result[key] for key in (
+                "die", "flash_device", "flash_jedec_id")))
+            return 0
         if args.command == "identify":
             print(identify(args.dump, args.installed_bit, args.target_bit,
                            args.expected_size))
             return 0
         parser.error(
-            "choose plan, validate, validate-aem, identify, or --self-test")
+            "choose plan, validate, validate-aem, check-board, identify, "
+            "or --self-test")
     except TransitionError as exc:
         print(f"qspi owner transition REFUSED: {exc}", file=sys.stderr)
         return 2

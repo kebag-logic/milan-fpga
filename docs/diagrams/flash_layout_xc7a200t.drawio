@@ -1,0 +1,16 @@
+<mxfile host="app.diagrams.net"><diagram name="flash-layout"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1620" pageHeight="1340" math="0" shadow="0"><root><mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="title" value="QSPI flash map - 16 MiB device, to scale (GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=20;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1200" height="40" as="geometry"/></mxCell>
+<mxCell id="dies" value="Map of xc7a200t-fbg484-2: its bitstream slot is FLASHBOOT_BITSTREAM_SLOT&#x27;s 10 MiB, and the AEM region starts where it ends." style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="64" width="1200" height="24" as="geometry"/></mxCell>
+<mxCell id="b0" value="bitstream   0x0000000..0x09FFFFF   10 MiB
+-&gt; DRAM 0x00000000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="210.0" width="820" height="562.5" as="geometry"/></mxCell>
+<mxCell id="b1" value="aem   0x0A00000..0x0A0FFFF   64 KiB
+-&gt; DRAM 0x00000000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="772.5" width="820" height="18" as="geometry"/></mxCell>
+<mxCell id="b2" value="(free)   0x0A10000..0x0EDFFFF   4.81 MiB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#90A4AE;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="776.015625" width="820" height="270.703125" as="geometry"/></mxCell>
+<mxCell id="b3" value="journal   0x0EE0000..0x0EFFFFF   128 KiB
+WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1046.71875" width="820" height="18" as="geometry"/></mxCell>
+<mxCell id="b4" value="user   0x0F00000..0x0FFFFFF   1 MiB
+WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1053.75" width="820" height="56.25" as="geometry"/></mxCell>
+<mxCell id="man" value="FLASHBOOT_MANIFESTS - what the BIOS copies to DRAM at boot
+none: (nothing - serial upload)
+baremetal: aem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0BEC5;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1154" width="900" height="78" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

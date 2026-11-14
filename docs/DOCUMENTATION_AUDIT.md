@@ -228,7 +228,7 @@ Areas follow the directory tree.
 
 | Page | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
 |---|---|---|---|---|---|---|---|
-| [docs/guides/BOARD_DEPLOYMENT.md](guides/BOARD_DEPLOYMENT.md) | bench/qualification | Board deployment guide | `sw/litex`, `configs`, `sw/builder` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/BOARD_DEPLOYMENT.md](guides/BOARD_DEPLOYMENT.md) | bench/qualification | Board deployment guide | `sw/litex`, `configs`, `scripts` | current | no recorded contradiction | D0 | overview and guides |
 | [docs/guides/IMPLEMENTATION_DEVELOPER.md](guides/IMPLEMENTATION_DEVELOPER.md) | maintainer | Implementation developer guide | `hdl/milan`, `sw/litex`, `hdl/common/csr` | current | no recorded contradiction | D0 | overview and guides |
 | [docs/guides/PROJECT_MANAGER.md](guides/PROJECT_MANAGER.md) | bench/qualification | Project manager guide | -- | current | no recorded contradiction | D0 | overview and guides |
 | [docs/guides/README.md](guides/README.md) | all readers | Choose your documentation path | -- | current | no recorded contradiction | D0 | overview and guides |

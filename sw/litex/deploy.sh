@@ -25,6 +25,13 @@
 #     INSTALLED_LAYOUT=<path> + INSTALLED_BIT=<path> name the exact build
 #                   currently in QSPI. flash-pair proves that claim by live
 #                   offset-zero readback before choosing its write order.
+#     FPGA_PART=<part> the programmer part the image set is bound to:
+#                   xc7a100tfgg484 (default, the AX7101) or xc7a200tfbg484
+#                   (the same board on an XC7A200T, #911).
+#  Before its first dump or write, flash, flash-images and flash-pair read
+#  the board on the cable: the FPGA die from the JTAG IDCODE and the flash
+#  JEDEC ID through the bridge, and refuse an image set made for another die
+#  or a layout whose flash_device is not the board's.
 #
 #  load  = JTAG -> SRAM (volatile, fast; gone on power-cycle). Default; use for iteration.
 #  flash-pair = the persistent entry point. It proves the installed bitstream,
@@ -211,6 +218,46 @@ run_ofl() {
         echo "[deploy] programmer reported failure despite a zero exit status" >&2
         return 1
     fi
+}
+
+run_detect() {
+    # One read-only identification run, its whole output kept in "$1" for
+    # check-board to parse. No error-word scan here: the refusal is decided
+    # on what the output names, and a non-zero exit is a refusal by itself.
+    local out="$1" output; shift
+    if ! output=$($OFL "$@" 2>&1); then
+        echo "$output" >&2
+        echo "[deploy] board identification failed: openFPGALoader $*" >&2
+        return 1
+    fi
+    printf '%s\n' "$output" > "$out"
+}
+
+prove_board() {
+    # #911: the board on the cable must be the one the image set was built
+    # for, proved before the first programmer write. The die comes from the
+    # JTAG IDCODE (--detect touches neither SRAM nor flash), checked before
+    # any bridge is loaded; the flash device from its JEDEC ID, read through
+    # the JTAG-to-SPI bridge FPGA_PART selects. check-board refuses either
+    # mismatch, and a layout that names no flash device.
+    local layout="$1" bit="$2" scratch="$3" line
+    echo "[deploy] identify the board on serial $SERIAL (FPGA die, then flash JEDEC ID)"
+    run_detect "$scratch/jtag-detect.txt" -c "$CABLE" --detect || return 2
+    "$PYTHON" "$HERE/qspi_owner_transition.py" check-board --layout "$layout" \
+        --bit "$bit" --detect "$scratch/jtag-detect.txt" > /dev/null || {
+        # The reason above: a layout naming no flash device, or the die.
+        echo "[deploy] REFUSED: the image set's layout or the FPGA on the cable fails the board check." >&2
+        return 2
+    }
+    run_detect "$scratch/flash-detect.txt" -c "$CABLE" --fpga-part "$FPGA_PART" \
+        --detect -f --verbose || return 2
+    line=$("$PYTHON" "$HERE/qspi_owner_transition.py" check-board --layout "$layout" \
+        --bit "$bit" --detect "$scratch/jtag-detect.txt" \
+        --flash "$scratch/flash-detect.txt") || {
+        echo "[deploy] REFUSED: the board's flash device is not the layout's." >&2
+        return 2
+    }
+    echo "[deploy] board matches the image set: $line"
 }
 
 prepare_images() {
@@ -424,6 +471,7 @@ do_flash() (
             echo "[deploy] flash REFUSED: BIT payload hash/part is not bound to LAYOUT." >&2
             exit 2
         }
+    prove_board "$layout" "$bit" "$tmp" || exit 2
     write_target_bit "$bit"
 )
 
@@ -440,6 +488,7 @@ do_flash_images() (
     bit="$target/gateware/target.bit"
     aem="$target/aem_desc.bin"
     prepare_images "$tmp" "$rows" "$layout" "$bit" "$aem"
+    prove_board "$layout" "$bit" "$tmp" || exit 2
     write_prepared_images "$rows"
 )
 
@@ -482,6 +531,7 @@ do_flash_pair() (
         dump_bytes target_profile <<< "$plan_line"
 
     prepare_images "$tmp" "$rows" "$target_layout" "$target_bit" "$target_aem"
+    prove_board "$target_layout" "$target_bit" "$tmp" || exit 2
 
     echo "[deploy] prove live QSPI bitstream on serial $SERIAL ($dump_bytes B)"
     run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -o 0 --dump-flash \
