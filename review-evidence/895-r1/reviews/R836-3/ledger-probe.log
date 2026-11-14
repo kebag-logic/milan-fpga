@@ -1,0 +1,9 @@
+Clean ledger: both own images accepted; 20 no-override/wrong-point/over-budget cases refused by budget.
+Platform 60.5 accepted, 61.0 refused. Fixture 59.0 accepted, 59.5 refused.
+CAUGHT: the platform's entry without its staging buffer ; `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 2, 0, 2, 2, 2])
+CAUGHT: the platform's entry without ctrl_plat ; `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 0, 2, 0, 2, 0])
+CAUGHT: the platform's entry at the 8x8 one-interface ctrl_plat ; the platform-8x8-two-interfaces override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18176}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 20352})
+CAUGHT: the platform's entry at 61.0 RAMB36 ; the platform-8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, 'platform-8x8-two-interfaces', 61.0))
+CAUGHT: the size fixture's entry without image_allocation ; `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 0, 0, 2, 0])
+CAUGHT: the size fixture's entry at the platform's 60.5 ; the 8x8-two-interfaces override plans its own point's image: 59.0 RAMB36, against the 56-RAMB36 budget and its ledgered 59.0 ((59.0, 56, '8x8-two-interfaces', 60.5))
+LEDGER PROBE PASS; no hardware/SoC/linker claim.

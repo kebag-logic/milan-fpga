@@ -1,0 +1,17 @@
+{
+  "url": "https://github.com/kebag-logic/milan-fpga/pull/901",
+  "head_sha": "62298ab5cbfeb7056e4567f70e69d578201c75e0",
+  "base": "dev-soft-core",
+  "base_sha": "cec88385ad0a0ec0d61b91597640797766e45010",
+  "draft": false,
+  "read_at_utc": "2026-11-14",
+  "current_body_excerpts": [
+    "**REVIEW READY** at `62298ab5cbfeb7056e4567f70e69d578201c75e0` (`895-talker-redeclare` -> `dev-soft-core`), round 5.",
+    "- **The load** (`load_grade.py --check`, PASS): 1x1/1if **0.515** at the pin and 0.511 with tsn-c-stack#32, 0.694 with every notice the largest legal one, each within 0.70. 8x8/2if 0.796 / 0.754, reported (the flip check holds it, rc 1 as before). The ruling's 0.528 was round 4's grading with the AECP record at 300 too; at 235 the load is 0.515.",
+    "Every group of every arm at 1x1/1if and 8x8/2if, on a clean clone of `b3a5ed99`, whose firmware is the head's (the later commits change the ledger, the idiom-only edits and docs). `run.py --record-budget-findings --record-share-findings`; arm A in five parts a point, merged and regraded as one leg. The images carry the new constants: the pace gate compares against 9 (`sltiu a0,a0,9`; 8 at round 4).",
+    "- Every image is round 4's composed image to the byte: the pace and THE TRANSMIT's figure move no byte.",
+    "| firmware campaigns (in those jobs) | control 716 of 716 caught, AECP 274, SRP 413 (the 34 Talker plants at both interface counts among them), 0 escaped |"
+  ],
+  "review_ready": "https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6880958086",
+  "archive": "689125c247de8ce9bb38ccdbd74e3ed5ef966c64"
+}

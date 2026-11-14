@@ -1,0 +1,43 @@
+Public manifest: 1766 published SHA-256 hashes verified; no original/redacted hash substitution.
+Archive signature status: N (N = unsigned).
+Workflow rows and rc files: {'executed': 139, 'not_run': 226}
+Sweep shard 0 suites 15 checks 361003 exit 0; exact head.
+Sweep shard 1 suites 17 checks 2046229 exit 0; exact head.
+Sweep shard 2 suites 17 checks 284233 exit 0; exact head.
+Sweep shard 3 suites 16 checks 20734 exit 0; exact head.
+Sweep total: 65 distinct suites; 2712199 checks; no in-suite failures.
+Eight exact-head rebuild comparisons, sample comparisons, samples and regrades: rc 0; final trees clean.
+Executable hash rc=1 is disclosed; acceptance uses image bytes, generated logic and byte-identical sample logs.
+10cd5472: all 34 plant tuples identical in order, payload, oracle, path, entity and suite.
+10cd5472 build.py: identical Python AST.
+Published focused plant receipt: [ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+plants talker- at [2, 1]: PASS
+rc 0
+Measured ordinary-cost comparisons 1x1/1if [["base", 204.56, 205, "WITHIN"], ["build_one", 591.46, 725, "WITHIN"], ["centisecond", 101.99, 150, "WITHIN"], ["event.ACMP", 133.0, 185, "WITHIN"], ["event.ADP", 73.15, 115, "WITHIN"], ["event.AECP", 68.05, 75, "WITHIN"], ["event.GM", 36.26, 40, "WITHIN"], ["event.MAAP", 140.99, 165, "WITHIN"], ["event.TICK", 43.85, 50, "WITHIN"], ["events_none", 26.23, 30, "WITHIN"], ["item.acmp", 45.81, 50, "WITHIN"], ["item.acmp_declined", 15.38, 20, "WITHIN"], ["item.reclaim", 12.96, 25, "WITHIN"], ["item.walk", 26.37, 35, "WITHIN"], ["record.acmp", 199.81, 280, "WITHIN"], ["record.adp", 85.29, 105, "WITHIN"], ["record.aecp", 281.73, 235, "KNOWN #902"], ["record.maap", 95.36, 115, "WITHIN"], ["record.srp", 256.69, 280, "WITHIN"], ["step", 809.83, 975, "WITHIN"]]
+Load terms 1x1/1if pin {"builds": 0.0076315789473684215, "gm": 9.333333333333334e-05, "item.acmp": 0.015500000000000003, "item.acmp_declined": 0.012400000000000001, "item.aecp": 0.045840000000000006, "item.mrpdu": 0.015263157894736843, "item.reclaim": 0.025526315789473685, "item.walk": 0.003868421052631579, "notices": 0.00204, "rec.acmp": 0.056, "rec.adp": 0.0105, "rec.aecp": 0.047, "rec.maap": 0.00575, "srp": 0.168, "steps": 0.0325, "ticks": 0.048, "timers": 0.0191505} total 0.5150633070175439
+Load terms 1x1/1if second column {"builds": 0.0076315789473684215, "gm": 9.333333333333334e-05, "item.acmp": 0.015500000000000003, "item.acmp_declined": 0.012400000000000001, "item.aecp": 0.045840000000000006, "item.mrpdu": 0.015263157894736843, "item.reclaim": 0.025526315789473685, "item.walk": 0.003868421052631579, "notices": 0.00204, "rec.acmp": 0.053, "rec.adp": 0.01, "rec.aecp": 0.047, "rec.maap": 0.00575, "srp": 0.168, "steps": 0.0325, "ticks": 0.048, "timers": 0.019013000000000002} total 0.5114258070175439
+Hold-off from headers: 1x1/1if 2023 cs
+Measured ordinary-cost comparisons 8x8/2if [["base", 292.79, 325, "WITHIN"], ["build_one", 582.58, 1215, "WITHIN"], ["centisecond", 199.21, 510, "WITHIN"], ["event.ACMP", 166.59, 350, "WITHIN"], ["event.ADP", 81.5, 120, "WITHIN"], ["event.AECP", 108.24, 115, "WITHIN"], ["event.GM", 34.44, 320, "WITHIN"], ["event.MAAP", 199.93, 215, "WITHIN"], ["event.TICK", 49.48, 55, "WITHIN"], ["events_none", 28.82, 35, "WITHIN"], ["item.acmp", 57.55, 65, "WITHIN"], ["item.acmp_declined", 14.28, 20, "WITHIN"], ["item.reclaim", 21.85, 35, "WITHIN"], ["item.walk", 19.55, 60, "WITHIN"], ["record.acmp", 218.08, 440, "WITHIN"], ["record.adp", 104.85, 240, "WITHIN"], ["record.aecp", 185.18, 265, "WITHIN"], ["record.maap", 143.61, 155, "WITHIN"], ["record.srp", 235.93, 365, "WITHIN"], ["step", 814.48, 1030, "WITHIN"]]
+Load terms 8x8/2if pin {"builds": 0.025578947368421052, "gm": 0.0014933333333333335, "item.acmp": 0.024700000000000003, "item.acmp_declined": 0.015200000000000003, "item.aecp": 0.06332, "item.mrpdu": 0.051157894736842104, "item.reclaim": 0.03647368421052632, "item.walk": 0.013263157894736843, "notices": 0.011, "rec.acmp": 0.088, "rec.adp": 0.024, "rec.aecp": 0.053, "rec.maap": 0.00775, "srp": 0.219, "steps": 0.034333333333333334, "ticks": 0.0565, "timers": 0.07110300000000001} total 0.795873350877193
+Load terms 8x8/2if second column {"builds": 0.025578947368421052, "gm": 0.0014933333333333335, "item.acmp": 0.024700000000000003, "item.acmp_declined": 0.015200000000000003, "item.aecp": 0.06332, "item.mrpdu": 0.051157894736842104, "item.reclaim": 0.04168421052631579, "item.walk": 0.013263157894736843, "notices": 0.011, "rec.acmp": 0.061, "rec.adp": 0.0125, "rec.aecp": 0.053, "rec.maap": 0.00775, "srp": 0.219, "steps": 0.034333333333333334, "ticks": 0.0595, "timers": 0.059903000000000005} total 0.7543838771929825
+Hold-off from headers: 8x8/2if 2029 cs
+Pace 1 txL 104.62 R4L 83.48
+Pace 2 txL 104.62 R4L 98.48
+Pace 3 txL 99.41 R4L 113.48
+Pace 4 txL 73.69 R4L 128.48
+Pace 5 txL 58.09 R4L 143.48
+Pace 6 txL 55.82 R4L 158.48
+Pace 7 txL 53.03 R4L 173.48
+Pace 8 txL 49.46 R4L 188.48
+Pace 9 txL 47.86 R4L 203.48
+Pace 10 txL 46.25 R4L 218.48
+Pace 11 txL 46.25 R4L 233.48
+Pace rule 9; slice rule 900; transmit statement findings: []
+Restatement: 1x1/1if event.AECP 6805 cycles -> 75 us; both columns cover measurement + 5%, rounded up to 5 us.
+Restatement: 1x1/1if event.TICK 4385 cycles -> 50 us; both columns cover measurement + 5%, rounded up to 5 us.
+Restatement: 8x8/2if event.AECP 10824 cycles -> 115 us; both columns cover measurement + 5%, rounded up to 5 us.
+Restatement: 8x8/2if event.TICK 4948 cycles -> 55 us; both columns cover measurement + 5%, rounded up to 5 us.
+Restatement: 8x8/2if events_none 2882 cycles -> 35 us; both columns cover measurement + 5%, rounded up to 5 us.
+Restatement: 8x8/2if record.maap 14361 cycles -> 155 us; both columns cover measurement + 5%, rounded up to 5 us.
+AUDIT PASS
