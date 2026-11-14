@@ -8,15 +8,25 @@ load_grade.py --check holds 1x1/1if for merge. 8x8/2if is held here instead, by 
 the split placement's flip at 8x8/2if must pass it, and at this head it exits 1, its load over the ceiling. Its terms,
 stated costs and rates are load_grade.py's own (load_grade.load), so the two checks read one table.
 
-Each point's flip is held as well to decision D's tier bounds, the rows by every source (rows_grade.py: R4 at tier 1's
-20 ms, R5 and R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms), at 1x1/1if and at 8x8/2if:
-those bind each point's flip, not the merge (#665). The flip at 1x1/1if must pass --check --point 1x1/1if; 8x8/2if's
-waits on #890.
+Each point's flip is held as well to decision D's tier bounds, the rows by every source (R4 at tier 1's 20 ms, R5 and
+R6 at SRP's 90 ms, the first queued notice at 20 ms and the last at 125 ms), at 1x1/1if and at 8x8/2if: those bind
+each point's flip, not the merge (#665). The rows are the built design's by default (rows_tiers.py, rows_tiers.BUILT:
+THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grade.py, `--design as-built`), kept for
+comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
+2026-11-13, item 2: AECP's with its largest legal notice at tier 1's 20 ms, ACMP's, ADP's and MAAP's at 30 ms by the
+owner's decision of 2026-11-13, option A, FR_NFR.md 3.4.1)
+and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 49 ms at 19 cs with the
+1 ms egress allowance, the contingent ruling's item 3 and the egress ruling's item 1), by its stated notice
+and with every AECP notice the largest legal one (txL, #894's slice ruling of 2026-11-13), and the check fails
+when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
+when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
+8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
-usage: python3 -I flip_grade.py [--check] [--point POINT] [--selftest]
+usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--selftest]
   --check     print the 8x8/2if row at the pin and the rows by every source, and exit 1 if a load is over its ceiling
               or a row over its bound (the default)
   --point     hold only that point (1x1/1if or 8x8/2if): its rows, and its load where FLIP holds one
+  --design    built (the default: the tier model of the built design) or as-built (rows_grade.py)
   --selftest  plant each control and exit 1 unless every one is refused
 """
 from __future__ import annotations
@@ -28,12 +38,33 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
+import paced_rows  # noqa: E402
+import rows_tiers  # noqa: E402
+import queued_bound  # noqa: E402
 
 ROOT = load_grade.ROOT
 #: The point the flip check holds, and its ceiling.
 FLIP = {'8x8/2if': 0.70}
 #: The column it reads: the stated costs at this tree's pin.
 COLUMN = load_grade.STATED_US
+#: The designs the rows are held by: the built design's tier model first, the default; THE DRAIN before the tiers.
+DESIGNS = ('built', 'as-built')
+
+
+def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
+    """Each row over its bound by every source at each point, by the design's model."""
+    if design == 'as-built':
+        return rows_grade.findings(root, points)
+    return rows_tiers.findings(root, rows_tiers.BUILT, points) + rows_tiers.unrowed(root, rows_tiers.BUILT, points) + \
+        rows_tiers.tx_statements(root, points) + paced_rows.count_findings() + \
+        (queued_bound.statements(root) if queued_bound.POINT in points else [])
+
+
+def row_report(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
+    """Each row at each point by the design's model, with its largest terms."""
+    if design == 'as-built':
+        return rows_grade.report(root, points)
+    return rows_tiers.report(root, rows_tiers.BUILT, points)
 
 
 def findings(root: Path, table: dict | None = None, ceiling: dict | None = None) -> list[str]:
@@ -93,7 +124,89 @@ def controls(root: Path) -> list[str]:
         escaped.append('the flip ceiling not 0.70 at 8x8/2if')
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
-    return escaped + row_controls(root)
+    return escaped + row_controls(root) + built_controls(root)
+
+
+def built_controls(root: Path) -> list[str]:
+    """Each planted defect of the built design's rows the flip check must refuse: each row's bound a hundredth under its
+    W and over it, each source left out, which must shorten W, the model breaking its own rules, and the default design
+    not the built one."""
+    escaped = []
+    model = rows_tiers.BUILT
+    for point in rows_grade.POINTS:
+        i = rows_tiers.point_inputs(root, point)
+        for row, (w, terms) in rows_tiers.rows(root, point, model, i).items():
+            name = f'{point} {row}:'
+            under = dict(rows_tiers.bounds_at(i), **{row: (w or 2000) - 0.01})
+            over = dict(rows_tiers.bounds_at(i), **{row: (w or 2000) + 0.01})
+            if not any(f.startswith(name) for f in rows_tiers.findings(root, model, (point,), under)):
+                escaped.append(f'built {point} {row} over its bound')
+            if w is not None and any(f.startswith(name) for f in rows_tiers.findings(root, model, (point,), over)):
+                escaped.append(f'built {point} {row} within its bound')
+            for term in (k for k, v in terms.items() if v > 0 and w is not None):
+                if not rows_tiers.solve(row, i, model, dropped=term)[0] < w:
+                    escaped.append(f'built {point} {row}: the source {term} not counted')
+    if rows_tiers.broken(root, model):
+        escaped.append('the built design breaks its own rules')
+    if DESIGNS[0] != 'built':
+        escaped.append('the flip check not held by the built design')
+    return escaped + channel_controls(root)
+
+
+#: The channel rows' and THE TRANSMIT's planted defects, in channel_controls' order.
+CHANNEL_CONTROLS = ('a channel the loop serves without its rows', "THE TRANSMIT's stated figure under its row",
+                    "a channel row's or THE TRANSMIT's bound not the ruling's",
+                    "the owed-notice slot under the largest legal notice")
+
+
+def channel_controls(root: Path) -> list[str]:
+    """Each planted defect of the rows the ruling of 2026-11-13 adds that the flip check must refuse: a served
+    channel's rows dropped, ctrl_loop.h stating THE TRANSMIT's figure under its row, the added bounds moved, and
+    aecp.h's slot under the largest legal notice, which R4L's notices must then wait in the response buffer for."""
+    from unittest import mock
+    escaped = []
+    one = ('1x1/1if',)
+    with mock.patch.dict(rows_tiers.CHANNEL_ROWS, {'acmp': ()}):
+        if not any('the channel acmp the loop serves has no row' in f for f in row_findings(root, one)):
+            escaped.append(CHANNEL_CONTROLS[0])
+    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+    text = (root / loop).read_text()
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
+    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
+    with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
+                           f(r, p, under)):
+        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
+            escaped.append(CHANNEL_CONTROLS[1])
+    # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs, and T_egress; R4L's paced: 9.3.2.6's 240 ms
+    # less T_ingress and T_egress (#894's contingent ruling of 2026-11-13, item 3; its egress ruling, item 1)
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 49 or \
+            paced_rows.PACED_BOUNDS != {'R4L': 238}:
+        escaped.append(CHANNEL_CONTROLS[2])
+    aecp = 'sw/firmware/ctrl/aecp/aecp.h'
+    text, slot = (root / aecp).read_text(), '#define AECP_OWED_BYTES 552u'
+    narrow = {aecp: text.replace(slot, '#define AECP_OWED_BYTES 548u')}
+
+    def unpaced(texts: dict[str, str] | None) -> float:
+        """R4L at 1x1/1if with no pace, its notices waiting where the slot puts them (THE PACE makes R4L's burst one
+        command at a time, which no slot slows)."""
+        i = rows_tiers.point_inputs(root, '1x1/1if', texts)._replace(pace_ms=0)
+        return rows_tiers.solve('R4L', i, rows_tiers.BUILT)[0] or 2000.0
+    if text.count(slot) != 1 or not unpaced(narrow) > unpaced(None):
+        escaped.append(CHANNEL_CONTROLS[3])
+    return escaped
+
+
+def built_control_names(root: Path) -> tuple[str, ...]:
+    """The built design's controls built_controls() plants, in its order."""
+    names = []
+    for point in rows_grade.POINTS:
+        for row, (w, terms) in rows_tiers.rows(root, point, rows_tiers.BUILT).items():
+            names.append(f'built {point} {row} over its bound')
+            if w is not None:
+                names.append(f'built {point} {row} within its bound')
+                names += [f'built {point} {row}: the source {term} not counted' for term, v in terms.items() if v > 0]
+    return (*names, 'the built design breaks its own rules', 'the flip check not held by the built design',
+            *CHANNEL_CONTROLS)
 
 
 def row_controls(root: Path) -> list[str]:
@@ -126,14 +239,15 @@ def row_controls(root: Path) -> list[str]:
     pin = load_grade.stated(root, '8x8/2if', load_grade.STATED_US)
     if any(rows_grade.costs(root, '8x8/2if')[k] != pin[k] for k in pin):
         escaped.append('the rows read on the column graded with tsn-c-stack#32')
-    # the queued notices are the tree's derived bounds: a derivation past its bound is refused
+    # the queued notices are the tree's stated bounds: a statement past its bound is refused
     path = load_grade.ROW_HEADERS[2]
     text = (root / path).read_text()
-    old = '#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 7u : 27u)'
-    planted = {path: text.replace(old, '#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 70u : 27u)')}
+    old = f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {queued_bound.stated(root)}u : 62u)'
+    planted = {path: text.replace(old, '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 1250u : 62u)')}
     if text.count(old) != 1 or not any(f.startswith('1x1/1if last:') for f in
                                        rows_grade.findings(root, ('1x1/1if',), texts=planted)):
         escaped.append('the last queued notice past its bound')
+    escaped += queued_bound.controls(root)
     # every source the method's docstring names is counted in every solved row, and every term it counts has one
     if rows_grade.unsourced(root):
         escaped.append('a source the rows do not count')
@@ -180,6 +294,15 @@ def rule_controls(root: Path) -> list[str]:
         moved = longer is None or (w is not None and held is not None and (w > held if longer else w < held))
         if not refused or not moved:
             escaped.append(name)
+    # ACMP's declined offers counted once a send (#908): the rule is two a send and one, which the rows count
+    saved = planted_rule('acmp_items', lambda sends, c: {'item.acmp': sends * c['item.acmp'],
+                                                         'item.acmp_declined': (sends + 1) * c['item.acmp_declined']})
+    try:
+        refused = any('declined ACMP offers at' in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
+    finally:
+        planted_rule('acmp_items', saved)
+    if not refused:
+        escaped.append("ACMP's declined offers counted once a send")
     # a retained record's retry counted in SRP's own rows, which are solved with no record refused for storage
     saved = planted_rule('RETAINED_ROWS', ('R4', 'R5', 'R6'))
     try:
@@ -232,7 +355,8 @@ def row_control_names(root: Path) -> tuple[str, ...]:
 #: The arrival rules' controls rule_controls() plants, in its order.
 RULE_CONTROLS = ('the arrival rules not held at this head', 'the retained retry counted once a pass',
                  "SRP's arrivals cut by AECP's whole burst", "SRP's arrivals cut by two records of AECP",
-                 'a retained retry in an SRP row', 'a retry rule the tree does not state',
+                 "ACMP's declined offers counted once a send", 'a retained retry in an SRP row',
+                 'a retry rule the tree does not state',
                  'a datapath event neither counted nor excluded')
 
 
@@ -240,7 +364,7 @@ def flip_checks() -> list[tuple[str, bool, str]]:
     """The harness self-test's checks of the flip check: every planted defect refused."""
     escaped = controls(ROOT)
     return [(f'the flip check refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in (*CONTROLS, *row_control_names(ROOT))]
+            for name in (*CONTROLS, *row_control_names(ROOT), *built_control_names(ROOT))]
 
 
 def main() -> int:
@@ -249,6 +373,7 @@ def main() -> int:
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--selftest', action='store_true')
     ap.add_argument('--point', choices=rows_grade.POINTS)
+    ap.add_argument('--design', choices=DESIGNS, default=DESIGNS[0])
     args = ap.parse_args()
     points = (args.point,) if args.point else rows_grade.POINTS
     rc = 0
@@ -256,13 +381,13 @@ def main() -> int:
         escaped = controls(ROOT)
         for name in escaped:
             print(f'ESCAPED {name}')
-        total = len(CONTROLS) + len(row_control_names(ROOT))
+        total = len(CONTROLS) + len(row_control_names(ROOT)) + len(built_control_names(ROOT))
         print(f'flip check: {total - len(escaped)} of {total} planted controls refused')
         rc |= bool(escaped)
     if args.check or not args.selftest:
         load = {p: c for p, c in FLIP.items() if p in points}
-        print('\n'.join((report(ROOT, points) + [''] if load else []) + rows_grade.report(ROOT, points)))
-        found = (findings(ROOT, ceiling=load) if load else []) + rows_grade.findings(ROOT, points) + \
+        print('\n'.join((report(ROOT, points) + [''] if load else []) + row_report(ROOT, points, args.design)))
+        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, points, args.design) + \
             rows_grade.rule_findings(ROOT, points)
         for line in found:
             print('OVER', line)
