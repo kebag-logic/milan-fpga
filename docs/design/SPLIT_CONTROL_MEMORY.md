@@ -2443,7 +2443,7 @@ Every row at 1x1/1if held (the table [above](#the-tiers)), the load was 0.513, a
 
 ### Egress counted
 
-[#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126) counts the fabric's allowances (FR_NFR.md 3.4.1) in the bounds a wire deadline sets, and its other items follow:
+[#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126) counts the fabric's allowances ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)) in the bounds a wire deadline sets, and its other items follow:
 
 - **The bounds** (item 1). `ctrl_loop.h` states `CTRL_LOOP_T_INGRESS_MS` and `CTRL_LOOP_T_EGRESS_MS`, 1 ms each. THE TRANSMIT's MRPDU bound is 240 ms less the armed 190 ms and `T_egress`, 49 ms (`CTRL_LOOP_TX_BOUND_MS`), and R4L's paced bound 240 ms less both, 238 ms (`paced_rows.PACED_BOUNDS`), each derived. The harness holds a join interval commit to commit to 181.0 to 239.0 ms, Table 4.3's range less `T_egress` at each end (`join_grade.py`); the bench capture holds the wire to 180.0 to 240.0 ms.
 - **The pace's count** (item 2). The gate compares whole milliseconds, so a window of w ms holds ceil((w + 1) / P) edits, not 1 + floor(w / P) (`paced_rows.edits`, held to a simulation of the gate, `gate_most`, with the earlier rule planted).
