@@ -1,0 +1,23 @@
+Builder and entity generation accepted 16 outputs x 4 channels.
+Note: Google Test filter = Core.ReviewLegalHashCollisionWork
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ReviewLegalHashCollisionWork
+LEGAL ADD n=8 visits=8 stated_bound=16
+LEGAL REMOVE n=8 visits=40 stated_bound=48
+LEGAL ADD n=16 visits=16 stated_bound=32
+LEGAL REMOVE n=16 visits=80 stated_bound=96
+LEGAL ADD n=32 visits=32 stated_bound=64
+LEGAL REMOVE n=32 visits=160 stated_bound=192
+LEGAL ADD n=63 visits=63 stated_bound=126
+LEGAL REMOVE n=63 visits=315 stated_bound=378
+[       OK ] Core.ReviewLegalHashCollisionWork (2 ms)
+[----------] 1 test from Core (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+== AECP core: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
