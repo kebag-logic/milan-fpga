@@ -14,6 +14,7 @@ It also covers the same board fitted with an XC7A200T.
 - **[Build an image set](#build-an-image-set)** -- One build per board.
 - **[Flash a new board](#flash-a-new-board)** -- The first install.
 - **[Update a flashed board](#update-a-flashed-board)** -- Replace a known build.
+- **[The board check](#the-board-check)** -- Die and flash ID; older sets.
 - **[Check the board](#check-the-board)** -- Prove it works.
 - **[What is untested on the XC7A200T](#what-is-untested-on-the-xc7a200t)** -- No board ran it.
 
@@ -305,6 +306,44 @@ The command proves the installed build before writing.
 [QSPI flash boot](../integration/QSPI_FLASHBOOT.md#build-a-flash-boot-bitstream)
 holds the full transaction.
 
+## The board check
+
+Every `deploy.sh` flash write first reads the board.
+
+It checks the FPGA die, then the flash ID.
+
+The check is new in #911.
+
+It has run against a stub programmer only.
+
+No bench run on either board is recorded yet.
+
+### Image sets built before #911
+
+Their layout lacks `flash_device` and `flash_jedec_id`.
+
+`deploy.sh` refuses such a layout as a target.
+
+It still serves as `INSTALLED_BUILD`.
+
+Rebuild the set at this revision.
+
+Or regenerate its layout from the build's `soc.h`:
+
+```sh
+. ~/litex-milan/venv/bin/activate
+B=<build directory>
+python3 sw/litex/layout_from_soch.py $B --bit $B/gateware/alinx_ax7101.bit
+```
+
+That needs the build directory, not only the image set.
+
+A delivered image set has no `soc.h`.
+
+The plain JTAG commands still write such a set.
+
+Set `P` and `O` by hand from the variant table.
+
 ## Check the board
 
 Open the console at 115200 baud:
@@ -352,7 +391,7 @@ Confirm three things on the board first:
 
 - The die is speed grade -2.
 - The flash ID matches the layout's `flash_jedec_id`.
-- The JTAG cable is the onboard FT232H.
+- The JTAG cable is a Digilent FT232H.
 
 `deploy.sh` checks the die and the flash ID itself.
 

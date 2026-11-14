@@ -88,9 +88,21 @@ It holds 16 MiB, and its JEDEC ID is `0x20BA18`.
 
 The layout records it as `flash_device` and `flash_jedec_id`.
 
-`deploy.sh` reads the FPGA die and the flash ID first.
+The AX7101 layout gains those two fields too.
+
+`deploy.sh` reads the FPGA die and the flash ID first, on both boards.
 
 It refuses an image set for another die or flash.
+
+It also refuses a target layout without those two fields.
+
+Image sets built before #911 have such a layout.
+
+The check has run against a stub programmer only, on both boards.
+
+The
+[deployment guide](../guides/BOARD_DEPLOYMENT.md#image-sets-built-before-911)
+says what to do with such a set.
 
 The
 [deployment guide](../guides/BOARD_DEPLOYMENT.md#flash-an-image-set-over-jtag)
