@@ -25525,7 +25525,7 @@ def test_front_end_routing_gate_bites() -> None:
                                 r"assert_front_end_routed\((?:[^\n]*\n){2}",
                                 src["soc"])
                 assert blk, "gate 24d setup: cannot locate the refusal block"
-                anchor = "        platform = alinx_ax7101.Platform()\n"
+                anchor = "        platform = alinx_ax7101.Platform(part=args.fpga_part)\n"
                 assert anchor in src["soc"], \
                     "gate 24d setup: platform construction anchor moved"
                 src["soc"] = src["soc"].replace(blk.group(0), "\n", 1) \
