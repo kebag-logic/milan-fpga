@@ -2477,7 +2477,7 @@ Every row at 1x1/1if holds (the table [above](#the-tiers)), the load is 0.513 at
 | (2, 2, 2) | 1x1/2if | 1,300 | 1,995 | 1,215 | 365 |
 | (2, 9, 9) | 8x8/2if | 1,300 | 1,995 | 1,215 | 365 |
 
-- **Unchanged:** every 1x1 image and every 8x8/2if image is byte-identical to `8a3791e4`'s, so 1x1/1if's rows carry over. Both two-interface shapes keep the costs measured at 8x8/2if.
+- **Unchanged:** every 1x1 image and every 8x8/2if image is byte-identical to `8a3791e4`'s, and with #902 merged in to its head `5b264bf2`'s, so 1x1/1if's rows carry over. Both two-interface shapes keep the costs measured at 8x8/2if.
 - **No shape header:** a compile given none composes no SRP and builds no image (the host arms). It takes the shipping configuration's streams and descriptors, as the tracked contract is at one interface, and `shape_costs.py` holds both defaults to `srp_entity.py`'s output.
 - **The arty configurations** advertise 5 and 5, and 1 and 2, streams. They are shapes the table doesn't list, so `srp_arms.all_shapes` holds the SRP builds at them refused in the `#error`'s words, where it built them before.
 - **How the readers key:** the CPU budget harness grades a run at the shape of its own build, a pass's polls included (`poll_grade.STATED_US`, by shape). The model and the flip check read a point's costs at the shape the builder states for its configuration and interfaces ([`shape_costs.py`](../../tb/verilator/ctrl_service_budget/shape_costs.py)), which also refuses a listed shape whose polls are not stated. `rows_grade.py` reads the builds so too, and nothing else of it changes: it reads `AECP_NOTICES_MOST` with no shape header, the shipping 1x1's 12, which is 1x1/1if's own, and its points are 1x1/1if and 8x8/2if.
@@ -2494,46 +2494,49 @@ Every row at 1x1/1if holds (the table [above](#the-tiers)), the load is 0.513 at
 - **The window for 1,795 us.** It must stay over the slice, or the loop would build both in one slice, a behaviour change. It must stay under two builds of one, or the load's and the rows' dearer-of-two would count half the builds the design makes. `shape_costs.py` holds both.
 - **1x1/1if by the same rule:** its pair is 99,546 cycles, 1,050 us, over its stated 1,010, which a single pass measured at an earlier slice. 1x1/1if does not move (the ruling), and its rows take the build of one either way.
 
-**8x8/1if's SRP record and polls, provisional** (the round 2 ruling, items (b)(ii) and (b)(iii)): each the most measured over every group of arm A and the `answering-ports` arm's `aecp-largest-notice` on the image at 1,475 us, plus 5 %, rounded up to 5 us, and measured again on the tree that merges #902.
-- **An SRP record,** `CTRL_LOOP_SRP_UNIT_US`: the heaviest `srp_mbx:receive`, 32,401 cycles, so 345 us, where one interface stated 250. Under 250 the last record a slice started overran it, up to 156,198 cycles (1,562 us) against 147,500; the latest a record started was 124,105 cycles into its pass, so at 345 us a slice would end by about 147,006 cycles. At 1x1/1if the heaviest record measured 26,086 cycles in `save-starved`, over its 250 us, with its longest slice of SRP's records 76,072 cycles against 90,000; its image is held byte-identical (item (b)(ii)), so its unit is left for a decision.
-- **The polls** (`poll_grade.STATED_US` at (1, 9, 9)), against one interface's statement: the base 22,478 cycles, 240 us (205); the walk 4,829, 55 us (35); the rebuild 56,003, 590 us (290); the withdrawal 10,238, 110 us (90); the reclaim 2,460, 30 us (25); ACMP's item 6,936, 75 us (50) and a declined offer 2,600, 30 us (20); a notice 13,041, 140 us (210), and a long one 29,860, 315 us (365); a retained record's retry at the SRP record's 345 us, which an SRP record's own apply, up to 32,023 cycles, is held to.
-- **The load** at 8x8/1if takes those polls, and its records and events stay 8x8/2if's: 0.710 at the pin and 0.670 with tsn-c-stack#32 (0.706 and 0.672 at the 8x8 shape's two-interface polls), within 0.75.
-- **The notice at 140 us** is measured on arm A alone, where the `answering-every-port` arm stages the heaviest notices at the other points; that arm builds at 8x8/1if now and is measured with the rest.
+**8x8/1if's SRP record and polls** (the round 2 ruling, items (b)(ii) and (b)(iii)): each the most measured over every group of arm A, the `answering-every-port` arm and the `answering-ports` arm's `aecp-largest-notice`, on the built image at 1,475 us on the tree that merges #902's `5b264bf2`, plus 5 %, rounded up to 5 us. They replace round 1's provisional figures, from arm A and `aecp-largest-notice` alone before #902, given in brackets where they moved.
+- **An SRP record,** `CTRL_LOOP_SRP_UNIT_US`: the heaviest `srp_mbx:receive`, 32,421 cycles (`backlog-adp@verify-aged2-6`), so 345 us, where one interface stated 250. At 345 us the longest slice of SRP's records is 146,052 cycles (`backlog-adp@blank-aged2-1`) against 147,500; under 250 the last record a slice started overran it, up to 156,198 (1,562 us). At 1x1/1if the heaviest record measured 26,086 cycles in `save-starved`, over its 250 us, with its longest slice of SRP's records 76,072 cycles against 90,000; its image is held byte-identical (item (b)(ii)), so its unit is left for a decision.
+- **The polls** (`poll_grade.STATED_US` at (1, 9, 9)), against one interface's statement: the base 21,995 cycles, 235 us (205; round 1 240); the walk 4,701, 50 us (35; round 1 55); the rebuild 55,813, 590 us (290); the withdrawal 10,317, 110 us (90); the reclaim 2,604, 30 us (25); ACMP's item 6,813, 75 us (50) and a declined offer 2,542, 30 us (20); a notice 13,297, 140 us (210), the heaviest in the `answering-every-port` arm; a long one 30,097, 320 us (365; round 1 315); a retained record's retry at the SRP record's 345 us, which an SRP record's own apply, up to 32,043 cycles, is held to.
+- **The load** at 8x8/1if takes those polls, and its records and events stay 8x8/2if's: 0.709 at the pin and 0.670 with tsn-c-stack#32, within 0.75 (0.710 and 0.670 at round 1's polls).
 
-**The gate at 8x8/1if** is the contract-rate run on the built image: every group of arm A, the `answering-ports` arm's `aecp-largest-notice`, and (after #902 merges) the `answering-every-port` arm's queued notices and the paced R4L. On the image at 1,475 us before round 2, 96 groups and 949 instances:
+**The gate at 8x8/1if** is the contract-rate run on the built image: every group of arm A, the `answering-every-port` arm (the queued notices) and the `answering-ports` arm's `aecp-largest-notice` (the largest legal command, the paced R4L row as measured). On the tree that merges #902's `5b264bf2`, 112 groups and 1,680 instances:
 
 | Row (the ruling's bound, ms) | Worst measured, ms | Instance |
 |---|---:|---|
-| AECP (20) | 3.743 | `backlog-adp@blank-0`, `service.aecp.last` |
-| ACMP (30) | 5.588 | `backlog-adp@program-aged2-7`, `service.acmp.last` |
-| ADP (30) | 5.581, and an ENTITY_AVAILABLE 4.586 | `backlog-adp@program-aged2-7` |
-| MAAP (30) | 5.618 | `backlog-adp@program-aged2-7`, `service.maap.last` |
-| SRP (90) | 9.823 | `backlog-adp@verify-aged2-6`, `service.srp.last` |
-| MRPDU (50) | 31.653 | `save-held`, a join timer's |
-| AECP's notices (20) | 2.031 | `aecp-largest-notice`, a 550 B notice |
+| AECP (20) | 4.693 | `notice-every-7`, `held.aecp` |
+| ACMP (30) | 6.813 | `notice-every-6`, `held.acmp` |
+| ADP (30) | 5.522, and an ENTITY_AVAILABLE 4.413 | `notice-burst-6`; `backlog-adp@program-aged2-7` |
+| MAAP (30) | 6.020 | `notice-every-0`, `held.maap` |
+| SRP (90) | 10.284 | `notice-every-6`, `held.srp` |
+| MRPDU (49) | 3.578 | `save-starved`, a periodic timer's |
+| AECP's notices (20) | 0.624 | `aecp-fanout`, a SET_NAME's |
+| The first queued notice (20) | 2.259 | `notice-burst-4`, of 40 queued |
+| The last queued notice (130) | 23.730 | `notice-burst-1`, of 40 queued |
+| The largest legal command, the paced R4L row (238) | 2.442 | `aecp-largest-notice`, a refused 63-mapping edit |
 
-- **Every row the CPU decides is within its bound,** and the long-window load was 0.706 at the pin and 0.672 with tsn-c-stack#32, within 0.75. The second-hart trigger is a row the CPU decides over its bound or the load over 0.75 (the round 2 ruling, item (a)), so it was not met.
-- **Join intervals:** 300 in 95 groups, 186.298 to 192.080 ms.
+- **Every row the CPU decides is within its bound,** and the long-window load is 0.709 at the pin and 0.670 with tsn-c-stack#32, within 0.75. The second-hart trigger is a row the CPU decides over its bound or the load over 0.75 (the round 2 ruling, item (a)), so it is not met.
+- **Join intervals:** 346 in 111 groups, 186.687 to 190.705 ms, within the harness's commit-side gate, 181.0 to 239.0 ms ([the egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1). Of the MRP timers' 2,311 run-outs, 1,332 were released and 979 empty; none was late, absent or unresolved.
+- **Slices:** the longest of SRP's records 146,052 cycles, of THE TRANSMIT's build 137,924 (the `srp` group's build of one, within its 147,500) and of THE RETRY's round 109,745, each within the stated 147,500.
 - **The platform image** is 56.0 RAMB36, within its cap, before and after round 2.
-- **The MRPDU row's harness budget** is THE TRANSMIT's bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.BUDGET_MS`, item (b)(i)), where it was T_svc's 20 ms, so the two rows of 31.653 and 31.637 ms in `save-held` and `save-starved` that missed 20 ms are within it. The self-test holds a row at the bound within it and one 1 ms over it a miss, and its plants hold the row one over the bound and at the earlier 20 ms.
-- **The rows the egress decides stay recorded misses** (item (a)), in the form 1x1/1if has them: `backlog-owed`'s seven rows, set by the scenario's 60 ms egress hold ([What is left](#what-is-left)), the ledger's names and figures below. They miss the same way at 1x1/1if (61.82 to 63.64 ms at `8a3791e4`) and at 8x8/2if. "No budget miss" at 8x8/1if is none beyond them; a new or larger miss fails the leg.
+- **The MRPDU row's harness budget** is THE TRANSMIT's bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it with `T_egress`, 49 ms (`mrpdu_grade.BUDGET_MS`, read once with the run-out resolution's `LATE_MS`; item (b)(i)), where it was T_svc's 20 ms. The self-test holds a row at the bound within it and one 1 ms over it a miss, and its plants hold the row one over the bound and at the earlier 20 ms. The `transmit-aged` control, an MRPDU owed held 300 passes, puts every group's timer-driven MRPDU over it at 8x8/1if (66.505 to 67.015 ms, 8 of 8 groups).
+- **The rows the egress decides stay recorded misses** (item (a)), in the form 1x1/1if has them: `backlog-owed`'s seven rows, set by the scenario's 60 ms egress hold ([What is left](#what-is-left)), the ledger's names and figures below. They miss the same way at 1x1/1if (61.82 to 63.64 ms at `8a3791e4`) and at 8x8/2if. "No budget miss" at 8x8/1if is none beyond them; a new or larger miss fails the leg. Each is under round 1's figure; no other row missed its budget.
 
-| Row the egress decides (at 8x8/1if) | Measured, ms |
-|---|---:|
-| `backlog.owed.if0` | 63.24 |
-| `backlog.owed_behind0.if0` | 63.47 |
-| `backlog.owed_behind1.if0` | 63.69 |
-| `backlog.owed_behind2.if0` | 63.91 |
-| `backlog.owed_behind3.if0` | 64.20 |
-| `service.acmp.last.if0` | 62.18 |
-| `service.aecp.last.if0` | 61.83 |
+| Row the egress decides (at 8x8/1if) | Measured, ms | Round 1, ms |
+|---|---:|---:|
+| `backlog.owed.if0` | 63.083 | 63.24 |
+| `backlog.owed_behind0.if0` | 63.305 | 63.47 |
+| `backlog.owed_behind1.if0` | 63.526 | 63.69 |
+| `backlog.owed_behind2.if0` | 63.747 | 63.91 |
+| `backlog.owed_behind3.if0` | 63.969 | 64.20 |
+| `service.acmp.last.if0` | 62.025 | 62.18 |
+| `service.aecp.last.if0` | 61.680 | 61.83 |
+
+**Left for a decision: THE RETRY's cold cost at 8x8/1if.** The `answering-every-port` arm, measured at 8x8/1if for the first time, holds 1,654 of THE RETRY's rounds over their stated cost (`round_grade.py`), every one a round of no notice beside 1, 2 or 4 refused attempts: up to 12,547, 19,326 and 23,343 cycles against 11,900, 15,300 and 22,100. `AECP_ROUND_COLD_US` (`aecp_mbx.h`) and `AECP_ATTEMPT_US` (`aecp.h`) are keyed on `MBX_N_IF`, so 8x8/1if takes the 1x1's 85 us cold cost, where its rounds measure about 125 us (19,326 less two attempts' 6,800); at the 8x8 shape's two-interface 185 us every one is within. No round with a notice is over, no row misses and no slice runs past its length: THE RETRY's longest round is 109,745 cycles of 147,500. Keying the cold cost on the shape, as the ruling keys an SRP record's (item (b)(ii)), changes the 8x8/1if image and its rounds, so it needs a ruling and a measurement again; the arm's run exits 1 on these lines until then.
 
 **Reported, not held, owed to [#872](https://github.com/kebag-logic/milan-fpga/issues/872):**
-- **The rows by every source,** derived at the 8x8 shape's two-interface costs with its own builds: R4 19.77, R5 129.42, R6 126.36, the first queued notice 17.40, the last 297.92, R4L 162.99, ACMP 49.45, ADP 48.67, MAAP 49.37, tx 69.25 and txL 207.51 ms. They counted 12 queued notices; at 8x8/1if a reset leaves 40.
-- **The load with every AECP command the largest legal one:** 0.979.
-- **The passes over THE SHARE:** two passes of `aecp-largest-notice` (209,290 cycles), at 8x8/1if only, which the ruling on round 6 already reports.
-
-**Owed to the measurement after #902 merges** (the round 2 ruling, item (c)): the measured rows and the slices again, `CTRL_LOOP_SRP_UNIT_US` and the polls at 8x8/1if from that measurement plus 5 %, the `answering-every-port` arm's first queued notice (20 ms), last queued notice (130 ms) and the paced R4L (238 ms) at 8x8/1if, and the full pass once.
+- **The rows by every source,** derived with 8x8/1if's own polls, the 40 notices a reset leaves and the largest legal command measured there (its record 154,850 cycles, 1,630 us, and its notice 320 us), and the records' and events' costs 8x8/2if's: R4 18.56, R5 113.87, R6 108.72, the first queued notice 16.99, the last 266.70, R4L 192.83, ACMP 45.48, ADP 44.77, MAAP 46.18, tx 58.53 and txL 146.97 ms. At round 1's 12 notices the last was 235.77 ms.
+- **The load with every AECP command the largest legal one:** 0.991.
+- **The passes over THE SHARE:** two passes of `aecp-largest-notice` (213,816 cycles; round 1 209,290), at 8x8/1if only, which the ruling on round 6 already reports.
 
 ### What is left
 

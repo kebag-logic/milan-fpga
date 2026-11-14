@@ -241,7 +241,7 @@ Where a slice holds one (every point), the MVRP MRPDU follows in the next slice 
 No declaration is made while a retained receive waits, so none takes the room it waits for, and a refused or waiting one is tried again when the join count ends.
 A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and no pass goes to a build until it is sent.
 The poll reclaims the attributes lwSRP may free, so a record the next pass takes finds the room.
-SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, stated for each shape (THE SHAPES; at 8x8/1if 345 us, its heaviest record plus 5 %, provisional), and a record follows only the events posted before it, by ring position.
+SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, stated for each shape (THE SHAPES; at 8x8/1if 345 us, its heaviest record plus 5 %), and a record follows only the events posted before it, by ring position.
 The composed burst's last record is a row by every source against SRP's 90 ms (R5, R6; decision D, [`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)).
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
