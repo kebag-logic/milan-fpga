@@ -728,8 +728,7 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
-            'a design whose quotas are not its order\'s', "THE PACE not the model's", "txL's AECP records not paced",
-            "R4L's burst without its paces")
+            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS)
 
 
 def control_names(root: Path) -> tuple[str, ...]:

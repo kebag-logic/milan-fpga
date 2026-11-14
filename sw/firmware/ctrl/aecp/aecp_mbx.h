@@ -36,9 +36,11 @@ extern "C" {
 // interfaces'.
 #define AECP_ROUND_PACE_MS 2u
 // THE PACE (#894, #904): an ADD or REMOVE_AUDIO_MAPPINGS that is checked holds AECP's next record in its ring, never
-// dropped, until AECP_PACE_MS after the edit was taken (aecp_mbx.c, ready; the core stamps aecp.edited_ms). An edit's
-// record grows with its mappings, so the rows that count every AECP command as the largest legal one, R4L and txL,
-// take at most one a pace; the tier model holds the pace to the smallest that holds txL within the MRP timer budget
+// dropped, until AECP_PACE_MS after the edit was taken (aecp_mbx.c, ready; the core stamps aecp.edited_ms with the
+// clock aecp_rx reads as it takes the record). The gate compares whole milliseconds, so two edits are taken more than
+// AECP_PACE_MS - 1 ms apart and a window of w ms holds at most ceil((w + 1) / AECP_PACE_MS) of them (#894's egress
+// ruling of 2026-11-13, item 2; paced_rows.py, edits). An edit's record grows with its mappings, so the rows that
+// count every AECP command as the largest legal one, R4L and txL, take at most that many; the tier model holds the pace to the smallest that holds txL within the MRP timer budget
 // at 1x1/1if, at most 13 ms (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join
 // timer at 20 cs, none did, and with it at 19 cs and the budget at 50 ms (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's
 // contingent ruling issuecomment-6858269025, item 3) 6 ms does (#894, #908). The gate reads the core's clock, which
