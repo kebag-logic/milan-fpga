@@ -1,0 +1,28 @@
+{
+  "url": "https://github.com/kebag-logic/milan-fpga/pull/902",
+  "source_head": "9606b3a915de284c71d3063c2e8d94b097f18241",
+  "head_branch": "894-tiers",
+  "base_branch": "dev-soft-core",
+  "excerpts": [
+    {
+      "line": 233,
+      "text": "  - The 1x1/1if fixture: 110,800 B and 41.0 RAMB36."
+    },
+    {
+      "line": 240,
+      "text": "The final pass ran at `9fda93a1`, with arm A and the harness legs on `bc971054`'s firmware, and three of its checks refused that head. Each fix moves the head; none changes a compiled firmware file."
+    },
+    {
+      "line": 248,
+      "text": "**The images.** Every image is byte-identical across `9fda93a1`, `3e0ca737` and `6ec12ad7`: 332 of 332 files (8 ELFs, their binaries and 316 objects), built on one clone path. A planted one-constant change (`MAP_FLOOR` 264) differs in 24 of them. `9106a980` changes a grader, `2d579e89` a README and `9606b3a9` two graders' tables and a document, so none of them compiles anything."
+    },
+    {
+      "line": 294,
+      "text": "python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check                    # 0.513 and 0.509, PASS"
+    },
+    {
+      "line": 325,
+      "text": "| The AECP campaign (`aecp_mutants.py`, all rows) | `6ec12ad7` | 286 of 286 caught |"
+    }
+  ]
+}

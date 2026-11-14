@@ -1,0 +1,38 @@
+Note: Google Test filter = Core.MapEditWorkReadsOnlyWhatItCleared
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.MapEditWorkReadsOnlyWhatItCleared
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:166: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+Google Test trace:
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2829: input port 0
+
+  [FAIL] Core.MapEditWorkReadsOnlyWhatItCleared: $REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2829: input port 0
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2835: Failure
+Value of: same_rows(own,{far,near})
+  Actual: false
+Expected: true
+an ADD beside a row at the domain's last position is accepted
+Google Test trace:
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2829: input port 0
+
+  [FAIL] Core.MapEditWorkReadsOnlyWhatItCleared: $REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2829: input port 0
+[  FAILED  ] Core.MapEditWorkReadsOnlyWhatItCleared (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapEditWorkReadsOnlyWhatItCleared
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

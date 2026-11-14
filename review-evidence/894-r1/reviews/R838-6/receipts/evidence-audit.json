@@ -1,0 +1,152 @@
+{
+  "image_identity": {
+    "3e0ca737": {
+      "entries": 332,
+      "differences": 0
+    },
+    "6ec12ad7": {
+      "entries": 332,
+      "differences": 0
+    },
+    "control-MAP_FLOOR-264": {
+      "entries": 332,
+      "differences": 24
+    }
+  },
+  "image_kind_counts": {
+    ".elf": 8,
+    ".bin": 8,
+    ".o": 316
+  },
+  "post_identity_paths": [
+    "docs/design/SPLIT_CONTROL_MEMORY.md",
+    "sw/firmware/gtest/README.md",
+    "tb/verilator/ctrl_service_budget/flip_grade.py",
+    "tb/verilator/ctrl_service_budget/load_grade.py",
+    "tb/verilator/ctrl_service_budget/poll_grade.py"
+  ],
+  "rule_spotchecks": {
+    "22728": 240,
+    "20595": 220,
+    "24360": 260,
+    "30563": 325,
+    "4612": 50,
+    "4890": 55,
+    "2859": 35,
+    "6193": 70,
+    "18843": 200,
+    "86978": 915,
+    "145770": 1535,
+    "34280": 360,
+    "61637": 650,
+    "33724": 355
+  },
+  "class_probes": {
+    "1x1/1if": {
+      "long_rows_unchanged_by_ordinary_edit_charge": {
+        "R4L": 188.41,
+        "txL": 48.23
+      },
+      "pace_ms": 8
+    },
+    "8x8/2if": {
+      "long_rows_unchanged_by_ordinary_edit_charge": {
+        "R4L": 195.76,
+        "txL": 459.4
+      },
+      "pace_ms": 8
+    }
+  },
+  "missing_group_refusal": [
+    "the pass is missing aecp-fanout, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends"
+  ],
+  "survey_arithmetic": {
+    "1x1": {
+      "comparisons": 226,
+      "exceeded": [
+        {
+          "cost": "item.aecp.notice",
+          "cycles": 34280,
+          "rule": 360,
+          "stated": 210,
+          "verdict": "OVER-raw",
+          "source": "load_grade.GRADED item.aecp.notice; A/aecp-largest-notice (15 frame(s))"
+        },
+        {
+          "cost": "item.aecp.notice",
+          "cycles": 34280,
+          "rule": 360,
+          "stated": 210,
+          "verdict": "OVER-raw",
+          "source": "load_grade.STATED_US item.aecp.notice; A/aecp-largest-notice (15 frame(s))"
+        },
+        {
+          "cost": "record.aecp [aecp-fanout]",
+          "cycles": 22728,
+          "rule": 240,
+          "stated": 235,
+          "verdict": "OVER",
+          "source": "load_grade.GRADED record.aecp; A/results-merged/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)"
+        },
+        {
+          "cost": "record.aecp [aecp-fanout]",
+          "cycles": 22728,
+          "rule": 240,
+          "stated": 235,
+          "verdict": "OVER",
+          "source": "load_grade.STATED_US record.aecp; A/results-merged/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)"
+        }
+      ]
+    },
+    "8x8": {
+      "comparisons": 59,
+      "exceeded": [
+        {
+          "cost": "build_one",
+          "cycles": 146376,
+          "rule": 1540,
+          "stated": 1215,
+          "verdict": "OVER-raw",
+          "source": "load_grade.GRADED build_one; H-J8/srp"
+        },
+        {
+          "cost": "build_one",
+          "cycles": 146376,
+          "rule": 1540,
+          "stated": 1215,
+          "verdict": "OVER-raw",
+          "source": "whole_grade.stated_us(2) build-one (ctrl_loop.h); H-J8/srp"
+        },
+        {
+          "cost": "item.aecp.notice",
+          "cycles": 61637,
+          "rule": 650,
+          "stated": 275,
+          "verdict": "OVER-raw",
+          "source": "load_grade.GRADED item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))"
+        },
+        {
+          "cost": "item.aecp.notice",
+          "cycles": 61637,
+          "rule": 650,
+          "stated": 275,
+          "verdict": "OVER-raw",
+          "source": "load_grade.STATED_US item.aecp.notice; H-L8L/aecp-largest-notice (31 frame(s))"
+        }
+      ]
+    }
+  },
+  "image_delta_discrepancy": {
+    "fixture-1x1-1if": {
+      "previous": 110576,
+      "published_current": 110800,
+      "delta": 224
+    },
+    "platform-8x8-2if": {
+      "previous": 130496,
+      "published_current": 130704,
+      "delta": 208
+    }
+  },
+  "archive_has_signature": false
+}

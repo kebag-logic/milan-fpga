@@ -1,0 +1,47 @@
+Note: Google Test filter = Core.MapEditsAreTheirDefinitionRowForRow
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2614: Failure
+Value of: got.size()==want.rows.size()&&std::equal(got.begin(),got.end(),want.rows.begin(),same)
+  Actual: false
+Expected: true
+the edit's map is its definition's, row for row
+Google Test trace:
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2611: edit 78
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: $REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2611: edit 78
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2628: Failure
+Expected: (seen[name]) >= (20u), actual: 7 vs 20
+the seeded edits include ADD 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 0
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2628: Failure
+Expected: (seen[name]) >= (20u), actual: 4 vs 20
+the seeded edits include ADD 8
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 8
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2628: Failure
+Expected: (seen[name]) >= (20u), actual: 10 vs 20
+the seeded edits include REMOVE 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include REMOVE 0
+$REVIEWS/r838-6-894/sw/firmware/ctrl/test/test_aecp.cpp:2628: Failure
+Expected: (seen[name]) >= (20u), actual: 1 vs 20
+the seeded edits include a REMOVE that keeps a row equal to one it removed
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include a REMOVE that keeps a row equal to one it removed
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

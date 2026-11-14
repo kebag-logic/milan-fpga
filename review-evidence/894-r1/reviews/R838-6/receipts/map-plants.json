@@ -1,0 +1,122 @@
+[
+  {
+    "name": "map-remove-reach-a-row-late",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "the edit's map is its definition's, row for row"
+      ]
+    ]
+  },
+  {
+    "name": "map-remove-reach-a-row-short",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "the edit's map is its definition's, row for row"
+      ]
+    ]
+  },
+  {
+    "name": "map-remove-rows-past-the-reach-dropped",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "the edit's map is its definition's, row for row"
+      ]
+    ]
+  },
+  {
+    "name": "map-remove-kept-row-unmoved",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "the edit's map is its definition's, row for row"
+      ]
+    ]
+  },
+  {
+    "name": "map-row-words-cluster-channel-dropped",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "status for command"
+      ]
+    ]
+  },
+  {
+    "name": "map-copy-cluster-channel-dropped",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditsAreTheirDefinitionRowForRow",
+        "the edit's map is its definition's, row for row"
+      ]
+    ]
+  },
+  {
+    "name": "map-slots-cleared-a-slot-short",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditWorkReadsOnlyWhatItCleared",
+        "an ADD beside a row at the domain's last position is accepted"
+      ]
+    ]
+  },
+  {
+    "name": "map-marks-uncleared",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditWorkReadsOnlyWhatItCleared",
+        "an ADD beside a row at the domain's last position is accepted"
+      ]
+    ]
+  },
+  {
+    "name": "map-occurrences-uncleared",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditWorkReadsOnlyWhatItCleared",
+        "a REMOVE of one of two equal rows removes one"
+      ]
+    ]
+  },
+  {
+    "name": "map-links-uncleared",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapEditWorkReadsOnlyWhatItCleared",
+        "visits past twice their sum"
+      ]
+    ]
+  },
+  {
+    "name": "map-echo-page-dropped",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapCommandsEchoTheirDescriptorAndPage",
+        "a map command's response echoes its descriptor and page"
+      ]
+    ]
+  },
+  {
+    "name": "map-echo-index-short",
+    "caught": true,
+    "checks": [
+      [
+        "Core.MapCommandsEchoTheirDescriptorAndPage",
+        "a map command's response echoes its descriptor and page"
+      ]
+    ]
+  }
+]
