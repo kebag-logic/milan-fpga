@@ -2,14 +2,16 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The join intervals (#894's contingent ruling of 2026-11-13, item 4): with the join timer armed at
 CTRL_LOOP_JOIN_CS (ctrl_loop.h), each participant's MRPDUs on the wire keep Milan v1.2 Table 4.3's JoinTime, 180 to
-240 ms, so commit to commit, as the harness sees them, LEAST_MS to MOST_MS: either frame may wait T_egress to leave. A participant is an interface and an MRP application, told by its MRPDU's EtherType (MSRP or MVRP). A join
+240 ms, so commit to commit, as the harness sees them, LEAST_MS to MOST_MS, since either frame may wait T_egress to
+leave. A participant is an interface and an MRP application, told by its MRPDU's EtherType (MSRP or MVRP). A join
 interval is the time from one of its MRPDUs' commit to the next, where that next is a frame a join timer's run-out
-between them released (lwSRP's on_join_timer, mrp_mad.c; the frames of the builds after it, mrpdu_grade.released) and
-neither the periodic nor the LeaveAll timer ran out between them: the transmit opportunity the join timer armed at the
-first commit gave, since lwSRP arms it at a commit alone. A run-out with nothing to send releases nothing, and the
-MRPDU a later request then sends at once (its join timer idle) ends no interval. The harness reports each group's
-shortest and longest (run.py, JOINS), and a group with one under LEAST_MS or over MOST_MS fails the run whatever
-findings it records.
+between them released (lwSRP's on_join_timer, mrp_mad.c; the frames of the builds after it, mrpdu_grade.released, with
+no horizon) and neither the periodic nor the LeaveAll timer ran out between them: the transmit opportunity the join
+timer armed at the first commit gave, since lwSRP arms it at a commit alone. A run-out with nothing to send releases
+nothing, and the MRPDU a later request then sends at once (its join timer idle) ends no interval. The harness reports
+each group's shortest and longest and its MRP timers' run-outs by outcome (run.py, JOINS); a group with an interval
+under LEAST_MS or over MOST_MS, or a run-out whose build is late or absent (mrpdu_grade.FAILING), fails the run
+whatever findings it records.
 """
 from __future__ import annotations
 
@@ -36,7 +38,8 @@ JOIN, OTHERS = 'on_join_timer', ('on_pt_timer', 'on_la_timer')
 
 
 def released(log: grade.Log) -> dict[int, int]:
-    """Each MRPDU a join timer's run-out released, by its commit's bus cycle: the latest such run-out's."""
+    """Each MRPDU a join timer's run-out released, late or not, by its commit's bus cycle: the latest such run-out's
+    (mrpdu_grade.released, which has no horizon)."""
     joins = sorted(c for c, name in log.entries if name == JOIN)
     return {cycle: entry for entry in joins for cycle, _ in mrpdu_grade.released(log, entry)}
 
@@ -62,8 +65,18 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
 
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
-    MOST_MS."""
+    MOST_MS; and every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one
+    named with its timer, its time and how far its first frame or build, or the log's end, lies past it."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
+    builds, _, sent, last = mrpdu_grade.index(log)
+    runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
+    for entry, kind, outcome in mrpdu_grade.outcomes(log):
+        runs[outcome] += 1
+        if outcome in mrpdu_grade.FAILING:
+            frames = mrpdu_grade.released(log, entry)
+            after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
+            failing.append(dict(kind=kind, outcome=outcome, at_ms=round(entry * 1000 / log.sys_hz, 3),
+                                after_ms=round((after - entry) * 1000 / log.sys_hz, 3)))
     return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
-                longest=round(every[-1][0], 3) if every else None, over=over)
+                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing)

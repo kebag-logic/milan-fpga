@@ -56,8 +56,8 @@ def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) 
     if design == 'as-built':
         return rows_grade.findings(root, points)
     return rows_tiers.findings(root, rows_tiers.BUILT, points) + rows_tiers.unrowed(root, rows_tiers.BUILT, points) + \
-        rows_tiers.tx_statements(root, points) + (queued_bound.statements(root) if queued_bound.POINT in points else []) + \
-        paced_rows.count_findings()
+        rows_tiers.tx_statements(root, points) + paced_rows.count_findings() + \
+        (queued_bound.statements(root) if queued_bound.POINT in points else [])
 
 
 def row_report(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:

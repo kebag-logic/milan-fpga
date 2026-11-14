@@ -250,6 +250,8 @@ OUTSIDE = {
                                                       "compiles nothing",
     "tb/verilator/ctrl_service_budget/join_grade.py": "grades a run's join intervals and reads ctrl_loop.h's "
                                                       "CTRL_LOOP_T_EGRESS_MS; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/mrpdu_grade.py": "grades a run's MRP timers' builds and reads ctrl_loop.h's "
+                                                       "CTRL_LOOP_TX_BOUND_MS derivation; it compiles nothing",
     "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
                                                         "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
                                                         "memory; it compiles nothing",

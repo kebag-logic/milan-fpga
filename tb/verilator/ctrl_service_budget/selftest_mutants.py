@@ -848,6 +848,24 @@ MUTANTS: dict[str, Patches] = {
         join_grade, 'intervals', lambda log: [(ms, who, end) for ms, who, end in (
             ((b - a) * 1000 / log.sys_hz, 'if0 MRP', b) for a, b in zip(
                 *(lambda c: (c, c[1:]))(sorted(c for c, ch, _, fr in log.tx if ch == scenario.CH['srp']))))])],
+    "joins: a run-out's builds sought within 100 ms of it (earlier rule)": lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: f(log, entry) if any(
+            entry < c < entry + log.sys_hz // 10 for c, n in log.entries if n == mrpdu_grade.BUILD) else
+        ('empty', []))],
+    "joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted": lambda: [
+        patch.object(join_grade, 'LEAST_MS', 180.0), patch.object(join_grade, 'MOST_MS', 240.0)],
+    'joins: a late build taken for an on-time one': lambda: [patch.object(mrpdu_grade, 'LATE_MS', 10 ** 6)],
+    "joins: a late build's run-out not failing the run": lambda: [patch.object(mrpdu_grade, 'FAILING', ('absent',))],
+    'joins: an absent build taken for an unresolved one': lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
+            lambda r: ('unresolved', r[1]) if r[0] == 'absent' else r)(f(log, entry)))],
+    'joins: an unresolved build taken for one that owes nothing': lambda: [patch.object(
+        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
+            lambda r: ('empty', r[1]) if r[0] == 'unresolved' else r)(f(log, entry)))],
+    "joins: a frame its build left owed not the build's": lambda: [patch.object(
+        mrpdu_grade, 'index', lambda log, f=mrpdu_grade.index: (lambda builds, passes, sent, last: (
+            builds, passes, [s for s in sent if any(q.start_sys <= s[0] < mrpdu_grade.end_of(log, q) and any(
+                q.start_sys <= c < mrpdu_grade.end_of(log, q) for c in builds) for q in passes)], last))(*f(log)))],
     'polls: the declined offers held to three a send': lambda: [patch.object(
         poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(
