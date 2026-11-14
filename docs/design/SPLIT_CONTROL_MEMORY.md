@@ -135,13 +135,14 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
 The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
-The caps are 59.0 for the size fixture's point, which its entry now holds, and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.5 and 60.5.
+The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
 SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B; their images at this branch's head are planned in [section 5](#5-fit).
 
 Each override recognises its image by the image's own symbols.
@@ -167,8 +168,8 @@ It requires `budget` to refuse that image in three cases: without the override, 
 It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 Six planted ledgers each widen one entry to another point or image, or past its tiles.
-The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 60.5.
-The fixture's loses `image_allocation`, or plans 60.0.
+The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.0.
+The fixture's loses `image_allocation`, or plans the platform's 60.5.
 Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
@@ -266,12 +267,12 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
 **The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
 The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
 
-- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move;
+- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: a debt of 4.5 RAMB36, the cap fully used;
 - the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
 - every other point, including every 1x1/1if point, stays at or under 56.
 
 S14 is the first lane after the flip.
-`ctrl_memory.LEDGERED` holds the platform's entry at 60.0 and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
@@ -319,7 +320,7 @@ That is a cut of 4,216 B from the platform's 5,224 B of `rom`.
 The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, owed to lane S14 under decision D3: the boot and the CSR policy are cold code, which D3 moves to flash.
 It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
 Every other point stays within 56 RAMB36.
-For the flip the owner's decision of 2026-11-12 (above) ledgers this point at 60.0, as ROM debt owed to S14.
+For the flip the owner's decision of 2026-11-12 (above) ledgers this point at 60.0, as ROM debt owed to S14, and #895's ruling of 2026-11-14 at its 60.5 cap (above).
 
 At this branch's head the two images are built alike, RV32IM with the record mover and the word-wide primitives (`ctrl_plat_image.py` takes `ctrl_srp_image.py`'s split flags and audits), and the branch's compactions are in both:
 
@@ -514,6 +515,19 @@ In all, 544 to 1,624 B of `rom` an image.
 The size fixture's 8x8 image with two interfaces holds 124,568 B of `rom` in 124,928, 360 B to spare, within the 58.5 its entry ledgers; the harness's `answering-every-port` arm, that image with its test port, holds 124,876 B (52 B to spare) and 113,280 B of `sram`, and its `valid-destinations` arm 124,728 B (200 B to spare), each 58.5.
 Without the names patch both arms planned 59.0, past the cap, at #895's merge of `084cf7a8` already (125,140 and 124,992 B), and with #905 the fixture did too (125,576 B).
 No entry or cap moves: every other point of both images is within 56, and the platform's largest plans 60.0 with 1,344 B of `rom` to spare in 131,072.
+
+**At this branch's head, #895 on #894's tiers `7398ec0a`**, planned the same way ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 111,928 / 55,184 | 41.0 | 116,992 / 56,224 | 43.0 | 17,536 |
+| 1x1, two interfaces | 113,472 / 57,360 | 42.5 | 118,560 / 58,400 | 43.5 | 19,072 |
+| 8x8, one interface | 124,608 / 96,288 | 54.5 | 129,720 / 97,264 | 56.0, accepted | 18,176 |
+| 8x8, two interfaces (largest) | 126,112 / 113,232 | 59.0, its ledger's | 131,256 / 114,224 | 60.5, its ledger's cap | 20,352 |
+
+Against #894's head `5b264bf2`, each image linked from the same inputs, SRP's Talker declarations add 504 to 1,608 B of `rom` an image, the most at the 1x1 two-interface points, and 0 to 64 B of `sram`, 64 B at both two-interface points; the pace and THE TRANSMIT's restated figure move no byte.
+The platform's 8x8 image with two interfaces holds 131,256 B of `rom`, 184 B past the 131,072 that 60.0 holds, so its entry is 60.5, the cap of the owner's decision: 1,864 B of `rom` left, a debt of 4.5 RAMB36 owed to S14, and the cap fully used, so any further growth at that point past its granule is a stop.
+The size fixture's 8x8 image with two interfaces holds 126,112 B in 126,976 (864 B to spare), the harness's `answering-every-port` arm 126,420 B (556 B) and its `valid-destinations` arm 126,280 B (696 B), each within the 59.0 #894's entry carries; 58.5 is out of reach, #894's own fixture being 59.0. Every other point of both images is within 56, the platform's 8x8 one-interface image at 56.0 with 1,352 B of `rom` to spare.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.

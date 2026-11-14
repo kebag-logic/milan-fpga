@@ -107,7 +107,7 @@ An image on the stand-in `generated/csr.h` alone boots to ready and passes the s
 The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
-At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past the 60.0 its entry ledgers (`ctrl_memory.LEDGERED`), which refuses its link until that entry or the image is decided (#895).
+At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past 60.0, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4; `ctrl_memory.LEDGERED`), with 1,864 B of `rom` left.
 The owner's ruling (#665, 6505997821), and since 2026-11-12 the owner's flip decision, ledger that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
 Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
@@ -132,7 +132,7 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
 ## Not yet done
 
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip, refused at 60.5: ROM debt of 4.0 RAMB36 owed to lane S14 (decision D3), 16,384 B of cold code to move to flash. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip, and its entry at 60.5, that decision's cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, refused at 61.0: ROM debt of 4.5 RAMB36 owed to lane S14 (decision D3), 18,432 B of cold code to move to flash, the cap fully used. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.
