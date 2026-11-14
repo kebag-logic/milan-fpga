@@ -1,0 +1,17 @@
+# aecp_arms.py --core --asan with the 8x8 configuration's generated header, exact head. NOT a supported arm: the sweep runs the core arm at the shipping 1x1 configuration and only Core.EveryAcceptedMapKeyIsItsOwn at the others (aecp_arms.all_arms, key_arms). Kept as a limit: the 1x1-shaped core fixture and the 8x8 header (AECP_ENTITY_KEY_CLUSTERS 0) disagree. A round-8 baseline of this arm was not run.
+[  FAILED  ] Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue
+[  FAILED  ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+[  FAILED  ] Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame
+[  FAILED  ] QueuedBurst.ABurstOfTheLargestLegalNoticesIsQueued
+[  FAILED  ] Core.RestoreMapWholeSetClipAndDefaults
+[  FAILED  ] Core.MapsAreAtomicAndPaginated
+[  FAILED  ] Core.MapTopologyFailuresAndEmptyPartitions
+[  FAILED  ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[  FAILED  ] Core.MetadataConfigurationKeysAndRepeatedOverrides
+[  FAILED  ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+[  FAILED  ] Core.EveryKeyOfTheDomainIsItsOwn
+[  FAILED  ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[  FAILED  ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (2 ms)
+exit 1

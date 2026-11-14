@@ -1,0 +1,18 @@
+head endstation_arty_4x4: compile rc 0
+head endstation_arty_8ch: compile rc 0
+head endstation_arty_current: compile rc 0
+head endstation_ax7101_1x1_tdm8: compile rc 0
+head endstation_ax7101_8x8: compile rc 0
+head 1x1/1if work arm: rc 0; [  PASSED  ] 3 tests.
+per-type-slots endstation_arty_4x4: compile rc 0
+per-type-slots endstation_arty_8ch: compile rc 0
+per-type-slots endstation_arty_current: compile rc 0
+per-type-slots endstation_ax7101_1x1_tdm8: compile rc 0
+per-type-slots endstation_ax7101_8x8: compile rc 0
+per-type-slots 1x1/1if work arm: rc 1; <clone>/sw/firmware/ctrl/test/test_aecp.cpp:166: Failure | <clone>/sw/firmware/ctrl/test/test_aecp.cpp:2600: Failure | <clone>/sw/firmware/ctrl/test/test_aecp.cpp:2603: Failure | <clone>/sw/firmware/ctrl/test/test_aecp.cpp:2614: Failure | <clone>/sw/firmware/ctrl/test/test_aecp.cpp:2614: Failure | <clone>/sw/firmware/ctrl/test/test_aecp.cpp:2614: Failure
+per-type-slots+index-assert endstation_arty_4x4: compile rc 0
+per-type-slots+index-assert endstation_arty_8ch: compile rc 1 static assertion failed: "the table holds every key of the port\'s domain"
+per-type-slots+index-assert endstation_arty_current: compile rc 1 static assertion failed: "the table holds every key of the port\'s domain"
+per-type-slots+index-assert endstation_ax7101_1x1_tdm8: compile rc 1 static assertion failed: "the table holds every key of the port\'s domain"
+per-type-slots+index-assert endstation_ax7101_8x8: compile rc 0
+per-type-slots+index-assert 1x1/1if work arm: refused:       | ^~~~~~~~~~~~~~
