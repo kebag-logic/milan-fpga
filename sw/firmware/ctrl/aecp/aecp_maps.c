@@ -189,7 +189,8 @@ struct edit {
 	uint8_t rep[AECP_MAP_PAGE];    // the first mapping equal to each
 	uint8_t flags[AECP_MAP_PAGE];
 	uint8_t copies[AECP_MAP_PAGE]; // each distinct mapping's occurrences
-	size_t from, to;               // the rows of its port's map a REMOVE can take (mark)
+	size_t from;                   // the rows of its port's map a REMOVE can take (mark), from one
+	size_t to;                     // to one past another
 };
 _Static_assert(sizeof ((struct edit *)0)->slot / sizeof ((struct edit *)0)->slot[0] >= (size_t)MAP_DOMAIN,
 	       "the table holds every position place() forms");
@@ -277,8 +278,12 @@ static size_t look(struct edit *e, const struct aecp_mapping *r, unsigned other,
 static void mark(struct edit *e, struct aecp_map *m, unsigned other, unsigned match)
 {
 	struct aecp_mapping *rows = m->rows; // read once: a mark's byte stores could alias them
-	size_t count = m->count, from = count, to = 0;
-	size_t k = match != 0u ? 0u : e->from, kept = k, end = match != 0u ? count : e->to;
+	size_t count = m->count;
+	size_t from = count;
+	size_t to = 0;
+	size_t k = match != 0u ? 0u : e->from;
+	size_t kept = k;
+	size_t end = match != 0u ? count : e->to;
 	for (; k < end; ++k) {
 		size_t v = look(e, &rows[k], other, match);
 		if (match != 0u) {
