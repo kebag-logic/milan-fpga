@@ -16,6 +16,49 @@ def table_macro(name: str, rows: list[str]) -> list[str]:
     return [f"#define {name} {{ \\", *[f"\t{row}, \\" for row in rows], "}"]
 
 
+def descriptors(blob: bytes) -> dict[tuple[int, int, int], bytes]:
+    """Each descriptor's bytes in the image by (configuration, type, index), as aecp_image.c loads them."""
+    entries = struct.unpack_from(">H", blob, 8)[0]
+    directory = struct.unpack_from(">I", blob, 12)[0]
+    found = {}
+    for row in range(entries):
+        cfg, typ, count, length, offset, _, stride = struct.unpack_from(">HHHHIHH", blob, directory + row * 16)
+        for n in range(count):
+            value = blob[offset + stride * n:offset + stride * n + length]
+            found[cfg, typ, struct.unpack_from(">H", value, 2)[0]] = value
+    return found
+
+
+def key_domain(blob: bytes) -> list[str]:
+    """The keys an AUDIO_MAP edit may hold (aecp_maps.c, #904, #894): at an output port a STREAM_OUTPUT and
+    its channel, at an input port one of the port's clusters and its channel. The most streams and clusters
+    a key may name, and the most channels each may have: every format a STREAM_OUTPUT advertises, and every
+    cluster of a STREAM_PORT_INPUT, in any configuration."""
+    found = descriptors(blob)
+
+    def channels(value: bytes, at: int) -> int:
+        """The AAF channel count of the stream format at `at`, 0 for any other format (aecp_maps.c, channels)."""
+        word = struct.unpack_from(">Q", value, at)[0]
+        return (word >> 22) & 1023 if word >> 56 == 2 else 0
+
+    streams, stream_channels, clusters, cluster_channels = 0, 0, 0, 0
+    for (cfg, typ, index), value in found.items():
+        if typ == 6:
+            start, count = struct.unpack_from(">HH", value, 82)
+            widths = [channels(value, 74), *(channels(value, start + 8 * n) for n in range(count))]
+            streams, stream_channels = max(streams, index + 1), max(stream_channels, *widths)
+        if typ == 14:
+            number, base = struct.unpack_from(">HH", value, 12)
+            clusters = max(clusters, number)
+            for n in range(number):
+                cluster = found[cfg, 20, base + n]
+                cluster_channels = max(cluster_channels, struct.unpack_from(">H", cluster, 84)[0])
+    return [f"#define AECP_ENTITY_KEY_STREAMS {streams}u",
+            f"#define AECP_ENTITY_KEY_STREAM_CHANNELS {stream_channels}u",
+            f"#define AECP_ENTITY_KEY_CLUSTERS {clusters}u",
+            f"#define AECP_ENTITY_KEY_CLUSTER_CHANNELS {cluster_channels}u"]
+
+
 def storage(overlay: dict, blob: bytes) -> list[str]:
     """The #658 identity and DR5 record capacities, independent of live state."""
     entries, names = struct.unpack_from(">HH", blob, 8)
@@ -56,9 +99,10 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
             maximum = max(maximum, capacity)
     result = [f"#define AECP_ENTITY_NAMES {names}u", f"#define AECP_ENTITY_MAPS {len(maps)}u",
               f"#define AECP_ENTITY_MAP_ROWS {total}u", f"#define AECP_ENTITY_MAP_MAX {maximum}u",
-              f"#define AECP_ENTITY_OUTPUTS {overlay['descriptor_counts']['STREAM_OUTPUT']}u"]
+              f"#define AECP_ENTITY_OUTPUTS {overlay['descriptor_counts']['STREAM_OUTPUT']}u", *key_domain(blob)]
     result += table_macro("AECP_ENTITY_NAMES_INIT", ordinals)
     result += table_macro("AECP_ENTITY_MAPS_INIT(rows)", maps)
-    result += ["static const struct aecp_mapping aecp_map_defaults[] = {",
+    # aecp_maps.c reads the constants alone; the tables below are each including unit's own
+    result += ["#ifndef AECP_ENTITY_SHAPE_ONLY", "static const struct aecp_mapping aecp_map_defaults[] = {",
                *[f"\t{row}," for row in defaults or ["{0,0,0,0}"]], "};"]
     return result

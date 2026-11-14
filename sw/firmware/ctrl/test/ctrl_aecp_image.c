@@ -58,13 +58,13 @@ static struct aecp_map image_map_pools[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT
 static const struct aecp_value image_names[AECP_ENTITY_NAMES] = AECP_ENTITY_NAMES_INIT;
 
 // The observation and physical-apply ports are contract 2.3's face block
-// (aecp_face.c). GET_AS_PATH stays an explicit unavailable observation: this
-// is a linked-size fixture, and that port is target integration's.
+// (aecp_face.c), GET_AS_PATH's included (#897); the platform supplies random.
 static uint32_t a_random(void *ctx) { (void)ctx; return mbx_now_ms(); }
-static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)
-{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }
-static const struct aecp_ports image_platform = {.random=a_random, .path=a_path};
+static const struct aecp_ports image_platform = {.random=a_random};
 static struct aecp_face image_face;
+#if AECP_MBX_OWED_SLOTS != 0u
+static struct aecp_owed image_owed[AECP_MBX_OWED_SLOTS];
+#endif
 
 int main(void)
 {
@@ -73,6 +73,11 @@ int main(void)
     struct aecp_config aecp = {.entity_id=image_entity.entity_id,.interfaces=MBX_N_IF,
         .model=&image_model,.maps=image_map_pools,.map_count=AECP_ENTITY_MAPS,
         .events=image_events,.latency=image_latency};
+#if AECP_MBX_OWED_SLOTS != 0u
+    aecp.owed=image_owed;
+    aecp.owed_slots=AECP_MBX_OWED_SLOTS;
+    aecp.queue=&aecp_owed_queue;
+#endif
     for (unsigned i=0;i<MBX_N_IF;++i) aecp.mac[i]=image_entity.mac;
     const struct ctrl_app_config cfg = {
         .entity=&image_entity, .arena=image_arena, .arena_bytes=sizeof(image_arena),

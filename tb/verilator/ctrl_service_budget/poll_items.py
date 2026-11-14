@@ -13,9 +13,13 @@ ITEMS = {'withdraw': ('srp_mbx:reset_interface', None), 'rebuild': ('srp_mbx:ope
          'walk': ('mrp_attr_visit', None), 'reclaim': ('mrp_reclaim', None),
          'retained': ('srp_mbx:apply_receive', None), 'mrpdu': ('srp_mbx:build_mrpdu', None),
          'acmp': ('acmp_mbx:on_poll', 'acmp'), 'aecp': ('aecp:transmit', 'aecp')}
+#: ACMP's offers (#908): each call of acmp_rx, an ACMP record offered to the core, by the adapter's handler (acmp_mbx.c
+#: on_frame, a record of the ring the loop or THE KEPT COMMAND's redelivery took) or by the redelivery's re-offer of
+#: the kept record (redeliver). An ACMP item is its owed frame's send, less the offers nested in it (poll_grade).
+OFFER, HANDLER = 'acmp_rx', 'acmp_mbx:on_frame'
 #: build.SPAN_SYMBOLS' entries for them: a global by its symbol, a static function as (module, function).
 SPANS = tuple(tuple(label.split(':')) if ':' in label else label
-              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values())))
+              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values()), OFFER))
 #: A pass's parts (#665: the cuts' stated costs): each channel's record and event handler, each module's
 #: poll and the centisecond's dispatch as build.SPAN_SYMBOLS' entries, and each event taken and record dispatched as
 #: build.CALL_SYMBOLS', which cut a pass into them; the load gate's stated costs are measured from them (load_grade.py).
@@ -26,20 +30,19 @@ PART_SPANS = (('ctrl_loop', 'dispatch_ticks'), ('aecp_mbx', 'frame'), ('srp_mbx'
               ('adp_mbx', 'on_frame'))
 PART_CALLS = ('mbx_event_take', ('ctrl_loop', 'service_rx'))
 #: A notice's recipients in aecp.c's fan_out (#665): walked by their mask and addressed in place, and as they were.
-FAN_NOW = ('\tunsigned k = a->recipient;\n'
+FAN_NOW = ('\tunsigned k = *at;\n'
            '\twhile (!owed && k < total) {\n'
            '\t\tconst unsigned i = k / AECP_REGISTRATIONS;\n'
            '\t\tstruct aecp_registration *r = &a->registry[i][k % AECP_REGISTRATIONS];\n'
            "\t\t// the interface's used slots from k on (aecp.used), each a step of r and k\n"
            '\t\tfor (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS); slots != 0u; slots >>= 1, ++r,'
            ' ++k) {\n'
-           '\t\t\tif ((slots & 1u) == 0u || r->controller == a->requester) {\n'
+           '\t\t\tif ((slots & 1u) == 0u || r->controller == requester) {\n'
            '\t\t\t\tcontinue;\n'
            '\t\t\t}\n'
            '\t\t\taddress(frame, r, a->cfg.mac[i]);\n'
-           '\t\t\tconst enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :\n'
-           '\t\t\t\ta->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie) ? AECP_FAN_TAKEN :\n'
-           '\t\t\t\tAECP_FAN_REFUSED;\n'
+           '\t\t\tconst enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, bytes) :\n'
+           '\t\t\t\ta->ports->send(a->ports->ctx, i, frame, bytes, a->tx_cookie) ? AECP_FAN_TAKEN : AECP_FAN_REFUSED;\n'
            '\t\t\tif (taken != AECP_FAN_TAKEN) {\n'
            '\t\t\t\towed = true;\n'
            '\t\t\t\tlost = taken == AECP_FAN_LOST;\n'
@@ -62,18 +65,18 @@ FAN_NOW = ('\tunsigned k = a->recipient;\n'
            '\t}\n')
 #: The walk as it was before the cut (#665: the recipient found from its index, its frame addressed through the put
 #: helpers' calls), with the lost frame's report the fan port gives today, so the plant keeps today's resume.
-FAN_BEFORE = ('\twhile (a->recipient < total) {\n'
-              '\t\tunsigned i = a->recipient / AECP_REGISTRATIONS;\n'
-              '\t\tunsigned n = a->recipient % AECP_REGISTRATIONS;\n'
+FAN_BEFORE = ('\twhile ((*at) < total) {\n'
+              '\t\tunsigned i = (*at) / AECP_REGISTRATIONS;\n'
+              '\t\tunsigned n = (*at) % AECP_REGISTRATIONS;\n'
               '\t\tstruct aecp_registration *r = &a->registry[i][n];\n'
-              '\t\tif (used(a, i, n) && r->controller != a->requester) {\n'
+              '\t\tif (used(a, i, n) && r->controller != requester) {\n'
               '\t\t\taecp_put48(frame, r->mac);\n'
               '\t\t\taecp_put48(frame + 6, a->cfg.mac[i]);\n'
               '\t\t\taecp_put64(frame + 26, r->controller);\n'
               '\t\t\taecp_put16(frame + 34, r->sequence);\n'
-              '\t\t\tconst enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :\n'
-              '\t\t\t\ta->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie) ? AECP_FAN_TAKEN :\n'
-              '\t\t\t\tAECP_FAN_REFUSED;\n'
+              '\t\t\tconst enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, bytes) :\n'
+              '\t\t\t\ta->ports->send(a->ports->ctx, i, frame, bytes, a->tx_cookie) ? AECP_FAN_TAKEN :'
+              ' AECP_FAN_REFUSED;\n'
               '\t\t\tif (taken != AECP_FAN_TAKEN) {\n'
               '\t\t\t\towed = true;\n'
               '\t\t\t\tlost = taken == AECP_FAN_LOST;\n'
@@ -83,16 +86,16 @@ FAN_BEFORE = ('\twhile (a->recipient < total) {\n'
               '\t\t\t\tuint8_t *next = other;\n'
               '\t\t\t\tother = frame;\n'
               '\t\t\t\tframe = next;\n'
-              '\t\t\t\theld = a->recipient;\n'
+              '\t\t\t\theld = (*at);\n'
               '\t\t\t\theld_r = r;\n'
               '\t\t\t} else {\n'
               '\t\t\t\tsent_frame(a);\n'
               '\t\t\t}\n'
               '\t\t\t++r->sequence;\n'
               '\t\t}\n'
-              '\t\t++a->recipient;\n'
+              '\t\t++(*at);\n'
               '\t}\n'
-              '\tunsigned k = a->recipient;\n')
+              '\tunsigned k = *at;\n')
 #: srp_mbx.c's same: the bytes compared one by one, and through memcmp as they were.
 SAME_NOW = ('    while (n != 0u) {\n        --n;\n        if (a[n] != b[n]) {\n            return false;\n'
             '        }\n    }\n    return true;\n')
@@ -121,10 +124,17 @@ PLANTS = {
     # compared through memcmp, so the group with the heaviest SRP record makes its record dearer than this image's
     # unplanted one (REFERENCE_CONTROLS)
     'srp-compared-by-memcmp': ('srp/srp_mbx.c', SAME_NOW, SAME_BEFORE, 'notice-every-2', 'answering-every-port'),
+    # THE KEPT COMMAND redelivered after every poll, not only after one that sent an owed frame (#908): while the
+    # egress holds ACMP's frames the kept record is offered and declined in every pass, past the declines' bound of
+    # two a send and one (poll_grade.DECLINES), so the group that keeps a command passes it
+    'acmp-redelivered-every-poll': ('acmp/acmp_mbx.c', '\tif (m->acmp.owed_count < owed) {\n\t\tredeliver(m);\n',
+                                    '\tif (m->acmp.owed_count <= owed) {\n\t\tredeliver(m);\n', 'backlog-owed',
+                                    'none'),
 }
 #: The controls held to a stated cost: each must make the STATED line of its words in its group.
 CONTROLS = {'polls-rebuild-in-the-base': "a pass's polls base of", 'polls-rebuild-twice': 'a rebuild item of',
-            'notice-fan-out-as-it-was': 'a aecp item of'}
+            'notice-fan-out-as-it-was': 'a aecp item of',
+            'acmp-redelivered-every-poll': 'declined ACMP offers, over their bound'}
 #: The controls held to this image's own unplanted measurement instead (#665): each stated cost is the larger of a
 #: new measurement and the committed table's, so an image that makes the work cheaper leaves the stated cost above
 #: both the cut and its reversal, and a control held to it escapes. Each such control runs its group twice in one

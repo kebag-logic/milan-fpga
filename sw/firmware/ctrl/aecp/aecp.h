@@ -247,6 +247,29 @@ struct aecp_run {
 	uint16_t first;
 	uint16_t count;
 };
+// A command's notice owed to its recipients while AECP takes its next record (#894, the ruling of 2026-11-12): the
+// frame its response was, which fan_out addresses to each recipient, and the controller its recipients leave out
+// (Milan v1.2 5.4.5.1). A slot holds the largest legal AECPDU, 550 octets rounded up to a word: a control_data_length
+// of at most 524 octets after the target_entity_id (IEEE 1722.1-2021 9.2.2.6), behind the 26 octets of the Ethernet
+// header and the control header to it. So every legal command's notice is queued (#894, the owner's decision of
+// 2026-11-13, option A). A notice longer than a slot, a command past that length the core still answers, stays in the
+// response buffer, as every notice did before.
+#define AECP_OWED_BYTES 552u
+struct aecp_owed {
+	AECP_LINE uint8_t frame[AECP_OWED_BYTES];
+	uint64_t requester;
+	uint16_t bytes;
+};
+// The owed-notice queue's two operations (#894): a command's notice into its tail as the record's turn sends the
+// response (owe), and its oldest notice's walk of the recipients in a poll (drain). An integrator that gives the queue
+// slots gives it these (aecp_config.queue, &aecp_owed_queue), and one that gives none names neither, so its image does
+// not link them (--gc-sections): the queue is compiled out where AECP_MBX_OWED_SLOTS (aecp_mbx.h) is 0.
+struct aecp;
+struct aecp_owed_queue {
+	bool (*owe)(struct aecp *);
+	void (*drain)(struct aecp *);
+};
+extern const struct aecp_owed_queue aecp_owed_queue;
 struct aecp_config {
 	uint64_t entity_id;
 	uint64_t mac[AECP_INTERFACES];
@@ -256,6 +279,11 @@ struct aecp_config {
 	size_t map_count;
 	struct aecp_event *events; // model->count entries
 	uint32_t *latency; // one entry per STREAM_OUTPUT descriptor
+	// The owed-notice queue (#894): owed_slots entries and the queue's operations, supplied by the integrator; none
+	// keeps the next record waiting for every notice, as before.
+	struct aecp_owed *owed;
+	unsigned owed_slots;
+	const struct aecp_owed_queue *queue;
 };
 struct aecp {
 	struct aecp_config cfg;
@@ -299,6 +327,10 @@ struct aecp {
 	unsigned recipient;
 	bool response_owed;
 	bool notify;
+	// The owed-notice queue (#894): its oldest entry, its count and how far the oldest's walk of the recipients is.
+	uint8_t owed_head;
+	uint8_t owed_count;
+	unsigned owed_recipient;
 	int probe_recipient;
 	size_t counter_event;
 	uint32_t start_deadline;
@@ -322,6 +354,7 @@ struct aecp {
 	unsigned held_interface;
 	size_t held_bytes;
 	uint8_t held[AECP_HELD_BYTES];
+	uint32_t edited_ms; // the clock as the last ADD or REMOVE_AUDIO_MAPPINGS was taken (#904; THE PACE, aecp_mbx.h)
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
