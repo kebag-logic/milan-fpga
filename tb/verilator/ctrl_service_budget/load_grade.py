@@ -607,12 +607,14 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
-    """The harness self-test's checks of this gate and of the flip check: every planted defect refused."""
+    """The harness self-test's checks of this gate, of the flip check and of a pass's record classes: every planted
+    defect refused."""
     import flip_grade
+    import record_classes
     escaped = controls(ROOT) + period_controls(ROOT)
     names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in names] + flip_grade.flip_checks()
+            for name in names] + flip_grade.flip_checks() + record_classes.checks()
 
 
 def main() -> int:
