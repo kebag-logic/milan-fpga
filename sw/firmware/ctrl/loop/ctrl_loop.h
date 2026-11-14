@@ -204,8 +204,9 @@
 // rebuild of an interface after a link change is 850 us of polls. The rows by
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
-// 20 ms, SRP's R5 and R6 at 90 ms, the last queued notice at 125 ms (#665,
-// decision D).
+// 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; #894's
+// amendment of 2026-11-13 to its contingent ruling, item 2).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer

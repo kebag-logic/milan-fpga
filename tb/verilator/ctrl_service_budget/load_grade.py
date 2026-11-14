@@ -232,7 +232,7 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
 
     def value(name: str) -> int:
         """A plain integer, a ternary on the interface count, or another constant's name (srp_mbx.c's SRP_JOIN_CS is
-        ctrl_loop.h's CTRL_LOOP_JOIN_CS, #894's contingent ruling issuecomment-6858269025, item 3)."""
+        ctrl_loop.h's CTRL_LOOP_JOIN_CS, #894's contingent ruling of 2026-11-13, item 3)."""
         body = found[name]
         if body in found:
             return value(body)

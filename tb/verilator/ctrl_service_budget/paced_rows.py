@@ -56,7 +56,7 @@ def edits(w_ms: float, pace_ms: int) -> int:
     compares whole milliseconds (aecp_mbx.c, ready): an edit is stamped with the clock aecp_rx reads as it takes the
     record (aecp.c, now; aecp_maps.c), and the next is taken once the core's clock, never ahead of that read, is P
     past the stamp. So floor(t[k+1]) >= floor(t[k]) + P, N edits span more than P (N - 1) - 1 ms, and the window holds
-    N - 1 < (w + 1) / P paces (#894's ruling of 2026-11-13 on round 7's reviews, item 2)."""
+    N - 1 < (w + 1) / P paces (#894's egress ruling of 2026-11-13, item 2)."""
     return -(-(round(w_ms * 100) + 100) // (100 * pace_ms))
 
 

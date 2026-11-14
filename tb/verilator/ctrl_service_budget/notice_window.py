@@ -58,7 +58,7 @@ def names() -> list[str]:
 
 def queued_ms(interfaces: int) -> int:
     """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h): the bound every queued notice meets, the last queued
-    notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment issuecomment-6862465874,
+    notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment of 2026-11-13,
     queued_bound.py) and the stated 62 ms at two."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp_mbx.h').read_text()
     one, two = re.search(r'#define AECP_QUEUED_MS \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
