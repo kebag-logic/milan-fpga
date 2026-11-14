@@ -109,8 +109,14 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
         sources += modules
         host_sources += host
     # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's
-    # retry-cost ruling, item 1): after a mailbox group's, whose contract is its interfaces' own
-    inc += [f"-I{tree.src / 'loop'}", f"-I{tree.src / 'mbx'}"]
+    # retry-cost ruling, item 1): after a mailbox group's, whose contract is its interfaces' own; with none, the
+    # generated contract at the arm's interfaces (srp_arms.prepared), so the shape is its interfaces' as test_aecp.cpp
+    # asserts. The debug arm's test configures one interface whatever the arm's count, so it keeps the tracked one's.
+    contract = tree.src
+    if not (mailbox or debug) and interfaces != 1:
+        from srp_arms import prepared
+        contract, _ = prepared(tree, interfaces, out / "contract", config)
+    inc += [f"-I{contract / 'loop'}", f"-I{contract / 'mbx'}"]
     if debug:
         inc += ["-DCTRL_REENTRY_ASSERT"]
     if work:

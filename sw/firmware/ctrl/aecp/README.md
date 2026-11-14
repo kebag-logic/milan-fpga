@@ -22,7 +22,14 @@ outside its own:
 [`ctrl_loop.h`](../loop/ctrl_loop.h)'s table of shapes, for what a refused
 attempt costs THE RETRY's round at the image's shape (`AECP_ATTEMPT_US`;
 [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1), and calls nothing that it or the
-mailbox header it includes declares. [`aecp_image.c`](aecp_image.c) validates the
+mailbox header it includes declares. [`aecp.c`](aecp.c), the one unit that charges
+that cost, includes the table before `aecp.h` and says it charges one
+(`AECP_CHARGES_ATTEMPTS`); `aecp.h` refuses a unit that says so without the table
+in force, in its `#error`'s THE SHAPES words, and the AECP campaign plants both
+(`attempt-charged-without-the-shapes`, `attempt-charged-before-the-shapes`). The
+host suite compiles the core at its arm's interfaces' own contract, and
+`test_aecp.cpp` asserts it (`MBX_N_IF == AECP_TEST_INTERFACES`), so the shape whose
+costs it charges is the one its arm configures. [`aecp_image.c`](aecp_image.c) validates the
 generated AEM image and exposes descriptor spans; [`aecp_entity.py`](aecp_entity.py)
 uses the existing builder generators and derives capacities from their output.
 Every advertised descriptor is served by READ_DESCRIPTOR. Names and scalar

@@ -8,6 +8,12 @@ replacement, and each test that must refuse it with its words.
 """
 from __future__ import annotations
 
+from aecp_map_mutants import BUILD
+
+#: The words aecp.h refuses a unit that charges a refused attempt with when THE SHAPES' table is not in force.
+NO_SHAPES = "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) " \
+    'in force'
+
 ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
     ('retry-in-the-bursts-pass', 'aecp.c',
      'return !a->retry_hold && scan(a);',
@@ -189,6 +195,16 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      '\t\t\t\ta->round_us -= 2 * AECP_ATTEMPT_US;\n',
      ('Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort',
       "a notice's time left after the refusal's charge")),
+    # the charge is the shape's (THE SHAPES; #894's retry-cost ruling, item 1): the unit that charges it states so
+    # with the table in force first, and aecp.h refuses it without the table, or with it only after, by its words
+    ('attempt-charged-without-the-shapes', 'aecp.c',
+     '#include "ctrl_loop.h"\n#define AECP_CHARGES_ATTEMPTS\n',
+     '#define AECP_CHARGES_ATTEMPTS\n',
+     (BUILD, NO_SHAPES)),
+    ('attempt-charged-before-the-shapes', 'aecp.c',
+     '#include "ctrl_loop.h"\n#define AECP_CHARGES_ATTEMPTS\n#include "aecp_internal.h"\n',
+     '#define AECP_CHARGES_ATTEMPTS\n#include "aecp_internal.h"\n#include "ctrl_loop.h"\n',
+     (BUILD, NO_SHAPES)),
     ('retry-notice-uncharged', 'aecp.c',
      '\t\ta->round_us -= a->notice_us;\n',
      '',

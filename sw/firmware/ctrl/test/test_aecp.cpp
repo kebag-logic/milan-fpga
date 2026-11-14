@@ -34,7 +34,13 @@ extern "C" {
 #include "acmp_nvm.h"
 #include "srp_mbx.h"
 #endif
+#include "mbx_contract.h"
 }
+// The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
+// so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
+// item 1). aecp_arms.core_arm gives each arm its interfaces' own contract; one at another's fails here.
+static_assert(MBX_N_IF==AECP_TEST_INTERFACES,
+              "THE SHAPES: the host arm's mailbox contract (MBX_N_IF) is not at its interfaces (AECP_TEST_INTERFACES)");
 #ifdef AECP_TEST_APP
 #include "acmp_fake.hpp"
 #endif
