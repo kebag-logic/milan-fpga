@@ -266,9 +266,9 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
                                                        "ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/shape_costs.py": "THE SHAPES: reads ctrl_loop.h's table of shapes and the "
-                                                       "stream counts srp_entity.py writes for a configuration, in "
-                                                       "memory, and its controls plant ctrl_loop.h in memory; it "
-                                                       "compiles nothing",
+                                                       "shape header srp_entity.py and the AEM image's header "
+                                                       "aecp_entity.py write for a configuration, in memory, and its "
+                                                       "controls plant ctrl_loop.h in memory; it compiles nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
                                                       "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
                                                       "and the TSN stack's headers; it compiles nothing",

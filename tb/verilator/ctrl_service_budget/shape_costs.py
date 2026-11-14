@@ -15,7 +15,10 @@ srp_entity.py writes for the shipping configuration (srp_arms.DEFAULT_ENTITY; fi
 The shape header also states the AEM descriptors that bear AECP's change notices (CTRL_AEM_STREAM_INPUTS and the rest),
 from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's ruling
 issuecomment-6871343905, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
-apart from aecp.h (notices_held), at one interface exactly.
+apart from aecp.h (notices_held), at one interface exactly. And it states the key domain of an AUDIO_MAP edit, which
+sizes the map edits' direct index (aecp_maps.c; #894's ruling issuecomment-6870437042, item 1), as its single source
+in every unit an image compiles (the ruling issuecomment-6871343905, item (c)): aecp_entity_gen.h states it only for a
+compile given no shape header, by the same derivation (key_findings).
 
 The harness and the model key these costs on the shape the builder writes for a point's configuration and interfaces
 (of_config, of_point), never on the point's name. A shape given as an integer is that many interfaces at the shipping
@@ -56,6 +59,11 @@ BUILT = {'1x1/1if': ('endstation_ax7101_1x1_tdm8', 1), '8x8/1if': ('endstation_a
 AECP_HEADER = 'sw/firmware/ctrl/aecp/aecp.h'
 NOTICE_DESCRIPTORS = {5: 'CTRL_AEM_STREAM_INPUTS', 6: 'CTRL_AEM_STREAM_OUTPUTS', 9: 'CTRL_AEM_AVB_INTERFACES',
                       36: 'CTRL_AEM_CLOCK_DOMAINS'}
+#: The key domain of an AUDIO_MAP edit (aecp_shape.key_domain), which the shape header states and aecp_entity_gen.h only
+#: where a compile has none (its #ifndef CTRL_SRP_ENTITY_H).
+KEY_DOMAIN = ('AECP_ENTITY_KEY_STREAMS', 'AECP_ENTITY_KEY_STREAM_CHANNELS', 'AECP_ENTITY_KEY_CLUSTERS',
+              'AECP_ENTITY_KEY_CLUSTER_CHANNELS')
+KEY_GUARD = '#ifndef CTRL_SRP_ENTITY_H'
 #: The words the build fails with at a shape the table does not list (ctrl_loop.h's #error).
 UNLISTED = 'THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists'
 
@@ -171,6 +179,43 @@ def descriptors(header: str) -> dict[str, int]:
     return {name: int(n) for name, n in re.findall(r'^#define (CTRL_AEM_\w+) (\d+)u$', header, re.M)}
 
 
+@functools.lru_cache(maxsize=None)
+def aecp_header_of(config: Path, root: Path = ROOT) -> str:
+    """The AEM image's header the builder writes for a configuration (aecp_entity.emit), once a configuration."""
+    where = str(root / "sw/firmware/ctrl/aecp")
+    if where not in sys.path:
+        sys.path.insert(0, where)
+    import aecp_entity
+    return aecp_entity.emit(config)
+
+
+def key_domain(text: str) -> dict[str, int]:
+    """The key domain a generated header's text states (KEY_DOMAIN), by name."""
+    return {name: int(n) for name, n in re.findall(rf'^#define ({"|".join(KEY_DOMAIN)}) (\d+)u$', text, re.M)}
+
+
+def key_findings(root: Path = ROOT) -> list[str]:
+    """The map edits' key domain at each point and at the shipping configuration: the shape header not stating all of
+    it, aecp_entity_gen.h stating any of it outside its KEY_GUARD (an image would read two sources), or the two not the
+    same (a host arm's table and an image's would differ)."""
+    out = []
+    for point, config in [*((p, c) for p, (c, _) in BUILT.items()), ('the shipping configuration', None)]:
+        path = root / (DEFAULT_CONFIG if config is None else f'configs/{config}.yaml')
+        shape, aem = key_domain(header_of(path, root)), aecp_header_of(path, root)
+        missing = [name for name in KEY_DOMAIN if name not in shape]
+        if missing:
+            out.append(f'{point}: the shape header does not state {", ".join(missing)}, the map edits\' key domain')
+        guarded = aem.split(KEY_GUARD, 1)[1].split('#endif', 1)[0] if KEY_GUARD in aem else ''
+        outside = [name for name in key_domain(aem.replace(guarded, '')) if name in KEY_DOMAIN]
+        if outside:
+            out.append(f'{point}: aecp_entity_gen.h states {", ".join(outside)} outside {KEY_GUARD}, beside the shape '
+                       'header')
+        for name, value in key_domain(guarded or aem).items():
+            if name in shape and shape[name] != value:
+                out.append(f'{point}: the shape header states {name} {shape[name]}, not the image\'s {value}')
+    return out
+
+
 def evaluated(text: str, name: str, values: dict[str, int], last: bool = False) -> int:
     """A constant of a header's text, each name it reads `values`' or the text's own #define, its first (the branch a
     shape header selects) or with `last` its last (a compile's with no shape header), a ternary on a comparison taken,
@@ -225,7 +270,8 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
     """Each way the table breaks its rules: a slice over the cap or one that cannot hold a build of one or an SRP record
     (ctrl_loop.c's _Static_assert), a build of both not over the slice that holds one build only or not under two builds
     of one, a point whose shape is not listed, a listed shape whose polls poll_grade.py does not state, and a default
-    that is not the shipping configuration's streams; and AECP_NOTICES_MOST (notice_findings)."""
+    that is not the shipping configuration's streams; AECP_NOTICES_MOST (notice_findings); and the map edits' key
+    domain (key_findings)."""
     text = text_of(root, texts)
     try:
         table = listed(text)
@@ -262,7 +308,7 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
     if set(poll_grade.STATED_US) != set(table):
         out.append(f'poll_grade.py states the polls at {sorted(map(tuple, poll_grade.STATED_US))}, not at the shapes '
                    f'ctrl_loop.h lists, {sorted(map(tuple, table))}')
-    return out + notice_findings(root, texts)
+    return out + notice_findings(root, texts) + key_findings(root)
 
 
 def notice_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
@@ -368,7 +414,34 @@ def controls(root: Path = ROOT) -> list[str]:
         del poll_grade.STATED_US[of_point('8x8/1if', root)]
         if not any('poll_grade.py states the polls' in f for f in findings(root)):
             escaped.append('a listed shape whose polls are not stated')
-    return escaped + notice_controls(root)
+    return escaped + notice_controls(root) + key_controls(root)
+
+
+def key_controls(root: Path = ROOT) -> list[str]:
+    """Each planted defect of the key domain's single source key_findings must refuse: the planted names that
+    escaped."""
+    from unittest import mock
+    escaped = []
+    shape, aem = header_of, aecp_header_of
+    eight = root / 'configs' / f'{BUILT["8x8/1if"][0]}.yaml'
+    plants = {
+        'the shape header not stating the map edits\' key domain': (
+            {'header_of': lambda c, r=ROOT: re.sub(r'^#define AECP_ENTITY_KEY_\w+ \d+u\n', '', shape(c, r), flags=re.M)},
+            'the shape header does not state AECP_ENTITY_KEY_STREAMS'),
+        'aecp_entity_gen.h stating the key domain beside the shape header': (
+            {'aecp_header_of': lambda c, r=ROOT: aem(c, r).replace(KEY_GUARD + '\n', '', 1)},
+            'outside #ifndef CTRL_SRP_ENTITY_H'),
+        'the shape header\'s key domain not the image\'s': (
+            {'header_of': lambda c, r=ROOT: shape(c, r).replace('#define AECP_ENTITY_KEY_STREAMS 9u',
+                                                                '#define AECP_ENTITY_KEY_STREAMS 2u')
+             if c == eight else shape(c, r)},
+            '8x8/1if: the shape header states AECP_ENTITY_KEY_STREAMS 2, not the image\'s 9'),
+    }
+    for name, (patched, words) in plants.items():
+        with mock.patch.dict(globals(), patched):
+            if not any(words in f for f in key_findings(root)):
+                escaped.append(name)
+    return escaped
 
 
 def notice_controls(root: Path = ROOT) -> list[str]:
@@ -417,7 +490,10 @@ CONTROLS = ('a shape the table does not list', 'a slice over the cap', 'a build 
             'the notices most typed at the 1x1\'s 12 at one interface (earlier rule)',
             'an AVB interface\'s notices counted as two', 'two interfaces\' most under the 8x8\'s descriptors',
             'the notices with no shape header not the shipping configuration\'s',
-            'a load point counting other descriptors with counters than the shape header states')
+            'a load point counting other descriptors with counters than the shape header states',
+            'the shape header not stating the map edits\' key domain',
+            'aecp_entity_gen.h stating the key domain beside the shape header',
+            'the shape header\'s key domain not the image\'s')
 
 
 def shape_checks() -> list[tuple[str, bool, str]]:
