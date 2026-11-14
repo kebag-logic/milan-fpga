@@ -163,6 +163,55 @@ print("platform declaration reaches the part, pre-placement setup and post-route
     print("  [timing grade] " + result.stdout.strip())
 
 
+def test_board_parts(python: str) -> None:
+    """#911: the XC7A200T die reaches the platform, the timing grade and the
+    QSPI layout, an unknown die is refused, and the AX7101 keeps its own."""
+    probe = r'''
+from types import SimpleNamespace
+import milan_soc
+from platforms.alinx_ax7101 import Platform
+from platforms.ax7101_timing import BOARD_PARTS, TIMING_GRADE, configure_commands
+from litespi.modules import N25Q128A13
+from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+die = "xc7a200t-fbg484-2"
+assert die in BOARD_PARTS and TIMING_GRADE["part"] in BOARD_PARTS, BOARD_PARTS
+p = Platform(part=die)
+assert p.device == die, p.device
+commands = [c.format(build_name="candidate")
+            for c in p.toolchain.pre_placement_commands.resolve(None)]
+assert commands == configure_commands(die) and "{xc7a200t-fbg484-2}" in commands[1], commands
+for wrong in ("xc7a35t-fgg484-2", "xc7a200t-fbg484-1"):
+    try:
+        Platform(part=wrong)
+    except ValueError as exc:
+        assert "is not one of" in str(exc) and wrong in str(exc), exc
+    else:
+        raise AssertionError(f"{wrong} accepted")
+assert milan_soc.flashboot_layout(TIMING_GRADE["part"]) is milan_soc.FLASHBOOT_LAYOUT
+moved = milan_soc.flashboot_layout(die)
+slot = milan_soc.FLASHBOOT_BITSTREAM_SLOT[die]
+assert moved["bitstream"]["size"] == moved["aem"]["offset"] == slot == 0xA0_0000, moved
+assert milan_soc.check_flash_map(moved) == [] == milan_soc.check_flash_map(), moved
+module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
+for part, aem in ((TIMING_GRADE["part"], 0x40_0000), (die, 0xA0_0000)):
+    consts = {}
+    fake = SimpleNamespace(platform=SimpleNamespace(device=part), _gptp_owner="fabric", _cpu_xlen=32,
+                           add_constant=lambda name, value=None: consts.__setitem__(name, value))
+    milan_soc.MilanSoC._add_flashboot_constants(fake, "baremetal", module)
+    rows = {row["name"]: row for row in fake._flashboot_layout["images"]}
+    assert consts["MILAN_FLASHBOOT_AEM_OFFSET"] == rows["aem"]["offset"] == rows["bitstream"]["budget"] == aem, (part, consts, rows)
+    assert fake._flashboot_layout["flash_device"] == "n25q128a13", fake._flashboot_layout
+    assert fake._flashboot_layout["flash_jedec_id"] == 0x20BA18, fake._flashboot_layout
+print("the XC7A200T die reaches the platform and timing grade; two other parts refused; "
+      "its layout and AEM constant move to 0xA00000 while the AX7101 keeps 0x400000; "
+      "both name the N25Q128A13 (0x20BA18)")
+'''
+    result = subprocess.run([python, "-B", "-c", probe], cwd=ROOT / "sw/litex",
+                            text=True, capture_output=True, check=False, timeout=60)
+    assert result.returncode == 0, result.stdout + result.stderr
+    print("  [timing grade] " + result.stdout.strip())
+
+
 def test_pll_grade(python: str) -> None:
     """Changing the declared part must reach the real AX7101 PLL constructor."""
     probe = r'''
@@ -187,4 +236,5 @@ if __name__ == "__main__":
     test_timing_grade_contract()
     if len(sys.argv) == 2:
         test_platform_hooks(sys.argv[1])
+        test_board_parts(sys.argv[1])
         test_pll_grade(sys.argv[1])

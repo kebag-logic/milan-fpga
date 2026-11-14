@@ -29512,12 +29512,14 @@ def test_clock_crossing_constraints() -> None:
 
 def test_commercial_timing_grade() -> None:
     """Pin the release conditions and prove that the real platform consumes them."""
-    from test_timing_grade import test_platform_hooks, test_pll_grade, test_timing_grade_contract
+    from test_timing_grade import (test_board_parts, test_platform_hooks, test_pll_grade,
+                                   test_timing_grade_contract)
 
     test_timing_grade_contract()
     python = _litex_or_skip("timing grade platform")
     if python is not None:
         test_platform_hooks(python)
+        test_board_parts(python)
         test_pll_grade(python)
 
 
