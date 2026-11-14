@@ -926,7 +926,9 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
                 result = aecp_arms.image_arm(tree, config)
             else:
                 debug = d.checks[0][0].startswith("AecpDebug.")
-                result = aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected)
+                work = d.checks[0][0].startswith(aecp_arms.WORK.rstrip("*"))
+                result = (aecp_arms.core_arm(tree, config, 1, "work", selected) if work else
+                          aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected))
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:

@@ -193,15 +193,28 @@ and a non-default one each come back across the store's power cycle
 5.3.9.1, 5.3.10.1). Live format changes cannot orphan
 existing mappings. Map partitioning follows advertised geometry and output
 stream/channel ownership is global across output ports. An ADD or
-REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds each distinct one in
-a table by its key, so its mappings, its port's map and every other output
+REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds it in a table by its
+key, a slot a key, so its mappings, its port's map and every other output
 port's map are each one pass of lookups
-([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Each mapping's
-checks still run in its turn, an output mapping's port read first, so an edit
-answers, changes its map and reads the port as its pairwise definition does:
-`Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
-seeded edits, and [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants
-a defect in each pass. An edit that is checked paces AECP's next record
+([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Its work is
+linear in its mappings and the rows it reads, refused or not ([#894's egress
+ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126),
+item 3): a mapping its port's geometry refuses ends the table, as an ADD's
+earlier conflict does, since its own turn refuses the edit; a REMOVE's other
+values of a key are linked from the key's first, so no lookup walks a run of
+one key's values; and a key's slot is its own wherever its hash, the stream or
+cluster plus nine times its channel, is no other held key's, as at every
+configuration. Each mapping's checks still run in its turn, an output mapping's
+port read first, so an edit answers, changes its map and reads the port as its
+pairwise definition does: `Core.MapEditsAreTheirDefinitionRowForRow` holds it
+to that definition over seeded edits, `Core.MapKeysThatShareASlotAreTheirOwn`
+holds two keys of one slot apart, and
+`Core.MapEditWorkIsLinearInItsMappings`, in a work arm that counts each slot
+and held mapping a lookup visits (`AECP_MAP_WORK`), holds the collision and
+conflict cases of 8, 16, 32 and 63 mappings to twice their mappings and rows,
+under n(n+1)/2. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants a
+defect in each pass, and a walk of a key's values and a hash of the stream
+alone, which change no outcome and only the count refuses. An edit that is checked paces AECP's next record
 (THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
 rx-ready gate holds the channel's next record in its ring, never dropped,
 until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll

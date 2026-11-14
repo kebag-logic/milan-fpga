@@ -8,6 +8,8 @@ from ctrl_build import (CTRL, HERE, ROOT, HARNESS, C_FLAGS, STACK, STACK_INCLUDE
 import fw_gtest
 
 AECP_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "aecp_state.c")
+#: The tests the work arm runs: the map edits' work counted (AECP_MAP_WORK; #904, #894).
+WORK = "Core.MapEditWork*"
 
 
 def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
@@ -52,9 +54,10 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
     """The protocol owner against explicit environment ports at either interface count."""
     app = mode == "app"
     debug = mode == "debug"
+    work = mode == "work"
     mailbox = app or mode == "mailbox"
     nvm = app or mode == "nvm"
-    out = tree.out / f"aecp-{'mailbox' if mailbox else 'core'}-{config.stem}-if{interfaces}"
+    out = tree.out / f"aecp-{'mailbox' if mailbox else 'work' if work else 'core'}-{config.stem}-if{interfaces}"
     out.mkdir(parents=True, exist_ok=True)
     result = run([sys.executable, "-B", str(CTRL / "aecp/aecp_entity.py"),
                   str(config), "-o", str(out / "aecp_entity_gen.h")])
@@ -77,9 +80,11 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
         host_sources += host
     if debug:
         inc += ["-DCTRL_REENTRY_ASSERT"]
+    if work:
+        inc += ["-DAECP_MAP_WORK"]  # the map edits' work counted (aecp_maps.c), in this arm alone
     test_source = "test_aecp_debug.cpp" if debug else "test_aecp.cpp"
     try:
-        objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc, sources, out / "firmware", measured=not debug)
+        objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc, sources, out / "firmware", measured=not (debug or work))
         objects += fw_gtest.compile_c(tree.build, C_FLAGS, inc, host_sources, out / "host", measured=False)
         tests = fw_gtest.compile_tests(tree.build, [*inc, f"-I{STACK_TESTS}"], [HERE / test_source], out / "tests")
         exe = fw_gtest.link(tree.build, [*objects, *tests, fw_gtest.main_object(tree.build, out / "main")],
@@ -122,6 +127,8 @@ def all_arms(tree: Tree) -> list[Outcome]:
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,
                                 mode="debug"))
+        results.append(core_arm(Tree(tree.src, tree.out / "work", tree.reuse, tree.build, tree.stack), shipping,
+                                mode="work", selected=WORK))
     return results
 
 
@@ -138,6 +145,7 @@ if __name__ == "__main__":
     parser.add_argument("--nvm", action="store_true")
     parser.add_argument("--filter", default="*")
     parser.add_argument("--app", action="store_true")
+    parser.add_argument("--work", action="store_true")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--stack", type=Path, default=STACK, help="the tsn-c-stack checkout (default: the submodule)")
     args = parser.parse_args()
@@ -148,7 +156,7 @@ if __name__ == "__main__":
         raise SystemExit(2) from exc
     build = fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4)
     tree = Tree(CTRL, args.output, args.output / "reuse", build, args.stack.resolve())
-    mode = next((n for n in ("app", "debug", "mailbox", "nvm", "core") if getattr(args, n)), "image")
+    mode = next((n for n in ("app", "debug", "mailbox", "nvm", "core", "work") if getattr(args, n)), "image")
     result = (image_arm(tree, args.config) if mode == "image" else
               core_arm(tree, args.config, args.interfaces, mode, args.filter))
     print(result.log)

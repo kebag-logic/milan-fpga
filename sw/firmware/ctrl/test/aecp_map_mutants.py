@@ -10,6 +10,8 @@ EDIT = 'Core.MapEditsAreTheirDefinitionRowForRow'
 RESTORE = 'Core.RestoredOutputMapsHaveOneGlobalOwner'
 OWNER = 'Core.OutputMappingsHaveOneGlobalOwner'
 PACE = 'Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone'
+WORK = 'Core.MapEditWorkIsLinearInItsMappings'
+KEYS = 'Core.MapKeysThatShareASlotAreTheirOwn'
 
 #: (name, file, planted text, its replacement, (test, failing words), ...)
 ROWS = (
@@ -28,17 +30,26 @@ ROWS = (
      (RESTORE, 'two saved rows of one stream channel with different clusters conflict')),
     # the table: a lookup is its key's, and a value is compared whole
     ('map-table-key-unchecked', 'aecp_maps.c',
-     '\t\tif (key(e->input, h) != k) {\n\t\t\tcontinue;\n\t\t}\n',
-     '',
-     (EDIT, 'status for command')),
+     '|| key(e->input, &e->rows[e->slot[s] - 1u]) == k) {',
+     '|| (uint16_t)(key(e->input, &e->rows[e->slot[s] - 1u]) ^ k) == 0u) {',
+     (KEYS, 'an ADD of two keys that share a slot adds both')),
     ('map-value-cluster-channel-ignored', 'aecp_maps.c',
-     'h->w[0] == first && h->w[1] == second',
-     'h->w[0] == first && (uint16_t)(h->w[1] ^ second) == 0u',
+     'return x->w[0] == y->w[0] && x->w[1] == y->w[1];',
+     'return x->w[0] == y->w[0] && (uint16_t)(x->w[1] ^ y->w[1]) == 0u;',
      (EDIT, "the edit's map is its definition's, row for row")),
-    # the passes and the turns
+    # the passes and the turns: an ADD's earlier conflict, or a mapping its port's geometry refuses, ends the table
+    # at its own turn, which refuses it before its port is read
     ('map-add-stops-early', 'aecp_maps.c',
-     'steps = n + 1u;',
-     'steps = n;',
+     '\t\t\tif (adding) {\n\t\t\t\tsteps = n + 1u;',
+     '\t\t\tif (adding) {\n\t\t\t\tsteps = n;',
+     (EDIT, 'status for command')),
+    ('map-illegal-ends-early', 'aecp_maps.c',
+     '\t\t\te.flags[n] = ILLEGAL;\n\t\t\tsteps = n + 1u;',
+     '\t\t\te.flags[n] = ILLEGAL;\n\t\t\tsteps = n;',
+     (EDIT, 'status for command')),
+    ('map-illegal-unflagged', 'aecp_maps.c',
+     '\t\t\te.flags[n] = ILLEGAL;\n',
+     '',
      (EDIT, 'status for command')),
     ('map-port-rows-unread', 'aecp_maps.c',
      'mark(&e, m, adding ? BARRED : 0u, FOUND);',
@@ -50,8 +61,8 @@ ROWS = (
      (EDIT, 'the edit reads its port for each output mapping its definition reaches'),
      (OWNER, 'another port already owns this stream channel')),
     ('map-checked-before-its-read', 'aecp_maps.c',
-     'if (!topology(a, port, &e.rows[n].r, true) || (held & BARRED) != 0u ||',
-     'if ((held & BARRED) != 0u || !topology(a, port, &e.rows[n].r, true) ||',
+     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, port, &e.rows[n].r) || (held & BARRED) != 0u ||',
+     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, port, &e.rows[n].r) ||',
      (EDIT, 'the edit reads its port for each output mapping its definition reaches')),
     ('map-repeat-counted', 'aecp_maps.c',
      'additions += adding && e.rep[n] == n && (held & FOUND) == 0u;',
@@ -59,9 +70,21 @@ ROWS = (
      (EDIT, 'status for command')),
     # a REMOVE takes the first rows equal to each mapping, one an occurrence
     ('map-remove-every-copy', 'aecp_maps.c',
-     'if (v != 0u && e->copies[v - 1u] != 0u) {',
-     'if (v != 0u) {',
+     'if (is && left == 0u && e->copies[v - 1u] != 0u) {',
+     'if (is && left == 0u) {',
      (EDIT, "the edit's map is its definition's, row for row")),
+    # the work is linear in the mappings (#894's egress ruling of 2026-11-13, item 3): a REMOVE's other values of a
+    # key linked at the key's first, never appended by a walk of those already held, which is n(n+1)/2 for n of them
+    # and changes no outcome, so only the count of the work refuses it
+    ('map-remove-values-rewalked', 'aecp_maps.c',
+     '\t\t\te.next[n] = e.next[*at - 1u];\n\t\t\te.next[*at - 1u] = (uint8_t)(n + 1u);\n',
+     '\t\t\tsize_t tail = *at - 1u;\n\t\t\twhile (e.next[tail] != 0u) {\n\t\t\t\tVISIT();\n'
+     '\t\t\t\ttail = e.next[tail] - 1u;\n\t\t\t}\n\t\t\te.next[tail] = (uint8_t)(n + 1u);\n',
+     (WORK, 'not under n(n+1)/2')),
+    ('map-hash-the-stream-alone', 'aecp_maps.c',
+     'for (size_t s = (k + 9u * (k >> 16)) & (MAP_SLOTS - 1u);;',
+     'for (size_t s = k & (MAP_SLOTS - 1u);;',
+     (WORK, 'past twice their sum')),
     # THE PACE: an edit that is checked holds the next record until AECP_PACE_MS after its take
     ('pace-not-held', 'aecp_mbx.c',
      'return aecp_ready(&m->core) && (uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS;',

@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <aecp_latency_policy.hpp>
@@ -2580,6 +2581,96 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
                    "an output edit refused after its port is read"})
         EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
 }
+
+// #904; #894's egress ruling of 2026-11-13, item 3: an edit's table holds a slot a key, found by its hash and walked
+// past other keys' slots (aecp_maps.c, place). Two legal keys whose hash is one slot's, stream 0's channels 0 and 256
+// at an output port, are each their own: an ADD of both adds both, a row of one bars neither the other's mapping nor
+// its removal, and a REMOVE of one keeps the other.
+TEST_F(Core, MapKeysThatShareASlotAreTheirOwn)
+{
+    auto &stream=desc(6);uint64_t format=get(stream.value+74,8);
+    ASSERT_EQ(format>>56,2u);put(stream.value+74,(format&~(uint64_t(1023)<<22))|(uint64_t(1023)<<22),8);
+    auto edit=[&](unsigned cmd,const std::vector<aecp_mapping> &rows,unsigned status){
+        Bytes body=target(15,0,8+8*rows.size());put(body,4,rows.size(),2);
+        for(size_t k=0;k<rows.size();++k){put(body,10+8*k,rows[k].channel,2);put(body,12+8*k,rows[k].cluster,2);}
+        ask(cmd,body,status);
+    };
+    auto held=[&](std::vector<aecp_mapping> want){
+        return maps[1].count==want.size()&&std::equal(want.begin(),want.end(),maps[1].rows,[](auto &x,auto &y){
+            return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;});
+    };
+    edit(44,{{0,0,0,0},{0,256,1,0}},0);
+    EXPECT_TRUE(held({{0,0,0,0},{0,256,1,0}}))<<"an ADD of two keys that share a slot adds both";
+    edit(45,{{0,256,1,0}},0);
+    EXPECT_TRUE(held({{0,0,0,0}}))<<"a REMOVE of one keeps the other";
+    edit(44,{{0,256,0,0}},0);
+    EXPECT_TRUE(held({{0,0,0,0},{0,256,0,0}}))<<"a row of one key bars no mapping of the other";
+    maps[1].count=0;output[0]={0,0,1,0};maps[1].count=1;
+    edit(44,{{0,256,0,0},{0,0,1,0}},0);
+    EXPECT_TRUE(held({{0,0,1,0},{0,256,0,0}}))<<"a held row of one key is found as its own, not the other's";
+}
+
+#ifdef AECP_MAP_WORK
+extern "C" unsigned aecp_map_work;
+// #904; #894's egress ruling of 2026-11-13, item 3: an ADD or REMOVE_AUDIO_MAPPINGS of n mappings that reads R rows
+// of its port's and the other output ports' maps does work linear in them, refused or not: the slots and held mappings
+// its lookups visit (aecp_maps.c, AECP_MAP_WORK) are at most 2 (n + R), each pass over a map counting its rows. So the
+// collision cases, every mapping one key's with another value, stay under the n(n+1)/2 that a walk of the key's values
+// for each mapping takes, at 8, 16, 32 and 63 mappings, 63 the most a legal-length command holds (IEEE 1722.1-2021
+// 9.2.2.6). Each stream's format is widened to 64 channels so that 63 legal values share one key.
+TEST_F(Core, MapEditWorkIsLinearInItsMappings)
+{
+    for(unsigned type:{5u,6u}){
+        auto &stream=desc(type);uint64_t format=get(stream.value+74,8);
+        ASSERT_EQ(format>>56,2u);put(stream.value+74,(format&~(uint64_t(1023)<<22))|(uint64_t(64)<<22),8);
+    }
+    using Rows=std::vector<aecp_mapping>;
+    auto edit=[&](unsigned cmd,unsigned port,const Rows &mappings,const Rows &held,unsigned status,size_t passes){
+        auto &map=maps[port==14u?0:1];
+        std::copy(held.begin(),held.end(),map.rows);map.count=held.size();
+        Bytes body=target(port,0,8+8*mappings.size());put(body,4,mappings.size(),2);
+        for(size_t k=0;k<mappings.size();++k){
+            put(body,8+8*k,mappings[k].stream,2);put(body,10+8*k,mappings[k].channel,2);
+            put(body,12+8*k,mappings[k].cluster,2);put(body,14+8*k,mappings[k].cluster_channel,2);
+        }
+        aecp_map_work=0;ask(cmd,body,status);
+        const size_t n=mappings.size(),rows=passes*held.size(),work=aecp_map_work;
+        return std::make_tuple(n,rows,work);
+    };
+    for(unsigned n:{8u,16u,32u,63u}){
+        Rows values,streams,keys,shifted,last;
+        for(unsigned k=0;k<n;++k){
+            values.push_back({0,uint16_t(k),0,0});   // one input key, cluster 0's channel 0, from 63 stream channels
+            streams.push_back({uint16_t(k),0,0,0});  // one input key from distinct streams, the second one CRF's
+            keys.push_back({0,uint16_t(k),0,0});     // distinct output keys, stream 0's channels
+            shifted.push_back({0,uint16_t(k),1,0});  // each of those keys with another cluster
+        }
+        last=Rows(keys.begin(),keys.end()-1);last.push_back({0,0,1,0});
+        struct Case { const char *name; unsigned cmd,port; Rows mappings,held; unsigned status; size_t passes; bool collides; };
+        const Case cases[]={
+            {"a REMOVE of one key's values, its port's map holding the first",45,14,values,{values[0]},7,1,true},
+            {"a REMOVE of one key from distinct streams",45,14,streams,{streams[0]},7,1,true},
+            {"an ADD of distinct keys, each held with another value",44,15,keys,shifted,7,1,false},
+            {"an ADD whose last mapping is its first key's with another value",44,15,last,
+             Rows(keys.begin(),keys.end()-1),7,1,false},
+            {"an ADD of distinct keys, accepted",44,15,keys,{},0,1,false},
+            {"a REMOVE of every row it holds, accepted",45,15,keys,keys,0,2,false},
+        };
+        for(const auto &c:cases){
+            SCOPED_TRACE(std::string(c.name)+", "+std::to_string(n)+" mappings");
+            auto [count,rows,work]=edit(c.cmd,c.port,c.mappings,c.held,c.status,c.passes);
+            std::printf("MAP WORK %s: %zu mappings, %zu rows, %zu visits (2 (n + R) %zu, n(n+1)/2 %zu)\n",c.name,
+                        count,rows,work,2*(count+rows),count*(count+1)/2);
+            EXPECT_LE(work,2*(count+rows))<<"an edit of "<<count<<" mappings reading "<<rows<<" rows visits "<<work
+                                          <<" slots and held mappings, past twice their sum";
+            if(c.collides){
+                EXPECT_LT(work,count*(count+1)/2)<<"a collision of "<<count<<" mappings visits "<<work
+                                                 <<", not under n(n+1)/2";
+            }
+        }
+    }
+}
+#endif
 
 // #904: a saved output map is refused whole where another output port's map in its configuration holds one of its
 // stream channels, or where two of its rows hold one with different clusters, as an ADD is, and a saved row is its own
