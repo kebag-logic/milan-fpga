@@ -43,6 +43,7 @@ import slice_grade
 import save_grade
 import save_window
 import scenario
+import shape_costs
 import share
 import whole_grade
 
@@ -909,8 +910,12 @@ def pass_share(log: Log) -> dict:
                 idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2) -> dict:
-    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2,
+          shape: shape_costs.Shape | None = None) -> dict:
+    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish. The passes given
+    whole, the polls and the slices are held to the costs stated at the image's shape (shape_costs.py, THE SHAPES), or
+    with none given at that many interfaces at the shipping shape's streams."""
+    stated_at = shape or interfaces
     log = parse(text, sys_hz, cpu_hz)
     refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
@@ -948,8 +953,8 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
-                            stated=whole_grade.held(log, interfaces), rounds=round_grade.held(log, interfaces),
-                            polls=poll_grade.held(log, interfaces), slices=slice_grade.held(log, interfaces),
+                            stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, interfaces),
+                            polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)

@@ -52,6 +52,7 @@ import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
+import shape_costs  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
@@ -932,7 +933,8 @@ def checks() -> list[Check]:
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
             *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
             *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ),
-            *notice_checks(synthetic, one, tx_sequence, aem_response, points(json.loads(ORACLE.read_text())))]
+            *notice_checks(synthetic, one, tx_sequence, aem_response, points(json.loads(ORACLE.read_text()))),
+            *shape_costs.shape_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

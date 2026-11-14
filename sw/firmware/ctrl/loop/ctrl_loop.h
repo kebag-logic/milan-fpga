@@ -258,7 +258,8 @@ extern "C" {
 // to take another past CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
-// THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
+// THE TIERS: tier 2's slice, CTRL_LOOP_SLICE_US, in microseconds (#894; #665, the
+// decision of 2026-11-09), stated for each shape below (THE SHAPES). At 1x1/1if,
 // #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
 // to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
@@ -269,11 +270,52 @@ extern "C" {
 // their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both
 // (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
-// CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
-// shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
-// measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
-// which states 1x1/1if's (#894).
-#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)
+// CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
+// there plus 5 %, at most 1,600 us (#894's ruling issuecomment-6867393730, item
+// (b): a design parameter, the rows and the load the owner's gate): 1,475 us,
+// CTRL_LOOP_BUILD_ONE_PASS_US there, which the build measures again at that slice.
+//
+// THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)). The slice and
+// THE TRANSMIT's builds' stated costs depend on the static shape an image is
+// built at, which its builder states: the interfaces, MBX_N_IF (the mailbox
+// contract it compiles against), and the talker sources and listener sinks ADP
+// advertises, CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes
+// from the configuration into the shape header srp_arms.prepared force-includes
+// into every unit an image compiles. A compile given no shape header composes
+// no SRP and builds no image (the host arms): it is at the shipping shape's
+// streams (srp_arms.DEFAULT_ENTITY), as the tracked contract is at one
+// interface. Each shape listed states, in microseconds, its slice, its build of
+// both of an interface's MRPDUs and its build of one (CTRL_LOOP_BUILD_PASS_US,
+// CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below); a shape not listed fails
+// the build. Both two-interface shapes keep the costs measured at 8x8/2if.
+#ifdef CTRL_SRP_SOURCES
+#define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
+#define CTRL_LOOP_SINKS CTRL_SRP_SINKS
+#else
+#define CTRL_LOOP_SOURCES 2u
+#define CTRL_LOOP_SINKS 2u
+#endif
+#define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
+	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
+#define CTRL_LOOP_SLICE_US 900u
+#define CTRL_LOOP_BUILD_PASS_US 1010u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 725u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
+#define CTRL_LOOP_SLICE_US 1475u
+#define CTRL_LOOP_BUILD_PASS_US 1795u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+#elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#else
+#error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#endif
 // An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
 // slice starts a record only while it has this left.
 #define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
@@ -316,10 +358,15 @@ extern "C" {
 // Ready is 68,951 cycles at 1x1/1if, so a build of one is 725 us there (#894,
 // #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
-// refuted, with its rows (#894, owed to #872).
+// refuted, with its rows (#894, owed to #872, #910). The builds are stated for
+// each shape (THE SHAPES, above). At 8x8/1if, one interface's 8x8 streams, the
+// srp group's build after its Listener Ready is 140,273 cycles at both the 900
+// and the 1,475 us slice, so a build of one is 1,475 us. No pass makes both
+// MRPDUs there, since its slice holds one build, so a build of both is made in
+// two slices: it is stated at the heaviest sum of one build's two passes, 140,273
+// and 30,613 cycles, plus 5 %, 1,795 us, which is over the slice
+// (CTRL_LOOP_BUILD_MOST 1) and under two builds of one (#894).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 725u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.

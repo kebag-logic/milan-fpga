@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
+import shape_costs  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
                         built_value, channel_passes, channel_row, join_cs, quota_fits, tier1_busy, tier1_records,
@@ -169,13 +170,19 @@ BUILT_NAMES = {'CTRL_LOOP_SLICE_US': 'sw/firmware/ctrl/loop/ctrl_loop.h',
                'AECP_PACE_MS': 'sw/firmware/ctrl/aecp/aecp_mbx.h'}
 
 
-def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) -> tuple[int, ...]:
-    """BUILT_NAMES' constants at that many interfaces, in its order, each `(MBX_N_IF == 1u ? a : b)` or a number, the
-    burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST, mailbox.yaml)."""
+def built_constants(root: Path, n_if: int | shape_costs.Shape,
+                    texts: dict[str, str] | None = None) -> tuple[int, ...]:
+    """BUILT_NAMES' constants at a shape's interfaces or at that many, in its order, each `(MBX_N_IF == 1u ? a : b)` or
+    a number, the burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST, mailbox.yaml); the slice as ctrl_loop.h
+    lists it at the shape, or with an interface count at the shipping shape's streams (shape_costs.at, THE SHAPES;
+    #894's ruling issuecomment-6867393730, item (b))."""
     burst = rows_grade.contract(root)[0]['aecp'][0]
+    listed = shape_costs.at(n_if, root, texts)
     out = []
     for name, path in BUILT_NAMES.items():
-        out.append(built_value((texts or {}).get(path) or (root / path).read_text(), name, n_if, burst))
+        out.append(listed[name] if name in listed else
+                   built_value((texts or {}).get(path) or (root / path).read_text(), name, shape_costs.interfaces(n_if),
+                               burst))
     return tuple(out)
 
 
@@ -185,7 +192,8 @@ def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) ->
     base = rows_grade.point_inputs(root, point)
     costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
              'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
-    return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, base.s['n_if'], texts))
+    return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, shape_costs.of_point(point, root),
+                                                                              texts))
 
 
 def as_tiers(base: rows_grade.Inputs) -> Inputs:
@@ -878,11 +886,13 @@ def tree_controls(root: Path) -> list[str]:
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)'
-    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 850u : 1300u)')
-    tree = built_constants(root, 1)[0]
-    if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
-            stated not in (root / loop).read_text():
+    one = shape_costs.of_point('1x1/1if', root)
+    tree = built_constants(root, one)[0]
+    head = f'CTRL_LOOP_SHAPE({one.interfaces}u, {one.sources}u, {one.sinks}u)'
+    stated = f'{head}        // one interface, the 1x1\'s streams\n#define CTRL_LOOP_SLICE_US {tree}u\n'
+    other = (root / loop).read_text().replace(stated, stated.replace(f'SLICE_US {tree}u', 'SLICE_US 850u'))
+    if ruled(root) != tree or built_constants(root, one, {loop: other})[0] == tree or \
+            (root / loop).read_text().count(stated) != 1:
         escaped.append("the built design's slice not the rule's")
     escaped += long_rows.controls(root) + paced_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens

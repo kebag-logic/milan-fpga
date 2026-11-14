@@ -506,11 +506,17 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     legal notice's group that measured no such notice is refused (long_notice.missing)."""
     import grade
     import long_notice
+    import shape_costs
+    # the costs the passes, polls and slices are held to are the image's shape's: what its builder states for the
+    # configuration and interfaces it was built at (THE SHAPES, #894's ruling issuecomment-6867393730, item (b)); a
+    # self-test's spec, which names no configuration, is at the shipping shape's streams
+    shape = shape_costs.of_config(ROOT / 'configs' / f"{spec['shape']}.yaml", spec['interfaces'], ROOT) \
+        if 'shape' in spec else None
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         refusals += unstated(group)
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape)
         except grade.Refusal as error:
             refusals.append(str(error))
             continue

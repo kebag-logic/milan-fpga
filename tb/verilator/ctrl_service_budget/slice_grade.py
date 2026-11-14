@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """THE TIERS' slices against their stated length (#894; #665's decision of 2026-11-09, item 1: tier-2 work runs only in
-slices of at most a stated length, and a gate fails any slice over it). The length is ctrl_loop.h's CTRL_LOOP_SLICE_US,
-and each slice is measured from where the loop starts it:
+slices of at most a stated length, and a gate fails any slice over it). The length is ctrl_loop.h's CTRL_LOOP_SLICE_US
+at the point's shape (shape_costs.py, THE SHAPES), and each slice is measured from where the loop starts it:
 
 - SRP's records in an ordinary pass (THE DRAIN's channel), from the pass's start to the end of its last record's
   handler, srp_mbx's receive (a SPAN line);
@@ -17,13 +17,13 @@ committed none, and the round's SPAN line is graded alone.
 """
 from __future__ import annotations
 
-import re
 from bisect import bisect_left
 
 import grade
 import mrpdu_grade
 import round_grade
 import scenario
+import shape_costs
 
 #: The stated slice length and the spans that end or make a slice.
 SLICE = 'CTRL_LOOP_SLICE_US'
@@ -32,11 +32,10 @@ ROUND = round_grade.ROUND
 BUILD = mrpdu_grade.BUILD
 
 
-def stated_us(interfaces: int) -> int:
-    """The slice length ctrl_loop.h states at that many interfaces, in microseconds."""
-    text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
-    pick = re.search(rf'^#define {SLICE} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)$', text, re.M)
-    return int(pick.group(1 if interfaces == 1 else 2))
+def stated_us(interfaces: int | shape_costs.Shape) -> int:
+    """The slice length ctrl_loop.h states at a shape, or at that many interfaces at the shipping shape's streams
+    (shape_costs.at; #894's ruling issuecomment-6867393730, item (b)), in microseconds."""
+    return shape_costs.at(interfaces, scenario.ROOT)[SLICE]
 
 
 def claimed(inside: list[tuple[int, int, int, str]]) -> set[int]:
@@ -72,8 +71,8 @@ def slices(log: grade.Log) -> list[dict]:
     return sorted(out, key=lambda s: s['start_sys'])
 
 
-def held(log: grade.Log, interfaces: int) -> dict:
-    """Each kind's longest slice, the point's stated length in CPU cycles, and each slice over it."""
+def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
+    """Each kind's longest slice, the point's stated length in CPU cycles (at its shape), and each slice over it."""
     limit = stated_us(interfaces) * log.cpu_hz // 1_000_000
     every = slices(log)
     longest = {kind: max((s['cycles'] for s in every if s['kind'] == kind), default=0)

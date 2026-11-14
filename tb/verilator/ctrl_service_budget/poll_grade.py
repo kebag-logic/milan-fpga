@@ -61,6 +61,7 @@ from bisect import bisect_left
 import grade
 import poll_items
 import scenario
+import shape_costs
 
 #: A pass's first and last firmware poll, and each item's traced function and its sending channel (poll_items).
 FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
@@ -68,7 +69,9 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 725 and 1,215 us). The SRP record's and AECP's item (a notice to the
+#: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (725 us at 1x1/1if and
+#: 1,215 at 8x8/2if; #894's ruling issuecomment-6867393730, item (b)), which stated_us reads where the table holds 0.
+#: The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
@@ -84,9 +87,9 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: (#908): measured over backlog-owed, the one group that stages owed ACMP frames, on the image that traces acmp_rx at
 #: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
 #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if.
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=50,
+STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=50,
                     aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=65,
+             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=65,
                     aecp=275, aecp_long=655, acmp_declined=20)}
 
 
@@ -115,17 +118,21 @@ def long_notices(log: grade.Log) -> list[int]:
                   if c == ch and len(frame) > fan_bytes() and frame[15] & 0x0F == 1 and frame[36] & 0x80)
 
 
-def stated_us(interfaces: int) -> dict[str, int]:
-    """The base's and each item's stated cost in microseconds at that many interfaces."""
-    return dict(STATED_US[interfaces])
+def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
+    """The base's and each item's stated cost in microseconds at a shape's interfaces, or at that many interfaces; an
+    owed MRPDU's a build of one's at the shape (shape_costs.at), or with an interface count at the shipping shape's
+    streams."""
+    out = dict(STATED_US[shape_costs.interfaces(interfaces)])
+    out['mrpdu'] = shape_costs.at(interfaces, scenario.ROOT)[shape_costs.BUILD_ONE]
+    return out
 
 
-def record_us(interfaces: int) -> int:
+def record_us(interfaces: int | shape_costs.Shape) -> int:
     """An ACMP record's stated cost in microseconds at that many interfaces, the point's at the pin
     (load_grade.STATED_US, the column the rows read), which the kept record's accepted re-offer is held to (KEPT,
     #908)."""
     import load_grade
-    return load_grade.STATED_US['1x1/1if' if interfaces == 1 else '8x8/2if']['record.acmp']
+    return load_grade.STATED_US['1x1/1if' if shape_costs.interfaces(interfaces) == 1 else '8x8/2if']['record.acmp']
 
 
 def spans(log: grade.Log) -> dict[str, list[tuple[int, int, int]]]:
@@ -235,7 +242,7 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
-def held(log: grade.Log, interfaces: int) -> dict:
+def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
     one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}

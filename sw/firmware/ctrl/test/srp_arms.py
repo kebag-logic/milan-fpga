@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """SRP host, debug and RV32 arms using the shared firmware harness."""
 from __future__ import annotations
+import re
 import resource
 import shutil
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from ctrl_build import (CTRL, ROOT, HERE, HARNESS, C_FLAGS, HOST, INCLUDE_DIRS, STACK_INCLUDE, STACK_TESTS,
                         PORTABLE, NVM_DIR, RV32_FLAGS, RV32_LIBC, Outcome, Refusal, Tree, run, source)
@@ -128,12 +130,43 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
     return Outcome(name,bool(failures),log)
 
 
+#: The words the build fails with at a shape ctrl_loop.h does not list (its #error; THE SHAPES, #894's ruling
+#: issuecomment-6867393730, item (b)).
+UNLISTED = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+
+
+def listed_shapes(tree: Tree) -> set[tuple[int, int, int]]:
+    """The shapes the built tree's ctrl_loop.h lists, each (interfaces, talker sources, listener sinks)."""
+    text = (tree.src / "loop/ctrl_loop.h").read_text(encoding="utf-8")
+    found = re.findall(r"^#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)", text, re.M)
+    return {(int(n), int(sources), int(sinks)) for n, sources, sinks in found}
+
+
+def refused(name: str, arm: Callable[[], Outcome]) -> Outcome:
+    """An arm at a shape ctrl_loop.h does not list: passing only where its build is refused in the #error's words."""
+    try:
+        built = arm()
+    except Refusal as exc:
+        said = str(exc)
+        held = UNLISTED in said
+        return Outcome(name, 0 if held else 1,
+                       f"{'refused by THE SHAPES' if held else 'refused, not in the words of THE SHAPES'}: {said}")
+    return Outcome(name, 1, f"built at a shape ctrl_loop.h does not list (THE SHAPES), rc {built.rc}")
+
+
 def all_shapes(tree: Tree, lwsrp: Path, rv32: bool = False) -> list[Outcome]:
-    """Exercise static storage at every shipped entity shape and interface count."""
+    """Exercise static storage at every shipped entity shape and interface count ctrl_loop.h lists (THE SHAPES); at
+    every other one, hold that the build is refused in the words of its #error."""
+    listed = listed_shapes(tree)
     outcomes = []
     for config in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+        view = fabric_view(config)
         for interfaces in (1, 2):
-            outcomes.append(arm_srp(tree, lwsrp, interfaces, test="srp_shape.cpp", config=config))
+            shape = (interfaces, view["talker_stream_sources"], view["listener_stream_sinks"])
+            arms = [(f"srp-srp_shape-if{interfaces}-{config.stem}",
+                     lambda i=interfaces, c=config: arm_srp(tree, lwsrp, i, test="srp_shape.cpp", config=c))]
             if rv32:
-                outcomes.append(arm_srp_rv32(tree, lwsrp, interfaces, config))
+                arms.append((f"srp-rv32-if{interfaces}-{config.stem}",
+                             lambda i=interfaces, c=config: arm_srp_rv32(tree, lwsrp, i, c)))
+            outcomes += [arm() if shape in listed else refused(name, arm) for name, arm in arms]
     return outcomes

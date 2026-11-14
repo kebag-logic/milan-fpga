@@ -77,6 +77,7 @@ from typing import NamedTuple
 
 import load_grade
 import poll_grade
+import shape_costs
 
 #: Each row's bound in ms: tier 1, SRP's (half of MRP's JoinTime as the firmware applies it) and the last queued
 #: notice's, at every shape (#665, decision D).
@@ -113,11 +114,14 @@ NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'C
          'AECP_QUEUED_FIRST_MS', 'AECP_QUEUED_MS')
 
 
-def header(root: Path, n_if: int, texts: dict[str, str] | None = None) -> dict[str, int]:
-    """The loop's and AECP's constants at that many interfaces, each expression evaluated (or a planted header's)."""
+def header(root: Path, n_if: int | shape_costs.Shape, texts: dict[str, str] | None = None) -> dict[str, int]:
+    """The loop's and AECP's constants at a shape's interfaces, or at that many, each expression evaluated (or a
+    planted header's); THE TRANSMIT's builds as ctrl_loop.h lists them at the shape, or with an interface count at the
+    shipping shape's streams (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
     text = ''.join((texts or {}).get(p) or (root / p).read_text() for p in load_grade.ROW_HEADERS)
     macros = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
-    macros['MBX_N_IF'] = str(n_if)
+    macros['MBX_N_IF'] = str(shape_costs.interfaces(n_if))
+    macros.update({name: str(us) for name, us in shape_costs.at(n_if, root, texts).items()})
 
     def value(name: str) -> int:
         """A constant's integer value: its body with each name it reads replaced by that name's value."""
@@ -298,7 +302,7 @@ def solve(row: str, inputs: Inputs, dropped: str | None = None) -> tuple[float |
 def point_inputs(root: Path, point: str, table: dict | None = None, texts: dict | None = None) -> Inputs:
     """A point's header constants, stated costs, counts and contract."""
     s = dict(load_grade.POINTS[point])
-    h = header(root, s['n_if'], texts)
+    h = header(root, shape_costs.of_point(point, root), texts)
     s['notices'] = h['AECP_NOTICES_MOST']
     rate, tick_ms = contract(root)
     return Inputs(h, costs(root, point, table), s, rate, tick_ms)

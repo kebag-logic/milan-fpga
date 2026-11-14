@@ -16,7 +16,10 @@ import grade
 import round_grade
 import run
 import scenario
+import poll_grade
+import shape_costs
 import slice_grade
+import whole_grade
 
 Check = tuple[str, bool, str]
 #: What the testbench prints for the round's span and the calls in it (build.py's SPAN and CALL tables).
@@ -85,13 +88,12 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     """THE TIERS' slices (slice_grade.py; #665's decision of 2026-11-09, item 1): SRP's records from their pass's start,
     a pass given whole to a build with its round, and every other round, each at the stated length fitting it and a
     cycle over it refused, and a slice over it failing the run whatever findings it records."""
-    header = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
-    us = [int(n) for n in re.search(r'^#define CTRL_LOOP_SLICE_US \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', header,
-                                    re.M).groups()]
+    shapes = {point: shape_costs.of_point(point) for point in shape_costs.BUILT}
+    us = [shape_costs.at(shapes[point])[shape_costs.SLICE] for point in ('1x1/1if', '8x8/2if')]
     limit = us[1] * cpu_hz // 1_000_000
     start = 5000
 
-    def held(kind: str, cycles: int, interfaces: int = 2) -> dict:
+    def held(kind: str, cycles: int, interfaces: int | shape_costs.Shape = 2) -> dict:
         """The grade of one slice of that kind and CPU cycles, in a pass that starts at cpu cycle start."""
         lines = {'srp': [f'PASS 1 {2 * start} {start} {cycles + 300} instr=10 store_mbx=1 W {2 * start + 2}:1:0',
                          f'SPAN {2 * start + 20} {start + 10} {cycles - 110} 00001000 srp_mbx:receive',
@@ -101,15 +103,34 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                            f'SPAN {2 * start + 2 * cycles - 400} {start + cycles - 200} 150 00001000 {ROUND}'],
                  'round': [f'PASS 1 {2 * start - 100} {start - 50} {cycles + 100} instr=10 store_mbx=1 '
                            f'W {2 * start}:1:0', f'SPAN {2 * start} {start} {cycles} 00001000 {ROUND}']}[kind]
-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, interfaces)['passes']['slices']
+        shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
+                           shape)['passes']['slices']
 
     kinds = lambda s: [o['kind'] for o in s['over']]
     one = us[0] * cpu_hz // 1_000_000
+    wide = shape_costs.at(shapes['8x8/1if'])[shape_costs.SLICE]
+    wide_cycles = wide * cpu_hz // 1_000_000
     out = [("each point's slice is ctrl_loop.h's stated length at it, 900 us at 1x1/1if and 1,300 us at 8x8/2if",
             [slice_grade.stated_us(1), slice_grade.stated_us(2)] == us == [900, 1300], str(us)),
            ("a slice at one interface is held to that point's length",
             [o['kind'] for o in held('build', one + 1, 1)['over']] == ['build'] and not held('build', one, 1)['over'],
             ''),
+           ("THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its "
+            "build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
+            {k: whole_grade.stated_us(shapes['8x8/1if'])[k] for k in ('build', 'build-one')} ==
+            {'build': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD],
+             'build-one': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD_ONE]} and
+            poll_grade.stated_us(shapes['8x8/1if'])['mrpdu'] == shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD_ONE]
+            != poll_grade.stated_us(1)['mrpdu'] and
+            whole_grade.stated_us(shapes['8x8/1if'])['build-one'] != whole_grade.stated_us(1)['build-one'],
+            str((whole_grade.stated_us(shapes['8x8/1if']), poll_grade.stated_us(shapes['8x8/1if'])['mrpdu']))),
+           ("a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams "
+            "apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
+            slice_grade.stated_us(shapes['8x8/1if']) == wide != us[0] and
+            [o['kind'] for o in held('build', wide_cycles + 1, shapes['8x8/1if'])['over']] == ['build'] and
+            not held('build', wide_cycles, shapes['8x8/1if'])['over'] and
+            [o['kind'] for o in held('build', wide_cycles, 1)['over']] == ['build'], str(wide)),
            ("the testbench traces SRP's record handler and THE RETRY's round",
             {('srp_mbx', 'receive'), ('ctrl_loop', 'round_of')} <= set(build.SPAN_SYMBOLS), '')]
     for kind in ('srp', 'build', 'round'):

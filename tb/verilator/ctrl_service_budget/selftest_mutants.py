@@ -37,6 +37,7 @@ import run
 import save_grade
 import save_window
 import scenario
+import shape_costs
 import share
 import whole_grade
 
@@ -472,6 +473,19 @@ MUTANTS: dict[str, Patches] = {
     'flip: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         flip_grade, 'COLUMN', load_grade.STATED_US_DONOR)],
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
+    'shapes: the slice and builds keyed on the interface count alone (earlier rule)': lambda: [patch.object(
+        shape_costs, 'of_config', lambda config, n_if, root=shape_costs.ROOT: shape_costs.shape(n_if, root))],
+    "shapes: a shape not listed taken at the shipping shape's costs": lambda: [patch.object(
+        shape_costs, 'at', lambda given, root=shape_costs.ROOT, texts=None, f=shape_costs.at:
+        f(given if shape_costs.shape(given, root, texts) in shape_costs.listed(shape_costs.text_of(root, texts))
+          else shape_costs.interfaces(given), root, texts))],
+    'shapes: the slice held at the interface count (earlier rule)': lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: a pass given whole held to its builds at the interface count (earlier rule)': lambda: [patch.object(
+        whole_grade, 'stated_us', lambda interfaces, f=whole_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    "shapes: an owed MRPDU held to the interface count's build of one (earlier rule)": lambda: [patch.object(
+        poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: the slice cap not held': lambda: [patch.object(shape_costs, 'SLICE_MOST_US', 10_000)],
     'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
         load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(

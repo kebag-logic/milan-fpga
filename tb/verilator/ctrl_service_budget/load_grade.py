@@ -87,6 +87,9 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import shape_costs  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[3]
 #: The ceiling the merge gate holds a point's load to (#665, option D): 1x1/1if. 8x8/2if is the
 #: flip check's (flip_grade.FLIP, #665, #890); 32x32/2if is reported, not held: the
@@ -222,13 +225,17 @@ RETRY_RULE = {
 }
 
 
-def macros(root: Path, n_if: int) -> dict[str, int]:
-    """The integer constants the load reads from the tree, at that many interfaces."""
+def macros(root: Path, n_if: int | shape_costs.Shape) -> dict[str, int]:
+    """The integer constants the load reads from the tree, at a shape's interfaces or at that many; THE TRANSMIT's
+    builds as ctrl_loop.h lists them at the shape, or with an interface count at the shipping shape's streams
+    (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
     text = ''.join((root / p).read_text() for p in (
         'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'sw/firmware/ctrl/aecp/aecp_mbx.h',
         'third_party/tsn-c-stack/include/acmp.h', 'third_party/tsn-c-stack/include/maap.h',
         'third_party/tsn-c-stack/include/adp.h'))
     found = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
+    found.update({name: f'{us}u' for name, us in shape_costs.at(n_if, root).items()})
+    count = shape_costs.interfaces(n_if)
 
     def value(name: str) -> int:
         """A plain integer, a ternary on the interface count, or another constant's name (srp_mbx.c's SRP_JOIN_CS is
@@ -242,7 +249,7 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
         pick = re.fullmatch(r'\(MBX_N_IF == (\d+)u \? (\d+)u : (\d+)u\)', body)
         if pick is None:
             raise ValueError(f'{name} is {body!r}, neither an integer nor a ternary on MBX_N_IF')
-        return int(pick[2] if n_if == int(pick[1]) else pick[3])
+        return int(pick[2] if count == int(pick[1]) else pick[3])
     names = (*HEADER_COSTS, 'CTRL_LOOP_TICK_US', 'CTRL_LOOP_STEP_AGE', 'SRP_RX_RETRY_MS', 'SRP_JOIN_CS',
              'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS',
              'AECP_NOTICE_US', 'AECP_ROUND_COLD_US')

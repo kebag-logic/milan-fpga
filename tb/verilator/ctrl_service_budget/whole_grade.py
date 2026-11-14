@@ -14,6 +14,7 @@ from bisect import bisect_left
 import grade
 import mrpdu_grade
 import scenario
+import shape_costs
 
 #: The kinds of pass held to a cost, and the ctrl_loop.h constant that states each.
 COSTS = {'step': 'CTRL_LOOP_STEP_PASS_US', 'build': 'CTRL_LOOP_BUILD_PASS_US',
@@ -26,12 +27,16 @@ ROUND_MODULES = ('aecp', 'ctrl_app_aecp', 'ctrl_aecp')
 ROUND_IDLE_CYCLES = 1000
 
 
-def stated_us(interfaces: int) -> dict[str, int]:
-    """Each kind's stated cost in microseconds at that many interfaces (ctrl_loop.h)."""
+def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
+    """Each kind's stated cost in microseconds at a shape, or at that many interfaces at the shipping shape's streams
+    (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's ruling issuecomment-6867393730, item
+    (b)), the step's by the interface count."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
     pattern = r'#define {} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)'
-    return {kind: int(re.search(pattern.format(name), text).group(1 if interfaces == 1 else 2))
-            for kind, name in COSTS.items()}
+    listed = shape_costs.at(interfaces, scenario.ROOT)
+    one = shape_costs.interfaces(interfaces) == 1
+    return {kind: listed[name] if name in shape_costs.NAMES else
+            int(re.search(pattern.format(name), text).group(1 if one else 2)) for kind, name in COSTS.items()}
 
 
 def within(marks: list[int], start: int, end: int) -> int:
@@ -44,7 +49,7 @@ def round_idle(modules: dict[str, int]) -> bool:
     return sum(cycles for name, cycles in modules.items() if name.startswith(ROUND_MODULES)) <= ROUND_IDLE_CYCLES
 
 
-def held(log: grade.Log, interfaces: int) -> dict:
+def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     """Each kind's heaviest pass whose round did nothing, its stated cost in CPU cycles, and each pass over that cost.
     A pass that writes nothing to the mailbox carries no modules, and can carry no round that tried a port."""
     builds = sorted(cycle for cycle, name in log.entries if name == mrpdu_grade.BUILD)
