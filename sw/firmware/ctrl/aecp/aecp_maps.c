@@ -148,18 +148,20 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 // its port's geometry refuses it, as before, and also where its key lies
 // outside the domain, which no format or cluster of the build lets a legal
 // mapping do; so no key outside it forms an index (the key's words are
-// little-endian on every target). The table has at least the 256 slots it held
-// before, so the edit's stack frame, and the data cache's view of it, stays
-// where every measured cost was taken: at 1x1/1if a table of the domain's 64
-// moves the frame 192 B and the largest legal command's record from 91,625 CPU
+// little-endian on every target). The table's declared slots are held, at
+// compile time, to every position place() forms, MAP_FIRSTS x MAP_CHANNELS
+// (MAP_DOMAIN; the assertion after struct edit). Apart from that, the table
+// keeps at least the 256 slots it held before (MAP_FLOOR), a layout choice
+// (#909): the edit's stack frame, and the data cache's view of it, stays where
+// every measured cost was taken; at 1x1/1if a table of the domain's 64 moves
+// the frame 192 B and the largest legal command's record from 91,625 CPU
 // cycles to 98,720 (#894).
 #define MAP_MOST(x, y) ((x) > (y) ? (x) : (y))
 #define MAP_FIRSTS MAP_MOST(AECP_ENTITY_KEY_STREAMS, AECP_ENTITY_KEY_CLUSTERS)
 #define MAP_CHANNELS MAP_MOST(AECP_ENTITY_KEY_STREAM_CHANNELS, AECP_ENTITY_KEY_CLUSTER_CHANNELS)
-#define MAP_SLOTS MAP_MOST(MAP_FIRSTS * MAP_CHANNELS, 256u)
-_Static_assert(AECP_ENTITY_KEY_STREAMS * AECP_ENTITY_KEY_STREAM_CHANNELS <= MAP_SLOTS &&
-	       AECP_ENTITY_KEY_CLUSTERS * AECP_ENTITY_KEY_CLUSTER_CHANNELS <= MAP_SLOTS,
-	       "the table holds every key of the port's domain");
+#define MAP_DOMAIN (MAP_FIRSTS * MAP_CHANNELS)
+#define MAP_FLOOR 256u
+#define MAP_SLOTS MAP_MOST(MAP_DOMAIN, MAP_FLOOR)
 _Static_assert(AECP_MAP_PAGE < 256u, "a slot holds a mapping's index plus one");
 // The work an edit does, counted where a test asks for it (AECP_MAP_WORK,
 // test_aecp.cpp): each slot and each held mapping a lookup visits. No image
@@ -187,6 +189,8 @@ struct edit {
 	uint8_t flags[AECP_MAP_PAGE];
 	uint8_t copies[AECP_MAP_PAGE]; // each distinct mapping's occurrences
 };
+_Static_assert(sizeof ((struct edit *)0)->slot / sizeof ((struct edit *)0)->slot[0] >= (size_t)MAP_DOMAIN,
+	       "the table holds every position place() forms");
 
 // What a port's mappings may not share with different values: the cluster
 // channel an input port writes, the stream channel an output port reads.
