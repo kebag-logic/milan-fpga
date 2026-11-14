@@ -45,11 +45,13 @@ extern "C" {
 // (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join timer at 20 cs, none did;
 // with it at 19 cs (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's contingent ruling of 2026-11-13, item 3) 6 ms did, and
 // with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling, item 1), and the largest legal
-// command's record re-measured under the bounded map work (item 3), 7 ms does (#894, #908). The gate reads the core's
+// command's record re-measured under the bounded map work (item 3), 7 ms did; with each map key at its position in
+// the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's cost re-measured at 30 us,
+// txL is 49.69 ms at 7 ms, and 8 ms does (#894, #908). The gate reads the core's
 // clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
 // AECP_REGISTRATIONS edits answers its last within 15 paces, their passes and its own row: within 238 ms at its
 // commit, IEEE 1722.1-2021 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
-#define AECP_PACE_MS 7u
+#define AECP_PACE_MS 8u
 #define AECP_ROUND_YIELD_PACE_MS 4u
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
