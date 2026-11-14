@@ -28,7 +28,8 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-ROOT = Path(__file__).resolve().parents[3]
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[2]
 #: Where the table is, and the constants each listed shape states, in its order.
 HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
 NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US')
@@ -176,6 +177,12 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
         s = of_point(point, root)
         if s not in table:
             out.append(f'{point}: the builder states the shape {tuple(s)}, which ctrl_loop.h does not list')
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    import run
+    if sorted(BUILT.values()) != sorted(run.POINTS.values()):
+        out.append(f'the model\'s points are built at {sorted(BUILT.values())}, not at the harness\'s points\' '
+                   f'{sorted(run.POINTS.values())} (run.py, POINTS)')
     shipping = of_config(root / DEFAULT_CONFIG, 1, root)
     if default != (shipping.sources, shipping.sinks):
         out.append(f'ctrl_loop.h takes {default} streams with no shape header, not the shipping configuration\'s '
@@ -244,6 +251,11 @@ def controls(root: Path = ROOT) -> list[str]:
     # the cap itself, the ruling's (issuecomment-6867393730, item (b): re-ruled from 1,300 to 1,600 us)
     if SLICE_MOST_US != 1600:
         escaped.append('the slice cap not the ruling\'s 1,600 us')
+    # the model's points built at another configuration than the harness's
+    from unittest import mock
+    with mock.patch.dict(BUILT, {next(iter(BUILT)): ('endstation_arty_4x4', 1)}):
+        if not any('not at the harness' in f for f in findings(root)):
+            escaped.append('a model point built at another configuration than the harness\'s')
     # a point whose shape is not listed
     point = next(iter(BUILT))
     s = of_point(point, root)
@@ -257,7 +269,8 @@ def controls(root: Path = ROOT) -> list[str]:
 CONTROLS = ('a shape the table does not list', 'a slice over the cap', 'a build of one over its slice',
             'the table with no #error', 'a shape listed twice', 'a cost missing from a shape',
             'the default streams not the shipping configuration\'s', 'a build of both at two builds of one',
-            'the slice cap not the ruling\'s 1,600 us', 'a point whose shape is not listed')
+            'the slice cap not the ruling\'s 1,600 us',
+            'a model point built at another configuration than the harness\'s', 'a point whose shape is not listed')
 
 
 def shape_checks() -> list[tuple[str, bool, str]]:
