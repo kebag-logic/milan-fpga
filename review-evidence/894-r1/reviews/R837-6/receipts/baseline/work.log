@@ -1,0 +1,40 @@
+Note: Google Test filter = Core.MapEditWork*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.MapEditWorkIsLinearInItsMappings
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 8 mappings, 1 rows, 17 visits (2 (n + R) 18, n(n+1)/2 36)
+MAP WORK a REMOVE of one key from distinct streams: 8 mappings, 1 rows, 3 visits (2 (n + R) 18, n(n+1)/2 36)
+MAP WORK an ADD of the port's keys, each held with another value: 8 mappings, 8 rows, 24 visits (2 (n + R) 32, n(n+1)/2 36)
+MAP WORK an ADD whose last mapping is its first key's with another value: 8 mappings, 7 rows, 22 visits (2 (n + R) 30, n(n+1)/2 36)
+MAP WORK an ADD of the port's keys, accepted: 8 mappings, 0 rows, 8 visits (2 (n + R) 16, n(n+1)/2 36)
+MAP WORK a REMOVE of every row it holds, accepted: 8 mappings, 16 rows, 40 visits (2 (n + R) 48, n(n+1)/2 36)
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 16 mappings, 1 rows, 33 visits (2 (n + R) 34, n(n+1)/2 136)
+MAP WORK a REMOVE of one key from distinct streams: 16 mappings, 1 rows, 3 visits (2 (n + R) 34, n(n+1)/2 136)
+MAP WORK an ADD of the port's keys, each held with another value: 16 mappings, 16 rows, 48 visits (2 (n + R) 64, n(n+1)/2 136)
+MAP WORK an ADD whose last mapping is its first key's with another value: 16 mappings, 15 rows, 46 visits (2 (n + R) 62, n(n+1)/2 136)
+MAP WORK an ADD of the port's keys, accepted: 16 mappings, 0 rows, 16 visits (2 (n + R) 32, n(n+1)/2 136)
+MAP WORK a REMOVE of every row it holds, accepted: 16 mappings, 32 rows, 80 visits (2 (n + R) 96, n(n+1)/2 136)
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 32 mappings, 1 rows, 65 visits (2 (n + R) 66, n(n+1)/2 528)
+MAP WORK a REMOVE of one key from distinct streams: 32 mappings, 1 rows, 3 visits (2 (n + R) 66, n(n+1)/2 528)
+MAP WORK an ADD of the port's keys, each held with another value: 32 mappings, 32 rows, 96 visits (2 (n + R) 128, n(n+1)/2 528)
+MAP WORK an ADD whose last mapping is its first key's with another value: 32 mappings, 31 rows, 94 visits (2 (n + R) 126, n(n+1)/2 528)
+MAP WORK an ADD of the port's keys, accepted: 32 mappings, 0 rows, 32 visits (2 (n + R) 64, n(n+1)/2 528)
+MAP WORK a REMOVE of every row it holds, accepted: 32 mappings, 64 rows, 160 visits (2 (n + R) 192, n(n+1)/2 528)
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 63 mappings, 1 rows, 127 visits (2 (n + R) 128, n(n+1)/2 2016)
+MAP WORK a REMOVE of one key from distinct streams: 63 mappings, 1 rows, 3 visits (2 (n + R) 128, n(n+1)/2 2016)
+MAP WORK an ADD of the port's keys, each held with another value: 63 mappings, 63 rows, 189 visits (2 (n + R) 252, n(n+1)/2 2016)
+MAP WORK an ADD whose last mapping is its first key's with another value: 63 mappings, 62 rows, 187 visits (2 (n + R) 250, n(n+1)/2 2016)
+MAP WORK an ADD of the port's keys, accepted: 63 mappings, 0 rows, 63 visits (2 (n + R) 126, n(n+1)/2 2016)
+MAP WORK a REMOVE of every row it holds, accepted: 63 mappings, 126 rows, 315 visits (2 (n + R) 378, n(n+1)/2 2016)
+[       OK ] Core.MapEditWorkIsLinearInItsMappings (0 ms)
+[ RUN      ] Core.MapEditWorkReadsOnlyWhatItCleared
+[       OK ] Core.MapEditWorkReadsOnlyWhatItCleared (0 ms)
+[----------] 2 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== AECP core: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

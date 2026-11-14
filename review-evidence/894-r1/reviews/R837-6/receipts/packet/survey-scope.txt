@@ -1,0 +1,46 @@
+# Which legs each published stated-table survey read (author packet f3320c19, author-r11/receipts/final/armA)
+## compare-A-at-6ec12ad7-statements.txt: leg prefixes and counts
+    214 ; A/
+## compare-A-at-9fda93a1-statements.txt: leg prefixes and counts
+    216 ; A/
+## compare-8x8-at-final-statements.txt: leg prefixes and counts
+      2 ; H-B8F/
+      8 ; H-J8/
+      9 ; H-L8A/
+      8 ; H-L8L/
+     14 ; H-L8N/
+      6 ; H-L8O/
+## the author's handoff row
+162:| compare (1x1 arm A, 8x8 legs) | 9606b3a9 | only class lines (+ #910 build_one at 8x8) |
+## the held 1x1/1if answering-every-port leg (author-r11/receipts/final/legs/H-L1N.txt)
+HEAD bc9710542988b775d8e7bdf392fbc810ccc85935 DIRTY 0 point 1x1 jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-14T16:43:09
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 307 passes carry the store's step; the longest 97,464 CPU cycles (0.975 ms), notice-every-0; the longest step 75,986 (0.760 ms), notice-every-0
+SLICES 18528 tier-2 slices; the longest SRP's records 75,043, THE TRANSMIT's build 57,668, THE RETRY's round 48,961 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-0: 3 join interval(s), the shortest 187.921 ms and the longest 190.044 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 18 probe instances, 0 of 7 paths), 0 of 1644 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+## its 8x8/2if counterpart, which raised events_none 30 -> 35 (H-L8N)
+events_none                                    2,859    28.59    35     35 within   load_grade.GRADED events_none; H-L8N/notice-every-0.log
+events_none                                    2,859    28.59    35     35 within   load_grade.STATED_US events_none; H-L8N/notice-every-0.log
+## the 1x1/1if table's stated scope at the head (load_grade.py:106-121)
+#: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
+#: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
+#: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
+#: TRANSMIT's builds and THE STEP's pass are ctrl_loop.h's; the records', the events', a centisecond's consumers',
+#: AECP's owed frames' and a pass's events' fixed part are this table's, the largest of four traced measurements: every
+#: group of arm A on bc98d727's image; arm A's groups but the save groups, with the answering-every-port arm's, on
+#: a30c9986's image (docs/design/SPLIT_CONTROL_MEMORY.md section 14); arm A's groups but the save groups on 3a1d14c2's
+#: image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if; and every group of arm A
+#: and of the answering-every-port arm on this tree's image, its notice built once and addressed per recipient and its
+#: SRP comparisons same()'s (#665: the notice and SRP record cuts), whose measurement alone states the three
+#: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load), measured
+#: again with every row's response stated and the aecp group in arm A and arm B (#882), which moved no cost, and
+#: again on the image whose record commits judge their own move (#665), which moved none of this column's, and again
+#: on the image under THE TIERS (#894) at 1x1/1if and 8x8/2if, every group of arm A and of the answering-every-port
+#: arm and arm B's aecp group, each cost the larger of that and this table's: at 1x1/1if an AECP record 235 us (205),
+#: ADP's timer slot 115 (110), the TICK 40 to 45 and a pass's events' fixed part 25 to 30; at 8x8/2if AECP's timer
+## the formal measurement held by record_classes.py (:16-19)
+The legs held are the formal measurement's (#665, README: the labelled arms are never it): arm A's, every group, the
+answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
+aecp-largest-notice, which the 8x8 shape runs there, and the edits of its aecp-fanout, over which EDIT_RECORD_US is
+measured; the rest (arm B's other records, the 8x8-1if point) are reported by class, not held. A pass is refused
