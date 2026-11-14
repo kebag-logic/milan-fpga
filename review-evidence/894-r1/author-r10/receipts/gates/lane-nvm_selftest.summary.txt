@@ -1,0 +1,6 @@
+  self-test OK: mapin_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPIN_ENTRIES_0 = 256, past its table's width, compiled
+  over width: MILAN_NVM3_MAPIN_ENTRIES_0 = 256 refused at compile time ("an input map's entries outgrow the codec's byte table")
+  self-test OK: mapout_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused for another reason: rror: comparison is always false due to limite
+  self-test OK: mapin_limit_one_early      caught by at_width
+  self-test OK: doctored_error_removed     caught by doctored_outside
+saved-state store gate (#665 F1): OK across 5 shape(s), 526 tests, and all 144 planted defects reddened

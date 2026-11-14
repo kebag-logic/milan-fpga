@@ -1,0 +1,44 @@
+# probe_table_assert.py at the working tree over 5b264bf2 (aecp_maps.c as committed in round 10's first commit), gcc 16.2.1, ctrl_build.C_FLAGS -fsyntax-only
+tree endstation_arty_4x4: compile rc 0
+tree endstation_arty_8ch: compile rc 0
+tree endstation_arty_current: compile rc 0
+tree endstation_ax7101_1x1_tdm8: compile rc 0
+tree endstation_ax7101_8x8: compile rc 0
+tree keys-16x4: compile rc 0
+tree keys-16x32: compile rc 0
+each-direction endstation_arty_4x4: compile rc 0
+each-direction endstation_arty_8ch: compile rc 1 static assertion failed: "the table holds every position place() forms"
+each-direction endstation_arty_current: compile rc 1 static assertion failed: "the table holds every position place() forms"
+each-direction endstation_ax7101_1x1_tdm8: compile rc 1 static assertion failed: "the table holds every position place() forms"
+each-direction endstation_ax7101_8x8: compile rc 0
+each-direction keys-16x4: compile rc 0
+each-direction keys-16x32: compile rc 0
+floor-only endstation_arty_4x4: compile rc 0
+floor-only endstation_arty_8ch: compile rc 0
+floor-only endstation_arty_current: compile rc 0
+floor-only endstation_ax7101_1x1_tdm8: compile rc 0
+floor-only endstation_ax7101_8x8: compile rc 0
+floor-only keys-16x4: compile rc 0
+floor-only keys-16x32: compile rc 1 static assertion failed: "the table holds every position place() forms"
+array-at-floor endstation_arty_4x4: compile rc 0
+array-at-floor endstation_arty_8ch: compile rc 0
+array-at-floor endstation_arty_current: compile rc 0
+array-at-floor endstation_ax7101_1x1_tdm8: compile rc 0
+array-at-floor endstation_ax7101_8x8: compile rc 0
+array-at-floor keys-16x4: compile rc 0
+array-at-floor keys-16x32: compile rc 1 static assertion failed: "the table holds every position place() forms"
+each-direction+r9 endstation_arty_4x4: compile rc 0
+each-direction+r9 endstation_arty_8ch: compile rc 0
+each-direction+r9 endstation_arty_current: compile rc 0
+each-direction+r9 endstation_ax7101_1x1_tdm8: compile rc 0
+each-direction+r9 endstation_ax7101_8x8: compile rc 0
+each-direction+r9 keys-16x4: compile rc 0
+each-direction+r9 keys-16x32: compile rc 0
+# endstation_arty_4x4: domain 5 x 4 = 20, each direction's 20
+# endstation_arty_8ch: domain 8 x 8 = 64, each direction's 40
+# endstation_arty_current: domain 8 x 2 = 16, each direction's 8
+# endstation_ax7101_1x1_tdm8: domain 8 x 8 = 64, each direction's 16
+# endstation_ax7101_8x8: domain 9 x 8 = 72, each direction's 72
+# keys-16x4: domain 17 x 4 = 68, each direction's 68
+# keys-16x32: domain 17 x 32 = 544, each direction's 544
+rc 0

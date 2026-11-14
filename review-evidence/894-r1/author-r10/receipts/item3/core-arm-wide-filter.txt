@@ -1,0 +1,30 @@
+# python3 -B sw/firmware/ctrl/test/aecp_arms.py --core --filter 'Core.*Map*:Core.Every*' --output <scratch> at 7398ec0aee (1x1/1if, one interface), exit 0
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+[       OK ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow (8 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (0 ms)
+[ RUN      ] Core.EveryKeyOfTheDomainIsItsOwn
+[       OK ] Core.EveryKeyOfTheDomainIsItsOwn (0 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[       OK ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (0 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[==========] 13 tests from 1 test suite ran. (11 ms total)
+[  PASSED  ] 13 tests.

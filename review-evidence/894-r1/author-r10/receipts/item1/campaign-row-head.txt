@@ -1,0 +1,8 @@
+# campaign_rows.py <lane> <scratch>/rows-head map-table-each-direction-alone map-index-channel-dropped, at 7398ec0aee (the campaign's controls() over the whole 274-row table first)
+map-index-channel-dropped caught [['Core.EveryAcceptedMapKeyIsItsOwn', 'an ADD of every key the port accepts holds each as its own']]
+map-table-each-direction-alone caught [['Build.refused', 'static assertion failed: "the table holds every position place() forms"']]
+# map-table-each-direction-alone.log (the refusal the row reads):
+aecp_maps.c does not compile:
+<scratch>/rows-head/work/ctrl/aecp/aecp_maps.c:190:1: error: static assertion failed: "the table holds every position place() forms"
+  190 | _Static_assert(sizeof ((struct edit *)0)->slot / sizeof ((struct edit *)0)->slot[0] >= (size_t)MAP_DOMAIN,
+      | ^~~~~~~~~~~~~~

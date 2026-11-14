@@ -1,0 +1,15 @@
+# the round 10 delta, 5b264bf26416108add32d7fe5abca5252ffde2cb..7398ec0aeea468d92ff642a03a06e291a0cd58d1
+commits: 3
+7398ec0aeea468d92ff642a03a06e291a0cd58d1 Describe the 16x4 key geometry as one whose keys shared a slot under the former hash (#894)
+947bd3898f13301e220f94d68582243d88b9f39a State the head's rows by every source in section 13's current table and summary from the flip check at both points, and name round 30's load table as the merge of dev-soft-core 0fb66211's (#894)
+55b8e6216697ad98a52986c07f4bf169c41de859 Hold the map table's declared slots to every position place() forms at compile time, the 256-slot floor apart as a layout choice (#909), and refuse a planted table of each direction's own product in the AECP campaign (#894)
+
+ docs/design/SPLIT_CONTROL_MEMORY.md       | 18 +++++++++---------
+ sw/firmware/ctrl/aecp/README.md           | 19 ++++++++++++-------
+ sw/firmware/ctrl/aecp/aecp_maps.c         | 20 ++++++++++++--------
+ sw/firmware/ctrl/test/aecp_arms.py        |  5 +++--
+ sw/firmware/ctrl/test/aecp_map_mutants.py | 10 ++++++++++
+ sw/firmware/ctrl/test/aecp_mutants.py     | 21 +++++++++++++++++----
+ 6 files changed, 63 insertions(+), 30 deletions(-)
+
+# tree 2787f9fae40e581584d454e6cb476e68d1850487; submodule gitlinks unchanged: 0 lines of gitlink diff

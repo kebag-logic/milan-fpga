@@ -1,0 +1,6 @@
+GRADER gptp-path: PASS (count=1 generation=0); not evidence: no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file's word
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x0000000001CE9A45 -> 0x0000000001E2A46D)
+ctrl_split_boot: PASS (0 finding(s))

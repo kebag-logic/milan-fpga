@@ -1,0 +1,34 @@
+# flip_grade.py --check --point 8x8/2if at a07de0129a (the commit that set the 8x8/2if row of SPLIT_CONTROL_MEMORY.md's current table), its own clean clone
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/2if | 0.822 | 0.70 | 1.17x | srp 0.219, rec.acmp 0.088, item.acmp 0.074, timers 0.070, item.aecp 0.063, ticks 0.055, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 8x8/2if | R4 | 43.60 | 20 | +23.60 | 17 | timers 11.175, passes 6.035, item.aecp 4.675 |
+| 8x8/2if | R5 | 198.68 | 90 | +108.68 | 62 | others 47.465, passes 22.010, timers 18.660 |
+| 8x8/2if | R6 | 188.69 | 90 | +98.69 | 58 | others 45.815, passes 20.590, timers 18.420 |
+| 8x8/2if | first | 20.40 | 20 | +0.40 | 2 | spacing 8.000, timers 2.520, others 2.150 |
+| 8x8/2if | last | 745.73 | 125 | +620.73 | 274 | srp 146.000, others 140.075, passes 97.270 |
+| 8x8/2if | R4L | 195.81 | 240 | -44.19 | 2 | pace 180.000, others 3.240, timers 2.520 |
+| 8x8/2if | ACMP | 66.80 | 30 | +36.80 | 23 | timers 12.285, passes 8.165, aecp 7.685 |
+| 8x8/2if | ADP | 66.61 | 30 | +36.61 | 19 | others 14.190, timers 11.865, aecp 7.685 |
+| 8x8/2if | MAAP | 67.66 | 30 | +37.66 | 19 | others 16.120, timers 11.865, aecp 7.685 |
+| 8x8/2if | tx | 97.06 | 40 | +57.06 | 36 | others 30.315, timers 14.370, passes 12.780 |
+| 8x8/2if | txL | 494.95 | 40 | +454.95 | 190 | others 178.190, item.aecp 95.630, passes 67.450 |
+| 8x8/2if | | the other tier-1 channels' caps are over the pass's tier-1 time, so the channel rows credit a take a pass may cut: each a lower bound | | | | |
+OVER 8x8/2if: the load 0.822 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 43.60 ms, over its bound 20 ms; the largest term timers 11.18 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 198.68 ms, over its bound 90 ms; the largest term others 47.47 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 188.69 ms, over its bound 90 ms; the largest term others 45.81 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 20.40 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 745.73 ms, over its bound 125 ms; the largest term srp 146.00 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 66.80 ms, over its bound 30 ms; the largest term timers 12.29 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 66.61 ms, over its bound 30 ms; the largest term others 14.19 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 67.66 ms, over its bound 30 ms; the largest term others 16.12 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 97.06 ms, over its bound 40 ms; the largest term others 30.32 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 494.95 ms, over its bound 40 ms; the largest term others 178.19 ms
+RESULT: FAIL
+rc 1
