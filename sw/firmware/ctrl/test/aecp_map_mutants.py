@@ -11,7 +11,9 @@ RESTORE = 'Core.RestoredOutputMapsHaveOneGlobalOwner'
 OWNER = 'Core.OutputMappingsHaveOneGlobalOwner'
 PACE = 'Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone'
 WORK = 'Core.MapEditWorkIsLinearInItsMappings'
-KEYS = 'Core.MapKeysThatShareASlotAreTheirOwn'
+KEYS = 'Core.EveryAcceptedMapKeyIsItsOwn'
+DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
+OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
 
 #: (name, file, planted text, its replacement, (test, failing words), ...)
 ROWS = (
@@ -28,11 +30,28 @@ ROWS = (
      'return same && !equal(a, b);',
      'return same && false;',
      (RESTORE, 'two saved rows of one stream channel with different clusters conflict')),
-    # the table: a lookup is its key's, and a value is compared whole
-    ('map-table-key-unchecked', 'aecp_maps.c',
-     '|| key(e->input, &e->rows[e->slot[s] - 1u]) == k) {',
-     '|| (uint16_t)(key(e->input, &e->rows[e->slot[s] - 1u]) ^ k) == 0u) {',
-     (KEYS, 'an ADD of two keys that share a slot adds both')),
+    # the table: a key's slot is its position in the domain, one key's alone (#894's ruling of 2026-11-14, item 1),
+    # no key outside the domain forms one, and a value is compared whole
+    ('map-index-channel-dropped', 'aecp_maps.c',
+     '? first * MAP_CHANNELS + channel : MAP_SLOTS;',
+     '? first * MAP_CHANNELS : MAP_SLOTS;',
+     (KEYS, 'an ADD of every key the port accepts holds each as its own')),
+    ('map-index-stream-or-cluster-dropped', 'aecp_maps.c',
+     '? first * MAP_CHANNELS + channel : MAP_SLOTS;',
+     '? channel : MAP_SLOTS;',
+     (KEYS, 'an ADD of every key the port accepts holds each as its own')),
+    ('map-index-stride-short', 'aecp_maps.c',
+     '? first * MAP_CHANNELS + channel : MAP_SLOTS;',
+     '? first * (MAP_CHANNELS - 1u) + channel : MAP_SLOTS;',
+     (DOMAIN, 'an ADD of every key of the domain holds each as its own')),
+    ('map-domain-a-channel-wide', 'aecp_maps.c',
+     'return first < MAP_FIRSTS && channel < MAP_CHANNELS ?',
+     'return first < MAP_FIRSTS && channel <= MAP_CHANNELS ?',
+     (OUTSIDE, 'a key outside the domain is refused at its turn, before its port is read')),
+    ('map-outside-row-looked-up', 'aecp_maps.c',
+     'for (size_t v = s < MAP_SLOTS ? e->slot[s] : 0u; v != 0u; v = e->next[v - 1u]) {',
+     'for (size_t v = e->slot[s < MAP_SLOTS ? s : 0u]; v != 0u; v = e->next[v - 1u]) {',
+     (OUTSIDE, 'a row outside the domain bars no mapping')),
     ('map-value-cluster-channel-ignored', 'aecp_maps.c',
      'return x->w[0] == y->w[0] && x->w[1] == y->w[1];',
      'return x->w[0] == y->w[0] && (uint16_t)(x->w[1] ^ y->w[1]) == 0u;',
@@ -81,9 +100,10 @@ ROWS = (
      '\t\t\tsize_t tail = *at - 1u;\n\t\t\twhile (e.next[tail] != 0u) {\n\t\t\t\tVISIT();\n'
      '\t\t\t\ttail = e.next[tail] - 1u;\n\t\t\t}\n\t\t\te.next[tail] = (uint8_t)(n + 1u);\n',
      (WORK, 'not under n(n+1)/2')),
-    ('map-hash-the-stream-alone', 'aecp_maps.c',
-     'for (size_t s = (k + 9u * (k >> 16)) & (MAP_SLOTS - 1u);;',
-     'for (size_t s = k & (MAP_SLOTS - 1u);;',
+    # a lookup that scans the table to its key's slot changes no outcome either, and is n x the table's slots
+    ('map-table-scanned', 'aecp_maps.c',
+     '\tsize_t channel = k >> 16;\n\tVISIT();\n',
+     '\tsize_t channel = k >> 16;\n\tfor (size_t t = 0; t <= MAP_SLOTS; ++t) {\n\t\tVISIT();\n\t}\n',
      (WORK, 'past twice their sum')),
     # THE PACE: an edit that is checked holds the next record until AECP_PACE_MS after its take
     ('pace-not-held', 'aecp_mbx.c',

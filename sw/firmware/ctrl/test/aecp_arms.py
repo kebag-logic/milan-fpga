@@ -10,6 +10,35 @@ import fw_gtest
 AECP_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "aecp_state.c")
 #: The tests the work arm runs: the map edits' work counted (AECP_MAP_WORK; #904, #894).
 WORK = "Core.MapEditWork*"
+#: The test the work arm runs at every geometry KEY_GEOMETRIES names: every key a port accepts is its own, and each
+#: edit's work 2 (n + R) (#894's ruling of 2026-11-14, item 2).
+KEYS = "Core.EveryAcceptedMapKeyIsItsOwn"
+#: Geometries the builder accepts past the checked-in ones, from the 8x8 configuration, each its talkers' channels:
+#: 16 talkers of 4 channels (the review's), and the builder's most, 16 talkers (endstation_builder.py, _streams), one
+#: of 8 channels, a Base format a Talker must list (Milan v1.2 6.3), and 15 of 32.
+KEY_GEOMETRIES = (("16x4", (4,) * 16), ("16x32", (8,) + (32,) * 15))
+
+
+def key_geometry(out: Path, name: str, widths: tuple[int, ...]) -> Path:
+    """The 8x8 configuration with one copy of its first talker for each of `widths`, of that many channels."""
+    import copy
+    import yaml
+    raw = yaml.safe_load((ROOT / "configs/endstation_ax7101_8x8.yaml").read_text(encoding="utf-8"))
+    first = raw["streams"]["talkers"][0]
+    raw["streams"]["talkers"] = [dict(copy.deepcopy(first), name=f"Output {k}", channels=width)
+                                 for k, width in enumerate(widths)]
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"keys-{name}.yaml"
+    path.write_text(yaml.safe_dump(raw), encoding="utf-8")
+    return path
+
+
+def key_arms(tree: Tree) -> list[Outcome]:
+    """KEYS in the work arm at every checked-in configuration and at each of KEY_GEOMETRIES."""
+    configs = sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    configs += [key_geometry(tree.out / "keys", *shape) for shape in KEY_GEOMETRIES]
+    return [core_arm(Tree(tree.src, tree.out / "keys" / config.stem, tree.reuse, tree.build, tree.stack), config,
+                     mode="work", selected=KEYS) for config in configs]
 
 
 def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
@@ -129,6 +158,7 @@ def all_arms(tree: Tree) -> list[Outcome]:
                                 mode="debug"))
         results.append(core_arm(Tree(tree.src, tree.out / "work", tree.reuse, tree.build, tree.stack), shipping,
                                 mode="work", selected=WORK))
+        results += key_arms(tree)
     return results
 
 
@@ -146,6 +176,7 @@ if __name__ == "__main__":
     parser.add_argument("--filter", default="*")
     parser.add_argument("--app", action="store_true")
     parser.add_argument("--work", action="store_true")
+    parser.add_argument("--keys", action="store_true", help="KEYS at every checked-in configuration and KEY_GEOMETRIES")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--stack", type=Path, default=STACK, help="the tsn-c-stack checkout (default: the submodule)")
     args = parser.parse_args()
@@ -156,6 +187,11 @@ if __name__ == "__main__":
         raise SystemExit(2) from exc
     build = fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4)
     tree = Tree(CTRL, args.output, args.output / "reuse", build, args.stack.resolve())
+    if args.keys:
+        results = key_arms(tree)
+        for outcome in results:
+            print(f"{outcome.arm}: rc {outcome.rc}\n{outcome.log}")
+        raise SystemExit(max(outcome.rc for outcome in results))
     mode = next((n for n in ("app", "debug", "mailbox", "nvm", "core", "work") if getattr(args, n)), "image")
     result = (image_arm(tree, args.config) if mode == "image" else
               core_arm(tree, args.config, args.interfaces, mode, args.filter))
