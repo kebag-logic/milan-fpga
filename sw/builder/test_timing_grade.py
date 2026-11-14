@@ -213,6 +213,66 @@ print("the XC7A200T die reaches the platform and timing grade; two other parts r
     print("  [timing grade] " + result.stdout.strip())
 
 
+def test_layout_from_soch(python: str) -> None:
+    """#911: a sweep build's layout is rebuilt from its soc.h, so the rebuild
+    must give each die the layout milan_soc.py exports: the bitstream budget
+    is the AEM offset (4 MiB, or 10 MiB on the XC7A200T) and the flash device
+    is the SoC's. The 200T's 9,730,652-B payload must then pass the deploy
+    validation that the AX7101's 4 MiB slot would refuse."""
+    probe = r'''
+import binascii, json, tempfile
+from pathlib import Path
+from types import SimpleNamespace
+from litex.soc.integration.export import get_soc_header
+from litespi.modules import N25Q128A13
+from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+import layout_from_soch, milan_soc
+import qspi_owner_transition as q
+from gptp_owner_contract import GPTP_OWNER_CODES
+from platforms.ax7101_timing import TIMING_GRADE
+module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
+aem = b"AEMI" + bytes(range(256)) * 4
+dies = ((TIMING_GRADE["part"], b"7a100tfgg484\0", 0x40_0000, 3_825_992),
+        ("xc7a200t-fbg484-2", b"7a200tfbg484\0", 0xA0_0000, 9_730_652))
+for part, bit_part, aem_at, payload_bytes in dies:
+    # The flashboot constants come from the SoC's own method; the others are
+    # the ones the SoC and LiteX's SPI flash core record beside them.
+    consts = {"MILAN_GPTP_OWNER": GPTP_OWNER_CODES["fabric"], "MILAN_CPU_XLEN": 32,
+              "SPIFLASH_MODULE_NAME": module.name,
+              "MILAN_AEM_IMAGE_BYTES": len(aem),
+              "MILAN_AEM_IMAGE_CRC32": binascii.crc32(aem) & 0xFFFF_FFFF}
+    soc = SimpleNamespace(platform=SimpleNamespace(device=part), _gptp_owner="fabric", _cpu_xlen=32,
+                          add_constant=lambda name, value=None: consts.__setitem__(name, value))
+    milan_soc.MilanSoC._add_flashboot_constants(soc, "baremetal", module)
+    with tempfile.TemporaryDirectory() as tmp:
+        build = Path(tmp)
+        header = build / "software/include/generated/soc.h"
+        header.parent.mkdir(parents=True)
+        header.write_text(get_soc_header(consts))
+        (build / "aem_desc.bin").write_bytes(aem)
+        bit = build / "gateware/alinx_ax7101.bit"
+        bit.parent.mkdir()
+        payload = b"\xff" * 16 + b"\xaa\x99\x55\x66"
+        q._fake_bit(bit, payload + bytes(payload_bytes - len(payload)), b"probe", bit_part)
+        layout_from_soch.main(str(build))
+        got = json.loads((build / "flashboot_layout.json").read_text())
+        rows = {row["name"]: row for row in got["images"]}
+        assert rows["bitstream"]["budget"] == rows["aem"]["offset"] == aem_at, (part, got["images"])
+        assert got["images"] == soc._flashboot_layout["images"], (part, got["images"])
+        assert (got["flash_device"], got["flash_jedec_id"]) == ("n25q128a13", 0x20BA18), got
+        programmer_part = "xc" + bit_part.rstrip(b"\0").decode()   # build.sh board_facts
+        checked = q.validate_artifact_pair(build / "flashboot_layout.json", bit, programmer_part)
+        assert checked["payload_bytes"] == payload_bytes, checked
+print("layout_from_soch.py rebuilds each die's exported layout from its soc.h: budget and AEM at "
+      "0x400000 (AX7101) and 0xA00000 (XC7A200T), the N25Q128A13 (0x20BA18); the 200T's "
+      "9,730,652-B payload passes the deploy validation")
+'''
+    result = subprocess.run([python, "-B", "-c", probe], cwd=ROOT / "sw/litex",
+                            text=True, capture_output=True, check=False, timeout=120)
+    assert result.returncode == 0, result.stdout + result.stderr
+    print("  [timing grade] " + result.stdout.strip().splitlines()[-1])
+
+
 def test_board_variant_docs() -> None:
     """#911: the deployment guide's variant table reads the sources, and each of
     its mutation controls turns it red (scripts/board_variants.py)."""
@@ -250,4 +310,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         test_platform_hooks(sys.argv[1])
         test_board_parts(sys.argv[1])
+        test_layout_from_soch(sys.argv[1])
         test_pll_grade(sys.argv[1])

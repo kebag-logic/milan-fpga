@@ -18768,7 +18768,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             with open(layout, "w", encoding="utf-8") as out:
                 json.dump(body, out)
             return {"dir": build, "layout": layout, "bit": bit,
-                    "owner": owner, "payload": payload}
+                    "owner": owner, "payload": payload, "aem_offset": 0x400000}
 
         fabric = make_build("fabric", "fabric", b"FABRIC-OWNER-A")
         fabric2 = make_build("fabric2", "fabric", b"FABRIC-OWNER-B")
@@ -18811,7 +18811,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 flash.truncate(16 * 1024 * 1024)
                 flash.seek(0)
                 flash.write(source["payload"])
-                flash.seek(0x400000)
+                flash.seek(source["aem_offset"])
                 flash.write((source["dir"] / "aem_desc.bin").read_bytes())
             for path in (log, count):
                 path.unlink(missing_ok=True)
@@ -19106,28 +19106,42 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                      "names no flash device", False)
         deviceless_layout.unlink()
 
-        # The XC7A200T variant through the named launcher: its board facts
-        # carry the 200T programmer part, so a 200T image set on a 200T
-        # board flashes, and the same set on the AX7101's die refuses.
+        # The XC7A200T variant through the named launcher, on its own map
+        # (#911): the bitstream slot and the AEM offset are 0xA00000, and the
+        # payload is the die's uncompressed 9,730,652 B, past the AX7101's
+        # 4 MiB slot. Its board facts carry the 200T programmer part, so a
+        # 200T image set on a 200T board flashes AEM then bitstream, and the
+        # same set on the AX7101's die refuses.
         def on_200t(build: dict[str, Any]) -> dict[str, Any]:
-            """`build` re-bound to the XC7A200T: its bit carries that part."""
-            payload = qspi_transition.bit_payload(build["bit"])
+            """`build` moved to the XC7A200T: its bit carries that part and the
+            die's payload size, its layout the die's map, with the bitstream
+            budget and the AEM offset both at 0xA00000."""
+            payload = build["payload"] + bytes(9_730_652 - len(build["payload"]))
             qspi_transition._fake_bit(build["bit"], payload, build["dir"].name.encode(),
                                       b"7a200tfbg484\0")
             with open(build["layout"], encoding="utf-8") as source:
                 body = json.load(source)
+            rows = {row["name"]: row for row in body["images"]}
+            rows["bitstream"]["budget"] = rows["aem"]["offset"] = 0xA00000
             body.update(qspi_transition.bitstream_binding(build["bit"]))
             with open(build["layout"], "w", encoding="utf-8") as out:
                 json.dump(body, out)
-            return build
+            return dict(build, payload=payload, aem_offset=0xA00000)
 
         fabric200 = on_200t(make_build("fabric200", "fabric", b"FABRIC-200T-A"))
         fabric200b = on_200t(make_build("fabric200b", "fabric", b"FABRIC-200T-B"))
         variant = run_pair(fabric200, fabric200b, named="ax7a200t",
                            env_over={"OFL_MODEL": "xc7a200"})
         assert variant.returncode == 0, variant.stdout + variant.stderr
-        assert [row[1] for row in writes()] == wanted_offsets
+        assert [row[1] for row in writes()] == [0xA00000, 0], writes()
         assert live_bit(fabric200, fabric200b) is fabric200b
+        with open(qspi, "rb") as flash:
+            image = flash.read()
+        aem200 = (fabric200b["dir"] / "aem_desc.bin").read_bytes()
+        assert image[:len(fabric200b["payload"])] == fabric200b["payload"], \
+            "the 200T bitstream payload is not at offset 0"
+        assert image[0xA00000:0xA00000 + len(aem200)] == aem200, \
+            "the 200T AEM image is not at 0xA00000"
         wrong_die = run_pair(fabric200, fabric200b, named="ax7a200t")
         assert wrong_die.returncode != 0, wrong_die.stdout + wrong_die.stderr
         assert "JTAG-detected part xc7a100t does not match" in \
@@ -19152,8 +19166,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
           "JTAG die other than the bitstream's, an unreadable die, a flash "
           "JEDEC ID other than the layout's, an unreadable ID and a layout "
           "naming no flash device all refuse before a dump or write (#911); "
-          "build.sh flash ax7a200t flashes a 200T set on a 200T die and "
-          "refuses it on the AX7101's")
+          "build.sh flash ax7a200t flashes a 200T set on its own map (AEM at "
+          "0xA00000, a 9,730,652-B payload at 0) on a 200T die and refuses it "
+          "on the AX7101's")
 
 
 
@@ -29520,8 +29535,8 @@ def test_clock_crossing_constraints() -> None:
 
 def test_commercial_timing_grade() -> None:
     """Pin the release conditions and prove that the real platform consumes them."""
-    from test_timing_grade import (test_board_parts, test_board_variant_docs, test_platform_hooks,
-                                   test_pll_grade, test_timing_grade_contract)
+    from test_timing_grade import (test_board_parts, test_board_variant_docs, test_layout_from_soch,
+                                   test_platform_hooks, test_pll_grade, test_timing_grade_contract)
 
     test_timing_grade_contract()
     test_board_variant_docs()
@@ -29529,6 +29544,7 @@ def test_commercial_timing_grade() -> None:
     if python is not None:
         test_platform_hooks(python)
         test_board_parts(python)
+        test_layout_from_soch(python)
         test_pll_grade(python)
 
 
