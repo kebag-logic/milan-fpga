@@ -1,0 +1,352 @@
+﻿2026-11-14T11:54:42.6420804Z Current runner version: '2.338.2'
+2026-11-14T11:54:42.6441646Z ##[group]Runner Image Provisioner
+2026-11-14T11:54:42.6442401Z Hosted Compute Agent
+2026-11-14T11:54:42.6442945Z Version: 20261103.629
+2026-11-14T11:54:42.6443497Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-14T11:54:42.6444207Z Build Date: 2026-11-03T17:26:59Z
+2026-11-14T11:54:42.6444818Z Worker ID: {9f69db90-9eec-4dd5-a008-be9c5bfa6229}
+2026-11-14T11:54:42.6445398Z Region: westus3
+2026-11-14T11:54:42.6445930Z Cloud: Azure
+2026-11-14T11:54:42.6446403Z ##[endgroup]
+2026-11-14T11:54:42.6447654Z ##[group]Operating System
+2026-11-14T11:54:42.6448325Z Ubuntu
+2026-11-14T11:54:42.6448757Z 24.04.5
+2026-11-14T11:54:42.6449252Z LTS
+2026-11-14T11:54:42.6449700Z ##[endgroup]
+2026-11-14T11:54:42.6450223Z ##[group]Runner Image
+2026-11-14T11:54:42.6450759Z Image: ubuntu-24.04
+2026-11-14T11:54:42.6451240Z Version: 20261111.370.1
+2026-11-14T11:54:42.6452325Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-14T11:54:42.6453629Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-14T11:54:42.6454441Z ##[endgroup]
+2026-11-14T11:54:42.6455475Z ##[group]GITHUB_TOKEN Permissions
+2026-11-14T11:54:42.6457252Z Contents: read
+2026-11-14T11:54:42.6457786Z Metadata: read
+2026-11-14T11:54:42.6458580Z Packages: read
+2026-11-14T11:54:42.6459058Z ##[endgroup]
+2026-11-14T11:54:42.6460827Z Secret source: Actions
+2026-11-14T11:54:42.6461638Z Cache mode: write
+2026-11-14T11:54:42.6462561Z Prepare workflow directory
+2026-11-14T11:54:42.6772707Z Prepare all required actions
+2026-11-14T11:54:42.6812411Z Getting action download info
+2026-11-14T11:54:42.9853608Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-14T11:54:43.1035071Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-14T11:54:43.6980213Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-14T11:54:43.9417661Z Complete job name: Union milan_dp_mclk
+2026-11-14T11:54:44.0228087Z ##[group]Run actions/checkout@v4
+2026-11-14T11:54:44.0229400Z with:
+2026-11-14T11:54:44.0230129Z   repository: kebag-logic/milan-fpga
+2026-11-14T11:54:44.0237746Z   token: ***
+2026-11-14T11:54:44.0238570Z   ssh-strict: true
+2026-11-14T11:54:44.0239301Z   ssh-user: git
+2026-11-14T11:54:44.0240040Z   persist-credentials: true
+2026-11-14T11:54:44.0240847Z   clean: true
+2026-11-14T11:54:44.0241587Z   sparse-checkout-cone-mode: true
+2026-11-14T11:54:44.0242458Z   fetch-depth: 1
+2026-11-14T11:54:44.0243175Z   fetch-tags: false
+2026-11-14T11:54:44.0243906Z   show-progress: true
+2026-11-14T11:54:44.0244653Z   lfs: false
+2026-11-14T11:54:44.0245355Z   submodules: false
+2026-11-14T11:54:44.0246096Z   set-safe-directory: true
+2026-11-14T11:54:44.0246934Z   allow-unsafe-pr-checkout: false
+2026-11-14T11:54:44.0247977Z env:
+2026-11-14T11:54:44.0248745Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:44.0249583Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:44.0250503Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:44.0251509Z ##[endgroup]
+2026-11-14T11:54:44.2569586Z Syncing repository: kebag-logic/milan-fpga
+2026-11-14T11:54:44.2573439Z ##[group]Getting Git version info
+2026-11-14T11:54:44.2575187Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-14T11:54:44.2577074Z [command]/usr/bin/git version
+2026-11-14T11:54:44.2650942Z git version 2.56.1
+2026-11-14T11:54:44.2670639Z ##[endgroup]
+2026-11-14T11:54:44.2681239Z Temporarily overriding HOME='<home-path>/work/_temp/e47617af-2cb9-456f-a86c-987e69b3a2cc' before making global git config changes
+2026-11-14T11:54:44.2684600Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T11:54:44.2687549Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-14T11:54:44.2730163Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-14T11:54:44.2733709Z ##[group]Initializing the repository
+2026-11-14T11:54:44.2749721Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-11-14T11:54:44.2854637Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T11:54:44.2857165Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T11:54:44.2860003Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T11:54:44.2862642Z hint: call:
+2026-11-14T11:54:44.2863817Z hint:
+2026-11-14T11:54:44.2865183Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T11:54:44.2866890Z hint:
+2026-11-14T11:54:44.2869725Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T11:54:44.2872202Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T11:54:44.2874489Z hint:
+2026-11-14T11:54:44.2875758Z hint: 	git branch -m <name>
+2026-11-14T11:54:44.2876813Z hint:
+2026-11-14T11:54:44.2878032Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T11:54:44.2881000Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-11-14T11:54:44.2886068Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-11-14T11:54:44.2921339Z ##[endgroup]
+2026-11-14T11:54:44.2923091Z ##[group]Disabling automatic garbage collection
+2026-11-14T11:54:44.2925568Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-14T11:54:44.2957094Z ##[endgroup]
+2026-11-14T11:54:44.2959430Z ##[group]Setting up auth
+2026-11-14T11:54:44.2962785Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T11:54:44.2999215Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T11:54:44.3369402Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T11:54:44.3408676Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T11:54:44.3682483Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:44.3689037Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T11:54:44.3854742Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-14T11:54:44.3897922Z ##[endgroup]
+2026-11-14T11:54:44.3899484Z ##[group]Fetching the repository
+2026-11-14T11:54:44.3916650Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5716e2a8e187c9ab043657db476384c2aa98aa63:refs/remotes/pull/898/merge
+2026-11-14T11:54:46.7150719Z From https://github.com/kebag-logic/milan-fpga
+2026-11-14T11:54:46.7154039Z  * [new ref]         5716e2a8e187c9ab043657db476384c2aa98aa63 -> pull/898/merge
+2026-11-14T11:54:46.7155981Z ##[endgroup]
+2026-11-14T11:54:46.7156556Z ##[group]Determining the checkout info
+2026-11-14T11:54:46.7157151Z ##[endgroup]
+2026-11-14T11:54:46.7161959Z [command]/usr/bin/git sparse-checkout disable
+2026-11-14T11:54:46.7219089Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-14T11:54:46.7251034Z ##[group]Checking out the ref
+2026-11-14T11:54:46.7253783Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/898/merge
+2026-11-14T11:54:46.9223878Z Note: switching to 'refs/remotes/pull/898/merge'.
+2026-11-14T11:54:46.9224342Z 
+2026-11-14T11:54:46.9224582Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-14T11:54:46.9225045Z changes and commit them, and you can discard any commits you make in this
+2026-11-14T11:54:46.9225863Z state without impacting any branches by switching back to a branch.
+2026-11-14T11:54:46.9226140Z 
+2026-11-14T11:54:46.9226380Z If you want to create a new branch to retain commits you create, you may
+2026-11-14T11:54:46.9226789Z do so (now or later) by using -c with the switch command. Example:
+2026-11-14T11:54:46.9227015Z 
+2026-11-14T11:54:46.9227134Z   git switch -c <new-branch-name>
+2026-11-14T11:54:46.9227299Z 
+2026-11-14T11:54:46.9227436Z Or undo this operation with:
+2026-11-14T11:54:46.9227596Z 
+2026-11-14T11:54:46.9227692Z   git switch -
+2026-11-14T11:54:46.9227851Z 
+2026-11-14T11:54:46.9228555Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-14T11:54:46.9229062Z 
+2026-11-14T11:54:46.9229530Z HEAD is now at 5716e2a Merge f098f893d57e0fa3ec95a7e459313c5cfe4f4224 into cec88385ad0a0ec0d61b91597640797766e45010
+2026-11-14T11:54:46.9237738Z ##[endgroup]
+2026-11-14T11:54:46.9284962Z [command]/usr/bin/git log -1 --format=%H
+2026-11-14T11:54:46.9313266Z 5716e2a8e187c9ab043657db476384c2aa98aa63
+2026-11-14T11:54:46.9560234Z ##[group]Run set -euo pipefail
+2026-11-14T11:54:46.9560587Z set -euo pipefail
+2026-11-14T11:54:46.9560849Z cpus="$(nproc)"
+2026-11-14T11:54:46.9561092Z test "$cpus" -gt 0
+2026-11-14T11:54:46.9561354Z campaign=$(( cpus < 4 ? cpus : 4 ))
+2026-11-14T11:54:46.9561660Z simulations=$(( cpus < 4 ? cpus : 4 ))
+2026-11-14T11:54:46.9561953Z tool_build=$(( cpus < 8 ? cpus : 8 ))
+2026-11-14T11:54:46.9562238Z {
+2026-11-14T11:54:46.9562468Z   printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+2026-11-14T11:54:46.9562781Z   printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+2026-11-14T11:54:46.9563102Z   printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+2026-11-14T11:54:46.9563410Z   printf 'VERILATOR_JOBS=%s\n' "$cpus"
+2026-11-14T11:54:46.9563694Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-14T11:54:46.9564009Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-14T11:54:46.9564357Z } >> "$GITHUB_ENV"
+2026-11-14T11:54:46.9585154Z shell: /usr/bin/bash -e {0}
+2026-11-14T11:54:46.9585416Z env:
+2026-11-14T11:54:46.9585623Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:46.9585866Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:46.9586127Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:46.9586409Z ##[endgroup]
+2026-11-14T11:54:46.9694244Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-11-14T11:54:46.9695012Z git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-11-14T11:54:46.9711342Z shell: /usr/bin/bash -e {0}
+2026-11-14T11:54:46.9711586Z env:
+2026-11-14T11:54:46.9711790Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:46.9712026Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:46.9712282Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:46.9712576Z   CI_BUILD_JOBS: 4
+2026-11-14T11:54:46.9712790Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-14T11:54:46.9713006Z   CI_CAMPAIGN_JOBS: 4
+2026-11-14T11:54:46.9713231Z   VERILATOR_JOBS: 4
+2026-11-14T11:54:46.9713433Z   SIM_JOBS: 4
+2026-11-14T11:54:46.9713656Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-14T11:54:46.9713907Z ##[endgroup]
+2026-11-14T11:54:46.9936276Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-11-14T11:54:46.9941755Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-11-14T11:54:46.9947316Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+2026-11-14T11:54:46.9953338Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-11-14T11:54:46.9976043Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-11-14T11:54:47.8596124Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-11-14T11:54:49.7682512Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+2026-11-14T11:54:51.0855218Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-11-14T11:54:51.8200294Z Submodule path 'gptp-processor': checked out '135afd043309369a87ddbc8d6550aff8ec52a157'
+2026-11-14T11:54:51.8921673Z Submodule path 'protocol-processor': checked out 'a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645'
+2026-11-14T11:54:51.9075312Z Submodule path 'third_party/tsn-c-stack': checked out '715589c1db7cf67e2f3259fd7083ebc7f0923376'
+2026-11-14T11:54:51.9230730Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-11-14T11:54:51.9308887Z ##[group]Run actions/download-artifact@v4
+2026-11-14T11:54:51.9309135Z with:
+2026-11-14T11:54:51.9309304Z   pattern: suite-logs-*
+2026-11-14T11:54:51.9309557Z   path: <home-path>/work/_temp/piece-logs
+2026-11-14T11:54:51.9309787Z   merge-multiple: false
+2026-11-14T11:54:51.9309976Z   repository: kebag-logic/milan-fpga
+2026-11-14T11:54:51.9310178Z   run-id: 43588304905
+2026-11-14T11:54:51.9310342Z env:
+2026-11-14T11:54:51.9310506Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:51.9310691Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:51.9310902Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:51.9311140Z   CI_BUILD_JOBS: 4
+2026-11-14T11:54:51.9311303Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-14T11:54:51.9311472Z   CI_CAMPAIGN_JOBS: 4
+2026-11-14T11:54:51.9311635Z   VERILATOR_JOBS: 4
+2026-11-14T11:54:51.9311794Z   SIM_JOBS: 4
+2026-11-14T11:54:51.9311970Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-14T11:54:51.9312174Z ##[endgroup]
+2026-11-14T11:54:52.0683071Z (node:2218) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T11:54:52.0683698Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T11:54:52.3585981Z Found 51 artifact(s)
+2026-11-14T11:54:52.3586584Z Filtering artifacts by pattern 'suite-logs-*'
+2026-11-14T11:54:52.3603508Z Preparing to download the following artifacts:
+2026-11-14T11:54:52.3604340Z - suite-logs-9 (ID: 14112946468, Size: 77353, Expected Digest: sha256:6554f5bb6ebe5cc7037f2cbcbb19c5089a869cf0a486a07074f2af269562d3ab)
+2026-11-14T11:54:52.3605221Z - suite-logs-15 (ID: 14112721235, Size: 59324, Expected Digest: sha256:c4a57a93693a98022b4d9ce70826ce227f645f0b729b6cdc935f87120f41eebe)
+2026-11-14T11:54:52.3606066Z - suite-logs-16 (ID: 14112656327, Size: 79620, Expected Digest: sha256:a5cd9d4a7e6ef922022e717a3f06c5381d8dac8574018c17e34515878f047c3a)
+2026-11-14T11:54:52.3606935Z - suite-logs-7 (ID: 14112651292, Size: 43525, Expected Digest: sha256:287ccab60d923bc97552a683c49fef68f37f6f1a0f67edef3a9797ecc32d2957)
+2026-11-14T11:54:52.3607821Z - suite-logs-6 (ID: 14112626838, Size: 139342, Expected Digest: sha256:539840a02005d32997b5e3a2faca4719c3cc262dcd873038d571f0d8262aa3e3)
+2026-11-14T11:54:52.3608989Z - suite-logs-11 (ID: 14112541935, Size: 91949, Expected Digest: sha256:fc32c75e994f9c4578252b764c1ab3328f1f796d2d46634c5b6744cbe91cc993)
+2026-11-14T11:54:52.3610244Z - suite-logs-14 (ID: 14112373695, Size: 35654, Expected Digest: sha256:7318278ef6d6047418f894d235f03bdc5dc828ca9853717282c2be4023506309)
+2026-11-14T11:54:52.3611319Z - suite-logs-18 (ID: 14112371589, Size: 33164, Expected Digest: sha256:9c1ac2a900c1a58300098d83db0eafffd891dae5d4f0c49beb9ba0f987d3ee49)
+2026-11-14T11:54:52.3612227Z - suite-logs-12 (ID: 14112333695, Size: 72722, Expected Digest: sha256:688676d25c4c08386cd30b3ee8c38e641f72c472560af1832086e848173f7c68)
+2026-11-14T11:54:52.3613161Z - suite-logs-5 (ID: 14112194304, Size: 23107, Expected Digest: sha256:16b27fbfd44daf8df84c7c3e10a4ddad433d943ec29e6dba05cd57ff1d7f4768)
+2026-11-14T11:54:52.3614131Z - suite-logs-4 (ID: 14112164663, Size: 116951, Expected Digest: sha256:7444909ffddb39938892e75e286cebce6fbf8fcbdcd12b16a3561ac95215bbc7)
+2026-11-14T11:54:52.3615328Z - suite-logs-13 (ID: 14112153787, Size: 44936, Expected Digest: sha256:457e876bd45ab32bab3a5d2d30636b2ccf8c568113ede28d4ca7c8a453260407)
+2026-11-14T11:54:52.3616280Z - suite-logs-8 (ID: 14112144958, Size: 125047, Expected Digest: sha256:77d0d3c6365c678f58df527be58b03b840634088ccb7dc01700609f0ede6d590)
+2026-11-14T11:54:52.3617252Z - suite-logs-10 (ID: 14112141198, Size: 122901, Expected Digest: sha256:4de20fbd7226bda27e7bfed68a6f2dce84c3c715520b1472307440b4e9bf6e71)
+2026-11-14T11:54:52.3618316Z - suite-logs-1 (ID: 14112123929, Size: 179766, Expected Digest: sha256:239e676945478eb70fdb8483f21a10c59e0992b1348bcaba58b8f81d2cddae0b)
+2026-11-14T11:54:52.3619334Z - suite-logs-17 (ID: 14111984318, Size: 66133, Expected Digest: sha256:3a4f57f5e406ec950d88dc63d2c6fac8843cb440c9411596b58f18773369b014)
+2026-11-14T11:54:52.3620812Z - suite-logs-3 (ID: 14111394152, Size: 104841, Expected Digest: sha256:444a906ea4c5b9557cf49864e7289881485f5b6d0e66edc605b5aee0a224c4c2)
+2026-11-14T11:54:52.3621895Z - suite-logs-2 (ID: 14111119061, Size: 94194, Expected Digest: sha256:b22ef5186e0b70b81a57896d2db31c462b16fae72bb40b0553d266bfd90deac6)
+2026-11-14T11:54:52.3622950Z - suite-logs-0 (ID: 14110959817, Size: 21870, Expected Digest: sha256:be3ced65cda3c42903e499b291ad467eedb7ba3b7972eb83705817409878e65d)
+2026-11-14T11:54:52.5715323Z Redirecting to blob download url: https://productionresultssa31.blob.core.windows.net/actions-results/5bbd520d-9448-8c14-8098-3165be3bef54/workflow-job-run-17c331ec-1a4a-5f0c-98cc-587951b02579/artifacts/ba2e7988261d7e45c2ab1798e2b6a2ad86e58c1dfb3981a96e3fd24d64a736b8.zip
+2026-11-14T11:54:52.5716856Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-9
+2026-11-14T11:54:52.6211600Z <home-path>/work/_actions/actions/download-artifact/v4/dist/index.js:2763
+2026-11-14T11:54:52.6212013Z                 throw new Error(`Failed to ${method}: ${error.message}`);
+2026-11-14T11:54:52.6212283Z                       ^
+2026-11-14T11:54:52.6212410Z 
+2026-11-14T11:54:52.6212574Z Error: Failed to GetSignedArtifactURL: Unable to make request: ECONNRESET
+2026-11-14T11:54:52.6213850Z If you are using self-hosted runners, please make sure your runner has access to all GitHub endpoints: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#communication-between-self-hosted-runners-and-github
+2026-11-14T11:54:52.6215428Z     at ArtifactHttpClient.<anonymous> (<home-path>/work/_actions/actions/download-artifact/v4/dist/index.js:2763:23)
+2026-11-14T11:54:52.6215988Z     at Generator.throw (<anonymous>)
+2026-11-14T11:54:52.6216416Z     at rejected (<home-path>/work/_actions/actions/download-artifact/v4/dist/index.js:2714:65)
+2026-11-14T11:54:52.6216905Z     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-11-14T11:54:52.6217191Z 
+2026-11-14T11:54:52.6217262Z Node.js v24.22.1
+2026-11-14T11:54:52.6347726Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-milan_dp_mclk --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-14T11:54:52.6348943Z python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-milan_dp_mclk --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-14T11:54:52.6366391Z shell: /usr/bin/bash -e {0}
+2026-11-14T11:54:52.6366597Z env:
+2026-11-14T11:54:52.6366767Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:52.6366968Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:52.6367197Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:52.6367443Z   CI_BUILD_JOBS: 4
+2026-11-14T11:54:52.6367618Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-14T11:54:52.6367792Z   CI_CAMPAIGN_JOBS: 4
+2026-11-14T11:54:52.6367971Z   VERILATOR_JOBS: 4
+2026-11-14T11:54:52.6368136Z   SIM_JOBS: 4
+2026-11-14T11:54:52.6368473Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-14T11:54:52.6369902Z   CI_STEP_RESULTS: {
+  "ci_step_0": {
+    "outputs": {
+      "commit": "5716e2a8e187c9ab043657db476384c2aa98aa63",
+      "ref": "refs/pull/898/merge"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_1": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_2": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_3": {
+    "outputs": {},
+    "outcome": "failure",
+    "conclusion": "failure"
+  },
+  "ci_step_4": {
+    "outputs": {},
+    "outcome": "skipped",
+    "conclusion": "skipped"
+  },
+  "ci_step_5": {
+    "outputs": {},
+    "outcome": "skipped",
+    "conclusion": "skipped"
+  }
+}
+2026-11-14T11:54:52.6371504Z   CI_JOB_RESULT: failure
+2026-11-14T11:54:52.6371696Z   CI_MATRIX: null
+2026-11-14T11:54:52.6371866Z ##[endgroup]
+2026-11-14T11:54:52.9505774Z ##[group]Run actions/upload-artifact@v4
+2026-11-14T11:54:52.9506002Z with:
+2026-11-14T11:54:52.9506299Z   name: job-evidence-rtl-union-milan_dp_mclk-0-5716e2a8e187c9ab043657db476384c2aa98aa63
+2026-11-14T11:54:52.9506666Z   path: <home-path>/work/_temp/job-evidence.json
+2026-11-14T11:54:52.9506920Z   if-no-files-found: error
+2026-11-14T11:54:52.9507111Z   retention-days: 3
+2026-11-14T11:54:52.9507294Z   compression-level: 6
+2026-11-14T11:54:52.9507473Z   overwrite: false
+2026-11-14T11:54:52.9507654Z   include-hidden-files: false
+2026-11-14T11:54:52.9507844Z env:
+2026-11-14T11:54:52.9508010Z   VERILATOR_VERSION: v5.050
+2026-11-14T11:54:52.9508388Z   YOSYS_VERSION: v0.66
+2026-11-14T11:54:52.9508617Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-14T11:54:52.9508861Z   CI_BUILD_JOBS: 4
+2026-11-14T11:54:52.9509035Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-14T11:54:52.9509215Z   CI_CAMPAIGN_JOBS: 4
+2026-11-14T11:54:52.9509389Z   VERILATOR_JOBS: 4
+2026-11-14T11:54:52.9509585Z   SIM_JOBS: 4
+2026-11-14T11:54:52.9509771Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-14T11:54:52.9509985Z ##[endgroup]
+2026-11-14T11:54:53.0969660Z (node:2238) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T11:54:53.0970685Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T11:54:53.1003700Z With the provided path, there will be 1 file uploaded
+2026-11-14T11:54:53.1014508Z Artifact name is valid!
+2026-11-14T11:54:53.1014974Z Root directory input is valid!
+2026-11-14T11:54:53.4461101Z Beginning upload of artifact content to blob storage
+2026-11-14T11:54:53.4602679Z (node:2238) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-14T11:54:53.6621191Z Uploaded bytes 718
+2026-11-14T11:54:53.7193106Z Finished uploading artifact content to blob storage!
+2026-11-14T11:54:53.7193983Z SHA256 digest of uploaded artifact zip is f4397b51219ae5aa8e9d9cfdc949a9b3141bcbf178ffd362e65d50d701df0e14
+2026-11-14T11:54:53.7195099Z Finalizing artifact upload
+2026-11-14T11:54:54.0764951Z Artifact job-evidence-rtl-union-milan_dp_mclk-0-5716e2a8e187c9ab043657db476384c2aa98aa63.zip successfully finalized. Artifact ID 14113051211
+2026-11-14T11:54:54.0766046Z Artifact job-evidence-rtl-union-milan_dp_mclk-0-5716e2a8e187c9ab043657db476384c2aa98aa63 has been successfully uploaded! Final size is 718 bytes. Artifact ID is 14113051211
+2026-11-14T11:54:54.0770734Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/43588304905/artifacts/14113051211
+2026-11-14T11:54:54.0944664Z Post job cleanup.
+2026-11-14T11:54:54.1625110Z [command]/usr/bin/git version
+2026-11-14T11:54:54.1661560Z git version 2.56.1
+2026-11-14T11:54:54.1693644Z Temporarily overriding HOME='<home-path>/work/_temp/714a5489-7e11-45f3-9ffc-6a7ef2ff5cc4' before making global git config changes
+2026-11-14T11:54:54.1694618Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T11:54:54.1698621Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-14T11:54:54.1732193Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T11:54:54.1762727Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T11:54:54.1971471Z Entering 'gptp-processor'
+2026-11-14T11:54:54.2020186Z Entering 'protocol-processor'
+2026-11-14T11:54:54.2066910Z Entering 'third_party/tsn-c-stack'
+2026-11-14T11:54:54.2115740Z Entering 'third_party/verilog-axis'
+2026-11-14T11:54:54.2176406Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T11:54:54.2205039Z http.https://github.com/.extraheader
+2026-11-14T11:54:54.2216128Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-14T11:54:54.2257614Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T11:54:54.2465624Z Entering 'gptp-processor'
+2026-11-14T11:54:54.2504682Z Entering 'protocol-processor'
+2026-11-14T11:54:54.2546497Z Entering 'third_party/tsn-c-stack'
+2026-11-14T11:54:54.2583113Z Entering 'third_party/verilog-axis'
+2026-11-14T11:54:54.2634756Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:54.2672467Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T11:54:54.2868314Z Entering 'gptp-processor'
+2026-11-14T11:54:54.2888024Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-11-14T11:54:54.2904827Z Entering 'protocol-processor'
+2026-11-14T11:54:54.2921698Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-11-14T11:54:54.2939387Z Entering 'third_party/tsn-c-stack'
+2026-11-14T11:54:54.2956400Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+2026-11-14T11:54:54.2972590Z Entering 'third_party/verilog-axis'
+2026-11-14T11:54:54.2989494Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-11-14T11:54:54.3020138Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:54.3055417Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:54.3089241Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:54.3122881Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:54:54.3285108Z Cleaning up orphan processes
+2026-11-14T11:54:54.3581478Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

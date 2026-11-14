@@ -1,0 +1,471 @@
+# aecp-mailbox-endstation_ax7101_1x1_tdm8-if1 suite (built from f098f893 by test_ctrl_firmware.py), full run
+[==========] Running 145 tests from 12 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (3 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+[       OK ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[       OK ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[       OK ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (0 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[       OK ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 8 tests from Nvm (10 ms total)
+
+[----------] 9 tests from App
+[ RUN      ] App.EntityReadSeesTheLastAdvertisedIndex
+[       OK ] App.EntityReadSeesTheLastAdvertisedIndex (2 ms)
+[ RUN      ] App.DeferredStartAndLockUseTheRealAcmpOwner
+[       OK ] App.DeferredStartAndLockUseTheRealAcmpOwner (1 ms)
+[ RUN      ] App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+H-AECP-APP if=1 path=34 elapsed_ns=1004700
+H-AECP-APP if=1 path=35 elapsed_ns=1004700
+[       OK ] App.StartAndStopPublishTheStartedLevelBeforeTheirResponse (0 ms)
+[ RUN      ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+[       OK ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse (0 ms)
+[ RUN      ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+[       OK ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner (0 ms)
+[ RUN      ] App.InputInfoReflectsAcmpSettlementAndFailures
+[       OK ] App.InputInfoReflectsAcmpSettlementAndFailures (0 ms)
+[ RUN      ] App.CompositionRefusalsLeaveExistingBindingsIntact
+[       OK ] App.CompositionRefusalsLeaveExistingBindingsIntact (0 ms)
+[ RUN      ] App.ExpiredAndMissingStartRequestsCannotApplyLate
+[       OK ] App.ExpiredAndMissingStartRequestsCannotApplyLate (0 ms)
+[ RUN      ] App.UnboundStartAndStopAreSuccessfulNoOps
+[       OK ] App.UnboundStartAndStopAreSuccessfulNoOps (0 ms)
+[----------] 9 tests from App (9 ms total)
+
+[----------] 7 tests from Queued
+[ RUN      ] Queued.BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder
+[       OK ] Queued.BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder (0 ms)
+[ RUN      ] Queued.TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull
+[       OK ] Queued.TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull (0 ms)
+[ RUN      ] Queued.AQueueTooDeepOrWithNoStorageIsRefused
+[       OK ] Queued.AQueueTooDeepOrWithNoStorageIsRefused (0 ms)
+[ RUN      ] Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue
+[       OK ] Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue (0 ms)
+[ RUN      ] Queued.AQueuedNoticeResumesAtItsRecipient
+[       OK ] Queued.AQueuedNoticeResumesAtItsRecipient (0 ms)
+[ RUN      ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed
+[       OK ] Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed (0 ms)
+[ RUN      ] Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame
+[       OK ] Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame (0 ms)
+[----------] 7 tests from Queued (2 ms total)
+
+[----------] 1 test from QueuedBurst
+[ RUN      ] QueuedBurst.ABurstOfTheLargestLegalNoticesIsQueued
+[       OK ] QueuedBurst.ABurstOfTheLargestLegalNoticesIsQueued (0 ms)
+[----------] 1 test from QueuedBurst (0 ms total)
+
+[----------] 69 tests from Core
+[ RUN      ] Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice
+[       OK ] Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice (0 ms)
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.ResponsesDependOnNothingTheBufferHeld
+[       OK ] Core.ResponsesDependOnNothingTheBufferHeld (23 ms)
+[ RUN      ] Core.RootDescriptorConfigurationIsIgnored
+[       OK ] Core.RootDescriptorConfigurationIsIgnored (0 ms)
+[ RUN      ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+[       OK ] Core.CrossInstanceInputsAreRefusedInsideRealCallbacks (0 ms)
+[ RUN      ] Core.UnsupportedAndAcquire
+[       OK ] Core.UnsupportedAndAcquire (0 ms)
+[ RUN      ] Core.LockQueriesAndExpiry
+[       OK ] Core.LockQueriesAndExpiry (0 ms)
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[       OK ] Core.AChangeThePlatformHasNotAppliedPromisesNothing (0 ms)
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+[       OK ] Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce (1 ms)
+[ RUN      ] Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease
+[       OK ] Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease (0 ms)
+[ RUN      ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+[       OK ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease (0 ms)
+[ RUN      ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs
+[       OK ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs (0 ms)
+[ RUN      ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+[       OK ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn (0 ms)
+[ RUN      ] Core.NamesAndDescriptorOverlay
+[       OK ] Core.NamesAndDescriptorOverlay (0 ms)
+[ RUN      ] Core.ScalarGetSetAndCurrentValueRefusals
+[       OK ] Core.ScalarGetSetAndCurrentValueRefusals (0 ms)
+[ RUN      ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+[       OK ] Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet (0 ms)
+[ RUN      ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents
+[       OK ] Core.RestoreValuesValidateAndRollbackWithoutLiveEvents (0 ms)
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+[       OK ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.ObservationsHaveFullWireForms
+[       OK ] Core.ObservationsHaveFullWireForms (0 ms)
+[ RUN      ] Core.ObservationRefusals
+[       OK ] Core.ObservationRefusals (0 ms)
+[ RUN      ] Core.StreamInfoDirectionFlagsAndLatency
+[       OK ] Core.StreamInfoDirectionFlagsAndLatency (0 ms)
+[ RUN      ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[       OK ] Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal (0 ms)
+[ RUN      ] Core.SetStreamInfoWithoutSubcommandPreservesState
+[       OK ] Core.SetStreamInfoWithoutSubcommandPreservesState (0 ms)
+[ RUN      ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+[       OK ] Core.S1_NoSubcommandSetOnRunningOutputIsRefused (0 ms)
+[ RUN      ] Core.S2_NoSubcommandSetOnInputIsNotSupported
+[       OK ] Core.S2_NoSubcommandSetOnInputIsNotSupported (0 ms)
+[ RUN      ] Core.BackpressureOrdersResponseBeforeNotice
+[       OK ] Core.BackpressureOrdersResponseBeforeNotice (0 ms)
+[ RUN      ] Core.ANoticeIsAddressedToEachRecipientAlone
+[       OK ] Core.ANoticeIsAddressedToEachRecipientAlone (0 ms)
+[ RUN      ] Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain
+[       OK ] Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain (0 ms)
+[ RUN      ] Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain
+[       OK ] Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain (0 ms)
+[ RUN      ] Core.StartIsDeferredAndHasFailureDeadline
+[       OK ] Core.StartIsDeferredAndHasFailureDeadline (0 ms)
+[ RUN      ] Core.DynamicInfoWhitelistAndIndependentResults
+[       OK ] Core.DynamicInfoWhitelistAndIndependentResults (0 ms)
+[ RUN      ] Core.RegistryCapacityInterfaceKeysAndLiveness
+[       OK ] Core.RegistryCapacityInterfaceKeysAndLiveness (0 ms)
+[ RUN      ] Core.ConfigurationAndLockedSetRefusals
+[       OK ] Core.ConfigurationAndLockedSetRefusals (0 ms)
+[ RUN      ] Core.NameRefusalsAndNoOp
+[       OK ] Core.NameRefusalsAndNoOp (0 ms)
+[ RUN      ] Core.IdentifyCurrentValueAndRefusals
+[       OK ] Core.IdentifyCurrentValueAndRefusals (0 ms)
+[ RUN      ] Core.ChangedScalarValuesAndDamagedLists
+[       OK ] Core.ChangedScalarValuesAndDamagedLists (0 ms)
+[ RUN      ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+[       OK ] Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.CounterNoticesCoalesceAndWaitForEligibility
+[       OK ] Core.CounterNoticesCoalesceAndWaitForEligibility (0 ms)
+[ RUN      ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+[       OK ] Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded (0 ms)
+[ RUN      ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+[       OK ] Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin (0 ms)
+[ RUN      ] Core.UnavailableNoticeRetriesBackOffToEightMilliseconds
+[       OK ] Core.UnavailableNoticeRetriesBackOffToEightMilliseconds (0 ms)
+[ RUN      ] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+[       OK ] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse (0 ms)
+[ RUN      ] Core.HeldRetryIsAgedAtTheRoundsPaceWhenTheRoundCouldTakeIt
+[       OK ] Core.HeldRetryIsAgedAtTheRoundsPaceWhenTheRoundCouldTakeIt (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+[       OK ] Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+[       OK ] Core.OutputPartitionGeometryUsesAllAdvertisedWidths (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.ProbeRepliesResetOnlyTheirOwnInterface
+[       OK ] Core.ProbeRepliesResetOnlyTheirOwnInterface (0 ms)
+[ RUN      ] Core.FramingRejectsInvalidIdentityAndTruncation
+[       OK ] Core.FramingRejectsInvalidIdentityAndTruncation (0 ms)
+[ RUN      ] Core.ReentrantPortsCannotMutateState
+[       OK ] Core.ReentrantPortsCannotMutateState (0 ms)
+[ RUN      ] Core.ProbeIdentityAndSequenceMustBothMatch
+[       OK ] Core.ProbeIdentityAndSequenceMustBothMatch (0 ms)
+[ RUN      ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+[       OK ] Core.CounterTimerArmsOnlyEligibleCompletedSnapshots (0 ms)
+[ RUN      ] Core.MetadataConfigurationKeysAndRepeatedOverrides
+[       OK ] Core.MetadataConfigurationKeysAndRepeatedOverrides (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow (15 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (0 ms)
+[ RUN      ] Core.EveryKeyOfTheDomainIsItsOwn
+[       OK ] Core.EveryKeyOfTheDomainIsItsOwn (0 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[       OK ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (0 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.InitRefusalsAndClosedService
+[       OK ] Core.InitRefusalsAndClosedService (0 ms)
+[ RUN      ] Core.EntityAvailableIndexUsesTheIngressObservation
+[       OK ] Core.EntityAvailableIndexUsesTheIngressObservation (0 ms)
+[ RUN      ] Core.NonAemMessageTypesFollowTheirOwnContracts
+[       OK ] Core.NonAemMessageTypesFollowTheirOwnContracts (0 ms)
+[ RUN      ] Core.MilanVendorCommandsAndRefusals
+[       OK ] Core.MilanVendorCommandsAndRefusals (0 ms)
+[ RUN      ] Core.GroupNameDoesNotOverwriteFirmwareVersion
+[       OK ] Core.GroupNameDoesNotOverwriteFirmwareVersion (0 ms)
+[ RUN      ] Core.NotificationBackpressureAndLatestCompletion
+[       OK ] Core.NotificationBackpressureAndLatestCompletion (0 ms)
+[ RUN      ] Core.DescriptorAndObservationBoundaryFailures
+[       OK ] Core.DescriptorAndObservationBoundaryFailures (0 ms)
+[----------] 69 tests from Core (62 ms total)
+
+[----------] 6 tests from Indexed
+[ RUN      ] Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder
+[       OK ] Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder (0 ms)
+[ RUN      ] Indexed.FailedNoticesStayLinkedAndOpenRelinksDirectWrites
+[       OK ] Indexed.FailedNoticesStayLinkedAndOpenRelinksDirectWrites (0 ms)
+[ RUN      ] Indexed.RefusesAModelTheEventLinksCannotIndex
+[       OK ] Indexed.RefusesAModelTheEventLinksCannotIndex (3 ms)
+[ RUN      ] Indexed.RegistryScansSkipUnusedRegistrations
+[       OK ] Indexed.RegistryScansSkipUnusedRegistrations (0 ms)
+[ RUN      ] Indexed.FindAnswersEachKeyAsAScanOfTheModel
+[       OK ] Indexed.FindAnswersEachKeyAsAScanOfTheModel (0 ms)
+[ RUN      ] Indexed.AKeyChangedAfterInitIsFoundOnlyAfterARebuild
+[       OK ] Indexed.AKeyChangedAfterInitIsFoundOnlyAfterARebuild (0 ms)
+[----------] 6 tests from Indexed (5 ms total)
+
+[----------] 17 tests from Mailbox
+[ RUN      ] Mailbox.EveryInterfaceAndObservationPort
+[       OK ] Mailbox.EveryInterfaceAndObservationPort (0 ms)
+[ RUN      ] Mailbox.OutputTailStartsCounterSpacingAfterAStall
+[       OK ] Mailbox.OutputTailStartsCounterSpacingAfterAStall (0 ms)
+[ RUN      ] Mailbox.TimerIdentityAndAttachRefusals
+[       OK ] Mailbox.TimerIdentityAndAttachRefusals (7 ms)
+[ RUN      ] Mailbox.RetryWaitsForARoundsPass
+[       OK ] Mailbox.RetryWaitsForARoundsPass (0 ms)
+[ RUN      ] Mailbox.HeldRetryTakesThePassGivenWhole
+[       OK ] Mailbox.HeldRetryTakesThePassGivenWhole (0 ms)
+[ RUN      ] Mailbox.ARoundFillsWhatItsPassHasLeft
+[       OK ] Mailbox.ARoundFillsWhatItsPassHasLeft (0 ms)
+[ RUN      ] Mailbox.ARoundTriesAPortOnceAndItsNextRoundTheNext
+[       OK ] Mailbox.ARoundTriesAPortOnceAndItsNextRoundTheNext (0 ms)
+[ RUN      ] Mailbox.ARoundTriesAPortOfEachWindow
+[       OK ] Mailbox.ARoundTriesAPortOfEachWindow (0 ms)
+[ RUN      ] Mailbox.ARoundTriesStreamInfoOnceAtEveryIndex
+[       OK ] Mailbox.ARoundTriesStreamInfoOnceAtEveryIndex (0 ms)
+[ RUN      ] Mailbox.ARefusedAttemptIsChargedToItsRound
+[       OK ] Mailbox.ARefusedAttemptIsChargedToItsRound (0 ms)
+[ RUN      ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort
+[       OK ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (0 ms)
+[ RUN      ] Mailbox.ANoticeWithNoRoomStaysOwed
+[       OK ] Mailbox.ANoticeWithNoRoomStaysOwed (0 ms)
+[ RUN      ] Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone
+[       OK ] Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone (0 ms)
+[ RUN      ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound
+[       OK ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound (0 ms)
+[ RUN      ] Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone
+[       OK ] Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone (0 ms)
+[ RUN      ] Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[       OK ] Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone (0 ms)
+[ RUN      ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+[       OK ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse (0 ms)
+[----------] 17 tests from Mailbox (13 ms total)
+
+[----------] 3 tests from Latency
+[ RUN      ] Latency.EveryCommandAndRefusalUsesOneArrivalBudget
+H-AECP if=1 path=4 elapsed_ns=1011200 accesses=149
+H-AECP if=1 path=4 elapsed_ns=1005900 accesses=245
+H-AECP if=1 path=4 elapsed_ns=1007000 accesses=352
+H-AECP if=1 path=4 elapsed_ns=1007100 accesses=460
+H-AECP if=1 path=4 elapsed_ns=1006900 accesses=566
+H-AECP if=1 path=4 elapsed_ns=1006900 accesses=672
+H-AECP if=1 path=4 elapsed_ns=1006900 accesses=778
+H-AECP if=1 path=4 elapsed_ns=1005800 accesses=873
+H-AECP if=1 path=4 elapsed_ns=1005400 accesses=964
+H-AECP if=1 path=4 elapsed_ns=1005400 accesses=1055
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=1147
+H-AECP if=1 path=4 elapsed_ns=1005100 accesses=1235
+H-AECP if=1 path=4 elapsed_ns=1014600 accesses=1418
+H-AECP if=1 path=4 elapsed_ns=1003800 accesses=1493
+H-AECP if=1 path=4 elapsed_ns=1003800 accesses=1568
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=1660
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=1752
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=1844
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=1936
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2028
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2120
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2212
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2304
+H-AECP if=1 path=4 elapsed_ns=1005600 accesses=2397
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2489
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2581
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2673
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2765
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2857
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=2949
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3041
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3133
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3225
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3317
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3409
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3501
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3593
+H-AECP if=1 path=4 elapsed_ns=1005600 accesses=3686
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3778
+H-AECP if=1 path=4 elapsed_ns=1005500 accesses=3870
+H-AECP if=1 path=4 elapsed_ns=1006100 accesses=3968
+H-AECP if=1 path=4 elapsed_ns=1005300 accesses=4058
+H-AECP if=1 path=0 elapsed_ns=1003800 accesses=4133
+H-AECP if=1 path=0 elapsed_ns=1003500 accesses=4205
+H-AECP if=1 path=1 elapsed_ns=1004100 accesses=4284
+H-AECP if=1 path=1 elapsed_ns=1003500 accesses=4356
+H-AECP if=1 path=2 elapsed_ns=1003500 accesses=4428
+H-AECP if=1 path=2 elapsed_ns=1003600 accesses=4501
+H-AECP if=1 path=6 elapsed_ns=1003300 accesses=4572
+H-AECP if=1 path=6 elapsed_ns=1003200 accesses=4641
+H-AECP if=1 path=7 elapsed_ns=1003100 accesses=4709
+H-AECP if=1 path=7 elapsed_ns=1003200 accesses=4778
+H-AECP if=1 path=8 elapsed_ns=1003700 accesses=4853
+H-AECP if=1 path=8 elapsed_ns=1003400 accesses=4924
+H-AECP if=1 path=9 elapsed_ns=1003400 accesses=4995
+H-AECP if=1 path=9 elapsed_ns=1003400 accesses=5066
+H-AECP if=1 path=14 elapsed_ns=1007300 accesses=5177
+H-AECP if=1 path=14 elapsed_ns=1005200 accesses=5266
+H-AECP if=1 path=15 elapsed_ns=1004500 accesses=5348
+H-AECP if=1 path=15 elapsed_ns=1004500 accesses=5430
+H-AECP if=1 path=16 elapsed_ns=1006800 accesses=5536
+H-AECP if=1 path=16 elapsed_ns=1004900 accesses=5622
+H-AECP if=1 path=17 elapsed_ns=1005000 accesses=5709
+H-AECP if=1 path=17 elapsed_ns=1004900 accesses=5795
+H-AECP if=1 path=20 elapsed_ns=1003500 accesses=5868
+H-AECP if=1 path=20 elapsed_ns=1003300 accesses=5938
+H-AECP if=1 path=21 elapsed_ns=1003300 accesses=6008
+H-AECP if=1 path=21 elapsed_ns=1003300 accesses=6078
+H-AECP if=1 path=22 elapsed_ns=1003500 accesses=6151
+H-AECP if=1 path=22 elapsed_ns=1003300 accesses=6221
+H-AECP if=1 path=23 elapsed_ns=1003300 accesses=6291
+H-AECP if=1 path=23 elapsed_ns=1003300 accesses=6361
+H-AECP if=1 path=24 elapsed_ns=1003200 accesses=6430
+H-AECP if=1 path=24 elapsed_ns=1003200 accesses=6499
+H-AECP if=1 path=25 elapsed_ns=1003200 accesses=6568
+H-AECP if=1 path=25 elapsed_ns=1003200 accesses=6637
+H-AECP if=1 path=34 elapsed_ns=1005500 accesses=6730
+H-AECP if=1 path=34 elapsed_ns=1003200 accesses=6799
+H-AECP if=1 path=35 elapsed_ns=1005500 accesses=6892
+H-AECP if=1 path=35 elapsed_ns=1003200 accesses=6961
+H-AECP if=1 path=36 elapsed_ns=1003100 accesses=7031
+H-AECP if=1 path=36 elapsed_ns=1003200 accesses=7102
+H-AECP if=1 path=37 elapsed_ns=1003000 accesses=7171
+H-AECP if=1 path=37 elapsed_ns=1003100 accesses=7239
+H-AECP if=1 path=38 elapsed_ns=1003200 accesses=7308
+H-AECP if=1 path=38 elapsed_ns=1003200 accesses=7377
+H-AECP if=1 path=39 elapsed_ns=1003700 accesses=7451
+H-AECP if=1 path=39 elapsed_ns=1003600 accesses=7524
+H-AECP if=1 path=40 elapsed_ns=1016100 accesses=7722
+H-AECP if=1 path=40 elapsed_ns=1003200 accesses=7791
+H-AECP if=1 path=41 elapsed_ns=1006500 accesses=7893
+H-AECP if=1 path=41 elapsed_ns=1006500 accesses=7995
+H-AECP if=1 path=43 elapsed_ns=1003500 accesses=8067
+H-AECP if=1 path=43 elapsed_ns=1003400 accesses=8138
+H-AECP if=1 path=44 elapsed_ns=1074000 accesses=8904
+H-AECP if=1 path=44 elapsed_ns=1003600 accesses=8973
+H-AECP if=1 path=45 elapsed_ns=1074000 accesses=9739
+H-AECP if=1 path=45 elapsed_ns=1003600 accesses=9808
+H-AECP if=1 path=75 elapsed_ns=1017200 accesses=10017
+H-AECP if=1 path=75 elapsed_ns=1003100 accesses=10085
+H-AECP if=1 path=16383 elapsed_ns=1076900 accesses=10891
+H-AECP if=1 path=16383 elapsed_ns=1003200 accesses=10960
+H-AECP if=1 path=514 elapsed_ns=1003400 accesses=11031
+H-AECP if=1 path=516 elapsed_ns=1003400 accesses=11102
+H-AECP if=1 path=520 elapsed_ns=1003300 accesses=11172
+H-AECP if=1 path=256 elapsed_ns=1003900 accesses=11248
+H-AECP if=1 path=257 elapsed_ns=1003800 accesses=11323
+H-AECP if=1 path=258 elapsed_ns=1003800 accesses=11398
+[       OK ] Latency.EveryCommandAndRefusalUsesOneArrivalBudget (1 ms)
+[ RUN      ] Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin
+H-AECP if=1 path=32773 elapsed_ns=1043800 accesses=1927
+H-AECP if=1 path=32774 elapsed_ns=1043800 accesses=2763
+H-AECP if=1 path=32777 elapsed_ns=1030900 accesses=3470
+H-AECP if=1 path=32777 elapsed_ns=1029400 accesses=4162
+H-AECP if=1 path=32773 elapsed_ns=1075800 accesses=5318
+H-AECP if=1 path=32774 elapsed_ns=1075900 accesses=6475
+H-AECP if=1 path=32777 elapsed_ns=1075800 accesses=7631
+H-AECP if=1 path=32804 elapsed_ns=1075900 accesses=8788
+H-AECP if=1 path=2 elapsed_ns=2007000 accesses=9796
+[       OK ] Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin (1 ms)
+[ RUN      ] Latency.DeferredFailureAndTimerPathsUseTheirDueTime
+H-AECP if=1 path=34 elapsed_ns=9006100 accesses=99
+H-AECP if=1 path=3 elapsed_ns=1003000 accesses=600
+H-AECP if=1 path=3 elapsed_ns=1003000 accesses=1031
+H-AECP if=1 path=3 elapsed_ns=1002300 accesses=1449
+H-AECP if=1 path=1 elapsed_ns=1005700 accesses=2056
+[       OK ] Latency.DeferredFailureAndTimerPathsUseTheirDueTime (12 ms)
+[----------] 3 tests from Latency (14 ms total)
+
+[----------] 17 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (7 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+[       OK ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (0 ms)
+[ RUN      ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+[       OK ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt (0 ms)
+[ RUN      ] Face.AnUnansweredAsPathWordFailsItsPortThere
+[       OK ] Face.AnUnansweredAsPathWordFailsItsPortThere (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (7 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (7 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 17 tests from Face (26 ms total)
+
+[----------] 1 test from FaceLatency
+[ RUN      ] FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget
+H-AECP-FACE if=1 path=41 elapsed_ns=1026500 accesses=302
+H-AECP-FACE if=1 path=41 elapsed_ns=1026400 accesses=301
+H-AECP-FACE if=1 path=15 elapsed_ns=1010000 accesses=137
+H-AECP-FACE if=1 path=15 elapsed_ns=1010100 accesses=138
+H-AECP-FACE if=1 path=39 elapsed_ns=1006500 accesses=102
+H-AECP-FACE if=1 path=8 elapsed_ns=1011500 accesses=153
+H-AECP-FACE if=1 path=8 elapsed_ns=1011100 accesses=149
+H-AECP-FACE if=1 path=14 elapsed_ns=1013800 accesses=176
+H-AECP-FACE if=1 path=22 elapsed_ns=1004700 accesses=85
+H-AECP-FACE if=1 path=24 elapsed_ns=1004500 accesses=83
+H-AECP-FACE if=1 path=6 elapsed_ns=1027700 accesses=315
+H-AECP-FACE if=1 path=1 elapsed_ns=1005300 accesses=91
+H-AECP-FACE-COUNTERS-BOUND accesses=2278 elapsed_ns=1227900
+[       OK ] FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget (0 ms)
+[----------] 1 test from FaceLatency (0 ms total)
+
+[----------] 6 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (1 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (1 ms)
+[ RUN      ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+[       OK ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence (0 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 6 tests from AppFace (5 ms total)
+
+[----------] 1 test from AppFaceUnacknowledged
+[ RUN      ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+[       OK ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged (0 ms)
+[----------] 1 test from AppFaceUnacknowledged (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 145 tests from 12 test suites ran. (152 ms total)
+[  PASSED  ] 145 tests.
+== AECP core: checks: 145   failures: 0 ==
+RESULT: PASS
