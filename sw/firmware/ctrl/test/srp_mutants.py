@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 import shutil
-from ctrl_build import CTRL, Tree, Refusal, Outcome
+from ctrl_build import CTRL, ROOT, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import arm_srp
 import srp_pub_mutants
@@ -11,6 +11,7 @@ import srp_reopen_mutants
 import srp_compare_mutants
 import srp_retry_mutants
 import srp_transmit_mutants
+import srp_talker_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -42,6 +43,7 @@ class Defect:
     suite: str = "srp_mbx.cpp"
     debug: bool = False
     also: tuple[tuple[str, str], ...] = ()   # further (old, new) edits of the same file, each at one site
+    entity: str = ""   # the config the two-interface campaign plants it at (default the 1x1 entity)
 
 DEFECTS = (
     Defect('four-way-f3b-listener-not-forwarded',
@@ -453,8 +455,10 @@ DEFECTS = (
     Defect(
         name='shape-last-output-missing',
         test='EveryGeneratedOutputIsDeclaredAndEverySinkFits',
-        old='unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {\n        struct msrp_talker_failed',
-        new='unsigned n = 0; n + 1 < CTRL_SRP_SOURCES; ++n) {\n        struct msrp_talker_failed',
+        old='unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {\n        const uint32_t bit = 1u << n;\n'
+            '        // admitted[n] is the declared type',
+        new='unsigned n = 0; n + 1 < CTRL_SRP_SOURCES; ++n) {\n        const uint32_t bit = 1u << n;\n'
+            '        // admitted[n] is the declared type',
         needle='outputs',
         suite='srp_shape.cpp',
     ),
@@ -790,8 +794,8 @@ DEFECTS = (
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     # #665: one MRPDU a call of THE TRANSMIT's, the next participant's on the next (srp_bounds.h, SRP_MBX_POLL_FRAMES).
     Defect('srp-term-poll-frames-uncapped','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           'slot < 2u * n + 2u && !m->owed_len; ++slot',
-           'slot < 2u * n + 1u && !m->owed_len; ++slot',
+           'slot < 2u * n + 2u && !m->owed_len;',
+           'slot < 2u * n + 1u && !m->owed_len;',
            "both of an interface's MRPDUs a call", suite='srp_app.cpp'),
     Defect('srp-term-send-cost','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'SRP_MBX_TX_MAX (2u +',
@@ -913,9 +917,9 @@ DEFECTS = (
            '            i->stale = true;\n        }\n', '',
            'the own Listener Ready declaration rewrote the registered Listener'),
     Defect('own-talker-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
-           '    uint32_t declared = 0;\n'
+           '    bool done = true;\n'
            '    // A join rewrites the value of the attribute a registration shares (#665).\n'
-           '    i->stale = true;\n', '    uint32_t declared = 0;\n',
+           '    i->stale = true;\n', '    bool done = true;\n',
            "the adopted Domain's Talker declaration rewrote the registered Talker"),
     Defect('reclaim-forgotten-while-owed','ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame',
            '        i->reclaim = i->owner->owed_len != 0u;\n', '        i->reclaim = false;\n',
@@ -926,6 +930,7 @@ DEFECTS += srp_reopen_mutants.defects(Defect)
 DEFECTS += srp_transmit_mutants.defects(Defect)
 DEFECTS += srp_retry_mutants.defects(Defect)
 DEFECTS += srp_compare_mutants.defects(Defect)
+DEFECTS += srp_talker_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""
@@ -945,8 +950,9 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> boo
         target.write_text(source)
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
+            entity={"config": ROOT/"configs"/(d.entity+".yaml")} if d.entity and interfaces==2 else {}
             result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,
-                           debug=d.debug,test=(d.suite, selected))
+                           debug=d.debug,test=(d.suite, selected),**entity)
             ok=caught(selected,d.needle,result)
             (root/(d.name+".log")).write_text(result.log)
             print(f"[{'ok' if ok else 'ESCAPED'}] {d.name}: {d.test} / {d.needle}",flush=True)

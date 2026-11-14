@@ -3,8 +3,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <array>
+#include <map>
 #include <vector>
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <aecp_latency_policy.hpp>
@@ -144,7 +146,8 @@ struct Core : testing::Test {
             v->valid=0xf3f;for(unsigned n=0;n<32;++n)v->value[n]=0x10203000+n;return observations;});
         maps[0]={14,0,0,8,input.data(),0,input.size(),nullptr,0};
         maps[1]={15,0,0,8,output.data(),0,output.size(),nullptr,0};
-        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data()};
+        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data(),
+             nullptr,0u,nullptr};
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     aecp_descriptor& desc(unsigned type,unsigned index=0) {
@@ -169,6 +172,38 @@ struct Core : testing::Test {
         return out;
     }
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
+    // #904, #894: the keys port 0 of `type` accepts as it is, each in a legal mapping: at the output port each
+    // STREAM_OUTPUT's channels to the port's cluster 0, at the input port each of its clusters' channels from stream
+    // input 0's channel 0. None where the port's maps are static or it has no cluster.
+    std::vector<aecp_mapping> accepted_keys(unsigned type) {
+        std::vector<aecp_mapping> keys;
+        auto &port=desc(type);
+        unsigned clusters=get(port.value+12,2),base=get(port.value+14,2);
+        if(get(port.value+16,2)!=0||clusters==0)return keys;
+        for(auto &d:descriptors){
+            if(d.configuration!=a.configuration)continue;
+            uint64_t format=get(d.value+74,8);
+            unsigned width=type==15u&&d.type==6u&&(format>>56)==2u?(format>>22)&1023:0;
+            for(unsigned c=0;c<width;++c)keys.push_back({d.index,uint16_t(c),0,0});
+        }
+        for(unsigned k=0;type==14u&&k<clusters;++k){
+            for(unsigned c=0;c<get(desc(20,base+k).value+84,2);++c)keys.push_back({0,0,uint16_t(k),uint16_t(c)});
+        }
+        return keys;
+    }
+    // An ADD or REMOVE (`cmd`) of `rows` at port 0 of `type`, with its status.
+    Bytes edit_map(unsigned cmd,unsigned type,const std::vector<aecp_mapping> &rows,unsigned status) {
+        Bytes body=target(type,0,8+8*rows.size());put(body,4,rows.size(),2);
+        for(size_t k=0;k<rows.size();++k){
+            put(body,8+8*k,rows[k].stream,2);put(body,10+8*k,rows[k].channel,2);
+            put(body,12+8*k,rows[k].cluster,2);put(body,14+8*k,rows[k].cluster_channel,2);
+        }
+        return ask(cmd,body,status);
+    }
+    static bool same_rows(const aecp_map &m,const std::vector<aecp_mapping> &want) {
+        return m.count==want.size()&&std::equal(want.begin(),want.end(),m.rows,[](auto &x,auto &y){
+            return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;});
+    }
     // #665: aecp_find answers from the index aecp_init builds of the model's
     // keys, and the firmware never rewrites a key after it. A case that does
     // rebuilds the index with its change, and TearDown fails one that does not.
@@ -224,12 +259,13 @@ namespace {
 struct Nvm : Core {
     aecp_nvm owner{};
     aecp_value names[AECP_ENTITY_NAMES]=AECP_ENTITY_NAMES_INIT;
+    aecp_name_run runs[AECP_ENTITY_NAME_RUNS]=AECP_ENTITY_NAME_RUNS_INIT;
     aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{}, scratch[AECP_ENTITY_MAP_MAX]{};
     aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);
     void SetUp() override {
         Core::SetUp();cfg.maps=pools;cfg.map_count=AECP_ENTITY_MAPS;
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));
-        aecp_nvm_init(&owner,&a,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&a,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         nvm_fmodel_blank();nvm_fmodel_power_on();
         nvm_fmodel_window(NVM_SLOT_A,NVM_SLOT_B+NVM_SLOT_BYTES);
         nvm_fmodel_times(1000,100);
@@ -426,6 +462,10 @@ TEST_F(Nvm, EveryChangeQueuesOnlyItsOwnedRecords)
     aecp_nvm_changed(&owner,AECP_CHANGE_IDENTIFY,26,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_SYSTEM_ID,0,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_FORMAT,6,65535);
+    // a name of a type the writable names' runs hold, at the index just past its last run, which
+    // no run holds: past a run's count it marks no ordinal of the runs after it (#894)
+    unsigned past=0;for(const auto&r:runs)if(r.type==5)past=std::max(past,unsigned(r.index+r.count));
+    aecp_nvm_changed(&owner,AECP_CHANGE_NAME,5,uint16_t(past));
     EXPECT_FALSE(aecp_nvm_poll(&owner))<<"reserved and absent records never enter the queue";
 }
 #endif
@@ -458,7 +498,7 @@ struct App : Nvm {
         setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
         ASSERT_TRUE(ctrl_app_compose(&application,&setup));
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&ports,&owner));
-        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&adapter.core,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
         EXPECT_FALSE(ctrl_app_open_aecp(&bridge));
         nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
@@ -705,6 +745,239 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
 }
 #endif
+
+namespace {
+// The owed-notice queue (#894, the ruling of 2026-11-12 on aecp_ready): slots given, so AECP takes its next record
+// while a command's notice is owed, under its conditions (a) to (d).
+struct Queued : Core {
+    std::array<aecp_owed,2> slots{};
+    void SetUp() override {
+        Core::SetUp();
+        cfg.owed=slots.data();cfg.owed_slots=slots.size();cfg.queue=&aecp_owed_queue;
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+    // A SET_NAME of the entity's name by `controller`, its bytes `fill`, taken in a record's turn with no poll after it.
+    void set_name(uint64_t controller,uint8_t fill) {
+        Bytes name=target(0,0,72);std::fill(name.begin()+8,name.end(),fill);
+        auto b=command(16,name,controller);aecp_rx(&a,0,b.data(),b.size());
+    }
+    static bool notice(const Bytes& f) { return (get(f,36,2)&0x8000u)!=0u; }
+};
+// The queue at the AECP channel's burst of 16, the depth an integrator gives AECP at one interface
+// (AECP_MBX_OWED_SLOTS).
+struct QueuedBurst : Queued {
+    std::array<aecp_owed,16> burst{};
+    void SetUp() override {
+        Queued::SetUp();
+        cfg.owed=burst.data();cfg.owed_slots=burst.size();
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+};
+// An ADD_AUDIO_MAPPINGS' or REMOVE_AUDIO_MAPPINGS' body: STREAM_PORT_INPUT 0 and `count` copies of one mapping, its
+// response as long, 38 + 8 + 8 x count octets.
+Bytes mappings(unsigned count) {
+    Bytes rows=target(14,0,8+count*8);put(rows,4,count,2);
+    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
+    return rows;
+}
+}
+
+// (a), (b), (d): two controllers' back-to-back SET_NAMEs, the second taken while the first's notice is owed. Each
+// response is committed in its record's turn and precedes its own notices; every recipient has the notices in the order
+// their commands were taken, one each, its sequence_id one on per notice; no requester has its own (Milan v1.2 5.4.5.1
+// and 5.4.5.2; IEEE 1722.1-2021 7.5.2 and 9.3.5.2.6).
+TEST_F(Queued, BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    EXPECT_TRUE(aecp_ready(&a))<<"(c) a command's notice owed in the queue does not hold the next record";
+    set_name(CTLR+1,0x42);
+    ASSERT_EQ(sent.size(),2u)<<"(b) each response is committed in its record's turn, and no notice yet";
+    EXPECT_TRUE(!notice(sent[0].second)&&get(sent[0].second,26,8)==CTLR&&sent[0].second[46]==0x41)
+        <<"(b) the first controller's response first";
+    EXPECT_TRUE(!notice(sent[1].second)&&get(sent[1].second,26,8)==CTLR+1&&sent[1].second[46]==0x42)
+        <<"(b) then the second's, taken while the first's notice is owed";
+    EXPECT_EQ(a.owed_count,2u)<<"(c) both notices owed in the queue";
+    drain();
+    std::map<uint64_t,std::vector<std::pair<uint8_t,unsigned>>> to;   // each recipient's notices: name, sequence_id
+    for(size_t k=2;k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f))<<"(b) only notices follow the responses";
+        EXPECT_EQ(get(f,36,2)&0x7fffu,16u)<<"a SET_NAME notice";
+        to[get(f,26,8)].emplace_back(f[46],unsigned(get(f,34,2)));
+    }
+    const auto names=[&](uint64_t c){std::vector<uint8_t> v;for(auto &n:to[c])v.push_back(n.first);return v;};
+    EXPECT_EQ(names(CTLR+2),(std::vector<uint8_t>{0x41,0x42}))<<"(a) in the order their commands were taken";
+    EXPECT_EQ(names(CTLR),(std::vector<uint8_t>{0x42}))<<"(a) the first requester has the second's alone";
+    EXPECT_EQ(names(CTLR+1),(std::vector<uint8_t>{0x41}))<<"(a) the second requester the first's alone";
+    ASSERT_EQ(sent.size(),2u+4u)<<"(a) two notices, each to the two registered controllers not its requester";
+    ASSERT_EQ(to[CTLR+2].size(),2u);
+    EXPECT_EQ(to[CTLR+2][1].second,to[CTLR+2][0].second+1u)<<"(a) its sequence_id one on per notice";
+    EXPECT_EQ(a.owed_count,0u);EXPECT_TRUE(aecp_ready(&a));
+}
+
+// (c): the queue is bounded, AECP is not ready while it is full and a record taken anyway is dropped; a poll sends the
+// oldest notice and frees its slot, one a poll.
+TEST_F(Queued, TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull)
+{
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    set_name(CTLR,0x41);set_name(CTLR+1,0x42);
+    ASSERT_EQ(a.owed_count,slots.size());
+    EXPECT_FALSE(aecp_ready(&a))<<"(c) AECP is not ready while the queue is full";
+    const uint32_t drops=a.busy_drops;
+    set_name(CTLR,0x43);
+    EXPECT_EQ(a.busy_drops,drops+1u)<<"(c) a record taken anyway is dropped, not answered";
+    EXPECT_EQ(sent.size(),2u);
+    EXPECT_TRUE(aecp_poll(&a))<<"a poll sends the oldest notice, and more are owed";
+    EXPECT_EQ(sent.size(),3u)<<"one notice a poll";
+    EXPECT_TRUE(notice(sent[2].second)&&sent[2].second[46]==0x41&&get(sent[2].second,26,8)==CTLR+1)
+        <<"the oldest first";
+    EXPECT_EQ(a.owed_count,1u);EXPECT_TRUE(aecp_ready(&a))<<"(c) its slot free, AECP is ready again";
+    // the head has moved past the first slot: the next notice's tail wraps to it, and goes after the one ahead of it
+    set_name(CTLR,0x44);
+    ASSERT_EQ(a.owed_count,2u);
+    sent.clear();drain();
+    std::vector<uint8_t> names;
+    for(auto &s:sent) if(notice(s.second)) names.push_back(s.second[46]);
+    EXPECT_EQ(names,(std::vector<uint8_t>{0x42,0x44}))
+        <<"the queue's tail wraps to its freed first slot, its notices in their order";
+    EXPECT_EQ(a.owed_count,0u);
+}
+
+// (c): an integrator's queue deeper than the queue's 8-bit counts, or slots given with no storage or without the
+// queue's operations, is refused.
+TEST_F(Queued, AQueueTooDeepOrWithNoStorageIsRefused)
+{
+    aecp b{};auto c=cfg;
+    c.owed_slots=256u;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) a queue deeper than its 8-bit counts";
+    c.owed_slots=slots.size();c.owed=nullptr;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) slots with no storage";
+    c.owed=slots.data();c.queue=nullptr;
+    EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) slots without the queue's operations";
+    c.queue=&aecp_owed_queue;EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the fixture's queue is taken";
+}
+
+// (a), (b): a notice longer than a slot stays in the response buffer, its response and its notice sent by the poll as
+// before, after every notice owed in the queue ahead of it; the queue's walk meanwhile sends frame by frame. A slot
+// holds every legal notice, so the longer one is a command past IEEE 1722.1-2021 9.2.2.6's 524 octets that the core
+// still answers: 64 mappings.
+TEST_F(Queued, ALongerNoticeWaitsInTheResponseBufferBehindTheQueue)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    const Bytes rows=mappings(64);
+    auto b=command(44,rows,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    ASSERT_GT(38u+rows.size(),AECP_OWED_BYTES)<<"(the mappings' notice is longer than a slot)";
+    EXPECT_EQ(sent.size(),1u)<<"its response waits for the poll, as every notice's did";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record with it";
+    drain();
+    ASSERT_GE(sent.size(),2u);
+    EXPECT_TRUE(!notice(sent[1].second)&&get(sent[1].second,26,8)==CTLR+1)<<"(b) the mappings' response first";
+    std::map<uint64_t,std::vector<unsigned>> to;   // each recipient's notices, by command
+    for(size_t k=2;k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f));
+        to[get(f,26,8)].push_back(unsigned(get(f,36,2)&0x7fffu));
+        if((get(f,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(f.begin()+38,f.end()),Bytes(sent[1].second.begin()+38,sent[1].second.end()))
+                <<"the long notice is its response's every byte";
+        }
+    }
+    EXPECT_EQ(to[CTLR+2],(std::vector<unsigned>{16u,44u}))<<"(a) the queue's notice first, then the long one";
+    EXPECT_EQ(to[CTLR],(std::vector<unsigned>{44u}));EXPECT_EQ(to[CTLR+1],(std::vector<unsigned>{16u}));
+    EXPECT_TRUE(aecp_ready(&a));
+}
+
+// The largest legal notice is queued (#894, the owner's decision of 2026-11-13, option A; IEEE 1722.1-2021 9.2.2.6): a
+// burst of the AECP channel's 16 commands, ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS of 63 mappings alternating so
+// that each changes state and notifies, each with a control_data_length of 524 octets, the most the clause allows, and
+// so a notice of 550. Each is taken in its record's turn with no poll between them: its response is committed there and
+// AECP stays ready until the queue is full; the polls send every notice, each recipient's in the order their commands
+// were taken, each one its response's bytes, at the recipient's next sequence_id, and no requester its own.
+TEST_F(QueuedBurst, ABurstOfTheLargestLegalNoticesIsQueued)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    const Bytes rows=mappings(63);
+    for(unsigned k=0;k<burst.size();++k){
+        ASSERT_TRUE(aecp_ready(&a))<<"(c) the queue has a slot for command "<<k;
+        auto b=command(k%2u?45u:44u,rows,CTLR+k%2u);
+        ASSERT_EQ(get(b,16,2)&0x7ffu,524u)<<"the largest legal control_data_length";
+        aecp_rx(&a,0,b.data(),b.size());
+        ASSERT_EQ(sent.size(),k+1u)<<"(b) command "<<k<<"'s response is committed in its record's turn";
+        EXPECT_TRUE(!notice(sent[k].second)&&sent[k].second.size()==550u&&(get(sent[k].second,16,2)>>11)==0u)
+            <<"a successful response of 550 octets";
+    }
+    EXPECT_EQ(a.owed_count,burst.size())<<"every notice owed in the queue, none in the response buffer";
+    EXPECT_FALSE(aecp_ready(&a))<<"(c) AECP not ready while the queue is full";
+    drain();
+    std::map<uint64_t,std::vector<std::pair<unsigned,unsigned>>> to;   // each recipient's notices: command, sequence_id
+    for(size_t k=burst.size();k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f))<<"(b) only notices follow the responses";
+        const unsigned cmd=unsigned(get(f,36,2)&0x7fffu);
+        EXPECT_EQ(Bytes(f.begin()+38,f.end()),Bytes(sent[cmd-44u].second.begin()+38,sent[cmd-44u].second.end()))
+            <<"each notice is its command's response (the burst's ADDs answer alike, and its REMOVEs)";
+        to[get(f,26,8)].emplace_back(cmd,unsigned(get(f,34,2)));
+    }
+    EXPECT_EQ(sent.size(),burst.size()*3u)<<"16 notices to the third controller, 8 to each requester";
+    std::vector<unsigned> each,adds,removes;
+    for(unsigned k=0;k<burst.size();++k){each.push_back(44u+k%2u);(k%2u?removes:adds).push_back(44u+k%2u);}
+    const auto cmds=[&](uint64_t c){std::vector<unsigned> v;for(auto &n:to[c])v.push_back(n.first);return v;};
+    EXPECT_EQ(cmds(CTLR+2),each)<<"(a) in the order the commands were taken";
+    EXPECT_EQ(cmds(CTLR),removes)<<"(a) the first requester has the other's alone";
+    EXPECT_EQ(cmds(CTLR+1),adds)<<"(a) and the second the first's";
+    for(size_t k=1;k<to[CTLR+2].size();++k)
+        EXPECT_EQ(to[CTLR+2][k].second,to[CTLR+2][k-1].second+1u)<<"(a) its sequence_id one on per notice";
+    EXPECT_EQ(a.owed_count,0u);EXPECT_TRUE(aecp_ready(&a));
+}
+
+// (a): a queued notice whose ring refuses a frame resumes at that recipient, each recipient sent it once, at its own
+// next sequence_id.
+TEST_F(Queued, AQueuedNoticeResumesAtItsRecipient)
+{
+    for(uint64_t c=0;c<4u;++c) register_controller(CTLR+c);
+    sent.clear();
+    set_name(CTLR,0x41);
+    unsigned budget=1u;
+    ON_CALL(mock,Send).WillByDefault([this,&budget](unsigned i,const uint8_t*p,size_t n,uint32_t c){
+        if(budget==0u) return false;
+        --budget;sent.emplace_back(i,Bytes(p,p+n));completions.push_back(c);return true;});
+    EXPECT_TRUE(aecp_poll(&a))<<"a refused frame leaves the queued notice owed";
+    EXPECT_EQ(sent.size(),2u);
+    budget=100u;drain();
+    std::map<uint64_t,unsigned> seen;
+    for(auto &s:sent) if(notice(s.second)) ++seen[get(s.second,26,8)];
+    EXPECT_EQ(seen,(std::map<uint64_t,unsigned>{{CTLR+1,1u},{CTLR+2,1u},{CTLR+3,1u}}))
+        <<"(a) the walk resumes at the recipient it stopped at: each has the notice once";
+    EXPECT_EQ(a.owed_count,0u);
+}
+
+// No slots: every notice stays in the response buffer and the next record waits for it, as before (#894: the
+// integrator's depth, none at a point whose ledger has no room for it).
+TEST_F(Core, WithNoOwedSlotsTheNextRecordWaitsForTheNotice)
+{
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    Bytes name=target(0,0,72);std::fill(name.begin()+8,name.end(),0x41);
+    auto b=command(16,name,CTLR);aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(sent.empty())<<"the response waits for the poll, with its notice";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record for both";
+    drain();ASSERT_EQ(sent.size(),2u);EXPECT_TRUE(aecp_ready(&a));
+    // the queue's operations given with no slots: a queue of none, as with neither
+    aecp q{};auto c=cfg;c.queue=&aecp_owed_queue;ASSERT_TRUE(aecp_init(&q,&c,&ports));aecp_open(&q);
+    std::swap(a,q);
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    std::fill(name.begin()+8,name.end(),0x42);   // a name that changes the shared model's again, so it notifies
+    b=command(16,name,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(sent.empty())<<"with the queue's operations and no slots the response still waits for the poll";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record with it";
+    drain();ASSERT_EQ(sent.size(),2u);EXPECT_TRUE(aecp_ready(&a));
+    std::swap(a,q);
+}
 
 TEST_F(Core, EveryDescriptorAndReadFailures)
 {
@@ -1481,6 +1754,69 @@ TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
     ports.fan=nullptr;ports.fan_end=nullptr;
 }
 
+// (a), #894: a notice longer than a slot waits in the response buffer behind the queue. The poll that sends the queue's
+// last notice reports the longer one still owed, so the loop does not sleep on it and that poll runs nothing after its
+// send: a lock expiry falling due then, which would clear the owed notice and rewrite the response buffer, waits until
+// the longer notice is sent, whole.
+TEST_F(Queued, AfterTheQueuesLastNoticeTheLongerOneIsStillOwed)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    ask(1,Bytes(16),0,CTLR);ASSERT_TRUE(a.locked)<<"(the lock's expiry falls due at sixty seconds)";
+    sent.clear();
+    set_name(CTLR,0x41);
+    auto b=command(44,mappings(64),CTLR);aecp_rx(&a,0,b.data(),b.size());
+    ASSERT_TRUE(a.notify&&a.owed_count==1u)<<"(the mappings' notice waits in the response buffer behind the queue)";
+    ms=60000;
+    EXPECT_TRUE(aecp_poll(&a))<<"the poll that sends the queue's last notice reports the longer one still owed";
+    EXPECT_EQ(a.owed_count,0u);
+    EXPECT_TRUE(a.locked&&a.notify)<<"and runs no lock expiry beside it";
+    drain();
+    std::vector<unsigned> order;
+    for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
+    EXPECT_EQ(order,(std::vector<unsigned>{16u,16u,44u,44u,1u,1u,1u}))
+        <<"the queue's notice, the longer one, then the lock's expiry to every controller";
+    const auto response=std::find_if(sent.begin(),sent.end(),
+                                     [](auto &s){return !notice(s.second)&&get(s.second,36,2)==44u;});
+    ASSERT_NE(response,sent.end());
+    for(auto &s:sent){
+        if(notice(s.second)&&(get(s.second,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),
+                      Bytes(response->second.begin()+38,response->second.end()))<<"the longer notice whole";
+        }
+    }
+    EXPECT_FALSE(a.locked);
+}
+
+// (a), #894: with the fan port, a queued notice beside a longer one in the response buffer goes frame by frame, since
+// the fan port's frames alternate with that buffer, which holds the longer notice; that one, past a slot and so past
+// AECP_FAN_BYTES, goes frame by frame after it, to each recipient in order, its bytes whole.
+TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    auto b=command(44,mappings(64),CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
+    ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
+    ports.fan_end=[](void*,uint32_t c,bool whole){return fan_model.end(c,whole);};
+    drain();
+    std::vector<unsigned> order;
+    for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
+    EXPECT_EQ(order,(std::vector<unsigned>{16u,16u,44u,44u}))<<"(a) the queue's notice to each recipient, then the long one";
+    EXPECT_EQ(fan_model.started,0u)
+        <<"the queue's frame by frame beside the held notice, and the long one past the fan's";
+    const auto response=std::find_if(sent.begin(),sent.end(),
+                                     [](auto &s){return !notice(s.second)&&get(s.second,36,2)==44u;});
+    ASSERT_NE(response,sent.end());
+    for(auto &s:sent){
+        if(notice(s.second)&&(get(s.second,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),
+                      Bytes(response->second.begin()+38,response->second.end()))<<"the held notice's bytes whole";
+        }
+    }
+    ports.fan=nullptr;ports.fan_end=nullptr;
+}
+
 // #665 (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1): a refusal is not a loss. AECP_FAN_REFUSED means the frame before
 // it was delivered: a ring with no room for a frame resumes the notice at that frame's recipient, and a queue with no
 // room for the completion leaves it owed past its last recipient, so no recipient has the notice twice, each at its
@@ -1757,7 +2093,9 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
     a.waiting=false;a.start_pending=true;
     EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
-    a.start_pending=false;
+    a.start_pending=false;a.owed_count=1u;
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while the owed-notice queue holds a notice";
+    a.owed_count=0u;
     EXPECT_FALSE(aecp_retry(&a,1u,0u));EXPECT_GT(reads,first)<<"and tries the retry once none is";
     EXPECT_EQ(timer_at,3u)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
@@ -2166,6 +2504,318 @@ TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
     put(desc(6,1).value+74,get(desc(6).value+74,8),8);
     aecp_mapping outputs[]={{0,0,0,0},{1,0,1,0}};
     EXPECT_EQ(aecp_map_restore(&a,&maps[1],outputs,2),0u);EXPECT_EQ(maps[1].count,2u);
+}
+
+// #904: an ADD_AUDIO_MAPPINGS or REMOVE_AUDIO_MAPPINGS is its definition, each mapping in its turn (IEEE 1722.1-2021
+// 7.4.45, 7.4.46; Milan v1.2 5.4.2.27, 5.4.2.28). A mapping is refused when it is not legal for its port, or at an
+// output port when the port, read for it, reports its stream running, or when another output port's map holds its
+// stream channel; an ADD's when an earlier mapping or a row of its port's map holds its key with another value; a
+// REMOVE's when its port's map does not hold it. An ADD past the map's room is NO_RESOURCES. Then each mapping in turn
+// adds itself where its map does not hold it, or removes the first row equal to it. Seeded edits of repeated and
+// conflicting mappings against maps that hold repeated rows, rows that conflict and keys spread over the command's
+// table: each edit's status, its port's map row for row, its CHANGE_MAP notice and the port's reads are the
+// definition's.
+TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
+{
+    constexpr uint16_t ILLEGAL=65535;   // no such stream: refused before its port is read
+    auto same=[](const aecp_mapping &x,const aecp_mapping &y){
+        return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;};
+    struct Outcome { unsigned status=0; std::vector<aecp_mapping> rows; unsigned reads=0; };
+    auto definition=[&](bool in,bool add,const std::vector<aecp_mapping> &held,size_t room,
+                        const std::vector<aecp_mapping> &owned,const std::vector<aecp_mapping> &edit,bool running){
+        auto key=[in](const aecp_mapping &r){
+            return in?std::make_pair(r.cluster,r.cluster_channel):std::make_pair(r.stream,r.channel);};
+        auto holds=[&](auto first,auto last,const aecp_mapping &r){
+            return std::any_of(first,last,[&](const aecp_mapping &x){return same(x,r);});};
+        Outcome o{0,held,0};
+        size_t additions=0;
+        for(size_t n=0;n<edit.size();++n){
+            const aecp_mapping &r=edit[n];
+            bool refused=r.stream==ILLEGAL;
+            if(!refused&&!in){
+                ++o.reads;
+                refused=running||std::any_of(owned.begin(),owned.end(),
+                                             [&](const aecp_mapping &x){return x.stream==r.stream&&x.channel==r.channel;});
+            }
+            for(size_t k=0;add&&k<n;++k)refused=refused||(key(edit[k])==key(r)&&!same(edit[k],r));
+            for(auto &x:held)refused=refused||(add&&key(x)==key(r)&&!same(x,r));
+            refused=refused||(!add&&!holds(held.begin(),held.end(),r));
+            if(refused){o.status=7;return o;}
+            additions+=add&&!holds(held.begin(),held.end(),r)&&!holds(edit.begin(),edit.begin()+n,r);
+        }
+        if(additions>room){o.status=8;return o;}
+        for(auto &r:edit){
+            auto at=std::find_if(o.rows.begin(),o.rows.end(),[&](const aecp_mapping &x){return same(x,r);});
+            if(add&&at==o.rows.end())o.rows.push_back(r);
+            if(!add&&at!=o.rows.end())o.rows.erase(at);
+        }
+        return o;
+    };
+    // The fixture's legal mappings: stream 0, its channel, the port's cluster and its first channel.
+    for(unsigned type:{14u,15u}){
+        ASSERT_GE((get(desc(type==14u?5u:6u).value+74,8)>>22)&1023,4u);
+        ASSERT_GE(get(desc(type).value+12,2),4u);
+        for(unsigned k=0;k<4;++k)ASSERT_GE(get(desc(20,get(desc(type).value+14,2)+k).value+84,2),1u);
+    }
+    uint32_t seed=0x904u;
+    auto next=[&]{seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;};
+    auto legal=[&]{return aecp_mapping{0,uint16_t(next()%4),uint16_t(next()%4),0};};
+    auto wide=[&]{return aecp_mapping{uint16_t(next()%8),uint16_t(next()%1024),uint16_t(next()%1024),uint16_t(next()%4)};};
+    std::array<aecp_mapping,8> other{};
+    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other.data(),0,other.size(),nullptr,0}};
+    a.cfg.maps=pools.data();a.cfg.map_count=pools.size();
+    unsigned reads=0,noted=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
+        ++reads;*v={};v->running=streaming;return observations;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change kind,uint16_t,uint16_t){noted+=kind==AECP_CHANGE_MAP;});
+    std::map<std::string,unsigned> seen;
+    for(unsigned c=0;c<4000&&!HasFailure();++c){
+        const bool in=next()%2,add=next()%2;
+        aecp_map &own=pools[in?0:1];
+        std::vector<aecp_mapping> held,lawful,owned,edit;
+        for(unsigned n=next()%9;n--;){
+            unsigned pick=next()%20;
+            aecp_mapping r=pick<12||held.empty()?legal():pick<15?held[next()%held.size()]:pick<17?legal():wide();
+            if(pick==15||pick==16)r.cluster_channel=1; // another cluster channel: not legal, and at an output a conflict
+            held.push_back(r);
+            if(pick<12||(pick<15&&r.cluster_channel==0&&r.stream==0&&r.channel<4&&r.cluster<4))lawful.push_back(r);
+        }
+        for(unsigned n=next()%4;n--;)owned.push_back(next()%3?legal():wide());
+        for(unsigned n=next()%11;n--;){
+            unsigned pick=next()%10;
+            if(!edit.empty()&&pick<3)edit.push_back(edit[next()%edit.size()]);
+            else if(!lawful.empty()&&pick<(add?5u:8u))edit.push_back(lawful[next()%lawful.size()]);
+            else edit.push_back(legal());
+        }
+        if(!edit.empty()&&next()%8==0)edit[next()%edit.size()]={ILLEGAL,0,0,0};
+        const size_t room=next()%3;
+        streaming=!in&&next()%10==0;
+        std::copy(held.begin(),held.end(),own.rows);own.count=held.size();own.capacity=held.size()+room;
+        std::copy(owned.begin(),owned.end(),other.begin());pools[2].count=owned.size();
+        const Outcome want=definition(in,add,held,room,owned,edit,streaming);
+        Bytes body=target(in?14:15,0,8+8*edit.size());put(body,4,edit.size(),2);
+        for(size_t k=0;k<edit.size();++k){
+            put(body,8+8*k,edit[k].stream,2);put(body,10+8*k,edit[k].channel,2);
+            put(body,12+8*k,edit[k].cluster,2);put(body,14+8*k,edit[k].cluster_channel,2);
+        }
+        reads=noted=0;
+        SCOPED_TRACE("edit "+std::to_string(c));
+        ask(add?44:45,body,want.status);
+        std::vector<aecp_mapping> got(own.rows,own.rows+own.count);
+        EXPECT_TRUE(got.size()==want.rows.size()&&std::equal(got.begin(),got.end(),want.rows.begin(),same))
+            <<"the edit's map is its definition's, row for row";
+        EXPECT_EQ(reads,want.reads)<<"the edit reads its port for each output mapping its definition reaches";
+        EXPECT_EQ(noted,want.status==0&&want.rows.size()!=held.size()?1u:0u)
+            <<"the edit notifies CHANGE_MAP where its definition changes the map";
+        const bool repeated=std::any_of(want.rows.begin(),want.rows.end(),[&](const aecp_mapping &x){
+            return std::any_of(edit.begin(),edit.end(),[&](const aecp_mapping &r){return same(x,r);});});
+        seen[std::string(add?"ADD ":"REMOVE ")+std::to_string(want.status)]++;
+        seen["a REMOVE that keeps a row equal to one it removed"]+=!add&&want.status==0&&repeated;
+        seen["an output edit refused after its port is read"]+=!in&&want.status==7&&want.reads!=0;
+    }
+    streaming=false;
+    for(auto name:{"ADD 0","ADD 7","ADD 8","REMOVE 0","REMOVE 7","a REMOVE that keeps a row equal to one it removed",
+                   "an output edit refused after its port is read"})
+        EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
+}
+
+#ifdef AECP_MAP_WORK
+extern "C" unsigned aecp_map_work;
+#endif
+// The key domain of an edit's table (aecp_maps.c, place; aecp_shape.py, key_domain): the most streams or clusters a
+// key names, and the most channels one has.
+constexpr unsigned KEY_FIRSTS=std::max(AECP_ENTITY_KEY_STREAMS,AECP_ENTITY_KEY_CLUSTERS);
+constexpr unsigned KEY_CHANNELS=std::max(AECP_ENTITY_KEY_STREAM_CHANNELS,AECP_ENTITY_KEY_CLUSTER_CHANNELS);
+
+// #904; #894's ruling of 2026-11-14, items 1 and 2: an edit's table holds each key at its position in the port's key
+// domain, so no two keys the port accepts share a slot. Every key port 0 of each type accepts as built (accepted_keys)
+// is added, in ADDs of 63 mappings, the most a legal-length command holds (IEEE 1722.1-2021 9.2.2.6), each repeating
+// its keys where fewer are left, and each key is held as its own, in order; then each is removed, in REMOVEs of 63,
+// and the map is empty. The work arm (AECP_MAP_WORK) runs this at every checked-in configuration and at wider
+// geometries the builder accepts (aecp_arms.py, KEYS), and holds each edit to 2 (n + R) slots and held mappings for n
+// mappings reading R rows of its port's map: a lookup is one slot and its key's mappings, at every geometry.
+TEST_F(Core, EveryAcceptedMapKeyIsItsOwn)
+{
+    unsigned ports=0;
+    for(unsigned type:{14u,15u}){
+        const auto keys=accepted_keys(type);
+        if(keys.empty())continue;
+        ++ports;
+        SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0, "+std::to_string(keys.size())+" keys");
+        aecp_map &own=maps[type==14u?0:1];
+        std::vector<aecp_mapping> pool(keys.size());
+        own.rows=pool.data();own.count=0;own.capacity=pool.size();
+        for(unsigned cmd:{44u,45u}){
+            for(size_t start=0;start<keys.size()&&!HasFailure();start+=63){
+                std::vector<aecp_mapping> rows(63);
+                const size_t left=std::min<size_t>(63,keys.size()-start);
+                for(size_t k=0;k<rows.size();++k)rows[k]=keys[start+k%left];
+#ifdef AECP_MAP_WORK
+                aecp_map_work=0;
+                const size_t read=(cmd==44u?1u:2u)*own.count;
+#endif
+                edit_map(cmd,type,rows,0);
+#ifdef AECP_MAP_WORK
+                std::printf("MAP KEYS %s: %zu mappings, %zu rows, %u visits (2 (n + R) %zu)\n",cmd==44u?"ADD":"REMOVE",
+                            rows.size(),read,aecp_map_work,2*(rows.size()+read));
+                EXPECT_LE(aecp_map_work,2*(rows.size()+read))<<"an edit of "<<rows.size()<<" mappings reading "<<read
+                                                             <<" rows visits past twice their sum";
+#endif
+                const std::vector<aecp_mapping> want(cmd==44u?keys.begin():keys.begin()+start+left,
+                                                     cmd==44u?keys.begin()+start+left:keys.end());
+                EXPECT_TRUE(same_rows(own,want))<<(cmd==44u?"an ADD of every key the port accepts holds each as its own":
+                                                   "a REMOVE of every key the port accepts removes each");
+            }
+        }
+    }
+    EXPECT_GT(ports,0u)<<"a configuration has a dynamic port with keys";
+}
+
+// #904; #894's ruling of 2026-11-14, item 2: every position of the domain is one key's. The fixture widens input port
+// 0's clusters and every STREAM_OUTPUT to the domain's KEY_CHANNELS channels, within the build's domain, and an ADD of
+// every key then accepted holds each as its own: stream or cluster s's channel c at s x KEY_CHANNELS + c, and none
+// past the table.
+TEST_F(Core, EveryKeyOfTheDomainIsItsOwn)
+{
+    auto &input=desc(14);unsigned clusters=get(input.value+12,2),base=get(input.value+14,2);
+    for(unsigned k=0;k<clusters;++k)put(desc(20,base+k).value+84,KEY_CHANNELS,2);
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    for(auto &d:descriptors)
+        if(d.type==6u)put(d.value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS)<<22),8);
+    for(unsigned type:{14u,15u}){
+        const auto keys=accepted_keys(type);
+        ASSERT_FALSE(keys.empty());
+        ASSERT_LE(keys.size(),size_t(KEY_FIRSTS)*KEY_CHANNELS);
+        SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0, "+std::to_string(keys.size())+" keys");
+        aecp_map &own=maps[type==14u?0:1];
+        std::vector<aecp_mapping> pool(keys.size());
+        own.rows=pool.data();own.count=0;own.capacity=pool.size();
+        for(size_t start=0;start<keys.size();start+=63){
+            const std::vector<aecp_mapping> rows(keys.begin()+start,keys.begin()+std::min<size_t>(start+63,keys.size()));
+            edit_map(44,type,rows,0);
+        }
+        EXPECT_TRUE(same_rows(own,keys))<<"an ADD of every key of the domain holds each as its own";
+    }
+}
+
+// #894's ruling of 2026-11-14, item 1: a key outside the domain, which a format or a cluster wider than the build's
+// would make legal, never forms an index. It is refused at its turn as a mapping its port's geometry refuses is, with
+// BAD_ARGUMENTS, before its port is read, after the earlier mappings' turns, and the map is unchanged; a key at the
+// domain's last channel is accepted; and a row outside the domain in a port's map bars no mapping.
+TEST_F(Core, MapKeysOutsideTheDomainAreRefusedAtTheirTurn)
+{
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    put(desc(6).value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS+1)<<22),8);
+    auto &input=desc(14);unsigned base=get(input.value+14,2);
+    put(desc(20,base).value+84,KEY_CHANNELS+1,2);
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
+        ++reads;*v={};return true;});
+    const uint16_t last=uint16_t(KEY_CHANNELS-1),past=uint16_t(KEY_CHANNELS);
+    edit_map(44,15,{{0,0,0,0},{0,past,1,0}},7);
+    EXPECT_EQ(maps[1].count,0u)<<"a key outside the domain is refused at its turn, before its port is read";
+    EXPECT_EQ(reads,1u)<<"a key outside the domain is refused at its turn, before its port is read";
+    edit_map(44,14,{{0,0,0,past}},7);
+    EXPECT_EQ(maps[0].count,0u)<<"a key outside the domain is refused at its turn, before its port is read";
+    edit_map(44,15,{{0,last,0,0}},0);
+    edit_map(44,14,{{0,0,0,last}},0);
+    EXPECT_TRUE(same_rows(maps[1],{{0,last,0,0}})&&same_rows(maps[0],{{0,0,0,last}}))
+        <<"a key at the domain's last channel is accepted";
+    output[1]={0,past,0,0};maps[1].count=2;
+    edit_map(44,15,{{0,0,0,0}},0);
+    EXPECT_TRUE(same_rows(maps[1],{{0,last,0,0},{0,past,0,0},{0,0,0,0}}))
+        <<"a row outside the domain bars no mapping";
+}
+
+#ifdef AECP_MAP_WORK
+// #904; #894's egress ruling of 2026-11-13, item 3: an ADD or REMOVE_AUDIO_MAPPINGS of n mappings that reads R rows
+// of its port's and the other output ports' maps does work linear in them, refused or not: the slots and held mappings
+// its lookups visit (aecp_maps.c, AECP_MAP_WORK) are at most 2 (n + R), each pass over a map counting its rows. So the
+// collision cases, every mapping one key's with another value, stay under the n(n+1)/2 that a walk of the key's values
+// for each mapping takes, at 8, 16, 32 and 63 mappings, 63 the most a legal-length command holds (IEEE 1722.1-2021
+// 9.2.2.6). Stream input 0's format is widened to 64 channels so that 63 legal values share one input key; the output
+// keys are the port's own (accepted_keys), each repeated where the port has fewer than n (#894's ruling of
+// 2026-11-14, item 2).
+TEST_F(Core, MapEditWorkIsLinearInItsMappings)
+{
+    auto &stream=desc(5);uint64_t format=get(stream.value+74,8);
+    ASSERT_EQ(format>>56,2u);put(stream.value+74,(format&~(uint64_t(1023)<<22))|(uint64_t(64)<<22),8);
+    const auto accepted=accepted_keys(15);
+    ASSERT_FALSE(accepted.empty());
+    using Rows=std::vector<aecp_mapping>;
+    auto edit=[&](unsigned cmd,unsigned port,const Rows &mappings,const Rows &held,unsigned status,size_t passes){
+        auto &map=maps[port==14u?0:1];
+        std::copy(held.begin(),held.end(),map.rows);map.count=held.size();
+        Bytes body=target(port,0,8+8*mappings.size());put(body,4,mappings.size(),2);
+        for(size_t k=0;k<mappings.size();++k){
+            put(body,8+8*k,mappings[k].stream,2);put(body,10+8*k,mappings[k].channel,2);
+            put(body,12+8*k,mappings[k].cluster,2);put(body,14+8*k,mappings[k].cluster_channel,2);
+        }
+        aecp_map_work=0;ask(cmd,body,status);
+        const size_t n=mappings.size(),rows=passes*held.size(),work=aecp_map_work;
+        return std::make_tuple(n,rows,work);
+    };
+    for(unsigned n:{8u,16u,32u,63u}){
+        Rows values,streams,keys,shifted,last;
+        for(unsigned k=0;k<n;++k){
+            values.push_back({0,uint16_t(k),0,0});   // one input key, cluster 0's channel 0, from 63 stream channels
+            streams.push_back({uint16_t(k),0,0,0});  // one input key from distinct streams, the second one CRF's
+            keys.push_back(accepted[k%accepted.size()]);   // the output port's keys
+            shifted.push_back(keys.back());shifted.back().cluster=1;  // each of those keys with another cluster
+        }
+        last=Rows(keys.begin(),keys.end()-1);last.push_back(keys[0]);last.back().cluster=1;
+        struct Case { const char *name; unsigned cmd,port; Rows mappings,held; unsigned status; size_t passes; bool collides; };
+        const Case cases[]={
+            {"a REMOVE of one key's values, its port's map holding the first",45,14,values,{values[0]},7,1,true},
+            {"a REMOVE of one key from distinct streams",45,14,streams,{streams[0]},7,1,true},
+            {"an ADD of the port's keys, each held with another value",44,15,keys,shifted,7,1,false},
+            {"an ADD whose last mapping is its first key's with another value",44,15,last,
+             Rows(keys.begin(),keys.end()-1),7,1,false},
+            {"an ADD of the port's keys, accepted",44,15,keys,{},0,1,false},
+            {"a REMOVE of every row it holds, accepted",45,15,keys,keys,0,2,false},
+        };
+        for(const auto &c:cases){
+            SCOPED_TRACE(std::string(c.name)+", "+std::to_string(n)+" mappings");
+            auto [count,rows,work]=edit(c.cmd,c.port,c.mappings,c.held,c.status,c.passes);
+            std::printf("MAP WORK %s: %zu mappings, %zu rows, %zu visits (2 (n + R) %zu, n(n+1)/2 %zu)\n",c.name,
+                        count,rows,work,2*(count+rows),count*(count+1)/2);
+            EXPECT_LE(work,2*(count+rows))<<"an edit of "<<count<<" mappings reading "<<rows<<" rows visits "<<work
+                                          <<" slots and held mappings, past twice their sum";
+            if(c.collides){
+                EXPECT_LT(work,count*(count+1)/2)<<"a collision of "<<count<<" mappings visits "<<work
+                                                 <<", not under n(n+1)/2";
+            }
+        }
+    }
+}
+#endif
+
+// #904: a saved output map is refused whole where another output port's map in its configuration holds one of its
+// stream channels, or where two of its rows hold one with different clusters, as an ADD is, and a saved row is its own
+// wherever any coordinate differs (Milan v1.2 5.4.2.27; IEEE 1722.1-2021 7.4.45).
+TEST_F(Core, RestoredOutputMapsHaveOneGlobalOwner)
+{
+    a.open=false;
+    aecp_mapping other_rows[]={{1,1,0,0},{0,3,0,0},{0,1,0,0}};
+    std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other_rows,3,3,nullptr,0}};
+    a.cfg.maps=pools.data();a.cfg.map_count=pools.size();
+    aecp_mapping rows[]={{0,0,0,0},{0,1,1,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_BAD_ARGUMENTS))
+        <<"another output port owns stream channel 1";
+    EXPECT_EQ(pools[1].count,0u)<<"a refused saved map changes nothing";
+    pools[2].configuration=1;
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],rows,2),unsigned(AECP_SUCCESS))<<"a map of another configuration owns none";
+    EXPECT_EQ(pools[1].count,2u);
+    aecp_mapping shared[]={{0,2,0,0},{0,2,1,0}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[1],shared,2),unsigned(AECP_BAD_ARGUMENTS))
+        <<"two saved rows of one stream channel with different clusters conflict";
+    EXPECT_EQ(pools[1].count,2u)<<"and the map keeps its rows";
+    put(desc(20).value+84,2,2);
+    aecp_mapping channels[]={{0,0,0,0},{0,0,0,1}};
+    EXPECT_EQ(aecp_map_restore(&a,&pools[0],channels,2),unsigned(AECP_SUCCESS));
+    EXPECT_EQ(pools[0].count,2u)<<"a saved row that differs only in its cluster channel is its own";
 }
 
 TEST_F(Core, InitRefusalsAndClosedService)
@@ -2655,6 +3305,70 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
 }
 
+// THE TIERS (#894): beside held tier-1 or THE DRAIN's work, THE RETRY's round is a queue's first notice alone, tier
+// 1's, and only the first: once a round sends one, the queue's next is tier 2's until the queue is served to its end.
+TEST_F(Mailbox, ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone)
+{
+    EXPECT_TRUE(loop.retry_first)<<"a queue's first notice is tier 1's from the attach";
+    bool answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return answers;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return answers;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return answers;});
+    receive(0);service();
+    for(const auto &d:descriptors)aecp_changed(&adapter.core,d.type,d.index,15u);
+    for(unsigned k=0;k<16u;++k){mbx_model_advance_ms(&fabric,2);service();}
+    const auto pending=[&]{
+        unsigned n=0;
+        for(const auto &e:events)n+=static_cast<unsigned>(__builtin_popcount(e.pending));
+        return n;
+    };
+    answers=true;
+    mbx_model_advance_ms(&fabric,AECP_RETRY_MAX_MS);
+    const unsigned before=pending();
+    ASSERT_GT(before,2u)<<"(a queue of notices)";
+    loop.round_one=true;loop.retry_first=true;
+    (void)loop.retry(loop.retry_ctx,CTRL_LOOP_SLICE_US-CTRL_LOOP_SHARE_MARGIN_US);
+    EXPECT_EQ(pending(),before-1u)<<"a round beside held work builds a queue's first notice alone";
+    EXPECT_FALSE(loop.retry_first)<<"and the queue's next is no longer its first";
+    loop.round_one=false;
+    (void)loop.retry(loop.retry_ctx,CTRL_LOOP_SLICE_US-CTRL_LOOP_SHARE_MARGIN_US);
+    EXPECT_GT(before-1u-pending(),1u)<<"a round beside nothing builds what its slice holds";
+    for(unsigned k=0;k<64u&&pending()!=0u;++k){mbx_model_advance_ms(&fabric,2);service();}
+    EXPECT_EQ(pending(),0u);
+    EXPECT_TRUE(loop.retry_first)<<"a queue served to its end leaves its next notice a queue's first";
+}
+
+// THE PACE (#904, #894; aecp_mbx.h): an ADD or REMOVE_AUDIO_MAPPINGS that is checked holds the AECP channel's next
+// record in its ring, never dropped, until AECP_PACE_MS after the edit was taken, by the core's clock, which each pass's
+// poll moves on; the held record is then taken and answered, and a held edit paces the next from its own take. Before
+// any edit nothing is held, and neither a command that is no edit nor an edit refused before its checks holds anything.
+TEST_F(Mailbox, AnEditHoldsTheNextRecordForThePaceAndDropsNone)
+{
+    auto send=[&](unsigned cmd,const Bytes &body){auto p=command(cmd,body);
+        ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();};
+    const Bytes query=target(14,0,8);
+    Bytes edit=target(14,0,16);put(edit,4,1,2);put(edit,10,1,2);put(edit,12,1,2);
+    uint32_t sent=fabric.tx_sent;send(43,query);
+    EXPECT_EQ(fabric.tx_sent,sent+1)<<"before any edit nothing is held";
+    sent=fabric.tx_sent;send(43,query);EXPECT_EQ(fabric.tx_sent,sent+1)<<"a command that is no edit holds nothing";
+    adapter.core.locked=true;adapter.core.lock_owner=CTLR+1;
+    send(44,edit);sent=fabric.tx_sent;send(43,query);
+    EXPECT_EQ(fabric.tx_sent,sent+1)<<"an edit refused before its checks holds nothing";
+    adapter.core.locked=false;
+    sent=fabric.tx_sent;send(44,edit);ASSERT_EQ(fabric.tx_sent,sent+1)<<"(an edit is taken while no pace holds)";
+    for(unsigned edits=0;edits<2;++edits){
+        sent=fabric.tx_sent;send(edits?43:45,edits?query:edit);
+        for(unsigned ms=1;ms<AECP_PACE_MS;++ms){
+            mbx_model_advance_ms(&fabric,1);service();
+            ASSERT_EQ(fabric.tx_sent,sent)<<"held "<<ms<<" ms after the edit, to the pace's last millisecond";
+        }
+        mbx_model_advance_ms(&fabric,1);service();
+        ASSERT_EQ(fabric.tx_sent,sent+1)<<"the held record is taken and answered once the pace has passed, never dropped";
+        EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+36,2)&0x7fffu,edits?0x2bu:0x2du)<<"the held record's answer";
+    }
+}
+
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
 {
     mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
@@ -2743,7 +3457,8 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
                     unsigned expected=cmd==40?554u:cmd==75?550u:1454u;
                     EXPECT_EQ(emitted->len,expected)<<"maximum path retains its full response body";
                 }
-                mbx_model_advance_ms(&fabric,5);
+                // an edit's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
+                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45)?AECP_PACE_MS:5);
             }
         }
         for(unsigned msg:{2u,4u,8u}){
@@ -3454,7 +4169,7 @@ struct AppFace : Nvm {
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&face.ports,&owner));
         ASSERT_TRUE(ctrl_app_aecp_attach_face(&bridge,&face));
         EXPECT_FALSE(ctrl_app_aecp_attach_face(&bridge,&face))<<"one face";
-        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&adapter.core,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
         nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
         ASSERT_TRUE(ctrl_app_open(&application,&setup));

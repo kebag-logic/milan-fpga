@@ -77,7 +77,7 @@ A command's name is compared only as far as its terminator, so a received NUL (a
 - **MAAP.** `maap_csr_allocation` ([MAAP](../maap/README.md#integration)) runs on interface 0's CSR window. The datapath has one window, so another interface's writes are dropped and counted. The platform records each report after the window has it.
   The image draws its first range at random. Only a simulation defines `CTRL_PLAT_MAAP_PREFERRED` to pin it: the two-placement simulation in `tb/verilator/milan_dp` pins both placements at one range.
 - **ACMP's talker sources.** Source *n*'s stream is the entity's MAC and its STREAM_OUTPUT's unique ID (IEEE 1722.1-2021 7.2.3), on the SR class VID, at address base + *n* once MAAP holds its interface's range (Milan v1.2 5.5.4.1).
-- **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
+- **SRP.** Every source is configured on every interface with its generated TSpec and class, and declares nothing until its destination is valid: MAAP's range held and a probe of the last 15 s or a registered Listener, the MAAP adapter's DA gate, which the composition passes to SRP (#895; Milan v1.2 4.3.3.1). It then declares Talker Advertise at base + n on its own interface, and withdraws when the gate closes ([SRP](../srp/README.md)). The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
 - **AECP.** `random` is the loop's millisecond clock. GET_AS_PATH has no split source at this base and answers unavailable.
 
 ## Generated inputs
@@ -107,7 +107,7 @@ An image on the stand-in `generated/csr.h` alone boots to ready and passes the s
 The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
-At 8x8 with two interfaces the image plans 59.5 RAMB36, within the 60.0 its entry ledgers (`ctrl_memory.LEDGERED`).
+At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past 60.0, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4; `ctrl_memory.LEDGERED`), with 1,864 B of `rom` left.
 The owner's ruling (#665, 6505997821), and since 2026-11-12 the owner's flip decision, ledger that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
 Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
@@ -131,9 +131,8 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
 
 ## Not yet done
 
-- **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.5 RAMB36, within the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip, refused at 60.5: ROM debt of 4.0 RAMB36 owed to lane S14 (decision D3). [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip, and its entry at 60.5, that decision's cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, refused at 61.0: ROM debt of 4.5 RAMB36 owed to lane S14 (decision D3), 18,432 B of cold code to move to flash, the cap fully used. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.

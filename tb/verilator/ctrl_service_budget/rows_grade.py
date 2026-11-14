@@ -93,8 +93,8 @@ ROW_COSTS = {'1x1/1if': {'event.LINK': 150}, '8x8/2if': {'event.LINK': 300}}
 #: demand() that make each up.
 SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': ('timers',), 'gm': ('gm',),
            'links': ('links',), 'passes': ('passes',),
-           'items': ('item.walk', 'item.reclaim', 'item.retained', 'item.mrpdu', 'item.acmp', 'item.aecp',
-                     'item.withdraw', 'item.rebuild'),
+           'items': ('item.walk', 'item.reclaim', 'item.retained', 'item.mrpdu', 'item.acmp', 'item.acmp_declined',
+                     'item.aecp', 'item.withdraw', 'item.rebuild'),
            'rounds': ('rounds',), 'builds': ('builds',), 'steps': ('steps',)}
 #: The other channels a row's window carries beside SRP's.
 OTHERS = ('aecp', 'acmp', 'adp', 'maap')
@@ -264,7 +264,7 @@ def demand(row: str, inputs: Inputs, w_ms: float) -> dict[str, float]:
     if row in RETAINED_ROWS:
         out['item.retained'] = retained_retries(w_ms, passes, tick_ms) * c['item.retained']
     out['item.mrpdu'] = min(passes, 2 * count_b) * c['item.mrpdu']
-    out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
+    out.update(acmp_items(min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']), c))
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * c['item.aecp']
     if link:
         out['item.withdraw'] = n_if * c['item.withdraw']
@@ -273,6 +273,13 @@ def demand(row: str, inputs: Inputs, w_ms: float) -> dict[str, float]:
     out['passes'] = passes * (c['events_none'] + c['base'])
     out['rounds'] = rounds_us(h, w_ms)[0]
     return out
+
+
+def acmp_items(sends: int, c: dict) -> dict[str, float]:
+    """ACMP's owed frames, `sends` of them, each its send at item.acmp, and their declined offers, at most two a send
+    and one, each at item.acmp_declined (#908, poll_grade.DECLINES): an offer acmp_rx accepted is an ACMP record's,
+    one a command, among the records."""
+    return {'item.acmp': sends * c['item.acmp'], 'item.acmp_declined': (2 * sends + 1) * c['item.acmp_declined']}
 
 
 def solve(row: str, inputs: Inputs, dropped: str | None = None) -> tuple[float | None, dict[str, float]]:
@@ -356,7 +363,8 @@ def rule_windows(root: Path, point: str, inputs: Inputs) -> tuple[float, ...]:
 def rule_findings(root: Path, points: tuple[str, ...] = POINTS, texts: dict | None = None) -> list[str]:
     """Each arrival rule of the tree's the method does not hold: the retained retry's rule as srp_mbx.c states it
     (load_grade.RETRY_RULE), its retries in R4 at that rule and in no SRP row, SRP's arrivals ahead of R4's record over
-    the window less that record alone, and each of the contract's event types counted or excluded."""
+    the window less that record alone, ACMP's declined offers at two a send and one (#908), and each of the
+    contract's event types counted or excluded."""
     out = [f'the retained retry\'s rule not the tree\'s: {name}' for name in load_grade.retry_unbounded(root, texts)]
     for point in points:
         inputs = point_inputs(root, point)
@@ -375,6 +383,14 @@ def rule_findings(root: Path, points: tuple[str, ...] = POINTS, texts: dict | No
                            f'row\'s record is taken')
             out += [f'{point} {row}: a retained record\'s retry counted in an SRP row' for row in ('R5', 'R6')
                     if demand(row, inputs, w).get('item.retained', 0) > 0]
+            # ACMP's declined offers, at most two an owed frame sent and one (#908, poll_grade.DECLINES)
+            for row in SOLVED:
+                d = demand(row, inputs, w)
+                got, rule = d['item.acmp_declined'], (2 * round(d['item.acmp'] / c['item.acmp']) + 1) * \
+                    c['item.acmp_declined']
+                if abs(got - rule) > 1e-6:
+                    out.append(f'{point} {row}: declined ACMP offers at {got:g} us in {w:g} ms, not the rule\'s '
+                               f'{rule:g} (two an owed frame sent and one)')
     named = {e['name'] for e in load_grade.parsed((root / 'sw/mailbox/mailbox.yaml').read_text())['event_types']}
     out += [f'the contract\'s event {name} neither counted nor excluded' for name in sorted(named - set(EVENTS) -
                                                                                         set(EXCLUDED))]

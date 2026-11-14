@@ -168,6 +168,8 @@ OUTSIDE = {
                                          "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
+    "sw/firmware/ctrl/test/srp_talker_mutants.py": "SRP's Talker declarations' planted defects (#895), which the "
+                                                   "SRP campaign (srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
@@ -230,12 +232,38 @@ OUTSIDE = {
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
     "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
-                                                         "AECP_QUEUED_PASSES, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
+                                                         "AECP_QUEUED_MS, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
                                                          "and AECP_NOTICES_MOST from the headers; it compiles nothing",
-    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads THE RETRY search's stated costs "
-                                                       "from ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
+                                                       "costs from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
                                                        "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
+                                                      "CTRL_LOOP_SLICE_US, CTRL_LOOP_JOIN_CS, CTRL_LOOP_TX_BOUND_MS, "
+                                                      "CTRL_LOOP_T_EGRESS_MS and CTRL_LOOP_TX_MS "
+                                                      "from ctrl_loop.h, AECP_MBX_OWED_SLOTS and AECP_PACE_MS from "
+                                                      "aecp_mbx.h, AECP_RETRY_MAX_MS and AECP_OWED_BYTES from "
+                                                      "aecp.h, the loop's channel bindings from the firmware's "
+                                                      "sources and the "
+                                                      "polls' stated costs from poll_grade.py; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model: it reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_INGRESS_MS and CTRL_LOOP_T_EGRESS_MS, and its "
+                                                      "controls plant aecp_mbx.h's AECP_PACE_MS in memory; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/join_grade.py": "grades a run's join intervals and reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_EGRESS_MS; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/mrpdu_grade.py": "grades a run's MRP timers' builds and reads ctrl_loop.h's "
+                                                       "CTRL_LOOP_TX_BOUND_MS derivation; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
+                                                        "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
+                                                        "memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
+                                                      "controls plant ctrl_loop.h's and aecp.h's text in memory; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/poll_grade.py": "grades a run's log and reads AECP_FAN_BYTES from aecp.h; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
+                                                       "ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
                                                       "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
                                                       "and the TSN stack's headers; it compiles nothing",
@@ -263,6 +291,8 @@ OUTSIDE = {
                                              "twin_decode.py; it compiles nothing",
     "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
                                             "srp_wire_compare.py; it compiles nothing",
+    "tests/steps/aecp_owed_notice_steps.py": "the owed-notice feature's steps (#894): pins its model's rules to the "
+                                             "text of aecp.c, aecp.h and aecp_mbx.h; it compiles nothing",
     # the split build's SRP transmit path (#867, make -C tb/verilator/milan_dp srptx): its grader
     "tb/verilator/milan_dp/srptx_grade.py": "grades the split half's SRP transmit captures (#867), MSRP through "
                                             "srp_wire_compare.py; it compiles nothing",

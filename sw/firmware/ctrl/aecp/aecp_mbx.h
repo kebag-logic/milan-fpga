@@ -35,25 +35,45 @@ extern "C" {
 // interface yields none and caps none: its bound has no room for either, and its records wait no longer than two
 // interfaces'.
 #define AECP_ROUND_PACE_MS 2u
+// THE PACE (#894, #904): an ADD or REMOVE_AUDIO_MAPPINGS that is checked holds AECP's next record in its ring, never
+// dropped, until AECP_PACE_MS after the edit was taken (aecp_mbx.c, ready; the core stamps aecp.edited_ms with the
+// clock aecp_rx reads as it takes the record). The gate compares whole milliseconds, so two edits are taken more than
+// AECP_PACE_MS - 1 ms apart and a window of w ms holds at most ceil((w + 1) / AECP_PACE_MS) of them (#894's egress
+// ruling of 2026-11-13, item 2; paced_rows.py, edits). An edit's record grows with its mappings, so the rows that
+// count every AECP command as the largest legal one, R4L and txL, take at most that many; the tier model holds the
+// pace to the smallest, at most 13 ms, that holds txL within THE TRANSMIT's bound and R4L within 238 ms at 1x1/1if
+// (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join timer at 20 cs, none did;
+// with it at 19 cs (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's contingent ruling of 2026-11-13, item 3) 6 ms did, and
+// with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling, item 1), and the largest legal
+// command's record re-measured under the bounded map work (item 3), 7 ms did; with each map key at its position in
+// the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's cost re-measured at 30 us,
+// txL is 49.69 ms at 7 ms, and 8 ms did (#894, #908); with MAAP's record at SRP's Talker declarations' 115 us, a
+// range lost to a peer's ANNOUNCE, and AECP's timer slot and the TICK re-measured on their merge with the tiers, txL
+// is 49.46 ms at 8 ms, and 9 ms does (#895, the ruling of 2026-11-14 on that merge, items 1 and 2). The gate reads
+// the core's clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
+// AECP_REGISTRATIONS edits answers its last within 15 paces, their passes and its own row: within 238 ms at its
+// commit, IEEE 1722.1-2021 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
+#define AECP_PACE_MS 9u
 #define AECP_ROUND_YIELD_PACE_MS 4u
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
 #define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
-// The bound of FR_NFR.md 3.4.1 on notices queued behind one another (the owner's ruling of 2026-11-06, #665), every
-// constant above in it. The first notice of a queue commits within AECP_QUEUED_FIRST_MS of its port's answer: 18 ms by
-// the search at 1x1/1if, held to T_svc, and 22 ms at 8x8/2if, the bound the maintainer's decision of 2026-11-08
-// allows it there. Every notice queued behind it commits within AECP_QUEUED_MS: the 8 ms spacing, then
-// AECP_QUEUED_PASSES passes of THE SHARE for AECP_NOTICES_MOST notices at the point's own recipient count, 62 ms at
-// 8x8/2if and 22 ms at 1x1/1if, within the ceilings of 70 and 25 ms (#665, amended 2026-11-07 with a 10 % margin over
-// the search). The passes come from a search of what the loop may be made to do (ctrl_retry_search.py, a gate): each
-// pass charged all of THE SHARE, at most THE DRAIN's passes, an interface's builds, the aged steps, a retry's due time
-// anywhere in the spacing and every count of refusing ports a queue admits, AECP_ROUND_PORTS - 1 at most since a port
-// answers for every notice it serves or for none, charged to every round. aecp_mbx.c holds AECP_QUEUED_MS to its
-// ceiling.
+// The bound of FR_NFR.md 3.4.1 on notices queued behind one another, under THE TIERS (ctrl_loop.h; #894, #665, the
+// decision of 2026-11-09 and decision D). A queue's first notice is tier 1's and commits within AECP_QUEUED_FIRST_MS of
+// its port's answer, 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1
+// and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's bound: decision D's 125 ms, half of
+// the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if 130 ms by #894's amendment
+// of 2026-11-13 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+// next 5 ms (queued_bound.py derives it; #908 stays open while it is over 125). The rows by every source hold both at
+// the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
+// CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
+// source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
-#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 7u : 27u)
-#define AECP_QUEUED_MS (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)
-#define AECP_QUEUED_CEILING_MS (MBX_N_IF == 1u ? 25u : 70u)
+#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 130u : 62u)
+// The owed-notice queue's slots an integrator gives AECP (aecp_config.owed, #894): the AECP channel's burst at one
+// interface, so its last record never waits on a full queue; none at two, whose ledger has no room for them
+// (docs/design/SPLIT_CONTROL_MEMORY.md section 5), so there the next record waits for every notice, as before.
+#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? MBX_CH_AECP_RATE_BURST : 0u)
 struct aecp_mbx_completion {
 	uint32_t cookie;
 	uint16_t end;

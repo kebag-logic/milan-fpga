@@ -17,8 +17,15 @@ static bool value(struct aecp_nvm *n, unsigned group, unsigned index, struct aec
 	case NVM_G_FMTO: v->kind = AECP_CHANGE_FORMAT; v->type = 6u; return true;
 	case NVM_G_PTOF: v->kind = AECP_CHANGE_LATENCY; v->type = 6u; return true;
 	case NVM_G_NAME:
-		if (index >= n->name_count) return false;
-		*v = n->names[index]; return true;
+		for (size_t k = 0; k < n->name_runs; ++k) {
+			const struct aecp_name_run *r = &n->names[k];
+			unsigned at = index - r->ordinal;
+			if (at < r->count) {
+				*v = (struct aecp_value){AECP_CHANGE_NAME, r->type, (uint16_t)(r->index + at), r->name};
+				return true;
+			}
+		}
+		return false;
 	default: return false; // DR5: SUID and MCR remain deliberately erased.
 	}
 }
@@ -115,11 +122,11 @@ static void release(void *ctx)
 	n->released = true; // The application opens AECP after this callback returns.
 }
 
-void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_value *names, size_t count,
+void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_name_run *names, size_t count,
 		   struct aecp_mapping *scratch, size_t capacity)
 {
 	memset(n, 0, sizeof *n);
-	n->core = core; n->names = names; n->name_count = count;
+	n->core = core; n->names = names; n->name_runs = count;
 	n->scratch = scratch; n->scratch_count = capacity;
 	n->port = (struct nvm_state){model_ready, apply, settle, rollback, latch, release, n};
 }
@@ -142,8 +149,10 @@ void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, 
 	case AECP_CHANGE_LATENCY: mark(n, NVM_G_PTOF, index); break;
 	case AECP_CHANGE_MAP: mark(n, type == 14u ? NVM_G_MAPI : NVM_G_MAPO, index); break;
 	case AECP_CHANGE_NAME:
-		for (size_t k = 0; k < n->name_count; ++k) {
-			if (n->names[k].type == type && n->names[k].index == index) mark(n, NVM_G_NAME, (unsigned)k);
+		for (size_t k = 0; k < n->name_runs; ++k) {
+			const struct aecp_name_run *r = &n->names[k];
+			unsigned at = (unsigned)index - r->index;
+			if (r->type == type && at < r->count) mark(n, NVM_G_NAME, r->ordinal + at);
 		}
 		break;
 	default: break;

@@ -382,8 +382,14 @@ flowchart TB
   the pass leaves (`ctrl_loop.h`; #665): built beside the composed burst's
   records it put the last SRP record past its bound at 8x8/2if. Up to three
   such passes stand in a row, one while an event or a record of THE DRAIN's
-  channel waits. THE DRAIN takes SRP's records first, past two, while the pass
-  has spent less than 1.3 ms of its 2.0 ms share.
+  channel waits. Since #894 the receive rings and that work are in two tiers
+  (THE TIERS, `ctrl_loop.h`): tier 1, AECP's records first, past two while
+  the pass has spent at most `CTRL_LOOP_DRAIN_US`, then, once AECP's take
+  left none it would take, ACMP's, ADP's and MAAP's, each its due, then one a
+  channel in turn; tier 2 only once tier 1 left no record to take: SRP's records in a
+  slice from the pass's start (`CTRL_LOOP_SLICE_US`: 0.9 ms at one interface, 1.3 ms at two), and
+  THE TRANSMIT's build and THE RETRY's round each a slice of a pass given
+  whole, the build resumed in the next slice where one cannot hold it.
   A pass that dispatches a centisecond takes one record of a channel, not
   two (THE TICK's cap): the centisecond's consumers cost about 43,000 CPU
   cycles at 8x8/2if, and beside two records a channel that pass was the
@@ -934,7 +940,7 @@ the split datapath and reads every port.
 | Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
 | idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
 | SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
-| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | none yet: the split firmware's talker owner (#665) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
+| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | MAAP adapter, `DA_GATE`'s owner: at its start, and again before each reopening, from the declaration owner's source port (#905) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
 
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads
@@ -1180,14 +1186,18 @@ them:
   ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
   the processor's F10.2 rule: set by the first received Domain that differs
   from the declared one, cleared by a link restart.
-- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
-  every source from participant creation, as a Talker Failed until MAAP
-  allocates its address (`declare_sources`). The processor declares a source
-  only once its DA gate opens (`KL_srp_talker_fsm.sv`, the record
-  capture). The CRF talker's C-TAG reads this level. Its frames leave under
-  the licence, which needs a declaration in both placements, unless policing
-  is off (the AAF bypass or lwSRP disabled): then the split build tags CRF
-  frames that the processor build sends untagged until its DA gate opens.
+- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares a
+  source only while its DA gate is open (#895; Milan v1.2 4.3.3.1, 5.3.7.4:
+  `srp_mbx_gate`, fed by the composition from the MAAP adapter's gate), and
+  withdraws it, its bit cleared before the Leave is sent, when the gate closes,
+  as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
+  lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
+  bit set and the withdrawal owed until lwSRP takes it. A
+  changed destination is declared two LeaveAllTime periods after the Leave
+  (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
+  frames leave under the licence, which needs a declaration in both
+  placements; with policing off (the AAF bypass or lwSRP disabled) both
+  placements tag them only while the gate is open.
 
 Every publication is counted in its path's bound. ACMP: a BIND_RX or an
 UNBIND_RX writes `BINDING` once, its started level included (77 and 50), a
@@ -1203,8 +1213,12 @@ MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
 it destroys the participants, then, in the next pass's poll, `SR_DOMAIN`, `IDLE_SLOPE` and
 `TALKER_DECL` as it declares again (five; an event is 3), an adoption writes
 `SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
-`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
-on the host model.
+`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). THE TRANSMIT's call
+writes an interface's `IDLE_SLOPE` and `TALKER_DECL` at most twice (the
+interface it builds has its declarations before the build and after it),
+`SR_DOMAIN` once for an adoption and `LICENCE` once for each licence a
+withdrawal closes: at most 5 + 16, within the same terms (`srp_bounds.h`;
+`srp_talker.cpp` counts one call's). Each figure is measured on the host model.
 
 ## The processor's other faces
 

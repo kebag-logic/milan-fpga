@@ -1892,4 +1892,5 @@ TEST_F(AcmpMailbox, U7TheThreeWayCompositionRefusesWithNothingOpened) {
 #ifdef CTRL_APP_TEST_SRP
 #include "srp_binding.hpp"
 #include "srp_feedback.hpp"
+#include "srp_gate.hpp"
 #endif

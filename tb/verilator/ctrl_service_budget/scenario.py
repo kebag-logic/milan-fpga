@@ -43,7 +43,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import answers
+import datapath_window
 import frames as f
+import long_notice
 import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -508,10 +510,9 @@ def descriptor_value(build: dict, kind: int, index: int) -> bytes:
     raise KeyError(f'no descriptor {kind}:{index} in the image')
 
 
-def map_edit(build: dict, port_type: int) -> bytes | None:
-    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of
-    that type: one mapping, its map's last default row. None when that map holds no row: the
-    live map starts with its defaults (aecp.c), and a map of capacity 0 can never change."""
+def map_edit(build: dict, port_type: int, copies: int = 1) -> bytes | None:
+    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of that type: `copies`
+    of its map's last default row (the live map starts with its defaults, aecp.c), or None where the map has none."""
     import re
     header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
     maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
@@ -521,7 +522,7 @@ def map_edit(build: dict, port_type: int) -> bytes | None:
     defaults = header[header.index('aecp_map_defaults[] = {'):]
     rows = re.findall(r'\{(\d+),(\d+),(\d+),(\d+)\}', defaults[:defaults.index('};')])
     mapping = b''.join(f.be(int(v), 2) for v in rows[int(first) + int(number) - 1])
-    return f.be(port_type, 2) + f.be(0, 2) + f.be(1, 2) + f.be(0, 2) + mapping
+    return f.be(port_type, 2) + f.be(0, 2) + f.be(copies, 2) + f.be(0, 2) + mapping * copies
 
 
 #: The controllers aecp_fanout_groups registers on every interface, up to the capacity.
@@ -654,8 +655,8 @@ def srp_groups(p: Point) -> list[Group]:
     for i in range(p.interfaces):
         sid = (p.mac << 16) | 0
         ready_listener = f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])
-        # The fixture's sources stay unallocated (ctrl_aecp_image.c), so they are declared as
-        # Talker Failed and no licence follows: the path ends at the record's release.
+        # The fixture's sources have no valid destination (ctrl_aecp_image.c), so they declare
+        # nothing (#895) and no licence follows: the path ends at the record's release.
         g.probe(Probe(f'srp.listener_ready.if{i}', 'Listener Ready RX (registrar)', 'srp', f'rxc:{srp}',
                       [f'pass_end:{srp}']),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [ready_listener]).hex()}', wait=f'cycles {30 * MS}')
@@ -919,8 +920,7 @@ def shutdown_groups(p: Point) -> list[Group]:
         ready(g, p)
         g.together([(Probe(f'{prefix}.shutdown.if{i}', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
                            [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing',
-                           path='adp.shutdown'), []) for i in ifs],
-                   [f'ms {SHUTDOWN_MS + 50}'])
+                           path='adp.shutdown'), []) for i in ifs], [f'ms {SHUTDOWN_MS + 50}'])
         out.append(g)
     return out
 
@@ -951,8 +951,7 @@ def fixture_groups(p: Point) -> list[Group]:
     bad = bytearray(f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])]))
     bad[29] = 216
     g.probe(Probe('fixture.malformed.if0', 'malformed MRPDU discard', 'srp', f'rxc:{srp}', [f'pass_end:{srp}'],
-                  path='srp.malformed'),
-            f'frame 0 {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
+                  path='srp.malformed'), f'frame 0 {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
     g.add(f'frame 0 {f.aem_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, 0x6100), 0x0024, bytes(4)).hex()}',
           f'wait tx {aecp} 1 within {50 * MS}', 'wait quiet 3 within 2000000')
     # A short composed window: one record on every receive channel and two GM events, so the
@@ -996,5 +995,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build)]
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
+              *datapath_window.groups(p), *long_notice.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

@@ -190,11 +190,50 @@ Later input on every interface and binding calls can then proceed.
 This recovery limit does not enlarge the service bound.
 Destroy cancels it; link reset cancels only its interface's record.
 
-Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
-Admission charges Ethernet overhead and a 75% link-rate ceiling.
-Unallocated outputs report insufficient resources; bandwidth failures report
-insufficient bandwidth. A registered Ready or ReadyFailed Listener can enable
-an admitted output only after the applicable MVRP Join commits (Milan 4.3.2).
+A declared output's first declaration is Talker Advertise or Talker Failed
+(Milan 5.5.2.7). Admission charges Ethernet overhead and a 75% link-rate
+ceiling. Without a DA gate (`sources_valid`), unallocated outputs report
+insufficient resources (code 2); bandwidth failures report insufficient
+bandwidth (code 1), each with the interface's MAC as the system identifier
+(IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). A registered Ready
+or ReadyFailed Listener can enable an admitted output only after the applicable
+MVRP Join commits (Milan 4.3.2).
+
+A source declares a Talker attribute only while its SRP parameters are valid
+(#895; Milan v1.2 4.3.3.1, 5.3.7.4): MAAP holds its interface's range with no
+conflict, and a PROBE_TX_COMMAND for the output was answered in the last 15 s
+or a matching Listener is registered. That is the MAAP adapter's DA gate
+(`maap_mbx.c`, ACMP's `acmp_declaring`), which the composition's delivery poll
+(`ctrl_app_srp.c`) passes each pass to `srp_mbx_gate` with the range's base; the
+source's destination is base + n, on its own interface. The entry records a
+change and owes THE TRANSMIT's declarations; it calls no lwSRP function and
+makes no mailbox access. A composition with no gate (the unit fixture) sets
+`sources_valid` and declares every source from creation.
+
+A valid source declares at once: Talker Advertise with its destination and
+TSpec once admitted, or Talker Failed, code 1, when its bandwidth does not fit.
+A source not valid declares nothing. When its parameters lapse, it withdraws:
+its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
+Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
+802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
+declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
+the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
+THE TRANSMIT's bound); a destination that changes while valid withdraws the old
+one first. Two LeaveAllTime periods are read as twice the LeaveAllTime the
+participants are configured with, 1000 cs (Table 10-7), not as two drawn
+LeaveAll periods (10.7.4.3 draws each between LeaveAllTime and 1.5 times it):
+the hold-off is the 20 s floor of the 20 to 30 s two drawn periods span, as
+acceptance 2 of #895 words it. An admission change swaps the type in place, the new type joined
+before the old leaves, so a refused join keeps the old. A link reset destroys
+the participants with no Leave sent, so the new ones hold a source whose
+destination changed before it as its Leave would; an unchanged source declares
+again at once. A refused join is declared again with THE TRANSMIT's next
+declarations. lwSRP refuses a Leave while the participant holds an MRPDU the
+ring refused, which the declarations after THE TRANSMIT's build may meet (a
+Domain adoption refused for storage before the build, made after it): the
+source then stays declared, its `TALKER_DECL` bit and bandwidth too, and its
+withdrawal is owed. THE TRANSMIT's next call meets no frame owed, so its first
+declarations take the Leave, and the hold-off starts at the Leave lwSRP took.
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
@@ -230,17 +269,19 @@ An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
 The poll builds no MRPDU and declares nothing: THE TRANSMIT does both (`ctrl_loop.h`, #665).
-An MRPDU owed takes a pass given whole, the first the loop can give, so no pass that takes a record carries a build.
+An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop gives after a pass that left tier 1 no record to take (THE TIERS, `ctrl_loop.h`, #894), so no pass that takes a record carries a build.
 What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
 lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
 The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
-An MRPDU a join, periodic or LeaveAll timer owes is committed within `CTRL_LOOP_TX_MS` of its deadline, inside T_svc ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); `ctrl_loop.c` holds it at compile time).
-A Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit (Milan 4.3.2).
+A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at both points (a 900 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
+An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 33.20 ms there at the 900 us slice with the Talker declarations' costs (`rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 34 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+Where a slice holds both MRPDUs (`CTRL_LOOP_BUILD_MOST` 2, a slice of at least `CTRL_LOOP_BUILD_PASS_US`; no point's at this tree), a Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit.
+Where a slice holds one (both points), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
 No declaration is made while a retained receive waits, so none takes the room it waits for, and a refused or waiting one is tried again when the join count ends.
 A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and no pass goes to a build until it is sent.
 The poll reclaims the attributes lwSRP may free, so a record the next pass takes finds the room.
-SRP's records go first (THE DRAIN, `ctrl_loop.h`): a pass takes them past two, while it has spent less than `CTRL_LOOP_DRAIN_US`, and a record follows only the events posted before it, by ring position.
-The composed burst's last record is taken within `CTRL_LOOP_SRP_MS` of its arrival.
+SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, and a record follows only the events posted before it, by ring position.
+The composed burst's last record is a row by every source against SRP's 90 ms (R5, R6; decision D, [`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)).
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
@@ -372,21 +413,31 @@ each interface's publication block of the mailbox (lane F-INT; the
   revocations are reported.
 - `IDLE_SLOPE`: the bandwidth admitted for the interface's sources, Ethernet
   overhead included, written once the sources are declared, before those
-  declarations are sent (participant creation and Domain adoption).
+  declarations are sent (participant creation, Domain adoption and a moved
+  destination's declarations).
 - `SR_DOMAIN`: the default Domain, not adopted, at participant creation; the
   adopted one, with ADOPTED set, before the declarations that carry it.
 - `TALKER_DECL`: bit s while source s's Talker Advertise or Talker Failed is
   declared, written once every source joined, before those declarations are
-  sent (participant creation and Domain adoption), and cleared before a reset
-  or destroy removes the participants holding them. The datapath's CRF talker
-  tags its frames only while its bit is set (802.1Q 35.1.2). Every source is
-  declared from participant creation, as a Talker Failed until MAAP allocates
-  its address; the processor declares a source only once its DA gate opens
-  (the design page's choices).
+  sent (participant creation, Domain adoption and a validity change's
+  declarations), cleared for a withdrawn source before its Leave is sent (kept
+  while lwSRP refuses that Leave), and cleared before a reset or destroy
+  removes the participants holding them. The
+  datapath's CRF talker tags its frames only while its bit is set (802.1Q
+  35.1.2). A source is declared only while its DA gate is open, as the
+  processor declares it (the design page's choices; #895).
 
 The tests read the block as the fabric held it at each SRP record's commit, so
 an MRPDU that left before its Domain, slope or declarations were published
-fails a named test, a Domain adoption's included. A named test refuses each
+fails a named test, a Domain adoption's and a withdrawal's included
+(`srp_talker.cpp`, at 1x1/1if and 8x8/2if, with `srp_talker_mutants.py`'s
+planted defects, one a rule), a refused withdrawal's Leave on the wire once
+lwSRP takes it, and THE TRANSMIT's publications counted within one call
+against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
+`SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
+and the 15 s expiry withdraws it, a registered Listener keeps it declared past
+the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
+range's destination declared only after the hold-off. A named test refuses each
 allocation of a link restart's re-creation in turn, a source's join among
 them, so a creation that fails part way and still shows a declaration fails
 it too.
@@ -417,10 +468,9 @@ The explicit composition now runs ADP, ACMP, MAAP and SRP.
 The composition owns ACMP binding-port delivery, cancellation and retries,
 plus deferred per-sink SRP registration feedback to ACMP. Neither direction
 needs target wiring; the remaining items below do.
-Target integration still supplies live stream configuration and MAAP allocation changes.
+Target integration still supplies live stream configuration.
 It also connects the existing fabric licence output.
-The [target platform](../plat/README.md#the-ports) configures every source at boot from the generated stream table and records each licence.
-A live update of a source MAAP has since allocated still needs an entry in this adapter ([not yet done](../plat/README.md#not-yet-done)).
+The [target platform](../plat/README.md#the-ports) configures every source at boot from the generated stream table and records each licence; the composition passes MAAP's DA gate to `srp_mbx_gate` (#895).
 The desk callback proves output ordering, not a connected target licence register.
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
@@ -434,9 +484,10 @@ transmit opportunity within JoinTime and T_svc, and a full ring that loses
 nothing and keeps the order. It also covers the #608 stop and the `LICENCE`
 at the policer, the last two only under that check's fixture, which gives
 source 0 its allocation at creation. Until the entry above re-declares a
-source MAAP has allocated, no split source holds a licence. `SRC_SID` is
-written by no firmware, so a split talker's stream frames would carry
-stream_id 0.
+source MAAP has allocated, no split source holds a licence. Each source's
+`SRC_SID` is the MAAP adapter's, written before its DA gate opens (#905,
+[maap README](../maap/README.md)), and that check's `[SID]` holds a split
+talker's stream frames to the stream_id its Talker Advertise declares.
 
 The lwSRP pin is public `main` at `08ee86e8`.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).

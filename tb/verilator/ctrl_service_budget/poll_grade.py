@@ -21,10 +21,24 @@ them all). That section less the items inside it is the pass's base, which every
   mrpdu      an MRPDU a build left owed (build_mrpdu, A3 of ctrl_loop.h, one a poll); its source is THE TRANSMIT's build
   acmp       ACMP's owed frame (acmp_mbx.c's poll, which sends one when ACMP owes one: A3); its sources are ACMP's
              responses and commands, from a record, an ADP record or a TMR_NO_RESP. A call that committed no ACMP frame
-             sent nothing and is the base's
+             sent nothing and is the base's. The item is the send less the offers nested in it (#908): THE KEPT
+             COMMAND's redelivery, which runs only after a send (on_poll), offers the kept record and the records
+             behind it to acmp_rx, and each offer is an ACMP record's own (below)
+  acmp_declined  an offer acmp_rx declined (acmp_mbx.c: on_frame keeps the record, redeliver keeps it kept): a
+             decline is told by its successor, since a declined record is kept and no later record is taken while it
+             is (on_rx_ready, the redelivery's kept-first order), so the next offer is its re-offer, and an accepted
+             one leaves none kept. Its bound: each re-offer follows its own send, and a command is first declined
+             only once the one kept before it was accepted, after a send, so in any window the declined offers are at
+             most two a sent owed frame and one (DECLINES, held over each log)
+
+ACMP's offers that were accepted are its records' handling, one a command: a ring record's in its handler
+(on_frame, record.acmp) and the kept record's in the redelivery, held to the same stated record cost (KEPT).
   aecp       AECP's owed response, a completed command's notification or a probe (aecp.c's transmit, which sends only
              what the core owes); its sources are AECP's records, its applies and its registrations' monitors. A call
              that committed no AECP frame sent nothing and is the base's
+  aecp_long  an aecp item whose call committed a notice longer than AECP_FAN_BYTES (aecp.h), an unsolicited
+             AEM_RESPONSE (IEEE 1722.1-2021 7.5.2) that fan_out sends a recipient at a time, which a command of the
+             largest legal control_data_length answers (9.2.2.6; long_notice.py, #894)
 
 An item nested in another (a walk inside a retained record's apply) is that one's, counted once. Calls outside the polls
 (a record's own apply, a build's MRPDU, a round's notices, the LINK event's withdrawal) are their own source's, not the
@@ -40,6 +54,8 @@ contract rate, is the response-time method's (docs/design/SPLIT_CONTROL_MEMORY.m
 """
 from __future__ import annotations
 
+import functools
+import re
 from bisect import bisect_left
 
 import grade
@@ -52,27 +68,64 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 430 and 1,215 us). The SRP record's and AECP's item (a notice to the
+#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 725 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
 #: ACMP's item at 1x1/1if takes the adapter's redelivery of the kept command and the records behind it, which a poll
 #: that sends an owed frame now runs (acmp_mbx.c). On the merge of dev-soft-core 0fb66211 (#665), each cost, every item
 #: the harness holds a pass's polls to, is the larger of its measurement there and this table's: the polls' base 205
-#: and 325 us, the walk 35 at 1x1/1if and the rebuild 690 at 8x8/2if.
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=430, acmp=120,
-                    aecp=210),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,
-                    aecp=270)}
+#: and 325 us, the walk 35 at 1x1/1if and the rebuild 690 at 8x8/2if. Measured again on the image under THE TIERS
+#: (#894), each the larger of that and this table's: ACMP's owed frame 195 and a notice 275 at 8x8/2if. A notice longer
+#: than AECP_FAN_BYTES (aecp_long) is measured over the aecp-largest-notice group alone, the one that stages it
+#: (long_notice.py, #894): a 550 B notice to 15 controllers, 34,359 CPU cycles at 1x1/1if, and to 31 on the 8x8 shape
+#: with the answering-ports arm, 61,935, at the merge of #810's 084cf7a8 (33,815 and 61,578 before it), plus 5 %.
+#: ACMP's item is its send less the offers THE KEPT COMMAND's redelivery nests in it, and a declined offer is its own
+#: (#908): measured over backlog-owed, the one group that stages owed ACMP frames, on the image that traces acmp_rx at
+#: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
+#: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if.
+STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=50,
+                    aecp=210, aecp_long=365, acmp_declined=20),
+             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=65,
+                    aecp=275, aecp_long=655, acmp_declined=20)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
 RECORD = 'record'
+#: An aecp item that committed a notice longer than AECP_FAN_BYTES, held to its own stated cost.
+LONG = 'aecp_long'
+#: ACMP's offers (#908): one acmp_rx declined, held to its own stated cost; the kept record's accepted re-offer, an
+#: ACMP record's handling, held to the stated record cost (load_grade.STATED_US' record.acmp); the offers an ACMP item
+#: carries, subtracted from it and from the base and held one by one; and the declines over their bound.
+DECLINED, KEPT, OFFERS, DECLINES = 'acmp_declined', 'acmp_kept', 'acmp_offers', 'acmp_declines'
+
+
+@functools.cache
+def fan_bytes() -> int:
+    """AECP_FAN_BYTES (aecp.h): the longest notice the fan port takes; a longer one goes a recipient at a time."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
+    return int(re.search(r'^#define AECP_FAN_BYTES (\d+)u', text, re.M)[1])
+
+
+def long_notices(log: grade.Log) -> list[int]:
+    """The bus cycle of each AECP commit of a notice longer than AECP_FAN_BYTES, sorted: an AEM_RESPONSE (message_type
+    1) with the u bit set (IEEE 1722.1-2021 7.5.2), its command_type's top bit."""
+    ch = scenario.CH['aecp']
+    return sorted(cycle for cycle, c, _, frame in log.tx
+                  if c == ch and len(frame) > fan_bytes() and frame[15] & 0x0F == 1 and frame[36] & 0x80)
 
 
 def stated_us(interfaces: int) -> dict[str, int]:
     """The base's and each item's stated cost in microseconds at that many interfaces."""
     return dict(STATED_US[interfaces])
+
+
+def record_us(interfaces: int) -> int:
+    """An ACMP record's stated cost in microseconds at that many interfaces, the point's at the pin
+    (load_grade.STATED_US, the column the rows read), which the kept record's accepted re-offer is held to (KEPT,
+    #908)."""
+    import load_grade
+    return load_grade.STATED_US['1x1/1if' if interfaces == 1 else '8x8/2if']['record.acmp']
 
 
 def spans(log: grade.Log) -> dict[str, list[tuple[int, int, int]]]:
@@ -111,49 +164,102 @@ def committed(log: grade.Log) -> dict[int, list[int]]:
 
 
 def instances(log: grade.Log, traced: dict, commits: dict[int, list[int]], start: int,
-              end: int) -> list[tuple[str, int]]:
-    """The items inside a pass's polls that did their work, outermost first, each (kind, CPU cycles)."""
+              end: int, longs: list[int] = ()) -> list[tuple[str, int]]:
+    """The items inside a pass's polls that did their work, outermost first, each (kind, CPU cycles): an aecp item
+    that committed a notice of `longs` (long_notices) is LONG's, and an acmp item is its send, the ACMP offers nested
+    in it its OFFERS entry beside it (offers)."""
     found = []
     for kind, (label, channel) in ITEMS.items():
         rows = traced.get(label, [])
         for s, cycles, s_sys in rows[bisect_left(rows, (start, -1, -1)):]:
             if s >= end:
                 break
+            end_sys = s_sys + cycles * log.sys_hz // log.cpu_hz
             if channel is not None:
                 marks = commits.get(scenario.CH[channel], [])
-                end_sys = s_sys + cycles * log.sys_hz // log.cpu_hz
                 if bisect_left(marks, end_sys) == bisect_left(marks, s_sys):
                     continue
-            found.append((s, s + cycles, kind))
-    return outermost(found)
+            long = kind == 'aecp' and bisect_left(longs, end_sys) != bisect_left(longs, s_sys)
+            found.append((s, s + cycles, LONG if long else kind))
+    out = []
+    for kind, s, cycles in outermost(found):
+        nested = sum(o[1] for o in offers(traced, s, s + cycles)) if kind == 'acmp' else 0
+        out += [(kind, cycles - nested)] + ([(OFFERS, nested)] if nested else [])
+    return out
 
 
-def outermost(found: list[tuple[int, int, str]]) -> list[tuple[str, int]]:
-    """The items no other contains, each (kind, CPU cycles): one nested in another is that one's."""
+def outermost(found: list[tuple[int, int, str]]) -> list[tuple[str, int, int]]:
+    """The items no other contains, each (kind, CPU cycle it started, CPU cycles): one nested in another is that
+    one's."""
     outer, reach = [], -1
     for s, e, kind in sorted(found, key=lambda r: (r[0], -r[1])):
         if s >= reach:
-            outer.append((kind, e - s))
+            outer.append((kind, s, e - s))
             reach = e
     return outer
 
 
+def offers(traced: dict, start: int = -1, end: int = 1 << 62) -> list[tuple[int, int, bool, int]]:
+    """ACMP's offers that start in [start, end), in order, each (CPU cycle, its cost, whether it was the kept record's
+    re-offer, the bus cycle): a ring record's, its handler's span (poll_items.HANDLER, the offer and its keep where it
+    declined), and the redelivery's re-offer of the kept record, an acmp_rx call outside any handler (redeliver)."""
+    handlers, calls = traced.get(poll_items.HANDLER, []), traced.get(poll_items.OFFER, [])
+    out = [(s, c, False, s_sys) for s, c, s_sys in handlers[bisect_left(handlers, (start, -1, -1)):] if s < end]
+    for s, c, s_sys in calls[bisect_left(calls, (start, -1, -1)):]:
+        if s >= end:
+            break
+        k = bisect_left(handlers, (s + 1, -1, -1)) - 1
+        if k < 0 or not handlers[k][0] <= s < handlers[k][0] + handlers[k][1]:
+            out.append((s, c, True, s_sys))
+    return sorted(out)
+
+
+def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
+    """Each ACMP offer of the log graded (#908): an offer is declined exactly when the next offer is the kept record's
+    re-offer (poll_items.OFFER), held to DECLINED's cost; the kept record's accepted re-offer is an ACMP record's
+    handling, held to KEPT's; and the declines, at most two a send and one. The heaviest of each and those over."""
+    every = offers(traced)
+    heaviest, over = {DECLINED: 0, KEPT: 0}, []
+    declines = 0
+    for k, (_, cycles, kept, s_sys) in enumerate(every):
+        declined = k + 1 < len(every) and every[k + 1][2]
+        kind = DECLINED if declined else KEPT if kept else None
+        declines += declined
+        if kind is None:
+            continue
+        heaviest[kind] = max(heaviest[kind], cycles)
+        if cycles > limits[kind]:
+            over.append(dict(kind=kind, start_sys=s_sys, cycles=cycles))
+    if declines > 2 * sends + 1:
+        over.append(dict(kind=DECLINES, start_sys=0, cycles=declines, sends=sends))
+    return heaviest, over
+
+
 def held(log: grade.Log, interfaces: int) -> dict:
-    """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, and
-    every one over its cost."""
+    """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
+    one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
     limits[RECORD] = limits['retained']
-    traced, commits = spans(log), committed(log)
+    limits[KEPT] = record_us(interfaces) * log.cpu_hz // 1_000_000
+    traced, commits, longs = spans(log), committed(log), long_notices(log)
     heaviest = dict.fromkeys(limits, 0)
     over = []
-    every = sections(traced)
+    every, sent, sends = sections(traced), [], 0
     for start, end, start_sys in every:
-        items = instances(log, traced, commits, start, end)
+        items = instances(log, traced, commits, start, end, longs)
         base = end - start - sum(cycles for _, cycles in items)
         for kind, cycles in [('base', base), *items]:
+            sends += kind == 'acmp'
+            if kind == OFFERS:
+                continue
             heaviest[kind] = max(heaviest[kind], cycles)
+            sent += [(start_sys, cycles)] if kind == LONG else []
             if cycles > limits[kind]:
                 over.append(dict(kind=kind, start_sys=start_sys, cycles=cycles))
+    # ACMP's offers, wherever they ran: the declined ones and the kept record's accepted re-offer (#908)
+    found, beyond = offered(traced, sends, limits)
+    heaviest.update(found)
+    over += beyond
     # each SRP record's own apply: an apply_receive call in no pass's polls
     polls = [(start, end) for start, end, _ in every]
     for s, cycles, s_sys in traced.get(ITEMS['retained'][0], []):
@@ -163,4 +269,5 @@ def held(log: grade.Log, interfaces: int) -> dict:
         heaviest[RECORD] = max(heaviest[RECORD], cycles)
         if cycles > limits[RECORD]:
             over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles))
-    return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over)
+    # each LONG item, (the bus cycle its pass's polls began, CPU cycles): a long notice's polls, reported
+    return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over, long=sent)

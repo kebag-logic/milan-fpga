@@ -55,7 +55,7 @@ static uint32_t image_latency[AECP_ENTITY_OUTPUTS];
 static struct aecp_mapping image_maps[AECP_ENTITY_MAP_ROWS];
 static struct aecp_mapping image_map_scratch[AECP_ENTITY_MAP_MAX];
 static struct aecp_map image_map_pools[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(image_maps);
-static const struct aecp_value image_names[AECP_ENTITY_NAMES] = AECP_ENTITY_NAMES_INIT;
+static const struct aecp_name_run image_names[AECP_ENTITY_NAME_RUNS] = AECP_ENTITY_NAME_RUNS_INIT;
 
 // The observation and physical-apply ports are contract 2.3's face block
 // (aecp_face.c). GET_AS_PATH stays an explicit unavailable observation: this
@@ -65,6 +65,9 @@ static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, s
 { (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }
 static const struct aecp_ports image_platform = {.random=a_random, .path=a_path};
 static struct aecp_face image_face;
+#if AECP_MBX_OWED_SLOTS != 0u
+static struct aecp_owed image_owed[AECP_MBX_OWED_SLOTS];
+#endif
 
 int main(void)
 {
@@ -73,6 +76,11 @@ int main(void)
     struct aecp_config aecp = {.entity_id=image_entity.entity_id,.interfaces=MBX_N_IF,
         .model=&image_model,.maps=image_map_pools,.map_count=AECP_ENTITY_MAPS,
         .events=image_events,.latency=image_latency};
+#if AECP_MBX_OWED_SLOTS != 0u
+    aecp.owed=image_owed;
+    aecp.owed_slots=AECP_MBX_OWED_SLOTS;
+    aecp.queue=&aecp_owed_queue;
+#endif
     for (unsigned i=0;i<MBX_N_IF;++i) aecp.mac[i]=image_entity.mac;
     const struct ctrl_app_config cfg = {
         .entity=&image_entity, .arena=image_arena, .arena_bytes=sizeof(image_arena),
@@ -97,7 +105,7 @@ int main(void)
         !ctrl_app_compose_aecp(&image_app,&image_aecp_bridge,&image_aecp,&aecp,
             &image_face.ports,&image_state) ||
         !ctrl_app_aecp_attach_face(&image_aecp_bridge,&image_face)) return 5;
-    aecp_nvm_init(&image_state,&image_aecp.core,image_names,AECP_ENTITY_NAMES,
+    aecp_nvm_init(&image_state,&image_aecp.core,image_names,AECP_ENTITY_NAME_RUNS,
         image_map_scratch,AECP_ENTITY_MAP_MAX);
     acmp_nvm_init(&image_binding,&image_app.acmp.acmp,NVM_G_BIND,&image_state.port);
     nvm_flash_litespi_power_on();

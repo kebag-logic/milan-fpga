@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 import notice_window
+import talker_window
 import poll_items
 import save_window
 
@@ -92,8 +93,8 @@ MUTATIONS = {
     # #665's planted round without a pass given whole: a change notice is taken only in a pass that took no input and
     # dispatched no centisecond or beside an aged step or a build, so under input that leaves no pass empty the
     # retried notice is committed later than its 20 ms after its port's answer (notice_window.py).
-    'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
-                      'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
+    'retry-ageless': ('loop/ctrl_loop.c', '(!l->round_one || l->retry_first) && l->retry_aged(l->retry_ctx)',
+                      '(!l->round_one || l->retry_first) && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
@@ -119,20 +120,19 @@ POLL_CONTROLS = poll_items.CONTROLS
 REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 
 
-#: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
-#: the formal measurement. answering-ports: the four observation ports answer zeroed values
-#: instead of 'unavailable'. Three are contract 2.3's face block (aecp_face.c: stream, avb and
-#: counters, each a bounded window read that the datapath, held idle here, never answers);
-#: the arm replaces those three in the face's ports, before the core takes them, and makes the
-#: fixture's own path port answer an empty sequence. With the unmodified fixture, AECP retries
-#: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
-#: separates that retry from each path's cost. shutdown-entry: the linked image never
-#: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
-#: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the
-#: face block's stream observation stays unanswered, as with the unmodified fixture, until the first attempt at or
-#: after NOW_MS notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench
-#: reports (ENTRY), and every later one answers zeroed values, so the port answers just after a retry failed: the
-#: retried notice's row (notice_window.py) starts there.
+#: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never the formal measurement.
+#: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. Three are contract 2.3's
+#: face block (aecp_face.c: stream, avb and counters, each a bounded window read that the datapath, held idle here,
+#: never answers); the arm replaces those three in the face's ports, before the core takes them, and makes the fixture's
+#: own path port answer an empty sequence. With the unmodified fixture, AECP retries each pending change notice 1 ms
+#: later forever (aecp.c, retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry:
+#: the linked image never disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the
+#: SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream
+#: observation stays unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS
+#: notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and
+#: every later one answers zeroed values, so the port answers just after a retry failed: the retried notice's row
+#: (notice_window.py) starts there. valid-destinations (#895): the fixture's ACMP source port reports destinations as
+#: the platform's does, so its group's probes open DA gates and SRP declares Talkers.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
@@ -231,6 +231,7 @@ VARIANTS = {
          '    ctrl_loop_run(&image_app.loop);'),
     ],
 }
+VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
 VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 
@@ -630,10 +631,9 @@ def entry_symbols(variant: str) -> tuple[str, ...]:
 #: the step's own CPU time is its modules' cycles in that pass, the store's and its flash port's.
 STEP_SYMBOL = 'nvm_store_service'
 STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
-#: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
-#: the commit of its return address: the saved-state store's boot and its service step, THE
-#: RETRY's round (#665, round_grade.py), a pass's first and last firmware poll and the polls'
-#: heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
+#: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to the commit of its
+#: return address: the saved-state store's boot and its service step, THE RETRY's round (#665, round_grade.py), a pass's
+#: first and last firmware poll and the polls' heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
 SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS,
                 *poll_items.PART_SPANS)
 #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
