@@ -51,6 +51,7 @@ def legal_values(build: dict, port: int, row: tuple[int, ...]) -> list[tuple[int
     channel, each audio STREAM_INPUT's channels; at an output port, whose key is a stream channel, each of the port's
     clusters' channels."""
     def be(value: bytes, at: int) -> int:
+        """The big-endian 16-bit field of a descriptor's value at that offset."""
         return int.from_bytes(value[at:at + 2], 'big')
     out = []
     if port == 14:
@@ -76,9 +77,11 @@ def refused_edits(build: dict, port: int, edit: bytes) -> dict[str, bytes]:
     values = legal_values(build, port, row)
 
     def payload(mappings: list[tuple[int, ...]]) -> bytes:
+        """The edit's descriptor, count and reserved field, then those mappings."""
         return edit[:8] + b''.join(b''.join(f.be(v, 2) for v in m) for m in mappings)
 
     def keyed(value: tuple[int, int]) -> tuple[int, ...]:
+        """The row's key with that value: its cluster channel at an input port, its stream channel at an output."""
         return (*value, *row[2:]) if port == 14 else (*row[:2], *value)
     out = {'collision_indices': payload([keyed((n, row[1] if port == 14 else row[3])) for n in range(MAPPINGS)]),
            'collision_values': payload([keyed(values[n % len(values)]) for n in range(MAPPINGS)])}
