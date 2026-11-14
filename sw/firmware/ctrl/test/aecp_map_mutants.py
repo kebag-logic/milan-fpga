@@ -14,6 +14,8 @@ WORK = 'Core.MapEditWorkIsLinearInItsMappings'
 KEYS = 'Core.EveryAcceptedMapKeyIsItsOwn'
 DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
 OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
+CLEARED = 'Core.MapEditWorkReadsOnlyWhatItCleared'
+ECHO = 'Core.MapCommandsEchoTheirDescriptorAndPage'
 #: Not a test: a row whose check this is is caught only by its own file's compile refusal on the words
 #: (aecp_mutants.refused), at the campaign's configuration, 1x1/1if.
 BUILD = 'Build.refused'
@@ -102,6 +104,60 @@ ROWS = (
      'if (is && left == 0u && e->copies[v - 1u] != 0u) {',
      'if (is && left == 0u) {',
      (EDIT, "the edit's map is its definition's, row for row")),
+    # #894: a REMOVE reads only the rows of its port's map from the first equal to a held mapping to one past the
+    # last (the reach its FOUND pass holds), keeps those before in place, and moves those after down unread
+    ('map-remove-reach-a-row-late', 'aecp_maps.c',
+     'from = from == count ? k : from;',
+     'from = from == count ? k + 1u : from;',
+     (EDIT, "the edit's map is its definition's, row for row")),
+    ('map-remove-reach-a-row-short', 'aecp_maps.c',
+     '\t\t\t\tto = k + 1u;',
+     '\t\t\t\tto = k;',
+     (EDIT, "the edit's map is its definition's, row for row")),
+    ('map-remove-rows-past-the-reach-dropped', 'aecp_maps.c',
+     '\t\tfor (; k < count; ++k) {\n\t\t\tassign(&rows[kept++], &rows[k]);\n\t\t}\n',
+     '',
+     (EDIT, "the edit's map is its definition's, row for row")),
+    ('map-remove-kept-row-unmoved', 'aecp_maps.c',
+     '} else if (kept++ != k) {',
+     '} else if (kept++ == k) {',
+     (EDIT, "the edit's map is its definition's, row for row")),
+    # #894: a row's words are composed in place and a mapping copied a coordinate at a time, never by memcpy
+    ('map-row-words-cluster-channel-dropped', 'aecp_maps.c',
+     'r->cluster | (uint32_t)r->cluster_channel << 16}};',
+     'r->cluster}};',
+     (EDIT, 'status for command')),
+    ('map-copy-cluster-channel-dropped', 'aecp_maps.c',
+     '\tto->cluster_channel = from->cluster_channel;\n',
+     '',
+     (EDIT, "the edit's map is its definition's, row for row")),
+    # #894: an edit clears what it reads before it writes, and only that, which the work arm's edits, each started
+    # from the table an earlier one left (aecp_maps.c, stale), would read otherwise
+    ('map-slots-cleared-a-slot-short', 'aecp_maps.c',
+     'memset(e.slot, 0, MAP_DOMAIN);',
+     'memset(e.slot, 0, MAP_DOMAIN - 1u);',
+     (CLEARED, "an ADD beside a row at the domain's last position is accepted")),
+    ('map-marks-uncleared', 'aecp_maps.c',
+     'e.next[n] = e.flags[n] = e.copies[n] = 0u;',
+     'e.next[n] = e.copies[n] = 0u;',
+     (CLEARED, "an ADD beside a row at the domain's last position is accepted")),
+    ('map-occurrences-uncleared', 'aecp_maps.c',
+     'e.next[n] = e.flags[n] = e.copies[n] = 0u;',
+     'e.next[n] = e.flags[n] = 0u;',
+     (CLEARED, 'a REMOVE of one of two equal rows removes one')),
+    ('map-links-uncleared', 'aecp_maps.c',
+     'e.next[n] = e.flags[n] = e.copies[n] = 0u;',
+     'e.flags[n] = e.copies[n] = 0u;',
+     (CLEARED, 'visits past twice their sum')),
+    # #894: a map command's descriptor and GET_AUDIO_MAP's page are echoed a byte at a time
+    ('map-echo-page-dropped', 'aecp_maps.c',
+     'k < (cmd == 43u ? 6u : 4u)',
+     'k < 4u',
+     (ECHO, "a map command's response echoes its descriptor and page")),
+    ('map-echo-index-short', 'aecp_maps.c',
+     'k < (cmd == 43u ? 6u : 4u)',
+     'k < (cmd == 43u ? 6u : 3u)',
+     (ECHO, "a map command's response echoes its descriptor and page")),
     # the work is linear in the mappings (#894's egress ruling of 2026-11-13, item 3): a REMOVE's other values of a
     # key linked at the key's first, never appended by a walk of those already held, which is n(n+1)/2 for n of them
     # and changes no outcome, so only the count of the work refuses it

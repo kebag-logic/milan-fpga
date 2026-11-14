@@ -132,8 +132,14 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: cost the larger of that and this table's: AECP's timer slot 65 to 75 and a TICK 45 to 50 at 1x1/1if, and at 8x8/2if
 #: AECP's timer slot 105 to 115, a TICK 40 to 55, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155,
 #: the code's placement the merge moves, not traced (#909); an AECP record stays #894's 235 us, which #894 checks
-#: (#895, the ruling of 2026-11-14 on its composition, item 2). 32x32/2if
-#: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
+#: (#895, the ruling of 2026-11-14 on its composition, item 2); on #894's round 11 a TICK at 1x1/1if 45 to 50 us, the
+#: larger of this table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink
+#: sending an owed frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A
+#: 4,612), and ACMP's owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30
+#: to 35 (2,859 cycles in notice-every-0; 2,093 at round 9's head) and ACMP's owed frame 65 to 70; on #895's merge of
+#: that round each cost the one of the side that moved it from their merge base 7398ec0a, the larger where both did
+#: (#895). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost
+#: the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
 #: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
@@ -176,18 +182,19 @@ STATED_US = {
 #: every other #894's, ACMP's owed frame among them, itemised (#894); measured again on that merge, each cost
 #: STATED_US's measurement raised is raised here with it, the larger: AECP's timer slot 75 and a TICK 50 at 1x1/1if,
 #: and at 8x8/2if AECP's timer slot 110 to 115, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155, its
-#: TICK's 85 the larger (#895).
+#: TICK's 85 the larger (#895); on #895's merge of #894's round 11 each cost the one of the side that moved it from
+#: their merge base 7398ec0a, the larger where both did: ACMP's owed frame #894's, 55 and 70 us (#895).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 50,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
-                'item.mrpdu': 725, 'item.acmp': 50, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
+                'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 115, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 325, 'item.reclaim': 40, 'item.retained': 365,
-                'item.mrpdu': 1215, 'item.acmp': 65, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
+                'item.mrpdu': 1215, 'item.acmp': 70, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,
@@ -623,12 +630,14 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
-    """The harness self-test's checks of this gate and of the flip check: every planted defect refused."""
+    """The harness self-test's checks of this gate, of the flip check and of a pass's record classes: every planted
+    defect refused."""
     import flip_grade
+    import record_classes
     escaped = controls(ROOT) + period_controls(ROOT)
     names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in names] + flip_grade.flip_checks()
+            for name in names] + flip_grade.flip_checks() + record_classes.checks()
 
 
 def main() -> int:

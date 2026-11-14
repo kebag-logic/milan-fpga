@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
+import edit_rows  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
                         built_value, channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_budget_ms,
@@ -133,7 +134,7 @@ LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
-SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own'), 'datapath': ('datapath',),
+SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own', 'edits'), 'datapath': ('datapath',),
            'tier 1: the first queued notice': ('notice',), 'tier 2: the slice a window opens on': ('slice',),
            'the retry spacing': ('spacing',), "THE PACE: R4L's burst ahead of its last": ('pace',)}
 
@@ -171,8 +172,7 @@ BUILT_NAMES = {'CTRL_LOOP_SLICE_US': 'sw/firmware/ctrl/loop/ctrl_loop.h',
 def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) -> tuple[int, ...]:
     """BUILT_NAMES' constants at that many interfaces, in its order, each `(MBX_N_IF == 1u ? a : b)` or a number, the
     burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST, mailbox.yaml)."""
-    burst = rows_grade.contract(root)[0]['aecp'][0]
-    out = []
+    burst, out = rows_grade.contract(root)[0]['aecp'][0], []
     for name, path in BUILT_NAMES.items():
         out.append(built_value((texts or {}).get(path) or (root / path).read_text(), name, n_if, burst))
     return tuple(out)
@@ -462,7 +462,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             break
         passes = n
     out['timers'] = timers
-    out.update(tier1_records(row, i, d, passes, arrive))
+    out.update(tier1_records(row, i, d, passes, arrive, None if row in LONG_ROWS else w_ms))
     if row not in (*TIER1_ROWS, *TX_ROWS):
         out.update(tier2)
     gm = sum(math.floor(w_ms / ms) + 1 for ms in load_grade.GM_INTERVALS_MS)
@@ -727,7 +727,7 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
-            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS)
+            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS, *edit_rows.CONTROLS)
 
 
 def control_names(root: Path) -> tuple[str, ...]:
@@ -882,7 +882,7 @@ def tree_controls(root: Path) -> list[str]:
     if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
             stated not in (root / loop).read_text():
         escaped.append("the built design's slice not the rule's")
-    escaped += long_rows.controls(root) + paced_rows.controls(root)
+    escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
     # R4, and none is the tree's rule before it (notify)
     mailbox = 'sw/firmware/ctrl/aecp/aecp_mbx.h'

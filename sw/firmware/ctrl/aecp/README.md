@@ -240,7 +240,17 @@ twice its mappings and rows. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py
 plants a defect in each pass, indices that collide, a domain one channel
 wide and a table smaller than the domain, which the build refuses, and a walk
 of a key's values and a scan of the table, which change no
-outcome and only the count refuses. An edit that is checked paces AECP's next record
+outcome and only the count refuses. A one-row edit's record is cut to what its
+mappings read ([#894's round 11](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878230332)):
+the edit clears only the domain's slots, and each mapping's link, marks and
+occurrences at its turn in the table; a REMOVE looks up only the rows of its
+port's map from the first equal to a held mapping to one past the last, which
+its FOUND pass holds, keeping the rows before in place and moving those after
+down; and a mapping is copied a coordinate at a time, never by a call of
+`memcpy`. `Core.MapEditWorkReadsOnlyWhatItCleared` starts each of the work
+arm's edits from the table an earlier one left (`stale`, in that arm alone),
+`Core.MapCommandsEchoTheirDescriptorAndPage` holds the commands' echo of their
+descriptor and page, and the plant table plants each. An edit that is checked paces AECP's next record
 (THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
 rx-ready gate holds the channel's next record in its ring, never dropped,
 until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll
