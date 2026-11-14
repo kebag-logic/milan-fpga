@@ -1,0 +1,43 @@
+#!/bin/bash
+# The lane's own gates on a clean clone of the commit, one log and one rc per gate, never piped.
+# usage: lane_gates_r2.sh COMMIT
+set -u
+H=$1 T=<scratch> R2=<scratch>/r2
+W=$R2/full/lane-wt G=$R2/full/lane
+mkdir -p "$G"
+[ -d "$W" ] || bash "$T/scripts/clone.sh" "$W" "$H" > "$G/clone.log" 2>&1
+cd "$W" || exit 3
+test "$(git rev-parse HEAD)" = "$H" || exit 4
+test -z "$(git status --porcelain)" || exit 5
+. "$T/scripts/env.sh"
+export TMPDIR=$R2/tmp/lane MILAN_LITEX_PYTHON=<home>/litex-milan/venv/bin/python3; mkdir -p "$TMPDIR"
+MD=<scratch-venv>/gates/venv/bin/python3
+run() { id=$1; shift; { echo "# head $H gate $id: $*"; bash -c "$*"; } > "$G/$id.log" 2>&1; rc=$?; echo $rc > "$G/$id.rc"; echo "$(date +%T) $id rc=$rc" >> "$G/summary.txt"; }
+run diffcheck_merge_base "git diff --check b7d692952305e4e0e132abb8f99c339eeb17a873 HEAD"
+run docs_inventory_check "python3 -B scripts/docs_inventory.py --check"
+run doc_style "python3 -B scripts/check_doc_style.py"
+run doc_style_selftest "python3 -B scripts/check_doc_style.py --selftest"
+run doc_paths "python3 -B scripts/check_doc_paths.py"
+run docs_check "python3 -B scripts/docs_check.py"
+run gen_toc_check "$MD -B scripts/gen_toc.py --check"
+run gen_toc_anchors "$MD -B scripts/gen_toc.py --verify-anchors"
+run em_dash_base "$MD -B scripts/check_em_dash.py --base b7d692952305e4e0e132abb8f99c339eeb17a873"
+run sweep_shape "python3 -B scripts/check_sweep_shape.py"
+run sweep_shape_selftest "python3 -B scripts/check_sweep_shape.py --self-test"
+run deploy_shape "python3 -B scripts/check_deploy_shape.py"
+run deploy_shape_selftest "python3 -B scripts/check_deploy_shape.py --selftest"
+run solution_docs "python3 -B scripts/check_solution_docs.py"
+run solution_docs_selftest "python3 -B scripts/check_solution_docs.py --selftest"
+run board_variants "python3 -B scripts/board_variants.py"
+run board_variants_selftest "python3 -B scripts/board_variants.py --selftest"
+run board_variants_handover_layout "python3 -B scripts/board_variants.py --layout ax7a200t <home>/milan-fpga-management/2026-09-23/911-a782/handover/flashboot_layout.json"
+run py_idiom "python3 -B scripts/check_py_idiom.py"
+run sh_idiom "python3 -B scripts/check_sh_idiom.py"
+run timing_grade "python3 -B sw/builder/test_timing_grade.py <home>/litex-milan/venv/bin/python3"
+run builder_gate_timing_grade "python3 -B sw/builder/test_builder.py --gates test_commercial_timing_grade"
+run gate_1e "python3 -B sw/builder/test_builder.py --gates test_qspi_owner_transition_completed_write_prefixes"
+run build_dry_ax7a200t "bash sw/litex/build.sh ax7a200t --dry-run"
+run build_dry_ax7101 "bash sw/litex/build.sh ax7101 --dry-run"
+run flash_map "python3 -B sw/litex/flash_map.py"
+run tree_after "git status --porcelain; test -z \"\$(git status --porcelain)\""
+echo "$(date +%T) done" >> "$G/summary.txt"

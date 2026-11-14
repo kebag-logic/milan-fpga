@@ -1,0 +1,11 @@
+#!/bin/bash
+# Run a command as its own user unit, MemoryMax 10G, on the given CPUs, with the lane's tool environment; log and rc
+# into r2/units. usage: unit.sh NAME CPUS DIR COMMAND...
+set -eu
+NAME=$1 CPUS=$2 DIR=$3; shift 3
+U=<scratch>/r2/units; mkdir -p $U
+rm -f $U/$NAME.rc
+printf '%q ' "$@" > $U/$NAME.cmd
+echo "$CPUS" > $U/$NAME.cpus
+systemd-run --user --unit=milan-911-a782-$NAME --collect --property=MemoryMax=10G --setenv=HOME=<home> \
+  --working-directory=$DIR /usr/bin/taskset -c $CPUS /bin/bash -c ". <scratch>/scripts/env.sh; $(cat $U/$NAME.cmd) > $U/$NAME.log 2>&1; echo \$? > $U/$NAME.rc"

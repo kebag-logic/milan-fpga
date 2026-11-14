@@ -1,0 +1,12 @@
+== flash-pair [ax7101] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET ==
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           7512 B  -> flash @ 0x400000  (budget 65536 B, from <run>/tmp/tmp.KBi3gVvTUx/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: <run>/tmp/tmp.KBi3gVvTUx/target/flashboot_layout.json (bound to <run>/tmp/tmp.KBi3gVvTUx/target/gateware/target.bit and <run>/tmp/tmp.KBi3gVvTUx/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           7512 B  -> flash @ 0x400000  (budget 65536 B, from <run>/tmp/tmp.KBi3gVvTUx/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] identify the board on serial STUB-SERIAL (FPGA die, then flash JEDEC ID)
+qspi owner transition REFUSED: target layout names no flash device (flash_device and flash_jedec_id); rebuild it, or regenerate it from the build's soc.h with layout_from_soch.py
+[deploy] REFUSED: the image set's layout or the FPGA on the cable fails the board check.

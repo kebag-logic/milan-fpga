@@ -1,0 +1,14 @@
+build C's exported layout (main()) against the layout rebuilt from build C's soc.h by layout_from_soch.py at the head
+images equal: True [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 10485760}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}]
+flash_device: equal True ('n25q128a13')
+flash_jedec_id: equal True (2144792)
+bitstream_payload_sha256: equal True ('095a7963560a36e21e0154f5ccb7da99ab67c18ff9731216fdbba95f8dfb6c90')
+bitstream_fpga_part: equal True ('7a200tfbg484')
+aem_image_bytes: equal True (7512)
+aem_image_crc32: equal True (950534947)
+aem_image_sha256: equal True ('bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180')
+gptp_owner: equal True ('fabric')
+cpu_xlen: equal True (32)
+manifest: equal True ('baremetal')
+keys only in main()'s export: ['erase_block', 'flash_size', 'reserved'] keys only in the rebuild: []
+deploy validation of the rebuilt layout with the release bitstream (programmer part xc7a200tfbg484): {'owner': 'fabric', 'part': '7a200tfbg484', 'payload_bytes': 9730652}

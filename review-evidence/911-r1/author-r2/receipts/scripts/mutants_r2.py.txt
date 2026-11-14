@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""Round-2 mutant probes (#911) on a clean clone of the head: the reviewer's K3, K4, K7 and K9, with the same anchor
+texts, each planted alone; every gate named for it runs, and its rc and failing words are recorded. The unmutated
+clone runs the same gates first (all must exit 0). The clone is restored and checked clean after each mutant.
+
+usage: mutants_r2.py <clone> <litex python> [K3,K4,...]
+"""
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+TREE, LITEX_PY = Path(sys.argv[1]), sys.argv[2]
+GATE_1E = ("gate 1e", ["python3", "-B", "sw/builder/test_builder.py", "--gates",
+                       "test_qspi_owner_transition_completed_write_prefixes"])
+TIMING = ("test_timing_grade.py", ["python3", "-B", "sw/builder/test_timing_grade.py", LITEX_PY])
+TIMING_GATE = ("builder gate test_commercial_timing_grade",
+               ["python3", "-B", "sw/builder/test_builder.py", "--gates", "test_commercial_timing_grade"])
+MUTANTS = [
+    ("K3 two disagreeing JEDEC forms accepted (first wins)", "sw/litex/qspi_owner_transition.py",
+     "    if len(ids) != 1:", "    if not ids:", [GATE_1E]),
+    ("K4 several FPGA models on the chain accepted", "sw/litex/qspi_owner_transition.py",
+     "    if len(models) != 1:", "    if not models:", [GATE_1E]),
+    ("K7 layout_from_soch reverts to the fixed 4 MiB bitstream budget", "sw/litex/layout_from_soch.py",
+     '"addr": 0x0, "budget": aem["offset"]})', '"addr": 0x0, "budget": 0x40_0000})',
+     [TIMING, TIMING_GATE, GATE_1E]),
+    ("K9 the deploy bitstream budget is capped at the AX7101's 4 MiB", "sw/litex/qspi_owner_transition.py",
+     '    budget = bit_rows[0].get("budget", bit_rows[0].get("size"))\n',
+     '    budget = min(bit_rows[0].get("budget", bit_rows[0].get("size")), 0x40_0000)\n',
+     [GATE_1E, TIMING, TIMING_GATE]),
+]
+if len(sys.argv) > 3:
+    MUTANTS = [m for m in MUTANTS if m[0].split()[0] in sys.argv[3].split(",")]
+ENV = dict(os.environ, MILAN_LITEX_PYTHON=LITEX_PY)
+
+
+def run(gates):
+    out = []
+    for name, argv in gates:
+        r = subprocess.run(argv, cwd=TREE, text=True, capture_output=True, timeout=1500, env=ENV)
+        lines = [l for l in (r.stdout + r.stderr).strip().splitlines() if l.strip()]
+        hit = [l for l in lines if "AssertionError" in l or "FAIL" in l or "Error" in l]
+        out.append((name, r.returncode, (hit or lines or [""])[-1][:400]))
+    return out
+
+
+def clean():
+    s = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=TREE, text=True,
+                       capture_output=True).stdout
+    return s == ""
+
+
+def main() -> int:
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=TREE, text=True, capture_output=True).stdout.strip()
+    print(f"clone at {head}, clean: {clean()}")
+    gates = []
+    for *_, g in MUTANTS:
+        gates += [x for x in g if x not in gates]
+    base_ok = True
+    for name, rc, line in run(gates):
+        base_ok &= rc == 0
+        print(f"BASELINE {name} rc={rc}: {line}")
+    survived = 0
+    for label, rel, old, new, g in MUTANTS:
+        path = TREE / rel
+        original = path.read_text(encoding="utf-8")
+        if original.count(old) != 1:
+            print(f"SETUP-ERROR {label}: anchor occurs {original.count(old)} times")
+            return 2
+        path.write_text(original.replace(old, new), encoding="utf-8")
+        try:
+            results = run(g)
+        finally:
+            path.write_text(original, encoding="utf-8")
+        killed = any(rc != 0 for _, rc, _ in results)
+        survived += not killed
+        print(f"{'KILLED  ' if killed else 'SURVIVED'} {label} ({rel}: {old.strip()!r} -> {new.strip()!r})")
+        for name, rc, line in results:
+            print(f"    {name} rc={rc}: {line}")
+        print(f"    clone restored clean: {clean()}")
+    print(f"{len(MUTANTS) - survived} killed, {survived} survived; baseline all rc 0: {base_ok}")
+    return 0 if base_ok and not survived else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

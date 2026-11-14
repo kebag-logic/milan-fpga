@@ -1,0 +1,15 @@
+# Vivado batch run of reports.tcl on build C's routed checkpoint (gateware/alinx_ax7101_route.dcp, written after
+# post-route phys_opt), one slot of the shared Vivado wrapper, taskset 96-127, maxThreads 8
+start 2026-11-14T18:47:06+01:00 end 2026-11-14T18:48:30+01:00 rc 0
+ERROR lines in the Vivado log: 0
+# puts "R2-REPORTS-DONE"
+routed checkpoint: 114484587 B sha256 980b005ef135a73ee3348eef1a1d6db59b468047e5fe2d8e6b79cd5f64d6a00e
+signoff report alinx_ax7101_signoff_all_timing.rpt: 1371593 B sha256 bb2781be5efcf9a28e58743e3408c37400774711a518e8c4e93e250bb87ecb03 (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_check_timing.rpt: 4828 B sha256 3cdda5147210ad5c84b56bbce3be52dfc62051885a33933c85f78bfa1c2a8f34 (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_Fast_0C_timing.rpt: 1313749 B sha256 1d529a3434b845671380c4190a58ae10dc840007bd10081bdd506109efb69fe6 (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_Fast_85C_timing.rpt: 1313750 B sha256 6ceced9fa31ed340faa9c70b7e34c93fafdb776dc2f160b9fe11d2a025c1add4 (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_Slow_0C_timing.rpt: 1369078 B sha256 6fb596ccac33f972ab4ad0e28cfe7c1b05c1cb6561ac4037a68098f52248c31b (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_Slow_85C_timing.rpt: 1369079 B sha256 b98edd5a00d1ba296ec5ab58a374a2d164e211bb85cad0482dd203eb031d267d (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_all_timing.rpt: 1371593 B sha256 bb2781be5efcf9a28e58743e3408c37400774711a518e8c4e93e250bb87ecb03 (over the 200 KB limit; not copied)
+signoff report alinx_ax7101_signoff_cdc.rpt: 124408 B sha256 93a3ddc5b09f443fbd1e5ede9b496a91e6a02ead0c57ca4cfb0929e073d94b71
+buildC_route_cdc_details.rpt equals the signoff alinx_ax7101_signoff_cdc.rpt below its 12-line header: yes

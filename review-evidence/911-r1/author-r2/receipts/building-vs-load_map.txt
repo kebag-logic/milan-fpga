@@ -1,0 +1,34 @@
+# BUILDING.md section 4 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5 against flash_map.load_map() for both dies (R842-1-F1 verification)
+
+load_map(None): bitstream 0x000000+0x400000, aem 0x400000+0x10000, journal 0xEE0000+0x20000, user 0xF00000+0x100000; problems []
+load_map('xc7a200t-fbg484-2'): bitstream 0x000000+0xA00000, aem 0xA00000+0x10000, journal 0xEE0000+0x20000, user 0xF00000+0x100000; problems []
+
+BUILDING.md:472-491:
+Every profile keeps the bitstream at QSPI offset 0.
+
+Its slot size is the die's.
+
+The bare-metal manifest carries only raw `aem_desc.bin`.
+
+Its 64 KiB slot starts where the bitstream slot ends:
+
+| Board | Bitstream slot | `aem_desc.bin` at |
+|---|---|---|
+| AX7101 (XC7A100T) | 4 MiB | `0x400000` |
+| `ax7a200t` (XC7A200T) | 10 MiB | `0xA00000` |
+
+`FLASHBOOT_BITSTREAM_SLOT` in `sw/litex/milan_soc.py` holds the slot sizes.
+
+`layout_for()` in `sw/litex/flash_map.py` derives each die's layout.
+
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant) draws both maps.
+
+Firmware itself is linked into ROM.
+
+the guide's generated variant table (BOARD_DEPLOYMENT.md):
+<!-- board-flash-variants:start -->
+| Board | `build.sh` recipe | Part | Entity model offset | Flash device |
+|---|---|---|---|---|
+| AX7101 | `ax7101` | `xc7a100tfgg484` | `0x400000` | `N25Q128A13` |
+| XC7A200T variant | `ax7a200t` | `xc7a200tfbg484` | `0xa00000` | `N25Q128A13` |
+<!-- board-flash-variants:end -->

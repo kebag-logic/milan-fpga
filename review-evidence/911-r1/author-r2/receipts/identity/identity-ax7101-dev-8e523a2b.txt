@@ -1,0 +1,14 @@
+## ax7101-b7d69295 (b7d692952305e4e0e132abb8f99c339eeb17a873) against ax7101-8e523a2b (8e523a2b17faf17c4564e5af155b73f95dc2a0a5), one clone path
+
+elaboration outputs: 3875 files at b7d692952305e4e0e132abb8f99c339eeb17a873, 3875 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5; list sha256 63a355cf95e2940b / d64c3bb6f7b24a6b
+files in one only: none
+differs: csr.csv; without the generated-on stamp lines: identical
+differs: flashboot_layout.json; keys added ['flash_device', 'flash_jedec_id'], every other key equal: True (the #911 flash-device fields)
+differs: gateware/alinx_ax7101.v; body (stamps and hierarchy comment aside): identical
+differs: software/include/generated/csr.h; without the generated-on stamp lines: identical
+differs: software/include/generated/git.h; without the generated-on stamp lines: identical
+differs: software/include/generated/mem.h; without the generated-on stamp lines: identical
+differs: software/include/generated/soc.h; without the generated-on stamp lines: identical
+build inputs the Tcl reads: 150 at b7d692952305e4e0e132abb8f99c339eeb17a873, 150 at 8e523a2b17faf17c4564e5af155b73f95dc2a0a5; list sha256 0e0d547eb2935460 / 0e0d547eb2935460; identical: True
+
+verdict: IDENTICAL

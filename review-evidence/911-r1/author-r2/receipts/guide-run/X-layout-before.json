@@ -1,0 +1,40 @@
+{
+  "manifest": "baremetal",
+  "gptp_owner": "fabric",
+  "cpu_xlen": 32,
+  "entry": null,
+  "complete": false,
+  "flash_size": 16777216,
+  "erase_block": 65536,
+  "images": [
+    {
+      "name": "bitstream",
+      "offset": 0,
+      "addr": 0,
+      "budget": 4194304
+    },
+    {
+      "name": "aem",
+      "offset": 4194304,
+      "addr": 0,
+      "budget": 65536
+    }
+  ],
+  "reserved": [
+    {
+      "name": "journal",
+      "offset": 15597568,
+      "size": 131072
+    },
+    {
+      "name": "user",
+      "offset": 15728640,
+      "size": 1048576
+    }
+  ],
+  "aem_image_bytes": 7512,
+  "aem_image_crc32": 950534947,
+  "aem_image_sha256": "bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180",
+  "bitstream_payload_sha256": "ed2de6a0a2b827fbc6ecc5e6094ff60585166f1ae0d881fc5b903e515fcf5849",
+  "bitstream_fpga_part": "7a100tfgg484"
+}

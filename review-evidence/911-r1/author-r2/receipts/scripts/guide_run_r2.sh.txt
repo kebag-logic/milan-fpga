@@ -1,0 +1,113 @@
+#!/bin/bash
+# guide_run_r2.sh <clone at the head> <delivered 200T image set> <AX7101 release build dir at b7d69295> <run dir>
+# The deployment guide's "Update a flashed board" step on two valid XC7A200T image sets, and its "Image sets built
+# before #911" path on the AX7101 release (a pre-#911 layout), against the stub programmer bin/openFPGALoader, which
+# opens no cable. HOME is the run dir, so build.sh's work directory is <run>/litex-milan/work and the image sets are
+# named relative to it, as the guide's commands name them. Each step's command, output and rc go to
+# <run>/out/NN-<name>.{cmd,log,rc}.
+set -u
+C=$1 R=$2 X=$3 RUN=$4
+rm -rf "$RUN/out" "$RUN/litex-milan"; mkdir -p "$RUN/out" "$RUN/litex-milan/work" "$RUN/tmp"
+O=$RUN/out W=$RUN/litex-milan/work
+export HOME=$RUN PATH=<scratch>/r2/guide/bin:<home>/litex-milan/venv/bin:/usr/bin:/bin
+export STUB_LOG=$O/stub-calls.log STUB_QSPI=$RUN/stub-qspi.bin SERIAL=STUB-SERIAL AX_FTDI=STUB-SERIAL TMPDIR=$RUN/tmp
+export PYTHONHASHSEED=0
+cd "$C" || exit 3
+n=0
+step() { # name, env assignments..., command...
+    name=$1; shift; n=$((n+1)); id=$(printf %02d-%s "$n" "$name")
+    printf '%s\n' "$*" > "$O/$id.cmd"
+    echo "== $id" >> "$STUB_LOG"
+    env "$@" > "$O/$id.log" 2>&1; echo $? > "$O/$id.rc"
+    echo "$id rc=$(cat "$O/$id.rc")"
+}
+# --- the image sets, each in the delivered three-file layout (D and XD also keep nothing else)
+mkdir -p "$W/R/gateware" "$W/D/gateware" "$W/X/gateware" "$W/X/software/include/generated" "$W/XD/gateware"
+cp "$R/gateware/alinx_ax7101.bit" "$R/aem_desc.bin" "$R/flashboot_layout.json" "$W/R/" && mv "$W/R/alinx_ax7101.bit" "$W/R/gateware/"
+cp "$X/gateware/alinx_ax7101.bit" "$W/X/gateware/"; cp "$X/aem_desc.bin" "$X/flashboot_layout.json" "$W/X/"
+cp "$X/software/include/generated/soc.h" "$W/X/software/include/generated/"
+# D: the delivered 200T set with one payload byte changed and its layout rebound (an earlier 200T set in form;
+# no second 200T build with another payload exists). XD: the same derivation from the AX7101 release set, keeping
+# the release's pre-#911 layout (no flash_device / flash_jedec_id).
+python3 - "$W/R" "$W/D" "$W/X" "$W/XD" <<'PY'
+import json, shutil, sys
+sys.path.insert(0, "sw/litex")
+import qspi_owner_transition as q
+def derive(src, dst):
+    raw = bytearray(open(src + "/gateware/alinx_ax7101.bit", "rb").read())
+    payload, _ = q.bit_info(src + "/gateware/alinx_ax7101.bit")
+    at = raw.find(payload) + 1_000_000
+    raw[at] ^= 0x01
+    open(dst + "/gateware/alinx_ax7101.bit", "wb").write(raw)
+    shutil.copy(src + "/aem_desc.bin", dst + "/aem_desc.bin")
+    body = json.load(open(src + "/flashboot_layout.json"))
+    body.update(q.bitstream_binding(dst + "/gateware/alinx_ax7101.bit"))
+    json.dump(body, open(dst + "/flashboot_layout.json", "w"), indent=2)
+    print(f"{dst.rsplit('/', 1)[1]}: {src.rsplit('/', 1)[1]} with payload byte 1000000 flipped, layout rebound; "
+          f"payload sha256 {body['bitstream_payload_sha256'][:16]}; layout keys {sorted(body)}")
+derive(sys.argv[1], sys.argv[2]); derive(sys.argv[3], sys.argv[4])
+PY
+load() { # set dir: put its payload at 0 and its AEM at its layout's offset in the stub flash
+    python3 - "$STUB_QSPI" "$1" <<'PY'
+import json, sys
+sys.path.insert(0, "sw/litex")
+import qspi_owner_transition as q
+payload, _ = q.bit_info(sys.argv[2] + "/gateware/alinx_ax7101.bit")
+off = [i["offset"] for i in json.load(open(sys.argv[2] + "/flashboot_layout.json"))["images"] if i["name"] == "aem"][0]
+with open(sys.argv[1], "wb") as f:
+    f.truncate(16 << 20); f.seek(0); f.write(payload); f.seek(off); f.write(open(sys.argv[2] + "/aem_desc.bin", "rb").read())
+PY
+}
+check() { # set dir, file: does the stub flash hold that set?
+    python3 - "$STUB_QSPI" "$1" > "$2" <<'PY'
+import json, sys
+sys.path.insert(0, "sw/litex")
+import qspi_owner_transition as q
+flash = open(sys.argv[1], "rb").read(); b = sys.argv[2]
+payload, part = q.bit_info(b + "/gateware/alinx_ax7101.bit")
+aem = open(b + "/aem_desc.bin", "rb").read()
+off = [i["offset"] for i in json.load(open(b + "/flashboot_layout.json"))["images"] if i["name"] == "aem"][0]
+print(f"set {b.rsplit('/', 1)[1]} (part {part}, payload {len(payload)} B, AEM {len(aem)} B at 0x{off:x})")
+print("stub flash holds the bitstream payload at 0:", flash[:len(payload)] == payload)
+print(f"stub flash holds aem_desc.bin at 0x{off:x}:", flash[off:off + len(aem)] == aem)
+PY
+    cat "$2"
+}
+cat > "$O/read-layout.sh" <<'SH'
+B=$1
+set -- $(python3 -c 'import json, sys; d = json.load(open(sys.argv[1]))
+print("xc" + d["bitstream_fpga_part"],
+      hex([i for i in d["images"] if i["name"] == "aem"][0]["offset"]),
+      hex(d["flash_jedec_id"]))' "$B/flashboot_layout.json")
+P=$1 O=$2
+echo "part $P, entity model at $O, flash ID $3"
+SH
+# --- Update a flashed board, XC7A200T: D is in flash, the guide's command updates it to R, then R back to D
+step read-layout-D bash "$O/read-layout.sh" "$W/D"
+load "$W/D"
+step update-200t-D-to-R INSTALLED_BUILD=D bash sw/litex/build.sh flash ax7a200t:R
+check "$W/R" "$O/update-200t-D-to-R.flash.txt"
+step update-200t-R-to-D INSTALLED_BUILD=R bash sw/litex/build.sh flash ax7a200t:D
+check "$W/D" "$O/update-200t-R-to-D.flash.txt"
+# --- Image sets built before #911, AX7101 (STUB_MODEL xc7a100): XD is in flash; X is the release set as built
+load "$W/XD"
+step read-layout-old-X-no-flash-id bash "$O/read-layout.sh" "$W/X"
+step update-ax7101-old-target-refused STUB_MODEL=xc7a100 INSTALLED_BUILD=XD bash sw/litex/build.sh flash ax7101:X
+check "$W/XD" "$O/update-ax7101-old-target-refused.flash.txt"
+cp "$W/X/flashboot_layout.json" "$O/X-layout-before.json"
+step regenerate-layout-from-soch bash -c ". <home>/litex-milan/venv/bin/activate; B=$W/X; python3 sw/litex/layout_from_soch.py \$B --bit \$B/gateware/alinx_ax7101.bit"
+cp "$W/X/flashboot_layout.json" "$O/X-layout-after.json"
+python3 - "$O/X-layout-before.json" "$O/X-layout-after.json" > "$O/X-layout-diff.txt" <<'PY'
+import json, sys
+a, b = (json.load(open(p)) for p in sys.argv[1:])
+print("keys added:", sorted(set(b) - set(a)), "keys dropped:", sorted(set(a) - set(b)))
+for k in sorted(set(a) & set(b)):
+    if a[k] != b[k]:
+        print(f"changed {k}: {a[k]!r} -> {b[k]!r}")
+print("flash_device", b.get("flash_device"), "flash_jedec_id", hex(b.get("flash_jedec_id", 0)))
+print("images", [(i["name"], hex(i["offset"]), hex(i["budget"])) for i in b["images"]])
+PY
+cat "$O/X-layout-diff.txt"
+step update-ax7101-regenerated-target STUB_MODEL=xc7a100 INSTALLED_BUILD=XD bash sw/litex/build.sh flash ax7101:X
+check "$W/X" "$O/update-ax7101-regenerated-target.flash.txt"
+rm -f "$STUB_QSPI"; rm -rf "$RUN/tmp"

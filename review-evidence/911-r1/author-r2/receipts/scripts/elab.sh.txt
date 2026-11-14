@@ -1,0 +1,17 @@
+#!/bin/bash
+# elab.sh <clone> <sha> <outdir> <recipe>: check out <sha> in <clone>, elaborate build.sh <recipe>'s launch line without
+# Vivado (no --build) into <outdir>. rc -> <outdir>.rc
+set -u
+C=$1 S=$2 O=$3 R=$4
+git -C "$C" checkout -q "$S" && git -C "$C" -c protocol.file.allow=always submodule update -q protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis || { echo 3 > "$O.rc"; exit 3; }
+cd "$C/sw/litex" || exit 3
+line=$(bash build.sh "$R" --dry-run | sed -n 's/.*exec python3 milan_soc.py \(.*\) --vivado-max-threads 32 --build --output-dir .*/\1/p')
+[ -n "$line" ] || { echo 4 > "$O.rc"; exit 4; }
+echo "argv: $line --vivado-max-threads 32 --output-dir $O"
+export PATH=<home>/litex-milan/venv/bin:$PATH
+export PYTHONHASHSEED=0
+# shellcheck disable=SC2086
+python3 milan_soc.py $line --vivado-max-threads 32 --output-dir "$O"
+rc=$?
+echo $rc > "$O.rc"
+exit $rc
