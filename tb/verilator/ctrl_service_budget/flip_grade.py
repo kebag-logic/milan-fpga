@@ -171,8 +171,8 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
-    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
+    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
     with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
                            f(r, p, under)):
         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
