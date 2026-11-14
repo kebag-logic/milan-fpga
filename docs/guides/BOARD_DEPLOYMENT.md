@@ -63,18 +63,17 @@ The board identity is built into the image.
 
 ## Flash an image set over JTAG
 
-`B` is the image set directory below.
-
-Read its part, entity model offset and flash ID:
+Read the part, offset and flash ID from the layout:
 
 ```sh
-python3 -c 'import json, sys; d = json.load(open(sys.argv[1]))
+B=<image set directory>
+set -- $(python3 -c 'import json, sys; d = json.load(open(sys.argv[1]))
 print("xc" + d["bitstream_fpga_part"],
       hex([i for i in d["images"] if i["name"] == "aem"][0]["offset"]),
-      hex(d["flash_jedec_id"]))' $B/flashboot_layout.json
+      hex(d["flash_jedec_id"]))' "$B/flashboot_layout.json")
+P=$1 O=$2
+echo "part $P, entity model at $O, flash ID $3"
 ```
-
-`P` is that part, and `O` is that offset.
 
 A test load writes only the FPGA, not the flash:
 
@@ -106,6 +105,8 @@ Vivado Hardware Manager is the fallback.
 Join both images into one file, in the Vivado console:
 
 ```tcl
+set B <image set directory>
+set O <offset printed above>
 write_cfgmem -force -format bin -interface spix4 -size 16 \
     -loadbit "up 0x0 $B/gateware/alinx_ax7101.bit" \
     -loaddata "up $O $B/aem_desc.bin" -file image_set.bin
@@ -114,9 +115,11 @@ write_cfgmem -force -format bin -interface spix4 -size 16 \
 Then program it:
 
 1. Open the target, then add a configuration memory device.
-2. Pick `n25q128-3.3v-spi-x1_x2_x4` for flash ID `0x20ba18`.
+2. Pick `mt25ql128-spi-x1_x2_x4` for flash ID `0x20ba18`.
 3. Program `image_set.bin` with erase and verify on.
 4. Power-cycle the board.
+
+Vivado lists the N25Q128A13 under that successor name.
 
 The erase covers that file's range only.
 
