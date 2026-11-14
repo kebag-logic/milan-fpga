@@ -1,6 +1,7 @@
 <mxfile host="app.diagrams.net"><diagram name="flash-layout"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1620" pageHeight="1340" math="0" shadow="0"><root><mxCell id="0"/>
 <mxCell id="1" parent="0"/>
 <mxCell id="title" value="QSPI flash map - 16 MiB device, to scale (GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=20;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1200" height="40" as="geometry"/></mxCell>
+<mxCell id="dies" value="Map of xc7a100t-fgg484-2; xc7a200t-fbg484-2 moves the AEM region (FLASHBOOT_BITSTREAM_SLOT), drawn in its own map." style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="64" width="1200" height="24" as="geometry"/></mxCell>
 <mxCell id="b0" value="bitstream   0x0000000..0x03FFFFF   4 MiB
 -&gt; DRAM 0x00000000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="210.0" width="820" height="225.0" as="geometry"/></mxCell>
 <mxCell id="b1" value="aem   0x0400000..0x040FFFF   64 KiB

@@ -3,6 +3,7 @@
 ## Contents
 
 - **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from `FLASHBOOT_LAYOUT` itself, so the picture cannot drift from the map the build compiles in. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
+- **[The XC7A200T variant](#the-xc7a200t-variant)** — A 10 MiB bitstream slot, AEM moved.
 - **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The only manifest that ships: bitstream plus raw AEM image, why the AEM bytes carry no FBI wrapper, the two reserved ranges a reflash must not erase, and the paired-image verification required before firmware enables ADP.
 - **[How the boot works](#how-the-boot-works)** — Power-on to entity-enabled in one hop: config logic reads the bitstream, the BIOS is the application, and the AEM copy is length- and CRC-checked, so an empty or half-written slot leaves the entity disabled instead of bricking the boot.
 - **[Usage](#usage)** — Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
@@ -39,6 +40,61 @@ rsvg-convert -w 1800 docs/diagrams/flash_layout.svg -o docs/diagrams/flash_layou
 The generator also re-runs the map consistency check (overlap / erase-block
 alignment / past-the-device) and prints the verdict on the drawing, so a broken
 map is visible in the picture rather than only at flash time.
+
+## The XC7A200T variant
+
+`build.sh ax7a200t` builds the AX7101 image for an XC7A200T board.
+
+The same generator run draws its map:
+
+![QSPI flash map of the XC7A200T variant](../diagrams/flash_layout_xc7a200t.svg)
+
+Uncompressed, any XC7A200T image is 9,730,652 B.
+
+That overruns the AX7101's 4 MiB bitstream slot.
+
+Compressed, the shipping design measured 5,566,832 B.
+
+That is still 1,372,528 B past the slot.
+
+So the variant stays uncompressed, and its AEM region moves:
+
+| slot | AX7101 | XC7A200T variant |
+|---|---:|---:|
+| bitstream | `0x00_0000`, 4 MiB | `0x00_0000`, 10 MiB |
+| AEM | `0x40_0000`, 64 KiB | `0xA0_0000`, 64 KiB |
+| journal, user | unchanged | unchanged |
+
+`FLASHBOOT_BITSTREAM_SLOT` in `sw/litex/milan_soc.py` holds the slot size.
+
+`layout_for()` in `sw/litex/flash_map.py` holds the rule.
+
+The AEM region starts where the die's bitstream slot ends.
+
+Every reader derives the AEM offset from these two:
+
+- the firmware's `MILAN_AEM_FLASH_OFFSET`;
+- the build's `flashboot_layout.json`;
+- `layout_from_soch.py`;
+- the maps on this page.
+
+The 10 MiB slot leaves 755,108 B spare.
+
+The AX7101 map, image and firmware are unchanged.
+
+Both boards carry the flash the SoC drives, the `N25Q128A13`.
+
+It holds 16 MiB, and its JEDEC ID is `0x20BA18`.
+
+The layout records it as `flash_device` and `flash_jedec_id`.
+
+`deploy.sh` reads the FPGA die and the flash ID first.
+
+It refuses an image set for another die or flash.
+
+The
+[deployment guide](../guides/BOARD_DEPLOYMENT.md#flash-an-image-set-over-jtag)
+has the commands for both boards.
 
 ## Layout "baremetal" - shipping AX7101
 

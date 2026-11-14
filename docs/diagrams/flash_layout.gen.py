@@ -17,10 +17,16 @@ The bands are drawn **to scale** on purpose: "this slot shrank to make room for
 the writable ones" is a statement about proportions, and a table of hex offsets
 does not carry it.
 
+One run draws the map every die of the board uses by default, and one map
+per die whose bitstream slot ``FLASHBOOT_BITSTREAM_SLOT`` moves (#911), as
+``<base>_<die>``, through the same ``load_map(part)``.
+
 Usage:
     python3 docs/diagrams/flash_layout.gen.py docs/diagrams/flash_layout
     rsvg-convert -w 1800 docs/diagrams/flash_layout.svg \
         -o docs/diagrams/flash_layout.png
+    rsvg-convert -w 1800 docs/diagrams/flash_layout_xc7a200t.svg \
+        -o docs/diagrams/flash_layout_xc7a200t.png
 """
 import html
 import sys
@@ -40,10 +46,37 @@ def esc(s: object) -> str:
     return html.escape(str(s), quote=True)
 
 
-LAYOUT = literal("FLASHBOOT_LAYOUT")
 MANIFESTS = literal("FLASHBOOT_MANIFESTS")
+SLOTS = literal("FLASHBOOT_BITSTREAM_SLOT")
+PARTS = literal("BOARD_PARTS", REPO / "sw" / "litex" / "platforms" / "ax7101_timing.py")
+#: The die being drawn: None is the default map (every part SLOTS does not move).
+PART = None
+LAYOUT = literal("FLASHBOOT_LAYOUT")
 ROWS, FLASH_SIZE, ERASE = load_map()
 PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
+
+
+def use_part(part: str | None) -> None:
+    """Point every drawing function at the map of die `part`."""
+    global PART, LAYOUT, ROWS, FLASH_SIZE, ERASE, PROBLEMS, BANDS
+    PART = part
+    LAYOUT = {name: dict(LAYOUT_BASE[name], offset=off, size=size)
+              for name, off, size, kind in load_map(part)[0] if kind == "image"}
+    ROWS, FLASH_SIZE, ERASE = load_map(part)
+    PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
+    BANDS = bands()
+
+
+def dies_line() -> str:
+    """Which dies this map is for, read from BOARD_PARTS and the slot table."""
+    if PART is None:
+        mine = [p for p in PARTS if p not in SLOTS]
+        others = [p for p in PARTS if p in SLOTS]
+        return ("Map of " + ", ".join(mine) + (
+            "; " + ", ".join(others) + " moves the AEM region (FLASHBOOT_BITSTREAM_SLOT), "
+            "drawn in its own map" if others else "") + ".")
+    return (f"Map of {PART}: its bitstream slot is FLASHBOOT_BITSTREAM_SLOT's "
+            f"{human(SLOTS[PART])}, and the AEM region starts where it ends.")
 
 
 class Box(NamedTuple):
@@ -94,15 +127,22 @@ def human(n: int) -> str:
 
 
 # --- build the band list including the gaps, so free space is visible -------
-BANDS = []          # (name, offset, size, kind)
-cursor = 0
-for name, off, size, kind in ROWS:
-    if off > cursor:
-        BANDS.append(("(free)", cursor, off - cursor, "free"))
-    BANDS.append((name, off, size, kind))
-    cursor = off + size
-if cursor < FLASH_SIZE:
-    BANDS.append(("(free)", cursor, FLASH_SIZE - cursor, "free"))
+def bands() -> list[tuple[str, int, int, str]]:
+    """(name, offset, size, kind) for every slot and every gap, by offset."""
+    out = []
+    cursor = 0
+    for name, off, size, kind in ROWS:
+        if off > cursor:
+            out.append(("(free)", cursor, off - cursor, "free"))
+        out.append((name, off, size, kind))
+        cursor = off + size
+    if cursor < FLASH_SIZE:
+        out.append(("(free)", cursor, FLASH_SIZE - cursor, "free"))
+    return out
+
+
+LAYOUT_BASE = LAYOUT
+BANDS = bands()
 
 # geometry: one vertical bar, to scale
 BAR_X, BAR_Y, BAR_W, BAR_H = 120, 210, 300, 900
@@ -136,6 +176,8 @@ def _svg_titles() -> list[str]:
              f'{"map consistent: no overlap, no misalignment, nothing past the device"
                 if not PROBLEMS else "MAP PROBLEMS: " + "; ".join(PROBLEMS)}</text>')
 
+    o.append(f'<text x="40" y="154" font-size="15" font-weight="bold" fill="#263238">'
+             f'{esc(dies_line())}</text>')
     o.append(f'<text x="{BAR_X}" y="{BAR_Y-22}" font-size="17" font-weight="bold" '
              f'fill="#78909C">offset 0 at the top</text>')
     return o
@@ -289,6 +331,7 @@ def drawio() -> str:
            f"QSPI flash map - {human(FLASH_SIZE)} device, to scale "
            f"(GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED)", ("none", "none"),
            20, True)
+    vertex("dies", Box(40, 64, 1200, 24), dies_line(), ("none", "none"))
     for i, (name, off, size, kind) in enumerate(BANDS):
         y0, y1 = band_y(off), band_y(off + size)
         palette = (GREY if kind == "free" else colour(name, kind))
@@ -313,7 +356,10 @@ def drawio() -> str:
 
 
 base = sys.argv[1] if len(sys.argv) > 1 else "flash_layout"
-Path(base + ".svg").write_text(svg(), encoding="utf-8")
-Path(base + ".drawio").write_text(drawio(), encoding="utf-8")
-print(f"wrote {base}.svg and {base}.drawio ({len(ROWS)} slots, "
-      f"{len(PROBLEMS)} map problem(s))")
+for part in [None, *sorted(SLOTS)]:
+    use_part(part)
+    stem = base if part is None else f"{base}_{part.split('-')[0]}"
+    Path(stem + ".svg").write_text(svg(), encoding="utf-8")
+    Path(stem + ".drawio").write_text(drawio(), encoding="utf-8")
+    print(f"wrote {stem}.svg and {stem}.drawio ({len(ROWS)} slots, "
+          f"{len(PROBLEMS)} map problem(s))")

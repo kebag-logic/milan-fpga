@@ -299,6 +299,28 @@ mismatched generated-entity directory fails the gate.
 change the build** — the two must be changed together, and the cable is the
 side that decides.
 
+### `ax7a200t`  -  the AX7101 board fitted with an XC7A200T (#911)
+
+It builds the `ax7101` shipping config for xc7a200t**fbg484-2**.
+
+FBG484 and FGG484 share the footprint, pins and constraints.
+
+`cfg_ax7a200t` is `cfg_ax7101` plus `--fpga-part xc7a200t-fbg484-2`.
+
+The shape gate allows that flag on this recipe alone.
+
+`BUILD_PARTS` in `scripts/check_sweep_shape.py` says so.
+
+The part reaches the platform, PLL and timing grade.
+
+`BOARD_PARTS` in `sw/litex/platforms/ax7101_timing.py` lists the dies.
+
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant) holds its flash layout.
+
+The
+[deployment guide](../guides/BOARD_DEPLOYMENT.md#flash-an-image-set-over-jtag)
+holds its flash commands.
+
 ### `arty`  -  Digilent Arty A7-100, the retired bring-up recipe
 
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
@@ -335,6 +357,11 @@ elaborates and drives the complete five-signal header.
 3. The pairing contract for its board (flashboot, prunes, clocks) is the
    config's; keep the function comment to the flow choices and what
    measured them.
+4. A die variant (`ax7a200t`) reuses its board's config:
+   - bind that YAML in `recipe_config`;
+   - derive `cfg_<name>()` from the board's recipe plus `--fpga-part`;
+   - add the part to `BOARD_PARTS`, and the recipe to `BUILD_PARTS`;
+   - give `board_facts` its programmer part.
 
 ## 3. The launch discipline (why the script is not just a for-loop)
 

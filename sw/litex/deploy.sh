@@ -25,6 +25,13 @@
 #     INSTALLED_LAYOUT=<path> + INSTALLED_BIT=<path> name the exact build
 #                   currently in QSPI. flash-pair proves that claim by live
 #                   offset-zero readback before choosing its write order.
+#     FPGA_PART=<part> the programmer part the image set is bound to:
+#                   xc7a100tfgg484 (default, the AX7101) or xc7a200tfbg484
+#                   (the same board on an XC7A200T, #911).
+#  Before its first dump or write, flash, flash-images and flash-pair read
+#  the board on the cable: the FPGA die from the JTAG IDCODE and the flash
+#  JEDEC ID through the bridge, and refuse an image set made for another die
+#  or a layout whose flash_device is not the board's.
 #
 #  load  = JTAG -> SRAM (volatile, fast; gone on power-cycle). Default; use for iteration.
 #  flash-pair = the persistent entry point. It proves the installed bitstream,

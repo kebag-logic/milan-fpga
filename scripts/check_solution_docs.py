@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import json
 import re
 import shlex
 import shutil
@@ -29,6 +30,8 @@ INTEGRATOR_DOC = Path("docs/guides/SYSTEM_INTEGRATOR.md")
 INTEGRATION_DOC = Path("docs/integration/INTEGRATION_GUIDE.md")
 SIMULATION_DOC = Path("docs/testing/SIMULATION.md")
 FPGA_DOC = Path("docs/fpga/FPGA_DESIGN.md")
+BUILD_SH = Path("sw/litex/build.sh")
+BOARD_DOC = Path("docs/guides/BOARD_DEPLOYMENT.md")
 
 CPU_START = "<!-- solution-cpu-contract:start -->"
 CPU_END = "<!-- solution-cpu-contract:end -->"
@@ -36,6 +39,11 @@ MEMORY_START = "<!-- solution-memory-faces:start -->"
 MEMORY_END = "<!-- solution-memory-faces:end -->"
 INTERFACE_START = "<!-- solution-interface-groups:start -->"
 INTERFACE_END = "<!-- solution-interface-groups:end -->"
+VARIANTS_START = "<!-- board-flash-variants:start -->"
+VARIANTS_END = "<!-- board-flash-variants:end -->"
+#: The board variants the deployment guide lists (#911): the label it gives
+#: each, and the build.sh recipe whose board facts and die it is read from.
+BOARD_VARIANTS = (("AX7101", "ax7101"), ("XC7A200T variant", "ax7a200t"))
 
 PRODUCT_OPTIONS = (
     "--cpu",
@@ -581,6 +589,88 @@ def _contract_errors(
     return errors
 
 
+def board_variant_rows(root: Path) -> list[tuple[str, str, str, int, str]]:
+    """(label, recipe, programmer part, entity model offset, flash device) per
+    BOARD_VARIANTS row, each value read from where the build reads it.
+
+    The part and bitstream are build.sh's board facts, the offset the
+    FLASHBOOT_LAYOUT the SoC compiles (moved by FLASHBOOT_BITSTREAM_SLOT for
+    the recipe's --fpga-part when that table exists), and the flash device
+    the litespi module the SoC drives the board's flash with.
+    """
+    build = (root / BUILD_SH).read_text(encoding="utf-8")
+    soc_text = (root / SOC).read_text(encoding="utf-8")
+    literals = {}
+    for node in ast.parse(soc_text).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                and isinstance(node.targets[0], ast.Name):
+            if node.targets[0].id in ("FLASHBOOT_LAYOUT", "FLASHBOOT_BITSTREAM_SLOT"):
+                literals[node.targets[0].id] = ast.literal_eval(node.value)
+    if "FLASHBOOT_LAYOUT" not in literals:
+        raise ValueError(f"{SOC}: no FLASHBOOT_LAYOUT literal")
+    module = re.search(r'if board == "arty"\s+else (\w+)\(SpiCodes', soc_text)
+    if module is None:
+        raise ValueError(f"{SOC}: no AX7101 flash module")
+    rows = []
+    for label, recipe in BOARD_VARIANTS:
+        facts = None
+        for line in build.splitlines():
+            found = re.match(r'\s*([a-z0-9|]+)\)\s+echo "\$AX_FTDI\s+\S+\s+(\S+)\s+\S+\s+(\S+)";;', line)
+            if found and recipe in found.group(1).split("|"):
+                facts = found.groups()[1:]
+        if facts is None:
+            raise ValueError(f"{BUILD_SH}: no board facts for {recipe}")
+        die = re.search(rf"^cfg_{recipe}\(\).*?^}}", build, re.M | re.S)
+        part = re.search(r"--fpga-part (\S+?)\"", die.group(0)) if die else None
+        offset = literals.get("FLASHBOOT_BITSTREAM_SLOT", {}).get(
+            part.group(1) if part else None,
+            literals["FLASHBOOT_LAYOUT"]["aem"]["offset"])
+        rows.append((label, recipe, facts[0], offset, module.group(1)))
+    return rows
+
+
+def board_variant_table(root: Path) -> str:
+    """The guide's variant block, markers included, as the sources state it."""
+    lines = [VARIANTS_START,
+             "| Board | `build.sh` recipe | Part | Entity model offset | Flash device |",
+             "|---|---|---|---|---|"]
+    for label, recipe, part, offset, device in board_variant_rows(root):
+        lines.append(f"| {label} | `{recipe}` | `{part}` | `0x{offset:06x}` | `{device}` |")
+    lines.append(VARIANTS_END)
+    return "\n".join(lines)
+
+
+def board_variant_errors(root: Path, text: str) -> list[str]:
+    """Where the guide's variant table no longer reads what the sources say."""
+    try:
+        expected = board_variant_table(root)
+        actual = marked(text, VARIANTS_START, VARIANTS_END)
+    except (OSError, SyntaxError, ValueError) as error:
+        return [f"{BOARD_DOC}: board flash variant table unavailable: {error}"]
+    if actual.strip() != expected:
+        return [f"{BOARD_DOC}: board flash variant table differs from source"]
+    return []
+
+
+def layout_errors(root: Path, recipe: str, layout_path: Path) -> list[str]:
+    """Where one built flashboot_layout.json disagrees with the guide's row."""
+    rows = {row[1]: row for row in board_variant_rows(root)}
+    if recipe not in rows:
+        return [f"no board variant row for recipe {recipe!r}"]
+    _label, _recipe, part, offset, device = rows[recipe]
+    layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    errors = []
+    built_part = "xc" + str(layout.get("bitstream_fpga_part", "")).lower()
+    if built_part != part.lower():
+        errors.append(f"{layout_path}: bitstream part {built_part} != guide {part}")
+    aem = [row.get("offset") for row in layout.get("images", []) if row.get("name") == "aem"]
+    if aem != [offset]:
+        errors.append(f"{layout_path}: entity model offset {aem} != guide 0x{offset:06x}")
+    if str(layout.get("flash_device", "")).upper() != device.upper():
+        errors.append(f"{layout_path}: flash device {layout.get('flash_device')!r} != guide {device}")
+    return errors
+
+
 def _read_documents(root: Path) -> tuple[dict[Path, str], list[str]]:
     """The documents the contract is restated in, and the ones that would not read."""
     errors: list[str] = []
@@ -735,6 +825,12 @@ def validate(root: Path) -> list[str]:
     errors.extend(_table_errors(documents, cli, deploy))
     errors.extend(_boundary_errors(root))
     errors.extend(_stale_claim_errors(documents))
+    try:
+        board = (root / BOARD_DOC).read_text(encoding="utf-8")
+    except OSError as error:
+        errors.append(f"{BOARD_DOC}: unreadable: {error}")
+    else:
+        errors.extend(board_variant_errors(root, board))
     return errors
 
 
@@ -753,6 +849,8 @@ def copy_fixture(destination: Path) -> None:
         INTEGRATION_DOC,
         SIMULATION_DOC,
         FPGA_DOC,
+        BUILD_SH,
+        BOARD_DOC,
     ):
         source = ROOT / relative
         target = destination / relative
@@ -906,6 +1004,40 @@ def _boundary_contract_mutations() -> list[tuple[str, Path, str, str, str]]:
     ]
 
 
+def _board_variant_mutations() -> list[tuple[str, Path, str, str, str]]:
+    """The guide's variant table against each source it is read from (#911)."""
+    return [
+    (
+        "guide variant part",
+        BOARD_DOC,
+        "| XC7A200T variant | `ax7a200t` | `xc7a200tfbg484` |",
+        "| XC7A200T variant | `ax7a200t` | `xc7a100tfgg484` |",
+        "board flash variant table differs",
+    ),
+    (
+        "variant programmer part",
+        BUILD_SH,
+        "ft232    xc7a200tfbg484 boot",
+        "ft232    xc7a100tfgg484 boot",
+        "board flash variant table differs",
+    ),
+    (
+        "entity model offset",
+        SOC,
+        '"aem":       {"offset": 0x40_0000,',
+        '"aem":       {"offset": 0x50_0000,',
+        "board flash variant table differs",
+    ),
+    (
+        "board flash module",
+        SOC,
+        "else N25Q128A13(SpiCodes",
+        "else N25Q256A(SpiCodes",
+        "board flash variant table differs",
+    ),
+    ]
+
+
 def _port_group_mutations() -> list[tuple[str, Path, str, str, str]]:
     """One row-removal and one safe-start mutation for every port group."""
     mutations: list[tuple[str, Path, str, str, str]] = []
@@ -934,7 +1066,8 @@ def _port_group_mutations() -> list[tuple[str, Path, str, str, str]]:
 def _mutations() -> list[tuple[str, Path, str, str, str]]:
     """Every mutation control, in the order the self-test applies them."""
     return (_source_fact_mutations() + _document_claim_mutations()
-            + _boundary_contract_mutations() + _port_group_mutations())
+            + _boundary_contract_mutations() + _board_variant_mutations()
+            + _port_group_mutations())
 
 
 def selftest() -> int:
@@ -979,6 +1112,15 @@ def main() -> int:
     2 when the invocation was not one this script offers."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
+    if len(sys.argv) == 4 and sys.argv[1] == "--layout":
+        # A built image set against the guide's row for its recipe:
+        # check_solution_docs.py --layout <recipe> <flashboot_layout.json>
+        errors = layout_errors(ROOT, sys.argv[2], Path(sys.argv[3]))
+        for error in errors:
+            print(error)
+        print(f"board flash variant {sys.argv[2]}: "
+              f"{'FAIL' if errors else 'OK'} against {sys.argv[3]}")
+        return 1 if errors else 0
     if sys.argv[1:]:
         print(__doc__)
         return 2

@@ -41,7 +41,7 @@ Every current render needs visual inspection.
 | `submodule_boundaries` | Four exact Git boundaries | [`submodule_boundaries.gen.py`](submodule_boundaries.gen.py), `submodule_boundaries.drawio` | `submodule_boundaries.svg`, `submodule_boundaries.png` | Developers and managers |
 | `cdc_census` | Derived clock crossings | [`cdc_census.gen.py`](cdc_census.gen.py), `cdc_census.drawio` | `cdc_census.svg`, `cdc_census.png` | Implementation developers |
 | `egress_queue_map` | Derived queue ownership | [`egress_queue_map.gen.py`](egress_queue_map.gen.py), `egress_queue_map.drawio` | `egress_queue_map.svg`, `egress_queue_map.png` | Developers and integrators |
-| `flash_layout` | Derived QSPI layout | [`flash_layout.gen.py`](flash_layout.gen.py), `flash_layout.drawio` | `flash_layout.svg`, `flash_layout.png` | Integrators |
+| `flash_layout` | Derived QSPI layout, one map per die | [`flash_layout.gen.py`](flash_layout.gen.py), `flash_layout.drawio`, `flash_layout_xc7a200t.drawio` | `flash_layout.svg`, `flash_layout.png`, `flash_layout_xc7a200t.svg`, `flash_layout_xc7a200t.png` | Integrators |
 | `timesync_chain` | Clock ownership chain | [`timesync_chain.gen.py`](timesync_chain.gen.py), `timesync_chain.drawio` | `timesync_chain.svg`, `timesync_chain.png` | Developers and integrators |
 | `memory_map` | Derived SoC memory map | [`memory_map.gen.py`](memory_map.gen.py), `memory_map.drawio` | `memory_map.svg` | Firmware developers and integrators |
 | `milan_tx_rx_datapath` | Datapath block map | `../milan_tx_rx_datapath.drawio` | Editable master only | Implementation developers |
