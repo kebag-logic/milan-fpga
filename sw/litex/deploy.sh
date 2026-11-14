@@ -245,7 +245,8 @@ prove_board() {
     run_detect "$scratch/jtag-detect.txt" -c "$CABLE" --detect || return 2
     "$PYTHON" "$HERE/qspi_owner_transition.py" check-board --layout "$layout" \
         --bit "$bit" --detect "$scratch/jtag-detect.txt" > /dev/null || {
-        echo "[deploy] REFUSED: the FPGA on the cable is not the image set's part." >&2
+        # The reason above: a layout naming no flash device, or the die.
+        echo "[deploy] REFUSED: the image set's layout or the FPGA on the cable fails the board check." >&2
         return 2
     }
     run_detect "$scratch/flash-detect.txt" -c "$CABLE" --fpga-part "$FPGA_PART" \
