@@ -2327,6 +2327,20 @@ TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
     EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_NAME,0,0,0},bytes.data(),64),AECP_ENTITY_MISBEHAVING);
 }
 
+// #894: GET_AUDIO_MAP's response echoes its descriptor type and index and its map_index, and an ADD or REMOVE's
+// its descriptor type and index (IEEE 1722.1-2021 7.4.44.2, 7.4.45.2, 7.4.46.2), as each is taken, before the
+// descriptor is looked up: here one no model holds, so each is answered NO_SUCH_DESCRIPTOR.
+TEST_F(Core, MapCommandsEchoTheirDescriptorAndPage)
+{
+    for(unsigned cmd:{43u,44u,45u}){
+        Bytes body=target(15,0x0203,8);put(body,4,cmd==43u?0x0405u:0u,2);
+        const Bytes got=ask(cmd,body,2);
+        ASSERT_GE(got.size(),46u);
+        EXPECT_TRUE(get(got,38,2)==15u&&get(got,40,2)==0x0203u&&(cmd!=43u||get(got,42,2)==0x0405u))
+            <<"command "<<cmd<<": a map command's response echoes its descriptor and page";
+    }
+}
+
 TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
 {
     auto b=target(14,0,16);put(b,4,1,2);auto &stream=desc(5),&cluster=desc(20),&port=desc(14);
@@ -2784,6 +2798,46 @@ TEST_F(Core, MapEditWorkIsLinearInItsMappings)
             }
         }
     }
+}
+
+// #894: an edit clears what it reads before it writes, and only that: the slots place() forms, MAP_DOMAIN of them,
+// and each mapping's link, marks and occurrences at its turn (aecp_maps.c). Here each edit starts from the table an
+// earlier one left (aecp_maps.c, stale), so a read of what it did not clear finds a mapping, refuses one or walks the
+// table. With every channel widened to the domain's, as EveryKeyOfTheDomainIsItsOwn widens them, an ADD beside a row
+// at the domain's last position is accepted, a REMOVE of one of two equal rows removes one, and each stays within
+// 2 (n + R) visits.
+TEST_F(Core, MapEditWorkReadsOnlyWhatItCleared)
+{
+    auto &input=desc(14);unsigned clusters=get(input.value+12,2),base=get(input.value+14,2);
+    for(unsigned k=0;k<clusters;++k)put(desc(20,base+k).value+84,KEY_CHANNELS,2);
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    for(auto &d:descriptors)
+        if(d.type==6u)put(d.value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS)<<22),8);
+    const size_t last=size_t(KEY_FIRSTS)*KEY_CHANNELS-1;
+    unsigned type=0;
+    aecp_mapping far{},near{};
+    for(unsigned t:{14u,15u}){
+        for(const auto &k:accepted_keys(t)){
+            const size_t at=t==14u?size_t(k.cluster)*KEY_CHANNELS+k.cluster_channel:size_t(k.stream)*KEY_CHANNELS+k.channel;
+            if(at==last&&type==0){type=t;far=k;near=accepted_keys(t).front();}
+        }
+    }
+    ASSERT_NE(type,0u)<<"a port's key is at the domain's last position";
+    ASSERT_FALSE(near.stream==far.stream&&near.channel==far.channel&&near.cluster==far.cluster&&
+                 near.cluster_channel==far.cluster_channel);
+    SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0");
+    aecp_map &own=maps[type==14u?0:1];
+    std::vector<aecp_mapping> pool(8);
+    own.rows=pool.data();own.capacity=pool.size();
+    own.rows[0]=far;own.count=1;
+    aecp_map_work=0;edit_map(44,type,{near},0);
+    EXPECT_TRUE(same_rows(own,{far,near}))<<"an ADD beside a row at the domain's last position is accepted";
+    EXPECT_LE(aecp_map_work,2u*(1u+1u))<<"an edit of 1 mapping reading 1 row visits past twice their sum";
+    own.rows[0]=near;own.rows[1]=near;own.count=2;
+    aecp_map_work=0;edit_map(45,type,{near},0);
+    EXPECT_TRUE(same_rows(own,{near}))<<"a REMOVE of one of two equal rows removes one";
+    EXPECT_LE(aecp_map_work,2u*(1u+2u*2u))<<"an edit of 1 mapping reading 4 rows visits past twice their sum";
 }
 #endif
 
