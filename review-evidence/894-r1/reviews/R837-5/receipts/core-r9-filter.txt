@@ -1,0 +1,13 @@
+# python3 -B sw/firmware/ctrl/test/aecp_arms.py --output <scratch>/core-r9 --core --filter 'Core.Map*:Core.Every*' at 7398ec0a (round 9's filter)
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
+exit 0
+[       OK ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryKeyOfTheDomainIsItsOwn
+[       OK ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[  PASSED  ] 8 tests.

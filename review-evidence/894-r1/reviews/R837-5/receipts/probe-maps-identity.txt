@@ -1,0 +1,30 @@
+# python3 -I scripts/probe_maps_identity.py <clone> 5b264bf264 7398ec0a <scratch>
+endstation_arty_4x4: domain 20, each direction's 20; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 0
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+endstation_arty_8ch: domain 64, each direction's 40; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 1 static assertion failed: "the table holds every position place() forms"
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+endstation_arty_current: domain 16, each direction's 8; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 1 static assertion failed: "the table holds every position place() forms"
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+endstation_ax7101_1x1_tdm8: domain 64, each direction's 16; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 1 static assertion failed: "the table holds every position place() forms"
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+endstation_ax7101_8x8: domain 72, each direction's 72; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 0
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+keys-16x4: domain 68, each direction's 68; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 0
+  plant-floor-only: rc 0
+  plant-each-direction+base-assert: rc 0
+keys-16x32: domain 544, each direction's 544; base rc 0, head rc 0; preprocessed equal but assertions and grouping True; host objects equal True
+  plant-each-direction: rc 0
+  plant-floor-only: rc 1 static assertion failed: "the table holds every position place() forms"
+  plant-each-direction+base-assert: rc 0
+RESULT PASS (0 configurations off expectation)
