@@ -1,0 +1,71 @@
+PASS each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32
+PASS the testbench traces the round and the calls that count its notices and attempts
+PASS a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not
+PASS calls outside a round count none of its notices or attempts
+PASS a round at one interface is held to that point's costs
+PASS a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1)
+PASS a round over its stated cost is named, with its notices, its refused attempts and the cost it passed
+PASS a round over its stated cost fails a run whatever findings it records
+PASS each point's slice is ctrl_loop.h's stated length at it, 900 us at 1x1/1if and 1,300 us at 8x8/2if
+PASS a slice at one interface is held to that point's length
+PASS THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+PASS a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+PASS the testbench traces SRP's record handler and THE RETRY's round
+PASS a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+PASS 8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records and events at 8x8/2if's (load_grade.stated, NEAREST)
+PASS a slice of SRP's records at the stated length fits it and one a cycle over does not
+PASS a slice of THE TRANSMIT's build at the stated length fits it and one a cycle over does not
+PASS a slice of THE RETRY's round at the stated length fits it and one a cycle over does not
+PASS SRP's slice runs from its pass's start, not from its first record
+PASS a round in a pass given whole to a build is that slice's, not one of its own
+PASS a slice over the stated length is named, with what it held and the length it passed
+PASS a slice over the stated length fails a run whatever findings it records
+PASS a datapath change pulse's line, as the testbench prints it, is graded as a pad of its kind and interface, not refused
+PASS the datapath-events group posts each kind on every interface eight times
+PASS the table of shapes holds its rules at the tree
+PASS the table of shapes refuses a shape the table does not list
+PASS the table of shapes refuses a slice over the cap
+PASS the table of shapes refuses a build of one over its slice
+PASS the table of shapes refuses an SRP record over its slice
+PASS the table of shapes refuses the table with no #error
+PASS the table of shapes refuses a shape listed twice
+PASS the table of shapes refuses a cost missing from a shape
+PASS the table of shapes refuses the default streams not the shipping configuration's
+PASS the table of shapes refuses a build of both at two builds of one
+PASS the table of shapes refuses the slice cap not the ruling's 1,600 us
+PASS the table of shapes refuses a model point built at another configuration than the harness's
+PASS the table of shapes refuses a point whose shape is not listed
+PASS the table of shapes refuses a listed shape whose polls are not stated
+PASS the table of shapes refuses the notices most typed at the 1x1's 12 at one interface (earlier rule)
+PASS the table of shapes refuses an AVB interface's notices counted as two
+PASS the table of shapes refuses two interfaces' most under the 8x8's descriptors
+PASS the table of shapes refuses the notices with no shape header not the shipping configuration's
+PASS the table of shapes refuses a load point counting other descriptors with counters than the shape header states
+PASS the table of shapes refuses the shape header not stating the map edits' key domain
+PASS the table of shapes refuses aecp_entity_gen.h stating the key domain beside the shape header
+PASS the table of shapes refuses the shape header's key domain not the image's
+PASS the table of shapes refuses a round's cold start keyed on the interface count (earlier rule)
+PASS the table of shapes refuses a refused attempt one figure at every shape (earlier rule)
+PASS the table of shapes refuses a shape's round costs falling back to the interface count
+PASS THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i))
+PASS a timer's MRPDU is timed from its TICK to its commit, at its bound, 49 ms, within it
+PASS one 1 ms over its bound, at 50 ms, misses it
+PASS a timer that ends with nothing to send, whose build sends no frame, has no row
+CAUGHT shapes: the slice and builds keyed on the interface count alone (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1); THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+CAUGHT shapes: a shape not listed taken at the shipping shape's costs: the table of shapes refuses a shape the table does not list
+CAUGHT shapes: the slice held at the interface count (earlier rule): a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+CAUGHT shapes: a pass given whole held to its builds at the interface count (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))
+CAUGHT shapes: an owed MRPDU held to the interface count's build of one (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b)); a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+CAUGHT shapes: the slice cap not held: the table of shapes refuses the slice cap not the ruling's 1,600 us
+CAUGHT shapes: 8x8/1if's polls held at the interface count's (earlier rule): a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+CAUGHT transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS: THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i)); one 1 ms over its bound, at 50 ms, misses it
+CAUGHT transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule): THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i)); a timer's MRPDU is timed from its TICK to its commit, at its bound, 49 ms, within it
+CAUGHT round: no round is held to its cost: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not; calls outside a round count none of its notices or attempts
+CAUGHT round: a refused attempt is free: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32; a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not
+CAUGHT round: one point's costs at both: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32; a round at one interface is held to that point's costs
+CAUGHT round: 8x8/1if's round costs at the interface count's (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1)
+CAUGHT round: a round held at its point's interface count, not the image's shape (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1)
+CAUGHT round: the notices it built are not counted: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not; a round over its stated cost is named, with its notices, its refused attempts and the cost it passed
+CAUGHT round: calls outside it are counted: calls outside a round count none of its notices or attempts
+CAUGHT round: in bus cycles, not CPU time: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not; calls outside a round count none of its notices or attempts
+53 checks, 17 mutations, 0 failures

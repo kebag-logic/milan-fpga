@@ -1,0 +1,24 @@
+Point 8x8/1if shape (1, 9, 9) 100 MHz CPU; required us = ceil(measured us * 1.05 / 5) * 5
+record.aecp measured cycles 22918 us 229.18 required us 245 stated us 265 at notice-burst-0.log:151053
+SPAN 170015123 170015059 22918 0000c700 aecp_mbx:frame
+record.srp measured cycles 31683 us 316.83 required us 335 stated us 365 at notice-burst-3.log:276024
+SPAN 316183148 316183084 31683 0000c700 srp_mbx:receive
+record.acmp measured cycles 21838 us 218.38 required us 230 stated us 440 at notice-burst-0.log:265120
+SPAN 300003535 300003471 21838 0000c700 acmp_mbx:on_frame
+record.adp measured cycles 717 us 7.17 required us 10 stated us 240 at notice-burst-0.log:275792
+SPAN 315882219 315882155 717 0000c700 acmp_mbx:on_adp_frame
+record.maap measured cycles 8347 us 83.47 required us 90 stated us 130 at notice-burst-0.log:275787
+SPAN 315865924 315865860 8347 0000c700 maap_mbx:receive
+Understated record costs: []
+ADP uses its outer ACMP adapter wrapper; adp_mbx:on_frame is tail-called and its raw SPAN return PC is not a linking call, so it is excluded.
+GROUP notice-burst-0 probes 45 unmeasured 0 budget misses 0
+polls heaviest {'base': 19462, 'withdraw': 0, 'rebuild': 0, 'walk': 2555, 'reclaim': 2046, 'retained': 0, 'mrpdu': 0, 'acmp': 0, 'aecp': 13297, 'aecp_long': 0, 'acmp_declined': 0, 'record': 31291, 'acmp_kept': 0} limits {'base': 23500, 'withdraw': 11000, 'rebuild': 59000, 'walk': 5000, 'reclaim': 3000, 'retained': 34500, 'mrpdu': 147500, 'acmp': 7500, 'aecp': 14000, 'aecp_long': 32000, 'acmp_declined': 3000, 'record': 34500, 'acmp_kept': 28000} over []
+stated heaviest {'step': 22340, 'build': 0, 'build-one': 95543} limits {'step': 97500, 'build': 179500, 'build-one': 147500} over []
+rounds {'rounds': 16137, 'heaviest': {'0': 22947, '4': 87406}, 'stated': {'cold': 165, 'notice': 255, 'attempt': 25}, 'over': []}
+slices {'slices': 16155, 'longest': {'srp': 119852, 'build': 95543, 'round': 87406}, 'limit': 147500, 'over': []}
+GROUP notice-burst-3 probes 45 unmeasured 0 budget misses 0
+polls heaviest {'base': 19462, 'withdraw': 0, 'rebuild': 0, 'walk': 2555, 'reclaim': 2046, 'retained': 0, 'mrpdu': 0, 'acmp': 0, 'aecp': 13297, 'aecp_long': 0, 'acmp_declined': 0, 'record': 31305, 'acmp_kept': 0} limits {'base': 23500, 'withdraw': 11000, 'rebuild': 59000, 'walk': 5000, 'reclaim': 3000, 'retained': 34500, 'mrpdu': 147500, 'acmp': 7500, 'aecp': 14000, 'aecp_long': 32000, 'acmp_declined': 3000, 'record': 34500, 'acmp_kept': 28000} over []
+stated heaviest {'step': 22340, 'build': 0, 'build-one': 95543} limits {'step': 97500, 'build': 179500, 'build-one': 147500} over []
+rounds {'rounds': 16150, 'heaviest': {'0': 22947, '1': 21875, '3': 70002, '4': 84218}, 'stated': {'cold': 165, 'notice': 255, 'attempt': 25}, 'over': []}
+slices {'slices': 16168, 'longest': {'srp': 119852, 'build': 113859, 'round': 84218}, 'limit': 147500, 'over': []}
+This audit covers only the supplied groups and observed handlers; missing paths are not passes.

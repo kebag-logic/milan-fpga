@@ -1,0 +1,50 @@
+sw/firmware/ctrl/aecp/aecp.c:5: // issuecomment-6878014227, item 1): the loop's header states it, and nothing it declares is called here.
+sw/firmware/ctrl/aecp/aecp.h:61: // CTRL_LOOP_RETRY_ATTEMPT_US; #894's ruling issuecomment-6878014227, item 1): 34 us, and 25 us at 8x8/1if, the line
+sw/firmware/ctrl/aecp/aecp.h:75: // issuecomment-6871343905, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
+sw/firmware/ctrl/aecp/aecp_mbx.c:7: // issuecomment-6871343905, item (b)(iv)): a shape whose descriptors hold more fails the build.
+sw/firmware/ctrl/aecp/aecp_mbx.h:29: // interface count (#894's ruling issuecomment-6878014227, item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over
+sw/firmware/ctrl/aecp/aecp_shape.py:105: # issuecomment-6871343905, item (c))
+sw/firmware/ctrl/loop/ctrl_loop.h:275: // there plus 5 %, at most 1,600 us (#894's ruling issuecomment-6867393730, item
+sw/firmware/ctrl/loop/ctrl_loop.h:279: // THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)). The slice and
+sw/firmware/ctrl/loop/ctrl_loop.h:293: // past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). And
+sw/firmware/ctrl/loop/ctrl_loop.h:298: // and never on the interface count (#894's ruling issuecomment-6878014227,
+sw/firmware/ctrl/srp/srp_entity.py:5: most notices a datapath reset can leave pending (AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item
+sw/firmware/ctrl/srp/srp_entity.py:7: aecp_shape.key_domain of the image's own descriptors; #894's ruling issuecomment-6870437042, item 1, with the
+sw/firmware/ctrl/srp/srp_entity.py:8: shape header its single source, issuecomment-6871343905, item (c))."""
+sw/firmware/ctrl/test/aecp_arms.py:112: # issuecomment-6878014227, item 1): after a mailbox group's, whose contract is its interfaces' own
+sw/firmware/ctrl/test/aecp_arms.py:156: #: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)), and THE RETRY's
+sw/firmware/ctrl/test/aecp_arms.py:158: #: issuecomment-6878014227, item 1).
+sw/firmware/ctrl/test/aecp_retry_mutants.py:237: # the most a reset leaves pending (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)):
+sw/firmware/ctrl/test/aecp_wire.py:134: # ruling issuecomment-6878014227, item 1): a compile with no shape header, at the shipping shape
+sw/firmware/ctrl/test/srp_arms.py:134: #: issuecomment-6867393730, item (b)).
+sw/firmware/ctrl/test/test_aecp.cpp:3304: // issuecomment-6871343905, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
+tb/verilator/ctrl_service_budget/flip_grade.py:25: 8x8/1if is the flip's other point (#894's ruling issuecomment-6867393730, items (a) and (b)), held by --check --point
+tb/verilator/ctrl_service_budget/flip_grade.py:55: #: 0.75 (#894's ruling issuecomment-6867393730, item (b)).
+tb/verilator/ctrl_service_budget/flip_grade.py:142: # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's ruling issuecomment-6867393730,
+tb/verilator/ctrl_service_budget/load_grade.py:112: #: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
+tb/verilator/ctrl_service_budget/load_grade.py:115: #: the polls' base and items its own shape's (poll_grade.STATED_US; the ruling issuecomment-6871343905, item (b)(iii)),
+tb/verilator/ctrl_service_budget/load_grade.py:241: (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
+tb/verilator/ctrl_service_budget/mrpdu_grade.py:6: it (BUDGET_MS; #894's ruling issuecomment-6871343905, item (b)(i)), where the family's T_svc held it before THE TIERS.
+tb/verilator/ctrl_service_budget/mrpdu_grade.py:38: #: (#894's ruling issuecomment-6871343905, item (b)(i): the MRP timer budget's lateness).
+tb/verilator/ctrl_service_budget/notice_window.py:148: issuecomment-6871343905, item (b)(iv))."""
+tb/verilator/ctrl_service_budget/poll_grade.py:69: #: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's ruling issuecomment-6871343905, item (b)(iii)), at 1x1/1if and 8x8/2if each
+tb/verilator/ctrl_service_budget/poll_grade.py:75: #: 1,215 at 8x8/2if; #894's ruling issuecomment-6867393730, item (b)), which stated_us reads where the table holds 0.
+tb/verilator/ctrl_service_budget/poll_grade.py:98: #: round 2 ruling issuecomment-6871343905, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
+tb/verilator/ctrl_service_budget/round_grade.py:11: (#894's ruling issuecomment-6878014227, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
+tb/verilator/ctrl_service_budget/rows_grade.py:120: shipping shape's streams (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
+tb/verilator/ctrl_service_budget/run.py:522: # configuration and interfaces it was built at (THE SHAPES, #894's ruling issuecomment-6867393730, item (b)); a
+tb/verilator/ctrl_service_budget/selftest_notice.py:7: to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's ruling issuecomment-6871343905, item (b)(i)).
+tb/verilator/ctrl_service_budget/selftest_round.py:34: own block of ctrl_loop.h's table states that name (THE SHAPES; #894's ruling issuecomment-6878014227, item 1); a
+tb/verilator/ctrl_service_budget/selftest_round.py:193: (poll_grade.STATED_US; #894's ruling issuecomment-6871343905, item (b)(iii)): its base at the shape's cost fits it
+tb/verilator/ctrl_service_budget/shape_costs.py:3: """THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)): the static shape an image is built at, as its
+tb/verilator/ctrl_service_budget/shape_costs.py:5: round costs that ctrl_loop.h lists for it (the ruling issuecomment-6871343905, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per
+tb/verilator/ctrl_service_budget/shape_costs.py:6: shape; the ruling issuecomment-6878014227, item 1: a round's cold start and a refused attempt per shape).
+tb/verilator/ctrl_service_budget/shape_costs.py:20: issuecomment-6871343905, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
+tb/verilator/ctrl_service_budget/shape_costs.py:22: sizes the map edits' direct index (aecp_maps.c; #894's ruling issuecomment-6870437042, item 1), as its single source
+tb/verilator/ctrl_service_budget/shape_costs.py:23: in every unit an image compiles (the ruling issuecomment-6871343905, item (c)): aecp_entity_gen.h states it only for a
+tb/verilator/ctrl_service_budget/shape_costs.py:53: #: issuecomment-6878014227, item 1).
+tb/verilator/ctrl_service_budget/shape_costs.py:56: #: The most a slice may be, in microseconds: the ruling issuecomment-6867393730, item (b), which re-rules the cap from
+tb/verilator/ctrl_service_budget/shape_costs.py:325: """THE RETRY's round costs keyed on the shape (#894's ruling issuecomment-6878014227, item 1): AECP_ROUND_COLD_US
+tb/verilator/ctrl_service_budget/shape_costs.py:441: # the cap itself, the ruling's (issuecomment-6867393730, item (b): re-ruled from 1,300 to 1,600 us)
+tb/verilator/ctrl_service_budget/slice_grade.py:37: (shape_costs.at; #894's ruling issuecomment-6867393730, item (b)), in microseconds."""
+tb/verilator/ctrl_service_budget/whole_grade.py:32: (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's ruling issuecomment-6867393730, item

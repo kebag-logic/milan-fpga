@@ -1,0 +1,138 @@
+ARM control exit 0
+# 1 groups graded over 1 leg(s); 7 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses
+
+| Row | Measured, ms | Ledger at 8x8/1if, ms | Difference, ms | 1x1/1if at 8a3791e4, ms | Within its budget |
+|---|---:|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.240 | 63.24 | +0.000 | 62.94 | False |
+| `backlog.owed_behind0.if0` | 63.470 | 63.47 | +0.000 | 63.11 | False |
+| `backlog.owed_behind1.if0` | 63.690 | 63.69 | +0.000 | 63.29 | False |
+| `backlog.owed_behind2.if0` | 63.910 | 63.91 | +0.000 | 63.46 | False |
+| `backlog.owed_behind3.if0` | 64.200 | 64.2 | +0.000 | 63.64 | False |
+| `backlog-owed.service.acmp.last.if0` | 62.180 | 62.18 | +0.000 | 62.08 | False |
+| `backlog-owed.service.aecp.last.if0` | 61.830 | 61.83 | +0.000 | 61.82 | False |
+
+Instances not measured: 0
+Instances over their budget: 7, of which 7 are the recorded held-egress rows and 0 new
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: PASS: every row the CPU decides within its bound, no new budget miss, the joins within the gate
+
+
+ARM larger-egress exit 0
+# 1 groups graded over 1 leg(s); 7 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses
+
+| Row | Measured, ms | Ledger at 8x8/1if, ms | Difference, ms | 1x1/1if at 8a3791e4, ms | Within its budget |
+|---|---:|---:|---:|---:|---|
+| `backlog.owed.if0` | 100.000 | 63.24 | +36.760 | 62.94 | False |
+| `backlog.owed_behind0.if0` | 63.470 | 63.47 | +0.000 | 63.11 | False |
+| `backlog.owed_behind1.if0` | 63.690 | 63.69 | +0.000 | 63.29 | False |
+| `backlog.owed_behind2.if0` | 63.910 | 63.91 | +0.000 | 63.46 | False |
+| `backlog.owed_behind3.if0` | 64.200 | 64.2 | +0.000 | 63.64 | False |
+| `backlog-owed.service.acmp.last.if0` | 62.180 | 62.18 | +0.000 | 62.08 | False |
+| `backlog-owed.service.aecp.last.if0` | 61.830 | 61.83 | +0.000 | 61.82 | False |
+
+Instances not measured: 0
+Instances over their budget: 7, of which 7 are the recorded held-egress rows and 0 new
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: PASS: every row the CPU decides within its bound, no new budget miss, the joins within the gate
+
+
+ESCAPED larger-egress
+ARM unmeasured exit 0
+# 1 groups graded over 1 leg(s); 8 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses
+
+| Row | Measured, ms | Ledger at 8x8/1if, ms | Difference, ms | 1x1/1if at 8a3791e4, ms | Within its budget |
+|---|---:|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.240 | 63.24 | +0.000 | 62.94 | False |
+| `backlog.owed_behind0.if0` | 63.470 | 63.47 | +0.000 | 63.11 | False |
+| `backlog.owed_behind1.if0` | 63.690 | 63.69 | +0.000 | 63.29 | False |
+| `backlog.owed_behind2.if0` | 63.910 | 63.91 | +0.000 | 63.46 | False |
+| `backlog.owed_behind3.if0` | 64.200 | 64.2 | +0.000 | 63.64 | False |
+| `backlog-owed.service.acmp.last.if0` | 62.180 | 62.18 | +0.000 | 62.08 | False |
+| `backlog-owed.service.aecp.last.if0` | 61.830 | 61.83 | +0.000 | 61.82 | False |
+
+Instances not measured: 1
+- required.cpu.row (backlog-owed): unmeasured
+Instances over their budget: 7, of which 7 are the recorded held-egress rows and 0 new
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: PASS: every row the CPU decides within its bound, no new budget miss, the joins within the gate
+
+
+ESCAPED unmeasured

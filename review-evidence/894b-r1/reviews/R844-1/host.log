@@ -1,0 +1,43 @@
+Note: Google Test filter = Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort:Mailbox.ARoundFillsWhatItsPassHasLeft
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Mailbox
+[ RUN      ] Mailbox.ARoundFillsWhatItsPassHasLeft
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:3121: Failure
+Expected equality of these values:
+  adapter.yields
+    Which is: 3
+  0u
+    Which is: 0
+a queue served to its end starts the next with them all
+
+  [FAIL] Mailbox.ARoundFillsWhatItsPassHasLeft: a queue served to its end starts the next with them all
+$CHECKOUT/sw/firmware/ctrl/test/test_aecp.cpp:3122: Failure
+Value of: loop.retry_queued
+  Actual: true
+Expected: false
+and the loop knows none is queued
+
+  [FAIL] Mailbox.ARoundFillsWhatItsPassHasLeft: and the loop knows none is queued
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft (1 ms)
+[ RUN      ] Mailbox.ARefusedAttemptIsChargedToItsRound
+[       OK ] Mailbox.ARefusedAttemptIsChargedToItsRound (1 ms)
+[ RUN      ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort
+[       OK ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (1 ms)
+[ RUN      ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound
+[       OK ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound (1 ms)
+[ RUN      ] Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce
+[       OK ] Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce (1 ms)
+[----------] 5 tests from Mailbox (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft
+
+ 1 FAILED TEST
+== AECP core: checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)
+EXIT 1
