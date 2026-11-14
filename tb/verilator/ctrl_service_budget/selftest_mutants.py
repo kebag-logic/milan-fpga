@@ -473,6 +473,8 @@ MUTANTS: dict[str, Patches] = {
     'flip: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         flip_grade, 'COLUMN', load_grade.STATED_US_DONOR)],
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
+    'flip: 8x8/1if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP',
+                                                                    {'8x8/2if': 0.70, '8x8/1if': 0.80})],
     'shapes: the slice and builds keyed on the interface count alone (earlier rule)': lambda: [patch.object(
         shape_costs, 'of_config', lambda config, n_if, root=shape_costs.ROOT: shape_costs.shape(n_if, root))],
     "shapes: a shape not listed taken at the shipping shape's costs": lambda: [patch.object(

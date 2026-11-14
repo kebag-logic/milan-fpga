@@ -96,7 +96,7 @@ ROOT = Path(__file__).resolve().parents[3]
 #: more-compute image, #872 (decision D, #665).
 CEILING = {'1x1/1if': 0.70}
 #: What the table says in a point's ceiling column where CEILING holds none: the flip check's, or none.
-FLIPPED = 'the flip check, 0.70 at the pin (flip_grade.py)'
+FLIPPED = 'the flip check, {:.2f} at the pin (flip_grade.py)'
 PENDING = 'reported: the more-compute image, #872'
 #: The load the compute factor is reported against: the ceiling the held points are held to.
 TARGET = 0.70
@@ -105,7 +105,15 @@ TARGET = 0.70
 #: domain's; aecp.h, AECP_NOTICES_MOST's terms).
 POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
+          '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=18),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
+#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's ruling
+#: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events, the polls' base and
+#: items and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
+#: there (the answering-every-port arm does not build at 8x8/1if), as #894 round 7 derived that load; THE TRANSMIT's
+#: builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), measured on its built
+#: image. stated() reads them so; its own measurement of the rest is owed to #872.
+NEAREST = {'8x8/1if': '8x8/2if'}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
@@ -287,25 +295,36 @@ def contract(root: Path) -> dict:
                 holdoff_ms=int(holdoff[1]))
 
 
+def shape(point: str, root: Path = ROOT) -> int | shape_costs.Shape:
+    """The shape a point is built at (shape_costs.of_point), or for a point no image is built at its interface
+    count."""
+    return shape_costs.of_point(point, root) if point in shape_costs.BUILT else POINTS[point]['n_if']
+
+
 def stated(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
-    """A point's stated costs: the table's, the polls' (poll_grade.py) and the headers' where the table has none."""
+    """A point's stated costs: the table's, or its NEAREST point's, the polls' (poll_grade.py) and the headers'
+    where the table has none; THE TRANSMIT's builds and an owed MRPDU at the point's own shape."""
     import poll_grade
-    s = POINTS[point]
-    c = dict((table or GRADED)[point])
-    if point in ('1x1/1if', '8x8/2if'):
-        polls = poll_grade.stated_us(s['n_if'])
+    near = NEAREST.get(point, point)
+    c = dict((table or GRADED)[near])
+    if point in shape_costs.BUILT:
+        polls = poll_grade.stated_us(POINTS[near]['n_if'])
         for k in ITEMS:
             c.setdefault('base' if k == 'base' else f'item.{k}', polls[k])
-        h = macros(root, s['n_if'])
-        c.setdefault('build', h['CTRL_LOOP_BUILD_PASS_US'])
-        c.setdefault('build_one', h['CTRL_LOOP_BUILD_ONE_PASS_US'])
-        c.setdefault('step', h['CTRL_LOOP_STEP_PASS_US'])
+        h = macros(root, shape(point, root))
+        own = {'build': h['CTRL_LOOP_BUILD_PASS_US'], 'build_one': h['CTRL_LOOP_BUILD_ONE_PASS_US'],
+               'item.mrpdu': poll_grade.stated_us(shape(point, root))['mrpdu']}
+        if near != point:
+            c.update(own)
+        for k, us in own.items():
+            c.setdefault(k, us)
+        c.setdefault('step', macros(root, POINTS[near]['n_if'])['CTRL_LOOP_STEP_PASS_US'])
     return c
 
 
 def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     """Each term's CPU microseconds per millisecond of a long window (a share of the CPU, in thousandths)."""
-    s, k, h = POINTS[point], contract(root), macros(root, POINTS[point]['n_if'])
+    s, k, h = POINTS[point], contract(root), macros(root, shape(point, root))
     c, n_if, refill = stated(root, point, table), POINTS[point]['n_if'], contract(root)['refill']
     join_ms = 10 * h['SRP_JOIN_CS']
     both, one = n_if * c['build'], 2 * n_if * c['build_one']
@@ -409,8 +428,8 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
 def ceiling(point: str) -> str:
     """A point's ceiling as the table prints it: the merge gate's, the flip check's (FLIPPED), or PENDING."""
     import flip_grade
-    return f'{CEILING[point]:.2f}, both columns' if point in CEILING else FLIPPED if point in flip_grade.FLIP else \
-        PENDING
+    return f'{CEILING[point]:.2f}, both columns' if point in CEILING else \
+        FLIPPED.format(flip_grade.FLIP[point]) if point in flip_grade.FLIP else PENDING
 
 
 def report(root: Path, table: dict | None = None) -> list[str]:

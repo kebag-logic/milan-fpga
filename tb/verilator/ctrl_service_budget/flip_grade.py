@@ -22,10 +22,17 @@ when a channel the loop serves has no row (rows_tiers.unrowed, the channels read
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
+8x8/1if is the flip's other point (#894's ruling issuecomment-6867393730, items (a) and (b)), held by --check --point
+8x8/1if to its load, at most 0.75, the 8x8 shape's stated costs with THE TRANSMIT's builds at its own shape
+(load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
+measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
+within its bound and its join intervals in range); its rows by every source are reported, not held, owed to #872.
+
 usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--selftest]
   --check     print the 8x8/2if row at the pin and the rows by every source, and exit 1 if a load is over its ceiling
               or a row over its bound (the default)
-  --point     hold only that point (1x1/1if or 8x8/2if): its rows, and its load where FLIP holds one
+  --point     hold only that point (1x1/1if, 8x8/2if or 8x8/1if): its rows where the model has them, and its load
+              where FLIP holds one
   --design    built (the default: the tier model of the built design) or as-built (rows_grade.py)
   --selftest  plant each control and exit 1 unless every one is refused
 """
@@ -41,10 +48,16 @@ import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import rows_tiers  # noqa: E402
 import queued_bound  # noqa: E402
+import shape_costs  # noqa: E402
 
 ROOT = load_grade.ROOT
-#: The point the flip check holds, and its ceiling.
-FLIP = {'8x8/2if': 0.70}
+#: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
+#: 0.75 (#894's ruling issuecomment-6867393730, item (b)).
+FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
+#: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
+#: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
+POINTS = (*rows_grade.POINTS, '8x8/1if')
+REPORTED = ('8x8/1if',)
 #: The column it reads: the stated costs at this tree's pin.
 COLUMN = load_grade.STATED_US
 #: The designs the rows are held by: the built design's tier model first, the default; THE DRAIN before the tiers.
@@ -102,11 +115,13 @@ def controls(root: Path) -> list[str]:
     escaped = []
     point = next(iter(FLIP))
     total = sum(load_grade.load(root, point, COLUMN).values())
-    # an over-ceiling row: the row's own load against a ceiling a thousandth under it, and over it
-    if not any(f'{point}: the load' in f for f in findings(root, COLUMN, {point: total - 0.001})):
-        escaped.append('an over-ceiling row')
-    if any(f'{point}: the load' in f for f in findings(root, COLUMN, {point: total + 0.001})):
-        escaped.append('a row within its ceiling')
+    # an over-ceiling row: the row's own load against a ceiling a thousandth under it, and over it, at each held point
+    for held, suffix in ((point, ''), *((p, f' at {p}') for p in FLIP if p != point)):
+        own = sum(load_grade.load(root, held, COLUMN).values())
+        if not any(f'{held}: the load' in f for f in findings(root, COLUMN, {held: own - 0.001})):
+            escaped.append(f'an over-ceiling row{suffix}')
+        if any(f'{held}: the load' in f for f in findings(root, COLUMN, {held: own + 0.001})):
+            escaped.append(f'a row within its ceiling{suffix}')
     # a raised cost: the load passes the ceiling
     raised = {p: dict(v) for p, v in COLUMN.items()}
     raised[point]['record.acmp'] = 100_000
@@ -119,10 +134,13 @@ def controls(root: Path) -> list[str]:
         escaped.append('a stated cost missing')
     # the held point and its ceiling (#665: the 0.70 long-window ceiling, option D), read at the pin (#665, #890:
     # item 6), never on the graded column
-    if FLIP != {'8x8/2if': 0.70}:
-        escaped.append('the flip ceiling not 0.70 at 8x8/2if')
+    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.75}:
+        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if')
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
+    # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's ruling issuecomment-6867393730,
+    # item (b): the slice at most 1,600 us, a shape not listed failing the build)
+    escaped += [f'the table of shapes: {name}' for name in shape_costs.controls(root)]
     return escaped + row_controls(root) + built_controls(root)
 
 
@@ -330,7 +348,9 @@ def rule_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order: the load's, then the rows'.
 CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
-            'a stated cost missing', 'the flip ceiling not 0.70 at 8x8/2if', 'the graded column read, not the pin')
+            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if',
+            'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
+            'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS))
 
 
 def row_control_names(root: Path) -> tuple[str, ...]:
@@ -371,10 +391,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--selftest', action='store_true')
-    ap.add_argument('--point', choices=rows_grade.POINTS)
+    ap.add_argument('--point', choices=POINTS)
     ap.add_argument('--design', choices=DESIGNS, default=DESIGNS[0])
     args = ap.parse_args()
-    points = (args.point,) if args.point else rows_grade.POINTS
+    points = (args.point,) if args.point else POINTS
+    rowed = tuple(p for p in points if p not in REPORTED)
     rc = 0
     if args.selftest:
         escaped = controls(ROOT)
@@ -385,9 +406,13 @@ def main() -> int:
         rc |= bool(escaped)
     if args.check or not args.selftest:
         load = {p: c for p, c in FLIP.items() if p in points}
-        print('\n'.join((report(ROOT, points) + [''] if load else []) + row_report(ROOT, points, args.design)))
-        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, points, args.design) + \
-            rows_grade.rule_findings(ROOT, points)
+        print('\n'.join((report(ROOT, points) + [''] if load else []) + (row_report(ROOT, rowed, args.design) if rowed else []) +
+                        [''] + shape_costs.report(ROOT)))
+        for point in (p for p in points if p in REPORTED):
+            print(f'REPORTED {point}: its rows by every source are reported, not held, owed to #872; its measured '
+                  'rows are the CPU budget harness\'s on its built image (run.py --point 8x8-1if)')
+        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \
+            rows_grade.rule_findings(ROOT, rowed) + shape_costs.findings(ROOT)
         for line in found:
             print('OVER', line)
         print('RESULT: FAIL' if found else 'RESULT: PASS')
