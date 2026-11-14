@@ -100,6 +100,10 @@ struct aecp_stream_info {
 	uint8_t acmp_status;
 	bool bound;
 	bool running;
+	// Set by the caller before the stream port reads: a running check's
+	// observation, which uses bound and running alone, so a port reading
+	// words for the rest reads one, the proof that its source answers (#894).
+	bool brief;
 };
 struct aecp_avb_info {
 	uint64_t gm_id;
@@ -163,7 +167,9 @@ struct aecp_ports {
 	bool (*counters)(void *, unsigned, uint16_t, uint16_t, struct aecp_counters *);
 	// Called only after a validated change. The value remains in core-owned
 	// storage. This is the persistence/physical-apply notification port;
-	// whether the apply completed is read through applied.
+	// whether the apply completed is read through applied. A configuration's
+	// type is 0 and its index 1 when the configuration index moved, 0 when
+	// only its override did, which moves no stream (#894).
 	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
 	// START/STOP is ACMP-owned. Queue a request; later call aecp_start_done.
 	void (*start)(void *, uint16_t, bool);

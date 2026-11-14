@@ -91,6 +91,7 @@ struct Core : testing::Test {
     bool bound=false;
     bool streaming=false;
     bool observations=true;
+    std::vector<bool> briefs; // each stream observation's brief flag, as the core asked it (#894)
     // #665: a response zeroes and writes only the bytes it sends, so each is
     // built over whatever the last one left: the clock port fills the idle
     // buffer with this, and every test's expected bytes see through it.
@@ -136,7 +137,8 @@ struct Core : testing::Test {
         ON_CALL(mock,Random).WillByDefault(Return(12345));
         ON_CALL(mock,Applied).WillByDefault(Return(true));
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
-            *v={0x0102030405060708,0x91e0f0000101,0x8877665544332211,0xff000000,12345,7,2,9,3,4,bound,streaming};
+            briefs.push_back(v->brief);
+            *v={0x0102030405060708,0x91e0f0000101,0x8877665544332211,0xff000000,12345,7,2,9,3,4,bound,streaming,v->brief};
             return observations;});
         ON_CALL(mock,Avb).WillByDefault([this](unsigned,uint16_t,aecp_avb_info*v){
             *v={0x0123456789abcdef,123456,0,7,3,2};return observations;});
@@ -1895,6 +1897,37 @@ TEST_F(Core, ConfigurationAndLockedSetRefusals)
     ask(6,b); // identical accepted value creates no additional state change
 }
 
+// The running check observes every stream of the configuration in force, each briefly: bound and running are all
+// it uses, so a port reading words for the rest reads one (#894; Milan v1.2 5.4.2.5). A read that reports a
+// stream's fields is whole.
+TEST_F(Core, TheRunningCheckObservesEveryStreamBriefly)
+{
+    size_t streams=0;
+    for(auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==a.configuration)++streams;
+    ASSERT_GT(streams,0u);
+    briefs.clear();ask(6,Bytes(4));
+    EXPECT_EQ(briefs,std::vector<bool>(streams,true))<<"SET_CONFIGURATION observes every stream, briefly";
+    auto b=target(6,0,12);put(b,4,get(desc(6).defaults+74,8),8);
+    briefs.clear();ask(8,b);ASSERT_FALSE(briefs.empty());
+    EXPECT_TRUE(briefs.front())<<"SET_STREAM_FORMAT's running check is brief";
+    briefs.clear();ask(15,target(6,0));
+    EXPECT_EQ(briefs,std::vector<bool>{false})<<"GET_STREAM_INFO reads the stream whole";
+}
+
+// SET_CONFIGURATION's change names whether its index moved, which the face's stream entries follow; its notify
+// rule is unchanged: the index in force notes its override's first SET alone (#894; aecp.h, changed).
+TEST_F(Core, AConfigurationChangeNamesWhetherItsIndexMoved)
+{
+    model.configurations=2;
+    {
+        testing::InSequence order;
+        EXPECT_CALL(mock,Changed(AECP_CHANGE_CONFIGURATION,0,0)).Times(1);
+        EXPECT_CALL(mock,Changed(AECP_CHANGE_CONFIGURATION,0,1)).Times(2);
+    }
+    Bytes b(4);ask(6,b);ask(6,b);put(b,2,1,2);ask(6,b);ask(6,b);put(b,2,0,2);ask(6,b);
+    EXPECT_EQ(a.configuration,0u);
+}
+
 TEST_F(Core, NameRefusalsAndNoOp)
 {
     ask(16,Bytes(71),7);ask(17,Bytes(7),7);
@@ -3579,8 +3612,11 @@ struct Far {
     std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
     std::vector<uint64_t> taken_at;                                   // the trace clock at each
     unsigned requests[MBX_WINDOWS]{};
+    std::vector<unsigned> selectors;                                  // each GSI request's selector
     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
-        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);return f.reply;
+        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);
+        if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
+        return f.reply;
     }
     static bool commit(void *p,unsigned i,const uint32_t *b) {
         auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
@@ -3632,8 +3668,13 @@ struct Face : Core {
     uint64_t accesses=0;
     std::vector<uint64_t> heads;     // the trace clock at each AECP TX_HEAD write
     std::vector<uint64_t> commits;   // and at each F_COMMIT write
+    unsigned entries=0;              // writes to a stream's entry, a sink's or a source's
     static void trace(void *p,bool write,uint32_t offset,uint32_t) {
         auto &s=*static_cast<Face*>(p);s.ns+=100;++s.accesses;
+        uint32_t reg=(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE;
+        if(write&&offset>=MBX_FACE_BASE&&offset<MBX_FACE_BASE+MBX_N_IF*MBX_FACE_STRIDE&&
+           ((reg>=SRC&&reg<SRC+MBX_N_PUB_SOURCES*MBX_FACE_SOURCE_STRIDE)||
+            (reg>=SNK&&reg<SNK+MBX_N_PUB_SINKS*MBX_FACE_SINK_STRIDE)))++s.entries;
         if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.heads.push_back(s.ns);
         if(write&&offset>=MBX_FACE_BASE&&(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE==MBX_FACE_REG_F_COMMIT)
             s.commits.push_back(s.ns);
@@ -3813,6 +3854,55 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
         mbx_model_far_bind(&fabric,&side);
     }
     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+}
+
+// The running check reads one GSI word a stream, selector 0, whose answer proves the window answers; bound and
+// running are their owners' (#894). A SET_CONFIGURATION naming the index in force still answers STREAM_IS_RUNNING
+// while an output streams, and ENTITY_MISBEHAVING while its observation cannot be made (Milan v1.2 5.4.2.5; IEEE
+// 1722.1-2021 7.4.7). GET_STREAM_INFO reads its six.
+TEST_F(Face, TheRunningCheckReadsOneWindowWordAStream)
+{
+    unsigned streams=0;
+    for(const auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==adapter.core.configuration)++streams;
+    ASSERT_GT(streams,0u);
+    Bytes config(4);
+    far.selectors.clear();receive(6,config);
+    EXPECT_EQ(far.selectors,std::vector<unsigned>(streams,0u))<<"one word a stream, selector 0";
+    far.selectors.clear();receive(15,target(6,0));
+    EXPECT_EQ(far.selectors,(std::vector<unsigned>{0,2,3,4,5,6}))<<"GET_STREAM_INFO reads its six";
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),1u));receive(6,config,12);
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),0u));receive(6,config);
+    far.reply=MBX_MODEL_SILENT;receive(6,config,10);
+}
+
+// A SET_CONFIGURATION that names the index in force moves no stream: its commit carries the settings alone and
+// writes no stream entry. One that moves the index writes every stream entry of the configuration it names, and
+// moving back writes them again (#894; aecp.h, changed).
+TEST_F(Face, OnlyAMovedConfigurationIndexWritesTheStreamEntries)
+{
+    Bytes config(4);
+    entries=0;commits.clear();receive(6,config);
+    EXPECT_EQ(entries,0u)<<"the index in force writes no stream entry";
+    ASSERT_FALSE(commits.empty())<<"its settings are committed";
+    EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_AECP,MBX_F_AECP_DYN_DIRTY_LSB,1),1u)<<"the override is a persisted setting";
+    // the streams are configuration 1's, each another format
+    model.configurations=2;
+    std::vector<aecp_descriptor*> moved;
+    for(auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==0){d.configuration=1;moved.push_back(&d);}
+    ASSERT_FALSE(moved.empty());aecp_index(&adapter.core);
+    for(auto *d:moved)put(d->value+74,get(d->value+74,8)^0x1000,8);
+    put(config,2,1,2);entries=0;receive(6,config);
+    EXPECT_GT(entries,0u)<<"a moved index writes the stream entries";
+    for(auto *d:moved){
+        const auto &blk=taken(home(d->type,d->index));uint64_t format=get(d->value+74,8);
+        EXPECT_EQ(d->type==5?at64(blk,SNK+16*d->index+MBX_FACE_SNK_REG_F_FMT_IN_LO,SNK+16*d->index+MBX_FACE_SNK_REG_F_FMT_IN_HI)
+                            :at64(blk,SRC+16*d->index+MBX_FACE_SRC_REG_F_FMT_OUT_LO,SRC+16*d->index+MBX_FACE_SRC_REG_F_FMT_OUT_HI),
+                  format)<<"stream "<<d->type<<"/"<<d->index<<": the configuration it names";
+    }
+    entries=0;receive(6,config);EXPECT_EQ(entries,0u)<<"the same index again changes nothing";
+    for(auto *d:moved)d->configuration=0;
+    aecp_index(&adapter.core);put(config,2,0,2);entries=0;receive(6,config);
+    EXPECT_GT(entries,0u)<<"moving back writes them again";
 }
 
 // A commit the datapath does not acknowledge within the bound. The change

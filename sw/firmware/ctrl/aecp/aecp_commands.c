@@ -96,10 +96,10 @@ void aecp_note(struct aecp *a, enum aecp_change kind, uint16_t type, uint16_t in
 	a->notify = true;
 }
 
-bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
+// A stream's observation through the stream port, into out as its caller set it.
+static bool observe(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
 	struct aecp_descriptor *d = aecp_find(a, a->configuration, type, index);
-	memset(out, 0, sizeof *out);
 	if (d == NULL || d->length < 128u) {
 		return false;
 	}
@@ -113,10 +113,19 @@ bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp
 	return ok;
 }
 
+bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
+{
+	memset(out, 0, sizeof *out);
+	return observe(a, type, index, out);
+}
+
+// A stream that refuses a change: an input bound, an output streaming, or one
+// whose observation cannot be made. Brief: bound and running are all it uses
+// (#894).
 static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 {
-	struct aecp_stream_info info;
-	if (!aecp_stream_read(a, type, index, &info)) return AECP_ENTITY_MISBEHAVING;
+	struct aecp_stream_info info = {.brief = true};
+	if (!observe(a, type, index, &info)) return AECP_ENTITY_MISBEHAVING;
 	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
 }
 
@@ -184,7 +193,8 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 			status = AECP_BAD_ARGUMENTS;
 		} else {
 			struct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);
-			bool changed = a->configuration != wire_be16(in + 2) || !aecp_overridden(a, entity, 1u);
+			bool moved = a->configuration != wire_be16(in + 2);
+			bool changed = moved || !aecp_overridden(a, entity, 1u);
 			aecp_keep(a, &a->configuration, sizeof a->configuration);
 			a->configuration = (uint16_t)wire_be16(in + 2);
 			aecp_override(a, entity, 1u);
@@ -198,7 +208,8 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 				}
 			}
 			if (changed) {
-				aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);
+				// whether the index moved, which the streams follow (aecp.h, changed)
+				aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, moved ? 1u : 0u);
 			}
 		}
 	}
