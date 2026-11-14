@@ -15,8 +15,8 @@ THE TIERS as ctrl_loop.h builds them, #894), or THE DRAIN before them (rows_grad
 comparison. The built design's rows also hold each tier-1 channel's last record of its burst (#894's ruling of
 2026-11-13, item 2: AECP's with its largest legal notice at tier 1's 20 ms, ACMP's, ADP's and MAAP's at 30 ms by the
 owner's decision of 2026-11-13, option A, FR_NFR.md 3.4.1)
-and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 50 ms at 19 cs, the
-contingent ruling's item 3), by its stated notice
+and THE TRANSMIT's MRPDU at the MRP timer budget's bound (item 1: CTRL_LOOP_TX_BOUND_MS, 49 ms at 19 cs with the
+1 ms egress allowance, the contingent ruling's item 3 and the egress ruling's item 1), by its stated notice
 and with every AECP notice the largest legal one (txL, #894's slice ruling of 2026-11-13), and the check fails
 when a channel the loop serves has no row (rows_tiers.unrowed, the channels read from the firmware's bindings) or
 when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
@@ -177,10 +177,10 @@ def channel_controls(root: Path) -> list[str]:
                            f(r, p, under)):
         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 29 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
-    # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs (#894's contingent ruling
-    # issuecomment-6858269025, item 3)
-    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 50 or \
-            paced_rows.PACED_BOUNDS != {'R4L': 240}:
+    # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs, and T_egress; R4L's paced: 9.3.2.6's 240 ms
+    # less T_ingress and T_egress (#894's contingent ruling of 2026-11-13, item 3; its egress ruling, item 1)
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 49 or \
+            paced_rows.PACED_BOUNDS != {'R4L': 238}:
         escaped.append(CHANNEL_CONTROLS[2])
     aecp = 'sw/firmware/ctrl/aecp/aecp.h'
     text, slot = (root / aecp).read_text(), '#define AECP_OWED_BYTES 552u'

@@ -237,15 +237,19 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
                                                        "aecp.h and aecp_mbx.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
-                                                      "CTRL_LOOP_SLICE_US, CTRL_LOOP_JOIN_CS, CTRL_LOOP_TX_BOUND_MS "
-                                                      "and CTRL_LOOP_TX_MS "
+                                                      "CTRL_LOOP_SLICE_US, CTRL_LOOP_JOIN_CS, CTRL_LOOP_TX_BOUND_MS, "
+                                                      "CTRL_LOOP_T_EGRESS_MS and CTRL_LOOP_TX_MS "
                                                       "from ctrl_loop.h, AECP_MBX_OWED_SLOTS and AECP_PACE_MS from "
                                                       "aecp_mbx.h, AECP_RETRY_MAX_MS and AECP_OWED_BYTES from "
                                                       "aecp.h, the loop's channel bindings from the firmware's "
                                                       "sources and the "
                                                       "polls' stated costs from poll_grade.py; it compiles nothing",
-    "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model, and its controls plant "
-                                                      "aecp_mbx.h's AECP_PACE_MS in memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model: it reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_INGRESS_MS and CTRL_LOOP_T_EGRESS_MS, and its "
+                                                      "controls plant aecp_mbx.h's AECP_PACE_MS in memory; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/join_grade.py": "grades a run's join intervals and reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_EGRESS_MS; it compiles nothing",
     "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
                                                         "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
                                                         "memory; it compiles nothing",

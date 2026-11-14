@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The join intervals (#894's contingent ruling issuecomment-6858269025, item 4): with the join timer armed at
+"""The join intervals (#894's contingent ruling of 2026-11-13, item 4): with the join timer armed at
 CTRL_LOOP_JOIN_CS (ctrl_loop.h), each participant's MRPDUs on the wire keep Milan v1.2 Table 4.3's JoinTime, 180 to
-240 ms. A participant is an interface and an MRP application, told by its MRPDU's EtherType (MSRP or MVRP). A join
+240 ms, so commit to commit, as the harness sees them, LEAST_MS to MOST_MS: either frame may wait T_egress to leave. A participant is an interface and an MRP application, told by its MRPDU's EtherType (MSRP or MVRP). A join
 interval is the time from one of its MRPDUs' commit to the next, where that next is a frame a join timer's run-out
 between them released (lwSRP's on_join_timer, mrp_mad.c; the frames of the builds after it, mrpdu_grade.released) and
 neither the periodic nor the LeaveAll timer ran out between them: the transmit opportunity the join timer armed at the
@@ -14,13 +14,21 @@ findings it records.
 from __future__ import annotations
 
 from bisect import bisect_left
+from pathlib import Path
 
 import grade
 import mrpdu_grade
 import scenario
+from tier1_rows import allowance
 
-#: Table 4.3's JoinTime range, in ms.
-LEAST_MS, MOST_MS = 180.0, 240.0
+#: Table 4.3's JoinTime range on the wire, in ms, the bench capture's (FR_NFR.md 3.4.1).
+WIRE_MS = (180.0, 240.0)
+#: T_egress, ctrl_loop.h's CTRL_LOOP_T_EGRESS_MS, in ms: a commit's frame is on the wire within it.
+EGRESS_MS = allowance((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text(),
+                      'CTRL_LOOP_T_EGRESS_MS')
+#: The range a join interval is held to commit to commit: the wire's narrowed by T_egress at each end, 181.0 to
+#: 239.0 ms (#894's egress ruling of 2026-11-13, item 1).
+LEAST_MS, MOST_MS = WIRE_MS[0] + EGRESS_MS, WIRE_MS[1] - EGRESS_MS
 #: The MRP applications by their MRPDUs' EtherType (IEEE 802.1Q-2018 Table 10-2, 35.2.2.1).
 APPLICATIONS = {0x22EA: 'MSRP', 0x88F5: 'MVRP'}
 #: The lwSRP callbacks a timer's run-out enters (mrp_mad.c): the join timer's, and the two whose MRPDUs are not join's.

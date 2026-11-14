@@ -248,7 +248,8 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
                 tx_record: Callable[..., list[str]]) -> list[Check]:
     """A join interval is two consecutive MRPDUs of one participant, an interface and an MRP application, with a join
     timer's run-out between them and neither the periodic nor the LeaveAll timer's; each outside Table 4.3's 180.0 to
-    240.0 ms is named and fails the run (#894's contingent ruling issuecomment-6858269025, item 4)."""
+    240.0 ms narrowed by T_egress at each end, 181.0 to 239.0 ms commit to commit, is named and fails the run (#894's
+    contingent ruling of 2026-11-13, item 4; its egress ruling, item 1)."""
     srp, ms, ratio = scenario.CH['srp'], sys_hz // 1000, sys_hz // cpu_hz
 
     def joins(sends: tuple, timers: tuple = (), idle: tuple = ()) -> dict:
@@ -267,17 +268,18 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
         return join_grade.held(grade.parse(synthetic(lines), sys_hz, cpu_hz))
 
     msrp, mvrp = 0x22EA, 0x88F5
-    edge = joins(((1_000, 0, msrp), (1_180, 0, msrp), (1_420, 0, msrp)), ((1_170, 'on_join_timer'),
+    edge = joins(((1_000, 0, msrp), (1_181, 0, msrp), (1_420, 0, msrp)), ((1_171, 'on_join_timer'),
                                                                         (1_400, 'on_join_timer')))
-    out = [('a join interval is two MRPDUs of one participant, the second one a join timer released: 180 and 240 ms '
-            'hold', edge['count'] == 2 and edge['shortest'] == 180.0 and edge['longest'] == 240.0 and
-            edge['over'] == [], str(edge))]
-    short = joins(((1_000, 0, msrp), (1_179, 0, msrp)), ((1_170, 'on_join_timer'),))
-    long = joins(((1_000, 0, mvrp), (1_241, 0, mvrp)), ((1_230, 'on_join_timer'),))
+    out = [('a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, '
+            "Table 4.3's 180 and 240 less T_egress, hold", (join_grade.LEAST_MS, join_grade.MOST_MS) == (181.0, 239.0)
+            and edge['count'] == 2 and edge['shortest'] == 181.0 and edge['longest'] == 239.0 and edge['over'] == [],
+            str(edge))]
+    short = joins(((1_000, 0, msrp), (1_180, 0, msrp)), ((1_170, 'on_join_timer'),))
+    long = joins(((1_000, 0, mvrp), (1_240, 0, mvrp)), ((1_230, 'on_join_timer'),))
     named = run.stated_misses([dict(group='j', passes=dict(joins=short)), dict(group='k', passes=dict(joins=long))])
-    out.append(('a join interval under 180.0 ms or over 240.0 ms is named with its participant',
-                named == ['j: a join interval of 179.000 ms (if0 MSRP), outside 180.0 to 240.0 ms',
-                          'k: a join interval of 241.000 ms (if0 MVRP), outside 180.0 to 240.0 ms'], str(named)))
+    out.append(('a join interval under 181.0 ms or over 239.0 ms is named with its participant',
+                named == ['j: a join interval of 180.000 ms (if0 MSRP), outside 181.0 to 239.0 ms',
+                          'k: a join interval of 240.000 ms (if0 MVRP), outside 181.0 to 239.0 ms'], str(named)))
     apart = joins(((1_000, 0, msrp), (1_050, 0, mvrp), (1_100, 1, msrp), (1_190, 0, msrp)),
                   ((1_180, 'on_join_timer'),))
     other = joins(((1_000, 0, msrp), (1_090, 0, msrp)), ((1_050, 'on_join_timer'), (1_060, 'on_pt_timer')))

@@ -50,7 +50,7 @@ import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
-                        built_value, channel_passes, channel_row, join_cs, quota_fits, tier1_busy, tier1_records,
+                        built_value, channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_budget_ms,
                         tx_passes)
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
@@ -110,9 +110,8 @@ ADDED_ROWS = ('R4L', 'ACMP', 'ADP', 'MAAP', *TX_ROWS)
 #: The rows that charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US).
 LONG_ROWS = ('R4L', 'txL')
 #: The MRP timer budget's bound on THE TRANSMIT's MRPDU in ms, which CTRL_LOOP_TX_BOUND_MS states (#894's ruling of
-#: 2026-11-13, item 1): Milan v1.2 Table 4.3's 240 ms less the join time the tree arms (CTRL_LOOP_JOIN_CS, ctrl_loop.h;
-#: #894's contingent ruling issuecomment-6858269025, item 3: 19 cs, so 50 ms).
-TX_BUDGET_MS = 240 - 10 * join_cs((ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
+#: 2026-11-13, item 1): Table 4.3's 240 ms less the armed join time and T_egress (tier1_rows.tx_budget_ms), 49 ms.
+TX_BUDGET_MS = tx_budget_ms((ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
 TIER1_ROWS = ('R4', 'R4L', 'ACMP', 'ADP', 'MAAP', 'first')
 TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
@@ -931,11 +930,13 @@ def channel_controls(root: Path) -> list[str]:
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
     figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
-    bound, typed = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)', '#define CTRL_LOOP_TX_BOUND_MS 90u'
+    bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
     under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
-    if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, typed)}):
+    # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)
+    if bound not in header or not all(tx_statements(root, one, {loop: header.replace(bound, typed)}) for typed in (
+            '#define CTRL_LOOP_TX_BOUND_MS 90u', '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)')):
         escaped.append("THE TRANSMIT's bound not the timer budget's")
     if not broken(root, Design(1200, 'wrr', quota=(4, 4, 4, 4)), one):
         escaped.append("a quota design over the pass's tier-1 time")

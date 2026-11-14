@@ -262,7 +262,7 @@ extern "C" {
 // #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
 // to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
-// AECP_PACE_MS (#894's contingent ruling issuecomment-6858269025, item 3): 900 us.
+// AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3): 900 us.
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
@@ -327,25 +327,36 @@ extern "C" {
 // The JoinTime every SRP participant is armed with, in centiseconds (srp_mbx.c,
 // create_participants; lwSRP arms it as an MRPDU is committed, mrp_mad.c): 19,
 // within Milan v1.2 Table 4.3's 180 to 240 ms, which IEEE 802.1Q-2018 10.7.11
-// lets an implementation modify (#894's contingent ruling issuecomment-6858269025,
-// item 3: at 20 cs no pace held THE TRANSMIT's MRPDU with every AECP notice the
+// lets an implementation modify (#894's contingent ruling of 2026-11-13, item
+// 3: at 20 cs no pace held THE TRANSMIT's MRPDU with every AECP notice the
 // largest legal one within 40 ms). #908 stays open until 20 cs holds again.
 #define CTRL_LOOP_JOIN_CS 19u
+// The fabric's allowances in ms (FR_NFR.md 3.4.1, the numeric response
+// deadlines' table): T_ingress, from a frame's last byte to its record's commit
+// (KL_mbx_rx), and T_egress, from a record's commit to the wire (KL_mbx_tx),
+// bounds the design gives, not measurements. A bound held at the commit that
+// serves a deadline on the wire leaves them room (#894's egress ruling of
+// 2026-11-13, item 1): THE TRANSMIT's below, and R4L's 238 ms by every source,
+// IEEE 1722.1-2021 9.3.2.6's 240 ms less both (paced_rows.py).
+#define CTRL_LOOP_T_INGRESS_MS 1u
+#define CTRL_LOOP_T_EGRESS_MS 1u
 // THE TRANSMIT's bound under THE TIERS, in ms from the centisecond that owes an
 // MRPDU to its commit: the most lateness the MRP timers keep their budget at
 // (#894's ruling of 2026-11-13, item 1: tier 2's 90 ms, or the tightest value
 // that budget holds at). The join timer runs CTRL_LOOP_JOIN_CS from a commit,
 // so the next transmit opportunity comes 180 to 190 ms after it and its MRPDU
-// this much later: JoinTime stays within Table 4.3's 180 to 240 ms, which
-// IEEE 802.1Q-2018 10.7.11 requires a requested opportunity within, only up to
-// 240 ms less the armed value, 50 ms, derived and never typed (the contingent
-// ruling, item 3). The periodic and LeaveAll timers restart at their expiry
-// (802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is late by at
-// most this against a fixed schedule: 1,000 ms +/- 50 within 900 to 1,500, and
-// 10.01 to 14.99 s +/- 0.05 within 9.5 to 15.5 s; and 802.1Q-2018 10.7.11 a)
-// holds, 2 x 240 + 6 x 10 = 540 ms under LeaveTime's least, 4,500 ms (Milan)
-// and 600 ms (802.1Q Table 10-7). At 90 ms JoinTime would reach 280 ms.
-#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)
+// this much later, then T_egress more to the wire: JoinTime stays within Table
+// 4.3's 180 to 240 ms, which IEEE 802.1Q-2018 10.7.11 requires a requested
+// opportunity within, only up to 240 ms less the armed value and T_egress,
+// 49 ms, derived and never typed (the contingent ruling, item 3; #894's egress
+// ruling, item 1). The periodic and LeaveAll timers restart at their expiry
+// (802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is late on the
+// wire by at most this and T_egress against a fixed schedule: 1,000 ms +/- 50
+// within 900 to 1,500, and 10.01 to 14.99 s +/- 0.05 within 9.5 to 15.5 s; and
+// 802.1Q-2018 10.7.11 a) holds, 2 x 240 + 6 x 10 = 540 ms under LeaveTime's
+// least, 4,500 ms (Milan) and 600 ms (802.1Q Table 10-7). At 90 ms JoinTime
+// would reach 281 ms.
+#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
 // (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
 // tree whose row passes this). At 8x8/2if, whose rows by every source are

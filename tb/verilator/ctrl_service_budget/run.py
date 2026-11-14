@@ -144,8 +144,8 @@ def stated_misses(results: list[dict]) -> list[str]:
     """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost the rows by
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
-    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); and each join interval outside 180.0 to
-    240.0 ms (join_grade.held)."""
+    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); and each join interval outside 181.0 to
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end (join_grade.held)."""
     import join_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
@@ -187,7 +187,7 @@ def print_slices(results: list[dict]) -> None:
 
 def print_joins(results: list[dict]) -> None:
     """Each group's JOINS line: its join intervals' count, shortest and longest (join_grade.py; #894's contingent
-    ruling issuecomment-6858269025, item 4)."""
+    ruling of 2026-11-13, item 4)."""
     import join_grade
     for g in results:
         j = g['passes'].get('joins') or {}

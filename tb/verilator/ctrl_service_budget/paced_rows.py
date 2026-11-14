@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE PACE in the tier model (#894, #904; the ruling of 2026-11-13 on round 5, lever 3): an ADD or
+"""THE PACE in the tier model (#894, #904; #894's pace ruling of 2026-11-13, lever 3): an ADD or
 REMOVE_AUDIO_MAPPINGS holds AECP's next record in its ring, never dropped, until AECP_PACE_MS after it was taken
 (aecp_mbx.c, ready). Every edit is paced, so the rows that count every AECP command as the largest legal one,
 rows_tiers.LONG_ROWS, take at most one a pace:
@@ -13,14 +13,17 @@ rows_tiers.LONG_ROWS, take at most one a pace:
         on, and the take is the next pass's tier 1), and is then the row of one such command by every source (r4l).
 
 The pace is the smallest that holds txL within the MRP timer budget at 1x1/1if and R4L within the response time of
-IEEE 1722.1-2021 9.3.2.6 (choice), at most PACE_MOST_MS; aecp_mbx.h must state it (controls refuses a tree that
-does not). A module of the model alone: rows_tiers reads the tree and solves the rows."""
+IEEE 1722.1-2021 9.3.2.6 less the fabric's allowances (choice, PACED_BOUNDS), at most PACE_MOST_MS; aecp_mbx.h must
+state it (controls refuses a tree that does not). A module of the model alone: rows_tiers reads the tree and solves the
+rows."""
 from __future__ import annotations
 
 import math
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
+
+from tier1_rows import allowance
 
 if TYPE_CHECKING:
     from rows_tiers import Inputs
@@ -32,9 +35,13 @@ PACE_MOST_MS = 13
 TAKE_PASSES = 2
 #: The response time a paced edit is answered within, in ms (IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4).
 RESPONSE_MS = 240
-#: R4L's bound under the pace, in ms (the ruling of 2026-11-13 on round 5, item 1): its commands are paced edits, each
-#: answered within the response time; AECP's ordinary rows keep tier 1's 20 ms.
-PACED_BOUNDS = {'R4L': RESPONSE_MS}
+#: ctrl_loop.h, which states the fabric's allowances (CTRL_LOOP_T_INGRESS_MS, CTRL_LOOP_T_EGRESS_MS).
+LOOP = Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h'
+#: R4L's bound under the pace, in ms (#894's pace ruling of 2026-11-13, item 1): its commands are paced edits, each
+#: answered on the wire within the response time, so by every source at its commit within that less T_ingress and
+#: T_egress, 238 ms, derived (#894's egress ruling of 2026-11-13, item 1); AECP's ordinary rows keep tier 1's 20 ms.
+PACED_BOUNDS = {'R4L': RESPONSE_MS - sum(allowance(LOOP.read_text(), name)
+                                         for name in ('CTRL_LOOP_T_INGRESS_MS', 'CTRL_LOOP_T_EGRESS_MS'))}
 #: The longest window count_findings holds edits to the gate over, in ms: past every txL window up to PACE_MOST_MS.
 COUNT_MS = 120
 #: AECP_PACE_MS's statement in aecp_mbx.h, which controls plants.
@@ -114,13 +121,13 @@ def r4l(i: Inputs, solve: Callable, dropped: str | None = None) -> tuple[float |
 
 def choice(root: Path) -> int | None:
     """The pace the model takes: the smallest whole ms, from 1 to PACE_MOST_MS, at which txL holds its bound and R4L
-    the response time at 1x1/1if under the built design; None where none does."""
+    its paced bound (PACED_BOUNDS) at 1x1/1if under the built design; None where none does."""
     import rows_tiers as rt
     i = rt.point_inputs(root, '1x1/1if')
     for pace in range(1, PACE_MOST_MS + 1):
         at = i._replace(pace_ms=pace)
         tx, r4 = rt.solve('txL', at, rt.BUILT)[0], rt.solve('R4L', at, rt.BUILT)[0]
-        if tx is not None and tx <= i.tx_bound and r4 is not None and r4 <= RESPONSE_MS:
+        if tx is not None and tx <= i.tx_bound and r4 is not None and r4 <= PACED_BOUNDS['R4L']:
             return pace
     return None
 
@@ -130,7 +137,7 @@ def statements(root: Path, texts: dict[str, str] | None = None) -> list[str]:
     import rows_tiers as rt
     stated, taken = rt.point_inputs(root, '1x1/1if', texts).pace_ms, choice(root)
     if taken is None:
-        return [f'no pace up to {PACE_MOST_MS} ms holds txL within its bound and R4L within {RESPONSE_MS} ms']
+        return [f"no pace up to {PACE_MOST_MS} ms holds txL within its bound and R4L within {PACED_BOUNDS['R4L']} ms"]
     return [] if stated == taken else [f'aecp_mbx.h states AECP_PACE_MS {stated} ms, not the model\'s {taken} ms']
 
 
