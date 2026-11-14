@@ -1,0 +1,9 @@
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R3-slot-table-empty/sw/builder/test_timing_grade.py", line 309, in <module>
+    test_board_variant_docs()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/R3-slot-table-empty/sw/builder/test_timing_grade.py", line 281, in test_board_variant_docs
+    assert board_variants.check(ROOT) == [], board_variants.check(ROOT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['docs/guides/BOARD_DEPLOYMENT.md: board flash variant table differs from source']

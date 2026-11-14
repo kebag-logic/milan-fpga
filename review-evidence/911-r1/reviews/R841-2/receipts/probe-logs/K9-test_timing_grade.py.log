@@ -1,0 +1,27 @@
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+board variants selftest: OK (6 mutation controls)
+  [timing grade] the guide's board variant table agrees with build.sh and the flash map; 6 mutations caught
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] the XC7A200T die reaches the platform and timing grade; two other parts refused; its layout and AEM constant move to 0xA00000 while the AX7101 keeps 0x400000; both name the N25Q128A13 (0x20BA18)
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K9/sw/builder/test_timing_grade.py", line 313, in <module>
+    test_layout_from_soch(sys.argv[1])
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K9/sw/builder/test_timing_grade.py", line 272, in test_layout_from_soch
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [layout] reconstructed from soc.h -> $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K9/tmpdwj9utzv/flashboot_layout.json
+[layout] [('bitstream', '0x0'), ('aem', '0x400000')]
+[layout] reconstructed from soc.h -> $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K9/tmpzqwtbm1o/flashboot_layout.json
+[layout] [('bitstream', '0x0'), ('aem', '0xa00000')]
+Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+    checked = q.validate_artifact_pair(build / "flashboot_layout.json", bit, programmer_part)
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K9/sw/litex/qspi_owner_transition.py", line 275, in validate_artifact_pair
+    layout, payload, part = _bound_payload(layout_path, bit_path, "artifact")
+                            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K9/sw/litex/qspi_owner_transition.py", line 243, in _bound_payload
+    raise TransitionError(
+        f"{label} bitstream payload {len(payload)} B exceeds {budget} B slot")
+qspi_owner_transition.TransitionError: artifact bitstream payload 9730652 B exceeds 4194304 B slot
+

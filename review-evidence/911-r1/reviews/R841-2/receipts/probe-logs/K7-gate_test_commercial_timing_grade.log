@@ -1,0 +1,26 @@
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+board variants selftest: OK (6 mutation controls)
+  [timing grade] the guide's board variant table agrees with build.sh and the flash map; 6 mutations caught
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] the XC7A200T die reaches the platform and timing grade; two other parts refused; its layout and AEM constant move to 0xA00000 while the AX7101 keeps 0x400000; both name the N25Q128A13 (0x20BA18)
+Traceback (most recent call last):
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K7/sw/builder/test_builder.py", line 29972, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K7/sw/builder/test_builder.py", line 29564, in test_commercial_timing_grade
+    test_layout_from_soch(python)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "$REVIEWS/911-r841-2-packet/scratch/probes/K7/sw/builder/test_timing_grade.py", line 272, in test_layout_from_soch
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [layout] reconstructed from soc.h -> $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K7/tmplmx8aoie/flashboot_layout.json
+[layout] [('bitstream', '0x0'), ('aem', '0x400000')]
+[layout] reconstructed from soc.h -> $REVIEWS/911-r841-2-packet/scratch/probes/tmp-K7/tmptdgpn77g/flashboot_layout.json
+[layout] [('bitstream', '0x0'), ('aem', '0xa00000')]
+Traceback (most recent call last):
+  File "<string>", line 39, in <module>
+    assert rows["bitstream"]["budget"] == rows["aem"]["offset"] == aem_at, (part, got["images"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('xc7a200t-fbg484-2', [{'name': 'bitstream', 'offset': 0, 'addr': 0, 'budget': 4194304}, {'name': 'aem', 'offset': 10485760, 'addr': 0, 'budget': 65536}])
+
