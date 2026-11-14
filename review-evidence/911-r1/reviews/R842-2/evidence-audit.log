@@ -1,0 +1,35 @@
+Archive 489e06bd1c6adbf19eb36d5fbc7ca4e47944b18d published-byte SHA256 checks: {'author-r1': 96, 'author-r2': 98}
+Manifest verification proves hash integrity, not an author signature.
+Workflow rows: {'0': 150, 'NOT RUN': 522} ; all reasons/log references present; unique workflow/job/step keys
+27 lane receipts rc=0 at exact head; these are author execution receipts.
+02-update-200t-D-to-R rc=0; AEM before bitstream; both readbacks match
+03-update-200t-R-to-D rc=0; AEM before bitstream; both readbacks match
+05-update-ax7101-old-target-refused rc=2
+06-regenerate-layout-from-soch rc=0
+07-update-ax7101-regenerated-target rc=0
+ax7101 150 input entries identical; list SHA256 0e0d547eb2935460afc96b28325d5dfdaa500141b0e76b89cb6c467856d0acec
+Current checkout hash matches: 143 ; generated/SDK entries unavailable here: 7
+  unavailable: <elab>/gateware/alinx_ax7101.v (body, paths and stamps aside)
+  unavailable: <elab>/gateware/alinx_ax7101_mem.init
+  unavailable: <elab>/gateware/alinx_ax7101_rom.init
+  unavailable: <elab>/gateware/alinx_ax7101_sram.init
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+ax7a200t 150 input entries identical; list SHA256 b77eb73a76bf9acce291d2515ed75a4443e4ad297d03f51faf68f4010766adff
+Current checkout hash matches: 143 ; generated/SDK entries unavailable here: 7
+  unavailable: <elab>/gateware/alinx_ax7101.v (body, paths and stamps aside)
+  unavailable: <elab>/gateware/alinx_ax7101_mem.init
+  unavailable: <elab>/gateware/alinx_ax7101_rom.init
+  unavailable: <elab>/gateware/alinx_ax7101_sram.init
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+  unavailable: <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+Slow 0 C: WNS 0.174 TNS 0.000 WHS 0.102 THS 0.000
+Slow 85 C: WNS 0.174 TNS 0.000 WHS 0.102 THS 0.000
+Fast 0 C: WNS 1.633 TNS 0.000 WHS 0.036 THS 0.000
+Fast 85 C: WNS 1.633 TNS 0.000 WHS 0.036 THS 0.000
+Raw CDC categories agree across baseline, image signoff, reread checkpoint: {'CDC-2': ('Warning', 8), 'CDC-3': ('Info', 17), 'CDC-5': ('Warning', 4), 'CDC-6': ('Warning', 52), 'CDC-9': ('Info', 1), 'CDC-10': ('Critical', 10), 'CDC-15': ('Warning', 199), 'CDC-26': ('Warning', 121)}
+16 clock pairs agree in endpoints, classification and constraint; slack is not compared.
+113 used pins agree in signal, pin name, use, I/O standard and bank.
+PASS: public evidence audit. Binary/checkpoint and full job logs are not independently reproduced.

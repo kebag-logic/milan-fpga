@@ -1,0 +1,11 @@
+DIAGNOSTIC die rc 2
+DIAGNOSTIC die rc 2
+DIAGNOSTIC die rc 2
+DUPLICATE-DIE refusal rc 2
+DUPLICATE-DIE refusal rc 2
+DUPLICATE-DIE refusal rc 2
+DIAGNOSTIC layout rc 2
+DIAGNOSTIC layout rc 2
+DIAGNOSTIC layout rc 2
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O; on flash-pair, flash and flash-images a JTAG die other than the bitstream's, an unreadable die, a flash JEDEC ID other than the layout's, an unreadable ID and a layout naming no flash device, two disagreeing JEDEC IDs and a two-device chain (two dies, or one die twice) all refuse before a dump or write (#911); build.sh flash ax7a200t flashes a 200T set on its own map (AEM at 0xA00000, a 9,730,652-B payload at 0) on a 200T die and refuses it on the AX7101's
+PASS: transaction, real 200T map, all persistent refusal paths; {'layout': 3, 'die': 3, 'duplicate': 3}
