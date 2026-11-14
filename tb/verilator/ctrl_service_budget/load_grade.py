@@ -126,7 +126,8 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: larger of that measurement and this table's; on #894's round 11 a TICK at 1x1/1if 45 to 50 us, the larger of this
 #: table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an owed
 #: frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and ACMP's
-#: owed frame 50 to 55 us (poll_grade.py). 32x32/2if is measured on the 32x32
+#: owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30 to 35 (2,859 cycles
+#: in notice-every-0; 2,093 at round 9's head) and ACMP's owed frame 65 to 70. 32x32/2if is measured on the 32x32
 #: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
@@ -139,7 +140,7 @@ STATED_US = {
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 105, 'event.TICK': 40,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.retained': 365, 'item.aecp.notice': 275,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.retained': 365, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
@@ -172,9 +173,9 @@ STATED_US_DONOR = {
                 'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 275,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 325, 'item.reclaim': 40, 'item.retained': 365,
-                'item.mrpdu': 1215, 'item.acmp': 65, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
+                'item.mrpdu': 1215, 'item.acmp': 70, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,

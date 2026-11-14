@@ -85,10 +85,11 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
 #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. On #894's round 11 ACMP's item at 1x1/1if is 55 us, the
 #: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
-#: 7398ec0a), the code after the map edit's moved by the cut.
+#: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
+#: backlog-owed (6,239 at round 9's head).
 STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=65,
+             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
                     aecp=275, aecp_long=655, acmp_declined=20)}
 
 
