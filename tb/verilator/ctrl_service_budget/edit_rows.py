@@ -10,11 +10,11 @@ charged the edit's record. LONG_ROWS charge every edit the largest legal command
 none of these.
 
 EDIT_RECORD_US is a one-row edit's record as the CPU budget harness measures it, the AECP record handler (aecp_mbx.c,
-frame) of an ADD or REMOVE_AUDIO_MAPPINGS of one mapping, plus 5 %, rounded up to 5 us: at 1x1/1if the most over the
-aecp-fanout group of arm A, whose input map holds a row; at 8x8/2if, whose input maps have capacity 0, over the same
-group in the answering-ports arm, whose output map it edits. record_classes.py holds each measured edit to it, and
-every other AECP record to record.aecp. A module of the model alone: tier1_rows charges the term, rows_tiers solves
-the rows."""
+frame) of an ADD or REMOVE_AUDIO_MAPPINGS of one mapping, plus 5 %, rounded up to 5 us, the most over every arm that
+edits a map with one: the aecp-fanout group of arm A, whose input map holds a row, and of the answering-ports arm,
+whose port observation answers, so its output map is edited too (at 8x8/2if, whose input maps have capacity 0, only
+the output map). record_classes.py holds each measured edit to it, and every other AECP record to record.aecp. A
+module of the model alone: tier1_rows charges the term, rows_tiers solves the rows."""
 from __future__ import annotations
 
 import sys
@@ -26,9 +26,10 @@ import paced_rows
 if TYPE_CHECKING:
     from rows_tiers import Inputs
 
-#: A one-row edit's record in us at each point (above): at 1x1/1if 22,728 CPU cycles, a REMOVE of one row (the cut of
-#: #894's round 11; 27,851 at 7398ec0a), 240 by the rule; at 8x8/2if 30,563, a REMOVE of one output row, 325.
-EDIT_RECORD_US = {'1x1/1if': 240, '8x8/2if': 325}
+#: A one-row edit's record in us at each point (above), under the cut of #894's round 11: at 1x1/1if 24,360 CPU cycles,
+#: a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of one input row 22,728, 240;
+#: 27,851 at 7398ec0a); at 8x8/2if 30,563, a REMOVE of one output row, 325.
+EDIT_RECORD_US = {'1x1/1if': 260, '8x8/2if': 325}
 #: The planted defect controls() plants (rows_tiers.CONTROLS names it).
 CONTROLS = ("an unpaced edit charged at the non-edit record",)
 

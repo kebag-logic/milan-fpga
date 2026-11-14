@@ -15,9 +15,10 @@ the first solicited AECP response committed at or after its start (grade.parse, 
           load_grade.GRADED's record.aecp.
 The legs held are the formal measurement's (#665, README: the labelled arms are never it): arm A's, every group, the
 answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
-aecp-largest-notice, which the 8x8 shape runs there; the rest (arm B's other groups, the 8x8-1if point) are reported
-by class, not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm
-(run.all_groups): each stated cost measured over the arm depends on every one of them.
+aecp-largest-notice, which the 8x8 shape runs there, and the edits of its aecp-fanout, over which EDIT_RECORD_US is
+measured; the rest (arm B's other records, the 8x8-1if point) are reported by class, not held. A pass is refused
+unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups): each stated cost measured over
+the arm depends on every one of them.
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -108,12 +109,12 @@ def read_leg(results: Path) -> tuple[Leg, dict]:
     return leg, spec
 
 
-def held(leg: Leg, group: str) -> bool:
-    """Whether the formal measurement holds a leg's group (the module's docstring)."""
+def held(leg: Leg, group: str, kind: str) -> bool:
+    """Whether the formal measurement holds a leg's group's records of a class (the module's docstring)."""
     if leg.point == '8x8/1if':
         return False
-    return leg.variant in ('none', 'answering-every-port') or (leg.variant == 'answering-ports' and
-                                                               group in HELD_IN_ARM_B)
+    return leg.variant in ('none', 'answering-every-port') or (leg.variant == 'answering-ports' and (
+        group in HELD_IN_ARM_B or (group == 'aecp-fanout' and kind == 'edit')))
 
 
 def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Record, int, int, str]]:
@@ -157,15 +158,16 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
                     continue
                 line = (f'{leg.point} {leg.variant} {group}: a record of {r.cycles:,} CPU cycles, {cost} us by the '
                         f'rule, over the {kind} record\'s {bound} us ({why})')
-                (out if held(leg, group) else reported).append(line)
+                (out if held(leg, group, kind) else reported).append(line)
     return out, reported
 
 
 def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     """A complete pass whose every record is within its class, the arm's group list, and statements: the REMOVE at
-    240 us by the rule, over record.aecp and within the edit record, paced by the ADD 9 ms after it."""
+    240 us by the rule, over record.aecp and within the edit record, paced by the ADD 9 ms after it, and arm B's
+    SET_CONFIGURATION reported, not held."""
     hz, ms = 100_000_000, 100_000
-    stated = {'long': 975, 'edit': 240, 'other': 235, 'pace_ms': 8}
+    stated = {'long': 975, 'edit': 260, 'other': 235, 'pace_ms': 8}
     fanout = [Record(0, 20_000, 0x10), Record(10 * ms, 22_500, 0x2D), Record(19 * ms, 21_000, 0x2C),
               Record(28 * ms, 15_000, 0x04)]
     arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': fanout, 'aecp': [Record(0, 18_000, 0x10)],
@@ -193,7 +195,7 @@ def controls() -> list[str]:
         (lambda p: p[0].groups.pop('aecp-fanout'), 'the pass is missing aecp-fanout'),
         (lambda p: setattr(p[0].groups['aecp-fanout'][2], 'start', 10 * 100_000 + 7 * 100_000 - 1),
          'not paced'),
-        (lambda p: setattr(p[0].groups['aecp-fanout'][1], 'cycles', 23_000), 'over the edit record'),
+        (lambda p: setattr(p[0].groups['aecp-fanout'][1], 'cycles', 25_000), 'over the edit record'),
         (lambda p: setattr(p[0].groups['aecp'][0], 'cycles', 22_400), 'over the other record'),
         (lambda p: setattr(p[0].groups[LONG_GROUP][0], 'cycles', 93_000), 'over the long record'),
     )
@@ -240,7 +242,7 @@ def main(argv: list[str]) -> int:
                 continue
             for group in leg.groups:
                 for kind, r, cost, bound, why in classes(leg, group, s):
-                    key = (kind, held(leg, group))
+                    key = (kind, held(leg, group, kind))
                     if key not in dearest or r.cycles > dearest[key][0]:
                         dearest[key] = (r.cycles, cost, bound, f'{leg.variant} {group}: {why}')
         for (kind, is_held), (cycles, cost, bound, where) in sorted(dearest.items()):
