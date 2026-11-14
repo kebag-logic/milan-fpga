@@ -1,0 +1,18 @@
+# every image at every point at the final head dd01b0afef87037ec485cd49b40a26b542854bdd (its own clean clone), qall.sh: ctrl_srp_image.py (the size fixture) and ctrl_plat_image.py (the platform), against round 7's final pass's harness flash maps and runtimes (copied, read only) and the suite's CSR map. Caps: 56 everywhere; at 8x8/2if 59.0 (fixture, the ledgered fallback) and 60.5 (platform). Every rc 0.
+fixture-1x1-1if: rc 0 rom 110584 in 110592, sram 55152 in 55296, tiles 40.5, ledgered None None
+fixture-1x1-2if: rc 0 rom 111872 in 112640, sram 57312 in 57344, tiles 41.5, ledgered None None
+fixture-8x8-1if: rc 0 rom 124112 in 124928, sram 96240 in 96256, tiles 54.0, ledgered None None
+fixture-8x8-2if: rc 0 rom 125376 in 126976, sram 113168 in 114688, tiles 59.0, ledgered 8x8-two-interfaces 59.0
+platform-1x1-1if: rc 0 rom 115632 in 116736, sram 56224 in 57344, tiles 42.5, ledgered None None
+platform-1x1-2if: rc 0 rom 116944 in 118784, sram 58336 in 59392, tiles 43.5, ledgered None None
+platform-8x8-1if: rc 0 rom 129208 in 131072, sram 97264 in 98304, tiles 56.0, ledgered None None
+platform-8x8-2if: rc 0 rom 130504 in 131072, sram 114160 in 114688, tiles 60.0, ledgered platform-8x8-two-interfaces 60.0
+# against the start head 8a3791e4 on the same inputs (qall.sh base): every rom +176 B (the map rewrite), every sram and every tile count equal
+# base: fixture-1x1-1if: rc 0 rom 110400 in 110592, sram 55152 in 55296, tiles 40.5, ledgered None None
+# base: fixture-1x1-2if: rc 0 rom 111696 in 112640, sram 57312 in 57344, tiles 41.5, ledgered None None
+# base: fixture-8x8-1if: rc 0 rom 123936 in 124928, sram 96240 in 96256, tiles 54.0, ledgered None None
+# base: fixture-8x8-2if: rc 0 rom 125200 in 126976, sram 113168 in 114688, tiles 59.0, ledgered 8x8-two-interfaces 59.0
+# base: platform-1x1-1if: rc 0 rom 115456 in 116736, sram 56224 in 57344, tiles 42.5, ledgered None None
+# base: platform-1x1-2if: rc 0 rom 116768 in 118784, sram 58336 in 59392, tiles 43.5, ledgered None None
+# base: platform-8x8-1if: rc 0 rom 129032 in 131072, sram 97264 in 98304, tiles 56.0, ledgered None None
+# base: platform-8x8-2if: rc 0 rom 130328 in 131072, sram 114160 in 114688, tiles 60.0, ledgered platform-8x8-two-interfaces 60.0

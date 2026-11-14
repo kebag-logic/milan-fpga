@@ -1,0 +1,57 @@
+# map-hash-the-stream-alone: the counting test's failures (Core.MapEditWorkIsLinearInItsMappings, the work arm)
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 8 mappings, 1 rows, 17 visits (2 (n + R) 18, n(n+1)/2 36)
+MAP WORK a REMOVE of one key from distinct streams: 8 mappings, 1 rows, 3 visits (2 (n + R) 18, n(n+1)/2 36)
+MAP WORK an ADD of distinct keys, each held with another value: 8 mappings, 8 rows, 80 visits (2 (n + R) 32, n(n+1)/2 36)
+Expected: (work) <= (2*(count+rows)), actual: 80 vs 32
+an edit of 8 mappings reading 8 rows visits 80 slots and held mappings, past twice their sum
+MAP WORK an ADD whose last mapping is its first key's with another value: 8 mappings, 7 rows, 64 visits (2 (n + R) 30, n(n+1)/2 36)
+Expected: (work) <= (2*(count+rows)), actual: 64 vs 30
+an edit of 8 mappings reading 7 rows visits 64 slots and held mappings, past twice their sum
+MAP WORK an ADD of distinct keys, accepted: 8 mappings, 0 rows, 36 visits (2 (n + R) 16, n(n+1)/2 36)
+Expected: (work) <= (2*(count+rows)), actual: 36 vs 16
+an edit of 8 mappings reading 0 rows visits 36 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of every row it holds, accepted: 8 mappings, 16 rows, 124 visits (2 (n + R) 48, n(n+1)/2 36)
+Expected: (work) <= (2*(count+rows)), actual: 124 vs 48
+an edit of 8 mappings reading 16 rows visits 124 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 16 mappings, 1 rows, 33 visits (2 (n + R) 34, n(n+1)/2 136)
+MAP WORK a REMOVE of one key from distinct streams: 16 mappings, 1 rows, 3 visits (2 (n + R) 34, n(n+1)/2 136)
+MAP WORK an ADD of distinct keys, each held with another value: 16 mappings, 16 rows, 288 visits (2 (n + R) 64, n(n+1)/2 136)
+Expected: (work) <= (2*(count+rows)), actual: 288 vs 64
+an edit of 16 mappings reading 16 rows visits 288 slots and held mappings, past twice their sum
+MAP WORK an ADD whose last mapping is its first key's with another value: 16 mappings, 15 rows, 256 visits (2 (n + R) 62, n(n+1)/2 136)
+Expected: (work) <= (2*(count+rows)), actual: 256 vs 62
+an edit of 16 mappings reading 15 rows visits 256 slots and held mappings, past twice their sum
+MAP WORK an ADD of distinct keys, accepted: 16 mappings, 0 rows, 136 visits (2 (n + R) 32, n(n+1)/2 136)
+Expected: (work) <= (2*(count+rows)), actual: 136 vs 32
+an edit of 16 mappings reading 0 rows visits 136 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of every row it holds, accepted: 16 mappings, 32 rows, 440 visits (2 (n + R) 96, n(n+1)/2 136)
+Expected: (work) <= (2*(count+rows)), actual: 440 vs 96
+an edit of 16 mappings reading 32 rows visits 440 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 32 mappings, 1 rows, 65 visits (2 (n + R) 66, n(n+1)/2 528)
+MAP WORK a REMOVE of one key from distinct streams: 32 mappings, 1 rows, 3 visits (2 (n + R) 66, n(n+1)/2 528)
+MAP WORK an ADD of distinct keys, each held with another value: 32 mappings, 32 rows, 1088 visits (2 (n + R) 128, n(n+1)/2 528)
+Expected: (work) <= (2*(count+rows)), actual: 1088 vs 128
+an edit of 32 mappings reading 32 rows visits 1088 slots and held mappings, past twice their sum
+MAP WORK an ADD whose last mapping is its first key's with another value: 32 mappings, 31 rows, 1024 visits (2 (n + R) 126, n(n+1)/2 528)
+Expected: (work) <= (2*(count+rows)), actual: 1024 vs 126
+an edit of 32 mappings reading 31 rows visits 1024 slots and held mappings, past twice their sum
+MAP WORK an ADD of distinct keys, accepted: 32 mappings, 0 rows, 528 visits (2 (n + R) 64, n(n+1)/2 528)
+Expected: (work) <= (2*(count+rows)), actual: 528 vs 64
+an edit of 32 mappings reading 0 rows visits 528 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of every row it holds, accepted: 32 mappings, 64 rows, 1648 visits (2 (n + R) 192, n(n+1)/2 528)
+Expected: (work) <= (2*(count+rows)), actual: 1648 vs 192
+an edit of 32 mappings reading 64 rows visits 1648 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of one key's values, its port's map holding the first: 63 mappings, 1 rows, 127 visits (2 (n + R) 128, n(n+1)/2 2016)
+MAP WORK a REMOVE of one key from distinct streams: 63 mappings, 1 rows, 3 visits (2 (n + R) 128, n(n+1)/2 2016)
+MAP WORK an ADD of distinct keys, each held with another value: 63 mappings, 63 rows, 4095 visits (2 (n + R) 252, n(n+1)/2 2016)
+Expected: (work) <= (2*(count+rows)), actual: 4095 vs 252
+an edit of 63 mappings reading 63 rows visits 4095 slots and held mappings, past twice their sum
+MAP WORK an ADD whose last mapping is its first key's with another value: 63 mappings, 62 rows, 3969 visits (2 (n + R) 250, n(n+1)/2 2016)
+Expected: (work) <= (2*(count+rows)), actual: 3969 vs 250
+an edit of 63 mappings reading 62 rows visits 3969 slots and held mappings, past twice their sum
+MAP WORK an ADD of distinct keys, accepted: 63 mappings, 0 rows, 2016 visits (2 (n + R) 126, n(n+1)/2 2016)
+Expected: (work) <= (2*(count+rows)), actual: 2016 vs 126
+an edit of 63 mappings reading 0 rows visits 2016 slots and held mappings, past twice their sum
+MAP WORK a REMOVE of every row it holds, accepted: 63 mappings, 126 rows, 6174 visits (2 (n + R) 378, n(n+1)/2 2016)
+Expected: (work) <= (2*(count+rows)), actual: 6174 vs 378
+an edit of 63 mappings reading 126 rows visits 6174 slots and held mappings, past twice their sum

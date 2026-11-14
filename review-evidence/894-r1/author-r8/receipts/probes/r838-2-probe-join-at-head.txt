@@ -1,0 +1,7 @@
+# R838-2's probe_join.py, unchanged, at dd01b0afef87037ec485cd49b40a26b542854bdd (a clean clone): its assertions encoded the defect (a 291 ms interval giving count 0), so it stops at the first of them; each case's grade prints first, and 291 and 500 ms are counted, over 239.0 and late
+1191 count 1 over [] runs {'released': 1} failing []
+1241 count 1 over [241.0] runs {'late': 1} failing [('late', 51.0)]
+1289 count 1 over [289.0] runs {'late': 1} failing [('late', 99.0)]
+1291 count 1 over [291.0] runs {'late': 1} failing [('late', 101.0)]
+1500 count 1 over [500.0] runs {'late': 1} failing [('late', 310.0)]
+AssertionError
