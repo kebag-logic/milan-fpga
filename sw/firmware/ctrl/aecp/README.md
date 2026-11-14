@@ -202,19 +202,40 @@ ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issue
 item 3): a mapping its port's geometry refuses ends the table, as an ADD's
 earlier conflict does, since its own turn refuses the edit; a REMOVE's other
 values of a key are linked from the key's first, so no lookup walks a run of
-one key's values; and a key's slot is its own wherever its hash, the stream or
-cluster plus nine times its channel, is no other held key's, as at every
-configuration. Each mapping's checks still run in its turn, an output mapping's
-port read first, so an edit answers, changes its map and reads the port as its
-pairwise definition does: `Core.MapEditsAreTheirDefinitionRowForRow` holds it
-to that definition over seeded edits, `Core.MapKeysThatShareASlotAreTheirOwn`
-holds two keys of one slot apart, and
-`Core.MapEditWorkIsLinearInItsMappings`, in a work arm that counts each slot
-and held mapping a lookup visits (`AECP_MAP_WORK`), holds the collision and
-conflict cases of 8, 16, 32 and 63 mappings to twice their mappings and rows,
-under n(n+1)/2. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants a
-defect in each pass, and a walk of a key's values and a hash of the stream
-alone, which change no outcome and only the count refuses. An edit that is checked paces AECP's next record
+one key's values; and a key's slot is its position in the port's key domain
+([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042),
+item 1): its stream or cluster times the most channels a key's stream or
+cluster has, plus its channel, so no two keys share one at any geometry the
+builder accepts. The domain is the build's shape, which
+[`aecp_shape.py`](aecp_shape.py) reads from the image's descriptors
+(`key_domain`, `AECP_ENTITY_KEY_*` in `aecp_entity_gen.h`): at an output port
+every STREAM_OUTPUT and the channels of each format it advertises, at an input
+port each of its clusters and its channels; a static assertion holds the table
+to the whole domain, at least the 256 slots it held before, so the edit's stack
+frame stays where every measured cost was taken (the domain's 64 slots at
+1x1/1if move it 192 B and the largest legal command's record from 91,625 CPU
+cycles to 98,720, by the data cache). A mapping its port's geometry refuses is refused at its
+turn as before, and so is one whose key lies outside the domain, which no
+format or cluster of the build lets a legal mapping do, so no such key forms
+an index; a map row outside it holds no mapping's key. Each mapping's checks
+still run in its turn, an output mapping's port read first, so an edit
+answers, changes its map and reads the port as its pairwise definition does:
+`Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
+seeded edits; `Core.EveryAcceptedMapKeyIsItsOwn` adds and removes every key a
+port accepts, in commands of 63 mappings, and `Core.EveryKeyOfTheDomainIsItsOwn`
+every position of the domain, each key held as its own;
+`Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn` holds the domain's edge;
+and `Core.MapEditWorkIsLinearInItsMappings`, in a work arm that counts each
+slot and held mapping a lookup visits (`AECP_MAP_WORK`), holds the collision
+and conflict cases of 8, 16, 32 and 63 mappings to twice their mappings and
+rows, under n(n+1)/2. The work arm also runs `Core.EveryAcceptedMapKeyIsItsOwn`
+at every checked-in configuration and at two wider geometries the builder
+accepts, 16 talkers of 4 channels and 16 of up to 32
+([`aecp_arms.py`](../test/aecp_arms.py), `KEY_GEOMETRIES`), each edit within
+twice its mappings and rows. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py)
+plants a defect in each pass, indices that collide and a domain one channel
+wide, and a walk of a key's values and a scan of the table, which change no
+outcome and only the count refuses. An edit that is checked paces AECP's next record
 (THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
 rx-ready gate holds the channel's next record in its ring, never dropped,
 until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll
