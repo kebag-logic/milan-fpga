@@ -69,13 +69,8 @@ BUILD_CFGS = {
     "arty":  "configs/endstation_arty_current.yaml",
 }
 
-# The die each recipe targets (#911): the one launch flag that is neither the
-# config's emission nor a flow flag. A recipe named here must carry exactly
-# this --fpga-part, and every other recipe none, so the XC7A200T recipe cannot
-# lose its die and the AX7101 recipe cannot gain one unseen.
-BUILD_PARTS = {
-    "ax7a200t": "xc7a200t-fbg484-2",
-}
+# #911: the die a recipe adds to its config's emission; every other recipe adds none.
+BUILD_DIES = {"ax7a200t": ["--fpga-part", "xc7a200t-fbg484-2"]}
 
 # FLOW flags, not DESIGN flags: launch directives and per-run paths that
 # emit_soc_argv deliberately does not own. The config comparison ignores only
@@ -126,14 +121,10 @@ BUILD_PLANTS = [
      "exec python3 milan_soc.py $args ", "exec python3 milan_soc.py ",
      ("cfg_ax7101: no --entity-gen-dir", "cfg_ax8x8: no --entity-gen-dir",
       "cfg_arty: no --entity-gen-dir")),
-    ("cfg_ax7101 hand-appends the XC7A200T die",
-     '--place-directive ExtraPostPlacementOpt"',
-     '--place-directive ExtraPostPlacementOpt --fpga-part xc7a200t-fbg484-2"',
-     ("cfg_ax7101: die flag --fpga-part:",)),
-    ("cfg_ax7a200t loses its die",
-     'echo "$(cfg_ax7101) --fpga-part xc7a200t-fbg484-2"',
-     'echo "$(cfg_ax7101)"',
-     ("cfg_ax7a200t: die flag --fpga-part:",)),
+    ("cfg_ax7101 gains the XC7A200T die", 'ExtraPostPlacementOpt"',
+     'ExtraPostPlacementOpt --fpga-part xc7a200t-fbg484-2"', ("cfg_ax7101: design flag --fpga-part:",)),
+    ("cfg_ax7a200t loses its die", 'echo "$(cfg_ax7101) --fpga-part xc7a200t-fbg484-2"', 'echo "$(cfg_ax7101)"',
+     ("cfg_ax7a200t: design flag --fpga-part:",)),
 ]
 
 # Ways build.sh's regeneration can FAIL, planted in its text and executed in
@@ -474,12 +465,7 @@ def check_recipe(name: str, cfg_path: str, run: DryRun,
     bad = _entity_gen_dir_agrees(name, cfg_path, flags)
     got = design_flags(flags)
     got.pop("--entity-gen-dir", None)  # checked above, by config basename
-    part = got.pop("--fpga-part", "(absent)")
-    if part != BUILD_PARTS.get(name, "(absent)"):
-        bad.append(f"cfg_{name}: die flag --fpga-part: launch line {part!r} "
-                   f"!= {BUILD_PARTS.get(name, '(absent)')!r}, the die "
-                   "BUILD_PARTS binds to this recipe")
-    want = design_flags(parse_flags(design_opts_expected(cfg_path)))
+    want = design_flags(parse_flags(design_opts_expected(cfg_path) + BUILD_DIES.get(name, [])))
     n_ok = 0
     for k in sorted(set(got) | set(want)):
         g, w = got.get(k, "(absent)"), want.get(k, "(absent)")
@@ -498,9 +484,8 @@ def check_recipe(name: str, cfg_path: str, run: DryRun,
                  else artefact)
         print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags on "
               f"the dry-run launch line agree with {Path(cfg_path).name} "
-              f"flag for flag, --entity-gen-dir names it, {shown} is "
-              f"its current emission, and its die is "
-              f"{BUILD_PARTS.get(name, 'the platform default')}")
+              f"flag for flag, --entity-gen-dir names it, and {shown} is "
+              "its current emission")
     return bad
 
 

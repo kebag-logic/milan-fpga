@@ -224,12 +224,13 @@ run_detect() {
     # One read-only identification run, its whole output kept in "$1" for
     # check-board to parse. No error-word scan here: the refusal is decided
     # on what the output names, and a non-zero exit is a refusal by itself.
-    local out="$1"; shift
-    if ! $OFL "$@" > "$out" 2>&1; then
-        cat "$out" >&2
+    local out="$1" output; shift
+    if ! output=$($OFL "$@" 2>&1); then
+        echo "$output" >&2
         echo "[deploy] board identification failed: openFPGALoader $*" >&2
         return 1
     fi
+    printf '%s\n' "$output" > "$out"
 }
 
 prove_board() {

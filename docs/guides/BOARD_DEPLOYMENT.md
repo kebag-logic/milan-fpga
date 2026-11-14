@@ -48,7 +48,7 @@ Each variant reads its values from its own layout:
 | XC7A200T variant | `ax7a200t` | `xc7a200tfbg484` | `0xa00000` | `N25Q128A13` |
 <!-- board-flash-variants:end -->
 
-The table is checked against the sources by `scripts/check_solution_docs.py`.
+The table is checked against the sources by `scripts/board_variants.py`.
 
 A delivered image set keeps this directory layout.
 

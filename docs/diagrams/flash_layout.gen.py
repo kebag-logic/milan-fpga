@@ -50,33 +50,36 @@ MANIFESTS = literal("FLASHBOOT_MANIFESTS")
 SLOTS = literal("FLASHBOOT_BITSTREAM_SLOT")
 PARTS = literal("BOARD_PARTS", REPO / "sw" / "litex" / "platforms" / "ax7101_timing.py")
 #: The die being drawn: None is the default map (every part SLOTS does not move).
-PART = None
+DRAWN = {"part": None}
 LAYOUT = literal("FLASHBOOT_LAYOUT")
 ROWS, FLASH_SIZE, ERASE = load_map()
 PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
 
 
 def use_part(part: str | None) -> None:
-    """Point every drawing function at the map of die `part`."""
-    global PART, LAYOUT, ROWS, FLASH_SIZE, ERASE, PROBLEMS, BANDS
-    PART = part
-    LAYOUT = {name: dict(LAYOUT_BASE[name], offset=off, size=size)
-              for name, off, size, kind in load_map(part)[0] if kind == "image"}
-    ROWS, FLASH_SIZE, ERASE = load_map(part)
-    PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
-    BANDS = bands()
+    """Point every drawing function at the map of die `part`, in place."""
+    rows, flash_size, erase = load_map(part)
+    assert (flash_size, erase) == (FLASH_SIZE, ERASE), "one device for every die"
+    DRAWN["part"] = part
+    LAYOUT.clear()
+    LAYOUT.update({name: dict(LAYOUT_BASE[name], offset=off, size=size)
+                   for name, off, size, kind in rows if kind == "image"})
+    ROWS[:] = rows
+    PROBLEMS[:] = check_map(ROWS, FLASH_SIZE, ERASE)
+    BANDS[:] = bands()
 
 
 def dies_line() -> str:
     """Which dies this map is for, read from BOARD_PARTS and the slot table."""
-    if PART is None:
+    part = DRAWN["part"]
+    if part is None:
         mine = [p for p in PARTS if p not in SLOTS]
         others = [p for p in PARTS if p in SLOTS]
         return ("Map of " + ", ".join(mine) + (
             "; " + ", ".join(others) + " moves the AEM region (FLASHBOOT_BITSTREAM_SLOT), "
             "drawn in its own map" if others else "") + ".")
-    return (f"Map of {PART}: its bitstream slot is FLASHBOOT_BITSTREAM_SLOT's "
-            f"{human(SLOTS[PART])}, and the AEM region starts where it ends.")
+    return (f"Map of {part}: its bitstream slot is FLASHBOOT_BITSTREAM_SLOT's "
+            f"{human(SLOTS[part])}, and the AEM region starts where it ends.")
 
 
 class Box(NamedTuple):
@@ -141,7 +144,7 @@ def bands() -> list[tuple[str, int, int, str]]:
     return out
 
 
-LAYOUT_BASE = LAYOUT
+LAYOUT_BASE = dict(LAYOUT)
 BANDS = bands()
 
 # geometry: one vertical bar, to scale

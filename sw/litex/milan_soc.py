@@ -87,6 +87,7 @@ import alinx_ax7101
 import board_audio_routing
 from platforms.ax7101_timing import BOARD_PARTS
 import flash_map as flash_map_reader
+from typing import Any
 
 # The saved-state record contract (design page section 4.2): the firmware's
 # record-set constants come from the SAME derivation the record-space gate and
@@ -191,7 +192,7 @@ FLASHBOOT_RESERVED = {
 }
 
 
-def flash_jedec_id(module) -> int:
+def flash_jedec_id(module: Any) -> int:
     """The 24-bit JEDEC ID (manufacturer, then device) a litespi module names."""
     return (int(module.manufacturer_id.value) << 16) | int(module.device_id)
 

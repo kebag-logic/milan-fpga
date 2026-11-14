@@ -199,7 +199,8 @@ for part, aem in ((TIMING_GRADE["part"], 0x40_0000), (die, 0xA0_0000)):
                            add_constant=lambda name, value=None: consts.__setitem__(name, value))
     milan_soc.MilanSoC._add_flashboot_constants(fake, "baremetal", module)
     rows = {row["name"]: row for row in fake._flashboot_layout["images"]}
-    assert consts["MILAN_FLASHBOOT_AEM_OFFSET"] == rows["aem"]["offset"] == rows["bitstream"]["budget"] == aem, (part, consts, rows)
+    assert (consts["MILAN_FLASHBOOT_AEM_OFFSET"] == rows["aem"]["offset"]
+            == rows["bitstream"]["budget"] == aem), (part, consts, rows)
     assert fake._flashboot_layout["flash_device"] == "n25q128a13", fake._flashboot_layout
     assert fake._flashboot_layout["flash_jedec_id"] == 0x20BA18, fake._flashboot_layout
 print("the XC7A200T die reaches the platform and timing grade; two other parts refused; "
@@ -210,6 +211,17 @@ print("the XC7A200T die reaches the platform and timing grade; two other parts r
                             text=True, capture_output=True, check=False, timeout=60)
     assert result.returncode == 0, result.stdout + result.stderr
     print("  [timing grade] " + result.stdout.strip())
+
+
+def test_board_variant_docs() -> None:
+    """#911: the deployment guide's variant table reads the sources, and each of
+    its mutation controls turns it red (scripts/board_variants.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import board_variants
+    assert board_variants.check(ROOT) == [], board_variants.check(ROOT)
+    assert board_variants.selftest() == 0, "a board variant mutation escaped"
+    print("  [timing grade] the guide's board variant table agrees with build.sh and the "
+          f"flash map; {len(board_variants.MUTATIONS)} mutations caught")
 
 
 def test_pll_grade(python: str) -> None:
@@ -234,6 +246,7 @@ print("declared part reaches the AX7101 PLL speed grade, including a changed-par
 
 if __name__ == "__main__":
     test_timing_grade_contract()
+    test_board_variant_docs()
     if len(sys.argv) == 2:
         test_platform_hooks(sys.argv[1])
         test_board_parts(sys.argv[1])

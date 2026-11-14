@@ -18741,8 +18741,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         def make_build(name: str, owner: str, serial_payload: bytes,
                        manifest: str = "baremetal",
                        extra_rows: tuple[dict[str, Any], ...] = (),
-                       cpu_xlen: int | None = 32,
-                       part: bytes = b"7a100tfgg484\0") -> dict[str, Any]:
+                       cpu_xlen: int | None = 32) -> dict[str, Any]:
             """One staged build tree - gateware bitstream, AEM image and the
             flashboot layout binding both - plus what the arms below need to
             reset the fake flash to it and to recognise it once live."""
@@ -18750,7 +18749,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             (build / "gateware").mkdir(parents=True)
             bit = build / "gateware" / "alinx_ax7101.bit"
             payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" + serial_payload)
-            qspi_transition._fake_bit(bit, payload, name.encode(), part)
+            qspi_transition._fake_bit(bit, payload, name.encode())
             layout = build / "flashboot_layout.json"
             images = [
                 {"name": "bitstream", "offset": 0, "budget": 0x400000},
@@ -18852,9 +18851,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 
         def run_pair(source: dict[str, Any], target: dict[str, Any],
                      fail: tuple[str, int] | None = None,
-                     reset: bool = True, named: bool = False,
+                     reset: bool = True, named: str | None = None,
                      env_over: dict[str, str] | None = None,
-                     recipe: str = "ax7101",
                      ) -> subprocess.CompletedProcess[str]:
             """One source -> target flash-pair run, reached either through
             deploy.sh or through the named build.sh launcher."""
@@ -18869,7 +18867,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             if env_over:
                 env.update(env_over)
             if named:
-                argv = [str(BUILD_SH), "flash", f"{recipe}:{target['dir']}"]
+                # `named` is the build.sh recipe the launcher is asked for
+                argv = [str(BUILD_SH), "flash", f"{named}:{target['dir']}"]
             else:
                 argv = [str(deploy), "flash-pair"]
             return invoke_deploy(argv, env)
@@ -18952,7 +18951,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 assert live_bit(fabric, fabric2) is fabric2
 
         # The named launcher must delegate to the same live-proof transaction.
-        named = run_pair(fabric, fabric2, named=True)
+        named = run_pair(fabric, fabric2, named="ax7101")
         assert named.returncode == 0, named.stdout + named.stderr
         assert [row[1] for row in writes()] == wanted_offsets
 
@@ -19110,22 +19109,31 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         # The XC7A200T variant through the named launcher: its board facts
         # carry the 200T programmer part, so a 200T image set on a 200T
         # board flashes, and the same set on the AX7101's die refuses.
-        fabric200 = make_build("fabric200", "fabric", b"FABRIC-200T-A",
-                               part=b"7a200tfbg484\0")
-        fabric200b = make_build("fabric200b", "fabric", b"FABRIC-200T-B",
-                                part=b"7a200tfbg484\0")
-        variant = run_pair(fabric200, fabric200b, named=True,
-                           recipe="ax7a200t", env_over={"OFL_MODEL": "xc7a200"})
+        def on_200t(build: dict[str, Any]) -> dict[str, Any]:
+            """`build` re-bound to the XC7A200T: its bit carries that part."""
+            payload = qspi_transition.bit_payload(build["bit"])
+            qspi_transition._fake_bit(build["bit"], payload, build["dir"].name.encode(),
+                                      b"7a200tfbg484\0")
+            with open(build["layout"], encoding="utf-8") as source:
+                body = json.load(source)
+            body.update(qspi_transition.bitstream_binding(build["bit"]))
+            with open(build["layout"], "w", encoding="utf-8") as out:
+                json.dump(body, out)
+            return build
+
+        fabric200 = on_200t(make_build("fabric200", "fabric", b"FABRIC-200T-A"))
+        fabric200b = on_200t(make_build("fabric200b", "fabric", b"FABRIC-200T-B"))
+        variant = run_pair(fabric200, fabric200b, named="ax7a200t",
+                           env_over={"OFL_MODEL": "xc7a200"})
         assert variant.returncode == 0, variant.stdout + variant.stderr
         assert [row[1] for row in writes()] == wanted_offsets
         assert live_bit(fabric200, fabric200b) is fabric200b
-        wrong_die = run_pair(fabric200, fabric200b, named=True,
-                             recipe="ax7a200t")
+        wrong_die = run_pair(fabric200, fabric200b, named="ax7a200t")
         assert wrong_die.returncode != 0, wrong_die.stdout + wrong_die.stderr
         assert "JTAG-detected part xc7a100t does not match" in \
             wrong_die.stdout + wrong_die.stderr
         assert not writes(), "a 200T image set on a 100T board was written"
-        ax7101_on_200t = run_pair(fabric200, fabric200b, named=True)
+        ax7101_on_200t = run_pair(fabric200, fabric200b, named="ax7101")
         assert ax7101_on_200t.returncode != 0
         assert "differs from programmer part" in \
             ax7101_on_200t.stdout + ax7101_on_200t.stderr
@@ -29512,10 +29520,11 @@ def test_clock_crossing_constraints() -> None:
 
 def test_commercial_timing_grade() -> None:
     """Pin the release conditions and prove that the real platform consumes them."""
-    from test_timing_grade import (test_board_parts, test_platform_hooks, test_pll_grade,
-                                   test_timing_grade_contract)
+    from test_timing_grade import (test_board_parts, test_board_variant_docs, test_platform_hooks,
+                                   test_pll_grade, test_timing_grade_contract)
 
     test_timing_grade_contract()
+    test_board_variant_docs()
     python = _litex_or_skip("timing grade platform")
     if python is not None:
         test_platform_hooks(python)
