@@ -40,14 +40,16 @@ extern "C" {
 // clock aecp_rx reads as it takes the record). The gate compares whole milliseconds, so two edits are taken more than
 // AECP_PACE_MS - 1 ms apart and a window of w ms holds at most ceil((w + 1) / AECP_PACE_MS) of them (#894's egress
 // ruling of 2026-11-13, item 2; paced_rows.py, edits). An edit's record grows with its mappings, so the rows that
-// count every AECP command as the largest legal one, R4L and txL, take at most that many; the tier model holds the pace to the smallest that holds txL within the MRP timer budget
-// at 1x1/1if, at most 13 ms (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join
-// timer at 20 cs, none did, and with it at 19 cs and the budget at 50 ms (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's
-// contingent ruling issuecomment-6858269025, item 3) 6 ms does (#894, #908). The gate reads the core's clock, which
-// each pass's poll moves on, so a held record is taken at most two passes late, and a burst of AECP_REGISTRATIONS
-// edits answers its last within 15 paces, their passes and its own row, inside the 240 ms response time of IEEE
-// 1722.1-2021 9.3.2.6.
-#define AECP_PACE_MS 6u
+// count every AECP command as the largest legal one, R4L and txL, take at most that many; the tier model holds the
+// pace to the smallest, at most 13 ms, that holds txL within THE TRANSMIT's bound and R4L within 238 ms at 1x1/1if
+// (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join timer at 20 cs, none did;
+// with it at 19 cs (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's contingent ruling of 2026-11-13, item 3) 6 ms did, and
+// with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling, item 1), and the largest legal
+// command's record re-measured under the bounded map work (item 3), 7 ms does (#894, #908). The gate reads the core's
+// clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
+// AECP_REGISTRATIONS edits answers its last within 15 paces, their passes and its own row: within 238 ms at its
+// commit, IEEE 1722.1-2021 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
+#define AECP_PACE_MS 7u
 #define AECP_ROUND_YIELD_PACE_MS 4u
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
@@ -57,7 +59,7 @@ extern "C" {
 // its port's answer, 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1
 // and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's bound: decision D's 125 ms, half of
 // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if 130 ms by #894's amendment
-// issuecomment-6862465874 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+// of 2026-11-13 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
 // next 5 ms (queued_bound.py derives it; #908 stays open while it is over 125). The rows by every source hold both at
 // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
 // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every

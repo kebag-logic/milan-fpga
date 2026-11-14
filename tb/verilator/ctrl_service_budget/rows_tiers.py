@@ -124,12 +124,12 @@ LONG_RULES = ('buffer', 'slot-552')
 #: stated 665 us).
 LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
-#: largest legal notice answers): REMOVE_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler
-#: (aecp_mbx.c, frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, the larger kept: 89,126 CPU
-#: cycles at 1x1/1if at the merge of #810's 084cf7a8 (87,372 before it), and 147,843 on the 8x8 shape with the
-#: answering-ports arm, whose output map that group edits (144,293 at the merge); #904: one decode and one pass, where
-#: 742,470 and 959,647 were measured before. record.aecp, 235 us at 1x1/1if, is measured on shorter commands.
-LONG_RECORD_US = {'1x1/1if': 940, '8x8/2if': 1555}
+#: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
+#: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
+#: at 1x1/1if under #894's bounded map work (a REMOVE of 63; the refused edits 23,014 to 79,281; 89,126 before), and
+#: 147,843 on the 8x8 shape with the answering-ports arm, whose output map that group edits (142,634 now); #904: one
+#: decode and one pass, where 742,470 and 959,647 were measured. record.aecp, 235 us at 1x1/1if, is on shorter commands.
+LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1555}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
