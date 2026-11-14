@@ -406,8 +406,8 @@ def main() -> int:
         rc |= bool(escaped)
     if args.check or not args.selftest:
         load = {p: c for p, c in FLIP.items() if p in points}
-        print('\n'.join((report(ROOT, points) + [''] if load else []) + (row_report(ROOT, rowed, args.design) if rowed else []) +
-                        [''] + shape_costs.report(ROOT)))
+        rows = row_report(ROOT, rowed, args.design) if rowed else []
+        print('\n'.join((report(ROOT, points) + [''] if load else []) + rows + [''] + shape_costs.report(ROOT)))
         for point in (p for p in points if p in REPORTED):
             print(f'REPORTED {point}: its rows by every source are reported, not held, owed to #872; its measured '
                   'rows are the CPU budget harness\'s on its built image (run.py --point 8x8-1if)')

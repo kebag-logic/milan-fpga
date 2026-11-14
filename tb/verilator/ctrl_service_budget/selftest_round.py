@@ -81,7 +81,8 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                               record_share_findings=True)
     out.append(('a round over its stated cost fails a run whatever findings it records',
                 run.verdict(args, [scenario.Group('g')], [], [], [], named) == 1, ''))
-    return out + slice_checks(synthetic, sys_hz, cpu_hz) + datapath_checks(synthetic, sys_hz, cpu_hz)
+    return out + slice_checks(synthetic, sys_hz, cpu_hz) + datapath_checks(synthetic, sys_hz, cpu_hz) + \
+        shape_costs.shape_checks()
 
 
 def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
@@ -116,8 +117,8 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
            ("a slice at one interface is held to that point's length",
             [o['kind'] for o in held('build', one + 1, 1)['over']] == ['build'] and not held('build', one, 1)['over'],
             ''),
-           ("THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its "
-            "build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
+           ("THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to "
+            "its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
             {k: whole_grade.stated_us(shapes['8x8/1if'])[k] for k in ('build', 'build-one')} ==
             {'build': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD],
              'build-one': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD_ONE]} and
