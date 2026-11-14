@@ -1,0 +1,68 @@
+#!/bin/bash
+# guide_run.sh <clone at the build commit> <image set dir> <out dir>: the deployment guide's steps for the XC7A200T
+# variant as written, short of hardware. openFPGALoader is the scratch stub (guide/bin), which opens no cable; each
+# step's command, output and rc go to <out>/NN-<name>.{cmd,log,rc}.
+set -u
+C=$1 B=$2 O=$3
+mkdir -p "$O"; rm -f "$O"/*
+export PATH=<scratch>/guide/bin:<home>/litex-milan/venv/bin:$PATH
+export STUB_LOG=$O/stub-calls.log STUB_QSPI=$O/stub-qspi.bin
+export SERIAL=STUB-SERIAL AX_FTDI=STUB-SERIAL TMPDIR=$O/tmp; mkdir -p "$TMPDIR"
+cd "$C" || exit 3
+n=0
+step() { # name, env assignments..., -- command...
+    name=$1; shift; n=$((n+1)); id=$(printf %02d-%s "$n" "$name")
+    printf '%s\n' "$*" > "$O/$id.cmd"
+    env "$@" > "$O/$id.log" 2>&1; echo $? > "$O/$id.rc"
+    echo "$id rc=$(cat "$O/$id.rc")"
+}
+L=$B/flashboot_layout.json
+# Flash an image set over JTAG: read P and O from the layout, as the guide writes it
+cat > "$O/read-layout.sh" <<'SH'
+B=$1
+set -- $(python3 -c 'import json, sys; d = json.load(open(sys.argv[1]))
+print("xc" + d["bitstream_fpga_part"],
+      hex([i for i in d["images"] if i["name"] == "aem"][0]["offset"]),
+      hex(d["flash_jedec_id"]))' "$B/flashboot_layout.json")
+P=$1 O=$2
+echo "part $P, entity model at $O, flash ID $3"
+SH
+step read-layout bash "$O/read-layout.sh" "$B"
+step check-images-200t FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh check-images
+step check-images-default-part-refused LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh check-images
+step flash-images-no-escape-refused FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash-images
+step flash-images-100t-board-refused STUB_MODEL=xc7a100 ALLOW_NONATOMIC_FLASH=1 FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash-images
+step flash-images-other-flash-refused STUB_JEDEC=20ba19 ALLOW_NONATOMIC_FLASH=1 FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash-images
+step flash-100t-board-refused STUB_MODEL=xc7a100 ALLOW_NONATOMIC_FLASH=1 FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash
+step flash-images ALLOW_NONATOMIC_FLASH=1 FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash-images
+step flash ALLOW_NONATOMIC_FLASH=1 FPGA_PART=xc7a200tfbg484 LAYOUT=$L BIT=$B/gateware/alinx_ax7101.bit bash sw/litex/deploy.sh flash
+# the new-board writes, read back from the stub flash
+python3 - "$O/stub-qspi.bin" "$B" > "$O/stub-qspi-check.txt" <<'PY'
+import sys, json
+sys.path.insert(0, "sw/litex")
+import qspi_owner_transition as q
+flash = open(sys.argv[1], "rb").read(); b = sys.argv[2]
+payload, part = q.bit_info(b + "/gateware/alinx_ax7101.bit")
+aem = open(b + "/aem_desc.bin", "rb").read()
+off = [i["offset"] for i in json.load(open(b + "/flashboot_layout.json"))["images"] if i["name"] == "aem"][0]
+print("stub flash holds the bitstream payload at 0:", flash[:len(payload)] == payload)
+print(f"stub flash holds aem_desc.bin at 0x{off:x}:", flash[off:off + len(aem)] == aem)
+print("bytes between payload end and the AEM region are erased:", set(flash[len(payload):off]) <= {0, 255})
+PY
+cat "$O/stub-qspi-check.txt"
+step build-flash-pair-identical-refused INSTALLED_BUILD=$B bash sw/litex/build.sh flash "ax7a200t:$B"
+# Update a flashed board: the stub flash holds build A (an earlier 200T image set, AEM at 0x400000); INSTALLED_BUILD
+# names it, and the guide's command updates it to the image set.
+A=<scratch>/buildA
+python3 - "$STUB_QSPI" "$A" <<'PY'
+import sys
+sys.path.insert(0, "sw/litex")
+import qspi_owner_transition as q
+payload, _ = q.bit_info(sys.argv[2] + "/gateware/alinx_ax7101.bit")
+with open(sys.argv[1], "wb") as f:
+    f.truncate(16 << 20); f.seek(0); f.write(payload); f.seek(0x400000); f.write(open(sys.argv[2] + "/aem_desc.bin", "rb").read())
+PY
+step update-flash-pair INSTALLED_BUILD=$A bash sw/litex/build.sh flash "ax7a200t:$B"
+step build-flash-ax7101-recipe-refused INSTALLED_BUILD=$B bash sw/litex/build.sh flash "ax7101:$B"
+step build-dry-run bash sw/litex/build.sh ax7a200t --dry-run
+rm -f "$O/stub-qspi.bin"; rm -rf "$O/tmp"

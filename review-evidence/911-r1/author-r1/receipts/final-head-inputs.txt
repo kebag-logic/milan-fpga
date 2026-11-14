@@ -1,0 +1,14 @@
+# Build inputs at the final head 4958ca4f against build C (1e604e1b) and dev b7d69295 (elaborations, no Vivado)
+ax7101 Verilog body: b7d69295 6c53b6fb06f31133, 4958ca4f 6c53b6fb06f31133
+ax7101 gateware/alinx_ax7101.xdc: identical
+ax7101 gateware/alinx_ax7101.tcl: identical
+ax7101 gateware/alinx_ax7101_rom.init: identical
+ax7101 gateware/alinx_ax7101_mem.init: identical
+ax7101 aem_desc.bin: identical
+ax7a200t Verilog body (clone path normalised): build C 29b6027ac17aa4c8, 4958ca4f 29b6027ac17aa4c8
+ax7a200t gateware/alinx_ax7101_rom.init: identical
+ax7a200t gateware/alinx_ax7101_mem.init: identical
+ax7a200t gateware/alinx_ax7101.xdc: identical
+ax7a200t aem_desc.bin: identical
+ax7a200t Tcl: identical apart from the Verilog path and set_param general.maxThreads (8 in build C)
+ax7a200t soc.h AEM: #define MILAN_AEM_FLASH_OFFSET 0xa00000

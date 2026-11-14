@@ -1,0 +1,10 @@
+[deploy] WARNING: non-atomic recovery bitstream write requested
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           7512 B  -> flash @ 0xa00000  (budget 65536 B, from <scratch>/guide/run/tmp/tmp.M5GVUYpPbq/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: <scratch>/guide/run/tmp/tmp.M5GVUYpPbq/target/flashboot_layout.json (bound to <scratch>/guide/run/tmp/tmp.M5GVUYpPbq/target/gateware/target.bit and <scratch>/guide/run/tmp/tmp.M5GVUYpPbq/target/aem_desc.bin, xlen 32)
+fabric	7a200tfbg484	9730652
+[deploy] identify the board on serial STUB-SERIAL (FPGA die, then flash JEDEC ID)
+qspi owner transition REFUSED: JTAG-detected part xc7a100t does not match the image set's bitstream part '7a200tfbg484'; this image set is for another die
+[deploy] REFUSED: the FPGA on the cable is not the image set's part.
