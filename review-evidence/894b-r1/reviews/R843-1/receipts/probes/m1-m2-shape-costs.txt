@@ -1,0 +1,24 @@
+## M1: aecp.h AECP_ATTEMPT_US bound to the cold start's name (CTRL_LOOP_RETRY_COLD_US)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+with no shape header: (2, 2) streams
+FINDING aecp.h states AECP_ATTEMPT_US as 'CTRL_LOOP_RETRY_COLD_US', not as CTRL_LOOP_RETRY_ATTEMPT_US, which THE SHAPES state for each shape
+FINDING 1x1/1if: AECP_ATTEMPT_US is 85 us at its shape (1, 2, 2), not the 34 us THE SHAPES state for it (CTRL_LOOP_RETRY_ATTEMPT_US)
+FINDING 8x8/1if: AECP_ATTEMPT_US is 165 us at its shape (1, 9, 9), not the 25 us THE SHAPES state for it (CTRL_LOOP_RETRY_ATTEMPT_US)
+FINDING 8x8/2if: AECP_ATTEMPT_US is 185 us at its shape (2, 9, 9), not the 34 us THE SHAPES state for it (CTRL_LOOP_RETRY_ATTEMPT_US)
+RESULT: FAIL
+rc=1
+## M2: ctrl_loop.h 8x8/1if block's refused attempt back at 34u (the interface count's figure)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ESCAPED 8x8/1if's AECP_ATTEMPT_US not apart from the interface count's, so no plant can tell them
+ESCAPED a refused attempt one figure at every shape (earlier rule)
+the table of shapes: 22 of 24 planted controls refused
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=1
+## M2b: ctrl_loop.h 8x8/1if cold start 160u (below the measured line's 153.09 us + 5 %)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+the table of shapes: 24 of 24 planted controls refused
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+0

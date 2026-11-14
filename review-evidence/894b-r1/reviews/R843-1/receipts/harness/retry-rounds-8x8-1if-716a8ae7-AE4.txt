@@ -1,0 +1,13 @@
+64,076 rounds in 4 logs; notice 255 us; ports 4
+rounds by (notices, refused): {(0, 0): 63182, (0, 1): 21, (0, 2): 749, (0, 4): 83, (1, 0): 1, (3, 0): 1, (4, 0): 39}
+k=0: dearest 2,206 cycles net of notices (notice-every-0.log: 0 notice(s), 2,206 cycles)
+k=1: dearest 12,547 cycles net of notices (notice-burst-1.log: 0 notice(s), 12,547 cycles)
+k=2: dearest 19,326 cycles net of notices (notice-burst-3.log: 0 notice(s), 19,326 cycles)
+k=4: dearest 23,343 cycles net of notices (notice-every-6.log: 0 notice(s), 23,343 cycles)
+stated 165 + 255 n + 25 k us: 0 round(s) over; closest notice-burst-3.log (0, 2) 19,326 of 21,500 (89.9 %)
+stated 85 + 255 n + 34 k us: 422 round(s) over; closest notice-burst-3.log (0, 2) 19,326 of 15,300 (126.3 %)
+   over by (notices, refused): {(0, 1): 21, (0, 2): 395, (0, 4): 6}
+line through k=0 and k=4: cold 2,206.0 cycles, attempt 5,284.2 cycles; holds every round: False
+line through k=1 and k=4: cold 8,948.3 cycles, attempt 3,598.7 cycles; holds every round: False
+line through k=2 and k=4: cold 15,309.0 cycles, attempt 2,008.5 cycles; holds every round: True
+least cold start among holding lines: 153.09 us once, 20.09 us an attempt (through k=2); by the rule 165 and 25 us

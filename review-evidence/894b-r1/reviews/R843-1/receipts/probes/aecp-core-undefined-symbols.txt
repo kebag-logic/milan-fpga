@@ -1,0 +1,20 @@
+# undefined symbols of the AECP core object (aecp.c) in the 8x8/1if platform image build, head 716a8ae7 vs 184d47ca
+head: 21-aecp.o
+         U aecp_command
+         U aecp_find
+         U aecp_index
+         U aecp_note
+         U aecp_other_lock
+         U memcpy
+         U memset
+184d47ca: 21-aecp.o
+         U aecp_command
+         U aecp_find
+         U aecp_index
+         U aecp_note
+         U aecp_other_lock
+         U memcpy
+         U memset
+diff of the two lists:
+identical
+mbx_/ctrl_loop symbols referenced at head: 0

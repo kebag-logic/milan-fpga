@@ -1,0 +1,25 @@
+# run.py --point 8x8-1if --groups backlog-owed,srp --record-budget-findings --record-share-findings --jobs 2, at 716a8ae7 (review clone, clean), rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 63.083 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.305 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.526 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.747 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.969 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.025 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.680 ms over its budget 20 ms
+SLICES 31983 tier-2 slices; the longest SRP's records 128,809, THE TRANSMIT's build 137,924, THE RETRY's round 1,750 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 188.028 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 188.028 ms and the longest 189.888 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+2 groups graded, 0 refusals, 7 budget misses (7 of 19 probe instances, 4 of 16 paths), 0 of 599 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+srp rounds over 0 polls over 0 slices over 0 whole over 0
+backlog-owed rounds over 0 polls over 0 slices over 0 whole over 0
+worst row by family, the seven held-egress rows apart: {'acmp': (1.4853, 'backlog-owed.service.acmp.first.if0'), 'adp': (3.02291, 'backlog-owed.service.adp.last.if0'), 'aecp': (1.5217, 'backlog-owed.service.aecp.first.if0'), 'maap': (3.00773, 'backlog-owed.service.maap.last.if0'), 'srp': (7.41088, 'backlog-owed.service.srp.last.if0')}
+miss backlog.owed.if0: 63.083 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog.owed_behind0.if0: 63.305 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog.owed_behind1.if0: 63.526 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog.owed_behind2.if0: 63.747 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog.owed_behind3.if0: 63.969 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog-owed.service.acmp.last.if0: 62.025 ms over its budget 20 ms  ledger None under ledger ?
+miss backlog-owed.service.aecp.last.if0: 61.680 ms over its budget 20 ms  ledger None under ledger ?
+ledger check (measured < section-13 ledger): 63.083<63.24 63.305<63.47 63.526<63.69 63.747<63.91 63.969<64.20 62.025<62.18 61.680<61.83

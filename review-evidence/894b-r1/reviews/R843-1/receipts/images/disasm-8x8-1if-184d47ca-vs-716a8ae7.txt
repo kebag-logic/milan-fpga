@@ -1,0 +1,20 @@
+## fixture-8x8-1if: 184d47ca vs 716a8ae7, objdump -d --no-show-raw-insn
+1699c1699
+<     1974:	addi	a5,a5,-34
+---
+>     1974:	addi	a5,a5,-25
+19982c19982
+<    12cb8:	addi	a2,a2,-85
+---
+>    12cb8:	addi	a2,a2,-165
+section headers: identical
+## platform-8x8-1if: 184d47ca vs 716a8ae7, objdump -d --no-show-raw-insn
+1695c1695
+<     196c:	addi	a5,a5,-34
+---
+>     196c:	addi	a5,a5,-25
+21080c21080
+<    13d20:	addi	a2,a2,-85
+---
+>    13d20:	addi	a2,a2,-165
+section headers: identical

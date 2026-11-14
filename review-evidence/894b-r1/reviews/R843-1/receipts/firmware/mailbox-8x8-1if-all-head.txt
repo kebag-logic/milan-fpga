@@ -1,0 +1,31 @@
+# aecp_arms.py --mailbox --config configs/endstation_ax7101_8x8.yaml --interfaces 1 --filter 'Mailbox.*' on a clean clone at 716a8ae7979a31315a6e085959dc4dcc8b7ee022; rc 1
+[       OK ] Mailbox.EveryInterfaceAndObservationPort (1 ms)
+[       OK ] Mailbox.OutputTailStartsCounterSpacingAfterAStall (1 ms)
+[       OK ] Mailbox.TimerIdentityAndAttachRefusals (4 ms)
+[       OK ] Mailbox.RetryWaitsForARoundsPass (0 ms)
+[       OK ] Mailbox.HeldRetryTakesThePassGivenWhole (0 ms)
+sw/firmware/ctrl/test/test_aecp.cpp:3121: Failure
+Expected equality of these values:
+    Which is: 3
+    Which is: 0
+sw/firmware/ctrl/test/test_aecp.cpp:3122: Failure
+  Actual: true
+Expected: false
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft (1 ms)
+[       OK ] Mailbox.ARoundTriesAPortOnceAndItsNextRoundTheNext (0 ms)
+[       OK ] Mailbox.ARoundTriesAPortOfEachWindow (0 ms)
+[       OK ] Mailbox.ARoundTriesStreamInfoOnceAtEveryIndex (0 ms)
+[       OK ] Mailbox.ARefusedAttemptIsChargedToItsRound (1 ms)
+[       OK ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (0 ms)
+[       OK ] Mailbox.ANoticeWithNoRoomStaysOwed (1 ms)
+[       OK ] Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone (0 ms)
+[       OK ] Mailbox.EveryNoticePendingAtOnceMeetsItsBound (1 ms)
+[       OK ] Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce (1 ms)
+[       OK ] Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone (1 ms)
+[       OK ] Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone (1 ms)
+[       OK ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse (1 ms)
+[  PASSED  ] 17 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundFillsWhatItsPassHasLeft
+== AECP core: checks: 18   failures: 1 ==
+RESULT: FAIL

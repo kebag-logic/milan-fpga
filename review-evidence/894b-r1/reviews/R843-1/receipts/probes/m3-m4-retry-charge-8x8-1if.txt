@@ -1,0 +1,26 @@
+## core-charges-34: sw/firmware/ctrl/aecp/aecp.c
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=1
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort
+[  FAILED  ] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort (1 ms)
+  [FAIL] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort: a notice's time left after the refusal's charge
+  [FAIL] Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort:     Which is: 1
+[  PASSED  ] 3 tests.
+clean after revert: 0 path(s) changed
+## adapter-admits-at-85: sw/firmware/ctrl/aecp/aecp_mbx.c
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=1
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Mailbox.ARefusedAttemptIsChargedToItsRound
+[  FAILED  ] Mailbox.ARefusedAttemptIsChargedToItsRound (1 ms)
+  [FAIL] Mailbox.ARefusedAttemptIsChargedToItsRound: a refusal charged below a notice's time ends the round
+  [FAIL] Mailbox.ARefusedAttemptIsChargedToItsRound: a round with less than a notice's time left tries nothing
+  [FAIL] Mailbox.ARefusedAttemptIsChargedToItsRound: Expected: true
+  [FAIL] Mailbox.ARefusedAttemptIsChargedToItsRound: the notice beside a refused one stays due
+  [FAIL] Mailbox.ARefusedAttemptIsChargedToItsRound:     Which is: 1
+[  PASSED  ] 3 tests.
+clean after revert: 0 path(s) changed
+## control: unplanted head
+rc=0
+[  PASSED  ] 4 tests.
