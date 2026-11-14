@@ -128,7 +128,11 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: table's: MAAP's record, a range lost to a peer's ANNOUNCE that restarts the core, 90 to 115 and 130 to 150 us, AECP's
 #: timer slot at 1x1/1if 60 to 65, a TICK at 8x8/2if 40 to 45; on its merge with #810 each cost the larger of the two
 #: sides', and on its merge with THE TIERS (#894) each cost the one of the side that moved it from their merge base
-#: 084cf7a8, MAAP's record #895's and every other #894's (#895). 32x32/2if
+#: 084cf7a8, MAAP's record #895's and every other #894's (#895); measured again on that merge, the same groups, each
+#: cost the larger of that and this table's: AECP's timer slot 65 to 75 and a TICK 45 to 50 at 1x1/1if, and at 8x8/2if
+#: AECP's timer slot 105 to 115, a TICK 40 to 55, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155,
+#: the code's placement the merge moves, not traced (#909); an AECP record stays #894's 235 us, which #894 checks
+#: (#895, the ruling of 2026-11-14 on its composition, item 2). 32x32/2if
 #: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
@@ -136,12 +140,12 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
-                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 65, 'event.TICK': 45,
+                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 50,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 150,
-                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 105, 'event.TICK': 40,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.retained': 365, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
+                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 115, 'event.TICK': 55,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.retained': 365, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
@@ -169,16 +173,19 @@ STATED_US = {
 #: Again so with SRP's Talker declarations (#895, the pin's legs above): beside the pin's moves, the polls' base 155 to
 #: 160 and 285 to 290 us, and at 1x1/1if ACMP's owed frame 120 to 125 and the registrar walk 20 to 25. On #895's merge
 #: with THE TIERS each cost is the one of the side that moved it from their merge base 084cf7a8: MAAP's record #895's,
-#: every other #894's, ACMP's owed frame among them, itemised (#894).
+#: every other #894's, ACMP's owed frame among them, itemised (#894); measured again on that merge, each cost
+#: STATED_US's measurement raised is raised here with it, the larger: AECP's timer slot 75 and a TICK 50 at 1x1/1if,
+#: and at 8x8/2if AECP's timer slot 110 to 115, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155, its
+#: TICK's 85 the larger (#895).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
-                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 65, 'event.TICK': 45,
+                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 50,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
                 'item.mrpdu': 725, 'item.acmp': 50, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 150,
-                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
+                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 115, 'event.TICK': 85,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 325, 'item.reclaim': 40, 'item.retained': 365,
                 'item.mrpdu': 1215, 'item.acmp': 65, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
