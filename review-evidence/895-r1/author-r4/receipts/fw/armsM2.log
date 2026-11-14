@@ -1,0 +1,241 @@
+# 2026-11-14T07:33:11+01:00 head 9e30c2c383ced58b0b2b87e774ea3b63d6389514 dirty 86 range 88-95
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>/armsM2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/armsM2/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote <scratch>/armsM2/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/armsM2/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/armsM2/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 26   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (26 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+    == ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+    == ctrl mailbox driver with the record mover (host register model): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    == ctrl memory primitives (host): checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_talker-if1-endstation_ax7101_1x1_tdm8
+    == ctrl SRP Talker declarations: checks: 11   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (11 tests, 0 failures, exit 0)
+[ok] arm srp-srp_talker-if2-endstation_ax7101_8x8
+    == ctrl SRP Talker declarations: checks: 11   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (11 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+    == ctrl ADP ACMP MAAP SRP composition: checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+[ok] arm maap
+    == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (37 tests, 0 failures, exit 0)
+    H-MAAP timer 0: 29 accesses, 10300 ns from original deadline (model)
+    H-MAAP timer 1: 29 accesses, 13200 ns from original deadline (model)
+    H-MAAP timer 2: 55 accesses, 18300 ns from original deadline (model)
+    H-MAAP timer 3: 29 accesses, 21600 ns from original deadline (model)
+    H-MAAP DEFEND: 39 accesses, 3800 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4600 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 21   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (21 tests, 0 failures, exit 0)
+[ok] arm maap_if2
+    H-MAAP timer 0: 29 accesses, 14300 ns from original deadline (model)
+    H-MAAP timer 1: 29 accesses, 17200 ns from original deadline (model)
+    H-MAAP timer 2: 55 accesses, 22300 ns from original deadline (model)
+    H-MAAP timer 3: 29 accesses, 25600 ns from original deadline (model)
+    H-MAAP DEFEND: 39 accesses, 3800 ns from RX_HEAD (model)
+    H-MAAP wake interface 0: 4600 ns from RX_HEAD (model)
+    H-MAAP wake interface 1: 4600 ns from RX_HEAD (model)
+    H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+    == ctrl H-MAAP mailbox: checks: 22   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (22 tests, 0 failures, exit 0)
+[ok] arm acmp
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 24786)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 24786)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 24786)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2754)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 189 accesses
+    F3 the worst pass of the backlog                                          189 accesses (bound 2754)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 60588)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 227 accesses
+    F6 the worst pass of the three-way backlog                                227 accesses (bound 3507)
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 165   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (165 tests, 0 failures, exit 0)
+[ok] arm acmpif2
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 1                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 50)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 1         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 25065)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 25065)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 25065)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2785)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 191 accesses
+    F3 the worst pass of the backlog                                          191 accesses (bound 2785)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 61270)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 229 accesses
+    F6 the worst pass of the three-way backlog                                229 accesses (bound 3603)
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 38   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (38 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 24786)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 24786)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 24786)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2754)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 189 accesses
+    F3 the worst pass of the backlog                                          189 accesses (bound 2754)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 60588)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 229 accesses
+    F6 the worst pass of the four-way backlog                                 229 accesses (bound 4840)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 76   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (76 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 1                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 50)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 1         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 25065)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 25065)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 25065)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2785)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 191 accesses
+    F3 the worst pass of the backlog                                          191 accesses (bound 2785)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 61270)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 232 accesses
+    F6 the worst pass of the four-way backlog                                 232 accesses (bound 4980)
+    == ctrl ADP ACMP MAAP SRP composition: checks: 76   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (76 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (10 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (10 tests, 0 failures, exit 0)
+arms unit talker maap maap_if2 acmp acmpif2 srp-acmp-if1 srp-acmp-if2 platboot: PASS
+# 2026-11-14T07:35:03+01:00 rc 0

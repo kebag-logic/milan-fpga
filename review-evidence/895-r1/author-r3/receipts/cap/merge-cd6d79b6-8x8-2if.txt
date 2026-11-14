@@ -1,0 +1,13 @@
+tree cd6d79b6486a4bd56a604949530b5b051b318e56 (clean), cap_probe.py (round3/scripts), RV32 stand-ins, no flash map
+== none image.log (last lines)
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 58.5
+  }
+}
+== answering-every-port image.log (last lines)
+REFUSED: allocation over budget: 59 RAMB36 (rom 125140 bytes in 126976, sram 113280 bytes in 114688) exceeds the 58.5-RAMB36 budget ledgered for 8x8, two interfaces
+wrote <scratch>/answering-every-port/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/answering-every-port/image/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/answering-every-port/image/contract/mbx_contract.h (2 interfaces)
+== none size.json
+{'rom': {'bytes': 124832, 'banks': [65536, 32768, 16384, 8192, 2048], 'RAMB36': 30, 'RAMB18': 1}, 'sram': {'bytes': 113216, 'banks': [65536, 32768, 16384], 'RAMB36': 28, 'RAMB18': 0}, 'tiles': 58.5}

@@ -1,0 +1,17 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMANDCOMMAND  <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@program-1.txt -
+<scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@verify-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@blank-aged2-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/save-held.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@program-aged2-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@blank-aged1-0.txt -COMMAND
+ <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@program-aged1-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@verify-aged2-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/backlog-adp@verify-aged1-0.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/adp-advertise.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p1/aecp-fanout.txt -
+STEPS 5911 passes carry the store's step; the longest 109,875 CPU cycles (1.099 ms), backlog-adp@verify-0; the longest step 79,696 (0.797 ms), backlog-adp@program-1
+AGED 6 windows opened with the step's age at its limit or one short of it, 0 aged steps among their records; the least margin 9.991 ms, backlog-adp@program-aged2-0.service.aecp.last.if1 at 10.009 ms
+SAVE save-held: durable 4817.908 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 14.366 ms) within
+11 groups graded, 0 refusals, 0 budget misses (0 of 118 probe instances, 0 of 35 paths), 0 of 12689 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz

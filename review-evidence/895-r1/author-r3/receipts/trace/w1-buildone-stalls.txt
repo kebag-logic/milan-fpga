@@ -1,0 +1,77 @@
+# stalls.py: the build-one pass at sys 327.5 M, committed-PC trace (12,000 PCs): each commit's wait charged to the committing instruction
+## the first 8-B candidate's image (W1probe-P), pass PASS 21187 start_cpu 327550560, 45,204 cycles
+commits 6795, waits 38405, refills 129
+   mrp_transmit                 wait  13863 refills 28
+   forward                      wait   3231 refills 8
+   declare_sources              wait   3091 refills 14
+   transmit                     wait   2985 refills 8
+   deliver_event_changed        wait   1907 refills 4
+   reg_event                    wait   1570 refills 7
+   reclaim                      wait   1125 refills 0
+   send_pdu                     wait    936 refills 3
+   mrp_reclaim                  wait    885 refills 2
+   get_or_create_attr           wait    730 refills 4
+   memset                       wait    691 refills 0
+   mbx_tx_begin                 wait    623 refills 4
+   moved                        wait    524 refills 0
+   mbx_tx_commit                wait    454 refills 2
+   000029c4 mrp_transmit             wait  1278  srli	a5,s2,0x5
+   00002af4 mrp_transmit             wait  1107  addi	s2,s2,1
+   000029c8 mrp_transmit             wait  1024  slli	a5,a5,0x2
+   000029d4 mrp_transmit             wait  1024  add	a5,a5,a4
+   000029d8 mrp_transmit             wait  1024  lw	a4,-64(a5)
+   000029e0 mrp_transmit             wait  1024  srl	a4,a4,a3
+   000029e4 mrp_transmit             wait  1024  andi	a4,a4,1
+   000029e8 mrp_transmit             wait  1024  beqz	a4,2af4 <mrp_transmit+0x4b0>
+   00002afc mrp_transmit             wait  1024  bne	s2,a5,29c4 <mrp_transmit+0x380>
+   000029d0 mrp_transmit             wait   768  addi	a5,a5,64
+   00009804 reg_event                wait   417  sw	s9,52(sp)
+   00005094 forward                  wait   392  lw	a1,0(a4)
+   0000a414 mrp_reclaim              wait   391  lw	s0,0(s1)
+   00005064 forward                  wait   385  lw	a7,0(a4)
+   00000d74 memset                   wait   367  sw	a1,16(a4)
+   00002300 transmit                 wait   365  lbu	a4,188(s9)
+   00017598 tx_vector_len            wait   364  sw	s3,12(sp)
+   00004fb8 forward                  wait   338  sw	s0,12(sp)
+   00009dc4 declare_sources          wait   310  lbu	a2,0(s6)
+   00016a40 reclaim                  wait   310  lw	s0,8(sp)
+   000097cc deliver_event_changed    wait   300  lw	a6,64(a1)
+   00009848 reg_event                wait   299  lw	s8,68(a1)
+## round 2 17ac263f's image (R3-W1), pass PASS 25143 start_cpu 327465720, 35,270 cycles
+commits 6798, waits 28468, refills 130
+   mrp_transmit                 wait  12902 refills 21
+   forward                      wait   1718 refills 6
+   transmit                     wait   1637 refills 10
+   mrp_reclaim                  wait   1336 refills 3
+   declare_sources              wait   1207 refills 12
+   reg_event                    wait    747 refills 7
+   deliver_event_changed        wait    742 refills 5
+   memset                       wait    691 refills 0
+   mbx_tx_begin                 wait    679 refills 6
+   ctrl_pool_alloc              wait    519 refills 4
+   mbx_tx_commit                wait    477 refills 2
+   send_pdu                     wait    396 refills 5
+   find_attr.isra.0             wait    370 refills 2
+   build_mrpdu                  wait    321 refills 4
+   00002964 mrp_transmit             wait  1276  srli	a5,s2,0x5
+   00002980 mrp_transmit             wait  1044  srl	a4,a4,a3
+   00002968 mrp_transmit             wait  1024  slli	a5,a5,0x2
+   00002974 mrp_transmit             wait  1024  add	a5,a5,a4
+   00002978 mrp_transmit             wait  1024  lw	a4,-64(a5)
+   00002984 mrp_transmit             wait  1024  andi	a4,a4,1
+   00002988 mrp_transmit             wait  1024  beqz	a4,2a94 <mrp_transmit+0x4b0>
+   00002a9c mrp_transmit             wait  1024  bne	s2,a5,2964 <mrp_transmit+0x380>
+   00002a94 mrp_transmit             wait  1020  addi	s2,s2,1
+   00002970 mrp_transmit             wait   768  addi	a5,a5,64
+   0000a3e8 mrp_reclaim              wait   573  lw	a5,68(s0)
+   00000d54 memset                   wait   367  sw	a1,16(a4)
+   0000a3bc mrp_reclaim              wait   326  lw	s0,0(s1)
+   00004f60 forward                  wait   324  sw	s0,12(sp)
+   00009f54 declare_sources          wait   294  lw	a4,200(s7)
+   000086ec mbx_tx_commit            wait   230  lw	a2,0(a1)
+   0000503c forward                  wait   225  lw	a1,0(a4)
+   00002d24 mrp_transmit             wait   216  lbu	a5,128(s0)
+   00004ff0 forward                  wait   212  sub	a7,t1,a1
+   0000261c mrp_transmit             wait   194  sw	a0,8(sp)
+   00003d84 nvm_now                  wait   186  lw	a5,192(a5)
+   00009c08 moved                    wait   182  lw	a3,0(a0)

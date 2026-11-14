@@ -1,0 +1,21 @@
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 14.71 | 20 | -5.29 | 6 | aecp 4.800, timers 1.560, passes 1.410 |
+| 1x1/1if | R5 | 75.99 | 90 | -14.01 | 39 | others 20.820, passes 9.165, srp 8.960 |
+| 1x1/1if | R6 | 73.52 | 90 | -16.48 | 37 | others 20.240, srp 8.960, passes 8.695 |
+| 1x1/1if | first | 14.72 | 20 | -5.28 | 2 | spacing 8.000, others 1.600, steps 0.975 |
+| 1x1/1if | last | 135.85 | 130 | +5.85 | 71 | others 27.490, srp 26.600, passes 16.685 |
+| 1x1/1if | R4L | 188.48 | 238 | -49.52 | 3 | pace 180.000, timers 1.105, item.aecp 1.095 |
+| 1x1/1if | ACMP | 33.64 | 30 | +3.64 | 19 | aecp 6.600, own 4.480, passes 4.465 |
+| 1x1/1if | ADP | 29.27 | 30 | -0.73 | 14 | others 6.915, aecp 6.300, passes 3.290 |
+| 1x1/1if | MAAP | 29.37 | 30 | -0.63 | 14 | others 6.930, aecp 6.300, passes 3.290 |
+| 1x1/1if | tx | 36.63 | 49 | -12.37 | 19 | others 15.530, passes 4.465, item.aecp 3.990 |
+| 1x1/1if | txL | 53.53 | 49 | +4.53 | 26 | others 22.320, item.aecp 9.490, passes 6.110 |
+OVER 1x1/1if last: under the tiers (slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 135.85 ms, over its bound 130 ms; the largest term others 27.49 ms
+OVER 1x1/1if ACMP: under the tiers (slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 33.64 ms, over its bound 30 ms; the largest term aecp 6.60 ms
+OVER 1x1/1if txL: under the tiers (slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 53.53 ms, over its bound 49 ms; the largest term others 22.32 ms
+OVER 1x1/1if: CTRL_LOOP_TX_MS states 30 ms, under the built design's tx row 36.63 ms
+OVER 1x1/1if: aecp_mbx.h states AECP_QUEUED_MS 130 ms, not the 140 ms its row 135.85 ms rules
+RESULT: FAIL

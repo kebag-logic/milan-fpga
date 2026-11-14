@@ -1,0 +1,55 @@
+# 2026-11-13T18:34:14+01:00 head a9fd441519c679be7559265701776c5492365535 dirty 7 range 72-79
+5 defects: talker-sid-unwritten-at-start, talker-sid-words-swapped, talker-sid-never-held, talker-sid-opens-before-its-high-word, talker-sid-written-mark-kept
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] talker-sid-unwritten-at-start: maap_mbx.c does not compile:
+<scratch>/plantsP/if2/work/ctrl/maap/maap_mbx.c: In function ‘maap_mbx_start’:
+<scratch>/plantsP/if2/work/ctrl/maap/maap_mbx.c:257:34: error: unused variable ‘k’ [-Werror=unused-variable]
+  257 |                         unsigned k = m->acmp->cfg.source_interface[s];
+      |                                  ^
+cc1: all warnings being treated as errors
+
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+Note: Google Test filter = SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpGate
+[ RUN      ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain (1 ms)
+[----------] 1 test from SrpGate (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plantsP/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ESCAPED] talker-sid-unwritten-at-start: maap_mbx.c does not compile:
+<scratch>/plantsP/if1/work/ctrl/maap/maap_mbx.c: In function ‘maap_mbx_start’:
+<scratch>/plantsP/if1/work/ctrl/maap/maap_mbx.c:257:34: error: unused variable ‘k’ [-Werror=unused-variable]
+  257 |                         unsigned k = m->acmp->cfg.source_interface[s];
+      |                                  ^
+cc1: all warnings being treated as errors
+
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+plants talker-sid- at [2, 1]: FAIL
+# 2026-11-13T18:34:55+01:00 rc 1

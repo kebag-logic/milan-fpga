@@ -1,0 +1,118 @@
+# dloop.py: the data cache lines of each MAAP poll's per-source loop, and every set two of them share
+## ledger B: tree 084cf7a8455e9fa8e24a0e5bcf57c9557816c819 dirty 0
+== <scratch>/ledger/B/arm-answering-every-port/image/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8b0 app 0x10013740 bridge 0x10005914 owner 0x10015d7c
+   no conflict among the loop lines
+== <scratch>/ledger/B/fixture-1x1-if1/ctrl_app.elf
+   stack_top 0x1000b360 frames [('main', 176), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1d0 app 0x10005e40 bridge 0x10001b38 owner 0x10007fdc
+   no conflict among the loop lines
+== <scratch>/ledger/B/fixture-1x1-if2/ctrl_app.elf
+   stack_top 0x1000dfe0 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000de40 app 0x10008620 bridge 0x10001b38 owner 0x1000ac5c
+   no conflict among the loop lines
+== <scratch>/ledger/B/fixture-8x8-if1/ctrl_app.elf
+   stack_top 0x100153e0 frames [('main', 160), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x10015260 app 0x1000d570 bridge 0x100058d0 owner 0x1000f70c
+   no conflict among the loop lines
+== <scratch>/ledger/B/fixture-8x8-if2/ctrl_app.elf
+   stack_top 0x1001ba10 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b870 app 0x10013700 bridge 0x100058d0 owner 0x10015d3c
+   no conflict among the loop lines
+## ledger N: tree a9fd441519c679be7559265701776c5492365535 dirty 0
+== <scratch>/ledger/N/arm-answering-every-port/image/ctrl_app.elf
+   stack_top 0x1001ba90 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8d0 app 0x10013770 bridge 0x10005914 owner 0x10015dc4
+   CONFLICT set 100: 0x1001b900 ['acmp_declaring frame', 'refresh_demand frame'] | 0x10005900 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/N/arm-valid-destinations/image/ctrl_app.elf
+   stack_top 0x1001ba60 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8a0 app 0x10013738 bridge 0x100058d0 owner 0x10015d8c
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/N/fixture-1x1-if1/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/ledger/N/fixture-1x1-if2/ctrl_app.elf
+   stack_top 0x1000e020 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000de60 app 0x10008648 bridge 0x10001b38 owner 0x1000ac9c
+   no conflict among the loop lines
+== <scratch>/ledger/N/fixture-8x8-if1/ctrl_app.elf
+   stack_top 0x10015410 frames [('main', 176), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x10015280 app 0x1000d598 bridge 0x100058d0 owner 0x1000f744
+   no conflict among the loop lines
+== <scratch>/ledger/N/fixture-8x8-if2/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b890 app 0x10013730 bridge 0x100058d0 owner 0x10015d84
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+## ledger P: tree a9fd441519c679be7559265701776c5492365535 dirty 8
+== <scratch>/ledger/P/arm-answering-every-port/image/ctrl_app.elf
+   stack_top 0x1001ba80 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8c0 app 0x10013770 bridge 0x10005914 owner 0x10015db4
+   CONFLICT set 100: 0x1001b900 ['refresh_demand frame'] | 0x10005900 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/P/arm-valid-destinations/image/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b890 app 0x10013738 bridge 0x100058d0 owner 0x10015d7c
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/P/fixture-1x1-if1/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/ledger/P/fixture-1x1-if2/ctrl_app.elf
+   stack_top 0x1000e010 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000de50 app 0x10008648 bridge 0x10001b38 owner 0x1000ac8c
+   no conflict among the loop lines
+== <scratch>/ledger/P/fixture-8x8-if1/ctrl_app.elf
+   stack_top 0x10015410 frames [('main', 176), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x10015280 app 0x1000d598 bridge 0x100058d0 owner 0x1000f744
+   no conflict among the loop lines
+== <scratch>/ledger/P/fixture-8x8-if2/ctrl_app.elf
+   stack_top 0x1001ba40 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b880 app 0x10013730 bridge 0x100058d0 owner 0x10015d74
+   CONFLICT set 99: 0x1001b8c0 ['refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+## ledger S: tree cf5b1441be8ac1b49ca164845a5bac50acdabc48 dirty 0
+== <scratch>/ledger/S/arm-answering-every-port/image/ctrl_app.elf
+   stack_top 0x1001ba80 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8c0 app 0x10013770 bridge 0x10005914 owner 0x10015db4
+   CONFLICT set 100: 0x1001b900 ['refresh_demand frame'] | 0x10005900 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/S/arm-valid-destinations/image/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b890 app 0x10013738 bridge 0x100058d0 owner 0x10015d7c
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/ledger/S/fixture-1x1-if1/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/ledger/S/fixture-1x1-if2/ctrl_app.elf
+   stack_top 0x1000e010 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000de50 app 0x10008648 bridge 0x10001b38 owner 0x1000ac8c
+   no conflict among the loop lines
+== <scratch>/ledger/S/fixture-8x8-if1/ctrl_app.elf
+   stack_top 0x10015410 frames [('main', 176), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x10015280 app 0x1000d598 bridge 0x100058d0 owner 0x1000f744
+   no conflict among the loop lines
+== <scratch>/ledger/S/fixture-8x8-if2/ctrl_app.elf
+   stack_top 0x1001ba40 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b880 app 0x10013730 bridge 0x100058d0 owner 0x10015d74
+   CONFLICT set 99: 0x1001b8c0 ['refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+## the a9fd4415 harness images (Q-*)
+== <scratch>/builds/Q-A1/image/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/builds/Q-A8/image/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b890 app 0x10013730 bridge 0x100058d0 owner 0x10015d84
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/builds/Q-N1/image/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b3c owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/builds/Q-N8/image/ctrl_app.elf
+   stack_top 0x1001ba90 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8d0 app 0x10013770 bridge 0x10005914 owner 0x10015dc4
+   CONFLICT set 100: 0x1001b900 ['acmp_declaring frame', 'refresh_demand frame'] | 0x10005900 ['bridge acmp_owner (c+16)']
+== <scratch>/builds/Q-W1/image/ctrl_app.elf
+   stack_top 0x1000b390 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1f0 app 0x10005e60 bridge 0x10001b38 owner 0x1000800c
+   CONFLICT set 0: 0x10008000 ['app->acmp_owner'] | 0x18000 ['image_env']
+== <scratch>/builds/Q-W8/image/ctrl_app.elf
+   stack_top 0x1001ba60 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8a0 app 0x10013738 bridge 0x100058d0 owner 0x10015d8c
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+## the head's harness images (S-*)
+== <scratch>/builds/S-A1/image/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/builds/S-A8/image/ctrl_app.elf
+   stack_top 0x1001ba40 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b880 app 0x10013730 bridge 0x100058d0 owner 0x10015d74
+   CONFLICT set 99: 0x1001b8c0 ['refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/builds/S-B1/image/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b38 owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/builds/S-B8/image/ctrl_app.elf
+   stack_top 0x1001ba40 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b880 app 0x10013730 bridge 0x100058d0 owner 0x10015d74
+   CONFLICT set 99: 0x1001b8c0 ['refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']
+== <scratch>/builds/S-N1/image/ctrl_app.elf
+   stack_top 0x1000b380 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1e0 app 0x10005e58 bridge 0x10001b3c owner 0x10008004
+   no conflict among the loop lines
+== <scratch>/builds/S-N8/image/ctrl_app.elf
+   stack_top 0x1001ba80 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b8c0 app 0x10013770 bridge 0x10005914 owner 0x10015db4
+   CONFLICT set 100: 0x1001b900 ['refresh_demand frame'] | 0x10005900 ['bridge acmp_owner (c+16)']
+== <scratch>/builds/S-W1/image/ctrl_app.elf
+   stack_top 0x1000b390 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 16), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1000b1f0 app 0x10005e60 bridge 0x10001b38 owner 0x1000800c
+   no conflict among the loop lines
+== <scratch>/builds/S-W8/image/ctrl_app.elf
+   stack_top 0x1001ba50 frames [('main', 192), ('ctrl_loop_run', 16), ('ctrl_loop_step', 16), ('ctrl_loop_service', 96), ('maap poll', 48), ('refresh_demand', 16), ('acmp_declaring', 64)] acmp_declaring sp 0x1001b890 app 0x10013738 bridge 0x100058d0 owner 0x10015d7c
+   CONFLICT set 99: 0x1001b8c0 ['acmp_declaring frame', 'refresh_demand frame'] | 0x100058c0 ['bridge acmp_owner (c+16)']

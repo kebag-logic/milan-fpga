@@ -1,0 +1,45 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMANDCOMMAND COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@blank-7.txt - <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@blank-3.txt -
+
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@program-4.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@verify-1.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@verify-6.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@blank-aged2-3.txt -
+<scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/save-held.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@blank-aged1-0.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@blank-aged1-5.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@program-aged2-2.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@program-aged2-7.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@program-aged1-4.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@verify-aged2-1.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@verify-aged2-6.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp@verify-aged1-3.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/adp-advertise.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/adp-discover.txt -
+COMMAND <scratch>/builds/R5-A8/native/Vsim <scratch>/builds/R5-A8/results-p1/datapath-events.txt -
+STEPS 8819 passes carry the store's step; the longest 109,798 CPU cycles (1.098 ms), backlog-adp@verify-1; the longest step 79,032 (0.790 ms), backlog-adp@program-aged1-4
+SLICES 334711 tier-2 slices; the longest SRP's records 101,594, THE TRANSMIT's build 33,952, THE RETRY's round 10,360 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS save-held: 11 join interval(s), the shortest 186.041 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 78 released, 68 empty
+JOINS backlog-adp@blank-3: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-adp@blank-7: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-adp@program-4: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 18 empty
+JOINS backlog-adp@verify-1: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS backlog-adp@verify-6: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS backlog-adp@blank-aged2-3: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-adp@blank-aged1-0: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-adp@blank-aged1-5: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-adp@program-aged2-2: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 18 empty
+JOINS backlog-adp@program-aged2-7: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 18 empty
+JOINS backlog-adp@program-aged1-4: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 18 empty
+JOINS backlog-adp@verify-aged2-1: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS backlog-adp@verify-aged2-6: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS backlog-adp@verify-aged1-3: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS adp-advertise: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 28 released, 22 empty
+JOINS backlog-adp-refill: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+JOINS adp-discover: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+JOINS datapath-events: 6 join interval(s), the shortest 188.143 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+AGED 9 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 9.793 ms, backlog-adp@verify-aged2-6.service.srp.last.if1 at 10.207 ms
+SAVE save-held: durable 4817.708 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 15.422 ms) within
+19 groups graded, 0 refusals, 0 budget misses (0 of 187 probe instances, 0 of 27 paths), 0 of 19176 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz

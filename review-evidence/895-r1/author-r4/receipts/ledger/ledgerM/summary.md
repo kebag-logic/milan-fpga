@@ -1,0 +1,14 @@
+tree 9e30c2c383ced58b0b2b87e774ea3b63d6389514 dirty 85; plat_ledger.py rc 1
+
+| Image | rc | rom B | sram B | RAMB36 | rom banks B | sram banks B | ctrl_plat B | last log line |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| platform 1x1-if1 | 0 | 116992 | 56224 | 43.0 | 118784 | 57344 | 17536 | |
+| platform 1x1-if2 | 0 | 118560 | 58400 | 43.5 | 118784 | 59392 | 19072 | |
+| platform 8x8-if1 | 0 | 129720 | 97264 | 56.0 | 131072 | 98304 | 18176 | |
+| platform 8x8-if2 | 2 | | | | | | | REFUSED: allocation over budget: 60.5 RAMB36 (rom 131256 bytes in 133120, sram 114224 bytes in 114688) exceeds the 60-RAMB36 budget ledgered for target platform's 8x8, two interfaces |
+| fixture 1x1-if1 | 0 | 111928 | 55184 | 41.0 | 112640 | 55296 |  | |
+| fixture 1x1-if2 | 0 | 113472 | 57360 | 42.5 | 114688 | 59392 |  | |
+| fixture 8x8-if1 | 0 | 124608 | 96288 | 54.5 | 124928 | 98304 |  | |
+| fixture 8x8-if2 | 0 | 126112 | 113232 | 59.0 | 126976 | 114688 |  | |
+| harness arm answering-every-port 8x8-if2 | 0 | 126420 | 113296 | 59.0 | 126976 | 114688 |  | |
+| harness arm valid-destinations 8x8-if2 | 0 | 126280 | 113232 | 59.0 | 126976 | 114688 |  | |

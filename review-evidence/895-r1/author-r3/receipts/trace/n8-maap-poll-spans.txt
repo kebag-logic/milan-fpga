@@ -1,0 +1,5 @@
+# spans_cmp.py: maap_mbx:poll span (CPU cycles) and every pass, notice-burst-4 (8x8/2if answering-every-port), over the range every log reached
+# M810 = #810's head 084cf7a8 (the bench lane's leg X-GN8); Q = a9fd4415 (Q-N8); S = the head cf5b1441 (S-N8)
+M810: to sys 323115990: maap_mbx:poll n 11078 min 4725 p50 5041 p90 5293 max 6573; passes n 767 p50 32837 p99 162835 max 177928
+Q: to sys 323115990: maap_mbx:poll n 10633 min 6987 p50 7355 p90 7588 max 8867; passes n 769 p50 32029 p99 149883 max 180302
+S: to sys 323115990: maap_mbx:poll n 11538 min 5195 p50 5511 p90 5706 max 7051; passes n 782 p50 30679 p99 143619 max 178252

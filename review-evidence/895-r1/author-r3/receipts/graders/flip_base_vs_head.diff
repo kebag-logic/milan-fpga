@@ -1,0 +1,32 @@
+3c3
+< | 8x8/2if | 0.822 | 0.70 | 1.17x | srp 0.219, rec.acmp 0.088, timers 0.070, item.acmp 0.070, item.aecp 0.062, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+---
+> | 8x8/2if | 0.823 | 0.70 | 1.18x | srp 0.219, rec.acmp 0.088, timers 0.070, item.acmp 0.070, item.aecp 0.062, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.007, gm 0.001 |
+7,9c7,9
+< | 1x1/1if | R4 | 74.83 | 20 | +54.83 | srp 19.32, others 10.96, passes 8.74 |
+< | 1x1/1if | R5 | 38.25 | 90 | -51.75 | srp 8.96, others 8.76, rounds 3.23 |
+< | 1x1/1if | R6 | 33.65 | 90 | -56.35 | srp 8.96, others 6.71, rounds 3.23 |
+---
+> | 1x1/1if | R4 | 75.39 | 20 | +55.39 | srp 19.32, others 11.52, passes 8.74 |
+> | 1x1/1if | R5 | 38.47 | 90 | -51.53 | others 8.98, srp 8.96, rounds 3.23 |
+> | 1x1/1if | R6 | 33.87 | 90 | -56.13 | srp 8.96, others 6.93, rounds 3.23 |
+12,14c12,14
+< | 8x8/2if | R4 | 377.98 | 20 | +357.98 | srp 80.30, others 54.22, passes 51.48 |
+< | 8x8/2if | R5 | 148.68 | 90 | +58.68 | others 38.95, rounds 17.00, timers 15.31 |
+< | 8x8/2if | R6 | 139.23 | 90 | +49.23 | others 37.17, rounds 17.00, timers 14.63 |
+---
+> | 8x8/2if | R4 | 378.94 | 20 | +358.94 | srp 80.67, others 54.74, passes 51.48 |
+> | 8x8/2if | R5 | 148.98 | 90 | +58.98 | others 39.26, rounds 17.00, timers 15.31 |
+> | 8x8/2if | R6 | 139.51 | 90 | +49.51 | others 37.45, rounds 17.00, timers 14.63 |
+17,21c17,21
+< OVER 8x8/2if: the load 0.822 at the pin is over the flip ceiling 0.70
+< OVER 1x1/1if R4: by every source 74.83 ms, over its bound 20 ms; the largest term srp 19.32 ms
+< OVER 8x8/2if R4: by every source 377.98 ms, over its bound 20 ms; the largest term srp 80.30 ms
+< OVER 8x8/2if R5: by every source 148.68 ms, over its bound 90 ms; the largest term others 38.95 ms
+< OVER 8x8/2if R6: by every source 139.23 ms, over its bound 90 ms; the largest term others 37.17 ms
+---
+> OVER 8x8/2if: the load 0.823 at the pin is over the flip ceiling 0.70
+> OVER 1x1/1if R4: by every source 75.39 ms, over its bound 20 ms; the largest term srp 19.32 ms
+> OVER 8x8/2if R4: by every source 378.94 ms, over its bound 20 ms; the largest term srp 80.67 ms
+> OVER 8x8/2if R5: by every source 148.98 ms, over its bound 90 ms; the largest term others 39.26 ms
+> OVER 8x8/2if R6: by every source 139.51 ms, over its bound 90 ms; the largest term others 37.45 ms

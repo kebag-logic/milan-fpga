@@ -1,0 +1,173 @@
+34 defects: talker-declared-while-not-valid, talker-lapse-kept, talker-lapse-ignored-by-the-entry, talker-unchanged-held, talker-hold-off-skipped, talker-lapse-starts-no-hold-off, talker-hold-off-one-leaveall, talker-hold-off-never-ends, talker-change-while-valid-unmarked, talker-reset-forgets-the-move, talker-decl-kept-at-the-withdrawal, talker-licence-closed-after-the-withdrawal, talker-unchanged-declared-again, talker-admission-change-held, talker-swap-keeps-the-old-type, talker-swap-leaves-a-failed-only, talker-withdrawal-leaves-an-advertise-only, talker-refused-swap-takes-the-new-type, talker-allocated-unfit-declares-code-2, talker-refused-declaration-forgotten, talker-refused-withdrawal-forgotten, talker-refused-withdrawal-not-owed, talker-transmit-publishes-past-its-terms, talker-gate-before-attach, talker-gate-reentered, talker-gate-past-the-sources, talker-gate-not-fed, talker-gate-of-another-range, talker-listener-demand-not-forwarded, talker-sid-unwritten-at-start, talker-sid-words-swapped, talker-sid-never-held, talker-sid-opens-before-its-high-word, talker-sid-written-mark-kept
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two LeaveAllTime periods after the Leave
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/c3/plants/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two LeaveAllTime periods after the Leave
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+plants talker- at [2, 1]: PASS
+rc 0

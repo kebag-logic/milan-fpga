@@ -1,0 +1,27 @@
+5 defects: talker-sid-unwritten-at-start, talker-sid-words-swapped, talker-sid-never-held, talker-sid-opens-before-its-high-word, talker-sid-written-mark-kept
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/plants3/if2/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+plants talker-sid- at [2, 1]: PASS

@@ -1,0 +1,17 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMANDCOMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@program-7.txt -
+ <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/acmp-notk.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@program-0.txt -
+COMMAND COMMAND<scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@blank-aged2-7.txt - <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@blank-aged1-7.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@verify-7.txt -
+
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@program-aged2-7.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@program-aged1-7.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@verify-aged2-7.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp@verify-aged1-7.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/S-A8/native/Vsim <scratch>/builds/S-A8/results-p3/acmp-cmd.txt -
+STEPS 5541 passes carry the store's step; the longest 112,807 CPU cycles (1.128 ms), acmp-notk; the longest step 79,650 (0.796 ms), backlog-adp@program-0
+AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 9.323 ms, backlog-adp@program-aged2-7.service.aecp.last.if1 at 10.677 ms
+12 groups graded, 0 refusals, 0 budget misses (0 of 128 probe instances, 0 of 30 paths), 0 of 15246 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz

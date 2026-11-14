@@ -1,0 +1,32 @@
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/2if | 0.793 | 0.70 | 1.13x | srp 0.219, rec.acmp 0.088, timers 0.070, item.aecp 0.063, ticks 0.055, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.036, steps 0.034, builds 0.026, item.acmp 0.025, rec.adp 0.024, item.acmp_declined 0.015, item.walk 0.013, notices 0.011, rec.maap 0.007, gm 0.001 |
+
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 8x8/2if | R4 | 42.13 | 20 | +22.13 | 17 | timers 11.175, passes 6.035, item.aecp 4.675 |
+| 8x8/2if | R5 | 189.48 | 90 | +99.48 | 61 | others 46.155, passes 21.655, timers 18.420 |
+| 8x8/2if | R6 | 177.60 | 90 | +87.60 | 56 | others 44.355, passes 19.880, timers 18.180 |
+| 8x8/2if | first | 20.28 | 20 | +0.28 | 2 | spacing 8.000, timers 2.520, others 2.190 |
+| 8x8/2if | last | 627.63 | 125 | +502.63 | 238 | srp 124.465, others 120.255, passes 84.490 |
+| 8x8/2if | R4L | 210.82 | 238 | -27.18 | 2 | pace 195.000, others 3.320, timers 2.520 |
+| 8x8/2if | ACMP | 64.70 | 30 | +34.70 | 23 | timers 12.285, passes 8.165, aecp 7.420 |
+| 8x8/2if | ADP | 59.59 | 30 | +29.59 | 17 | others 13.380, timers 11.415, aecp 7.155 |
+| 8x8/2if | MAAP | 66.13 | 30 | +36.13 | 19 | others 16.120, timers 11.865, aecp 7.685 |
+| 8x8/2if | tx | 88.44 | 49 | +39.44 | 34 | others 28.905, timers 13.920, passes 12.070 |
+| 8x8/2if | txL | 384.79 | 49 | +335.79 | 149 | others 139.505, item.aecp 81.220, passes 52.895 |
+| 8x8/2if | | the other tier-1 channels' caps are over the pass's tier-1 time, so the channel rows credit a take a pass may cut: each a lower bound | | | | |
+OVER 8x8/2if: the load 0.793 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 42.13 ms, over its bound 20 ms; the largest term timers 11.18 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 189.48 ms, over its bound 90 ms; the largest term others 46.16 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 177.60 ms, over its bound 90 ms; the largest term others 44.35 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 20.28 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 627.63 ms, over its bound 125 ms; the largest term srp 124.47 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 64.70 ms, over its bound 30 ms; the largest term timers 12.29 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 59.59 ms, over its bound 30 ms; the largest term others 13.38 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 66.13 ms, over its bound 30 ms; the largest term others 16.12 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 88.44 ms, over its bound 49 ms; the largest term others 28.91 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 384.79 ms, over its bound 49 ms; the largest term others 139.50 ms
+RESULT: FAIL

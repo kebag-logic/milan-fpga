@@ -1,0 +1,59 @@
+# 2026-11-14T07:30:34+01:00 head 9e30c2c383ced58b0b2b87e774ea3b63d6389514 dirty 85 range 80-87
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+Traceback (most recent call last):
+  File "<tree>/sw/firmware/ctrl/test/srp_arms.py", line 78, in arm_srp
+    tests = fw_gtest.compile_tests(build,[*inc,f"-I{STACK_TESTS}"],
+                                   [HERE / ("srp_debug.cpp" if debug else test)],out / "tests")
+  File "<tree>/sw/firmware/gtest/fw_gtest.py", line 175, in compile_tests
+    compile_many(build, todo)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<tree>/sw/firmware/gtest/fw_gtest.py", line 139, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "<tree>/sw/firmware/gtest/fw_gtest.py", line 131, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: srp_talker.cpp does not compile:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp: In member function ‘virtual void Talker_TransmitPublishesWithinItsTermsAfterARefusedJoin_Test::TestBody()’:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp:518:18: error: too few arguments to function
+  518 |     loop.transmit(loop.transmit_ctx);
+      |     ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp: In member function ‘virtual void Talker_RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt_Test::TestBody()’:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp:570:18: error: too few arguments to function
+  570 |     loop.transmit(loop.transmit_ctx);
+      |     ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<mgmt>/2026-09-23/895-a775/round4/scripts/arms.py", line 42, in <module>
+    outcomes.extend(table[n]())
+                    ~~~~~~~~^^
+  File "<mgmt>/2026-09-23/895-a775/round4/scripts/arms.py", line 36, in <lambda>
+    'talker': lambda: srp_arms.talker_arms(tree, lwsrp),
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<tree>/sw/firmware/ctrl/test/srp_arms.py", line 92, in talker_arms
+    return [arm_srp(tree, lwsrp, 1, test="srp_talker.cpp"),
+            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<tree>/sw/firmware/ctrl/test/srp_arms.py", line 84, in arm_srp
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: srp_talker.cpp does not compile:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp: In member function ‘virtual void Talker_TransmitPublishesWithinItsTermsAfterARefusedJoin_Test::TestBody()’:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp:518:18: error: too few arguments to function
+  518 |     loop.transmit(loop.transmit_ctx);
+      |     ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp: In member function ‘virtual void Talker_RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt_Test::TestBody()’:
+<tree>/sw/firmware/ctrl/test/srp_talker.cpp:570:18: error: too few arguments to function
+  570 |     loop.transmit(loop.transmit_ctx);
+      |     ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+
+# 2026-11-14T07:30:53+01:00 rc 1

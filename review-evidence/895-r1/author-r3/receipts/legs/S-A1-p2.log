@@ -1,0 +1,30 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-0.txt -
+COMMAND COMMAND<scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-2.txt -
+ <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-6.txt -
+COMMANDCOMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-6.txt -
+ <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-2.txt -
+COMMAND COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-6.txt -
+<scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-aged2-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-aged2-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-aged1-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@blank-aged1-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-aged2-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-aged2-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-aged1-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@program-aged1-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-aged2-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-aged2-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-aged1-2.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp@verify-aged1-6.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/save-starved.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/adp-link.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/adp-discover.txt -
+COMMAND <scratch>/builds/S-A1/native/Vsim <scratch>/builds/S-A1/results-p2/aecp.txt -
+STEPS 7107 passes carry the store's step; the longest 95,174 CPU cycles (0.952 ms), backlog-adp@program-2; the longest step 78,737 (0.787 ms), backlog-adp@program-aged1-2
+AGED 12 windows opened with the step's age at its limit or one short of it, 5 aged steps among their records; the least margin 9.253 ms, backlog-adp@program-aged2-2.service.aecp.last.if0 at 10.747 ms
+SAVE save-starved: durable 4048.656 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 31.906 ms) within
+24 groups graded, 0 refusals, 0 budget misses (0 of 257 probe instances, 0 of 47 paths), 0 of 39718 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz

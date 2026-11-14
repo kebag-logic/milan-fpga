@@ -1,0 +1,94 @@
+wrote <scratch>/ledgerW/fixture-8x8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/ledgerW/fixture-8x8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/ledgerW/fixture-8x8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 101072,
+    ".rodata": 24590,
+    ".data": 448,
+    ".bss": 104584,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3520,
+    "image_aecp_bridge": 140,
+    "image_allocation": 16,
+    "image_app": 10352,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2976,
+    "image_face": 96,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 110,
+    "image_platform": 64,
+    "image_sources": 576,
+    "image_srp": 4456,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "7ce0f4cb10f1bc61687f9a4339c0b457400facd4b20ed6ef270ff8f7a94aaca8"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "dc53e6c6414604e984fc4214ff134311fe93d53f2d19a26e14ac0f03348e4f39"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 157296,
+      "sha256": "237430493fa9dfc36bb12c6a7c1733f61ea41a7fd4811b671d152a46926f4ee6"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 132500,
+      "sha256": "373870346771d06d6e60aabf66693fd464fab3da6b4ecf1360f921cfa4ac25e7"
+    }
+  ],
+  "ram_sections": 238886,
+  "split": {
+    "rom": {
+      "bytes": 126112,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113232,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  }
+}

@@ -1,0 +1,231 @@
+80 of 698 mutants: rx-no-resync, tx-overfills, seq-not-stamped, major-unchecked, evt-words-unchecked, maap-base-shifted, tx-negative-fill, unknown-event-decoded-as-tick, unknown-event-decoded-as-a-face-count, mbx-rx-word-to-frame-start, mbx-tx-aligned-word-from-frame-start, mbx-window-read-elsewhere, mbx-window-write-elsewhere, own-mac-unguarded, own-mac-halves-swapped, mismatch-read-from-bus-err, mbx-bound-unguarded, mbx-bound-entry-unguarded, mbx-bound-withdraw-writes-nothing, mbx-bound-enabled-before-the-identity, mbx-bound-halves-swapped, mbx-bound-entry-stride-ignored, app-maap-slots-overlap-adp, app-maap-channel-unbound, app-maap-entry-drops-preferred, app-three-way-pass-overrun, maap-stream-index-missing, maap-selection-not-restored, maap-fabric-owner-kept, maap-loss-keeps-crf, maap-count-mismatch-accepted, maap-crf-index-wrong, maap-timer-tag-ignored, maap-foreign-not-counted, maap-half-attach, maap-interface-zero, maap-no-range-filter, maap-filter-destination-ignored, maap-late-service, maap-stall-unqueued, maap-app-channel-closed, maap-callback-work-overrun, maap-ignored-input-late, maap-allocation-seam-disconnected, maap-app-missing-rx-interrupt, maap-csr-select-listener, maap-csr-enable-before-programming, maap-poll-first-interface-only, mover-receive-error-trusted, mover-receive-index-at-the-header, mover-transmit-error-committed, mover-commit-judges-every-record, mover-move-not-held-its-own, mover-lost-record-reported-as-bad, mover-transmit-frame-off-a-word-moved, f3b-query-inside-allocation, f3b-composition-owner, f3b-idle-tick, f3b-config-interval, f3b-fresh-probe-arm, f3b-listener-arm, f3b-no-demand-arm, f3b-source-validity, f3b-expiry-arm, f3b-expiry-refresh, pub-sid-valid-set-first, pub-sid-halves-swapped, pub-domain-priority-and-vid-swapped, pub-licence-in-the-da-gate, pub-sink-past-the-block, pub-sink-binding-past-the-block, pub-started-in-the-bound-bit, pub-sink-binding-drops-sid-valid, pub-talker-decl-in-the-licence, pub-maap-gate-after-the-report, pub-maap-gate-skipped, pub-maap-gate-one-source-short, pub-maap-gate-open-while-invalid, rv-maap-gate-on-interface-0, pub-maap-sources-past-the-block
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse
+[ESCAPED] no defect names the test AcmpMailbox.B11RestoredBindingsArePublishedAtOpen
+[ESCAPED] no defect names the test AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream
+[ESCAPED] no defect names the test AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake
+[ESCAPED] no defect names the test AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder
+[ESCAPED] no defect names the test AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe
+[ESCAPED] no defect names the test AcmpMailbox.K3AStartDropsTheKeptCommand
+[ESCAPED] no defect names the test AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass
+[ESCAPED] no defect names the test AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend
+[ESCAPED] no defect names the test AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted
+[ESCAPED] no defect names the test AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends
+[ESCAPED] no defect names the test AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ESCAPED] no defect names the test Plat.C1IdentityIsMilnAndReadsVersion
+[ESCAPED] no defect names the test Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[ESCAPED] no defect names the test Plat.C3StatusIsReadInMilanStatusOrder
+[ESCAPED] no defect names the test Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[ESCAPED] no defect names the test Plat.K1MilanStatusAnswersTheGradersLines
+[ESCAPED] no defect names the test Plat.K2MilanGettimeAnswersTaiNs
+[ESCAPED] no defect names the test Plat.K3LinesEndOnceAndOthersAreRefused
+[ESCAPED] no defect names the test Plat.K4EachPassIsBounded
+[ESCAPED] no defect names the test Plat.K5TextPastTheRingIsDroppedAndCounted
+[ESCAPED] no defect names the test Plat.K6NumbersAtTheirEdges
+[ESCAPED] no defect names the test PlatMmio.I1ReadIsTheWordAtTheAddress
+[ESCAPED] no defect names the test PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[ESCAPED] no defect names the test Boot.B1ReachesReadyInStepOrder
+[ESCAPED] no defect names the test Boot.B2ForeignWindowStopsAtIdentity
+[ESCAPED] no defect names the test Boot.B3RefusedImageStopsAtImage
+[ESCAPED] no defect names the test Boot.B4RefusedStreamCountStopsAfterThePolicy
+[ESCAPED] no defect names the test Boot.B5OtherContractStopsAtMailbox
+[ESCAPED] no defect names the test Boot.B6UnacknowledgedFaceStopsAtAecp
+[ESCAPED] no defect names the test Boot.B7OnlyAReadyBootServicesTheLoop
+[ESCAPED] no defect names the test Boot.B8PlatformPortsAnswerAsDocumented
+[ESCAPED] no defect names the test Boot.B9SrpSourcesCarryTheGeneratedStreams
+[ESCAPED] no defect names the test Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[ok] mutant rx-no-resync (port, unit): 8 check(s) failed
+    first: [FAIL] Driver.D1MalformedRecordResynchronises: D1 and the ring is resynchronised to RX_HEAD, the next record included
+[ok] mutant tx-overfills (port): 3 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 a held merge fills the ring to its last whole record
+[ok] mutant seq-not-stamped (port): 1 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+[ok] mutant major-unchecked (unit, unit): 50 check(s) failed
+    first: [FAIL] AppComposition.U1AnotherContractOpensNothing:            Actual: called once - over-saturated and active
+[ok] mutant evt-words-unchecked (unit): 17 check(s) failed
+    first: [FAIL] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words:            Actual: called once - over-saturated and active
+[ok] mutant maap-base-shifted (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D6MaapRangeWritten: D6 MAAP_BASE_LO holds the base's low word
+[ok] mutant tx-negative-fill (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D8TransmitRefusals: D8 a TX_TAIL more than a ring behind TX_HEAD is no room, never a negative fill
+[ok] mutant unknown-event-decoded-as-tick (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+[ok] mutant unknown-event-decoded-as-a-face-count (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+[ok] mutant mbx-rx-word-to-frame-start (unit): 41 check(s) failed
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 RX: a 14-byte record's bytes are the frame's, alignment 0
+[ok] mutant mbx-tx-aligned-word-from-frame-start (unit): 77 check(s) failed
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 1 of a 14-byte frame at alignment 0
+[ok] mutant mbx-window-read-elsewhere (unit): 19 check(s) failed
+    first: [FAIL] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset: M3 the driver opens on the window's ID and CAPS
+[ok] mutant mbx-window-write-elsewhere (unit): 34 check(s) failed
+    first: [FAIL] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset: M3 and released at RX_TAIL
+[ok] mutant own-mac-unguarded (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+[ok] mutant own-mac-halves-swapped (unit, port): 7 check(s) failed
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+[ok] mutant mismatch-read-from-bus-err (unit, port): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 FILTER_MISMATCH is read as its COUNT field
+[ok] mutant mbx-bound-unguarded (unit): 3 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+[ok] mutant mbx-bound-entry-unguarded (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+[ok] mutant mbx-bound-withdraw-writes-nothing (unit, acmp): 4 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 a withdrawn entry: BOUND_EN cleared, one write
+[ok] mutant mbx-bound-enabled-before-the-identity (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+[ok] mutant mbx-bound-halves-swapped (unit, acmp): 17 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+[ok] mutant mbx-bound-entry-stride-ignored (unit, acmp): 6 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+[ok] mutant app-maap-slots-overlap-adp (maap, acmp): 3 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: protocol timer slots disjoint
+[ok] mutant app-maap-channel-unbound (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-entry-drops-preferred (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: Expected: false
+[ok] mutant app-three-way-pass-overrun (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the worst pass of the three-way backlog
+[ok] mutant maap-stream-index-missing (maap): 7 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+[ok] mutant maap-selection-not-restored (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: selection restored
+[ok] mutant maap-fabric-owner-kept (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+[ok] mutant maap-loss-keeps-crf (maap): 24 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 2
+[ok] mutant maap-count-mismatch-accepted (maap): 2 check(s) failed
+    first: [FAIL] MaapCsr.ShapesAndCountRefusal:     Which is: 1
+[ok] mutant maap-crf-index-wrong (maap): 3 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 4026532104
+[ok] mutant maap-timer-tag-ignored (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: old timer tag ignored
+[ok] mutant maap-foreign-not-counted (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges:     Which is: 2
+[ok] mutant maap-half-attach (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.AttachRefusalsAndTimerWrap: Expected: false
+[ok] mutant maap-interface-zero (maap_if2): 5 check(s) failed
+    first: [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+[ok] mutant maap-no-range-filter (maap): 11 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+[ok] mutant maap-filter-destination-ignored (maap): 8 check(s) failed
+    first: [FAIL] MaapHost.HMaapFilterTupleAndRate: Expected: false
+[ok] mutant maap-late-service (maap): 56 check(s) failed
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: H-MAAP original timer deadline to TX_HEAD within 10 ms
+[ok] mutant maap-stall-unqueued (maap): 18 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry:     Which is: 1
+[ok] mutant maap-app-channel-closed (maap): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+[ok] mutant maap-callback-work-overrun (maap): 9 check(s) failed
+    first: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: final probe and ANNOUNCE cost, DA_GATE included
+[ok] mutant maap-ignored-input-late (maap): 13 check(s) failed
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: H-MAAP RX_HEAD to DEFEND TX_HEAD within 10 ms
+[ok] mutant maap-allocation-seam-disconnected (maap): 10054 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: accepted ANNOUNCE publishes allocation
+[ok] mutant maap-app-missing-rx-interrupt (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+[ok] mutant maap-csr-select-listener (maap): 7 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+[ok] mutant maap-csr-enable-before-programming (maap): 23 check(s) failed
+    first: [FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite: enables follow every destination word
+[ok] mutant maap-poll-first-interface-only (maap_if2): 2 check(s) failed
+    first: [FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget: interface 1 poll drains deferred output
+[ok] mutant mover-receive-error-trusted (unit): 3 check(s) failed
+    first: [FAIL] MbxDma.R2AMoveEndingInErrorResynchronises: R2 a move that ends in ERR leaves no record
+[ok] mutant mover-receive-index-at-the-header (unit): 8 check(s) failed
+    first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 the move starts at the payload's first ring word, 60 bytes
+[ok] mutant mover-transmit-error-committed (unit): 17 check(s) failed
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a move that ends in ERR is refused
+[ok] mutant mover-commit-judges-every-record (unit): 6 check(s) failed
+    first: [FAIL] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError: T4 a frame off a word sent after a failed move is committed
+[ok] mutant mover-move-not-held-its-own (unit): 18 check(s) failed
+    first: [FAIL] MbxDma.T1AFrameOnAWordIsMovedAndCommitted: T1 the mover is started once, 60 bytes
+[ok] mutant mover-lost-record-reported-as-bad (unit, unit): 6 check(s) failed
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a begin that finds the record before it ended in ERR reports it lost
+[ok] mutant mover-transmit-frame-off-a-word-moved (unit): 7 check(s) failed
+    first: [FAIL] MbxDma.T3AFrameOffAWordTakesTheWordLoop: T3 a frame off a word takes the word loop
+[ok] mutant f3b-query-inside-allocation (maap): 542 check(s) failed
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+[ok] mutant f3b-composition-owner (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[ok] mutant f3b-idle-tick (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: service tick wakes an idle platform for freshness expiry
+[ok] mutant f3b-config-interval (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: mailbox composition supplies the Milan freshness interval
+[ok] mutant f3b-fresh-probe-arm (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-listener-arm (maap): 17 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant f3b-no-demand-arm (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-source-validity (acmp, acmp, acmpif2, acmpif2, maap): 35 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bListenerRequiresSourceDestination: published source predicate includes destination validity and interface
+[ok] mutant f3b-expiry-arm (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe expires at 15000 milliseconds without a Listener
+[ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+[ok] mutant pub-sid-valid-set-first (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sid-halves-swapped (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+[ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+[ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+[ok] mutant pub-sink-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-sink-binding-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-started-in-the-bound-bit (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sink-binding-drops-sid-valid (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+[ok] mutant pub-talker-decl-in-the-licence (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 LICENCE.ACTIVE holds the licences
+[ok] mutant pub-maap-gate-after-the-report (maap): 5 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 80 of 80 caught; 68 test(s) named by no defect
+maap campaign: FAIL

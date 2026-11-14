@@ -1,0 +1,23 @@
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/2if | 0.825 | 0.70 | 1.18x | srp 0.219, rec.acmp 0.088, timers 0.072, item.acmp 0.070, item.aecp 0.062, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 1x1/1if | R4 | 75.51 | 20 | +55.51 | srp 19.32, others 11.52, passes 8.74 |
+| 1x1/1if | R5 | 38.54 | 90 | -51.46 | others 8.98, srp 8.96, rounds 3.23 |
+| 1x1/1if | R6 | 33.93 | 90 | -56.07 | srp 8.96, others 6.93, rounds 3.23 |
+| 1x1/1if | first | 20.00 | 20 | +0.00 | AECP_QUEUED_FIRST_MS 20.00 |
+| 1x1/1if | last | 22.00 | 125 | -103.00 | AECP_QUEUED_MS 22.00 |
+| 8x8/2if | R4 | 379.78 | 20 | +359.78 | srp 80.67, others 55.00, passes 51.48 |
+| 8x8/2if | R5 | 149.49 | 90 | +59.49 | others 39.41, rounds 17.00, timers 15.67 |
+| 8x8/2if | R6 | 139.97 | 90 | +49.97 | others 37.59, rounds 17.00, timers 14.95 |
+| 8x8/2if | first | 22.00 | 20 | +2.00 | AECP_QUEUED_FIRST_MS 22.00 |
+| 8x8/2if | last | 62.00 | 125 | -63.00 | AECP_QUEUED_MS 62.00 |
+OVER 8x8/2if: the load 0.825 at the pin is over the flip ceiling 0.70
+OVER 1x1/1if R4: by every source 75.51 ms, over its bound 20 ms; the largest term srp 19.32 ms
+OVER 8x8/2if R4: by every source 379.78 ms, over its bound 20 ms; the largest term srp 80.67 ms
+OVER 8x8/2if R5: by every source 149.49 ms, over its bound 90 ms; the largest term others 39.41 ms
+OVER 8x8/2if R6: by every source 139.97 ms, over its bound 90 ms; the largest term others 37.59 ms
+OVER 8x8/2if first: by every source 22.00 ms, over its bound 20 ms; the largest term AECP_QUEUED_FIRST_MS 22.00 ms
+RESULT: FAIL

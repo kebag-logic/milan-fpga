@@ -1,0 +1,31 @@
+# calls.py: each maap_mbx poll call in the committed-PC trace of notice-burst-4's heaviest pass (8x8/2if, answering-every-port)
+## a9fd4415 (Q-N8 image), trace from sys 315,980,000
+== call 0: cycles 8667 commits 1447 refills 13
+   acmp_declaring@c90                 commits   369 cycles   2056
+   source@e48                         commits    54 cycles   1674
+   memset@d64                         commits   405 cycles   1285
+   declaring@1000                     commits   235 cycles    994
+   pump@ee0                           commits    62 cycles    746
+   refresh_demand@c14                 commits    86 cycles    487
+   poll@b10                           commits    81 cycles    441
+   maap_poll@e78                      commits    26 cycles    352
+   enter@ae0                          commits    63 cycles    261
+   source@e60                         commits    36 cycles    214
+   enter@eb4                          commits    12 cycles     88
+   source@e70                         commits    18 cycles     63
+   refills: c00(poll,set48) c80(refresh_demand,set50) cc0(acmp_declaring,set51) d00(acmp_declaring,set52) ec0(enter,set59) f00(pump,set60) fc0(pump,set63) 1000(declaring,set0) f40(pump,set61) f80(pump,set62) 1040(declaring,set1) 1080(declaring,set2) bc0(poll,set47)
+## #810's head 084cf7a8 (the bench lane's X-GN8 image), trace from sys 315,997,000
+== call 0: cycles 6375 commits 1378 refills 13
+   acmp_declaring@c40                 commits   369 cycles   1390
+   memset@d14                         commits   405 cycles   1206
+   declaring@fb0                      commits   209 cycles    896
+   refresh_demand@bc4                 commits    86 cycles    626
+   pump@e90                           commits    62 cycles    493
+   source@df8                         commits    54 cycles    457
+   poll@b10                           commits    38 cycles    402
+   maap_poll@e28                      commits    26 cycles    285
+   enter@ae0                          commits    63 cycles    261
+   source@e10                         commits    36 cycles    214
+   enter@e64                          commits    12 cycles     76
+   source@e20                         commits    18 cycles     63
+   refills: bc0(poll,set47) c40(acmp_declaring,set49) c80(acmp_declaring,set50) cc0(acmp_declaring,set51) e40(maap_poll,set57) e80(enter,set58) ec0(pump,set59) f80(pump,set62) f40(pump,set61) b40(poll,set45) fc0(declaring,set63) 1000(declaring,set0) b80(poll,set46)
