@@ -2,14 +2,14 @@
 
 ## Contents
 
-- **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from `FLASHBOOT_LAYOUT` itself, so the picture cannot drift from the map the build compiles in. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
-- **[The XC7A200T variant](#the-xc7a200t-variant)** — A 10 MiB bitstream slot, AEM moved.
-- **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The only manifest that ships: bitstream plus raw AEM image, why the AEM bytes carry no FBI wrapper, the two reserved ranges a reflash must not erase, and the paired-image verification required before firmware enables ADP.
-- **[How the boot works](#how-the-boot-works)** — Power-on to entity-enabled in one hop: config logic reads the bitstream, the BIOS is the application, and the AEM copy is length- and CRC-checked, so an empty or half-written slot leaves the entity disabled instead of bricking the boot.
-- **[Usage](#usage)** — Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
-- **[Caveats](#caveats)** — Flash addressing and the AEM path in full: the descriptor image lives in reserved memory at a compile-time base, so a custom boot path that skips the copy enumerates nothing.
-- **[Validated](#validated)** — What was actually checked rather than assumed: the emitted constants, the bare-metal BIOS build, the unframed `AEMI` bytes, and what the `flash-pair` gate adds over the recovery-only materializer.
-- **[Field notes (2026-07-10 silicon session)](#field-notes-2026-07-10-silicon-session)** — The bench lesson that looks like flaky hardware: the BIOS re-tunes the SPI divisor *upward* at boot, defeating the gateware clock cap, and marginal MB-scale reads showed up as one lucky boot in six.
+- **[The device at a glance](#the-device-at-a-glance)** -- The to-scale flash map, generated from `FLASHBOOT_LAYOUT` itself, so the picture cannot drift from the map the build compiles in. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
+- **[The XC7A200T variant](#the-xc7a200t-variant)** -- A 10 MiB bitstream slot, AEM moved.
+- **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** -- The only manifest that ships: bitstream plus raw AEM image, why the AEM bytes carry no FBI wrapper, the two reserved ranges a reflash must not erase, and the paired-image verification required before firmware enables ADP.
+- **[How the boot works](#how-the-boot-works)** -- Power-on to entity-enabled in one hop: config logic reads the bitstream, the BIOS is the application, and the AEM copy is length- and CRC-checked, so an empty or half-written slot leaves the entity disabled instead of bricking the boot.
+- **[Usage](#usage)** -- Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
+- **[Caveats](#caveats)** -- Flash addressing and the AEM path in full: the descriptor image lives in reserved memory at a compile-time base, so a custom boot path that skips the copy enumerates nothing.
+- **[Validated](#validated)** -- What was actually checked rather than assumed: the emitted constants, the bare-metal BIOS build, the unframed `AEMI` bytes, and what the `flash-pair` gate adds over the recovery-only materializer.
+- **[Field notes (2026-07-10 silicon session)](#field-notes-2026-07-10-silicon-session)** -- The bench lesson that looks like flaky hardware: the BIOS re-tunes the SPI divisor *upward* at boot, defeating the gateware clock cap, and marginal MB-scale reads showed up as one lucky boot in six.
 
 ## The device at a glance
 
