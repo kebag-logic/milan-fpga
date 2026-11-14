@@ -17,9 +17,10 @@ that commits such a notice is held to its own stated cost (poll_grade.py, aecp_l
 measured no such item is refused (missing), since the cost it states would then rest on nothing.
 
 Then the maximum-length edits the port refuses (refused_edits; #894's egress ruling of 2026-11-13, item 3: an edit's
-work is bounded refused or not, aecp_maps.c): two collisions, REMOVEs whose every mapping is the row's key with
-another value, from distinct indices of the value's first field and from the key's legal values in turn, and a
-conflict, an ADD of the row MAPPINGS - 1 times and then its key with another legal value, refused at its last turn.
+work is bounded refused or not, aecp_maps.c): two collisions, REMOVEs of MAPPINGS mappings of the row's key, one
+over distinct indices of the value's first field, which the port's geometry refuses at its first illegal index, and
+one over the key's legal values in turn, the row's own among them; and a conflict, an ADD of the row MAPPINGS - 1
+times and then its key with another legal value, refused at its last turn.
 Each is answered BAD_ARGUMENTS with every mapping echoed, a 550 B response probe of its own, and the group's record
 handler costs (aecp_mbx.c, frame) include theirs, which the largest legal command's stated record must hold
 (rows_tiers.LONG_RECORD_US).
