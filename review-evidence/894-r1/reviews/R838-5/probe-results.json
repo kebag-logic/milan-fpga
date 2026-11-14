@@ -1,0 +1,62 @@
+[
+  {
+    "name": "flip-1x1",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "1x1/1if"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "pass": true
+  },
+  {
+    "name": "flip-8x8",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "8x8/2if"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "pass": true
+  },
+  {
+    "name": "core-filter",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "--output",
+      "<packet>/scratch/core",
+      "--core",
+      "--filter",
+      "Core.*Map*:Core.Every*"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "pass": true
+  },
+  {
+    "name": "compile-row",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/aecp_mutants.py",
+      "--output",
+      "<packet>/scratch/campaign",
+      "--shard",
+      "257",
+      "274"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "pass": true
+  }
+]

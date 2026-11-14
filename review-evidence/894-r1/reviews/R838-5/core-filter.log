@@ -1,0 +1,39 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+Note: Google Test filter = Core.*Map*:Core.Every*
+[==========] Running 13 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 13 tests from Core
+[ RUN      ] Core.EveryDescriptorAndReadFailures
+[       OK ] Core.EveryDescriptorAndReadFailures (0 ms)
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+[       OK ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+[       OK ] Core.MapsAreAtomicAndPaginated (0 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+[       OK ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[       OK ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+[       OK ] Core.MapEditsAreTheirDefinitionRowForRow (10 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (0 ms)
+[ RUN      ] Core.EveryKeyOfTheDomainIsItsOwn
+[       OK ] Core.EveryKeyOfTheDomainIsItsOwn (0 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[       OK ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (0 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[       OK ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[----------] 13 tests from Core (13 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 1 test suite ran. (13 ms total)
+[  PASSED  ] 13 tests.
+== AECP core: checks: 13   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (13 tests, 0 failures, exit 0)
