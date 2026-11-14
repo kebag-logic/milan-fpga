@@ -2,6 +2,8 @@
 // Atomic dynamic map edits and fixed partitions, Milan v1.2 5.4.2.26-.28.
 #include "aecp_internal.h"
 #include "aecp_state.h"
+#define AECP_ENTITY_SHAPE_ONLY // the build's shape constants, not its tables (aecp_shape.py)
+#include "aecp_entity_gen.h"
 #include <stddef.h>
 
 static unsigned channels(uint64_t format)
@@ -134,13 +136,25 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 // as an ADD's earlier conflict does, since its turn refuses the edit at the
 // latest; a REMOVE's other values of a held key are linked from the key's
 // first, so a lookup visits its key's slot and a map's row its key's mappings,
-// never a run of one key's values. A key's slot is its hash's wherever no other
-// held key shares the hash: the stream or cluster plus nine times its channel,
-// distinct for every key of a port with one stream of up to 256 channels, or up
-// to nine streams or clusters of up to 28 channels each, as every configuration
-// has (the key's words are little-endian on every target).
-#define MAP_SLOTS 256u
-_Static_assert(AECP_MAP_PAGE < MAP_SLOTS && MAP_SLOTS <= 256u, "a slot holds a mapping's index plus one");
+// never a run of one key's values. A key's slot is its position in the port's
+// key domain (#894's ruling of 2026-11-14, item 1): its stream or cluster
+// times the most channels a key's stream or cluster has, plus its channel, so
+// no two keys share one, at every geometry the builder accepts. The domain is
+// the build's shape (aecp_shape.py, key_domain): at an output port a
+// STREAM_OUTPUT and a channel of a format it advertises, at an input port one
+// of its clusters and a channel of it. A mapping is refused at its turn where
+// its port's geometry refuses it, as before, and also where its key lies
+// outside the domain, which no format or cluster of the build lets a legal
+// mapping do; so no key outside it forms an index (the key's words are
+// little-endian on every target).
+#define MAP_MOST(x, y) ((x) > (y) ? (x) : (y))
+#define MAP_FIRSTS MAP_MOST(AECP_ENTITY_KEY_STREAMS, AECP_ENTITY_KEY_CLUSTERS)
+#define MAP_CHANNELS MAP_MOST(AECP_ENTITY_KEY_STREAM_CHANNELS, AECP_ENTITY_KEY_CLUSTER_CHANNELS)
+#define MAP_SLOTS MAP_MOST(MAP_FIRSTS * MAP_CHANNELS, 1u)
+_Static_assert(AECP_ENTITY_KEY_STREAMS * AECP_ENTITY_KEY_STREAM_CHANNELS <= MAP_SLOTS &&
+	       AECP_ENTITY_KEY_CLUSTERS * AECP_ENTITY_KEY_CLUSTER_CHANNELS <= MAP_SLOTS,
+	       "the table holds every key of the port's domain");
+_Static_assert(AECP_MAP_PAGE < 256u, "a slot holds a mapping's index plus one");
 // The work an edit does, counted where a test asks for it (AECP_MAP_WORK,
 // test_aecp.cpp): each slot and each held mapping a lookup visits. No image
 // counts it.
@@ -153,7 +167,7 @@ unsigned aecp_map_work;
 // EARLIER: an earlier mapping of its key differs; FOUND: its port's map holds
 // it; BARRED: a row it may not join holds its key, another value of it in its
 // port's map for an ADD, or any in another output port's map; ILLEGAL: its
-// port's geometry refuses it.
+// port's geometry refuses it, or its key lies outside the domain.
 enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u, ILLEGAL = 8u };
 struct edit {
 	bool input;
@@ -180,28 +194,26 @@ static bool same(const union held *x, const union held *y)
 	return x->w[0] == y->w[0] && x->w[1] == y->w[1];
 }
 
-// The slot of x's key: the one that holds the key's first mapping, else the
-// empty one that ends the walk, since fewer than MAP_SLOTS keys are held. The
-// walk passes other keys' slots alone, one each at most.
-static uint8_t *place(struct edit *e, const union held *x)
+// The slot of x's key, its position in the domain, or MAP_SLOTS for a key
+// outside it. The slot holds the key's first mapping, or 0.
+static size_t place(const struct edit *e, const union held *x)
 {
 	uint32_t k = key(e->input, x);
-	for (size_t s = (k + 9u * (k >> 16)) & (MAP_SLOTS - 1u);; s = (s + 1u) & (MAP_SLOTS - 1u)) {
-		VISIT();
-		if (e->slot[s] == 0u || key(e->input, &e->rows[e->slot[s] - 1u]) == k) {
-			return &e->slot[s];
-		}
-	}
+	size_t first = k & 0xFFFFu;
+	size_t channel = k >> 16;
+	VISIT();
+	return first < MAP_FIRSTS && channel < MAP_CHANNELS ? first * MAP_CHANNELS + channel : MAP_SLOTS;
 }
 
 // A map's row looked up: each held mapping of its key is marked `match` where
 // it equals the row and `other` where it differs. Returns one plus the first
-// equal one with an occurrence left, else 0.
+// equal one with an occurrence left, else 0. A row whose key lies outside the
+// domain holds no mapping's key.
 static size_t look(struct edit *e, const struct aecp_mapping *r, unsigned other, unsigned match)
 {
 	union held x = {*r};
-	size_t left = 0;
-	for (size_t v = *place(e, &x); v != 0u; v = e->next[v - 1u]) {
+	size_t left = 0, s = place(e, &x);
+	for (size_t v = s < MAP_SLOTS ? e->slot[s] : 0u; v != 0u; v = e->next[v - 1u]) {
 		VISIT();
 		bool is = same(&e->rows[v - 1u], &x);
 		e->flags[v - 1u] |= (uint8_t)(is ? match : other);
@@ -351,20 +363,22 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	e.input = type == 14u;
 	// The mappings in order: the first held equal to each is its own, and a held
 	// one of its key that differs is an earlier conflict. A mapping its port's
-	// geometry refuses, or an ADD's earlier conflict, is refused at its turn at
-	// the latest, so the table ends there.
+	// geometry refuses, or whose key is outside the domain, or an ADD's earlier
+	// conflict, is refused at its turn at the latest, so the table ends there.
+	// The geometry's check comes first, and the key's slot only after it.
 	size_t steps = count;
 	for (size_t n = 0; n < steps; ++n) {
 		uint32_t first = wire_be32(in + 8u + n * 8u), second = wire_be32(in + 12u + n * 8u);
 		e.rows[n].r = (struct aecp_mapping){(uint16_t)(first >> 16), (uint16_t)first, (uint16_t)(second >> 16),
 			(uint16_t)second};
 		e.rep[n] = (uint8_t)n;
-		if (!legal(a, port, &e.rows[n].r)) {
+		size_t s = legal(a, port, &e.rows[n].r) ? place(&e, &e.rows[n]) : MAP_SLOTS;
+		if (s == MAP_SLOTS) {
 			e.flags[n] = ILLEGAL;
 			steps = n + 1u;
 			break;
 		}
-		uint8_t *at = place(&e, &e.rows[n]);
+		uint8_t *at = &e.slot[s];
 		if (*at == 0u) {
 			*at = (uint8_t)(n + 1u);
 		} else if (same(&e.rows[*at - 1u], &e.rows[n])) {
