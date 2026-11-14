@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <aecp_latency_policy.hpp>
@@ -171,6 +172,38 @@ struct Core : testing::Test {
         return out;
     }
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
+    // #904, #894: the keys port 0 of `type` accepts as it is, each in a legal mapping: at the output port each
+    // STREAM_OUTPUT's channels to the port's cluster 0, at the input port each of its clusters' channels from stream
+    // input 0's channel 0. None where the port's maps are static or it has no cluster.
+    std::vector<aecp_mapping> accepted_keys(unsigned type) {
+        std::vector<aecp_mapping> keys;
+        auto &port=desc(type);
+        unsigned clusters=get(port.value+12,2),base=get(port.value+14,2);
+        if(get(port.value+16,2)!=0||clusters==0)return keys;
+        for(auto &d:descriptors){
+            if(d.configuration!=a.configuration)continue;
+            uint64_t format=get(d.value+74,8);
+            unsigned width=type==15u&&d.type==6u&&(format>>56)==2u?(format>>22)&1023:0;
+            for(unsigned c=0;c<width;++c)keys.push_back({d.index,uint16_t(c),0,0});
+        }
+        for(unsigned k=0;type==14u&&k<clusters;++k){
+            for(unsigned c=0;c<get(desc(20,base+k).value+84,2);++c)keys.push_back({0,0,uint16_t(k),uint16_t(c)});
+        }
+        return keys;
+    }
+    // An ADD or REMOVE (`cmd`) of `rows` at port 0 of `type`, with its status.
+    Bytes edit_map(unsigned cmd,unsigned type,const std::vector<aecp_mapping> &rows,unsigned status) {
+        Bytes body=target(type,0,8+8*rows.size());put(body,4,rows.size(),2);
+        for(size_t k=0;k<rows.size();++k){
+            put(body,8+8*k,rows[k].stream,2);put(body,10+8*k,rows[k].channel,2);
+            put(body,12+8*k,rows[k].cluster,2);put(body,14+8*k,rows[k].cluster_channel,2);
+        }
+        return ask(cmd,body,status);
+    }
+    static bool same_rows(const aecp_map &m,const std::vector<aecp_mapping> &want) {
+        return m.count==want.size()&&std::equal(want.begin(),want.end(),m.rows,[](auto &x,auto &y){
+            return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;});
+    }
     // #665: aecp_find answers from the index aecp_init builds of the model's
     // keys, and the firmware never rewrites a key after it. A case that does
     // rebuilds the index with its change, and TearDown fails one that does not.
@@ -2580,6 +2613,179 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
                    "an output edit refused after its port is read"})
         EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
 }
+
+#ifdef AECP_MAP_WORK
+extern "C" unsigned aecp_map_work;
+#endif
+// The key domain of an edit's table (aecp_maps.c, place; aecp_shape.py, key_domain): the most streams or clusters a
+// key names, and the most channels one has.
+constexpr unsigned KEY_FIRSTS=std::max(AECP_ENTITY_KEY_STREAMS,AECP_ENTITY_KEY_CLUSTERS);
+constexpr unsigned KEY_CHANNELS=std::max(AECP_ENTITY_KEY_STREAM_CHANNELS,AECP_ENTITY_KEY_CLUSTER_CHANNELS);
+
+// #904; #894's ruling of 2026-11-14, items 1 and 2: an edit's table holds each key at its position in the port's key
+// domain, so no two keys the port accepts share a slot. Every key port 0 of each type accepts as built (accepted_keys)
+// is added, in ADDs of 63 mappings, the most a legal-length command holds (IEEE 1722.1-2021 9.2.2.6), each repeating
+// its keys where fewer are left, and each key is held as its own, in order; then each is removed, in REMOVEs of 63,
+// and the map is empty. The work arm (AECP_MAP_WORK) runs this at every checked-in configuration and at wider
+// geometries the builder accepts (aecp_arms.py, KEYS), and holds each edit to 2 (n + R) slots and held mappings for n
+// mappings reading R rows of its port's map: a lookup is one slot and its key's mappings, at every geometry.
+TEST_F(Core, EveryAcceptedMapKeyIsItsOwn)
+{
+    unsigned ports=0;
+    for(unsigned type:{14u,15u}){
+        const auto keys=accepted_keys(type);
+        if(keys.empty())continue;
+        ++ports;
+        SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0, "+std::to_string(keys.size())+" keys");
+        aecp_map &own=maps[type==14u?0:1];
+        std::vector<aecp_mapping> pool(keys.size());
+        own.rows=pool.data();own.count=0;own.capacity=pool.size();
+        for(unsigned cmd:{44u,45u}){
+            for(size_t start=0;start<keys.size()&&!HasFailure();start+=63){
+                std::vector<aecp_mapping> rows(63);
+                const size_t left=std::min<size_t>(63,keys.size()-start);
+                for(size_t k=0;k<rows.size();++k)rows[k]=keys[start+k%left];
+#ifdef AECP_MAP_WORK
+                aecp_map_work=0;
+                const size_t read=(cmd==44u?1u:2u)*own.count;
+#endif
+                edit_map(cmd,type,rows,0);
+#ifdef AECP_MAP_WORK
+                std::printf("MAP KEYS %s: %zu mappings, %zu rows, %u visits (2 (n + R) %zu)\n",cmd==44u?"ADD":"REMOVE",
+                            rows.size(),read,aecp_map_work,2*(rows.size()+read));
+                EXPECT_LE(aecp_map_work,2*(rows.size()+read))<<"an edit of "<<rows.size()<<" mappings reading "<<read
+                                                             <<" rows visits past twice their sum";
+#endif
+                const std::vector<aecp_mapping> want(cmd==44u?keys.begin():keys.begin()+start+left,
+                                                     cmd==44u?keys.begin()+start+left:keys.end());
+                EXPECT_TRUE(same_rows(own,want))<<(cmd==44u?"an ADD of every key the port accepts holds each as its own":
+                                                   "a REMOVE of every key the port accepts removes each");
+            }
+        }
+    }
+    EXPECT_GT(ports,0u)<<"a configuration has a dynamic port with keys";
+}
+
+// #904; #894's ruling of 2026-11-14, item 2: every position of the domain is one key's. The fixture widens input port
+// 0's clusters and every STREAM_OUTPUT to the domain's KEY_CHANNELS channels, within the build's domain, and an ADD of
+// every key then accepted holds each as its own: stream or cluster s's channel c at s x KEY_CHANNELS + c, and none
+// past the table.
+TEST_F(Core, EveryKeyOfTheDomainIsItsOwn)
+{
+    auto &input=desc(14);unsigned clusters=get(input.value+12,2),base=get(input.value+14,2);
+    for(unsigned k=0;k<clusters;++k)put(desc(20,base+k).value+84,KEY_CHANNELS,2);
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    for(auto &d:descriptors)
+        if(d.type==6u)put(d.value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS)<<22),8);
+    for(unsigned type:{14u,15u}){
+        const auto keys=accepted_keys(type);
+        ASSERT_FALSE(keys.empty());
+        ASSERT_LE(keys.size(),size_t(KEY_FIRSTS)*KEY_CHANNELS);
+        SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0, "+std::to_string(keys.size())+" keys");
+        aecp_map &own=maps[type==14u?0:1];
+        std::vector<aecp_mapping> pool(keys.size());
+        own.rows=pool.data();own.count=0;own.capacity=pool.size();
+        for(size_t start=0;start<keys.size();start+=63){
+            const std::vector<aecp_mapping> rows(keys.begin()+start,keys.begin()+std::min<size_t>(start+63,keys.size()));
+            edit_map(44,type,rows,0);
+        }
+        EXPECT_TRUE(same_rows(own,keys))<<"an ADD of every key of the domain holds each as its own";
+    }
+}
+
+// #894's ruling of 2026-11-14, item 1: a key outside the domain, which a format or a cluster wider than the build's
+// would make legal, never forms an index. It is refused at its turn as a mapping its port's geometry refuses is, with
+// BAD_ARGUMENTS, before its port is read, after the earlier mappings' turns, and the map is unchanged; a key at the
+// domain's last channel is accepted; and a row outside the domain in a port's map bars no mapping.
+TEST_F(Core, MapKeysOutsideTheDomainAreRefusedAtTheirTurn)
+{
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    put(desc(6).value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS+1)<<22),8);
+    auto &input=desc(14);unsigned base=get(input.value+14,2);
+    put(desc(20,base).value+84,KEY_CHANNELS+1,2);
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
+        ++reads;*v={};return true;});
+    const uint16_t last=uint16_t(KEY_CHANNELS-1),past=uint16_t(KEY_CHANNELS);
+    edit_map(44,15,{{0,0,0,0},{0,past,1,0}},7);
+    EXPECT_EQ(maps[1].count,0u)<<"a key outside the domain is refused at its turn, before its port is read";
+    EXPECT_EQ(reads,1u)<<"a key outside the domain is refused at its turn, before its port is read";
+    edit_map(44,14,{{0,0,0,past}},7);
+    EXPECT_EQ(maps[0].count,0u)<<"a key outside the domain is refused at its turn, before its port is read";
+    edit_map(44,15,{{0,last,0,0}},0);
+    edit_map(44,14,{{0,0,0,last}},0);
+    EXPECT_TRUE(same_rows(maps[1],{{0,last,0,0}})&&same_rows(maps[0],{{0,0,0,last}}))
+        <<"a key at the domain's last channel is accepted";
+    output[1]={0,past,0,0};maps[1].count=2;
+    edit_map(44,15,{{0,0,0,0}},0);
+    EXPECT_TRUE(same_rows(maps[1],{{0,last,0,0},{0,past,0,0},{0,0,0,0}}))
+        <<"a row outside the domain bars no mapping";
+}
+
+#ifdef AECP_MAP_WORK
+// #904; #894's egress ruling of 2026-11-13, item 3: an ADD or REMOVE_AUDIO_MAPPINGS of n mappings that reads R rows
+// of its port's and the other output ports' maps does work linear in them, refused or not: the slots and held mappings
+// its lookups visit (aecp_maps.c, AECP_MAP_WORK) are at most 2 (n + R), each pass over a map counting its rows. So the
+// collision cases, every mapping one key's with another value, stay under the n(n+1)/2 that a walk of the key's values
+// for each mapping takes, at 8, 16, 32 and 63 mappings, 63 the most a legal-length command holds (IEEE 1722.1-2021
+// 9.2.2.6). Stream input 0's format is widened to 64 channels so that 63 legal values share one input key; the output
+// keys are the port's own (accepted_keys), each repeated where the port has fewer than n (#894's ruling of
+// 2026-11-14, item 2).
+TEST_F(Core, MapEditWorkIsLinearInItsMappings)
+{
+    auto &stream=desc(5);uint64_t format=get(stream.value+74,8);
+    ASSERT_EQ(format>>56,2u);put(stream.value+74,(format&~(uint64_t(1023)<<22))|(uint64_t(64)<<22),8);
+    const auto accepted=accepted_keys(15);
+    ASSERT_FALSE(accepted.empty());
+    using Rows=std::vector<aecp_mapping>;
+    auto edit=[&](unsigned cmd,unsigned port,const Rows &mappings,const Rows &held,unsigned status,size_t passes){
+        auto &map=maps[port==14u?0:1];
+        std::copy(held.begin(),held.end(),map.rows);map.count=held.size();
+        Bytes body=target(port,0,8+8*mappings.size());put(body,4,mappings.size(),2);
+        for(size_t k=0;k<mappings.size();++k){
+            put(body,8+8*k,mappings[k].stream,2);put(body,10+8*k,mappings[k].channel,2);
+            put(body,12+8*k,mappings[k].cluster,2);put(body,14+8*k,mappings[k].cluster_channel,2);
+        }
+        aecp_map_work=0;ask(cmd,body,status);
+        const size_t n=mappings.size(),rows=passes*held.size(),work=aecp_map_work;
+        return std::make_tuple(n,rows,work);
+    };
+    for(unsigned n:{8u,16u,32u,63u}){
+        Rows values,streams,keys,shifted,last;
+        for(unsigned k=0;k<n;++k){
+            values.push_back({0,uint16_t(k),0,0});   // one input key, cluster 0's channel 0, from 63 stream channels
+            streams.push_back({uint16_t(k),0,0,0});  // one input key from distinct streams, the second one CRF's
+            keys.push_back(accepted[k%accepted.size()]);   // the output port's keys
+            shifted.push_back(keys.back());shifted.back().cluster=1;  // each of those keys with another cluster
+        }
+        last=Rows(keys.begin(),keys.end()-1);last.push_back(keys[0]);last.back().cluster=1;
+        struct Case { const char *name; unsigned cmd,port; Rows mappings,held; unsigned status; size_t passes; bool collides; };
+        const Case cases[]={
+            {"a REMOVE of one key's values, its port's map holding the first",45,14,values,{values[0]},7,1,true},
+            {"a REMOVE of one key from distinct streams",45,14,streams,{streams[0]},7,1,true},
+            {"an ADD of the port's keys, each held with another value",44,15,keys,shifted,7,1,false},
+            {"an ADD whose last mapping is its first key's with another value",44,15,last,
+             Rows(keys.begin(),keys.end()-1),7,1,false},
+            {"an ADD of the port's keys, accepted",44,15,keys,{},0,1,false},
+            {"a REMOVE of every row it holds, accepted",45,15,keys,keys,0,2,false},
+        };
+        for(const auto &c:cases){
+            SCOPED_TRACE(std::string(c.name)+", "+std::to_string(n)+" mappings");
+            auto [count,rows,work]=edit(c.cmd,c.port,c.mappings,c.held,c.status,c.passes);
+            std::printf("MAP WORK %s: %zu mappings, %zu rows, %zu visits (2 (n + R) %zu, n(n+1)/2 %zu)\n",c.name,
+                        count,rows,work,2*(count+rows),count*(count+1)/2);
+            EXPECT_LE(work,2*(count+rows))<<"an edit of "<<count<<" mappings reading "<<rows<<" rows visits "<<work
+                                          <<" slots and held mappings, past twice their sum";
+            if(c.collides){
+                EXPECT_LT(work,count*(count+1)/2)<<"a collision of "<<count<<" mappings visits "<<work
+                                                 <<", not under n(n+1)/2";
+            }
+        }
+    }
+}
+#endif
 
 // #904: a saved output map is refused whole where another output port's map in its configuration holds one of its
 // stream channels, or where two of its rows hold one with different clusters, as an ADD is, and a saved row is its own

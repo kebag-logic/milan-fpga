@@ -29,7 +29,8 @@ LONG_NOTICE_BYTES = 550
 #: of ACMP's 200 ms command timeout (Milan v1.2 5.5.2.3, Table 5.26), where neither ADP (a random 0 to 4 s delay before
 #: AVAILABLE, Milan v1.2 5.6.3.5.4) nor MAAP (500 to 600 ms between probes, IEEE 1722-2016 B.3.4.2) has a response
 #: deadline; and tier 1's 20 ms for AECP's with its largest legal notice, the one row that counts it, which THE PACE
-#: restates at the 240 ms response time (paced_rows.PACED_BOUNDS, #894's ruling of 2026-11-13 on round 5).
+#: restates at the response time less the fabric's allowances, 238 ms (paced_rows.PACED_BOUNDS; #894's pace ruling of
+#: 2026-11-13, item 1, and its egress ruling, item 1).
 CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30}
 #: THE TRANSMIT's MRPDU rows: tx, and txL with every AECP notice the largest legal one (#894's ruling of 2026-11-13 on
 #: option A: the MRPDU's bound is the specs', so the largest legal notice is one of its sources).
@@ -208,15 +209,33 @@ def join_cs(text: str) -> int:
     return int(re.search(r'^#define CTRL_LOOP_JOIN_CS (\d+)u', text, re.M)[1])
 
 
+#: The fabric's allowances ctrl_loop.h states, in ms (FR_NFR.md 3.4.1; #894's egress ruling of 2026-11-13, item 1).
+ALLOWANCES = ('CTRL_LOOP_T_INGRESS_MS', 'CTRL_LOOP_T_EGRESS_MS')
+
+
+def allowance(text: str, name: str) -> int:
+    """One of the fabric's allowances (ALLOWANCES) a header's text states, in ms."""
+    return int(re.search(rf'^#define {name} (\d+)u', text, re.M)[1])
+
+
 def built_value(text: str, name: str, n_if: int, burst: int) -> int:
     """A built constant of a header's text at that many interfaces: `(MBX_N_IF == 1u ? a : b)`, a number, or derived
-    from the join time, `(240u - 10u * CTRL_LOOP_JOIN_CS)` (#894's contingent ruling issuecomment-6858269025,
-    item 3); the burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST)."""
+    from the join time and the egress allowance, `(240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)` (#894's
+    contingent ruling of 2026-11-13, item 3; its egress ruling, item 1); the burst a name of the mailbox contract
+    (MBX_CH_AECP_RATE_BURST)."""
     body = re.search(rf'^#define {name} (.+)$', text, re.M)[1].split('//')[0].strip()
     body = re.sub(r'(\d+)u\b', r'\1', body).replace('MBX_CH_AECP_RATE_BURST', str(burst))
     body = body.replace('CTRL_LOOP_JOIN_CS', str(join_cs(text))) if 'CTRL_LOOP_JOIN_CS' in body else body
+    for known in ALLOWANCES:
+        body = body.replace(known, str(allowance(text, known))) if known in body else body
     pick = re.fullmatch(r'\(MBX_N_IF == 1 \? (\d+) : (\d+)\)', body)
-    derived = re.fullmatch(r'\((\d+) - (\d+) \* (\d+)\)', body)
+    derived = re.fullmatch(r'\((\d+) - (\d+) \* (\d+)(?: - (\d+))?\)', body)
     if pick:
         return int(pick[1] if n_if == 1 else pick[2])
-    return int(derived[1]) - int(derived[2]) * int(derived[3]) if derived else int(body)
+    return int(derived[1]) - int(derived[2]) * int(derived[3]) - int(derived[4] or 0) if derived else int(body)
+
+
+def tx_budget_ms(text: str) -> int:
+    """THE TRANSMIT's bound a header's text derives (ctrl_loop.h): Milan v1.2 Table 4.3's 240 ms JoinTime maximum less
+    the armed join time and the egress allowance, so a requested opportunity is on the wire within it."""
+    return 240 - 10 * join_cs(text) - allowance(text, 'CTRL_LOOP_T_EGRESS_MS')

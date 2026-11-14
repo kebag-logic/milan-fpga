@@ -144,9 +144,11 @@ def stated_misses(results: list[dict]) -> list[str]:
     """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost the rows by
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
-    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); and each join interval outside 180.0 to
-    240.0 ms (join_grade.held)."""
+    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
+    absent (join_grade.held, mrpdu_grade.resolve)."""
     import join_grade
+    import mrpdu_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -168,7 +170,12 @@ def stated_misses(results: list[dict]) -> list[str]:
              f"stated slice {g['passes']['slices']['limit']:,}"
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
-             f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])])
+             f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
+            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
+             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
+              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
+              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
+             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])
 
 
 #: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
@@ -187,13 +194,17 @@ def print_slices(results: list[dict]) -> None:
 
 def print_joins(results: list[dict]) -> None:
     """Each group's JOINS line: its join intervals' count, shortest and longest (join_grade.py; #894's contingent
-    ruling issuecomment-6858269025, item 4)."""
+    ruling of 2026-11-13, item 4)."""
     import join_grade
     for g in results:
         j = g['passes'].get('joins') or {}
+        runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
         if j.get('count'):
             print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
-                  f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}")
+                  f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}; MRP "
+                  f"timers' run-outs: {runs}")
+        elif runs:
+            print(f"JOINS {g['group']}: no join interval; MRP timers' run-outs: {runs}")
 
 
 def saves(results: list[dict]) -> list[dict]:

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The last queued notice's bound at one interface (#894's contingent ruling issuecomment-6858269025, item 2, as its
-amendment issuecomment-6862465874 states it): decision D's 125 ms (rows_grade.BOUNDS) while the built design's row
+"""The last queued notice's bound at one interface (#894's contingent ruling of 2026-11-13, item 2, as its
+amendment of 2026-11-13 states it): decision D's 125 ms (rows_grade.BOUNDS) while the built design's row
 holds that by every source, else the row rounded up to the next STEP_MS, never over MOST_MS. aecp_mbx.h states it,
 AECP_QUEUED_MS at MBX_N_IF 1, and the tier model (rows_tiers.bounds_at), the firmware's tests (test_aecp.cpp) and the
 CPU budget harness (notice_window.py) read that statement. #908 stays open while it is over 125 ms.

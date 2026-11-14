@@ -18,6 +18,7 @@ from unittest.mock import patch
 import build
 import grade
 import join_grade
+import mrpdu_grade
 import long_notice
 import poll_grade
 import poll_items
@@ -248,36 +249,40 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
                 tx_record: Callable[..., list[str]]) -> list[Check]:
     """A join interval is two consecutive MRPDUs of one participant, an interface and an MRP application, with a join
     timer's run-out between them and neither the periodic nor the LeaveAll timer's; each outside Table 4.3's 180.0 to
-    240.0 ms is named and fails the run (#894's contingent ruling issuecomment-6858269025, item 4)."""
+    240.0 ms narrowed by T_egress at each end, 181.0 to 239.0 ms commit to commit, is named and fails the run (#894's
+    contingent ruling of 2026-11-13, item 4; its egress ruling, item 1)."""
     srp, ms, ratio = scenario.CH['srp'], sys_hz // 1000, sys_hz // cpu_hz
 
-    def joins(sends: tuple, timers: tuple = (), idle: tuple = ()) -> dict:
+    def joins(sends: tuple, timers: tuple = (), idle: tuple = (), ordinary: tuple = (), owed: tuple = ()) -> dict:
         """The join intervals of a log whose MRPDUs are (ms, interface, EtherType), each committed in a pass of its own
-        after its build, whose timers are (ms, callback), and whose builds at the ms in idle sent nothing."""
+        after its build, whose timers are (ms, callback), whose builds at the ms in idle sent nothing, which has passes
+        with no build at the ms in ordinary, and whose sends at the ms in owed are their poll's, a pass after their
+        build, the ring having refused the frame (A3)."""
         lines, word = [], 0
         for at, interface, kind in sends:
             frame = bytes(12) + kind.to_bytes(2, 'big') + bytes(46)
             lines += tx_record(srp, interface, frame, word, at * ms)
             word += 2 + (len(frame) + 3) // 4
-        builds = sorted([at for at, _, _ in sends] + list(idle))
+        builds = sorted([at - 1 if at in owed else at for at, _, _ in sends] + list(idle))
         lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at in builds]
-        lines += [f'PASS {n} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
-                  for n, at in enumerate(builds)]
+        lines += [f'PASS {at} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
+                  for at in sorted(builds + list(owed) + list(ordinary))]   # a pass a ms, idle or not
         lines += [f'ENTRY {at * ms} {name}' for at, name in timers]
         return join_grade.held(grade.parse(synthetic(lines), sys_hz, cpu_hz))
 
     msrp, mvrp = 0x22EA, 0x88F5
-    edge = joins(((1_000, 0, msrp), (1_180, 0, msrp), (1_420, 0, msrp)), ((1_170, 'on_join_timer'),
+    edge = joins(((1_000, 0, msrp), (1_181, 0, msrp), (1_420, 0, msrp)), ((1_171, 'on_join_timer'),
                                                                         (1_400, 'on_join_timer')))
-    out = [('a join interval is two MRPDUs of one participant, the second one a join timer released: 180 and 240 ms '
-            'hold', edge['count'] == 2 and edge['shortest'] == 180.0 and edge['longest'] == 240.0 and
-            edge['over'] == [], str(edge))]
-    short = joins(((1_000, 0, msrp), (1_179, 0, msrp)), ((1_170, 'on_join_timer'),))
-    long = joins(((1_000, 0, mvrp), (1_241, 0, mvrp)), ((1_230, 'on_join_timer'),))
+    out = [('a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, '
+            "Table 4.3's 180 and 240 less T_egress, hold", (join_grade.LEAST_MS, join_grade.MOST_MS) == (181.0, 239.0)
+            and edge['count'] == 2 and edge['shortest'] == 181.0 and edge['longest'] == 239.0 and edge['over'] == [],
+            str(edge))]
+    short = joins(((1_000, 0, msrp), (1_180, 0, msrp)), ((1_170, 'on_join_timer'),))
+    long = joins(((1_000, 0, mvrp), (1_240, 0, mvrp)), ((1_230, 'on_join_timer'),))
     named = run.stated_misses([dict(group='j', passes=dict(joins=short)), dict(group='k', passes=dict(joins=long))])
-    out.append(('a join interval under 180.0 ms or over 240.0 ms is named with its participant',
-                named == ['j: a join interval of 179.000 ms (if0 MSRP), outside 180.0 to 240.0 ms',
-                          'k: a join interval of 241.000 ms (if0 MVRP), outside 180.0 to 240.0 ms'], str(named)))
+    out.append(('a join interval under 181.0 ms or over 239.0 ms is named with its participant',
+                named == ['j: a join interval of 180.000 ms (if0 MSRP), outside 181.0 to 239.0 ms',
+                          'k: a join interval of 240.000 ms (if0 MVRP), outside 181.0 to 239.0 ms'], str(named)))
     apart = joins(((1_000, 0, msrp), (1_050, 0, mvrp), (1_100, 1, msrp), (1_190, 0, msrp)),
                   ((1_180, 'on_join_timer'),))
     other = joins(((1_000, 0, msrp), (1_090, 0, msrp)), ((1_050, 'on_join_timer'), (1_060, 'on_pt_timer')))
@@ -286,12 +291,49 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
                 'join timer, between them are none', apart['count'] == 1 and apart['shortest'] == 190.0 and
                 other['count'] == 0 and none['count'] == 0, str((apart, other, none))))
     idle = joins(((1_000, 0, msrp), (1_700, 0, msrp)), ((1_190, 'on_join_timer'),), idle=(1_191,))
-    out.append(('a join timer that runs out with nothing to send, its build sending no frame, releases nothing, and '
-                'the MRPDU a later request sends ends no join interval', idle['count'] == 0, str(idle)))
+    out.append(('a join timer that runs out with nothing to send, its build sending no frame, releases nothing and is '
+                'empty, and the MRPDU a later request sends ends no join interval',
+                idle['count'] == 0 and idle['runs']['empty'] == 1 and not idle['failing'], str(idle)))
+    out += horizon_checks(joins, msrp)
     args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
                               record_share_findings=True)
     out.append(('a join interval outside its range fails a run whatever findings it records',
                 run.verdict(args, [scenario.Group('j')], [], [], [], named[:1]) == 1, ''))
+    return out
+
+
+def horizon_checks(joins: Callable[..., dict], msrp: int) -> list[Check]:
+    """A run-out's builds are sought wherever they come (mrpdu_grade.resolve; #894's egress ruling of 2026-11-13,
+    item 4): a build past THE TRANSMIT's bound is late, on either side of the 100 ms its search once stopped at, and its
+    interval is graded; no build after it is absent in a log that runs on past the bound and unresolved in one that
+    ends first, counted and never taken for one that owes nothing; and a frame its build left owed is still its
+    build's."""
+    def at(end: int) -> dict:
+        """One participant's MRPDUs at 1,000 ms and `end`, a join timer's run-out at 1,190 ms between them."""
+        return joins(((1_000, 0, msrp), (end, 0, msrp)), ((1_190, 'on_join_timer'),))
+    cases = {end: at(end) for end in (1_191, 1_239, 1_241, 1_289, 1_291, 1_500)}
+    late = {end: (r['count'], [o['ms'] for o in r['over']], [(o['outcome'], o['after_ms']) for o in r['failing']])
+            for end, r in cases.items()}
+    out = [("a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either "
+            "side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold",
+            mrpdu_grade.LATE_MS == 49 and late == {
+                1_191: (1, [], []), 1_239: (1, [], []), 1_241: (1, [241.0], [('late', 51.0)]),
+                1_289: (1, [289.0], [('late', 99.0)]), 1_291: (1, [291.0], [('late', 101.0)]),
+                1_500: (1, [500.0], [('late', 310.0)])}, str(late))]
+    absent = joins(((1_000, 0, msrp),), ((1_190, 'on_join_timer'),), ordinary=(1_300,))
+    pending = joins(((1_000, 0, msrp),), ((1_190, 'on_join_timer'),), ordinary=(1_230,))
+    named = run.stated_misses([dict(group='a', passes=dict(joins=absent)), dict(group='u', passes=dict(joins=pending))])
+    out.append(('no build after a run-out is absent and named where the log runs on past THE TRANSMIT\'s bound, and '
+                'unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes '
+                'nothing', absent['runs']['absent'] == 1 and pending['runs']['unresolved'] == 1 and
+                not pending['failing'] and absent['runs']['empty'] == pending['runs']['empty'] == 0 and len(named) == 1
+                and named[0].startswith("a: the join timer's run-out at 1190.000 ms, no build after it though the log "
+                                        'runs on 110.0') and named[0].endswith(' ms (absent)'),
+                str((absent, pending, named))))
+    owed = joins(((1_000, 0, msrp), (1_200, 0, msrp)), ((1_190, 'on_join_timer'),), owed=(1_200,))
+    out.append(("a frame its build left owed, which the poll sends a pass later, is that build's: the run-out "
+                'released it and ends a join interval', owed['count'] == 1 and owed['runs']['released'] == 1 and
+                owed['shortest'] == 200.0, str(owed)))
     return out
 
 

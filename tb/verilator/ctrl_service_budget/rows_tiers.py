@@ -51,7 +51,7 @@ import paced_rows  # noqa: E402
 import shape_costs  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
-                        built_value, channel_passes, channel_row, join_cs, quota_fits, tier1_busy, tier1_records,
+                        built_value, channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_budget_ms,
                         tx_passes)
 
 BOUNDS, POINTS, ROOT = rows_grade.BOUNDS, rows_grade.POINTS, load_grade.ROOT
@@ -95,9 +95,9 @@ behind every tier-2 unit that arrives in its window."""
 DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AMAP_LIVE_WRITE': 'entity'}
 #: Each datapath event's stated cost in us, its take and every sink's work: the most the CPU budget harness measured
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
-#: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: measured on the image
-#: under THE TIERS, then at #810's 084cf7a8 merge: 31.96, 29.06, 23.33 us at 1x1/1if and 36.57, 34.43, 23.02 at 8x8).
-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 25},
+#: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
+#: 29.06, 23.33 us at 1x1/1if and 36.57, 34.43, 23.02 at 8x8; with the map table's direct index 30.55, 31.57, 25.51).
+DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 25}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
 TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
@@ -111,9 +111,8 @@ ADDED_ROWS = ('R4L', 'ACMP', 'ADP', 'MAAP', *TX_ROWS)
 #: The rows that charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US).
 LONG_ROWS = ('R4L', 'txL')
 #: The MRP timer budget's bound on THE TRANSMIT's MRPDU in ms, which CTRL_LOOP_TX_BOUND_MS states (#894's ruling of
-#: 2026-11-13, item 1): Milan v1.2 Table 4.3's 240 ms less the join time the tree arms (CTRL_LOOP_JOIN_CS, ctrl_loop.h;
-#: #894's contingent ruling issuecomment-6858269025, item 3: 19 cs, so 50 ms).
-TX_BUDGET_MS = 240 - 10 * join_cs((ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
+#: 2026-11-13, item 1): Table 4.3's 240 ms less the armed join time and T_egress (tier1_rows.tx_budget_ms), 49 ms.
+TX_BUDGET_MS = tx_budget_ms((ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
 TIER1_ROWS = ('R4', 'R4L', 'ACMP', 'ADP', 'MAAP', 'first')
 TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
@@ -126,12 +125,12 @@ LONG_RULES = ('buffer', 'slot-552')
 #: stated 665 us).
 LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
-#: largest legal notice answers): REMOVE_AUDIO_MAPPINGS of 63 mappings, the most measured AECP record handler
-#: (aecp_mbx.c, frame) over the aecp-largest-notice group plus 5 %, rounded up to 5 us, the larger kept: 89,126 CPU
-#: cycles at 1x1/1if at the merge of #810's 084cf7a8 (87,372 before it), and 147,843 on the 8x8 shape with the
-#: answering-ports arm, whose output map that group edits (144,293 at the merge); #904: one decode and one pass, where
-#: 742,470 and 959,647 were measured before. record.aecp, 235 us at 1x1/1if, is measured on shorter commands.
-LONG_RECORD_US = {'1x1/1if': 940, '8x8/2if': 1555}
+#: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
+#: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
+#: at 1x1/1if under #894's bounded map work (a REMOVE of 63), 91,625 with each key at its position in the key domain
+#: (965 us; refused 23,883 to 75,892), and 156,716 on the 8x8 shape in the answering-ports arm, whose output map it
+#: edits (147,843 before); #904: one decode, one pass, where 742,470 and 959,647 were. record.aecp is shorter ones'.
+LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -728,8 +727,7 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
-            'a design whose quotas are not its order\'s', "THE PACE not the model's", "txL's AECP records not paced",
-            "R4L's burst without its paces")
+            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS)
 
 
 def control_names(root: Path) -> tuple[str, ...]:
@@ -931,11 +929,13 @@ def channel_controls(root: Path) -> list[str]:
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
     figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
-    bound, typed = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)', '#define CTRL_LOOP_TX_BOUND_MS 90u'
+    bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
     under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
-    if bound not in header or not tx_statements(root, one, {loop: header.replace(bound, typed)}):
+    # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)
+    if bound not in header or not all(tx_statements(root, one, {loop: header.replace(bound, typed)}) for typed in (
+            '#define CTRL_LOOP_TX_BOUND_MS 90u', '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS)')):
         escaped.append("THE TRANSMIT's bound not the timer budget's")
     if not broken(root, Design(1200, 'wrr', quota=(4, 4, 4, 4)), one):
         escaped.append("a quota design over the pass's tier-1 time")

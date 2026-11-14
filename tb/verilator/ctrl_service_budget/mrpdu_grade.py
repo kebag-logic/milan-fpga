@@ -6,14 +6,23 @@ commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LO
 it (BUDGET_MS; #894's ruling issuecomment-6871343905, item (b)(i)), where the family's T_svc held it before THE TIERS.
 
 A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
-no frame shows it. So a timer's row ends at the frames of the builds that follow it, the first and, where the other
-interface owes one too, the one after: at most one ordinary pass stands between two (ctrl_loop.c, whole_runs).
+no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
+(#894's egress ruling of 2026-11-13, item 4; resolve): the first after it and, where the other participant or
+interface owes one too, the next, at most one ordinary or idle pass standing between two (ctrl_loop.c, whole_runs), each
+build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). The
+run-out is `released` where they send frames, `empty` where the first sends none, `late` where its first frame, or its
+first build where it sends none, comes past THE TRANSMIT's bound after it (LATE_MS), `absent` where no build follows it
+in a log that runs on past that bound, and `unresolved` where the log ends first. A late or absent build fails the run
+(join_grade.held); an unresolved one is counted and named, never taken for one that owes nothing.
 """
 from __future__ import annotations
 
+from bisect import bisect_left, bisect_right
+from pathlib import Path
+
 import grade
 import scenario
-from tier1_rows import built_value
+from tier1_rows import tx_budget_ms
 
 #: The lwSRP callbacks that end a timer (mrp_mad.c), and the row's name for each.
 TIMERS = {'on_join_timer': 'join', 'on_pt_timer': 'periodic', 'on_la_timer': 'leaveall'}
@@ -22,13 +31,15 @@ BUILD = 'build_mrpdu'
 #: MBX_EV_TYPE_TICK (mbx_contract.h): a TICK event's type, the low byte of its first word.
 TICK = 4
 PATH = 'mrpdu'
-#: The row's harness budget in ms: THE TRANSMIT's bound as ctrl_loop.h derives it, CTRL_LOOP_TX_BOUND_MS, read as the
-#: tier model reads the built constants (tier1_rows.built_value) and never typed (#894's ruling issuecomment-6871343905,
-#: item (b)(i): the MRP timer budget's lateness, 240 ms less the armed join time).
-BUDGET_MS = built_value((scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text(), 'CTRL_LOOP_TX_BOUND_MS',
-                        1, 0)
-#: How far a row looks for its builds: past any bound, so a build that is late is a row over it, never no row.
-LOOK_MS = 100
+#: THE TRANSMIT's bound in ms as ctrl_loop.h derives it (CTRL_LOOP_TX_BOUND_MS, tier1_rows.tx_budget_ms), never typed:
+#: a run-out's build past it is late, and a log that runs on past it with no build after a run-out has none.
+LATE_MS = tx_budget_ms((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
+#: The row's harness budget in ms: that bound, read once (LATE_MS), where the family's T_svc held it before THE TIERS
+#: (#894's ruling issuecomment-6871343905, item (b)(i): the MRP timer budget's lateness).
+BUDGET_MS = LATE_MS
+#: The outcomes of a timer's run-out (resolve), and those that fail a run.
+OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
+FAILING = ('late', 'absent')
 
 
 def ticks(log: grade.Log) -> list[int]:
@@ -42,29 +53,71 @@ def commits(grader: grade.Grader, entry: int) -> list[tuple[int, int]]:
 
 
 def released(log: grade.Log, entry: int) -> list[tuple[int, int]]:
-    """commits' frames, from the log alone: what the timer that ran out at entry released (join_grade.py too)."""
-    srp = scenario.CH['srp']
-    limit = entry + int(LOOK_MS * log.sys_hz / 1000)
-    builds = [c for c, name in log.entries if name == BUILD and entry < c < limit]
-    passes = [p for p in log.passes
-              if p.start_sys + p.cycles * log.sys_hz // log.cpu_hz > entry and p.start_sys < limit]
-    out: list[tuple[int, int]] = []
-    ordinary = 0
-    for p in passes:
-        end = p.start_sys + p.cycles * log.sys_hz // log.cpu_hz
-        if not any(p.start_sys <= c < end for c in builds):
-            ordinary += 1 if out else 0
-            if ordinary > 1:
-                break
-            continue
-        sent = [(c, i) for c, ch, i, _ in log.tx if ch == srp and p.start_sys <= c < end]
-        if not sent and not out:
-            return []
-        out += sent
-        ordinary = 0
-        if len({i for _, i in out}) == 2:
+    """commits' frames, from the log alone: what the timer that ran out at entry released, late or not (join_grade.py
+    too)."""
+    outcome, frames = resolve(log, entry)
+    return frames if outcome in ('released', 'late') else []
+
+
+def end_of(log: grade.Log, p: grade.Pass) -> int:
+    """A pass's end, in bus cycles."""
+    return p.start_sys + p.cycles * log.sys_hz // log.cpu_hz
+
+
+#: index's last log and what it found there.
+_INDEXED: list = [None, None]
+
+
+def index(log: grade.Log) -> tuple[list[int], list[grade.Pass], list[tuple[int, int]], int]:
+    """A log's builds, its passes and its SRP frames, each in time order, and its last cycle: the last millisecond it
+    records, or its last pass's end."""
+    if _INDEXED[0] is not log:
+        srp = scenario.CH['srp']
+        passes = sorted(log.passes, key=lambda p: p.start_sys)
+        last = max([*log.ms.values(), *(end_of(log, p) for p in passes), 0])
+        _INDEXED[:] = [log, (sorted(c for c, name in log.entries if name == BUILD), passes,
+                             sorted((c, i) for c, ch, i, _ in log.tx if ch == srp), last)]
+    return _INDEXED[1]
+
+
+def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
+    """The outcome (OUTCOMES) of the timer that ran out at entry, and the (cycle, interface) of the frames its builds
+    sent, as the module docstring says."""
+    builds, passes, sent, last = index(log)
+    starts = [p.start_sys for p in passes]
+    late = entry + int(LATE_MS * log.sys_hz / 1000)
+    k = bisect_right(builds, entry)
+    if k == len(builds):
+        return ('absent' if last > late else 'unresolved'), []
+
+    def pass_at(cycle: int) -> int:
+        """The index of the pass a build at that cycle ran in."""
+        return max(0, bisect_right(starts, cycle) - 1)
+    run, at = [builds[k]], pass_at(builds[k])
+    for b in builds[k + 1:]:
+        # every pass between the two, idle ones too (a pass's index counts them), but those that send what a build
+        # left owed
+        between = passes[at + 1:pass_at(b)]
+        owed = sum(1 for p in between if bisect_left(sent, (p.start_sys, -1)) < bisect_left(sent, (end_of(log, p), -1)))
+        if passes[pass_at(b)].index - passes[at].index - 1 - owed > 1:
             break
-    return out
+        run.append(b)
+        at = pass_at(b)
+    first = passes[pass_at(run[0])].start_sys if passes else run[0]
+    stop = builds[k + len(run)] if k + len(run) < len(builds) else 1 << 62
+    frames, interfaces, own = [], set(), sent[bisect_left(sent, (first, -1)):bisect_left(sent, (stop, -1))]
+    for cycle, interface in own:
+        if len(interfaces) == 2 and interface not in interfaces:
+            break
+        frames.append((cycle, interface))
+        interfaces.add(interface)
+    head = frames[0][0] if frames else run[0]
+    return ('late' if head > late else 'released' if frames else 'empty'), frames
+
+
+def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:
+    """Each timer's run-out of the log: its cycle, its timer's row name (TIMERS) and its outcome."""
+    return [(entry, TIMERS[name], resolve(log, entry)[0]) for entry, name in log.entries if name in TIMERS]
 
 
 def wait_ms() -> float:

@@ -257,8 +257,8 @@ LEDGERED: dict[str, Ledgered] = {
                                          "granule: ROM debt owed to the hybrid XIP work (#665 decision D3) on top "
                                          "of the 58.0 allowance, one half tile, 528 B of sram past 55 granules "
                                          "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
-                                         "fallback of #894's ruling 6844175391, item 2: the cap raised to 59.0 as "
-                                         "debt owed to S14, no hold"),
+                                         "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
+                                         "cap raised to 59.0 as debt owed to S14, no hold"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

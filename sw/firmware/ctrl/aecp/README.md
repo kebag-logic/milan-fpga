@@ -117,7 +117,7 @@ The first two are the line over every round the CPU budget harness measured, plu
 A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
 While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
 So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
-A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once, each kept in its descriptor's event, so none is dropped. At one interface it is the image's own descriptors' count, which the shape header states (`srp_entity.py`: 12 at 1x1/1if, 40 at 8x8/1if; [#894's round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(iv)), and at two 40, the 8x8's; a build whose descriptors hold more fails (`aecp_mbx.c`). The first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 125 ms at 1x1/1if (decision D) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once, each kept in its descriptor's event, so none is dropped. At one interface it is the image's own descriptors' count, which the shape header states (`srp_entity.py`: 12 at 1x1/1if, 40 at 8x8/1if; [#894's round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(iv)), and at two 40, the 8x8's; a build whose descriptors hold more fails (`aecp_mbx.c`). The first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 130 ms at 1x1/1if (decision D's 125 ms, rounded up to the next 5 ms from the last queued notice's row by every source after #908's cuts, by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2; `queued_bound.py`) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
 `aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, the owed-notice queue holds one, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
 
 **The owed-notice queue** (#894; IEEE 1722.1-2021 7.5.2 and 9.3.5.4, Milan v1.2 5.4.5.1 and 5.4.5.2).
@@ -193,15 +193,49 @@ and a non-default one each come back across the store's power cycle
 5.3.9.1, 5.3.10.1). Live format changes cannot orphan
 existing mappings. Map partitioning follows advertised geometry and output
 stream/channel ownership is global across output ports. An ADD or
-REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds each distinct one in
-a table by its key, so its mappings, its port's map and every other output
+REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds it in a table by its
+key, a slot a key, so its mappings, its port's map and every other output
 port's map are each one pass of lookups
-([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Each mapping's
-checks still run in its turn, an output mapping's port read first, so an edit
+([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Its work is
+linear in its mappings and the rows it reads, refused or not ([#894's egress
+ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126),
+item 3): a mapping its port's geometry refuses ends the table, as an ADD's
+earlier conflict does, since its own turn refuses the edit; a REMOVE's other
+values of a key are linked from the key's first, so no lookup walks a run of
+one key's values; and a key's slot is its position in the port's key domain
+([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042),
+item 1): its stream or cluster times the most channels a key's stream or
+cluster has, plus its channel, so no two keys share one at any geometry the
+builder accepts. The domain is the build's shape, which
+[`aecp_shape.py`](aecp_shape.py) reads from the image's descriptors
+(`key_domain`, `AECP_ENTITY_KEY_*` in `aecp_entity_gen.h`): at an output port
+every STREAM_OUTPUT and the channels of each format it advertises, at an input
+port each of its clusters and its channels; a static assertion holds the table
+to the whole domain, at least the 256 slots it held before, so the edit's stack
+frame stays where every measured cost was taken (the domain's 64 slots at
+1x1/1if move it 192 B and the largest legal command's record from 91,625 CPU
+cycles to 98,720, by the data cache). A mapping its port's geometry refuses is refused at its
+turn as before, and so is one whose key lies outside the domain, which no
+format or cluster of the build lets a legal mapping do, so no such key forms
+an index; a map row outside it holds no mapping's key. Each mapping's checks
+still run in its turn, an output mapping's port read first, so an edit
 answers, changes its map and reads the port as its pairwise definition does:
 `Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
-seeded edits, and [`aecp_map_mutants.py`](../test/aecp_map_mutants.py) plants
-a defect in each pass. An edit that is checked paces AECP's next record
+seeded edits; `Core.EveryAcceptedMapKeyIsItsOwn` adds and removes every key a
+port accepts, in commands of 63 mappings, and `Core.EveryKeyOfTheDomainIsItsOwn`
+every position of the domain, each key held as its own;
+`Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn` holds the domain's edge;
+and `Core.MapEditWorkIsLinearInItsMappings`, in a work arm that counts each
+slot and held mapping a lookup visits (`AECP_MAP_WORK`), holds the collision
+and conflict cases of 8, 16, 32 and 63 mappings to twice their mappings and
+rows, under n(n+1)/2. The work arm also runs `Core.EveryAcceptedMapKeyIsItsOwn`
+at every checked-in configuration and at two wider geometries the builder
+accepts, 16 talkers of 4 channels and 16 of up to 32
+([`aecp_arms.py`](../test/aecp_arms.py), `KEY_GEOMETRIES`), each edit within
+twice its mappings and rows. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py)
+plants a defect in each pass, indices that collide and a domain one channel
+wide, and a walk of a key's values and a scan of the table, which change no
+outcome and only the count refuses. An edit that is checked paces AECP's next record
 (THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
 rx-ready gate holds the channel's next record in its ring, never dropped,
 until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll
