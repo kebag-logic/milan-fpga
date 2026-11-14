@@ -1,0 +1,30 @@
+Point 1x1/1if: 420 candidates solved and 126 refused by their own rules; 18 hold every row and the load (load at the pin 0.515, 0.694 with every notice the largest legal one).
+
+| Order | Solved | Refused | Hold | Best: cap or quotas, slice, long notices | Its least margin | Its rows over their bounds |
+|---|---:|---:|---:|---|---:|---|
+| aecp-first | 84 | 42 | 18 | cap 2, 950 us, buffer | +0.0176 | none |
+| others-first | 84 | 42 | 0 | cap 2, 600 us, buffer | -0.2645 | R4 25.29, last 157.30 |
+| aecp-quota | 84 | 42 | 0 | quotas 0/2/2/2, 600 us, buffer | -0.2229 | R4 24.29, last 157.30, txL 59.92 |
+| wrr | 168 | 0 | 0 | quotas 2/2/1/1, 600 us, buffer | -0.2645 | R4 25.29, last 157.30 |
+| turn (reported) | 42 | 0 | 0 | cap tree, 600 us, buffer | -0.2645 | R4 25.29, last 157.30 |
+
+| Tier-1 rows held | Least tier-1 bound a candidate needs, ms | At | Its tier-1 rows, ms |
+|---|---:|---|---|
+| all | 203.25 | slice 1150 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 1 | R4 12.81, R4L 203.25, ACMP 37.83, ADP 29.39, MAAP 29.48, first 14.12 |
+| all but R4L | 25.64 | slice 900 us, tier 1 others-first, tier 2 srp-first, AECP queue, cap 2 | R4 25.64, ACMP 21.89, ADP 16.78, MAAP 16.88, first 14.61 |
+
+| Row | Bound, ms | Best W over the grid, ms | At | Built design |
+|---|---:|---:|---|---:|
+| R4 | 20 | 11.81 | slice 300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 1 | 13.01 |
+| R5 | 90 | 69.10 | slice 1150 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2 | 73.85 |
+| R6 | 90 | 67.18 | slice 1150 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2 | 69.71 |
+| first | 20 | 13.23 | slice 300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 1 | 14.61 |
+| last | 130 | 117.87 | slice 1200 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2 | 127.76 |
+| R4L | 238 | 202.30 | slice 300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 1 | 203.50 |
+| ACMP | 30 | 19.62 | slice 300 us, tier 1 others-first, tier 2 srp-first, AECP queue, cap 2 | 29.02 |
+| ADP | 30 | 16.08 | slice 300 us, tier 1 others-first, tier 2 srp-first, AECP queue, cap 2 | 27.33 |
+| MAAP | 30 | 16.18 | slice 300 us, tier 1 others-first, tier 2 srp-first, AECP queue, cap 2 | 27.42 |
+| tx | 49 | 29.72 | slice 300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 1 | 33.37 |
+| txL | 49 | 42.63 | slice 300 us, tier 1 wrr, tier 2 srp-first, AECP queue, quotas 2/2/1/1 | 48.09 |
+
+CHOSEN: slice 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0176
