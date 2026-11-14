@@ -76,7 +76,7 @@ PLANT_WORDS = {
     "command-sequence": "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0",
     "response-sequence": "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its "
                          "command's 1",
-    "table-10-3": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: "
+    "table-10-3": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: "
                   "from AN, Table 10-3's tx! sends New",
     "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
                      "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
@@ -87,9 +87,9 @@ PLANT_WORDS = {
                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
     "vanished-available-index": "owed row entity-available-index: the difference has gone",
-    "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table "
+    "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table "
                     "10-3's tx! sends JoinMt",
-    "mvrp-received-join": "[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with "
+    "mvrp-received-join": "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with "
                           "the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing",
     "vanished-domain-new": "owed row fabric-domain-one-new: the defect has gone",
     "domain-trace-moved": "owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value "

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The costs THE RETRY's round is admitted at (#665; aecp_mbx.h, AECP_NOTICE_US and AECP_ROUND_COLD_US; aecp.h,
-AECP_ATTEMPT_US). A round spends what its pass has left at these stated costs (aecp.c, scan; aecp_mbx.c, retry), and
-THE RETRY's search counts the notices a pass carries from them (sw/firmware/ctrl/test/ctrl_retry_search.py), so a round
+AECP_ATTEMPT_US). A round spends what its slice has left at these stated costs (aecp.c, scan; aecp_mbx.c, retry), and
+the rows by every source charge its notices at them (rows_tiers.py, THE TIERS in ctrl_loop.h, #894), so a round
 dearer than its stated cost would overspend its pass with no row to show it. Each is an upper bound: every round the
 loop calls (ctrl_loop.c's round_of, a SPAN line) is held here to AECP_ROUND_COLD_US + n x AECP_NOTICE_US + k x
 AECP_ATTEMPT_US, n the notices it built, each a success of the event scan (aecp.c's finish, a CALL line inside the

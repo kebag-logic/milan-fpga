@@ -109,7 +109,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 59.5 RAMB36, within the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers by name for the flip, owed to lane S14.
+The 8x8 image with two interfaces plans 60.0 RAMB36, the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers by name for the flip, owed to lane S14.
 At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
 
 The smoke grader's verdicts on the simulated UART:

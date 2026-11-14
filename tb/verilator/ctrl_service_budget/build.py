@@ -92,8 +92,8 @@ MUTATIONS = {
     # #665's planted round without a pass given whole: a change notice is taken only in a pass that took no input and
     # dispatched no centisecond or beside an aged step or a build, so under input that leaves no pass empty the
     # retried notice is committed later than its 20 ms after its port's answer (notice_window.py).
-    'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
-                      'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
+    'retry-ageless': ('loop/ctrl_loop.c', '(!l->round_one || l->retry_first) && l->retry_aged(l->retry_ctx)',
+                      '(!l->round_one || l->retry_first) && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
