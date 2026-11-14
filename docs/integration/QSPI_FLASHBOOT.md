@@ -90,7 +90,7 @@ The layout records it as `flash_device` and `flash_jedec_id`.
 
 The AX7101 layout gains those two fields too.
 
-`deploy.sh` reads the FPGA die and the flash ID first, on both boards.
+On both boards, `deploy.sh` reads the die and flash ID first.
 
 It refuses an image set for another die or flash.
 
@@ -98,11 +98,13 @@ It also refuses a target layout without those two fields.
 
 Image sets built before #911 have such a layout.
 
-The check has run against a stub programmer only, on both boards.
+The check has run against a stub programmer only.
+
+That holds for both boards.
 
 The
 [deployment guide](../guides/BOARD_DEPLOYMENT.md#image-sets-built-before-911)
-says what to do with such a set.
+covers such a set.
 
 The
 [deployment guide](../guides/BOARD_DEPLOYMENT.md#flash-an-image-set-over-jtag)
@@ -239,8 +241,7 @@ enabling the entity (see the AEM caveat below).
   of `main_ram` and reserved for the firmware; there is no base register to
   program). Under the
   shipping bare-metal manifest, raw `aem_desc.bin` occupies the 64 KiB slot at
-  the layout's AEM offset (`0x40_0000` on the AX7101, `0xA0_0000` on the
-  XC7A200T variant); firmware copies and CRC-checks it before enabling
+  `0x40_0000`; firmware copies and CRC-checks it before enabling
   `PP_CTRL[0]` and `ADP_CTRL[0]`. The
   end-station builder produces `aem_desc.bin`, `aem_desc.json`, and
   `aem_desc.map`. A custom boot path must provide the equivalent step. An unloaded or
@@ -248,6 +249,7 @@ enabling the entity (see the AEM caveat below).
   `BAD_ARGUMENTS`; the store watchdog prevents a stalled bus from hanging the
   command, and a late load heals without a reset. Bench walk-through:
   [Section 26 of ../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
+* **The XC7A200T variant moves the AEM slot to `0xA0_0000`.** [Its map](#the-xc7a200t-variant) is above.
 
 ---
 

@@ -469,16 +469,30 @@ select the cable by serial and the console by `/dev/serial/by-id/` path:
 The Arty is a retired DUT: its recipe elaborates under gate 23g (section 2)
 and the board is not powered, loaded or flashed.
 
-Every profile keeps the bitstream at QSPI offset 0 in a slot of its own.
-The bare-metal manifest carries only raw `aem_desc.bin`, in a 64 KiB slot
-that starts where the bitstream slot ends; firmware itself is linked into ROM.
-The slot is the die's: 4 MiB on the AX7101's XC7A100T, so its AEM is at
-4 MiB (`0x400000`), and 10 MiB on the `ax7a200t` variant, so its AEM is at
-10 MiB (`0xA00000`). `FLASHBOOT_BITSTREAM_SLOT` in `sw/litex/milan_soc.py`
-and `layout_for()` in `sw/litex/flash_map.py` derive each die's layout
-([QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant)). (Historical,
-retired #259: the multi-image manifest carried a second-stage boot chain.)
-Always read the build's `flashboot_layout.json`; details are in
+Every profile keeps the bitstream at QSPI offset 0.
+
+Its slot size is the die's.
+
+The bare-metal manifest carries only raw `aem_desc.bin`.
+
+Its 64 KiB slot starts where the bitstream slot ends:
+
+| Board | Bitstream slot | `aem_desc.bin` at |
+|---|---|---|
+| AX7101 (XC7A100T) | 4 MiB | `0x400000` |
+| `ax7a200t` (XC7A200T) | 10 MiB | `0xA00000` |
+
+`FLASHBOOT_BITSTREAM_SLOT` in `sw/litex/milan_soc.py` holds the slot sizes.
+
+`layout_for()` in `sw/litex/flash_map.py` derives each die's layout.
+
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant) draws both maps.
+
+Firmware itself is linked into ROM.
+
+(Historical, retired #259: the
+multi-image manifest carried a second-stage boot chain.) Always read the build's
+`flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
 `INSTALLED_BUILD=<exact-current-build> ./build.sh flash
 <config>[:<target-builddir>]` (or supply explicit `INSTALLED_LAYOUT` and

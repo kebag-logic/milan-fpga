@@ -91,10 +91,7 @@ the named build and sweep recipes.
 ## Boot and AEM image
 
 Firmware is linked into the LiteX ROM. The only mutable boot artifact is the
-builder-generated protocol-processor entity image. The offsets below are the
-AX7101's; the `ax7a200t` variant's bitstream slot is 10 MiB, so its AEM image
-starts at `0xA00000`
-([QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant)):
+builder-generated protocol-processor entity image:
 
 | QSPI slot | Offset | Budget | Format | Consumer |
 |---|---:|---:|---|---|
@@ -102,6 +99,13 @@ starts at `0xA00000`
 | AEM image | `0x400000` | 64 KiB | raw `aem_desc.bin` beginning with `AEMI` | bare-metal firmware |
 | journal slot A | `0xEE0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
 | journal slot B | `0xEF0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
+
+The offsets above are the AX7101's.
+
+The `ax7a200t` variant's bitstream slot is 10 MiB.
+
+Its AEM image starts at `0xA00000`
+([QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant)).
 
 `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a
 proved transition; it must not receive a LiteX FBI header. The one supported
