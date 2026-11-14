@@ -17,7 +17,12 @@ references are IEEE 1722.1-2021 7.4, 7.5 and 9.3, Milan v1.2 5.4, and
 
 [`aecp.h`](aecp.h) is a portable C11 API over caller-owned storage and typed
 environment ports. The core has no register, mailbox, image-file, heap, thread
-or operating-system dependency. [`aecp_image.c`](aecp_image.c) validates the
+or operating-system dependency at run time. At compile time it reads one header
+outside its own:
+[`ctrl_loop.h`](../loop/ctrl_loop.h)'s table of shapes, for what a refused
+attempt costs THE RETRY's round at the image's shape (`AECP_ATTEMPT_US`;
+[#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1), and calls nothing that it or the
+mailbox header it includes declares. [`aecp_image.c`](aecp_image.c) validates the
 generated AEM image and exposes descriptor spans; [`aecp_entity.py`](aecp_entity.py)
 uses the existing builder generators and derives capacities from their output.
 Every advertised descriptor is served by READ_DESCRIPTOR. Names and scalar
@@ -114,6 +119,7 @@ A notice is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), 
 The event loop calls it in a pass that took no input and dispatched no centisecond, or once `aecp_retry_aged` reports a notice waiting and the pace the round before it set has passed in a tier-2 slice of a pass given whole, after an aged step or a build, only once tier 1's and SRP's records are served (THE TIERS in [`ctrl_loop.h`](../loop/ctrl_loop.h), #894); beside held work a round is a queue's first notice alone, tier 1's (`retry_first`, set again only once that round's notice is sent).
 A round spends what its pass has left of THE SHARE at `AECP_ROUND_COLD_US` once, `AECP_NOTICE_US` a notice and `AECP_ATTEMPT_US` a refused attempt, and starts no attempt with less than a notice's time left (`aecp.c`, `scan`), so it puts no pass over the share.
 The first two are the line over every round the CPU budget harness measured, plus 5 %, and the harness fails any round dearer than its notices and refused attempts at those costs ([`round_grade.py`](../../../../tb/verilator/ctrl_service_budget/round_grade.py)).
+A round's cold start and a refused attempt are stated for each shape (THE SHAPES in [`ctrl_loop.h`](../loop/ctrl_loop.h)), never by the interface count: 85 and 34 us at 1x1/1if, 185 and 34 us at both two-interface shapes, and at 8x8/1if 165 and 25 us, the line over its rounds measured plus 5 % ([#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1).
 A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
 While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
 So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
