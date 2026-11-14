@@ -59,8 +59,9 @@ board_serials() {
     # the environment or in sw/litex/boards.local.sh (gitignored; template =
     # boards.local.sh.example). policy = what this board's QSPI holds:
     #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-    #   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
-    #   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259).
+    #   offset 0 in the die's slot (4 MiB on the XC7A100T, 10 MiB on the
+    #   XC7A200T, #911), followed by the raw AEM image where that slot ends,
+    #   per flashboot_layout.json. Every named config is bare-metal (#259).
     [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
     AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
     ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"

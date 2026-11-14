@@ -91,7 +91,10 @@ the named build and sweep recipes.
 ## Boot and AEM image
 
 Firmware is linked into the LiteX ROM. The only mutable boot artifact is the
-builder-generated protocol-processor entity image:
+builder-generated protocol-processor entity image. The offsets below are the
+AX7101's; the `ax7a200t` variant's bitstream slot is 10 MiB, so its AEM image
+starts at `0xA00000`
+([QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant)):
 
 | QSPI slot | Offset | Budget | Format | Consumer |
 |---|---:|---:|---|---|

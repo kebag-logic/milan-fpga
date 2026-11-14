@@ -227,7 +227,8 @@ enabling the entity (see the AEM caveat below).
   of `main_ram` and reserved for the firmware; there is no base register to
   program). Under the
   shipping bare-metal manifest, raw `aem_desc.bin` occupies the 64 KiB slot at
-  `0x40_0000`; firmware copies and CRC-checks it before enabling
+  the layout's AEM offset (`0x40_0000` on the AX7101, `0xA0_0000` on the
+  XC7A200T variant); firmware copies and CRC-checks it before enabling
   `PP_CTRL[0]` and `ADP_CTRL[0]`. The
   end-station builder produces `aem_desc.bin`, `aem_desc.json`, and
   `aem_desc.map`. A custom boot path must provide the equivalent step. An unloaded or
