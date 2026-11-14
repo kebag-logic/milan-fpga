@@ -27,13 +27,28 @@ Check = tuple[str, bool, str]
 ROUND, ATTEMPT, BUILT = 'ctrl_loop:round_of', 'aecp_command', 'aecp:finish'
 
 
-def header_us(interfaces: int) -> dict[str, int]:
-    """The round's costs as the headers state them, read here apart from round_grade.stated_us."""
-    text = ''.join((scenario.ROOT / 'sw/firmware/ctrl/aecp' / name).read_text() for name in ('aecp.h', 'aecp_mbx.h'))
-    macro = lambda name: re.search(rf'^#define {name} (.+)$', text, re.M).group(1)
-    pick = lambda name: int(re.findall(r'(\d+)u', macro(name))[1 if interfaces == 1 else 2])
-    return dict(cold=pick('AECP_ROUND_COLD_US'), notice=pick('AECP_NOTICE_US'),
-                attempt=int(macro('AECP_ATTEMPT_US').rstrip('u')))
+def header_us(given: int | shape_costs.Shape) -> dict[str, int | None]:
+    """The round's costs as the headers state them at a shape, or at that many interfaces at the streams ctrl_loop.h
+    takes with no shape header, read here apart from round_grade.stated_us and shape_costs: AECP_NOTICE_US's ternary on
+    the interface count, and AECP_ROUND_COLD_US and AECP_ATTEMPT_US each the name its header gives it, as the shape's
+    own block of ctrl_loop.h's table states that name (THE SHAPES; #894's ruling issuecomment-6878014227, item 1); a
+    cost that is not one of the block's names is None."""
+    ctrl = scenario.ROOT / 'sw/firmware/ctrl'
+    text = ''.join((ctrl / 'aecp' / name).read_text() for name in ('aecp.h', 'aecp_mbx.h'))
+    loop = (ctrl / 'loop/ctrl_loop.h').read_text()
+    macro = lambda name: re.search(rf'^#define {name} (.+)$', text, re.M).group(1).split('//')[0].strip()
+    if isinstance(given, shape_costs.Shape):
+        n_if, sources, sinks = given
+    else:
+        n_if = given
+        default = r'#else\n#define CTRL_LOOP_SOURCES (\d+)u\n#define CTRL_LOOP_SINKS (\d+)u\n'
+        sources, sinks = map(int, re.search(default, loop).groups())
+    block = re.search(rf'^#(?:el)?if CTRL_LOOP_SHAPE\({n_if}u, {sources}u, {sinks}u\).*\n((?:#define \w+ \d+u\n)+)',
+                      loop, re.M)
+    own = dict(re.findall(r'#define (\w+) (\d+)u', block[1])) if block else {}
+    pick = lambda name: int(re.findall(r'(\d+)u', macro(name))[1 if n_if == 1 else 2])
+    through = lambda name: int(own[macro(name)]) if macro(name) in own else None
+    return dict(cold=through('AECP_ROUND_COLD_US'), notice=pick('AECP_NOTICE_US'), attempt=through('AECP_ATTEMPT_US'))
 
 
 def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
@@ -43,8 +58,10 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     us = header_us(2)
     limit = lambda n, k: (us['cold'] + n * us['notice'] + k * us['attempt']) * cpu_hz // 1_000_000
 
-    def held(cycles: int, built: int, refused: int, outside: int = 0, interfaces: int = 2) -> dict:
-        """The grade of one round of those CPU cycles, its notices and refused attempts, and calls outside it."""
+    def held(cycles: int, built: int, refused: int, outside: int = 0,
+             interfaces: int | shape_costs.Shape = 2) -> dict:
+        """The grade of one round of those CPU cycles, its notices and refused attempts, and calls outside it, at a
+        point's interface count or an image's shape."""
         start = 5000
         lines = [f'PASS 1 {2 * start - 100} {start - 50} {cycles + 100} instr=10 store_mbx=1 W {2 * start}:1:0',
                  f'SPAN {2 * start} {start} {cycles} 00001000 {ROUND}']
@@ -53,7 +70,9 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
         lines += [f'CALL {2 * (start + cycles + 1 + n)} {start + cycles + 1 + n} {ATTEMPT}'
                   for n in range(outside)]
         lines += [f'CALL {2 * (start - 2 - n)} {start - 2 - n} {BUILT}' for n in range(outside)]
-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, interfaces)['passes']['rounds']
+        shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
+                           shape)['passes']['rounds']
 
     got = round_grade.stated_us(1), round_grade.stated_us(2)
     out = [("each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32",
@@ -74,6 +93,17 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     one = held(limit(1, 0), 1, 0, interfaces=1)
     out.append(("a round at one interface is held to that point's costs",
                 [o['cycles'] for o in one['over']] == [limit(1, 0)], str(one)))
+    eight, single = shape_costs.of_point('8x8/1if'), header_us(1)
+    own = header_us(eight)
+    at8 = lambda n, k: (own['cold'] + n * own['notice'] + k * own['attempt']) * cpu_hz // 1_000_000
+    fit8, miss8 = held(at8(0, 2), 0, 2, interfaces=eight), held(at8(0, 2) + 1, 0, 2, interfaces=eight)
+    out.append(("a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists "
+                "for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling "
+                "issuecomment-6878014227, item 1)",
+                None not in own.values() and round_grade.stated_us(eight) == own and
+                (own['cold'], own['attempt']) != (single['cold'], single['attempt']) and fit8['over'] == [] and
+                [(o['notices'], o['refused']) for o in miss8['over']] == [(0, 2)],
+                str((round_grade.stated_us(eight), own, single, fit8['over'], miss8['over']))))
     named = run.stated_misses([dict(group='g', passes=dict(rounds=held(limit(2, 3) + 1, 2, 3)))])
     out.append(('a round over its stated cost is named, with its notices, its refused attempts and the cost it passed',
                 named == [f'g: a round of 2 notice(s) and 3 refused attempt(s), {limit(2, 3) + 1:,} CPU cycles, '

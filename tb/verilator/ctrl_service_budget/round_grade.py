@@ -6,15 +6,17 @@ the rows by every source charge its notices at them (rows_tiers.py, THE TIERS in
 dearer than its stated cost would overspend its pass with no row to show it. Each is an upper bound: every round the
 loop calls (ctrl_loop.c's round_of, a SPAN line) is held here to AECP_ROUND_COLD_US + n x AECP_NOTICE_US + k x
 AECP_ATTEMPT_US, n the notices it built, each a success of the event scan (aecp.c's finish, a CALL line inside the
-round), and k its refused attempts, its aecp_command calls (CALL lines) less n.
+round), and k its refused attempts, its aecp_command calls (CALL lines) less n. Each cost is read at the image's shape
+(THE SHAPES, shape_costs.py): AECP_ROUND_COLD_US and AECP_ATTEMPT_US are the shape's own, never the interface count's
+(#894's ruling issuecomment-6878014227, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
 """
 from __future__ import annotations
 
-import re
 from bisect import bisect_left
 
 import grade
 import scenario
+import shape_costs
 
 #: The round's span and the calls inside it that count its notices and attempts.
 ROUND = 'ctrl_loop:round_of'
@@ -22,14 +24,15 @@ ATTEMPT = 'aecp_command'
 BUILT = 'aecp:finish'
 
 
-def stated_us(interfaces: int) -> dict[str, int]:
-    """The round's stated costs in microseconds at that many interfaces: once, a notice and a refused attempt."""
+def stated_us(given: int | shape_costs.Shape) -> dict[str, int]:
+    """The round's stated costs in microseconds at an image's shape, or at that many interfaces at the shipping
+    shape's streams (shape_costs.shape): once, a notice and a refused attempt, each as aecp_mbx.h and aecp.h derive it
+    there, through the costs ctrl_loop.h lists for the shape (shape_costs.at) and its interface count."""
     ctrl = scenario.ROOT / 'sw/firmware/ctrl/aecp'
-    mailbox, core = (ctrl / 'aecp_mbx.h').read_text(), (ctrl / 'aecp.h').read_text()
-    pick = lambda name: int(re.search(rf'#define {name} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', mailbox)
-                            .group(1 if interfaces == 1 else 2))
-    attempt = int(re.search(r'#define AECP_ATTEMPT_US (\d+)u', core).group(1))
-    return dict(cold=pick('AECP_ROUND_COLD_US'), notice=pick('AECP_NOTICE_US'), attempt=attempt)
+    text = (ctrl / 'aecp_mbx.h').read_text() + (ctrl / 'aecp.h').read_text()
+    values = {**shape_costs.at(given, scenario.ROOT), 'MBX_N_IF': shape_costs.interfaces(given)}
+    value = lambda name: shape_costs.evaluated(text, name, values)
+    return dict(cold=value('AECP_ROUND_COLD_US'), notice=value('AECP_NOTICE_US'), attempt=value('AECP_ATTEMPT_US'))
 
 
 def inside(cycles: list[int], start: int, end: int) -> int:
@@ -53,9 +56,10 @@ def rounds(log: grade.Log) -> list[dict]:
     return out
 
 
-def held(log: grade.Log, interfaces: int) -> dict:
-    """Each round against its stated cost in CPU cycles: the rounds, the heaviest by notices built, and those over."""
-    us = stated_us(interfaces)
+def held(log: grade.Log, given: int | shape_costs.Shape) -> dict:
+    """Each round against its stated cost in CPU cycles at the image's shape (or interface count, stated_us): the
+    rounds, the heaviest by notices built, and those over."""
+    us = stated_us(given)
     every = rounds(log)
     heaviest: dict[int, int] = {}
     over = []

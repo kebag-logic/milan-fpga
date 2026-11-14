@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Transport-independent AECP owner. No allocation, image or register access.
 #include "aecp_internal.h"
+// THE RETRY's refused attempt is charged at its shape's stated cost (AECP_ATTEMPT_US, THE SHAPES; #894's ruling
+// issuecomment-6878014227, item 1): the loop's header states it, and nothing it declares is called here.
+#include "ctrl_loop.h"
 
 static struct aecp *port_owner;
 

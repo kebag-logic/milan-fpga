@@ -807,6 +807,10 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: dict(f(interfaces), attempt=0))],
     "round: one point's costs at both": lambda: [patch.object(
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: f(2))],
+    "round: 8x8/1if's round costs at the interface count's (earlier rule)": lambda: [patch.object(
+        round_grade, 'stated_us', lambda given, f=round_grade.stated_us: f(shape_costs.interfaces(given)))],
+    "round: a round held at its point's interface count, not the image's shape (earlier rule)": lambda: [patch.object(
+        round_grade, 'held', lambda log, given, f=round_grade.held: f(log, shape_costs.interfaces(given)))],
     'round: the notices it built are not counted': lambda: [patch.object(round_grade, 'BUILT', 'aecp:none')],
     'round: calls outside it are counted': lambda: [patch.object(
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],

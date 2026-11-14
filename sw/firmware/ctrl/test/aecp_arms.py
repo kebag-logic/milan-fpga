@@ -108,6 +108,9 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
         inc += extra
         sources += modules
         host_sources += host
+    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's ruling
+    # issuecomment-6878014227, item 1): after a mailbox group's, whose contract is its interfaces' own
+    inc += [f"-I{tree.src / 'loop'}", f"-I{tree.src / 'mbx'}"]
     if debug:
         inc += ["-DCTRL_REENTRY_ASSERT"]
     if work:
@@ -149,14 +152,21 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
     return Outcome(out.name, 0 if ok else 1, log)
 
 
+#: The mailbox tests run at the 8x8 shape at one interface: the notices a datapath reset leaves, where the most is its
+#: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)), and THE RETRY's
+#: round's refused attempts charged at its shape's cost beside its shape's cold start (THE SHAPES; the ruling
+#: issuecomment-6878014227, item 1).
+EIGHT_ONE = ("Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:"
+             "Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort")
+
+
 def all_arms(tree: Tree) -> list[Outcome]:
-    """Full application on both contracts, plus every builder image and the debug guard; and the notices a datapath
-    reset leaves at the 8x8 shape at one interface, where the most is its own descriptors' (aecp.h, AECP_NOTICES_MOST;
-    #894's ruling issuecomment-6871343905, item (b)(iv))."""
+    """Full application on both contracts, plus every builder image and the debug guard; and at the 8x8 shape at one
+    interface, the mailbox tests that read its own costs and counts (EIGHT_ONE)."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
     results.append(core_arm(tree, ROOT / "configs/endstation_ax7101_8x8.yaml", 1, mode="mailbox",
-                            selected="Mailbox.EveryNotice*"))
+                            selected=EIGHT_ONE))
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,

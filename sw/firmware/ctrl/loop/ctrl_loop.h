@@ -290,11 +290,24 @@ extern "C" {
 // CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
 // stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
 // has this left, so a unit under the record's measurement lets the slice run
-// past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). A
-// shape not listed fails the build. Both two-interface shapes keep the costs
-// measured at 8x8/2if. At 8x8/1if the unit is the heaviest SRP record measured
-// there on the tree that merges #902, srp_mbx's receive, 32,421 CPU cycles,
-// plus 5 %, rounded up to 5 us: 345 us.
+// past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). And
+// THE RETRY's round costs, which AECP's adapter admits a round at and its core
+// charges a refused attempt at: a round's cold start, CTRL_LOOP_RETRY_COLD_US
+// (aecp_mbx.h, AECP_ROUND_COLD_US), and a refused attempt's,
+// CTRL_LOOP_RETRY_ATTEMPT_US (aecp.h, AECP_ATTEMPT_US), each keyed on the shape
+// and never on the interface count (#894's ruling issuecomment-6878014227,
+// item 1). A shape not listed fails the build. Both two-interface shapes keep
+// the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
+// the heaviest SRP record measured there on the tree that merges #902,
+// srp_mbx's receive, 32,421 CPU cycles, plus 5 %, rounded up to 5 us: 345 us.
+// THE RETRY's costs there are the line over its rounds measured on that tree,
+// the dearest at each count of refused attempts with notices charged at
+// AECP_NOTICE_US, that holds a round of every port refused (AECP_ROUND_PORTS)
+// at its cost with the least cold start (#665's definition of the attempt: what
+// such a round costs past its cold start, a refusal): 15,309 CPU cycles once
+// and 2,009 a refused attempt, through the dearest rounds of two and of four
+// refused attempts, 19,326 and 23,343 cycles; plus 5 %, rounded up to 5 us,
+// 165 and 25 us.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -309,21 +322,29 @@ extern "C" {
 #define CTRL_LOOP_BUILD_PASS_US 1010u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 725u
 #define CTRL_LOOP_SRP_UNIT_US 250u
+#define CTRL_LOOP_RETRY_COLD_US 85u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
 #define CTRL_LOOP_SRP_UNIT_US 345u
+#define CTRL_LOOP_RETRY_COLD_US 165u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
 #define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
 #define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif

@@ -235,7 +235,8 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
                                                        "costs from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
-                                                       "aecp.h and aecp_mbx.h; it compiles nothing",
+                                                       "aecp.h and aecp_mbx.h at the shape ctrl_loop.h's table "
+                                                       "lists; it compiles nothing",
     "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
                                                       "CTRL_LOOP_SLICE_US, CTRL_LOOP_JOIN_CS, CTRL_LOOP_TX_BOUND_MS, "
                                                       "CTRL_LOOP_T_EGRESS_MS and CTRL_LOOP_TX_MS "
@@ -265,15 +266,18 @@ OUTSIDE = {
                                                       "compiles nothing",
     "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
                                                        "ctrl_loop.h; it compiles nothing",
-    "tb/verilator/ctrl_service_budget/shape_costs.py": "THE SHAPES: reads ctrl_loop.h's table of shapes and the "
-                                                       "shape header srp_entity.py and the AEM image's header "
-                                                       "aecp_entity.py write for a configuration, in memory, and its "
-                                                       "controls plant ctrl_loop.h in memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/shape_costs.py": "THE SHAPES: reads ctrl_loop.h's table of shapes, aecp.h's "
+                                                       "and aecp_mbx.h's round costs, and the shape header "
+                                                       "srp_entity.py and the AEM image's header aecp_entity.py write "
+                                                       "for a configuration, in memory, and its controls plant "
+                                                       "ctrl_loop.h, aecp.h and aecp_mbx.h in memory; it compiles "
+                                                       "nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
                                                       "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
                                                       "and the TSN stack's headers; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest_round.py": "the round gate's self-test; it reads a round's stated costs "
-                                                          "from aecp.h and aecp_mbx.h and compiles nothing",
+                                                          "from aecp.h, aecp_mbx.h and ctrl_loop.h's table and "
+                                                          "compiles nothing",
     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
                                                        "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "

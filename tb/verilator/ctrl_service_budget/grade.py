@@ -953,7 +953,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
-                            stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, interfaces),
+                            stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, stated_at),
                             polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group),

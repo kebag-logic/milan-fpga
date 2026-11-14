@@ -55,9 +55,13 @@ extern "C" {
 #define AECP_LINE _Alignas(64)
 #endif
 // What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
-// CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
-// is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
-#define AECP_ATTEMPT_US 34u
+// CPU cycles past its first attempt's cold misses at 8x8/2if, the walk of the events included. So a round spends at
+// most what it is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+// It is stated for each shape an image is built at, with the round's cold start (THE SHAPES, ctrl_loop.h:
+// CTRL_LOOP_RETRY_ATTEMPT_US; #894's ruling issuecomment-6878014227, item 1): 34 us, and 25 us at 8x8/1if, the line
+// over its rounds measured there. aecp.c, which charges it, reads the shape's table, a header of constants and
+// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's.
+#define AECP_ATTEMPT_US CTRL_LOOP_RETRY_ATTEMPT_US
 // The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
 // first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
 // read, which answers for all it serves or for none (#665).
