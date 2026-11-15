@@ -1,0 +1,28 @@
+PASS the three rows are in the table: ['retry-attempt-uncharged', 'attempt-charged-without-the-shapes', 'attempt-charged-before-the-shapes']
+PASS the campaign's controls on the whole table: 277 rows
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-attempt-uncharged: Mailbox.ARefusedAttemptIsChargedToItsRound
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] attempt-charged-without-the-shapes: Build.refused
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/arms/campaign/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] attempt-charged-before-the-shapes: Build.refused
+PASS campaign row retry-attempt-uncharged: caught by ['Mailbox.ARefusedAttemptIsChargedToItsRound'] on ["a refusal charged below a notice's time ends the round"]; its log's first error: -
+PASS campaign row attempt-charged-without-the-shapes: caught by ['Build.refused'] on ["THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"]; its log's first error: <scratch>/r4/arms/campaign/work/ctrl/aecp/aecp.h:68:2: error: #error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+PASS campaign row attempt-charged-before-the-shapes: caught by ['Build.refused'] on ["THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"]; its log's first error: <scratch>/r4/arms/campaign/work/ctrl/aecp/aecp.h:68:2: error: #error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+PASS the campaign ended with no escape: escaped=False
+PASS core arm, one interface (Core.*): rc 0; [  PASSED  ] 83 tests.
+wrote <scratch>/r4/arms/arms/c2/aecp-core-endstation_ax7101_1x1_tdm8-if2/contract/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/arms/arms/c2/aecp-core-endstation_ax7101_1x1_tdm8-if2/contract/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/arms/arms/c2/aecp-core-endstation_ax7101_1x1_tdm8-if2/contract/contract/mbx_contract.h (2 interfaces)
+PASS core arm, two interfaces, its own contract (Core.*): rc 0; [  PASSED  ] 83 tests.
+PASS 8x8/1if mailbox arm (EIGHT_ONE): rc 0; [  PASSED  ] 4 tests.
+PASS debug arm, two interfaces (the campaign's): rc 0; [  PASSED  ] 1 test.
+PASS plant: a two-interface core arm at the tracked contract is refused: <checkout>/sw/firmware/ctrl/test/test_aecp.cpp:42:23: error: static assertion failed: THE SHAPES: the host arm's mailbox contract (MBX_N_IF) is not at its interfaces (AECP_TEST_INTERFACES)
+RESULT: PASS
+rc=0

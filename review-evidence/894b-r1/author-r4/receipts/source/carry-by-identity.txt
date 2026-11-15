@@ -1,0 +1,37 @@
+# The sweep's 65 suites (round 3's shard receipts) against the 30 files 716a8ae7..3bb204c8 changes: each changed file, and the suites whose own tree (tb/verilator/<suite>: Makefiles, *.mk, *.py, *.sv, *.cpp, *.h, *.sh; built objects apart) names it by its file name. The mbx suite compiles sw/firmware/ctrl/{mbx,loop,port,adp,maap,acmp,app,host} sources with -I on those directories (its Makefile's FW_SRC and FW_INC), none of aecp/, so of the changed files it reads ctrl_loop.h, whose tokens are unchanged (commit1-code-unchanged.txt); FW_HDR lists every header for its rebuild only.
+docs/design/SPLIT_CONTROL_MEMORY.md: named by no sweep suite
+docs/reference/FR_NFR.md: milan_dp
+sw/firmware/ctrl/aecp/README.md: cbs, milan_dp, nvm_cosim, controller_rate
+sw/firmware/ctrl/aecp/aecp.c: milan_dp
+sw/firmware/ctrl/aecp/aecp.h: milan_dp
+sw/firmware/ctrl/aecp/aecp_mbx.c: milan_dp
+sw/firmware/ctrl/aecp/aecp_mbx.h: named by no sweep suite
+sw/firmware/ctrl/aecp/aecp_shape.py: named by no sweep suite
+sw/firmware/ctrl/loop/ctrl_loop.h: named by no sweep suite
+sw/firmware/ctrl/srp/srp_entity.py: named by no sweep suite
+sw/firmware/ctrl/test/aecp_arms.py: named by no sweep suite
+sw/firmware/ctrl/test/aecp_retry_mutants.py: named by no sweep suite
+sw/firmware/ctrl/test/aecp_wire.py: named by no sweep suite
+sw/firmware/ctrl/test/srp_arms.py: named by no sweep suite
+sw/firmware/ctrl/test/test_aecp.cpp: milan_dp
+tb/verilator/ctrl_service_budget/README.md: cbs, milan_dp, nvm_cosim, controller_rate
+tb/verilator/ctrl_service_budget/egress_ledger.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/flip_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/load_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/mrpdu_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/notice_window.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/poll_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/round_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/rows_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/run.py: fw_service_budget
+tb/verilator/ctrl_service_budget/selftest_notice.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/selftest_round.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/shape_costs.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/slice_grade.py: named by no sweep suite
+tb/verilator/ctrl_service_budget/whole_grade.py: named by no sweep suite
+
+Reading the matches:
+- README.md matches by its common file name only (the suites name their own READMEs).
+- fw_service_budget names run.py: its own tb/verilator/fw_service_budget/run.py (its Makefile: python3 -B run.py --self-test), not ctrl_service_budget's.
+- milan_dp names aecp.c, aecp.h, aecp_mbx.c, test_aecp.cpp and FR_NFR.md in twin_fw.py, twin_grades.py, srptx_grade.py and stream_counter_f5.py: the twin and twin-plants targets (lane gates `twin`, `twin_plants`, run again in this round's lane-a on a clean clone of the head) and counters-f5 (run again this round on a clean clone: counters-f5-3bb204c8.txt). None of them is a case of the sweep's milan_dp suite (Makefile RUN_CASES: gptp, gptp-lat, counters-1/8 and -frames, base, notify, crflic, tspec8, sidmove, sidmove8, dynmap, nxn, nxndv, nxn8, nxn4c, nolpf, prune, ax1x1, aclk, maprec8, maprec4, split, render-mutants).
+So no sweep case reads a file this round changes in its code; the one changed header the sweep's firmware build compiles (ctrl_loop.h, the mbx suite) is token-identical, and every image is byte-identical (images/).

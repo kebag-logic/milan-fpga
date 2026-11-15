@@ -1,0 +1,37 @@
+# 716a8ae7979a..6da0dc7324: 25 file(s)
+sw/firmware/ctrl/aecp/aecp.c: tokens unchanged (comments only)
+sw/firmware/ctrl/aecp/aecp.h: tokens unchanged (comments only)
+sw/firmware/ctrl/aecp/aecp_mbx.c: tokens unchanged (comments only)
+sw/firmware/ctrl/aecp/aecp_mbx.h: tokens unchanged (comments only)
+sw/firmware/ctrl/aecp/aecp_shape.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/loop/ctrl_loop.h: tokens unchanged (comments only)
+sw/firmware/ctrl/srp/srp_entity.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/test/aecp_arms.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/test/aecp_retry_mutants.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/test/aecp_wire.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/test/srp_arms.py: code unchanged (docstrings and comments only)
+sw/firmware/ctrl/test/test_aecp.cpp: tokens unchanged (comments only)
+tb/verilator/ctrl_service_budget/flip_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/load_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/mrpdu_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/notice_window.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/poll_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/round_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/rows_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/run.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/selftest_notice.py: code unchanged but 1 string constant(s):
+    - "THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's ruling issuecomment-6871343905, item (b)(i))"
+    + "THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's held-egress ruling, item (b)(i))"
+tb/verilator/ctrl_service_budget/selftest_round.py: code unchanged but 4 string constant(s):
+    - "a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling issuecomment-6878014227, item 1)"
+    + "a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's retry-cost ruling, item 1)"
+    - "THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))"
+    + "THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))"
+    - "a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))"
+    + "a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))"
+    - "a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it"
+    + "a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it"
+tb/verilator/ctrl_service_budget/shape_costs.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/slice_grade.py: code unchanged (docstrings and comments only)
+tb/verilator/ctrl_service_budget/whole_grade.py: code unchanged (docstrings and comments only)
+RESULT: PASS: no code change but the strings listed

@@ -1,0 +1,51 @@
+# 894b-a781 round 4 output index
+
+Generated from the 45 files present (`index.py`).
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `HANDOFF-r4.md` | 15,243 | `5f59fccb2f8e6066324d4a7ca4fd21dcf67513c61d6385dba05b0623aaf30138` |
+| `PR-BODY.md` | 22,271 | `a0a9f1d480138ecd86ef59f28f468251c42652e58343b2cbe963b347cf212ebb` |
+| `REVIEW-READY-COMMENT.md` | 7,434 | `ae4ff8f2967f14dc670c46b8e8e4e1bb96d9fe8702bfb0b0bdfd7c57c4194104` |
+| `receipts/firmware/counters-f5-98c0b62b.txt` | 919 | `464123264c07a577024ad7dff9ec8f4b4237c83bc7d4ebd6e2b1ecf8fae7d1ed` |
+| `receipts/firmware/firmware-jobs-98c0b62b.txt` | 2,351 | `349d7e4a3b03d24c1de98a235331a46dc167350f94fc73378aa5c17f1ac9ef42` |
+| `receipts/firmware/item3-guard-and-assert-checks.txt` | 3,497 | `3e95bc2b684aa9b733d75560df5783b00983201a1e864d66d2ec83a3e8d62c05` |
+| `receipts/gates/elaborate-gates-1-first-gate_19.txt` | 840 | `ba19ea3bf3efa3b8def148ec224d981d5651d490a06fd737f72f72285d50e915` |
+| `receipts/gates/elaborate-gates-1-second-gate_19.txt` | 609 | `9057edfbf15acf62f29adaebbd127409696781652d7525478d2f2b824558d058` |
+| `receipts/gates/gate-r4-controls.txt` | 4,509 | `c1cb31da64c9506886983fd17023897dee0fd81204176cae5f140802e7e75a95` |
+| `receipts/gates/lane-gates-98c0b62b.txt` | 6,299 | `35bd2f8264aa2b0e935b36bde90ccab5723c4b7c33ca2eaa38c3007660c1bcd5` |
+| `receipts/gates/not_run.json` | 30,851 | `a3aa861ce8590b05cb0065212b4794eade283aa9b812561f271ffb9c70b744bb` |
+| `receipts/gates/workflows-verify-98c0b62b.md` | 58,495 | `6e7faea908c81e54ce155c17996a933209423de4278f73ee08b9b55621ecc151` |
+| `receipts/harness/egress-ledger-selftest-98c0b62b.txt` | 7,247 | `ac54cf0bd7fbf8c6fad634ce87a92bcbe1dd0de5caf4e025648bcada20bb4259` |
+| `receipts/images/img-0-base-against-round3.txt` | 611 | `494c645b857fa263a10ede839f2d41fc08f5d4277372a46df5c1a07f9d660686` |
+| `receipts/images/img-1-against-716a8ae7.txt` | 609 | `c5b33506dd3436cd4c7aa1fbefcf8094d81fb9aaf4c7b58287d4b5ebad29dbcc` |
+| `receipts/images/img-2-against-716a8ae7.txt` | 648 | `24a0c425848222d38aa4713565a4f8e5b124d3d7e922dc8e28686ffd16055aff` |
+| `receipts/images/img-3-final-against-716a8ae7.txt` | 627 | `15bfd5fd2be3931c87b0de252f7adaa49f09d8e0fa10ff6762df0704d093cf89` |
+| `receipts/images/raw-0-base-716a8ae7.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-1-comments.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-2-guard.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/images/raw-3-final-98c0b62b.txt` | 2,157 | `a2b84197ec8b904e63d3f1312d379a7666741c6b8cd3991f58211fb7427f5a8c` |
+| `receipts/regrade/budget-lines-by-leg.txt` | 613 | `a9175d37da6b598d951125c613facf1f65cdc48e7ab4596499d0d7a99ca8a679` |
+| `receipts/regrade/egress-ledger-round3-legs-published.txt` | 1,006 | `fa6609974dba651a303cc1bd9a612d77c9a5d6c6de5dbed2a92e11a5b6f2b261` |
+| `receipts/regrade/gate-r4-regrade-round3-legs.rc` | 5 | `93ff7811a209e2a8479230bbb9b6bc19f7f311d3af383ec350c1db2a7e7d5494` |
+| `receipts/regrade/gate-r4-regrade-round3-legs.txt` | 8,046 | `afa5a44445307abdb9c11677f85690ec8bbf041a305bbf6db1f0f336fbb21244` |
+| `receipts/regrade/legs-r3/C-A0.log` | 27,826 | `c927ab9c1fbe9caaa33033d98fe2d03827daad0bb1a6e948fc628de590801b60` |
+| `receipts/regrade/legs-r3/C-A1.log` | 27,623 | `ae98e61acfc01dc9576fb0d67aacc4d5ec8f4ab6337ba8b67d7ce8221172de2f` |
+| `receipts/regrade/legs-r3/C-A2.log` | 27,762 | `77c0d5fc23f4ae58f084a2cea35358d45c7f383c642e610e6830952617faee46` |
+| `receipts/regrade/legs-r3/C-A3.log` | 27,931 | `27f46db7f9237d8a14e612f92dbedd5237240128cfa36048dac41f8ed5b202ec` |
+| `receipts/regrade/legs-r3/C-AE.log` | 100,037 | `7fa429630f5693bf57b043629c783fd1c73a4887eacfe580d665842af4d1cf49` |
+| `receipts/regrade/legs-r3/C-AL.log` | 20,995 | `e7aa98c2c96e39ee48be1455a16c2eba5affee8be879254aa359518c84828d2a` |
+| `receipts/regrade/legs-r3/PROVENANCE.txt` | 1,320 | `82a99d56d10c8bf9b4852c2c8bb2e91c27876183f42158500f89e59eb1f065c7` |
+| `receipts/source/carry-by-identity.txt` | 3,613 | `67247398e86f855b877cb88c98233f1c199fd2a7d6c26439c82186237fde3ed8` |
+| `receipts/source/commit1-code-unchanged.txt` | 4,249 | `197ed9c5fa69f3180d4137d5f490abec48c53df72692f4a5cfd20ae9fdd413c4` |
+| `receipts/source/commit4-egress-ledger-idiom.diff` | 4,779 | `88c9b2037b4e06c0851d5401838e4e511d2032a6d3d09744351cbfef78f58f1a` |
+| `scripts/arm_checks.py` | 4,822 | `98687ed66ac7d93f54dbe062e52b90cf03e8057c5c8f6719f42ed82cfebcc2a3` |
+| `scripts/ast_same.py` | 3,180 | `a0ead76607387dd28763733925e64317da1df6dc7a3862e71bc18e869aeb20db` |
+| `scripts/comment_scan.py` | 1,808 | `531b77b66dbc758e823b3148d08c8ef242720912d02eb22ab6684a7c1770a9a4` |
+| `scripts/gate_controls.py` | 4,118 | `c7e423f96139ac743ae98d0944b3fa00534690bcfa6a1bcabf46d8e7891630d2` |
+| `scripts/gate_r4.py` | 16,306 | `320b8b4593ad86d5b358d0e6dde57126bf0e35a5b5be41f1c31d68415b88fb53` |
+| `scripts/index.py` | 1,233 | `e9e8d5e491964ab3617585fec7fc2a596c1f7b0c32dad175e657a95b469e3a98` |
+| `scripts/lane_gates_r4.sh` | 8,576 | `6413b45246097163fc87da38207392b39d83390e8fbeba11dd23d388bd1adc18` |
+| `scripts/launchR4.py` | 3,583 | `8f2cc57288e5fd507cc9a17f288ade70079bccba17e1276cf9766a1148c15043` |
+| `scripts/mkqueueR4.sh` | 2,645 | `bed1028deeb00b3f0cdecd813e41d1fa8dc592d8fb9e04e099fc658519842d15` |
+| `scripts/r844_audit_empty.sh` | 605 | `87bfd37ea02fdf70760b590f049f3f348261beb562a0165e9b0f2dc6437bad8e` |

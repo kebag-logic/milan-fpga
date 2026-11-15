@@ -1,0 +1,29 @@
+# the firmware jobs at 98c0b62b (run_wf.py, each on its own fresh clean clone of the head): every step's rc, and the campaigns' tallies
+firmware-unit: ci_step_10=0, ci_step_11=0, ci_step_12=0, ci_step_1=0, ci_step_3=0, ci_step_7=0, 
+  ci_step_10.log: [ok] 77, ESCAPED 0
+  test_ctrl_firmware: PASS
+  ci_step_12.log: [ok] 32, ESCAPED 0
+  ci_step_7.log: [ok] 18, ESCAPED 0
+firmware-boundary: ci_step_1=0, ci_step_3=0, ci_step_9=0, 
+  ci_step_9.log: [ok] 299, ESCAPED 0
+  ctrl_boundary: 3271 compiled sources of 3532 recorded invocations (1932 the firmware's, 359 the stack's, 980 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 183 pin and 4 figure controls, 0 misbehaved
+  ctrl_boundary: PASS
+firmware-control-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0, 
+  ci_step_9.log: [ok] 716, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-aecp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0, 
+  ci_step_9.log: [ok] 277, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-srp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0, 
+  ci_step_9.log: [ok] 345, ESCAPED 0
+  test_ctrl_firmware: PASS
+firmware-verilator: ci_step_11=0, ci_step_14=0, ci_step_1=0, ci_step_3=0, 
+  ci_step_14.log: [ok] 193, ESCAPED 0
+      sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (190 s)
+  ctrl_boundary: 1217 compiled sources of 1355 recorded invocations (552 the firmware's, 106 the stack's, 559 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 183 pin and 4 figure controls, 0 misbehaved
+  ctrl_boundary: PASS
+aecp campaign attempt-charged-without-the-shapes: [ok] attempt-charged-without-the-shapes: Build.refused
+aecp campaign attempt-charged-before-the-shapes: [ok] attempt-charged-before-the-shapes: Build.refused
+aecp campaign notice-dropped-with-its-descriptors-next: [ok] notice-dropped-with-its-descriptors-next: Mailbox.EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce
+aecp campaign map-table-each-direction-alone: [ok] map-table-each-direction-alone: Build.refused
+firmware-unit, the 8x8/1if mailbox arm (aecp_arms.EIGHT_ONE): [ok] arm aecp-mailbox-endstation_ax7101_8x8-if1

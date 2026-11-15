@@ -1,0 +1,14 @@
+# make -C tb/verilator/milan_dp counters-f5 on a clean clone of 98c0b62b (it compiles test_aecp.cpp, with its new assertion, in a one-interface mailbox arm at the 1x1 and 8x8 shapes; no workflow job or sweep case runs it). Last line: the clone's changed paths after the run.
+make: Entering directory '<scratch>/fullR4/rgh/tb/verilator/milan_dp'
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 stream_counter_f5.py --stack ../../../third_party/tsn-c-stack --shape 1
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+F5 1x1 clean run.log: rc=0
+python3 stream_counter_f5.py --stack ../../../third_party/tsn-c-stack --shape 8
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+F5 8x8 clean run.log: rc=0
+make: Leaving directory '<scratch>/fullR4/rgh/tb/verilator/milan_dp'
+make-rc=0
+0
+unit rc=0

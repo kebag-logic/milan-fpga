@@ -1,0 +1,69 @@
+diff --git a/tb/verilator/ctrl_service_budget/egress_ledger.py b/tb/verilator/ctrl_service_budget/egress_ledger.py
+index ddf9565a10..e763a24f35 100644
+--- a/tb/verilator/ctrl_service_budget/egress_ledger.py
++++ b/tb/verilator/ctrl_service_budget/egress_ledger.py
+@@ -29,6 +29,7 @@ import re
+ import subprocess
+ import sys
+ import tempfile
++from collections.abc import Callable
+ from pathlib import Path
+ from unittest.mock import patch
+ 
+@@ -207,14 +208,14 @@ def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
+     return {n: float(f) for n, _, f in rows}, {n: float(m) for n, m, _ in rows}
+ 
+ 
+-def grade_dir(base: Path, name: str, figures: dict[str, float], extra: list[dict] = (), group: str = GROUP,
++def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
+               status: dict[str, str] | None = None, never: tuple[str, ...] = ()) -> Path:
+     """A results directory of one backlog-owed grade, each ledger row at its figure here, and extra probes."""
+     d = base / name
+     d.mkdir(parents=True)
+     probes = [dict(probe=n, status=(status or {}).get(n, 'measured'), ms=round(ms, 5), budget_ms=20.0,
+                    within_budget=False, **({'unanswered': True} if n in never else {})) for n, ms in figures.items()]
+-    (d / f'{group}.json').write_text(json.dumps(dict(group=group, probes=probes, passes={})))
++    (d / f'{GROUP}.json').write_text(json.dumps(dict(group=GROUP, probes=probes, passes={})))
+     if extra:
+         (d / 'other.json').write_text(json.dumps(dict(group='other', probes=list(extra), passes={})))
+     (d / 'results.json').write_text('{}')
+@@ -261,14 +262,15 @@ def failing(rc: int, text: str, name: str) -> bool:
+     return rc != 0 and any(line.startswith((f'- {name} ', f'- {name}:')) for line in text.splitlines())
+ 
+ 
+-def controls(base: Path, run) -> list[tuple[str, bool, str]]:
++def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tuple[str, bool, str]]:
+     """Each control and whether it held: (name, held, detail)."""
+     point, ledger = '8x8-1if', LEDGER['8x8-1if']
+     doc_figures, measured = doc_ledger(DOC.read_text())
+     out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
+             str(doc_figures))]
+     rc, text = run(['--point', point, str(grade_dir(base, 'at-ledger', ledger))])
+-    out.append(('the unchanged ledger, every row at its figure, passes', rc == 0 and 'RESULT: PASS' in text, f'rc {rc}'))
++    out.append(('the unchanged ledger, every row at its figure, passes', rc == 0 and 'RESULT: PASS' in text,
++                f'rc {rc}'))
+     rc, text = run(['--point', point, str(grade_dir(base, 'published', measured))])
+     out.append(("section 13's measurement passes", rc == 0, f'rc {rc}'))
+     for k, name in enumerate(ledger):
+@@ -278,10 +280,10 @@ def controls(base: Path, run) -> list[tuple[str, bool, str]]:
+                         f'rc {rc}'))
+     other = dict(probe='backlog-adp@blank-6.service.aecp.last.if0', status='measured', ms=20.001, budget_ms=20.0,
+                  within_budget=False)
+-    rc, text = run(['--point', point, str(grade_dir(base, 'new', ledger, [other]))])
++    rc, text = run(['--point', point, str(grade_dir(base, 'new', ledger, (other,)))])
+     out.append(('a miss of another row is new and fails, named', failing(rc, text, other['probe']), f'rc {rc}'))
+     fits = dict(other, ms=19.999, within_budget=True)
+-    rc, _ = run(['--point', point, str(grade_dir(base, 'fits', ledger, [fits]))])
++    rc, _ = run(['--point', point, str(grade_dir(base, 'fits', ledger, (fits,)))])
+     out.append(('another row within its budget passes', rc == 0, f'rc {rc}'))
+     name = 'backlog.owed_behind2.if0'
+     rc, text = run(['--point', point, str(grade_dir(base, 'absent', {n: v for n, v in ledger.items() if n != name}))])
+@@ -290,7 +292,7 @@ def controls(base: Path, run) -> list[tuple[str, bool, str]]:
+     out.append(('a ledger row not measured fails, named', failing(rc, text, name), f'rc {rc}'))
+     rc, text = run(['--point', point, str(grade_dir(base, 'never', ledger, never=(name,)))])
+     out.append(('a ledger row never answered, within its figure, fails', failing(rc, text, name), f'rc {rc}'))
+-    rc, text = run(['--point', point, str(grade_dir(base, 'elsewhere', ledger, [dict(other, probe=name, ms=20.5)]))])
++    rc, text = run(['--point', point, str(grade_dir(base, 'elsewhere', ledger, (dict(other, probe=name, ms=20.5),)))])
+     out.append(("a ledger row's name in another group is a new miss", failing(rc, text, name), f'rc {rc}'))
+     logged = {n: round(v - 0.001, 3) for n, v in ledger.items()}
+     rc, _ = run(['--point', point, str(log_file(base, 'log-under', budget_lines(logged), summary(7)))])
