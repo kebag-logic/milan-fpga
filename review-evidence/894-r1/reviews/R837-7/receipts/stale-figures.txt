@@ -1,0 +1,19 @@
+# stale current-tense figures at 234bc149 (R837-7-F1)
+## docs/design/SPLIT_CONTROL_MEMORY.md:2197
+A pass given whole to an aged step, a build of both of an interface's MRPDUs or a build of one is stated at 975, 1,010 and 725 us at 1x1/1if (430 before #894's round 7, below), and 1,030, 1,995 and 1,215 us at 8x8/2if (`ctrl_loop.h`; [`whole_grade.py`](../../t
+## sw/firmware/ctrl/loop/ctrl_loop.h
+279:#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 950u : 1300u)
+328:#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 735u : 1215u)
+## sw/firmware/ctrl/srp/README.md:238 (excerpt)
+By every source it is 33.01 ms there at the 900 us slice since #894's round 11 (29.78 before it; `rows_tiers.py`, the tx row; `ctrl_loop.c` holds `CTRL_LOOP_TX_MS`, 34 ms, to the bound at compile time), and the flip
+## flip_grade --check --point 1x1/1if at head (receipts/flip_check_1x1.txt)
+| 1x1/1if | R4 | 13.10 | 20 | -6.90 | 5 | aecp 3.760, timers 1.460, passes 1.175 |
+| 1x1/1if | last | 127.21 | 130 | -2.79 | 66 | srp 25.480, passes 15.510, others 14.085 |
+| 1x1/1if | tx | 33.38 | 49 | -15.62 | 17 | others 8.125, aecp 5.170, passes 3.995 |
+## load_grade --check at head
+HELD 1x1/1if at the pin: the load 0.516, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.512, its ceiling 0.70
+## live PR #902 body (fetched 2026-11-15T07:11:00Z), sha256 0e86320f07389f508ac9b8a437c96c35bda65210b95da33505dcb93cf3758824
+line 203: - **No stale current figure** (R838-6-F2): section 13's current summary gives this head's R4, and this body's validation examples give this head's load (`load_grade.py --check`: 0.515 and 0.511).
+line 282: | R838-6-F2 (MINOR): section 13's current R4 12.85 and the validation example's load were the previous head's | Section 13's current rows table, its rows-history row, its current summary (R4 13.05, the last queued notice 132.71 over 130) and its load (0.516 and 0.512), and FR_NFR 3.4.1, are the head's; so are this body's example
+line 324: python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check                    # 0.516 and 0.512, PASS
