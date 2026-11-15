@@ -90,8 +90,11 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: cut, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
 #: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
 #: #894's own image measures 18,843 (200 us): MAAP's poll and SRP's delivery, which carry the Talker's declarations
-#: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass.
-STATED_US = {1: dict(base=215, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+#: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass; on its merge of
+#: #894's SET_CONFIGURATION cut, with srp_mbx_gate's repeat call cut (#895), 225 us, 21,094 cycles in save-held
+#: (19,793 before the merge), 262 instructions fewer and 49 more instruction refills in that pass than before, not
+#: traced, the code's placement (#909).
+STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
              2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
                     aecp=275, aecp_long=655, acmp_declined=20)}

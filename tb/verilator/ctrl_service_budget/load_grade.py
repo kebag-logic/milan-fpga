@@ -200,12 +200,13 @@ STATED_US = {
 #: that merge, each cost STATED_US's measurement raised is raised here with it: a pass's events' fixed part 35 us and
 #: the polls' base 215 at 1x1/1if, and MAAP's timer slot 225 at 8x8/2if; on its merge of #894's SET_CONFIGURATION
 #: cut each cost the one of the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's
-#: timer slot 75 and a TICK 55 at 1x1/1if, a build of one and an owed MRPDU #894's 735 (#895).
+#: timer slot 75 and a TICK 55 at 1x1/1if, a build of one and an owed MRPDU #894's 735; measured again on that merge
+#: with srp_mbx_gate's repeat call cut, the polls' base 215 to 225 at 1x1/1if (poll_grade.py; #895).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 215, 'item.reclaim': 25, 'item.retained': 280,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
