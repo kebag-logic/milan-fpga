@@ -52,9 +52,26 @@ _literal = literal          # the name the first consumers were written against
 READ_ONLY = frozenset(literal("FLASHBOOT_LAYOUT"))
 
 
-def load_map() -> tuple[list[tuple[str, int, int, str]], int, int]:
-    """[(name, offset, size, kind)] ordered by offset, plus (flash_size, eb)."""
-    layout, reserved = literal("FLASHBOOT_LAYOUT"), literal("FLASHBOOT_RESERVED")
+def layout_for(layout: dict[str, dict[str, int]], slots: dict[str, int],
+               part: str | None = None) -> dict[str, dict[str, int]]:
+    """`layout` as the die `part` needs it (#911): its bitstream slot from
+    `slots`, and the AEM region moved to the end of that slot. A part with no
+    entry keeps `layout`. The one statement of the rule: milan_soc.py's
+    flashboot_layout() and the flash diagram both call it."""
+    slot = slots.get(part)
+    if slot is None:
+        return layout
+    return {"bitstream": dict(layout["bitstream"], size=slot),
+            "aem": dict(layout["aem"], offset=slot)}
+
+
+def load_map(part: str | None = None
+             ) -> tuple[list[tuple[str, int, int, str]], int, int]:
+    """[(name, offset, size, kind)] ordered by offset, plus (flash_size, eb),
+    for the die `part` (None: the FLASHBOOT_LAYOUT every other die uses)."""
+    layout = layout_for(literal("FLASHBOOT_LAYOUT"),
+                        literal("FLASHBOOT_BITSTREAM_SLOT"), part)
+    reserved = literal("FLASHBOOT_RESERVED")
     rows = [(n, e["offset"], e["size"], "image") for n, e in layout.items()]
     rows += [(n, e["offset"], e["size"], "reserved") for n, e in reserved.items()]
     return (sorted(rows, key=lambda r: r[1]),

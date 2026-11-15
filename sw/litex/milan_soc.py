@@ -85,6 +85,9 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
 import board_audio_routing
+from platforms.ax7101_timing import BOARD_PARTS
+import flash_map as flash_map_reader
+from typing import Any
 
 # The saved-state record contract (design page section 4.2): the firmware's
 # record-set constants come from the SAME derivation the record-space gate and
@@ -144,6 +147,20 @@ FLASHBOOT_MANIFESTS = {
     "baremetal": ["aem"],
 }
 FLASHBOOT_AEM = FLASHBOOT_LAYOUT["aem"]
+# The bitstream slot of each die that needs more than FLASHBOOT_LAYOUT's
+# 4 MiB (#911), from offset 0 and erase-block aligned; the AEM region starts
+# where it ends, so every reader derives the AEM offset from the slot. An
+# uncompressed XC7A200T configuration image is 9,730,652 B on every build
+# (the die's frame count, not the design's), so 10 MiB holds it with
+# 755,108 B to spare; compressed it measured 5,566,832 B, still past the
+# 4 MiB slot. The AX7101's 3,825,992-B XC7A100T image keeps FLASHBOOT_LAYOUT.
+FLASHBOOT_BITSTREAM_SLOT = {"xc7a200t-fbg484-2": 0xA0_0000}
+
+
+def flashboot_layout(part: str | None = None) -> dict[str, dict[str, int]]:
+    """FLASHBOOT_LAYOUT as the die `part` needs it (flash_map.layout_for)."""
+    return flash_map_reader.layout_for(FLASHBOOT_LAYOUT,
+                                       FLASHBOOT_BITSTREAM_SLOT, part)
 
 # Writable slots. NOT boot images: the BIOS never copies them, deploy.sh never
 # writes them, and `build.sh flash` / `deploy.sh flash-pair` MUST NOT erase
@@ -175,20 +192,27 @@ FLASHBOOT_RESERVED = {
 }
 
 
-def flash_map() -> list[tuple[str, int, int, str]]:
+def flash_jedec_id(module: Any) -> int:
+    """The 24-bit JEDEC ID (manufacturer, then device) a litespi module names."""
+    return (int(module.manufacturer_id.value) << 16) | int(module.device_id)
+
+
+def flash_map(layout: dict[str, dict[str, int]] = FLASHBOOT_LAYOUT
+              ) -> list[tuple[str, int, int, str]]:
     """Every slot on the device, ordered by offset: [(name, offset, size, kind)].
 
     The single reader of both dicts.  `kind` is "image" for anything the BIOS
     or deploy.sh transfers and "reserved" for the writable slots.
     """
     rows = [(n, e["offset"], e["size"], "image")
-            for n, e in FLASHBOOT_LAYOUT.items()]
+            for n, e in layout.items()]
     rows += [(n, e["offset"], e["size"], "reserved")
              for n, e in FLASHBOOT_RESERVED.items()]
     return sorted(rows, key=lambda r: r[1])
 
 
-def check_flash_map() -> list[str]:
+def check_flash_map(layout: dict[str, dict[str, int]] = FLASHBOOT_LAYOUT
+                    ) -> list[str]:
     """Return a list of problems with the flash map; empty means consistent.
 
     Erase-block alignment is not cosmetic: a writable region that starts or ends
@@ -196,7 +220,7 @@ def check_flash_map() -> list[str]:
     turn "write the journal" into "corrupt the adjacent slot".
     """
     problems, prev_end, prev_name = [], 0, None
-    for name, off, size, _kind in flash_map():
+    for name, off, size, _kind in flash_map(layout):
         if size <= 0:
             problems.append(f"{name}: non-positive size {size}")
         if off % FLASH_ERASE_BLOCK:
@@ -3326,7 +3350,7 @@ class MilanSoC(SoCCore):
             # length word read as garbage). The compiled divisor is the one with
             # margin; skip the calibration so it actually holds.
             self.add_constant("SPIFLASH_SKIP_FREQ_INIT")
-            self._add_flashboot_constants(flashboot)
+            self._add_flashboot_constants(flashboot, flash_module)
 
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
@@ -3830,10 +3854,15 @@ class MilanSoC(SoCCore):
                              rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
         return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
-    def _add_flashboot_constants(self, manifest_name):
-        """Emit the product flash constants and deployment manifest."""
+    def _add_flashboot_constants(self, manifest_name, flash_module):
+        """Emit the product flash constants and deployment manifest.
+
+        `flash_module` is the litespi module the SoC drives the flash with;
+        the manifest names it and its JEDEC ID so deploy.sh can refuse a
+        board whose flash reads otherwise (#911)."""
         # A build must never emit a flash map that cannot be erased safely.
-        problems = check_flash_map()
+        layout = flashboot_layout(self.platform.device)
+        problems = check_flash_map(layout)
         if problems:
             raise ValueError("FLASHBOOT flash map is inconsistent:\n  " +
                              "\n  ".join(problems))
@@ -3848,6 +3877,8 @@ class MilanSoC(SoCCore):
                                   "complete": False,
                                   "flash_size": FLASH_SIZE,
                                   "erase_block": FLASH_ERASE_BLOCK,
+                                  "flash_device": flash_module.name,
+                                  "flash_jedec_id": flash_jedec_id(flash_module),
                                   "images": [],
                                   # deploy.sh includes these boundaries in its
                                   # per-image write ceilings, so a manifest can
@@ -3868,12 +3899,12 @@ class MilanSoC(SoCCore):
             return
         # the gateware slot is not a BIOS-copied image, but deploy.sh needs it
         # in the json for slot ceilings + `flash` targeting
-        eb = FLASHBOOT_LAYOUT["bitstream"]
+        eb = layout["bitstream"]
         self._flashboot_layout["images"].append(
             {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"],
              "budget": eb["size"]})
         for name in images:
-            e = FLASHBOOT_LAYOUT[name]
+            e = layout[name]
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_ADDR",   e["addr"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_SIZE",   e["size"])
@@ -3996,6 +4027,12 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
+    ap.add_argument("--fpga-part", default=None,
+                    choices=BOARD_PARTS,
+                    help="the die the ax7101 board is fitted with (#911): "
+                         "omitted is the AX7101's XC7A100T; xc7a200t-fbg484-2 "
+                         "is the same board in the pin-compatible FBG484 "
+                         "footprint")
     ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
                     help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -4396,13 +4433,15 @@ def main() -> None:
                    AUDIO_IF_WORD_BITS_DEFAULT))
 
     if args.board == "arty":
+        if args.fpga_part is not None:
+            ap.error("--fpga-part names a die of the ax7101 board, not the arty")
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
         # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
         # cable. Second Milan node for AVDECC/Milan interop (100M CBS point).
         from litex_boards.platforms import digilent_arty
         platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
     else:
-        platform = alinx_ax7101.Platform()
+        platform = alinx_ax7101.Platform(part=args.fpga_part)
     # QSPI-bootable bitstreams (user directive 2026-07-12): compress (a 100t
     # frame is 3.65 MiB raw — the 16 MiB flash only fits it compressed) and
     # pin the SPI config settings the ARTY's flash part supports. ARTY ONLY:
@@ -4573,11 +4612,12 @@ def main() -> None:
     if args.software_profile == "baremetal":
         if _desc_blob is None:
             raise RuntimeError("baremetal firmware requires the protocol-processor entity image")
-        if len(_desc_blob) > FLASHBOOT_AEM["size"]:
+        _aem_slot = flashboot_layout(platform.device)["aem"]
+        if len(_desc_blob) > _aem_slot["size"]:
             raise RuntimeError(
                 f"entity image is {len(_desc_blob)} bytes, larger than the "
-                f"{FLASHBOOT_AEM['size']}-byte baremetal flash slot")
-        soc.add_constant("MILAN_AEM_FLASH_OFFSET", FLASHBOOT_AEM["offset"])
+                f"{_aem_slot['size']}-byte baremetal flash slot")
+        soc.add_constant("MILAN_AEM_FLASH_OFFSET", _aem_slot["offset"])
         soc.add_constant("MILAN_AEM_IMAGE_BYTES", len(_desc_blob))
         soc.add_constant("MILAN_AEM_IMAGE_CRC32",
                          binascii.crc32(_desc_blob) & 0xFFFF_FFFF)

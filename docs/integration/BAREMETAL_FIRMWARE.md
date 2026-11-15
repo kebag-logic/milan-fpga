@@ -100,6 +100,13 @@ builder-generated protocol-processor entity image:
 | journal slot A | `0xEE0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
 | journal slot B | `0xEF0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
 
+The offsets above are the AX7101's.
+
+The `ax7a200t` variant's bitstream slot is 10 MiB.
+
+Its AEM image starts at `0xA00000`
+([QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md#the-xc7a200t-variant)).
+
 `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a
 proved transition; it must not receive a LiteX FBI header. The one supported
 transition is a fabric-baremetal refresh: the target AEM image verifies
