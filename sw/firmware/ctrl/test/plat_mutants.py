@@ -259,8 +259,8 @@ def reboot_mutants(mutant: type) -> tuple:
         # The loop serviced after the DEPARTING, caught on B20's ACMP, MAAP and SRP words. B20's AECP check has no
         # defect of its own, because AECP starts no frame after its SUCCESS; each of its three layers carries one:
         # this one (the loop's stop), plat-reboot-takes-aecp-frames-after-the-success (the receive gate, on B19's and
-        # B23's AECP words) and reboot-serves-after-its-success and reboot-probes-after-its-success in aecp_mutants.py
-        # (AECP's own silence)
+        # B23's AECP words) and reboot-serves-after-its-success, reboot-probes-after-its-success and
+        # reboot-retries-after-its-success in aecp_mutants.py (AECP's own silence)
         m("plat-reboot-transmits-after-the-departing", PLAT, DEPART,
           DEPART + "\t\tif (ctrl_plat.reboot != 3u) {\n\t\t\tctrl_loop_step(&ctrl_plat.app.loop);\n\t\t}\n",
           "platboot1", B20, "B20 no other channel starts a transmission after ENTITY_DEPARTING",

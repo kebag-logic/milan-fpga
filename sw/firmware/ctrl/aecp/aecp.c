@@ -964,10 +964,11 @@ bool aecp_poll(struct aecp *a)
 	return pending || a->retry_held;
 }
 
-// What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it.
+// What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it. An accepted REBOOT starts no
+// round: the entity departs, so no probe or notification is started after its SUCCESS (Milan v1.2 5.6.3.3; #871).
 static bool round_waits(const struct aecp *a)
 {
-	return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;
+	return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u || a->reboot != 0u;
 }
 
 bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)

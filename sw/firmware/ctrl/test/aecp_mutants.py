@@ -936,6 +936,10 @@ DEFECTS = (
            '\t\t\ta->reboot = 2u;\n\t\t}\n\t\treturn false;\n\t}\n', '\t\t\ta->reboot = 2u;\n\t\t}\n\t}\n',
            ('Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete',
             "no probe or notification is started after a REBOOT's SUCCESS")),
+    defect('reboot-retries-after-its-success', 'aecp.c',
+           ' || a->owed_count != 0u || a->reboot != 0u;', ' || a->owed_count != 0u;',
+           ('Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete',
+            "THE RETRY's round starts no notification after a REBOOT's SUCCESS")),
 ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) \

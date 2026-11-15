@@ -3057,7 +3057,8 @@ TEST_F(Core, RebootRefusalsLeaveTheEntityInService)
 // 7.4.43: SUCCESS echoes {ENTITY, 0}, and every other registered controller is
 // notified (7.5.2; Milan v1.2 5.4.5.2). The reset is due only once each of
 // those frames has completed, and no command is taken, nor probe or
-// notification started, after the SUCCESS. The lock's owner may reboot.
+// notification started by the poll or by THE RETRY's round, after the SUCCESS.
+// The lock's owner may reboot.
 TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
 {
     cfg.reboot=true;ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
@@ -3086,6 +3087,8 @@ TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
     EXPECT_EQ(a.busy_drops,1u)<<"no command is taken after a REBOOT's SUCCESS";
     ms=120000;drain();
     EXPECT_TRUE(sent.empty())<<"no probe or notification is started after a REBOOT's SUCCESS";
+    aecp_changed(&a,5,0,8);aecp_retry(&a,4,1000000);drain();
+    EXPECT_TRUE(sent.empty())<<"THE RETRY's round starts no notification after a REBOOT's SUCCESS";
     EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
     aecp_tx_complete(&a,response,ms);
     EXPECT_TRUE(aecp_reboot_due(&a))<<"an older completion does not hold the reset back";
