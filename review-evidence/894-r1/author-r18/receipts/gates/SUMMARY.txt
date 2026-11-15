@@ -1,0 +1,26 @@
+# round 18's gates on a clean clone of 4ae887a1 (0 changed paths before and after); one line a command: its exit code and its last line. flip_check_8x8 and flip_check_both exit 1 by design: 8x8/2if's rows are reported (#894's decision of 2026-11-12)
+docs_check: rc 0 :: docs_check: 0 finding(s) across 219 md files + 1598 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em_dash_66adb9a9: rc 0 :: check_em_dash: 0 finding(s) over 2272 added line(s) in 26 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66adb9a9..HEAD]
+em_dash_cec88385: rc 0 :: check_em_dash: 0 finding(s) over 431 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cec88385..HEAD]
+em_dash_478ff78c: rc 0 :: check_em_dash: 0 finding(s) over 12 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [478ff78c..HEAD]
+doc_style: rc 0 :: documentation style: OK (23 current documents)
+gptp_docs: rc 0 :: gPTP documentation: OK (8 current pages)
+doc_map: rc 0 :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+cpp_idiom: rc 0 ::   build without warnings: 0 <= 0
+py_idiom: rc 0 ::   over-long line: 0 <= 0
+diff_check: rc 0 :: clean
+solution_docs: rc 0 :: solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+submodule_docs: rc 0 :: submodule documentation: OK (6 exact gitlinks)
+feature_status: rc 0 :: feature_status: 0 finding(s)
+todo_ownership: rc 0 :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1523 first-party file(s) read)
+hygiene: rc 0 :: HYGIENE RATCHET: PASS (3 population(s), 1453 file(s))
+doc_paths: rc 0 :: doc path gate: OK (1166 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+archive: rc 0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+flip_check_1x1: rc 0 :: RESULT: PASS
+flip_check_8x8: rc 1 :: RESULT: FAIL
+flip_check_both: rc 1 :: RESULT: FAIL
+load_check: rc 0 :: RESULT: PASS
+constant_history: rc 0 :: 125 snapshots, 73 constants moved
+figure_sweep: rc 0 :: files 797, hits 824, without a history marker 541
+figure_classify: rc 0 :: # another 269, beside 75, head 15, historical 457, reported 8, total 824; unclassified 0; current with a superseded figure: 0 (run again over the final PR-BODY.md)
+after: 0 changed paths
