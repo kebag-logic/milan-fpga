@@ -10,7 +10,10 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
 - a budget miss of any other row is new, and fails.
 
-The ledger is section 13's table at 8x8/1if, the one point that has one (LEDGER; the self-test holds it to the table).
+The ledger is derived at 8x8/1if, the one point that has one (#894's round-6 ruling on the held-egress ledger, items 2
+and 3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
+service behind it at the merged image's measurement (MEASURED) plus 5 %, rounded up to 0.01 ms (figure). Section 13's
+table states those figures, and the self-test holds the two together and the derivation to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
 bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
 whose BUDGET lines name every instance over its budget to 1 us, so a ledger row read there is held at the most its
@@ -39,15 +42,42 @@ ROOT = HERE.parents[2]
 DOC = ROOT / 'docs/design/SPLIT_CONTROL_MEMORY.md'
 #: The group whose rows the egress decides (scenario.py, backlog-owed).
 GROUP = 'backlog-owed'
-#: Each point's ledger: every row the egress decides and the figure its miss may reach, in ms (section 13's ledger
-#: figures at 8x8/1if, which the held-egress ruling, item (a), holds a miss to).
-LEDGER = {'8x8-1if': {'backlog.owed.if0': 63.24, 'backlog.owed_behind0.if0': 63.47,
-                      'backlog.owed_behind1.if0': 63.69, 'backlog.owed_behind2.if0': 63.91,
-                      'backlog.owed_behind3.if0': 64.20, 'backlog-owed.service.acmp.last.if0': 62.18,
-                      'backlog-owed.service.aecp.last.if0': 61.83}}
 #: Units of a figure: 10 ns, one cycle of the 100 MHz bus, the resolution of a grade's ms (grade.py rounds it to 5
 #: places), and half a log's printed microsecond in those units.
 PER_MS, LOG_HALF = 100_000, 50
+SCENARIO = HERE / 'scenario.py'
+#: The hold the egress decides the rows by: backlog-owed's wait with the egress held before it is released
+#: ('txready 1'), in ms, as scenario.py states it.
+HOLD = re.compile(r"f'wait cycles \{(\d+) \* MS\}', 'mark room', 'txready 1'")
+
+
+def hold_ms(text: str | None = None) -> int:
+    """The scenario's egress hold in ms, read from scenario.py's backlog-owed group (or a planted copy's text)."""
+    found = HOLD.findall(text if text is not None else SCENARIO.read_text())
+    if len(found) != 1:
+        raise ValueError(f'scenario.py states the egress hold {len(found)} times, not once')
+    return int(found[0])
+
+
+HOLD_MS = hold_ms()
+#: Each row's measurement at 8x8/1if on the image that merges #902's 234bc149 (a15345f7's, arm A's backlog-owed),
+#: in ms to 10 ns: the figure the ledger derives from (#894's round-6 ruling, item 2).
+MEASURED = {'8x8-1if': {'backlog.owed.if0': 63.23710, 'backlog.owed_behind0.if0': 63.45889,
+                        'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746,
+                        'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386,
+                        'backlog-owed.service.aecp.last.if0': 61.84625}}
+
+
+def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
+    """A row's ledger figure: the hold plus the service behind it, its measurement less the hold, plus 5 %, rounded
+    up to 0.01 ms; in 10 ns units throughout, so no float rounds it."""
+    service = round(measured_ms * PER_MS) - hold * PER_MS
+    served = -(-service * 105 // 100)
+    return round(hold + -(-served // (PER_MS // 100)) / 100, 2)
+
+
+#: Each point's ledger: every row the egress decides and the figure its miss may reach, in ms, derived (figure).
+LEDGER = {point: {row: figure(ms) for row, ms in rows.items()} for point, rows in MEASURED.items()}
 BUDGET_LINE = re.compile(r'^BUDGET (\S+): (?:never (?:released|answered), at least )?([\d.]+) ms over its budget '
                          r'([\d.]+) ms')
 SUMMARY = re.compile(r'^(\d+) groups graded, (\d+) refusals, (\d+) budget misses')
@@ -213,11 +243,19 @@ def main(argv: list[str] | None = None) -> int:
 
 # ---- the self-test -----------------------------------------------------------------------------------------------
 
+#: Section 13's table of the rows the egress decides at 8x8/1if: the row, round 3's measurement, the merged image's,
+#: and the ledger figure derived from it.
+DOC_HEAD = ('| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | '
+            'Measured on #902\'s 234bc149 merged, ms '
+            '| Ledger, ms |')
+
+
 def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
-    """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and its measurement."""
-    block = text.split('| Row the egress decides (at 8x8/1if) | Measured, ms | Ledger, ms |', 1)[1].split('\n\n', 1)[0]
-    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
-    return {n: float(f) for n, _, f in rows}, {n: float(m) for n, m, _ in rows}
+    """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and the measurement it
+    derives from."""
+    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
+    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
+    return {n: float(f) for n, _, _, f in rows}, {n: float(m) for n, _, m, _ in rows}
 
 
 def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
@@ -278,8 +316,19 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
     """Each control and whether it held: (name, held, detail)."""
     point, ledger = '8x8-1if', LEDGER['8x8-1if']
     doc_figures, measured = doc_ledger(DOC.read_text())
+    from decimal import ROUND_CEILING, Decimal
+    rule = {row: float(HOLD_MS + ((Decimal(str(ms)) - HOLD_MS) * Decimal('1.05')).quantize(Decimal('0.01'),
+                                                                                         ROUND_CEILING))
+            for row, ms in MEASURED[point].items()}
+    planted_hold = SCENARIO.read_text().replace("f'wait cycles {60 * MS}', 'mark room', 'txready 1'",
+                                                "f'wait cycles {59 * MS}', 'mark room', 'txready 1'")
     out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
-            str(doc_figures))]
+            str(doc_figures)),
+           ("section 13's measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
+           ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
+            str(rule)),
+           ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
+            HOLD_MS == hold_ms() == 60 and hold_ms(planted_hold) == 59, str(HOLD_MS))]
     rc, text = run(['--point', point, str(grade_dir(base, 'at-ledger', ledger))])
     out.append(('the unchanged ledger, every row at its figure, passes', rc == 0 and 'RESULT: PASS' in text,
                 f'rc {rc}'))
@@ -346,7 +395,15 @@ MUTANTS = {
     'a ledger row with no instance passing': lambda m: patch.object(m, 'unseen', lambda ledger, seen, logs: []),
     "a log's figure read as exact": lambda m: patch.object(m, 'LOG_HALF', 0),
     "a ledger figure a hundredth over section 13's": lambda m: patch.dict(
-        m.LEDGER['8x8-1if'], {'backlog.owed.if0': 63.25}),
+        m.LEDGER['8x8-1if'], {'backlog.owed.if0': m.LEDGER['8x8-1if']['backlog.owed.if0'] + 0.01}),
+    'a ledger figure with no 5 % on its service': lambda m: patch.dict(m.LEDGER['8x8-1if'], {
+        row: m.HOLD_MS + -(-(round(ms * m.PER_MS) - m.HOLD_MS * m.PER_MS) // 1000) / 100
+        for row, ms in m.MEASURED['8x8-1if'].items()}),
+    'the 5 % on the whole row, the hold too': lambda m: patch.dict(m.LEDGER['8x8-1if'], {
+        row: -(-round(ms * m.PER_MS) * 105 // 100 // 1000) / 100 for row, ms in m.MEASURED['8x8-1if'].items()}),
+    "the hold not the scenario's": lambda m: patch.object(m, 'HOLD_MS', 59),
+    'a measurement the ledger does not derive from': lambda m: patch.dict(
+        m.MEASURED['8x8-1if'], {'backlog.owed_behind1.if0': 63.526}),
     "a run's refusals not read": lambda m: patch.object(m, 'run_refusals', lambda path: []),
     "a ledger row's name taken in any group": lambda m: patch.object(
         m, 'is_row', lambda p, ledger: p['probe'] in ledger),
