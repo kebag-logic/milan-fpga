@@ -368,7 +368,7 @@ The share and the 20 ms budget come from S2b.
 That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), merged into dev-soft-core on 2026-11-13.
 Dev does not carry it.
 
-Dev's FR_NFR.md 3.4.1 still proposes T_svc = 10 ms.
+Dev's requirements page, section 3.4.1, still proposes T_svc = 10 ms.
 This line's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) states the approved 20 ms.
 Taking 10 ms as the gap gives 128 bytes.
 
