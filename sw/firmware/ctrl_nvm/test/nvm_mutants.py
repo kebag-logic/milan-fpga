@@ -359,7 +359,7 @@ MUTANTS = (
     _m("capture_leaves_window_armed", STORE, "\tif (joins) {\n\t\tnvm_publish();\n\t\treturn;\n\t}\n", "",
        "debounce"),
     # the record the capture examines next counted as passed
-    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "debounce"),
+    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "capture_joins"),
     # every change during the capture counted as joining it: one to a record
     # it has taken is never written
     _m("taken_while_capturing", STORE,

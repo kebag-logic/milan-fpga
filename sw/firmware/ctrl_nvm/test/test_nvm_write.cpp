@@ -208,18 +208,26 @@ TEST_P(NvmBoth, capture_joins) {
         restored(f, c.want, c.what);
     }
     // a failed attempt: its retry's capture walks from the first record, and a
-    // record in flight it has yet to reach joins it, a new work set
+    // record in flight it has yet to reach joins it, a new work set: one ahead
+    // of the cursor, and the very one it examines next, once it took `behind`
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f,
-                        {"--slot-b", "g.bin", "--boot", "--protect-auth", "--fault", "program-drop:1", "--set",
+                        {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set",
                          set_word(a, value(a, 1)), "--set", set_word(b, value(b, 1)), "--until-phase",
                          num(NVM_P_ERASE_WAIT), "--until-phase", num(NVM_P_IDLE), "--until-phase", num(NVM_P_CAPTURE),
-                         "--set", set_word(b, value(b, 4)), "--until-idle", "--dump-slot-a", "a.bin", "--dump-slot-b",
-                         "b.bin"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 1 && r.at("attempts") == 0 && r.at("dirty") == 0 &&
+                         "--set", set_word(behind, value(behind, 4)), "--service", "1", "--set",
+                         set_word(a, value(a, 4)), "--set", set_word(b, value(b, 4)), "--until-idle", "--dump-slot-a",
+                         "a.bin", "--dump-slot-b", "b.bin", "--run-ms", "5000", "--mark", "--set",
+                         set_word(ahead, value(ahead, 4)), "--until-idle"});
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 1 && r.at("attempts") == 0 && r.at("dirty") == 0 &&
                 r.at("pending") == 0)
-        << "a record in flight ahead of a retry's cursor: " << r.text();
-    restored(f, {{a, value(a, 1)}, {b, value(b, 4)}}, "a record in flight ahead of a retry's cursor");
+        << "records in flight a retry's cursor has yet to reach, the next one included: " << r.text();
+    // the changes the retry took leave nothing behind it: the next change is a first change, with its window
+    EXPECT_TRUE(r.erases.size() == 3u && in(after_mark(r, 2), 1000 * kMs, 1050 * kMs))
+        << "a first change after the retry: erase " << after_mark(r, 2) << " us after it, want 1,000 to 1,050 ms: "
+        << r.text();
+    restored(f, {{a, value(a, 4)}, {b, value(b, 4)}, {behind, value(behind, 4)}},
+             "records in flight a retry's cursor has yet to reach");
 }
 
 // #920: while a save is in flight, every pass THE STEP is called in takes a
