@@ -93,11 +93,13 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass; on its merge of
 #: #894's SET_CONFIGURATION cut, with srp_mbx_gate's repeat call cut (#895), 225 us, 21,094 cycles in save-held
 #: (19,793 before the merge), 262 instructions fewer and 49 more instruction refills in that pass than before, not
-#: traced, the code's placement (#909).
+#: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+#: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+#: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
 STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
-                    aecp=275, aecp_long=655, acmp_declined=20)}
+             2: dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
+                    aecp=275, aecp_long=700, acmp_declined=20)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.

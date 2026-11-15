@@ -144,18 +144,18 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895); and with the 1x1/1if slice at
 #: the rule's 950 us, every group of every arm at both points, each cost the larger of that and this table's: MAAP's
 #: timer slot at 8x8/2if 215 to 225 us, 21,120 CPU cycles in arm A's save group (19,993 at #895's merge with the tiers),
-#: not traced, in both columns (#895); under #894's SET_CONFIGURATION cut (f275b619, paced at fe0cef5b), over every
-#: group of arm A and of the answering-every-port arm, AECP's timer slot at 1x1/1if 65 to 70, both columns, the larger
-#: of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753 at 9606b3a9, the same work, its fetches
-#: moved by the cut's code), and with the SRP drain's record cost at the load gate's (ctrl_loop.h, a47cd3f2) a TICK at
-#: 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's backlog-adp@program-0; on #895's merge of that cut each
-#: cost the one of the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's timer slot
-#: at 1x1/1if #895's 75, a TICK there #894's 55 (#895).
-#: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger
-#: of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
-#: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
-#: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
-#: ctrl_loop.h's two-interface cost.
+#: and a pass's events' fixed part there 35 to 40, 3,437 cycles in acmp-noresp, on the image with the 140 ms bound, not
+#: traced, in both columns (#895); under #894's SET_CONFIGURATION cut (f275b619, paced at fe0cef5b), over every group of
+#: arm A and of the answering-every-port arm, AECP's timer slot at 1x1/1if 65 to 70, both columns, the larger of this
+#: table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753 at 9606b3a9, the same work, its fetches moved by the
+#: cut's code), and with the SRP drain's record cost at the load gate's (ctrl_loop.h, a47cd3f2) a TICK at 1x1/1if 50 to
+#: 55, both columns, 4,784 CPU cycles in arm A's backlog-adp@program-0; on #895's merge of that cut each cost the one of
+#: the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's timer slot at 1x1/1if #895's
+#: 75, a TICK there #894's 55 (#895). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the
+#: save groups, each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry,
+#: an owed MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build
+#: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
+#: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
@@ -163,7 +163,7 @@ STATED_US = {
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 55,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.retained': 365, 'item.aecp.notice': 275,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.retained': 365, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
@@ -201,7 +201,9 @@ STATED_US = {
 #: the polls' base 215 at 1x1/1if, and MAAP's timer slot 225 at 8x8/2if; on its merge of #894's SET_CONFIGURATION
 #: cut each cost the one of the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's
 #: timer slot 75 and a TICK 55 at 1x1/1if, a build of one and an owed MRPDU #894's 735; measured again on that merge
-#: with srp_mbx_gate's repeat call cut, the polls' base 215 to 225 at 1x1/1if (poll_grade.py; #895).
+#: with srp_mbx_gate's repeat call cut, the polls' base 215 to 225 at 1x1/1if (poll_grade.py; #895); on that image
+#: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
+#: polls' base 325 to 345 (poll_grade.py; #895, reported).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
@@ -210,8 +212,8 @@ STATED_US_DONOR = {
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,
-                'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 325, 'item.reclaim': 40, 'item.retained': 365,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.aecp.notice': 275,
+                'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 345, 'item.reclaim': 40, 'item.retained': 365,
                 'item.mrpdu': 1215, 'item.acmp': 70, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
