@@ -1,0 +1,28 @@
+head 3926c271aaf77420fb9093694be0ab9d511b898d (3926c271 1x1/1if AltSpreadLogic_high, <scratch>/rt/route/split-AltSpreadLogic_high)
+command: tools/paths3.py <scratch>/rt/route/split-AltSpreadLogic_high
+---
+design worst setup, Slow_85C: slack +0.203 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/pend_r_reg[6]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[3]/R
+    Data Path Delay:        9.360ns  (logic 2.533ns (27.062%)  route 6.827ns (72.938%))
+    Logic Levels:           20  (LUT2=4 LUT3=4 LUT4=6 LUT5=3 LUT6=3)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.203 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/pend_r_reg[6]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[3]/R
+    Data Path Delay:        9.360ns  (logic 2.533ns (27.062%)  route 6.827ns (72.938%))
+    Logic Levels:           20  (LUT2=4 LUT3=4 LUT4=6 LUT5=3 LUT6=3)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.359 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+    Destination:            FDPE_19/D
+    Data Path Delay:        0.577ns  (logic 0.433ns (75.008%)  route 0.144ns (24.992%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.659 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_cnt_reg[1]/C
+    Destination:            KL_gptp_gmii_launch/mine_r_reg/D
+    Data Path Delay:        7.004ns  (logic 1.629ns (23.256%)  route 5.375ns (76.744%))
+    Logic Levels:           10  (LUT2=1 LUT4=3 LUT5=1 LUT6=5)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/frontendA_stages_1_spawn_CMD_address_reg[3]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/probe_ctxMem_reg_0_3_6_11/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

@@ -1,0 +1,51 @@
+# shard 1/4 (holds mbx) of the native sweep at the final head 3926c271, clean clone
+{
+  "head": "3926c271aaf77420fb9093694be0ab9d511b898d",
+  "exit_code": 0,
+  "finished": "2026-11-15T16:40:58.836653+01:00"
+}
+{
+  "head": "3926c271aaf77420fb9093694be0ab9d511b898d",
+  "base": "cec88385ad",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+        "TSN_GEN_ROOT=<management>/tools/tsn-gen-deca300c",
+        "TMPDIR=<scratch>/tmp-sweep",
+        "MAKEFLAGS=-j4 --no-print-directory",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep-3926c271/shard-1/logs",
+        "--wait",
+        "--shard",
+        "1/4"
+      ],
+      "exit_code": 0,
+      "seconds": 4339.114,
+      "log": "<scratch>/sweep-3926c271/shard-1/spec/01.log"
+    }
+  ]
+}
+
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 2046515   in-suite failures: 0

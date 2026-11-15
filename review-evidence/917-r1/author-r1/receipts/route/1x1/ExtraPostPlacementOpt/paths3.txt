@@ -1,0 +1,28 @@
+head 3926c271aaf77420fb9093694be0ab9d511b898d (3926c271 1x1/1if ExtraPostPlacementOpt (integrated), <scratch>/rt/route/split/gateware)
+command: tools/paths3.py <scratch>/rt/route/split/gateware
+---
+design worst setup, Slow_85C: slack +0.202 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[13]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[6]/D
+    Data Path Delay:        9.856ns  (logic 3.123ns (31.686%)  route 6.733ns (68.314%))
+    Logic Levels:           18  (CARRY4=1 LUT1=1 LUT2=1 LUT3=2 LUT4=3 LUT5=4 LUT6=6)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.202 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[13]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[6]/D
+    Data Path Delay:        9.856ns  (logic 3.123ns (31.686%)  route 6.733ns (68.314%))
+    Logic Levels:           18  (CARRY4=1 LUT1=1 LUT2=1 LUT3=2 LUT4=3 LUT5=4 LUT6=6)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.265%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.736 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[17]/CE
+    Data Path Delay:        6.854ns  (logic 1.347ns (19.654%)  route 5.507ns (80.346%))
+    Logic Levels:           6  (LUT2=3 LUT3=1 LUT5=2)
+design worst hold, Fast_85C: slack +0.016 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+    Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+    Data Path Delay:        0.313ns  (logic 0.148ns (47.304%)  route 0.165ns (52.696%))
+    Logic Levels:           0

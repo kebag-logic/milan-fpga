@@ -1,0 +1,10 @@
+head 3926c271aaf77420fb9093694be0ab9d511b898d (3926c271 1x1/1if ExtraPostPlacementOpt (integrated), <scratch>/rt/route/split/gateware)
+command: tools/signoff.py <scratch>/rt/route/split/gateware
+---
+Slow_85C: WNS +0.202 ns (0 failing), WHS +0.052 ns (0 failing)
+Slow_0C: WNS +0.202 ns (0 failing), WHS +0.052 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.016 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.016 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1

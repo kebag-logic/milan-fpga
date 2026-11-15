@@ -1,0 +1,14 @@
+"""Plant the named ctrl_mutants entries through the campaign's own shard selector (one index, stride the table's
+length), so each runs exactly as the full campaign runs it; exit 1 if any escaped."""
+import sys
+from pathlib import Path
+tree_root = Path(sys.argv[1]); out = Path(sys.argv[2]); names = sys.argv[3:]
+sys.path.insert(0, str(tree_root / "sw/firmware/ctrl/test"))
+import ctrl_mutants as cm
+idx = {m.name: i for i, m in enumerate(cm.MUTANTS)}
+escaped = False
+for n in names:
+    i = idx[n]
+    print(f"== {n}: index {i} of {len(cm.MUTANTS)}", flush=True)
+    escaped = cm.campaign(out / n, out / "reuse", 4, (1, 1), [i, len(cm.MUTANTS)]) or escaped
+sys.exit(1 if escaped else 0)

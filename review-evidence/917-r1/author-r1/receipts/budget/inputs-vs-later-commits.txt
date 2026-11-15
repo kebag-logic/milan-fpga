@@ -1,0 +1,37 @@
+# the harness's recorded build inputs (build.json 'inputs', head run at 84d8a214), against the files 84d8a214..3926c271 changes
+build:image/ctrl_app.elf
+build:split-soc/flash-map/generated/csr.h
+build:split-soc/flash-map/generated/mem.h
+build:split-soc/flash-map/flash_port.json
+build:runtime/libc.a
+build:runtime/libcompiler_rt.a
+build:gateware/sim_mem.init
+build:gateware/sim_rom_bank0.init
+build:gateware/sim_rom_bank1.init
+build:gateware/sim_rom_bank2.init
+build:gateware/sim_rom_bank3.init
+build:budget_config.hpp
+checkout:tb/verilator/ctrl_service_budget/sim_main.cpp
+checkout:tb/verilator/ctrl_service_budget/observe.vlt
+checkout:tb/verilator/fw_service_budget/flash.hpp
+checkout:hdl/milan/mailbox/KL_mbx_pkg.sv
+checkout:hdl/milan/mailbox/KL_mbx_ring.sv
+checkout:hdl/milan/mailbox/KL_mbx_rx.sv
+checkout:hdl/milan/mailbox/KL_mbx_tx.sv
+checkout:hdl/milan/mailbox/KL_mbx_evt.sv
+checkout:hdl/milan/mailbox/KL_mbx.sv
+checkout:hdl/milan/mailbox/KL_mbx_wb.sv
+checkout:hdl/milan/mailbox/KL_mbx_dma.sv
+external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v
+build:gateware/sim.v
+tree:firmware
+tree:config
+--- changed 84d8a214..3926c271:
+docs/design/MAILBOX_SPLIT.md
+sw/firmware/ctrl/test/ctrl_mutants.py
+tb/verilator/mbx/README.md
+tb/verilator/mbx/mutants.py
+tb/verilator/mbx/suite.hpp
+--- none of them is a recorded input; the group scripts themselves are compared byte for byte in compare-1x1.txt

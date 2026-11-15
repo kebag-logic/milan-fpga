@@ -1,0 +1,28 @@
+"""budget_compare.py <base-build> <head-build>: every group's script, simulation log and graded result, and the
+point's table.md and results.json, compared byte for byte (the build directory's own paths normalised in the graded
+files); prints one line a file and a verdict."""
+import hashlib, re, sys
+from pathlib import Path
+base, head = Path(sys.argv[1]), Path(sys.argv[2])
+def norm(p: Path) -> bytes:
+    data = p.read_bytes()
+    if p.suffix in (".json", ".md"):
+        data = data.replace(str(p.parents[1]).encode(), b"<build>").replace(str(p.parent).encode(), b"<build>")
+    return data
+names = sorted({f.relative_to(base / "results") for f in (base / "results").glob("*")} |
+               {f.relative_to(head / "results") for f in (head / "results").glob("*")})
+same = diff = missing = 0
+for n in names:
+    a, b = base / "results" / n, head / "results" / n
+    if not (a.exists() and b.exists()):
+        missing += 1; print(f"MISSING {n}"); continue
+    if norm(a) == norm(b):
+        same += 1; print(f"same {n} {a.stat().st_size} {hashlib.sha256(a.read_bytes()).hexdigest()[:16]}")
+    else:
+        diff += 1; print(f"DIFF {n}")
+for n in ("table.md", "results.json"):
+    for d in (base, head):
+        pass
+    a, b = base / "results" / n, head / "results" / n
+print(f"files {len(names)}: same {same}, different {diff}, missing {missing}")
+print("RESULT: identical" if diff == 0 and missing == 0 else "RESULT: NOT identical")

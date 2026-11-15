@@ -1,0 +1,15 @@
+"""Run named arms of tb/verilator/mbx/mutants.py with its own run_arm (plant, build with the Makefile's recipe, run,
+grade by the arm's needle); exit 1 if any escaped."""
+import importlib.util, sys, tempfile
+from pathlib import Path
+here = Path(sys.argv[1]); names = sys.argv[2:]
+spec = importlib.util.spec_from_file_location("mbx_mutants", here / "mutants.py")
+m = importlib.util.module_from_spec(spec); sys.modules["mbx_mutants"] = m; spec.loader.exec_module(m)
+arms = {a.name: a for a in m.ARMS}
+bad = 0
+with tempfile.TemporaryDirectory() as root:
+    for n in names:
+        arm, caught, detail = m.run_arm(arms[n], Path(root))
+        print(f"[{'ok' if caught else 'ESCAPED'}] {n}: {detail}", flush=True)
+        bad += not caught
+sys.exit(1 if bad else 0)

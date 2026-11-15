@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# images.sh <clone> <out>: every RV32 firmware image the tree's fixture builders link, with one set of runtime
+# archives, then the sha256 of every ELF and binary they wrote (paths relative to <out>), in <out>/IMAGES.sha256.
+set -u
+C=$1; O=$2; RT=<scratch>/runtime
+export MILAN_RV32_CC=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+mkdir -p "$O"; cd "$C" || exit 3
+echo "head $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=all | wc -l)" > "$O/RUN.txt"
+python3 -B sw/firmware/ctrl/test/ctrl_image.py --out "$O/ctrl_image" > "$O/ctrl_image.log" 2>&1; echo "ctrl_image rc=$?" >> "$O/RUN.txt"
+for cfg in configs/*.yaml; do
+  s=$(basename "$cfg" .yaml)
+  for i in 1 2; do for L in flat split; do
+    python3 -B sw/firmware/ctrl/test/ctrl_srp_image.py --config "$cfg" --interfaces $i --layout $L --with-aecp \
+      --libc "$RT/libc.a" --compiler-runtime "$RT/libcompiler_rt.a" --output "$O/srp-$s-if$i-$L" > "$O/srp-$s-if$i-$L.log" 2>&1
+    echo "srp $s if$i $L rc=$?" >> "$O/RUN.txt"
+  done; done
+done
+echo "porcelain after $(git status --porcelain --untracked-files=all | wc -l)" >> "$O/RUN.txt"
+(cd "$O" && find . -type f \( -name '*.elf' -o -name '*.bin' \) | LC_ALL=C sort | xargs -r sha256sum) > "$O/IMAGES.sha256"
+echo "images $(wc -l < "$O/IMAGES.sha256")" >> "$O/RUN.txt"

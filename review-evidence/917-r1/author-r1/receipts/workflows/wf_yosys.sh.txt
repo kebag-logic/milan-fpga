@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -u
+H=$1; R=$2
+for k in 0 1 2 3; do
+  echo "$(date +%T) start yosys-shards $k"
+  python3 <scratch>/wf/run_wf.py rtl.yml "$H" yosys-shards "$R" shard=$k total=4
+  rm -rf "$R/rtl__yosys-shards-$k/wt"
+done
+rm -rf "$R/rtl__yosys-portability"
+python3 <scratch>/wf/run_wf.py rtl.yml "$H" yosys-portability "$R"
+rm -rf "$R/rtl__yosys-portability/wt"
+echo "$(date +%T) YOSYS DONE"

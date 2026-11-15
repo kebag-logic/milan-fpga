@@ -1,0 +1,3 @@
+[ok] rx-held-record-never-committed: 22 check(s) failed; first: [FAIL] T0 and RX_HEAD then covers the held record got=184 exp=207
+[ok] rx-drop-instead-of-hold: 42 check(s) failed; first: [FAIL] T0 only the frame behind the held one counts in RATE_DROP got=2 exp=1
+[ok] rx-bucket-never-drains: 36 check(s) failed; first: [FAIL] T0 a burst of the bucket's depth passes  got=10 exp=8

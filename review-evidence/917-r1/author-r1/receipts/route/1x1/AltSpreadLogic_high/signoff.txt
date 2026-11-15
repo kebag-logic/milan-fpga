@@ -1,0 +1,10 @@
+head 3926c271aaf77420fb9093694be0ab9d511b898d (3926c271 1x1/1if AltSpreadLogic_high, <scratch>/rt/route/split-AltSpreadLogic_high)
+command: tools/signoff.py <scratch>/rt/route/split-AltSpreadLogic_high
+---
+Slow_85C: WNS +0.203 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.203 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0
