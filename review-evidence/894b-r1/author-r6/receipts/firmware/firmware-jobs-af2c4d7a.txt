@@ -1,0 +1,35 @@
+# the firmware jobs at af2c4d7a (run_wf.py, each on its own fresh clean clone of the head): every step's rc, and the campaigns' tallies
+firmware-unit: ci_step_1=0, ci_step_10=0, ci_step_11=0, ci_step_12=0, ci_step_3=0, ci_step_7=0
+  ci_step_10.log: [ok] 77, ESCAPED 0
+  ci_step_10.log: RESULT: PASS
+  ci_step_10.log: test_ctrl_firmware: PASS
+  ci_step_11.log: RESULT: PASS
+  ci_step_12.log: [ok] 32, ESCAPED 0
+  ci_step_12.log: RESULT: PASS
+  ci_step_7.log: [ok] 18, ESCAPED 0
+  the clone after it ran: ?? dispatch-build/
+firmware-boundary: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9.log: [ok] 299, ESCAPED 0
+  ci_step_9.log: ctrl_boundary: 3271 compiled sources of 3532 recorded invocations (1932 the firmware's, 359 the stack's, 980 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 183 pin and 4 figure controls, 0 misbehaved
+  ci_step_9.log: ctrl_boundary: PASS
+  the clone after it ran: clean
+firmware-control-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9.log: [ok] 716, ESCAPED 0
+  ci_step_9.log: test_ctrl_firmware: PASS
+  the clone after it ran: ?? dispatch-build/
+firmware-aecp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9.log: [ok] 302, ESCAPED 0
+  ci_step_9.log: test_ctrl_firmware: PASS
+  the clone after it ran: ?? dispatch-build/
+firmware-srp-mutants: ci_step_1=0, ci_step_3=0, ci_step_9=0
+  ci_step_9.log: [ok] 345, ESCAPED 0
+  ci_step_9.log: test_ctrl_firmware: PASS
+  the clone after it ran: ?? dispatch-build/
+firmware-verilator: ci_step_1=0, ci_step_11=0, ci_step_14=0, ci_step_3=0
+  ci_step_14.log: [ok] 193, ESCAPED 0
+  ci_step_14.log: aecp_wire.py --every: exit 0 (212 s)
+  ci_step_14.log: ctrl_boundary: 1217 compiled sources of 1355 recorded invocations (552 the firmware's, 106 the stack's, 559 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 183 pin and 4 figure controls, 0 misbehaved
+  ci_step_14.log: ctrl_boundary: PASS
+  the clone after it ran: clean
+
+0 step(s) not rc 0 or with an escaped mutant

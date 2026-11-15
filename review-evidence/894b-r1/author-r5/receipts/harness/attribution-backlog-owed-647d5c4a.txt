@@ -1,0 +1,12 @@
+# the attribution: backlog-owed alone at 8x8-1if on a clean clone of 647d5c4a, the merge of #902's 234bc149 before this lane's round-5 commits (its SRP drain limit 345 us, not 365); its seven held-egress rows, identical to a15345f7's to the microsecond
+# 8x8-1if none: 95 groups in the arm; part 0 of 1 runs 1
+HEAD 647d5c4a76cc5dc26a2bb418825305625bd03f4d DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups backlog-owed start 2026-11-15T10:51:15
+BUDGET backlog.owed.if0: 63.237 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.459 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.739 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.957 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.191 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.184 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.846 ms over its budget 20 ms
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 308 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-15T11:02:17

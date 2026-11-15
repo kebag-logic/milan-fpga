@@ -1,0 +1,9 @@
+# 8x8/1if leg P-srp on a15345f7's image: its own lines (legB.py, leg.sh, run.py --record-budget-findings --record-share-findings)
+# 8x8-1if none: 95 groups in the arm; part 0 of 1 runs 1
+HEAD a15345f729d0a42c64b0307c4df1477e5474f15c DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp start 2026-11-15T07:56:04
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SLICES 15961 tier-2 slices; the longest SRP's records 33,835, THE TRANSMIT's build 138,906, THE RETRY's round 1,750 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 187.469 ms and the longest 190.147 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 290 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-15T08:06:52

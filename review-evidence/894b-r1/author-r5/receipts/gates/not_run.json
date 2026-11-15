@@ -1,0 +1,7 @@
+{
+ "_about": "Round 5 at 0700f09e: every gate this round did not run, with its reason. The round stopped at its measurement (a STOP condition: held-egress rows over their ledger figures), before item 3's final pass, as the round's instruction has it (post once, then end).",
+ "item 3's final pass (every workflow job step locally, the four-shard sweep, the firmware campaigns, the docs gates, the lane gates on clean clones)": "not run: the STOP fired at item 2's measurement; the manager's round-5 item 4 ends the round at a STOP. The lane gate and queue scripts for it are in scripts/ (lane_gates_r5.sh, mkqueueR5.sh). Quick checks on the clean worktree at the head are in gates/quick-checks-0700f09e.txt.",
+ "the valid-destinations arm": "not in this tree: it is #895's arm (on 895-talker-redeclare), not #902's 234bc149, which this lane merges",
+ "scripts/docs_inventory.py --check": "not present at this head nor at its bases (894-tiers 234bc149, dev-soft-core); it is on dev and arrives with the sync onto dev",
+ "the 1x1/1if and 8x8/2if legs": "carry by their images' byte identity with #902's 234bc149 images (images/img-a15345f7-against-234bc149.txt); the head changes no firmware since a15345f7 (git diff a15345f7..0700f09e -- sw configs hdl is empty)"
+}

@@ -1,0 +1,17 @@
+# egress_ledger.py --point 8x8-1if over arm A's four results directories (the tree's, at a15345f7..0700f09e: the same reader); exit 1
+# 8x8-1if: the rows the egress decides against their ledger; 947 instance(s) read (947 measured) from 4 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.23710 | 63.24 | -0.00290 | yes |
+| `backlog.owed_behind0.if0` | 63.45889 | 63.47 | -0.01111 | yes |
+| `backlog.owed_behind1.if0` | 63.73898 | 63.69 | +0.04898 | no |
+| `backlog.owed_behind2.if0` | 63.95746 | 63.91 | +0.04746 | no |
+| `backlog.owed_behind3.if0` | 64.19076 | 64.2 | -0.00924 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.18386 | 62.18 | +0.00386 | no |
+| `backlog-owed.service.aecp.last.if0` | 61.84625 | 61.83 | +0.01625 | no |
+RESULT: FAIL
+- backlog.owed_behind1.if0 (backlog-owed): 63.73898 ms, over its ledger figure 63.69 ms by 0.04898 ms: a larger miss
+- backlog.owed_behind2.if0 (backlog-owed): 63.95746 ms, over its ledger figure 63.91 ms by 0.04746 ms: a larger miss
+- backlog-owed.service.acmp.last.if0 (backlog-owed): 62.18386 ms, over its ledger figure 62.18 ms by 0.00386 ms: a larger miss
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 61.84625 ms, over its ledger figure 61.83 ms by 0.01625 ms: a larger miss
+ledger rc=1

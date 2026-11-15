@@ -1,0 +1,56 @@
+# 894b-a781 round 5 output index
+
+Generated from the 50 files present (`index.py`).
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `HANDOFF-r5.md` | 10,309 | `94f8e96496b0a47aea0b9cf87eda61e082392983d9d77166cdae5f4b40d20757` |
+| `PR-BODY.md` | 13,470 | `6be28086f04b12d811480901b9e392b50ab7a2819c921c271ce165f82e86f792` |
+| `STOP-COMMENT.md` | 6,945 | `8d21860ced7c85d364b0c50914d6c40f08f8d6cb7d024d95704d437477a12887` |
+| `receipts/gates/gate-r5-controls-0700f09e.txt` | 4,642 | `2e4af5e7f85336feeed971096dc143399344a9fbfc5c72fd6bba6568e6e52fa8` |
+| `receipts/gates/not_run.json` | 1,265 | `6b520349aac2c4fd2f4affe9b1f88afd4190068b7bc5e560c1ba90c03065b640` |
+| `receipts/gates/quick-checks-0700f09e.txt` | 1,727 | `d132a69136bab3e85b68b8ad47ea18de197843d6063957a8c1b270f89a774aad` |
+| `receipts/harness/attribution-backlog-owed-647d5c4a.txt` | 1,110 | `e3814c4b9c085aeace357052f697f359496b3d35ef81c0bdd748fc880c0a054b` |
+| `receipts/harness/control-transmit-aged-8x8-1if-a15345f7.txt` | 1,343 | `0770895c377b93d4b0dc592e9f00f02d222ef04ac89d9344133948259f0400b7` |
+| `receipts/harness/gate-8x8-1if-a15345f7.txt` | 12,455 | `78ea415b971e77cc88294c0dabfb5db3eb4578bbf9077dd13e5d237e22d263c0` |
+| `receipts/harness/ledger-8x8-1if-a15345f7.txt` | 1,341 | `11893962f95d29fe42efbde53496a8760b8cb8ab1720952ddfbf6f9153c19e18` |
+| `receipts/harness/leg-M-A0-a15345f7.txt` | 2,184 | `857d410e0639f55968db3b27ebc21116370eb1d3e5154c04534ba61aa6d95dd1` |
+| `receipts/harness/leg-M-A1-a15345f7.txt` | 1,609 | `f4897482f880ebebb213888ec94f589bbd6e2c5dcf6fc5472f9bc241a02c2c77` |
+| `receipts/harness/leg-M-A2-a15345f7.txt` | 1,608 | `642aff2fac4a19e23654f74a04ba975299af27578448087dd24aae3270e4bcd2` |
+| `receipts/harness/leg-M-A3-a15345f7.txt` | 1,494 | `d18923e4a62fffe5216c1b9260fb7755a124638213001df73e80f94c82e0ef7c` |
+| `receipts/harness/leg-M-Ba-a15345f7.txt` | 1,002 | `a98235a4b5a433faf630078f58d7d0353a55a41a432feeb7f8b2e9aa59019cd1` |
+| `receipts/harness/leg-P-AE-a15345f7.txt` | 78,936 | `cce9f1efe52752c64d681b00d0605ad98607c0bbb7315329acd4b41796d02460` |
+| `receipts/harness/leg-P-B-a15345f7.txt` | 1,335 | `2b24857be523661d6b59ed75aab449d0bb4bae7ee3543d2b61adaa9417c2a546` |
+| `receipts/harness/leg-P-srp-a15345f7.txt` | 969 | `8e726426a621376ffae9ad1fe96cb38acf28d3c8c233baf805db928713d29c9d` |
+| `receipts/images/img-a15345f7-against-234bc149.txt` | 826 | `9f615ebe5a2742c69da9e9169eac3d9c2695b7385b74bcb11ed55be4918db257` |
+| `receipts/images/raw-902-234bc149.txt` | 2,157 | `187a2fc64f64f41a2b5c68413a99055e6adca45c010e7184d5a8ad91ae68549b` |
+| `receipts/images/raw-a15345f7.txt` | 2,157 | `343166676c906d4587d0c6b8b2b73bb5e74d4cf141a3614ca7d87fe9acbd1b27` |
+| `receipts/model/record-classes-8x8-1if-a15345f7.txt` | 1,080 | `7e550f958b3b627574779a70bb6012d1b005057ed2c0a979ba6914baf263f747` |
+| `receipts/model/rows-8x8-1if-0700f09e.txt` | 1,790 | `48c810eb4709daa2194e3997cdc738e3ac7fa92e31414c40517ee43696cc7912` |
+| `receipts/model/survey/TOOLS.txt` | 1,128 | `2640060eb7afe7adb65597787275f82b65d48c79cda8222c615ba3dcaf519d5d` |
+| `receipts/model/survey/compare-long.txt` | 418 | `bc3f14b662c795c299a26ceca9bbc34f68df2cbed65625095e2d4f615059bd5c` |
+| `receipts/model/survey/compare-ordinary.txt` | 11,468 | `1b654446bc24d571d4eb676efdb3b948f115d7ee6eb5181e3a218ca181ff157d` |
+| `receipts/model/survey/datapath.json` | 812 | `d86eb49dcfaddd4b9e0d767dc2d58f31d9a2f50f847947d278635c9685e9c412` |
+| `receipts/model/survey/long-costs-aecp.txt` | 122 | `0d8b5236ba3613e793dccfb23acf30cc1db24e3b48fb82febe0015095393c186` |
+| `receipts/model/survey/long-costs-costs.txt` | 2,053 | `8b014f9bf534913776f3295a0db943061ca7b8c124adeafc1427428c0aa0a778` |
+| `receipts/model/survey/ordinary-costs-aecp.txt` | 232 | `457aa40f39cc9739b475aabbb911b5d47108c56cce5c76b4987c11dacc2a3ead` |
+| `receipts/model/survey/ordinary-costs-costs.txt` | 2,557 | `70ef7b8e20a425aab5cc9c2b23c00067c040bfe014ad79c428644fcc15beed39` |
+| `scripts/ast_same.py` | 3,180 | `a0ead76607387dd28763733925e64317da1df6dc7a3862e71bc18e869aeb20db` |
+| `scripts/comment_scan.py` | 1,808 | `531b77b66dbc758e823b3148d08c8ef242720912d02eb22ab6684a7c1770a9a4` |
+| `scripts/compare_8x8_1if.py` | 5,123 | `d30cb117fce40cf23e71b7144324f26634f38b87e662a6941896b76095a0b7e9` |
+| `scripts/costs_r5.sh` | 729 | `2301a8b63e967d847ea1c6d1bf4918d3e57be2c2918824664668fa3c547eb957` |
+| `scripts/gate_controls.py` | 4,355 | `4cbaa1929e0547ef4e7d5ba8bcf65c6cee82ce989732c3e0e776d1a1bed37149` |
+| `scripts/gate_r5.py` | 16,498 | `b464ed5dcabefc2e92885db7c8e98755c445564cfaf61c907f511b1f74cb789b` |
+| `scripts/img_all8.py` | 1,096 | `db912e4852546d408f3bf950c2825a61f86f1e5d46ecccb1427e4b2e147b4d9e` |
+| `scripts/img_check_base.py` | 2,631 | `130f3f53d1d6b68b3a56b03d4d7410db1a0b3583bd130b31d60dc5064401b929` |
+| `scripts/index.py` | 1,233 | `8a5101a89ddc715aff3ed0e39caf3b5b1a18b063ae09f6edf27b0ed45143b81d` |
+| `scripts/lane_gates_r5.sh` | 9,245 | `4883e363e0f480170537a52fa18316af1feacb8bda59437b98191e4bc06a62ba` |
+| `scripts/launchM.py` | 2,936 | `1baaef175da0ab7a83824b7d86993297ac9041cf7b1880c6fa89f45124931582` |
+| `scripts/launchR4.py` | 3,583 | `8f2cc57288e5fd507cc9a17f288ade70079bccba17e1276cf9766a1148c15043` |
+| `scripts/leg.sh` | 714 | `29c6c774b046b210598ee8731ac462e2b23e3397d12a00d660f4bbe3c09bbca3` |
+| `scripts/legB.py` | 2,381 | `d7aa0bbaa0e38ef6f23b0370d3e64fcce929df4a64e39e68336950a1308d4c81` |
+| `scripts/mkqueueR5.sh` | 2,681 | `9f2c8acca751458349a6cb1296456fa2bcd7c222d550184406a2593f71cd7b61` |
+| `scripts/qimg.sh` | 3,157 | `df0bc9deb9b07935ec019886957d297520cffd9af81a2edb8b2c5b5217f15ae6` |
+| `scripts/r844_audit_empty.sh` | 605 | `87bfd37ea02fdf70760b590f049f3f348261beb562a0165e9b0f2dc6437bad8e` |
+| `scripts/rows_8x8_1if_r5.py` | 3,568 | `505c9509558cbe739b0cd22a2cb6e2fbada1c31bc91c02c059af9c1b5476d14b` |
+| `scripts/survey_r5.py` | 4,795 | `5238e0867dd59934ff2e3cb4d9f323edbf9af3067087845e5abac463552e5b14` |

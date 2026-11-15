@@ -1,0 +1,186 @@
+# the sweep's first attempt at af2c4d7a (label 894b-r6b, launched 12:47:10 CET), not the result: every shard exited 1
+# because Verilator refused its root. The spec's first PATH entry was another lane's shared tool directory
+# (another lane's candidate area, its pinned-tool-bin), whose own birth time is 2026-11-15 13:13:38:
+# it was absent while the shards ran, so 'verilator' resolved to the host's Verilator 5.054 beside the pinned VERILATOR_ROOT.
+# Each shard's first suites passed and the rest failed with the line below. The rerun (sweep-shard{0..3}-af2c4d7a.txt)
+# reads a private copy of that directory, its three files byte-identical. No other job of the pass reads it.
+# The refusal, as each failing suite log prints it:
+#   %Error: verilator: VERILATOR_ROOT is set to inconsistent path. Suggest leaving it unset.
+
+# the sweep, shard 0 of 4 (native-shards.py, label 894b-r6b) at af2c4d7a on its own fresh clone, run-recorded-gates.py: exit 1, finished 2026-11-15T12:52:08; TSN_GEN_ROOT set: True; SKIPPED lines 0; the head af2c4d7a
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+FAIL     csr
+FAIL     gptp_txts
+FAIL     i2spb
+FAIL     milan_dp
+FAIL     nvm_cosim
+FAIL     pair_fill
+FAIL     pp_shadow
+FAIL     ptp_sync
+FAIL     ptp_ts
+FAIL     rx_filter
+FAIL     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 4   failed: 11   timed out: 0
+checks: 343397   in-suite failures: 9
+
+ACCOUNTING FAILURE -- nothing was measured by 9 suite log(s):
+  NOCOUNT  gptp_txts: printed no tally line at all
+  NOCOUNT  i2spb: printed no tally line at all
+  NOCOUNT  milan_dp: printed no tally line at all
+  NOCOUNT  nvm_cosim: printed no tally line at all
+  NOCOUNT  pair_fill: printed no tally line at all
+  NOCOUNT  pp_shadow: printed no tally line at all
+  NOCOUNT  ptp_sync: printed no tally line at all
+  NOCOUNT  ptp_ts: printed no tally line at all
+  NOCOUNT  tcam_csr: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: csr gptp_txts i2spb milan_dp nvm_cosim pair_fill pp_shadow ptp_sync ptp_ts rx_filter tcam_csr
+logs: <scratch>/fullR6/sweep/shard-0/logs
+CPUs 0-7 (a cpu_ranges.py pick range, the unit's affinity checked at launch)
+
+# the sweep, shard 1 of 4 (native-shards.py, label 894b-r6b) at af2c4d7a on its own fresh clone, run-recorded-gates.py: exit 1, finished 2026-11-15T12:53:02; TSN_GEN_ROOT set: True; SKIPPED lines 0; the head af2c4d7a
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+FAIL     gptp_shadow
+FAIL     gptp_tables
+FAIL     link_guard
+FAIL     mac_rmon
+FAIL     mbx
+FAIL     milan_dp_gm_steps
+FAIL     milan_dp_mclk
+FAIL     milan_dp_render
+FAIL     mmcm_servo_autorepair
+FAIL     render_queue
+FAIL     shaper_core
+FAIL     tcam
+FAIL     tkdiag
+----------------------------------------------------------------
+suites: 17   passed: 4   failed: 13   timed out: 0
+checks: 588   in-suite failures: 32
+
+ACCOUNTING FAILURE -- nothing was measured by 10 suite log(s):
+  NOCOUNT  gptp_tables: printed no tally line at all
+  NOCOUNT  link_guard: printed no tally line at all
+  NOCOUNT  mac_rmon: printed no tally line at all
+  NOCOUNT  mbx: printed no tally line at all
+  NOCOUNT  milan_dp_gm_steps: printed no tally line at all
+  NOCOUNT  milan_dp_mclk: printed no tally line at all
+  NOCOUNT  milan_dp_render: printed no tally line at all
+  NOCOUNT  mmcm_servo_autorepair: printed no tally line at all
+  NOCOUNT  shaper_core: printed no tally line at all
+  NOCOUNT  tkdiag: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: gptp_shadow gptp_tables link_guard mac_rmon mbx milan_dp_gm_steps milan_dp_mclk milan_dp_render mmcm_servo_autorepair render_queue shaper_core tcam tkdiag
+logs: <scratch>/fullR6/sweep/shard-1/logs
+CPUs 8-15 (a cpu_ranges.py pick range, the unit's affinity checked at launch)
+
+# the sweep, shard 2 of 4 (native-shards.py, label 894b-r6b) at af2c4d7a on its own fresh clone, run-recorded-gates.py: exit 1, finished 2026-11-15T12:53:25; TSN_GEN_ROOT set: True; SKIPPED lines 0; the head af2c4d7a
+shard: 2/4   selected suites: 17
+PASS     aaf
+FAIL     aaf_clock_meter
+FAIL     aaf_latency_taps
+FAIL     avtp_rxmon
+FAIL     capture_coherence
+FAIL     chmap_render
+FAIL     clkvalid
+FAIL     controller_rate
+FAIL     datapath
+PASS     fw_service_budget
+FAIL     gptp_plane
+FAIL     lat_history_ring
+FAIL     maap
+FAIL     media_grid_align
+FAIL     nvm_backend
+FAIL     ptp
+FAIL     queues
+----------------------------------------------------------------
+suites: 17   passed: 2   failed: 15   timed out: 0
+checks: 34677   in-suite failures: 42
+
+ACCOUNTING FAILURE -- nothing was measured by 12 suite log(s):
+  NOCOUNT  aaf_latency_taps: printed no tally line at all
+  NOCOUNT  avtp_rxmon: printed no tally line at all
+  NOCOUNT  chmap_render: printed no tally line at all
+  NOCOUNT  clkvalid: printed no tally line at all
+  NOCOUNT  controller_rate: printed no tally line at all
+  NOCOUNT  datapath: printed no tally line at all
+  NOCOUNT  gptp_plane: printed no tally line at all
+  NOCOUNT  lat_history_ring: printed no tally line at all
+  NOCOUNT  media_grid_align: printed no tally line at all
+  NOCOUNT  nvm_backend: printed no tally line at all
+  NOCOUNT  ptp: printed no tally line at all
+  NOCOUNT  queues: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: aaf_clock_meter aaf_latency_taps avtp_rxmon capture_coherence chmap_render clkvalid controller_rate datapath gptp_plane lat_history_ring maap media_grid_align nvm_backend ptp queues
+logs: <scratch>/fullR6/sweep/shard-2/logs
+CPUs 16-23 (a cpu_ranges.py pick range, the unit's affinity checked at launch)
+
+# the sweep, shard 3 of 4 (native-shards.py, label 894b-r6b) at af2c4d7a on its own fresh clone, run-recorded-gates.py: exit 1, finished 2026-11-15T12:51:57; TSN_GEN_ROOT set: True; SKIPPED lines 0; the head af2c4d7a
+shard: 3/4   selected suites: 16
+PASS     aaf_audio_loop
+PASS     avtp_stream
+PASS     cdc
+FAIL     chmap_capture
+FAIL     crf_rx
+FAIL     crf_tx
+FAIL     follow_ring
+FAIL     ifg
+FAIL     media_nco
+FAIL     media_phase
+FAIL     mmcm_servo
+FAIL     pcmlpf
+FAIL     reboot_ctrl
+FAIL     tdm
+FAIL     tdm_render
+FAIL     tsn_fuzz
+----------------------------------------------------------------
+suites: 16   passed: 3   failed: 13   timed out: 0
+checks: 1010   in-suite failures: 34
+
+ACCOUNTING FAILURE -- nothing was measured by 10 suite log(s):
+  NOCOUNT  crf_rx: printed no tally line at all
+  NOCOUNT  crf_tx: printed no tally line at all
+  NOCOUNT  follow_ring: printed no tally line at all
+  NOCOUNT  ifg: printed no tally line at all
+  NOCOUNT  media_nco: printed no tally line at all
+  NOCOUNT  media_phase: printed no tally line at all
+  NOCOUNT  mmcm_servo: printed no tally line at all
+  NOCOUNT  pcmlpf: printed no tally line at all
+  NOCOUNT  tdm: printed no tally line at all
+  NOCOUNT  tdm_render: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: chmap_capture crf_rx crf_tx follow_ring ifg media_nco media_phase mmcm_servo pcmlpf reboot_ctrl tdm tdm_render tsn_fuzz
+logs: <scratch>/fullR6/sweep/shard-3/logs
+CPUs 24-31 (a cpu_ranges.py pick range, the unit's affinity checked at launch)

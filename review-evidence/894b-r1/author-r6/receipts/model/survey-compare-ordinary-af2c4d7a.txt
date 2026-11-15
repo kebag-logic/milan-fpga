@@ -1,0 +1,74 @@
+# the stated-table survey (round 5's compare_8x8_1if.py) over round 5's measurement against af2c4d7a's statements; exit 0 (identical to f8ea6d72's)
+# 8x8/1if at shape (1, 9, 9); its records and events NEAREST 8x8/2if's; record.aecp by class in record_classes.py (long 1510, paced 635, other 265 us)
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          22,380   223.80   235    235 within   load_grade.stated(8x8/1if) GRADED base; M-A0/acmp-cmd
+base                                          22,380   223.80   235    235 within   load_grade.stated(8x8/1if) STATED_US base; M-A0/acmp-cmd
+base                                          22,380   223.80   235    235 within   poll_grade.STATED_US[(1, 9, 9)] base; M-A0/acmp-cmd
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) GRADED build; M-A0/save-second
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) STATED_US build; M-A0/save-second
+build                                              0     0.00     0   1795 within   whole_grade.stated_us((1, 9, 9)) build (ctrl_loop.h); M-A0/save-second
+build_one                                    138,906  1389.06  1460   1475 within   load_grade.stated(8x8/1if) GRADED build_one; M-A3/srp
+build_one                                    138,906  1389.06  1460   1475 within   load_grade.stated(8x8/1if) STATED_US build_one; M-A3/srp
+build_one                                    138,906  1389.06  1460   1475 within   whole_grade.stated_us((1, 9, 9)) build-one (ctrl_loop.h); M-A3/srp
+centisecond                                   16,967   169.67   180    510 within   load_grade.stated(8x8/1if) GRADED centisecond; P-AE/notice-burst-0.log
+centisecond                                   16,967   169.67   180    510 within   load_grade.stated(8x8/1if) STATED_US centisecond; P-AE/notice-burst-0.log
+event.ACMP                                    16,831   168.31   180    210 within   load_grade.stated(8x8/1if) GRADED event.ACMP; TIMER#1, 27 taken
+event.ACMP                                    16,831   168.31   180    350 within   load_grade.stated(8x8/1if) STATED_US event.ACMP; TIMER#1, 27 taken
+event.ADP                                      8,546    85.46    90    120 within   load_grade.stated(8x8/1if) GRADED event.ADP; TIMER#0, 146 taken
+event.ADP                                      8,546    85.46    90    120 within   load_grade.stated(8x8/1if) STATED_US event.ADP; TIMER#0, 146 taken
+event.AECP                                     7,102    71.02    75    110 within   load_grade.stated(8x8/1if) GRADED event.AECP; TIMER#3, 20737 taken
+event.AECP                                     7,102    71.02    75    105 within   load_grade.stated(8x8/1if) STATED_US event.AECP; TIMER#3, 20737 taken
+event.GM                                       2,959    29.59    35    320 within   load_grade.stated(8x8/1if) GRADED event.GM; GM, 224517 taken
+event.GM                                       2,959    29.59    35    320 within   load_grade.stated(8x8/1if) STATED_US event.GM; GM, 224517 taken
+event.LINK                                    19,579   195.79   210    300 within   rows_grade.ROW_COSTS[8x8/2if] event.LINK; LINK, 116 taken
+event.MAAP                                    17,358   173.58   185    215 within   load_grade.stated(8x8/1if) GRADED event.MAAP; TIMER#2, 316 taken
+event.MAAP                                    17,358   173.58   185    215 within   load_grade.stated(8x8/1if) STATED_US event.MAAP; TIMER#2, 316 taken
+event.TICK                                     2,991    29.91    35     85 within   load_grade.stated(8x8/1if) GRADED event.TICK; TICK, 48785 taken
+event.TICK                                     2,991    29.91    35     40 within   load_grade.stated(8x8/1if) STATED_US event.TICK; TICK, 48785 taken
+events_none                                    2,840    28.40    30     35 within   load_grade.stated(8x8/1if) GRADED events_none; P-AE/notice-burst-2.log
+events_none                                    2,840    28.40    30     35 within   load_grade.stated(8x8/1if) STATED_US events_none; P-AE/notice-burst-2.log
+item.acmp                                      6,819    68.19    75     75 within   load_grade.stated(8x8/1if) GRADED item.acmp; M-A0/backlog-owed
+item.acmp                                      6,819    68.19    75     75 within   load_grade.stated(8x8/1if) STATED_US item.acmp; M-A0/backlog-owed
+item.acmp                                      6,819    68.19    75     75 within   poll_grade.STATED_US[(1, 9, 9)] acmp; M-A0/backlog-owed
+item.acmp_declined                             2,542    25.42    30     30 within   load_grade.stated(8x8/1if) GRADED item.acmp_declined; M-A0/backlog-owed
+item.acmp_declined                             2,542    25.42    30     30 within   load_grade.stated(8x8/1if) STATED_US item.acmp_declined; M-A0/backlog-owed
+item.acmp_declined                             2,542    25.42    30     30 within   poll_grade.STATED_US[(1, 9, 9)] acmp_declined; M-A0/backlog-owed
+item.acmp_kept                                 8,714    87.14    95    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; M-A0/backlog-owed
+item.aecp                                     13,572   135.72   145    145 within   poll_grade.STATED_US[(1, 9, 9)] aecp; P-AE/notice-every-0
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; M-A0/save-second
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; M-A0/save-second
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) GRADED item.mrpdu; M-A0/save-second
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) STATED_US item.mrpdu; M-A0/save-second
+item.mrpdu                                         0     0.00     0   1475 within   poll_grade.STATED_US[(1, 9, 9)] mrpdu; M-A0/save-second
+item.rebuild                                  54,629   546.29   575    590 within   poll_grade.STATED_US[(1, 9, 9)] rebuild; M-A2/adp-link
+item.reclaim                                   2,527    25.27    30     30 within   load_grade.stated(8x8/1if) GRADED item.reclaim; P-AE/notice-every-0
+item.reclaim                                   2,527    25.27    30     30 within   load_grade.stated(8x8/1if) STATED_US item.reclaim; P-AE/notice-every-0
+item.reclaim                                   2,527    25.27    30     30 within   poll_grade.STATED_US[(1, 9, 9)] reclaim; P-AE/notice-every-0
+item.record                                   31,640   316.40   335    345 within   poll_grade.STATED_US[(1, 9, 9)] retained; M-A1/backlog-adp@blank-4
+item.retained                                      0     0.00     0    345 within   load_grade.stated(8x8/1if) GRADED item.retained; M-A0/save-second
+item.retained                                      0     0.00     0    345 within   load_grade.stated(8x8/1if) STATED_US item.retained; M-A0/save-second
+item.retained                                      0     0.00     0    345 within   poll_grade.STATED_US[(1, 9, 9)] retained; M-A0/save-second
+item.walk                                      4,905    49.05    55     55 within   load_grade.stated(8x8/1if) GRADED item.walk; M-A3/srp
+item.walk                                      4,905    49.05    55     55 within   load_grade.stated(8x8/1if) STATED_US item.walk; M-A3/srp
+item.walk                                      4,905    49.05    55     55 within   poll_grade.STATED_US[(1, 9, 9)] walk; M-A3/srp
+item.withdraw                                 10,453   104.53   110    110 within   poll_grade.STATED_US[(1, 9, 9)] withdraw; M-A2/backlog
+record.acmp                                   22,552   225.52   240    305 within   load_grade.stated(8x8/1if) GRADED record.acmp; M-A1/fixture.log
+record.acmp                                   22,552   225.52   240    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; M-A1/fixture.log
+record.adp                                    12,210   122.10   130    130 within   load_grade.stated(8x8/1if) GRADED record.adp; M-A3/backlog-adp-refill.log
+record.adp                                    12,210   122.10   130    240 within   load_grade.stated(8x8/1if) STATED_US record.adp; M-A3/backlog-adp-refill.log
+record.maap                                    9,146    91.46   100    130 within   load_grade.stated(8x8/1if) GRADED record.maap; P-AE/notice-every-2.log
+record.maap                                    9,146    91.46   100    130 within   load_grade.stated(8x8/1if) STATED_US record.maap; P-AE/notice-every-2.log
+record.srp                                    32,047   320.47   340    365 within   load_grade.stated(8x8/1if) GRADED record.srp; M-A1/backlog-adp@blank-4.log
+record.srp                                    32,047   320.47   340    365 within   load_grade.stated(8x8/1if) STATED_US record.srp; M-A1/backlog-adp@blank-4.log
+step                                          80,915   809.15   850   1030 within   load_grade.stated(8x8/1if) GRADED step; M-A1/backlog-adp@program-aged2-4
+step                                          80,915   809.15   850   1030 within   load_grade.stated(8x8/1if) STATED_US step; M-A1/backlog-adp@program-aged2-4
+step                                          80,915   809.15   850    975 within   whole_grade.stated_us((1, 9, 9)) step (ctrl_loop.h); M-A1/backlog-adp@program-aged2-4
+item.aecp.response                             2,790    27.90    30     65 within   load_grade.stated(8x8/1if) GRADED item.aecp.response; M-A0/backlog-owed (1 frame(s))
+item.aecp.response                             2,790    27.90    30     65 within   load_grade.stated(8x8/1if) STATED_US item.aecp.response; M-A0/backlog-owed (1 frame(s))
+item.aecp.notice                              13,572   135.72   145    275 within   load_grade.stated(8x8/1if) GRADED item.aecp.notice; P-AE/notice-burst-0 (16 frame(s))
+item.aecp.notice                              13,572   135.72   145    275 within   load_grade.stated(8x8/1if) STATED_US item.aecp.notice; P-AE/notice-burst-0 (16 frame(s))
+event.AMAP_LIVE_WRITE                          1,895    18.95    20     25 within   rows_tiers.DATAPATH_US[8x8/2if] AMAP_LIVE_WRITE; datapath-events.log@71787569
+event.AS_PATH_CHANGED                          2,411    24.11    30     40 within   rows_tiers.DATAPATH_US[8x8/2if] AS_PATH_CHANGED; datapath-events.log@72189815
+event.AVB_INFO_CHANGED                         2,637    26.37    30     40 within   rows_tiers.DATAPATH_US[8x8/2if] AVB_INFO_CHANGED; datapath-events.log@71386344
+
+# 0 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)

@@ -1,0 +1,16 @@
+# quick checks on the lane worktree at 0700f09e, clean (git status: 0 lines); not the final pass, which the STOP leaves unrun
+rc=0 python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --selftest :: RESULT: PASS: 9 mutants, 0 failure(s)
+rc=0 python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest :: record classes: 13 of 13 planted controls refused
+rc=0 python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check --selftest :: RESULT: PASS
+rc=0 python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest :: load gate: 26 of 26 planted controls refused
+rc=0 python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check :: RESULT: PASS
+rc=0 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest :: flip check: 611 of 611 planted controls refused
+rc=0 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/1if :: RESULT: PASS
+rc=0 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if :: RESULT: PASS
+rc=0 python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest :: rows_tiers: 1033 of 1033 planted controls refused
+rc=0 python3 -B tb/verilator/ctrl_service_budget/tier_grid.py --point 1x1/1if :: CHOSEN: slice 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0116
+rc=0 python3 -B scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 python3 -B scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 python3 -B scripts/docs_check.py :: docs_check: 0 finding(s) across 219 md files + 1600 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 git diff --check origin/894-tiers HEAD :: 
+rc=0 git diff --check 98c0b62b HEAD :: 

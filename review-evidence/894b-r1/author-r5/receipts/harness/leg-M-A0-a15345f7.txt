@@ -1,0 +1,18 @@
+# 8x8/1if arm A part M-A0 on a15345f7's image: its own lines
+# 8x8-1if none: 95 groups in the arm; part 0 of 4 runs 22
+HEAD a15345f729d0a42c64b0307c4df1477e5474f15c DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-second,backlog-adp@blank-6,backlog-adp@blank-aged1-2,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-2,backlog-adp@blank-aged2-6,backlog-adp@program-2,backlog-adp@program-6,backlog-adp@program-aged1-2,backlog-adp@program-aged1-6,backlog-adp@program-aged2-2,backlog-adp@program-aged2-6,backlog-adp@verify-2,backlog-adp@verify-6,backlog-adp@verify-aged1-2,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-2,backlog-adp@verify-aged2-6,save,backlog-owed,adp-gm,acmp-cmd start 2026-11-15T08:29:45
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 63.237 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.459 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.739 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.957 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.191 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.184 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.846 ms over its budget 20 ms
+SLICES 501869 tier-2 slices; the longest SRP's records 129,975, THE TRANSMIT's build 105,119, THE RETRY's round 9,166 CPU cycles, against the stated slice 147,500 (THE TIERS)
+AGED 12 windows opened with the step's age at its limit or one short of it, 4 aged steps among their records; the least margin 9.945 ms, backlog-adp@verify-aged2-6.service.srp.last.if0 at 10.055 ms
+SAVE save-second: durable 22829.610 ms after its change (stated worst case 22,870 ms, 382 steps, longest gap between flash steps 32.188 ms) within
+SAVE save: durable 4817.673 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 11.414 ms) within
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 154144 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-15T10:49:58
