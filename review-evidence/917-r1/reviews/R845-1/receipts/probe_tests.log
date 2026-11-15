@@ -1,0 +1,14 @@
+== head: rc=0 == mbx (Wishbone host): checks: 625   failures: 0 ==
+== probe-release-gated-on-open: rc=1 == mbx (Wishbone host): checks: 625   failures: 2 ==
+   [FAIL] RP2 a frame held when its channel closes is still committed at the refill got=16 exp=17
+   [FAIL] B6 no channel holds a frame while its bucket holds a token, over every clock of every check got=27 exp=0
+== probe-refused-behind-held-counted: rc=1 == mbx (Wishbone host): checks: 625   failures: 2 ==
+   [FAIL] RP1 a refused command and a runt behind the held one count in no RATE_DROP got=1 exp=0
+   [FAIL] RP1 nor set IRQ_STATUS.ERR               got=1 exp=0
+== probe-space-from-committed-head: rc=1 == mbx (Wishbone host): checks: 625   failures: 6 ==
+   [FAIL] RP3 the frame behind it finds no room past the held record: RX_DROP got=0 exp=1
+   [FAIL] RP3 and not RATE_DROP                    got=1 exp=0
+   [FAIL] RP3 the oldest unread record is intact
+   [FAIL] RP3 every unread record intact, in order
+   [FAIL] RP3 the held record whole
+   [FAIL] U0 no receive ring word is written under the head the core sees got=10 exp=0
