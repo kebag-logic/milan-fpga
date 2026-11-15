@@ -1,0 +1,22 @@
+# stated: load_grade.GRADED record.aecp 240 us (STATED_US pin column 240); rows_tiers.LONG_RECORD_US 975 us for aecp-largest-notice; rule = cycles/100 x 1.05 rounded up to 5 us
+group                              records most cycles      us  rule stated over  command
+B1F/results/aecp-largest-notice         21      85,166  851.66   895    975 -     AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+B1F/results/aecp-fanout                 29      28,750  287.50   305    240 OVER  AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+E1/results/notice-burst-0               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-1               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-2               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-3               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-4               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-5               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-6               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-7               49      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-0               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-1               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-2               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-3               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-4               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-5               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-6               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-7               81      22,531  225.31   240    240 -     AEM_COMMAND SET_NAME
+B1F/results/aecp                        25      18,678  186.78   200    240 -     AEM_COMMAND SET_NAME (aecp.set_name.if0)
+B1F/results/aecp-reboot                 23      15,582  155.82   165    240 -     AEM_COMMAND LOCK_ENTITY

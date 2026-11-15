@@ -1,0 +1,16 @@
+d3566d44dc Plant the owed-notice queue's round defect beside the REBOOT's term in round_waits, so it has its one planting site again and is caught by its words (#871)
+cb0fc679a5 Describe the REBOOT simulation's early-reset plant as it acts: it fires the port in the take of every AEM_COMMAND REBOOT, refused ones too, before AECP's handler runs (#871)
+20e08cebb6 Fire the REBOOT simulation's early-reset plant in the take that hands AECP the REBOOT, before its handler runs, since a plain response is committed in the record's own turn under #894, so t
+57daf4ffa8 State AECP REBOOT's record, accepted and refused, in REBOOT_RESET.md section 8 and its evidence row, held as an ordinary AECP record in the CPU budget harness's answering-ports arm (#871)
+41dcdd8f8d State the restated 1x1/1if costs and the 135 ms queued bound in FR_NFR 3.4.1, SPLIT_CONTROL_MEMORY section 13, the AECP and harness READMEs, with #894's head's figures beside them (#871)
+935dacf2f4 Run the notice windows' load to the restated 135 ms queued bound, and hold the notice self-test's bound and its over-bound case to it (#871)
+7653571fa5 Restate at 1x1/1if by the rule what the merged image measures over: SRP's record and a retained retry 285 us, AECP's record 240, a pass's events' fixed part 40, the paced SET_CONFIGURATION 
+7b452a5f62 State AECP REBOOT's composition with #894's tiers: its record in the answering-ports arm, the reset port's bank below the record mover's, the owed-notice queue and THE RETRY after the SUCCE
+9447702ab1 Move AECP REBOOT's planted defects to aecp_reboot_mutants.py and the aecp-reboot group to reboot_group.py, wrap the answering-ports arm's comment, and declare B18's two flags apart, within 
+a3e45e682e Hold the REBOOT simulation's flash device to the flash map's journal, the split placement's KLJ3 span, as the budget harness does since the merge of #902 (#871)
+24e630897c Raise the platform's 8x8 two-interface ledger entry to 60.5 RAMB36 at its measured ctrl_plat of 20,416 B with AECP's REBOOT composed, as debt owed to S14 by the owner's decision of 2026-11-
+b01968a4a4 Measure AECP REBOOT's records, accepted and refused, in the answering-ports arm's aecp-reboot group, whose image has a reset port, and hold each as an ordinary record in record_classes.py, 
+88b0fcd105 Keep B18's ADP ring full for exactly its SHUTDOWN's sends and its next poll's, over room for one frame from the boot, so the owed DEPARTING alone holds the reset and its planted defect is c
+b4b0c3eb91 Start no THE RETRY round once a REBOOT is accepted, as aecp_poll starts no probe or notification after its SUCCESS, with the core test's check and a planted defect (#871)
+7072343a69 Hold B15's and B17's saves to THE STEP's pass after each centisecond as B10 does, and set B18's ADP ring and B23's AECP ring from the boot's first read, for the driver that reads a ring's t
+6cfdf650b4 Merge #902's review head 41ca9f87 (894-tiers) into the REBOOT lane: both sides' AECP config, readiness and completion kept, the REBOOT's reset port moved one CSR bank below the record mover

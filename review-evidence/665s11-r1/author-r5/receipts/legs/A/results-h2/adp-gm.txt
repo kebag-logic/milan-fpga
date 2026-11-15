@@ -1,0 +1,19 @@
+wait ready
+mark booted
+wait cycles 5000000
+wait quiet 3 within 2000000
+mark adp.link_up.if0
+link 0 1
+wait tmr 0 1 within 30000000
+mark adp-gm.barrier0
+mark adp.tmr_delay.if0
+wait tx 0 1 within 220000000
+wait cycles 2000000
+wait quiet 3 within 2000000
+mark adp-gm.barrier1
+mark adp.gm_change.if0
+gm 0 0a0b0c0dfffe0e00 0
+wait tmr 0 1 within 30000000
+wait quiet 3 within 2000000
+mark adp-gm.barrier2
+end
