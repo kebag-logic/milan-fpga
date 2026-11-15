@@ -1,0 +1,4 @@
+# head 33b0d03a4ac899ed1601cd2cd97efbf66e293c9e gate rules: python3 -I -c "import sys, pathlib; sys.path.insert(0, 'tb/verilator/ctrl_service_budget'); import queued_bound, paced_rows, rows_tiers; r = pathlib.Path('.'); w = rows_tiers.solve('last', rows_tiers.point_inputs(r, '1x1/1if'), rows_tiers.BUILT)[0]; print('last', w, 'ruled', queued_bound.ruled(w), 'stated', queued_bound.stated(r)); s = queued_bound.statements(r) + paced_rows.statements(r) + rows_tiers.tx_statements(r); print('pace', paced_rows.choice(r), 'statements', s); print('controls escaped', queued_bound.controls(r) + paced_rows.controls(r)); sys.exit(1 if s else 0)"
+last 134.74 ruled 135 stated 135
+pace 8 statements []
+controls escaped []
