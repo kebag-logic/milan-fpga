@@ -124,12 +124,19 @@ void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_valu
 	n->port = (struct nvm_state){model_ready, apply, settle, rollback, latch, release, n};
 }
 
+// Every id nvm_rec_id_of returns has its bit: the names are layout 3's last block (#920).
+_Static_assert(NVM_ID_NAME + MILAN_NVM3_N_NAME <= 32u * AECP_NVM_WORDS, "every record id of the shape has a pending bit");
+
 // The record's id without the walk to its offset (nvm_rec_id_of): a mark costs
 // the same in any pass (#665, the share in ctrl_loop.h).
 static void mark(struct aecp_nvm *n, unsigned group, unsigned index)
 {
 	int id = nvm_rec_id_of(group, index);
-	if (id >= 0) n->pending[(unsigned)id / 32u] |= 1u << ((unsigned)id % 32u);
+	if (id < 0) return;
+	uint32_t bit = 1u << ((unsigned)id % 32u);
+	uint32_t *word = &n->pending[(unsigned)id / 32u];
+	if ((*word & bit) == 0u) ++n->pending_count; // a record queued twice is delivered once
+	*word |= bit;
 }
 
 void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, uint16_t index)
@@ -151,9 +158,13 @@ void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, 
 }
 
 // The lowest pending record, one a pass. A clear word is passed over whole
-// (#665: testing all 256 bits cost about 20,000 cycles of every pass).
+// (#665: testing all 256 bits cost about 20,000 cycles of every pass), and a
+// pass with nothing pending tests no word (#920: the space is 36 words).
 bool aecp_nvm_poll(struct aecp_nvm *n)
 {
+	if (n->pending_count == 0u) {
+		return false;
+	}
 	for (unsigned w = 0; w < sizeof n->pending / sizeof n->pending[0]; ++w) {
 		uint32_t word = n->pending[w];
 		if (word == 0u) {
@@ -165,6 +176,7 @@ bool aecp_nvm_poll(struct aecp_nvm *n)
 			++bit;
 		}
 		n->pending[w] &= ~(1u << bit);
+		--n->pending_count;
 		nvm_store_changed_id(32u * w + bit);
 		return true;
 	}
