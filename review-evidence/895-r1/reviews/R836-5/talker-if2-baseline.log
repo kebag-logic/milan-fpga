@@ -1,0 +1,35 @@
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (2 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (11 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (1 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (17 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave
+[       OK ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave (8 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[       OK ] Talker.DestinationChangeWhileValidWithdrawsTheOld (8 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (1 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+[       OK ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (8 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[ RUN      ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin
+[       OK ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin (0 ms)
+[ RUN      ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+[       OK ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt (0 ms)
+[----------] 12 tests from Talker (62 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (62 ms total)
+[  PASSED  ] 12 tests.
+== ctrl SRP Talker declarations: checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
