@@ -19,12 +19,12 @@ extern "C" {
 // round_grade.py). A round takes as many as what its pass has left holds (aecp.c, scan): four in a pass of its own at
 // 8x8/2if, seven at 1x1/1if, and fewer beside refused attempts, each charged AECP_ATTEMPT_US.
 // The one exception to the 5 %: the cold cost at 8x8/2if is 185 us, 2.7 % over the most measured, 180.16 us (a round
-// of no notice beside two refused attempts, on the image that merged dev-soft-core 0fb66211), because 185 us is the
-// most THE RETRY's search holds the first notice to AECP_QUEUED_FIRST_MS at: 186 us already fails it, since its binding
-// pass, a build of one (1,215 us) carrying a round's cold start, five refused attempts and a notice beside THE SHARE's
-// margin, is then over THE SHARE, which at 185 us it fills exactly: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665,
-// decided 2026-11-13; FR_NFR.md 3.4.1). It expires at the 8x8/2if flip: #890 closes only with a measured cold cost of
-// at most 176.1 us, or on a new owner decision.
+// of no notice beside two refused attempts, on the image that merged dev-soft-core 0fb66211), because 185 us was the
+// most the retry search, before THE TIERS retired it, held the first notice to AECP_QUEUED_FIRST_MS at: 186 us failed
+// it then, a build of one (1,215 us) with a cold start, five refused attempts and a notice beside THE SHARE's margin
+// being over THE SHARE, which 185 us filled: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665, decided 2026-11-13;
+// FR_NFR.md 3.4.1). Under THE TIERS that first notice is a tier row, reported (#890). It expires at the 8x8/2if flip:
+// #890 closes only with a measured cold cost of at most 176.1 us, or on a new owner decision.
 #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
 #define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 185u)
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
