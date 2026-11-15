@@ -1,0 +1,26 @@
+# R837-14 gates at 41ca9f87 on a clean clone with submodules at their gitlinks (0 changed paths before and after); one line a command: rc and last line. *_exits_1 exit 1 by design.
+archive rc 0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+doc_paths rc 0 :: doc path gate: OK (1166 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+docs_check rc 0 :: docs_check: 0 finding(s) across 219 md files + 1598 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style rc 0 :: documentation style: OK (23 current documents)
+em_dash_66f7 rc 0 :: check_em_dash: 0 finding(s) over 2385 added line(s) in 28 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66f71326..HEAD]
+em_dash_867 rc 0 :: check_em_dash: 0 finding(s) over 64 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [867faf1e..HEAD]
+em_dash_selftest rc 0 :: check_em_dash selftest: PASS (339 arm(s))
+feature_status rc 0 :: feature_status: 0 finding(s)
+flip_check_1x1_asbuilt_exits_1 rc 1 :: RESULT: FAIL
+flip_check_1x1 rc 0 :: RESULT: PASS
+flip_check_8x8_exits_1 rc 1 :: RESULT: FAIL
+flip_check_both_exits_1 rc 1 :: RESULT: FAIL
+flip_selftest rc 0 :: flip check: 585 of 585 planted controls refused
+gptp_docs rc 0 :: gPTP documentation: OK (8 current pages)
+hygiene rc 0 ::   tab in SystemVerilog                     0                   0                   0
+load_check rc 0 :: RESULT: PASS
+load_selftest rc 0 :: load gate: 26 of 26 planted controls refused
+py_idiom rc 0 ::   over-long line: 0 <= 0
+record_classes_selftest rc 0 :: record classes: 11 of 11 planted controls refused
+rows_tiers_selftest rc 0 :: rows_tiers: 1033 of 1033 planted controls refused
+rows_tiers_terms_exits_1 rc 1 :: 
+solution_docs rc 0 :: solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+submodule_docs rc 0 :: submodule documentation: OK (6 exact gitlinks)
+tier_grid_1x1 rc 0 :: CHOSEN: slice 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0116
+todo rc 0 :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1523 first-party file(s) read)

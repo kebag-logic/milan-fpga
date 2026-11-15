@@ -1,0 +1,116 @@
+2191.0	A stated cost is an upper bound: a notice's, a round's cold start's and a pass given whole's are each the most measured over every instance plus 5 %, rounded up to 5 us, and the CPU budget harness fails a round or a pass over its stated cost (#665); a refused attempt's, `AECP_ATTEMPT_US` (34 us), is
+2192.0	THE RETRY's round is admitted at `AECP_ROUND_COLD_US` once and `AECP_NOTICE_US` a notice, the line over every round measured: 85 and 255 us at 1x1/1if, 185 and 365 us at 8x8/2if (`aecp_mbx.h`).
+2194.1	Under THE TIERS the 8x8/2if first queued notice is a tier row, 20.93 ms by every source, stated 22 ms and reported (#890); the decision and its 185 us stand.
+2195.0	The exception expires at the 8x8/2if flip: [#890](https://github.com/kebag-logic/milan-fpga/issues/890) closes only with a measured cold start of at most 176.1 us, or on a new owner decision.
+2204.0	| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.66 ms by every source, held to 20 (14.60 at `12180198`'s 1,200 us slice) | 20.93 ms by every source, stated 22 (20.25 at `12180198`) |
+2205.0	| every notice queued behind it (`AECP_QUEUED_MS`) | 127.21 ms by every source, held to 130 (91.59, held to 125, at `12180198`'s 1,200 us slice) | 806.60 ms by every source, stated 62, ceiling 70 (647.23 at `12180198`) |
+2211.0	Every ordinary pass runs every module's poll, and the response-time method of round 21 charged each ordinary pass the polls' heaviest measured instance, 800 us at 8x8/2if and 365 us at 1x1/1if.
+2215.0	[`poll_grade.py`](../../tb/verilator/ctrl_service_budget/poll_grade.py) holds each pass's base and each item to its stated cost, the most measured over every group plus 5 %, rounded up to 5 us, and its two plants run a heavy item in the base and a heavier item ([the harness's controls](../../tb/veri
+2244.1	Under THE TIERS the built design's last queued notice at 1x1/1if is held to the amendment's 130 ms (`AECP_QUEUED_MS`, [above](#the-queued-notices-at-stated-costs-and-the-first-notice)); decision D's 125 ms stays the as-built model's, and 8x8/2if's.
+2246.3	A record lwSRP's pool refuses for storage is retained, and while it waits no other SRP record is taken, each such record up to `SRP_RX_RETRY_MS` (1,000 ms): SRP's storage rule, not the CPU's service.
+2246.10	At 1x1/1if's R4, 74.83 ms, W less one record and W less two both hold 37 refills of SRP's (74.625 and 74.42 ms over 2 ms).
+2255.0	| `item.aecp` | by what each source sends ([round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 2): an AECP record's response to one recipient, or a command's response with its notice to the registered controllers, at most 16 an AVB interface, the lar
+2257.0	| `item.acmp` | one an ACMP record, one an ADP record and one a sink's TMR_NO_RESP | Milan v1.2 5.6.4.1; 5.5.2.3, Table 5.26 (`ACMP_TMR_NO_RESP_MS`, 200 ms) |
+2262.3	IEEE 1722-2016 B.3.4.2, Table B.8 (`MAAP_PROBE_BASE_MS` less `MAAP_PROBE_VARIATION_MS`);
+2267.2	A record's command can change something and owe its notice with its response, so a record is charged the larger; the probes, 32 a 250 ms at two interfaces, are charged their own frame.
+2287.1	With #32, a TICK event measured 75 us at 8x8/2if (30 at the pin), and every other cost moved by 10 us or less.
+2291.0	- A notice to the registered controllers took 805 cycles a recipient at 8x8/2if: the mailbox driver's record (`mbx_tx_begin` and `mbx_tx_commit`, 45 %), the loop's index arithmetic (a divide, a modulo, a multiply-add and `used()` a recipient) and three put helpers' calls a recipient (27 %).
+2291.3	A recipient takes 639 cycles.
+2291.4	Rewriting the driver's record path as well (a record repeating the one moving, or one record function shared) never moved it, 630 to 654 cycles, so it is unchanged.
+2292.0	- An SRP record's StreamID and MAC comparisons, in the receive filter, the indications and the registrar walk, went through `memcmp`, 184 cycles for most calls of an equality test (the adapter's 19 calls 4,808 cycles in the heaviest 8x8/2if record at `3a1d14c2`'s image): its alignment checks and the
+2292.6	By where each instruction's code lives (the image's link map), lwSRP's code is 19,511 of that record's 34,361 cycles and this tree's 14,850: SRP's adapter 7,725 (the receive filter, the indications, the registrar walk's callback and `same`), the copies, fills and compares lwSRP and the adapter call 
+2294.3	A stated cost is the larger of a new measurement and the committed table's, so an image that makes the record cheaper leaves 365 us above both the cut and its reversal; no stated cost is lowered.
+2298.0	**A centisecond's consumers** measured 510 us at 8x8/2if (48,549 cycles, `notice-every-1` in the `answering-every-port` arm, against 440, 41,816 cycles, in the same group at `3a1d14c2`).
+2298.1	Every centisecond over 30,000 cycles there holds four of lwSRP's periodic-transmission timers, both participants of both interfaces.
+2298.3	No data symbol moved; 362 of the image's 448 functions moved, by -188 to +312 B (the first after the fan-out by 168).
+2298.5	A measured worst case moves by up to 7,620 cycles with the image, more than the data layout's 6,490 (round 16, [issuecomment-6634982529](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529)); the table states the larger, so `ticks` rises 0.007.
+2302.2	On the same groups at 8x8/2if the heaviest SRP record went from 34,361 to 33,741 cycles in the `answering-every-port` arm (`notice-every-3`;
+2302.4	Closing 8x8/2if takes the heaviest record to 31,428 cycles.
+2302.7	The same scratch image moved the heaviest work pass of the same groups by -15,987 to +2,056 cycles.
+2304.6	At this branch's merge of the pin move, which carries #32, arm A's 8x8/2if image is 123,112 B and the `answering-every-port` arm's 123,420 B, and the size fixture's entry ledgers 58.0, whose `rom` holds 124,928 B ([section 3](#3-named-refusals), [section 5](#5-fit)).
+2310.2	Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070).
+2310.3	By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both co
+2312.1	At 8x8/2if each leg ran on a fresh build at `6c284a97`, whose image states a round's cold start at 185 us: every group of arm A and of the `answering-every-port` arm, and arm B's `aecp` group.
+2312.4	Every save is durable within its stated worst case (8x8/2if `save-second` 22,829.6 ms of 22,870, `save-starved` 12,447.0 of 12,470; 1x1/1if 6,030.3 of 6,070 and 4,048.8 of 4,070).
+2312.7	Every other cost is the larger of this measurement and the committed table's: `poll_grade.py`'s polls' base 155 to 205 us at 1x1/1if and 280 to 325 at 8x8/2if, its walk 20 to 35 at 1x1/1if and its rebuild 630 to 690 at 8x8/2if; at 1x1/1if an SRP record and its retained retry 260 to 280, a centisecon
+2318.0	| 1x1/1if | 0.501 | 0.499 | 0.70, both columns | 1.00x | `srp` 0.168, `rec.acmp` 0.053, `ticks` 0.048 | 230 |
+2319.0	| 8x8/2if | **0.822** | 0.770 | the flip check, 0.70 at the pin | 1.10x (1.17x at the pin) | `srp` 0.219, `item.acmp` 0.063, `item.aecp` 0.062 | 355 |
+2320.0	| 32x32/2if | 2.151 | 1.660 | reported: the more-compute image, #872 | 2.37x | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
+2322.0	There the load gate held 1x1/1if in both columns: at the pin 0.501, 0.199 under its ceiling, and with tsn-c-stack #32 0.499, 0.201 under it (round 29: 0.486 and 0.483; the merge's polls' base, an SRP record's 280 us and a centisecond's 150 move it; round 28: 0.463 and 0.450).
+2328.0	- or 1.10x the compute.
+2337.0	- **Tier 2**, only once tier 1's takes left none: SRP's records in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, the slice rule's choice at one interface, 950 us, and 1,300 us at two;
+2340.4	At the merge of #810's `084cf7a8` each cost is the larger of the two lineages' tables, so #810's measurements on the merge of `dev-soft-core` `0fb66211` raise at 1x1/1if (`load_grade.py`) an SRP record to 280 us (250), a pass's polls' base to 205 (155), ACMP's poll item to 125 (35), a retained retry
+2342.1	[#894's slice ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512) sets it to 800 us and gives the rule a sixth row, THE TRANSMIT's MRPDU with every AECP notice the largest legal one (txL), so `rows_tiers.slice_choice` ranks the six.
+2342.2	The tree may take the rule's choice instead of 800 us within 650 to 1,100 us, once every row holds there by every source (`rows_tiers.ruled`), and it does: with the join timer at 19 cs and the pace at 6 ms ([below](#the-contingent-moves-908)) every row held and the rule picked 900 us, txL binding, a
+2342.3	A 950 us slice holds one MRPDU's build and not both (1,010 us, `CTRL_LOOP_BUILD_PASS_US`), so a build resumes in the next slice at both points (`CTRL_LOOP_BUILD_MOST`).
+2342.6	One slice at both points could not be taken: an MRPDU's build at 8x8/2if is 1,215 us (`CTRL_LOOP_BUILD_ONE_PASS_US`) and cannot be divided.
+2342.7	The rulings choose no slice at 8x8/2if, whose rows miss at every slice, and it keeps 1,300 us.
+2344.0	| Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms; 130 at 1x1/1if) |
+2346.0	| 1x1/1if | 950 us | 13.10 | 74.07 | 69.86 | 14.66 | 127.21, within 130 (over 125) |
+2347.0	| 8x8/2if | 1,300 us | 44.24 | 206.45 | 196.31 | 20.93 | 806.60 |
+2351.3	[#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1, gives it tier 2's 90 ms where the MRP timer budget holds there, and otherwise the tightest value that does.
+2351.4	The budget holds to 240 ms less the armed join time (`CTRL_LOOP_TX_BOUND_MS`, derived from `CTRL_LOOP_JOIN_CS`): lwSRP arms the join timer as an MRPDU is committed, so the join time plus the lateness must stay within Milan Table 4.3's 240 ms.
+2353.2	At the ruling's 20 ms the built design held none of the new channel rows by every source at 1x1/1if: ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, each waiting under AECP-first for every AECP record arriving in its window, and R4L 37.47 ms, AECP's burst with every notice the largest legal one, 550 B, wai
+2353.3	The ruling's design grid ([`tier_grid.py`](../../tb/verilator/ctrl_service_budget/tier_grid.py)) held no design either: 440 candidates solved, 132 refused by their own rules, and none held every tier-1 row under 22.77 ms (R4L aside), so the lane stopped for the owner (#894).
+2355.0	The [ruling of 2026-11-13 on the owner's questions](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391) ([confirmed by the owner](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844947317)), option A, holds ACMP's, ADP's and MAAP's last record at 30 ms by
+2355.1	AECP's rows, R4, R4L and the first queued notice, stay at 20 ms.
+2355.3	Under THE PACE R4L's commands are paced edits, and its bound is 238 ms at the commit, IEEE 1722.1-2021 9.3.2.6's 240 ms response time at the wire less `T_ingress` and `T_egress` ([#894's ruling of 2026-11-13 on round 5](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6848507008);
+2355.5	R4 and the first queued notice keep 20 ms.
+2364.0	| The contingent moves: 19 cs, a 6 ms pace, 900 us | 12.82 | 158.34 | 28.35 | 26.76 | 26.88 | 14.50 | 65.95 | 59.60 | 117.19 | 29.49, within both | 49.70, within 50, **over 40** |
+2365.0	| And a build of one at 725 us; the last at 130 ms | 12.82 | 158.34 | 28.35 | 26.76 | 26.88 | 14.50 | 72.71 | 68.62 | 125.84, within 130, **over 125** | 29.78, within both | 49.99, within 50, **over 40** |
+2366.0	| Egress counted, the pace counted by whole ms, the map work bounded: a 7 ms pace ([below](#egress-counted)) | 12.82 | 173.37, within 238 | 28.35 | 26.76 | 26.88 | 14.50 | 72.71 | 68.62 | 125.84, within 130, **over 125** | 29.78, within 49 | 47.98, within 49, **over 40** |
+2367.0	| The direct index, AMAP_LIVE_WRITE at 30 us: an 8 ms pace ([below](#the-direct-index)) | 12.85 | 188.39, within 238 | 28.44 | 26.83 | 26.95 | 14.51 | 72.91 | 68.80 | 126.46, within 130, **over 125** | 29.86, within 49 | 48.09, within 49, **over 40** |
+2368.0	| The one-row edit's record cut, the edits a class of their own, a TICK at 50 us and ACMP's owed frame at 55: an 8 ms pace ([below](#the-one-row-edit)) | 12.93 | 188.41, within 238 | 28.64 | 27.01 | 27.13 | 14.56 | 73.39 | 69.24 | 127.22, within 130, **over 125** | 33.01, within 49 | 48.23, within 4
+2369.0	| SET_CONFIGURATION's record cut and paced, the paced class at 300 us: an 8 ms pace ([below](#set_configurations-record)) | 13.01 | 188.41, within 238 | 28.80 | 27.17 | 27.29 | 14.59 | 73.80 | 69.60 | 127.86, within 130, **over 125** | 33.21, within 49 | 48.23, within 49, **over 40** |
+2370.0	| The final pass's restatements, AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and a TICK at 55, the SRP drain at the load gate's record cost: an 8 ms pace ([below](#the-final-passs-restatements)) | 13.05 | 188.43, within 238 | 28.90 | 27.25 | 27.37 | 14.61 | 74.02 | 69.81 | **132
+2371.0	| The slice rule's choice, 950 us ([below](#the-final-passs-restatements)): an 8 ms pace | 13.10 | 188.48, within 238 | 28.95 | 27.30 | 27.42 | 14.66 | 74.07 | 69.86 | 127.21, within 130, **over 125** | 33.38, within 49 | 48.43, within 49, **over 40** |
+2373.1	After the contingent moves ([below](#the-contingent-moves-908)) it held every row, and `tier_grid.py` held 6 of the 420, choosing the built design at 900 us.
+2375.0	The largest legal notice's costs are measured: the CPU budget harness's `aecp-largest-notice` group sends REMOVE_AUDIO_MAPPINGS and ADD_AUDIO_MAPPINGS of 63 mappings, a control_data_length of 524, from a registered controller, so each response and each notice is 550 B and each notice goes to 15 cont
+2379.6	At the head the largest legal command's record is 87,895 cycles at 1x1/1if (925 us by the rule) and 146,678 at 8x8/2if (1,545 us), within the 975 and 1,650 us stated (`record_classes.py`).
+2380.4	So within 40 ms `paced_rows.choice` found none.
+2380.5	With the join timer at 19 cs and txL's bound at 50 ms it found 6 ms, txL 49.99 ms and R4L 158.34 ([below](#the-contingent-moves-908)); with `T_egress` counted and the 975 us record it found 7 ms, txL 47.98 ms and R4L 173.37 ([below](#egress-counted)); with AMAP_LIVE_WRITE re-measured at 30 us it fou
+2382.0	At 8x8/2if the size fixture's image, at the merge of #810's `084cf7a8`, is 125,200 B of rom, 59.0 RAMB36, and the platform's 60.0: the ledger names both there, the fixture's at the 59.0 of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment
+2394.0	- **A declined offer** is held to its own cost wherever it runs: at most 1,589 and 1,550 cycles at lever (a)'s head, 20 us at both points.
+2395.1	The kept record's accepted re-offer is held to the ACMP record's stated cost (at most 6,209 and 8,196 cycles at lever (a)'s head).
+2405.0	The base's heaviest leg is `acmp-cmd`: its pass that hands an ACMP binding to SRP (`srp_mbx_bind`) and marks the store reproduces each image's stated base, 14,287 CPU cycles on #810's `2cc852fa` (155 us by the rule) and 19,159 on `da1869a3` (205 us).
+2410.0	| The two-cycle register read (`KL_mbx`, `dev-soft-core` `3ba76ae7`), undone: one cycle again | 18,879 | 2 cycles |
+2411.0	| The hot list without `nvm_any`, undone: `nvm_any` out of line in its old place | 18,678 | 203 cycles |
+2414.0	- **The register read** costs a cycle a mailbox read: 8.02 cycles on average against 7.03, and the pass reads about twelve.
+2417.0	  - The store's own functions grew 1,440 cycles: `nvm_mark`, `nvm_publish`, the new `nvm_open_set` and `ctrl_app_aecp_store_words`.
+2418.0	  - The rest is SRP's bind on unchanged instruction counts: the sink's copy (`forward`) by 1,100 cycles on 131 instructions, `deliver` by 863 on 367, `srp_mbx_bind` by 523, `snapshot` by 399.
+2419.0	- **The mechanism** is where the data cache ([section 9](#9-the-cpus-data-cache): 8 KiB, direct-mapped, 64-byte lines) puts the store's state.
+2419.4	Those lines hold what every pass's polls read beside the store's status: SRP's interface and its fields ahead of its two frame buffers, its first 300 B at one interface.
+2427.0	| None (the head lever c measured) | 18,881 (200 us) | |
+2430.0	| No object moved; the store's per-pass fields last in its state | 17,878 (190 us) | |
+2444.1	A 900 us slice held one MRPDU's build, so the `srp` group's build after its Listener Ready made its declarations in the first MRPDU's pass: 68,951 CPU cycles at 1x1/1if, over the 430 us stated (`whole_grade.py` refuses that group at this branch's start, `ccb47e39`, too).
+2444.3	At 8x8/2if the same build measured 147,613 cycles, 1,550 us by the rule, over the 1,300 us slice it must fit (`ctrl_loop.c`), so 8x8/2if's 1,215 us stands, refuted, reported with its rows.
+2453.1	`ctrl_loop.h` states `CTRL_LOOP_T_INGRESS_MS` and `CTRL_LOOP_T_EGRESS_MS`, 1 ms each.
+2453.2	THE TRANSMIT's MRPDU bound is 240 ms less the armed 190 ms and `T_egress`, 49 ms (`CTRL_LOOP_TX_BOUND_MS`), and R4L's paced bound 240 ms less both, 238 ms (`paced_rows.PACED_BOUNDS`), each derived.
+2453.3	The harness holds a join interval commit to commit to 181.0 to 239.0 ms, Table 4.3's range less `T_egress` at each end (`join_grade.py`); the bench capture holds the wire to 180.0 to 240.0 ms.
+2456.1	A timer's run-out is resolved by the builds after it, wherever they come (`mrpdu_grade.resolve`): released, empty, late past THE TRANSMIT's 49 ms, absent, or unresolved where the run ends first.
+2457.1	The slice rule still gave 900 us and the last queued notice's rule 130 ms.
+2457.2	With the direct index the pace is 8 ms ([below](#the-direct-index)).
+2466.5	At the head the record is 87,895 cycles at 1x1/1if and 146,678 at 8x8/2if, within the 975 and 1,650 us stated (`record_classes.py`).
+2477.4	Every 1x1/1if row held by every source at that cut: ACMP 28.64 ms, the last queued notice 127.22 and txL 48.23.
+2478.1	A final pass holds each AECP record to its class's statement by the rule, an edit as an edit only where the next record follows it by more than the pace less 1 ms, and refuses a pass whose arm A legs at 1x1/1if did not run every group of the arm.
+2479.2	The cut's full arm A has a TICK of 4,612 cycles, in another group, the same coincidence: 50 us by the rule, within.
+2480.0	- **ACMP's owed frame.** Under the cut its send in `backlog-owed` is 4,890 cycles (4,723 at `7398ec0a`), 55 us by the rule, over the 50 stated, the code after the map edit's moved by the cut; it is stated at 55 us at 1x1/1if (`poll_grade.STATED_US`, `load_grade.STATED_US_DONOR`).
+2482.0	- **The images.** The cut added code to every image, its rom by alignment 224 B in each 1x1 image (the 1x1/1if size fixture 110,576 to 110,800 B, taking its next granule, 41.0 RAMB36, within 56) and 208 B in each 8x8 image (the 8x8/2if platform 130,496 to 130,704 B of 131,072, 60.0 RAMB36; the 8x8/1
+2491.3	The paced class's record is the dearer of its members' by the rule (`edit_rows.PACED`): at 1x1/1if a one-row edit's 260 us and an accepted SET_CONFIGURATION's 300 (28,376 cycles on the final image), so 300; on the 8x8 shape 325 and 595 (56,474), so 595.
+2494.0	- **The images.** The cut and the stamp add 216 B of rom to each image but the 1x1/1if size fixture, 224 B there (111,024 B, 41.0 RAMB36); the 8x8/2if platform holds 130,920 B of 131,072, 60.0 RAMB36, 152 B spare, and the 8x8/1if platform 129,624 B, 56.0.
+2498.0	`ctrl_loop.h` stated `CTRL_LOOP_SRP_UNIT_US`, the SRP record cost the slice keeps for each record it starts (`ctrl_loop.c`: a record starts only while the slice has that much left), at 250 us at one interface, where the load gate states an SRP record at 280 us: a 280 us record could start with 250 u
+2498.1	It is now the load gate's `record.srp` at each point, the dearer of the two columns', 280 us at one interface and 365 at two, and `load_grade.py --check` refuses any other figure by name, with a planted control at each point.
+2504.0	- AECP's timer slot, 6,206 cycles in six of the answering-every-port arm's sixteen groups (5,329 and 5,753 at `9606b3a9`; that arm's `notice-every-0`, the one group of it measured at `9606b3a9`, is under 5,500): 70 us, both columns.
+2505.0	- A LINK, 14,715 cycles in arm A's `fixture` group (13,956 at `9606b3a9`): 155 us (`rows_grade.ROW_COSTS`).
+2506.0	- A build of one, the `srp` group's after its Listener Ready, 69,635 cycles (68,972 at `9606b3a9`): 735 us (`CTRL_LOOP_BUILD_ONE_PASS_US`, which only a static assertion reads, so every image is byte-identical), and an owed MRPDU with it.
+2509.1	The slice rule (`tier_grid.py`) held 10 of 420 candidates and chose 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2.
+2509.2	Without the build of one's and the TICK's restatements every row held, the last queued notice at 127.98 ms; either alone put it over (132.64 and 132.65 ms).
+2509.4	[#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796) takes the rule's choice: the built slice at one interface is the slice rule's within 650 to 1,100 us, 950 us now, which `ctrl_loop.h` states and the model's self-test holds; the 130 ms bound s
+2509.5	At 950 us every 1x1/1if row holds by every source (the table [above](#the-tiers)): R4 13.10 ms, the last queued notice 127.21, ACMP 28.95 and txL 48.43; the load is 0.516 and 0.512, the pace stays 8 ms, and the slice rule chooses the built design.
+2509.6	`CTRL_LOOP_BUILD_MOST` stays 1, a 950 us slice being shorter than a build of both of an interface's MRPDUs (1,010 us).
+2509.8	A SET_CONFIGURATION cannot complete late on the product port: the datapath takes a commit on its crossing's pulse with no backpressure and acknowledges it within the contract's 64 cycles (2 polls on the split composition, `sim_split.cpp`), which the firmware outwaits, so no interface is ever owed an
+2513.0	- The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
+2516.0	- The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input.
+2520.0	- **A change-notice retry** is taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst holds one.
+2520.2	Under them the first queued notice is a tier row: 14.66 ms within 20 at 1x1/1if, and 20.93 ms at 8x8/2if, stated 22 and reported ([the table above](#the-queued-notices-at-stated-costs-and-the-first-notice)).
+# 115 sentences, :2189 to :2527
