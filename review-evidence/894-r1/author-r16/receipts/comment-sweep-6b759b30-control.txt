@@ -1,0 +1,16 @@
+# the same comment sweep at 6b759b30 (round 15's head), to show it finds R837-9-F1's present tense: every hit, unclassified
+49.69	sw/firmware/ctrl/aecp/aecp_mbx.h:50	// cost re-measured at 30 us, txL is 49.69 ms at 7 ms, and 8 ms does (#894, #908). The gate reads the
+29.78	sw/firmware/ctrl/srp/README.md:238	ilan Table 4.3's 240 ms. By every source it is 33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it; `rows_tiers.py`, the tx row; `ctrl_loop.c` holds
+33.01	sw/firmware/ctrl/srp/README.md:238	gress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 be
+900	sw/firmware/ctrl/srp/README.md:238	_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it; `rows
+12.26	tb/verilator/ctrl_service_budget/README.md:536	| PROBE_TX | 3.48 (23.02) | 11.17 (30.68) **miss** / 21.02 (54.45) **over ceiling** | 1.51 (3.25) | 1.54 (9.89) / 4.11 (12.26) | 115 / 116 (48) |
+47.98	tb/verilator/ctrl_service_budget/README.md:540	| the first TMR_NO_RESP | 5.48 (47.98) | 14.19 (70.11) **miss** / 12.89 (70.11) **miss** | 0.86 (
+14.50	tb/verilator/ctrl_service_budget/README.md:580	| lock_entity | 3.96 (5.41) | 8.32 (14.50) / 8.19 (14.64) | 66 / 73 |
+72.71	tb/verilator/ctrl_service_budget/README.md:681	| ADP, last record | 101.25 **miss** [4 ahead] | 137.94 **miss** [6 ahead] / 88.96 **miss** [7 ahead] | 51.03 **miss** [7 ahead] | 72.71 **miss** [7 ahead] / 88.96 **miss** [7 ahead] |
+28.35	tb/verilator/ctrl_service_budget/README.md:827	| 8 KiB, 2 ways | 7.5 (+3) | at least 18.01 | 8.19 | 12 of 81 (33 of 141) | at least 28.35 | 13.63 | 29 of 129 (61 of 182) |
+0.513	tb/verilator/ctrl_service_budget/README.md:1135	- `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so
+50	tb/verilator/ctrl_service_budget/load_grade.py:126	#: larger of that measurement and this table's; under #894's edit cut a TICK at 1x1/1if 45 to 50 us, the larger of this
+50	tb/verilator/ctrl_service_budget/load_grade.py:134	#: gate's (ctrl_loop.h, a47cd3f2) a TICK at 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's
+725	tb/verilator/ctrl_service_budget/load_grade.py:171	#: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's
+0.199	tb/verilator/ctrl_split_boot/README.md:87	| 1x1, one interface | 25.477 ms | 2,547,656 | 18 of 18 equal | 2.600 / 0.467 / 0.119 ms | 0.332 / 0.199 / 0.113 ms |
+14.56	tb/verilator/fw_service_budget/README.md:84	Two full 64 KiB slots bound WIP at 14.56 seconds.

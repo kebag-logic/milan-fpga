@@ -1,0 +1,74 @@
+# 894-a773 round 16 output index
+
+Generated from the 67 files present after sanitizing (`scripts/index.py`), each row read back.
+No file here carries a host path, scripts included, so each row is the hash of the bytes as published. For an earlier packet whose scripts the archive redacted, the archive's outer `MANIFEST.json` is authoritative for those scripts: its `original_sha256` is the INDEX row, `path_redacted` marks the file.
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `HANDOFF-r16.md` | 2,542 | `2e04bac1c678a9e093e4f2ada5137a764df3090f045b7eca025c16a29a351711` |
+| `PR-BODY.md` | 76,026 | `955d514e4618c183a7ae9d484e154e3032ae8b13a905489b8cc696802775c62a` |
+| `REVIEW-READY-COMMENT.md` | 4,153 | `50d83c9befd4bf1e3b07dc8fd3fee624bbd492d26411a731eded5f484dc05ad5` |
+| `receipts/comment-sweep-6b759b30-control.txt` | 2,833 | `67e6912b45c0e8afa9d5ad8ed8bd95e4533c1da50c8d937dccaac350ee6fe26a` |
+| `receipts/comment-sweep.txt` | 2,671 | `136592b587f8fe4d8a8a2389691204b9c6343ec08b55151b9f888836ec71788e` |
+| `receipts/gates/SUMMARY.txt` | 3,230 | `bd83aa7b1a893cb4c014bada0b33f1c02daa8778d70c4d46a9a3732a02a2fdd8` |
+| `receipts/gates/archive.log` | 93 | `69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c` |
+| `receipts/gates/archive_selftest.log` | 35 | `83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a` |
+| `receipts/gates/comment_sweep.log` | 121 | `484799e611ec66af1ee52a6e641d4abf18ac02cf7405fbf47e1cc191903f560a` |
+| `receipts/gates/controls_probe.log` | 236 | `ced3150ae7f0da3909271972e00c614183dffb05fd277e3bf0ce34d5f183795a` |
+| `receipts/gates/cpp_idiom.log` | 316 | `19834bce52e94ed42f5719feed4c80ebddd5be31404341431fb56a6fa22b734c` |
+| `receipts/gates/cpp_idiom_selftest.log` | 3,593 | `7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9` |
+| `receipts/gates/diff_check.log` | 6 | `2e22da2ab13713309ac75219e525b8e06ed02f3f1963b8feef203fa25827f93d` |
+| `receipts/gates/doc_map.log` | 61 | `74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16` |
+| `receipts/gates/doc_paths.log` | 101 | `f30598996b869bec3dded76b7969a09f3471417aec7df798bf2f668b8f740cb1` |
+| `receipts/gates/doc_style.log` | 47 | `e44785f7c4566223d097c60b7c622446f3c096a97e26bc660ef43f562ed3876e` |
+| `receipts/gates/doc_style_selftest.log` | 33 | `0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909` |
+| `receipts/gates/docs_check.log` | 128 | `20919ff5b27183688cd021992e89e424d7f3a24c503f7800166383a1a8c1fd06` |
+| `receipts/gates/em_dash_66adb9a9.log` | 142 | `f0cc479fc1c90f95bb1972d6b50d0227eea298c1b90c625d671d0b0ac71a2c4c` |
+| `receipts/gates/em_dash_6b759b30.log` | 138 | `f76720a2ffa64d30254add9dd9d620d41e03f33b08b29c68b3d3c0f77e6d158a` |
+| `receipts/gates/em_dash_cec88385.log` | 141 | `37e2718cbe9a6b11519e77c3c701df8de6fa1811b5dd2afb23932d2cccbafeac` |
+| `receipts/gates/feature_status.log` | 29 | `802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0` |
+| `receipts/gates/feature_status_selftest.log` | 1,500 | `77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184` |
+| `receipts/gates/flip_grade_selftest.log` | 48 | `7f7f1266896b8678b6ac01a2ed855d232d52c19ec758194da0db88d82fc82542` |
+| `receipts/gates/fw_arms_aecp_loop.log` | 4,046 | `59a441cb11428cf1001f38a4b3eb15ec8c002c3fa1d06d285c46c7f1bee5e467` |
+| `receipts/gates/gptp_docs.log` | 41 | `d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d` |
+| `receipts/gates/gptp_docs_selftest.log` | 46 | `200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e` |
+| `receipts/gates/hygiene.log` | 2,125 | `ecb48ef225fcb120c6f8d55c17f6a7dbf96c1b7ff731f65089dd3f9acc06dd5e` |
+| `receipts/gates/hygiene_selftest.log` | 1,847 | `2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8` |
+| `receipts/gates/load_grade_selftest.log` | 45 | `30daf5f7a79595f6c888ed0abbdcf9c4fbd724f3438a1065893f580a17e29683` |
+| `receipts/gates/py_idiom.log` | 461 | `8b67e1b66cf18448700324f27fa61482db8c4ad6ad6a0df3300ab8bd2b7a69af` |
+| `receipts/gates/py_idiom_selftest.log` | 2,531 | `d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d` |
+| `receipts/gates/rows_tiers_selftest.log` | 50 | `83ca997dc47de52454b3574a6f71c705c8d0906a1cf96432602c9ea6893a9463` |
+| `receipts/gates/solution_docs.log` | 87 | `2acece2eac83ce1952b1a7a582e6e8d120ad15dc15d053a9eaa142991774a623` |
+| `receipts/gates/solution_docs_selftest.log` | 59 | `c8e494cc9ae8d083f9eea98a94e81b533d0e9d2988253f12a7a50bd5094c4f67` |
+| `receipts/gates/stale_figures.log` | 19 | `0a93049dad78bc5bdbd1924cb39e9f3da47ec4244750a92efa55a15cbe87c9c9` |
+| `receipts/gates/stale_rows.log` | 87 | `2d1c51d702d7ccc4407e31d3720812423daefadd406088748893ed616e6e5298` |
+| `receipts/gates/submodule_docs.log` | 47 | `c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b` |
+| `receipts/gates/submodule_docs_selftest.log` | 66 | `54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b` |
+| `receipts/gates/todo_ownership.log` | 161 | `fdd63e613822d7490c02e02fd7fb90488ddf79eaf744fce5df267282e9829ed2` |
+| `receipts/gates/todo_ownership_selftest.log` | 2,584 | `696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b` |
+| `receipts/identity/harness-elf-sha256.txt` | 1,978 | `2dbdc1f2d9d738ec2030d354187ef115dbdb4ec85db21e5ed90d160057015e4e` |
+| `receipts/identity/image-compare.txt` | 237 | `ff07d5c5eb82a009396ba015b946f5b76528d2ba202da813d89c55f3db34d747` |
+| `receipts/identity/image-sha256-b6f5c638.txt` | 35,096 | `500f2edb41b5e1f282fb8dc22d7b9e5c2c5e9a40ab50a0e85f1041a96847559e` |
+| `receipts/identity/tokens.txt` | 676 | `39ddba85aa952b3960a62143887e87509b3cf2a0a0c9ede4af097a73b10220d4` |
+| `receipts/stale-figures-grep.txt` | 9,582 | `766f7733788d994aee6978388c8154400bd608a35884d1ce00328da6839e10c3` |
+| `receipts/stale-rows-grep.txt` | 26,993 | `55b9b51d7fbbd9005252161eb32014c8092d5d709b3600cdcd740b9535144be9` |
+| `receipts/statements/RC.txt` | 718 | `4aeb1a23bb85d7d768124fb793b9039670a457d61029827595cb7dbd616a205b` |
+| `receipts/statements/compare-1x1.txt` | 44,809 | `d6641f25b5be30aac3fb2bed76ad47910b6a9927f4c31264f562ba11bff1c845` |
+| `receipts/statements/compare-8x8.txt` | 10,585 | `bf41c22d0bbe3b5624473eaa427c4dadf649286dbc396c85ce63d38b3f1e57fe` |
+| `receipts/statements/controls-probe.txt` | 236 | `ced3150ae7f0da3909271972e00c614183dffb05fd277e3bf0ce34d5f183795a` |
+| `receipts/statements/flip-check-1x1.txt` | 1,177 | `5f03fa0bc0f07d2efa9efe5737923b96dd86c974e5e6530015e3baca5dabbf5f` |
+| `receipts/statements/flip-check-8x8.txt` | 3,527 | `78bddeaaa124ca9ba5ebe70d0a133d63a9dc4e02621d5d79ac3bdfb312c87c93` |
+| `receipts/statements/flip-check-both.txt` | 4,477 | `c09bdb786ecea3dd91e664af279f6f33a860cea57802cefe69fc2bc8e267cfa3` |
+| `receipts/statements/load-check.txt` | 1,412 | `fdb86e75dda83423bf2412f84c3aa684055004d621eebd68957b3fbf8745a759` |
+| `receipts/statements/model-statements.txt` | 3,430 | `de1a88a1700f0a6d73440698d050b01a61713a685565abbc04bcee9db93919ad` |
+| `receipts/statements/record-classes.txt` | 2,794 | `833a16d25f4c81facd6af16de6b2bf1edb20280ab67bf160d5ce237d3897d109` |
+| `receipts/sweep-tokens.txt` | 889 | `4a2a8eeddbd0c034ef715bd6aa55024652a06bfcbb904081579fccf35751f029` |
+| `scripts/comment_classify.py` | 3,450 | `061722d1e7af38b5a917397be11445b8492ed23eb647dcb0d5d235bb67bfd2db` |
+| `scripts/comment_sweep.py` | 4,890 | `198b35dd9e688a35cf4c866ad1e9bd8919dfb53910a522d4c7716620e0dbf890` |
+| `scripts/controls_probe.py` | 1,445 | `e96ff663b9b4541da181db54f29474d19c376ee50a9e9e8017cf1fbccbd06379` |
+| `scripts/fw_arms_aecp_loop.py` | 1,455 | `65eb73d2c1b89a287a3aa3da5d333227de25463d332904552a2325841f24c8a6` |
+| `scripts/index.py` | 2,370 | `6654bc299db16928ef1711b7f5139365dab3f0a85703f393f080a06f26aff7c0` |
+| `scripts/sanitize.py` | 680 | `4263f142eca659432e9526748a5d52f2a9e1f703e4fce8c32b9a70686ca9d1f6` |
+| `scripts/stale_rows.py` | 4,319 | `1d5f25597fe0cc9b2872f040c4a0615f9bf193d0f9c1203867066e06cd580695` |
+| `scripts/stale_rows_classify.py` | 8,547 | `939195eb99302df1ae85c5ca20092e2f9bd640ccda9239608caec762882c9449` |
+| `scripts/statement_checks.py` | 2,444 | `6add690f68868e6e574b67d13ebe8281e55d45c5ac45d4fde9a1172b6ae705a0` |

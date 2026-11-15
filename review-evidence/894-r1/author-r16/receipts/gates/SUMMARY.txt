@@ -1,0 +1,37 @@
+# round 16's gates on a clean clone of b6f5c638 (0 changed paths before and after), each as its workflow step runs it; one line a gate: its exit code and its last line
+fw_arms_aecp_loop (a unit on CPUs 56-63, scripts/fw_arms_aecp_loop.py 4): rc 0 :: AECP and loop arms: PASS (18 arms)
+rows_tiers_selftest: rc 0 :: rows_tiers: 1033 of 1033 planted controls refused
+flip_grade_selftest: rc 0 :: flip check: 585 of 585 planted controls refused
+load_grade_selftest: rc 0 :: load gate: 26 of 26 planted controls refused
+docs_check: rc 0 :: docs_check: 0 finding(s) across 219 md files + 1598 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em_dash_66adb9a9: rc 0 :: check_em_dash: 0 finding(s) over 2266 added line(s) in 26 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66adb9a9..HEAD]
+em_dash_cec88385: rc 0 :: check_em_dash: 0 finding(s) over 427 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cec88385..HEAD]
+em_dash_6b759b30: rc 0 :: check_em_dash: 0 finding(s) over 4 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6b759b30..HEAD]
+doc_style: rc 0 :: documentation style: OK (23 current documents)
+doc_style_selftest: rc 0 :: documentation style selftest: OK
+gptp_docs: rc 0 :: gPTP documentation: OK (8 current pages)
+gptp_docs_selftest: rc 0 :: gPTP documentation selftest: OK (30 controls)
+doc_map: rc 0 :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+cpp_idiom: rc 0 ::   build without warnings: 0 <= 0
+cpp_idiom_selftest: rc 0 :: 75 checks: 75 PASS, 0 FAIL
+py_idiom: rc 0 ::   over-long line: 0 <= 0
+py_idiom_selftest: rc 0 :: 54 checks: 54 PASS, 0 FAIL
+diff_check: rc 0 :: clean
+solution_docs: rc 0 :: solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+solution_docs_selftest: rc 0 :: solution documentation selftest: OK (47 mutation controls)
+submodule_docs: rc 0 :: submodule documentation: OK (6 exact gitlinks)
+submodule_docs_selftest: rc 0 :: submodule documentation selftest: OK (table and diagram controls)
+feature_status: rc 0 :: feature_status: 0 finding(s)
+feature_status_selftest: rc 0 :: feature_status: 0 finding(s)
+todo_ownership: rc 0 :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1523 first-party file(s) read)
+todo_ownership_selftest: rc 0 :: 45 checks: 45 PASS, 0 FAIL
+hygiene: rc 0 :: HYGIENE RATCHET: PASS (3 population(s), 1453 file(s))
+hygiene_selftest: rc 0 :: 35 checks: 35 PASS, 0 FAIL
+doc_paths: rc 0 :: doc path gate: OK (1166 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+archive: rc 0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+archive_selftest: rc 0 :: archive selftest: OK (24 controls)
+stale_figures: rc 0 :: classified 64 hits
+stale_rows: rc 0 :: # another 15, beside 30, historical 96, total 141; current with a superseded figure: 0 (run again over the final PR-BODY.md)
+comment_sweep: rc 0 :: # another 8, beside 3, historical 4, total 15; current with a superseded figure: 0
+controls_probe: rc 0 :: RESULT: PASS
+after: 0 changed paths

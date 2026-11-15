@@ -1,0 +1,17 @@
+points: 1x1/1if, 8x8/2if
+rows_tiers.tx_statements(1x1/1if): [] (holds)
+rows_tiers.unrowed(BUILT, 1x1/1if): [] (holds)
+rows_tiers.findings(BUILT, 1x1/1if): [] (holds)
+edit_rows.findings(1x1/1if): [] (holds)
+rows_tiers.tx_statements(8x8/2if): [] (holds)
+rows_tiers.unrowed(BUILT, 8x8/2if): [] (holds)
+rows_tiers.findings(BUILT, 8x8/2if): ['8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 44.24 ms, over its bound 20 ms; the largest term timers 11.18 ms', '8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 206.45 ms, over its bound 90 ms; the largest term others 34.14 ms', '8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 196.31 ms, over its bound 90 ms; the largest term others 32.89 ms', '8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 20.93 ms, over its bound 20 ms; the largest term spacing 8.00 ms', '8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 806.60 ms, over its bound 125 ms; the largest term srp 157.31 ms', '8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 67.94 ms, over its bound 30 ms; the largest term timers 12.29 ms', '8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 68.08 ms, over its bound 30 ms; the largest term others 14.19 ms', '8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.13 ms, over its bound 30 ms; the largest term others 16.12 ms', '8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 98.49 ms, over its bound 49 ms; the largest term others 21.04 ms', '8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 459.40 ms, over its bound 49 ms; the largest term aecp 108.69 ms']
+edit_rows.findings(8x8/2if): [] (holds)
+queued_bound.statements (1x1/1if): [] (holds)
+paced_rows.statements: [] (holds)
+paced_rows.count_findings: [] (holds)
+load_grade.srp_unit (both points): [] (holds)
+load_grade.findings (every point and column): [] (holds)
+load_grade.held: ['HELD 1x1/1if at the pin: the load 0.516, its ceiling 0.70', 'HELD 1x1/1if with tsn-c-stack#32: the load 0.512, its ceiling 0.70']
+load_grade.stated(1x1/1if): {'base': 205, 'build': 1010, 'build_one': 735, 'centisecond': 150, 'event.ACMP': 170, 'event.ADP': 115, 'event.AECP': 70, 'event.GM': 40, 'event.MAAP': 170, 'event.TICK': 55, 'events_none': 30, 'item.acmp': 55, 'item.acmp_declined': 20, 'item.aecp.notice': 210, 'item.aecp.probe': 60, 'item.aecp.response': 60, 'item.mrpdu': 735, 'item.reclaim': 25, 'item.retained': 280, 'item.walk': 35, 'record.acmp': 265, 'record.adp': 100, 'record.aecp': 235, 'record.maap': 90, 'record.srp': 280, 'step': 975}
+load_grade.stated(8x8/2if): {'base': 325, 'build': 2035, 'build_one': 1215, 'centisecond': 510, 'event.ACMP': 210, 'event.ADP': 120, 'event.AECP': 110, 'event.GM': 320, 'event.MAAP': 215, 'event.TICK': 85, 'events_none': 35, 'item.acmp': 70, 'item.acmp_declined': 20, 'item.aecp.notice': 275, 'item.aecp.probe': 65, 'item.aecp.response': 65, 'item.mrpdu': 1215, 'item.reclaim': 40, 'item.retained': 365, 'item.walk': 60, 'record.acmp': 305, 'record.adp': 125, 'record.aecp': 265, 'record.maap': 130, 'record.srp': 365, 'step': 1030}

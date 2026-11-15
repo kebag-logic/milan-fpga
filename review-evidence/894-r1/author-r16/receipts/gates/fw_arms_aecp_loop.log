@@ -1,0 +1,78 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote $TMP/ctrl-fw-arms-92ee1vz1/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $TMP/ctrl-fw-arms-92ee1vz1/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $TMP/ctrl-fw-arms-92ee1vz1/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] arm service_bounds
+    == ctrl service bounds: checks: 46   failures: 0 ==
+    RESULT: PASS
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 51   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (51 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+    == AECP core: checks: 147   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (147 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+    == AECP core: checks: 147   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (147 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_4x4
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_8ch
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_current
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_ax7101_8x8
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+    == AECP core: checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_4x4-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_8ch-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_current-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_8x8-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-keys-16x4-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-keys-16x32-if1
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+arms: service_bounds, port, aecp-mailbox-endstation_ax7101_1x1_tdm8-if1, aecp-mailbox-endstation_ax7101_1x1_tdm8-if2, aecp-image-endstation_arty_4x4, aecp-image-endstation_arty_8ch, aecp-image-endstation_arty_current, aecp-image-endstation_ax7101_1x1_tdm8, aecp-image-endstation_ax7101_8x8, aecp-core-endstation_ax7101_1x1_tdm8-if1, aecp-work-endstation_ax7101_1x1_tdm8-if1, aecp-work-endstation_arty_4x4-if1, aecp-work-endstation_arty_8ch-if1, aecp-work-endstation_arty_current-if1, aecp-work-endstation_ax7101_1x1_tdm8-if1, aecp-work-endstation_ax7101_8x8-if1, aecp-work-keys-16x4-if1, aecp-work-keys-16x32-if1
+AECP and loop arms: PASS (18 arms)
