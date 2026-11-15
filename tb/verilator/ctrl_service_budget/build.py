@@ -29,6 +29,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import arm_path
 import notice_window
 import poll_items
 import save_window
@@ -123,7 +124,7 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: the formal measurement. answering-ports: the four observation ports answer zeroed values
 #: instead of 'unavailable'. All four are contract 2.3's face block (aecp_face.c: stream, avb, path and counters, each a
 #: bounded window read that the datapath, held idle here, never answers; GET_AS_PATH's since #897); the arm replaces
-#: them in the face's ports, before the core takes them, path with an empty sequence. With the unmodified fixture, AECP
+#: them in the face's ports, before the core takes them, path with arm_path.py's. With the unmodified fixture, AECP
 #: retries each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
@@ -134,15 +135,14 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: retried notice's row (notice_window.py) starts there.
 VARIANTS = {
     'answering-ports': [
-        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
+        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
         ('static struct aecp_face image_face;\n',
          'static struct aecp_face image_face;\n'
          'static bool b_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
          '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'
          'static bool b_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)\n'
          '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); return true; }\n'
-         'static bool b_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'
-         '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; *count = 0; return true; }\n'
+         + arm_path.B_PATH +
          'static bool b_counters(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_counters *v)\n'
          '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'),
         ('    aecp_face_init(&image_face,&image_platform);\n',

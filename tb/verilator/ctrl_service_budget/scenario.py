@@ -458,6 +458,7 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         cmd(i, 'get_name', 0x0011, bytes(8))
         cmd(i, 'get_counters', 0x0029, f.be(9, 2) + f.be(0, 2))
         cmd(i, 'get_avb_info', *answers.AVB_INFO)
+        cmd(i, 'get_as_path', *answers.as_path(i))
         cmd(i, 'unknown_command', answers.UNKNOWN, bytes(4))
         mvu = f.mvu_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq[0]), 0x0000, bytes(2))
         end = f'resp:{aecp}:{seq[0]:x}'
@@ -674,13 +675,11 @@ def srp_groups(p: Point) -> list[Group]:
 def admission(channel: str, frame: bytes) -> dict:
     """What KL_mbx_rx admits of a channel's records of this frame's size.
 
-    The token bucket starts full, passes burst records back to back and then
-    refills one per refill_ms (KL_mbx_rx.sv, buckets); the ring holds room
-    records of this size whatever the rate. So room bounds what the ring can
-    hold, and at_once = min(burst, room) is what one instant admits. Where
-    the burst is below the room (bounded False), sustained arrivals at the
-    refill rate can fill the ring past its burst, so a backlog of at_once
-    records is an observation, never a bound.
+    The token bucket starts full, passes burst records back to back and then refills one per refill_ms
+    (KL_mbx_rx.sv, buckets); the ring holds room records of this size whatever the rate. So room bounds what
+    the ring can hold, and at_once = min(burst, room) is what one instant admits. Where the burst is below the
+    room (bounded False), sustained arrivals at the refill rate can fill the ring past its burst, so a backlog
+    of at_once records is an observation, never a bound.
     """
     ch = CONTRACT.channels[CH[channel]]
     words = len(CONTRACT.rx_header) + (len(frame) + 3) // 4

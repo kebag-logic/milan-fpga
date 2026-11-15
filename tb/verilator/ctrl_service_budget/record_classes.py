@@ -24,7 +24,9 @@ EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose
 (arm A's observation ports never answer); the rest (arm B's other records, the 8x8-1if point) are reported by class,
 not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
 each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
-ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO.
+ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and its aecp group a GET_AS_PATH answered
+SUCCESS (#897): the arm's path port reads the window as the product's does (arm_path.py), so that record, an
+ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches.
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -42,7 +44,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 EDITS = {0x2C: 'ADD_AUDIO_MAPPINGS', 0x2D: 'REMOVE_AUDIO_MAPPINGS'}
-SET_CONFIGURATION, SET_STREAM_INFO = 0x06, 0x0E
+SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH = 0x06, 0x0E, 0x28
+#: The ordinary records a line names by their command (the rest by their command_type).
+NAMED = {GET_AS_PATH: 'GET_AS_PATH'}
 #: The statuses of an accepted SET_CONFIGURATION, which stamps the pace (aecp_commands.c): SUCCESS, IN_PROGRESS.
 ACCEPTED = (0, 9)
 #: The answering-ports arm's aecp-fanout records the formal measurement holds whatever their class, and a pass must run.
@@ -55,7 +59,8 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             'an edit over its record', 'an ordinary record over record.aecp', 'a long record over its record',
             "a labelled arm's record held", "a pass missing arm B's SET_CONFIGURATION",
             "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
-            'a SET_CONFIGURATION over the paced record', "a record named by a later record's response")
+            'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
+            "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp')
 
 
 @dataclass
@@ -164,7 +169,7 @@ def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Rec
                 out.append(('other', r, cost, stated['other'], f'{name} not paced: the next record '
                                                                 f'{following * 1000 / leg.sys_hz:.3f} ms after it'))
         else:
-            name = f'0x{r.command:04x}' if r.command is not None else 'unanswered'
+            name = NAMED.get(r.command, f'0x{r.command:04x}') if r.command is not None else 'unanswered'
             out.append(('other', r, cost, stated['other'], f'command {name}'))
     return out
 
@@ -188,6 +193,9 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
                 what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
                 out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
                            'aecp-fanout, whose accepted path no other arm reaches')
+        if not [r for leg in ports for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0]:
+            out.append("the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH "
+                       'answered SUCCESS in aecp, whose answered read no other arm reaches')
     for leg in legs:
         stated = stated_at(leg.point) if leg.point != '8x8/1if' else stated_at('1x1/1if')
         for group in sorted(leg.groups):
@@ -211,8 +219,8 @@ def fanout(spans: list[tuple[float, int]], answers: list[tuple[float, int, int]]
 def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     """A complete pass whose every record is within its class, the arm's group list, and statements: arm A's REMOVE
     at 240 us by the rule, over record.aecp and within the paced record, paced by the ADD 9 ms after it; arm B's
-    accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; and arm B's SET_NAME at
-    350 reported, not held."""
+    accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; arm B's GET_AS_PATH at
+    210, held as an ordinary record; and arm B's SET_NAME at 350 reported, not held."""
     hz = 100_000_000
     stated = {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8}
     a = fanout([(0, 20_000), (10, 22_500), (19, 21_000), (28, 15_000)],
@@ -220,7 +228,7 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 18_000, 0x10, 0)],
                                           LONG_GROUP: [Record(0, 91_000, 0x2D, 0)]})
     b = fanout([(0, 33_000), (10, 28_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
-    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': b})
+    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0)]})
     return [arm, ports], ['aecp-fanout', 'aecp', LONG_GROUP], stated
 
 
@@ -257,6 +265,9 @@ def controls() -> list[str]:
         (lambda p: setattr(p[1].groups['aecp-fanout'][2], 'start', 17 * MS - 1), 'SET_CONFIGURATION not paced'),
         (lambda p: setattr(p[1].groups['aecp-fanout'][1], 'cycles', 29_000), '(SET_CONFIGURATION, paced)'),
         (unanswered, 'command unanswered'),
+        (lambda p: p[1].groups['aecp'].pop(0), "missing arm B's GET_AS_PATH"),
+        (lambda p: setattr(p[1].groups['aecp'][0], 'cycles', 22_400), "over the other record's 235 us (command "
+                                                                       'GET_AS_PATH)'),
     )
     for name, entry in zip(CONTROLS, plants):
         if entry is not None and not refused(*entry):
