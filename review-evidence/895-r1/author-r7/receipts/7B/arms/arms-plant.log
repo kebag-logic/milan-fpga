@@ -1,0 +1,52 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>b/arms-plant/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>b/arms-plant/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>b/arms-plant/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <scratch>b/arms-plant/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>b/arms-plant/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>b/arms-plant/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[FAIL] arm srp-srp_talker-if1-endstation_ax7101_1x1_tdm8
+    [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: a changed destination withdraws the old destination's Advertise
+    declared(talker(last,0,first),1)
+    Which is: 0x559f79909a00
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset
+    pub_of(model,last).talker_decl&1u
+    Which is: 1
+    0u
+    Which is: 0
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits
+    dest(*adv)
+    Which is: 160395285277184
+    kBaseB
+    Which is: 160395285281536
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: and declare it once the hold-off ends
+    == ctrl SRP Talker declarations: checks: 11   failures: 2 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 2 failure(s) across 11 checks, exit 1)
+[FAIL] arm srp-srp_talker-if2-endstation_ax7101_8x8
+    [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: a changed destination withdraws the old destination's Advertise
+    declared(talker(last,0,first),1)
+    Which is: 0x5625665a1480
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset
+    pub_of(model,last).talker_decl&1u
+    Which is: 1
+    0u
+    Which is: 0
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits
+    dest(*adv)
+    Which is: 160395285277184
+    kBaseB
+    Which is: 160395285281536
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: and declare it once the hold-off ends
+    == ctrl SRP Talker declarations: checks: 11   failures: 2 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 2 failure(s) across 11 checks, exit 1)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+    == ctrl ADP ACMP MAAP SRP composition: checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+arms talker: FAIL

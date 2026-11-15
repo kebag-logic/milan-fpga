@@ -1,0 +1,17 @@
+1x1/1if: AECP_PACE_MS 9, CTRL_LOOP_TX_BOUND_MS 49, CTRL_LOOP_TX_MS 34
+model choice (1x1/1if): 9
+P  1: tx 36.49 (ceil 37) txL 108.29 R4L 83.57
+P  2: tx 34.91 (ceil 35) txL 108.29 R4L 98.57
+P  3: tx 34.52 (ceil 35) txL 108.29 R4L 113.57
+P  4: tx 34.32 (ceil 35) txL 74.82 R4L 128.57
+P  5: tx 34.26 (ceil 35) txL 58.97 R4L 143.57
+P  6: tx 34.13 (ceil 35) txL 56.67 R4L 158.57
+P  7: tx 34.13 (ceil 35) txL 53.85 R4L 173.57
+P  8: tx 34.06 (ceil 35) txL 52.29 R4L 188.57
+P  9: tx 34.0 (ceil 34) txL 48.58 R4L 203.57
+P 10: tx 34.0 (ceil 34) txL 46.95 R4L 218.57
+P 11: tx 34.0 (ceil 34) txL 46.95 R4L 233.57
+P 12: tx 33.93 (ceil 34) txL 44.8 R4L 248.57
+P 13: tx 33.93 (ceil 34) txL 44.8 R4L 263.57
+paced_rows.statements: []
+rows_tiers.tx_statements: ["8x8/2if: CTRL_LOOP_TX_MS states 99 ms, under the built design's tx row 104.25 ms"]

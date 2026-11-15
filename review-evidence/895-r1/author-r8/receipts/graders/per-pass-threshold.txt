@@ -1,0 +1,18 @@
+# head f93317cb (a copy of its sw, tb, configs, tsn-c-stack, lwSRP)
+stated: base 225 us, events' fixed part 35 us, a pass's own cost 260 us, slice 900 us
+| Row | W, ms | Bound, ms | Margin, ms | Relative |
+|---|---:|---:|---:|---:|
+| R4 | 13.25 | 20 | 6.75 | +0.3375 |
+| R5 | 75.84 | 90 | 14.16 | +0.1573 |
+| R6 | 73.36 | 90 | 16.64 | +0.1849 |
+| first | 14.72 | 20 | 5.28 | +0.2640 |
+| last | 136.65 | 140 | 3.35 | +0.0239 |
+| R4L | 203.57 | 238 | 34.43 | +0.1447 |
+| ACMP | 29.63 | 30 | 0.37 | +0.0123 |
+| ADP | 27.86 | 30 | 2.14 | +0.0713 |
+| MAAP | 27.96 | 30 | 2.04 | +0.0680 |
+| tx | 34.00 | 49 | 15.00 | +0.3061 |
+| txL | 48.58 | 49 | 0.42 | +0.0086 |
+the last queued notice holds 140 ms up to a pass's own cost of 278 us (base 243: 137.93 ms) and passes it at 279 us (base 244: 141.36 ms)
+every row holds its bound up to a pass's own cost of 278 us (base 243) and at 279 us (base 244) last, txL passes: last 141.36 of 140, txL 49.02 of 49
+rc 0

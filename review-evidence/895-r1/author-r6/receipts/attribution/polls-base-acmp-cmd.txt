@@ -1,0 +1,35 @@
+#902-9606b3a9: heaviest base 18,843 CPU cycles (poll_grade); its pass 38,541 cycles, instr=5829 fetch_rom=201/16445 wait_mbx=305 wait_csr=493 code_words=14672
+head-df0bc467: heaviest base 20,282 CPU cycles (poll_grade); its pass 39,073 cycles, instr=5908 fetch_rom=197/16464 wait_mbx=153 wait_csr=448 code_words=14944
+round5-b3a5ed99: heaviest base 20,456 CPU cycles (poll_grade); its pass 40,487 cycles, instr=5908 fetch_rom=211/17505 wait_mbx=201 wait_csr=448 code_words=14944
+base head-df0bc467 - #902-9606b3a9: +1,439 cycles; the pass by module, head-df0bc467 - #902-9606b3a9:
+  mbx                   3,834 ->  2,729  -1,105
+  srp_mbx               3,463 ->  4,388  +925
+  acmp                  8,031 ->  8,938  +907
+  mrp_mad               1,179 ->    442  -737
+  ctrl_loop             4,023 ->  3,500  -523
+  ctrl_mem              3,997 ->  4,477  +480
+  maap_mbx                347 ->    794  +447
+  aecp                  2,905 ->  3,267  +362
+  ctrl_app_srp          3,492 ->  3,141  -351
+  ctrl_app_aecp         2,413 ->  2,088  -325
+  nvm_store             1,561 ->  1,806  +245
+  adp                     102 ->    300  +198
+  maap                    524 ->    327  -197
+  aecp_face               230 ->    387  +157
+  aecp_mbx                311 ->    209  -102
+  msrp                    282 ->    380  +98
+  acmp_mbx                939 ->  1,032  +93
+  nvm_flash_litespi       343 ->    258  -85
+  aecp_nvm                143 ->    222  +79
+  aecp_commands           249 ->    212  -37
+  nvm_klj2                137 ->    139  +2
+  ctrl_aecp_image          30 ->     31  +1
+the heaviest base section by poll, #902-9606b3a9 -> head-df0bc467:
+  adp_mbx:on_poll           108 ->    306  +198
+  acmp_mbx:on_poll          166 ->    486  +320
+  maap_mbx:poll           1,588 ->  1,995  +407
+  aecp_mbx:poll           2,075 ->  2,236  +161
+  ctrl_app_aecp:deliver   4,675 ->  4,627  -48
+  srp_mbx:poll            2,171 ->  2,186  +15
+  ctrl_app_srp:deliver    7,576 ->  7,954  +378
+rc 0

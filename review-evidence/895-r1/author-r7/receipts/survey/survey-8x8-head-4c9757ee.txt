@@ -1,0 +1,68 @@
+# 8x8/2if: every stated cost the rows read, against the legs by the rule (most + 5 %, up to 5 us)
+# tree F; legs A, N, W, B
+| Table | Key | Stated us | Most measured, CPU cycles | Rule us | Measured by, where | Verdict |
+|---|---|---:|---:|---:|---|---|
+| load_grade.STATED_US | centisecond | 510 | 19,784 | 210 | parser.centisecond: R7-W8/srp-talker.log | within |
+| load_grade.STATED_US | event.ACMP | 350 | 16,512 | 175 | parser.event.ACMP: TIMER#3, 11 taken | within |
+| load_grade.STATED_US | event.ADP | 120 | 8,407 | 90 | parser.event.ADP: TIMER#1, 148 taken | within |
+| load_grade.STATED_US | event.AECP | 115 | 10,759 | 115 | parser.event.AECP: TIMER#6, 20661 taken | within |
+| load_grade.STATED_US | event.GM | 320 | 3,587 | 40 | parser.event.GM: 259, 79708 taken | within |
+| load_grade.STATED_US | event.MAAP | 225 | 21,120 | 225 | parser.event.MAAP: TIMER#4, 326 taken | within |
+| load_grade.STATED_US | event.TICK | 55 | 4,659 | 50 | parser.event.TICK: TICK, 51858 taken | within |
+| load_grade.STATED_US | events_none | 35 | 3,099 | 35 | parser.events_none: R7-N8/notice-burst-2.log | within |
+| load_grade.STATED_US | item.aecp.notice | 275 | 26,167 | 275 | parser.item.aecp: R7-N8/notice-every-0 | within |
+| load_grade.STATED_US | item.aecp.probe | 65 | 0 | 0 | -: - | not staged |
+| load_grade.STATED_US | item.aecp.response | 65 | 4,580 | 50 | parser.aecp.response: aecp_kinds, R7-A8-view/save-second (1 frame(s)) | within |
+| load_grade.STATED_US | item.retained | 365 | 23,161 | 245 | harness.poll.record: A/backlog-adp@program-7 | within |
+| load_grade.STATED_US | record.acmp | 440 | 21,550 | 230 | parser.record.acmp: R7-N8/notice-burst-2.log | within |
+| load_grade.STATED_US | record.adp | 240 | 10,792 | 115 | parser.record.adp: R7-A8-view/backlog-adp-refill.log | within |
+| load_grade.STATED_US | record.aecp | 265 | 18,551 | 195 | classes.other: N/notice-every-7 (command 0x0004) | RULED (item 3): within |
+| load_grade.STATED_US | record.maap | 155 | 14,368 | 155 | parser.record.maap: R7-W8/srp-talker-loss.log | within |
+| load_grade.STATED_US | record.srp | 365 | 23,479 | 250 | parser.record.srp: R7-A8-view/backlog-adp@program-7.log | within |
+| load_grade.STATED_US_DONOR | base | 325 | 28,942 | 305 | parser.base: R7-N8/notice-every-4 | within |
+| load_grade.STATED_US_DONOR | build | 2035 | 0 | 0 | parser.build: R7-A8-view/save-second | not staged |
+| load_grade.STATED_US_DONOR | build_one | 1215 | 56,036 | 590 | parser.build_one: R7-W8/srp-talker | within |
+| load_grade.STATED_US_DONOR | centisecond | 510 | 19,784 | 210 | parser.centisecond: R7-W8/srp-talker.log | within |
+| load_grade.STATED_US_DONOR | event.ACMP | 210 | 16,512 | 175 | parser.event.ACMP: TIMER#3, 11 taken | within |
+| load_grade.STATED_US_DONOR | event.ADP | 120 | 8,407 | 90 | parser.event.ADP: TIMER#1, 148 taken | within |
+| load_grade.STATED_US_DONOR | event.AECP | 115 | 10,759 | 115 | parser.event.AECP: TIMER#6, 20661 taken | within |
+| load_grade.STATED_US_DONOR | event.GM | 320 | 3,587 | 40 | parser.event.GM: 259, 79708 taken | within |
+| load_grade.STATED_US_DONOR | event.MAAP | 225 | 21,120 | 225 | parser.event.MAAP: TIMER#4, 326 taken | within |
+| load_grade.STATED_US_DONOR | event.TICK | 85 | 4,659 | 50 | parser.event.TICK: TICK, 51858 taken | within |
+| load_grade.STATED_US_DONOR | events_none | 35 | 3,099 | 35 | parser.events_none: R7-N8/notice-burst-2.log | within |
+| load_grade.STATED_US_DONOR | item.acmp | 70 | 5,839 | 65 | parser.item.acmp: R7-A8-view/backlog-owed | within |
+| load_grade.STATED_US_DONOR | item.aecp.notice | 275 | 26,167 | 275 | parser.item.aecp: R7-N8/notice-every-0 | within |
+| load_grade.STATED_US_DONOR | item.aecp.probe | 65 | 0 | 0 | -: - | not staged |
+| load_grade.STATED_US_DONOR | item.aecp.response | 65 | 4,580 | 50 | parser.aecp.response: aecp_kinds, R7-A8-view/save-second (1 frame(s)) | within |
+| load_grade.STATED_US_DONOR | item.mrpdu | 1215 | 0 | 0 | parser.item.mrpdu: R7-A8-view/save-second | not staged |
+| load_grade.STATED_US_DONOR | item.reclaim | 40 | 2,185 | 25 | parser.item.reclaim: R7-A8-view/srp | within |
+| load_grade.STATED_US_DONOR | item.retained | 365 | 23,161 | 245 | harness.poll.record: A/backlog-adp@program-7 | within |
+| load_grade.STATED_US_DONOR | item.walk | 60 | 1,740 | 20 | parser.item.walk: R7-A8-view/save-starved | within |
+| load_grade.STATED_US_DONOR | record.acmp | 305 | 21,550 | 230 | parser.record.acmp: R7-N8/notice-burst-2.log | within |
+| load_grade.STATED_US_DONOR | record.adp | 125 | 10,792 | 115 | parser.record.adp: R7-A8-view/backlog-adp-refill.log | within |
+| load_grade.STATED_US_DONOR | record.aecp | 265 | 18,551 | 195 | classes.other: N/notice-every-7 (command 0x0004) | RULED (item 3): within |
+| load_grade.STATED_US_DONOR | record.maap | 155 | 14,368 | 155 | parser.record.maap: R7-W8/srp-talker-loss.log | within |
+| load_grade.STATED_US_DONOR | record.srp | 365 | 23,479 | 250 | parser.record.srp: R7-A8-view/backlog-adp@program-7.log | within |
+| load_grade.STATED_US_DONOR | step | 1030 | 81,814 | 860 | parser.step: R7-A8-view/save-starved | within |
+| poll_grade.STATED_US | acmp | 70 | 5,839 | 65 | harness.poll.acmp: A/backlog-owed | within |
+| poll_grade.STATED_US | acmp_declined | 20 | 1,428 | 15 | parser.item.acmp_declined: R7-A8-view/backlog-owed | within |
+| poll_grade.STATED_US | aecp | 275 | 26,167 | 275 | harness.poll.aecp: N/notice-every-0 | within |
+| poll_grade.STATED_US | aecp_long | 655 | 61,643 | 650 | harness.poll.aecp_long: B/aecp-largest-notice | within |
+| poll_grade.STATED_US | base | 325 | 28,942 | 305 | harness.poll.base: N/notice-every-4 | within |
+| poll_grade.STATED_US | mrpdu | 1215 | 0 | 0 | harness.poll.mrpdu: A/save-second | not staged |
+| poll_grade.STATED_US | rebuild | 690 | 20,065 | 215 | harness.poll.rebuild: A/adp-link | within |
+| poll_grade.STATED_US | reclaim | 35 | 2,185 | 25 | harness.poll.reclaim: A/srp | within |
+| poll_grade.STATED_US | retained | 365 | 23,161 | 245 | harness.poll.record: A/backlog-adp@program-7 | within |
+| poll_grade.STATED_US | walk | 60 | 1,740 | 20 | harness.poll.walk: A/save-starved | within |
+| poll_grade.STATED_US | withdraw | 245 | 8,104 | 90 | harness.poll.withdraw: A/backlog | within |
+| whole_grade.stated_us | build | 1995 | 0 | 0 | parser.build: R7-A8-view/save-second | not staged |
+| whole_grade.stated_us | build-one | 1215 | 56,036 | 590 | parser.build_one: R7-W8/srp-talker | within |
+| whole_grade.stated_us | step | 1030 | 81,814 | 860 | parser.step: R7-A8-view/save-starved | within |
+| rows_grade.ROW_COSTS | event.LINK | 300 | 19,198 | 205 | parser.event.LINK: LINK, 117 taken | within |
+| rows_tiers.DATAPATH_US | AMAP_LIVE_WRITE | 25 | 2,367 | 25 | parser.datapath.AMAP_LIVE_WRITE: eventcost, interface 0, 8 taken; one-event pass 2,515 (reported) | within |
+| rows_tiers.DATAPATH_US | AS_PATH_CHANGED | 40 | 3,421 | 40 | parser.datapath.AS_PATH_CHANGED: eventcost, interface 0, 8 taken; one-event pass 3,568 (reported) | within |
+| rows_tiers.DATAPATH_US | AVB_INFO_CHANGED | 40 | 3,575 | 40 | parser.datapath.AVB_INFO_CHANGED: eventcost, interface 0, 8 taken; one-event pass 3,723 (reported) | within |
+| rows_tiers.LONG_NOTICE_US | aecp_long | 655 | 61,643 | 650 | parser.item.aecp_long: R7-B8/aecp-largest-notice | within |
+| rows_tiers.LONG_RECORD_US | record.aecp.long | 1650 | 124,591 | 1310 | classes.long: B/aecp-largest-notice (the largest legal command's) | within |
+| edit_rows.EDIT_RECORD_US | record.aecp.edit | 325 | 28,912 | 305 | classes.edit: B/aecp-fanout (REMOVE_AUDIO_MAPPINGS, paced) | within |
+UNDER 0
