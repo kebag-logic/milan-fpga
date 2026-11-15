@@ -1,0 +1,14 @@
+# R837-8-F1 sites at 867faf1e (verbatim excerpts)
+## docs/reference/FR_NFR.md:383
+d with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms holds it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row
+s. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and ever
+FR_NFR.md occurrences of the head's R4L 188.48: 0
+## docs/design/SPLIT_CONTROL_MEMORY.md:2467
+Then txL is 49.69 ms at 7 ms, and 8 ms is the smallest pace that holds: txL 48.09 ms within 49 and R4L 188.39 within 238 (`AECP_PACE_MS`). Every 1x1/1if
+## its twin, fixed in this delta: docs/design/SPLIT_CONTROL_MEMORY.md:2380
+with AMAP_LIVE_WRITE re-measured at 30 us it found 8 ms, txL 48.09 ms and R4L 188.39 ([below](#the-direct-index)); at the head it finds 8 ms, txL 48.43 ms and R4L 188.48 (the table above), and `aecp_mbx.h` states it. The l
+## head figures: section 13 rows table, the 950 us row
+| The slice rule's choice, 950 us ([below](#the-final-passs-restatements)): an 8 ms pace | 13.10 | 188.48, within 238 | 28.95 | 27.30 | 27.42 | 14.66 | 74.07 | 69.86 | 127.21, within 130, **over 125** | 33.38, within 49 | 48.43, within 49, **over 40** |
+## the author's grep tokens (receipts/stale-figures-grep.txt:2-3) include no row figure for txL or R4L
+# tokens: 725, 33.01, 900 us, 0.515, 0.511, 13.05, 132.71, 50 (lines naming TICK), 65 (lines naming AECP, a timer or a slot),
+#         150 (lines naming LINK), 250 (lines naming SRP or the drain)
