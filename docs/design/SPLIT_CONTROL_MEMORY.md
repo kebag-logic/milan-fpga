@@ -2503,7 +2503,7 @@ Every stated table was compared by the rule, at the final firmware, against the 
 - AECP's timer slot, 6,206 cycles in six of the answering-every-port arm's sixteen groups (5,329 and 5,753 at `9606b3a9`; that arm's `notice-every-0`, the one group of it measured at `9606b3a9`, is under 5,500): 70 us, both columns.
 - A LINK, 14,715 cycles in arm A's `fixture` group (13,956 at `9606b3a9`): 155 us (`rows_grade.ROW_COSTS`).
 - A build of one, the `srp` group's after its Listener Ready, 69,635 cycles (68,972 at `9606b3a9`): 735 us (`CTRL_LOOP_BUILD_ONE_PASS_US`, which only a static assertion reads, so every image is byte-identical), and an owed MRPDU with it.
-- A TICK, once the SRP drain's record cost is the load gate's ([above](#the-srp-drains-record-cost)), 4,784 cycles in arm A's `backlog-adp@program-0` (at most 4,761 before it): 55 us, both columns.
+- A TICK, once the SRP drain's record cost is the load gate's ([above](#the-srp-drains-record-cost)), 4,784 cycles in arm A's `backlog-adp@program-0` (4,692 before it): 55 us, both columns.
 
 With them **the last queued notice at 1x1/1if is 132.71 ms, over its 130 ms**, at the built design (900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue): it takes 70 passes, two more, and its largest term is SRP's 26.32 ms. The slice rule (`tier_grid.py`) holds 10 of 420 candidates and chooses 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2. Without the build of one's and the TICK's restatements every row held, the last queued notice at 127.98 ms; either alone puts it over (132.64 and 132.65 ms). Every other 1x1/1if row holds by every source (the table [above](#the-tiers)), the load is 0.516 and 0.512, and the pace stays 8 ms. This is left for the maintainer's decision on #894.
 
