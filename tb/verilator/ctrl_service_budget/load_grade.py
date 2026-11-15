@@ -81,6 +81,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import math
 import re
 import sys
 from pathlib import Path
@@ -116,6 +117,13 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
 #: rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
+#: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's round-6 ruling, item 4):
+#: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
+#: states its own by the rule, in either column; the nearest point's table is untouched. OWN_MEASURED is each one's
+#: measurement, CPU cycles and where: 8x8/1if's ADP record on the image that merges #902's 234bc149, 12,210 cycles,
+#: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240).
+OWN = {'8x8/1if': {'record.adp': 130}}
+OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
@@ -311,6 +319,29 @@ def unit_planted(header: str, shape: shape_costs.Shape, us: int) -> str:
     return ''.join(lines)
 
 
+def rule_us(cycles: int) -> int:
+    """A measured cost's statement by the rule: its time at 100 MHz plus 5 %, rounded up to 5 us."""
+    return int(math.ceil(cycles * 1.05 / 100 / 5 - 1e-9) * 5)
+
+
+def own_findings(root: Path) -> list[str]:
+    """Each NEAREST point's own statement not its measurement's by the rule, and each column that states the point a
+    cost under that measurement (OWN, OWN_MEASURED)."""
+    out = []
+    for point, costs in OWN_MEASURED.items():
+        for k, (cycles, where) in costs.items():
+            want, own = rule_us(cycles), OWN.get(point, {}).get(k)
+            if own != want:
+                out.append(f"{point}: its own {k} is stated {own} us, not its measurement's {want} us by the rule "
+                           f'({cycles:,} CPU cycles, {where})')
+            for name, column in COLUMNS:
+                got = stated(root, point, column)[k]
+                if got < want:
+                    out.append(f"{point}: {k} is {got} us {name}, under its measurement's {want} us by the rule "
+                               f'({cycles:,} CPU cycles, {where})')
+    return out
+
+
 def probe_retry_ms(root: Path) -> int:
     """A registration's probe retry (aecp.c: its deadline now + this, Milan v1.2 5.4.5.3)."""
     return int(re.search(r'\.deadline = now\(a\) \+ (\d+)u;', (root / 'sw/firmware/ctrl/aecp/aecp.c').read_text())[1])
@@ -355,6 +386,8 @@ def stated(root: Path, point: str, table: dict | None = None) -> dict[str, float
     import poll_grade
     near = NEAREST.get(point, point)
     c = dict((table or GRADED)[near])
+    if near != point:
+        c.update({k: us for k, us in OWN.get(point, {}).items() if c.get(k, 0) < us})
     if point in shape_costs.BUILT:
         polls = poll_grade.stated_us(shape(point, root))
         for k in ITEMS:
@@ -455,7 +488,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound() + srp_unit(root, texts)
+    out = unbound() + srp_unit(root, texts) + own_findings(root)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -600,7 +633,25 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    return escaped + srp_unit_controls(root, base, fit) + binding_controls(root)
+    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root)
+
+
+def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
+    """8x8/1if's own ADP record left out (its nearest point's 125 us then supplies it in the tsn-c-stack#32 column) and
+    stated under its measurement, each refused by name by --check itself (findings); the head's refused by none."""
+    from unittest import mock
+    escaped = []
+    if own_findings(root):
+        return ["8x8/1if's own ADP record not stated", "8x8/1if's own ADP record not its measurement's by the rule"]
+    with mock.patch.dict(OWN, {'8x8/1if': {}}):
+        if not any("8x8/1if: record.adp is 125 us with tsn-c-stack#32, under its measurement's 130 us" in f
+                   for f in findings(root, base, fit)):
+            escaped.append("8x8/1if's own ADP record not stated")
+    with mock.patch.dict(OWN, {'8x8/1if': {'record.adp': 125}}):
+        if not any("8x8/1if: its own record.adp is stated 125 us, not its measurement's 130 us" in f
+                   for f in findings(root, base, fit)):
+            escaped.append("8x8/1if's own ADP record not its measurement's by the rule")
+    return escaped
 
 
 def srp_unit_controls(root: Path, base: dict, fit: dict) -> list[str]:
@@ -693,7 +744,8 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
-            "the SRP drain's record cost not the load gate's", "a column's name bound to the other's table")
+            "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
+            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
