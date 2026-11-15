@@ -264,13 +264,16 @@ def held_names(blob: bytes, image: int, base: int) -> dict[int, bytes]:
 def saves(log, image: int) -> list[dict]:
     """Every save the log shows: its erase, the container its pages left over an erased slot, its sequence when the
     container is accepted, and when it is durable (save_grade.first_save), or None."""
+    import grade
     import save_grade
-    out, n = [], 0
-    while True:
+    out = []
+    # one save an erase the log shows, its blocks erased in one step (NVM_ERASE_BLOCKS is 1 at every shape)
+    erases = sorted(c for c, op, _, _ in log.flash_ops if op == grade.FLASH_ERASE)
+    for n in range(len(erases)):
         save = save_grade.first_save(log, n)
         if save is None:
-            return out
-        stop = next((c for c, op, _, _ in sorted(log.flash_ops)[::1] if c > save.erase and op == 0xd8), 1 << 62)
+            break
+        stop = next((c for c in erases if c > save.erase), 1 << 62)
         blob = bytearray(b'\xff' * image)
         for cycle, addr, data in log.programmed:
             if save.erase < cycle < stop and save.base <= addr < save.base + image:
@@ -278,7 +281,7 @@ def saves(log, image: int) -> list[dict]:
         seq = accepted(bytes(blob), image)
         out.append(dict(erase=save.erase, base=save.base, durable=save.durable if seq is not None else None,
                         seq=seq, blob=bytes(blob)))
-        n += 1
+    return out
 
 
 def responses(log) -> dict[int, tuple[int, int]]:
