@@ -19,6 +19,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import answers
+import arm_path
 import build
 import flip_grade
 import grade
@@ -41,6 +42,11 @@ import share
 import whole_grade
 
 Patches = Callable[[], list]
+
+
+#: The answering-ports arm's path port before arm_path.py (#897): it read no window and answered an empty sequence.
+ARM_B_STUB_PATH = ('static bool b_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'
+                   '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; *count = 0; return true; }\n')
 
 
 def _from_last_erase(flash: list) -> list:
@@ -623,6 +629,9 @@ MUTANTS: dict[str, Patches] = {
         build.VARIANTS, {'answering-ports': [(
             '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
             '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb')]})],
+    "build: arm B's path port answers no entries at once, reading no window (earlier rule)": lambda: [patch.dict(
+        build.VARIANTS, {'answering-ports': [(old, new.replace(arm_path.B_PATH, ARM_B_STUB_PATH))
+                                             for old, new in build.VARIANTS['answering-ports']]})],
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],

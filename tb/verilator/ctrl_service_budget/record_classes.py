@@ -25,8 +25,11 @@ EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose
 not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
 each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
 ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and its aecp group a GET_AS_PATH answered
-SUCCESS (#897): the arm's path port reads the window as the product's does (arm_path.py), so that record, an
-ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches.
+SUCCESS with the entries the arm's path port reads (#897): that port reads the window as the product's does and
+answers arm_path.ENTRIES (arm_path.py), so the response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021
+7.4.41.2: 16 and 8 an entry), and that record, an ordinary one held to record.aecp, is the answered GET_AS_PATH's,
+which no other arm reaches. Every GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused,
+and so is a pass whose build does not put arm_path.py's port in that arm's path port (port_findings).
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -43,10 +46,16 @@ from typing import Callable
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+import arm_path  # noqa: E402
+
 EDITS = {0x2C: 'ADD_AUDIO_MAPPINGS', 0x2D: 'REMOVE_AUDIO_MAPPINGS'}
 SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH = 0x06, 0x0E, 0x28
 #: The ordinary records a line names by their command (the rest by their command_type).
 NAMED = {GET_AS_PATH: 'GET_AS_PATH'}
+#: The control_data_length of the GET_AS_PATH response the answering-ports arm's path port answers: its
+#: controller_entity_id, sequence_id, command_type, descriptor_index and count, 16 B, and 8 B an entry (IEEE
+#: 1722.1-2021 7.4.41.2), arm_path.ENTRIES of them.
+ANSWERED_LENGTH = 16 + 8 * arm_path.ENTRIES
 #: The statuses of an accepted SET_CONFIGURATION, which stamps the pace (aecp_commands.c): SUCCESS, IN_PROGRESS.
 ACCEPTED = (0, 9)
 #: The answering-ports arm's aecp-fanout records the formal measurement holds whatever their class, and a pass must run.
@@ -60,17 +69,19 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "a labelled arm's record held", "a pass missing arm B's SET_CONFIGURATION",
             "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
             'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
-            "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp')
+            "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
+            'a GET_AS_PATH answered SUCCESS with no entries')
 
 
 @dataclass
 class Record:
-    """One AECP record: its start in bus cycles, its CPU cycles, its command's type and its status (None if
-    unanswered)."""
+    """One AECP record: its start in bus cycles, its CPU cycles, its command's type, its status and its response's
+    control_data_length (None if unanswered, or if a synthetic record states none)."""
     start: int
     cycles: int
     command: int | None
     status: int | None = None
+    length: int | None = None
 
 
 @dataclass
@@ -104,13 +115,14 @@ def statements(point: str, root: Path = ROOT) -> dict[str, int]:
             'other': load_grade.GRADED[point]['record.aecp'], 'pace_ms': pace}
 
 
-def named(spans: list[tuple[int, int]], answers: list[tuple[int, int, int]]) -> list[Record]:
+def named(spans: list[tuple[int, int]], answers: list[tuple[int, ...]]) -> list[Record]:
     """Each span (its start in bus cycles, its CPU cycles) named by the first response (its commit in bus cycles,
-    command, status) at or after its start and before the next span's, else unanswered (the module's docstring)."""
+    command, status and, if read, control_data_length) at or after its start and before the next span's, else
+    unanswered (the module's docstring)."""
     out = []
     for k, (start, cycles) in enumerate(spans):
         stop = spans[k + 1][0] if k + 1 < len(spans) else None
-        hit = next(((cmd, st) for c, cmd, st in answers if c >= start and (stop is None or c < stop)), (None, None))
+        hit = next((tuple(a[1:]) for a in answers if a[0] >= start and (stop is None or a[0] < stop)), (None, None))
         out.append(Record(start, cycles, *hit))
     return out
 
@@ -130,7 +142,8 @@ def read_leg(results: Path) -> tuple[Leg, dict]:
         spans = [(int(f[1]), int(f[3])) for f in (line.split() for line in text.splitlines())
                  if len(f) > 4 and f[0] == 'SPAN' and f[-1] == 'aecp_mbx:frame']
         parsed = grade.parse(text[:text.rfind('\n') + 1], leg.sys_hz, leg.cpu_hz)
-        answers = sorted((c, (fr[36] << 8 | fr[37]) & 0x7FFF, fr[16] >> 3) for c, ch, _, fr in parsed.tx
+        answers = sorted((c, (fr[36] << 8 | fr[37]) & 0x7FFF, fr[16] >> 3, (fr[16] << 8 | fr[17]) & 0x7FF)
+                         for c, ch, _, fr in parsed.tx
                          if ch == aecp and len(fr) >= 38 and fr[15] & 1 and not (fr[15] & 0x0F == 1 and fr[36] & 0x80))
         leg.groups[log.stem] = named(spans, answers)
     return leg, spec
@@ -174,6 +187,11 @@ def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Rec
     return out
 
 
+def answered_path(r: Record) -> bool:
+    """Whether a record is a GET_AS_PATH answered SUCCESS with the entries the answering-ports arm's port answers."""
+    return r.command == GET_AS_PATH and r.status == 0 and r.length == ANSWERED_LENGTH
+
+
 def findings(legs: list[Leg], groups_of_arm: list[str] | None,
              stated_at: Callable[[str], dict[str, int]] = statements) -> tuple[list[str], list[str]]:
     """The pass's findings, which refuse it, and the reported lines of the legs not held."""
@@ -193,9 +211,17 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
                 what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
                 out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
                            'aecp-fanout, whose accepted path no other arm reaches')
-        if not [r for leg in ports for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0]:
+        if not [r for leg in ports for r in leg.groups.get('aecp', []) if answered_path(r)]:
             out.append("the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH "
-                       'answered SUCCESS in aecp, whose answered read no other arm reaches')
+                       f'answered SUCCESS with its {arm_path.ENTRIES} entries (control_data_length {ANSWERED_LENGTH}) '
+                       'in aecp, whose answered read no other arm reaches')
+    for leg in legs:
+        if leg.variant == 'answering-ports':
+            out += [f'{leg.point} answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length '
+                    f'{r.length}, not the {ANSWERED_LENGTH} of the {arm_path.ENTRIES} entries the arm\'s path port '
+                    'reads and answers (arm_path.py): its record is not the answered read\'s'
+                    for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0
+                    and not answered_path(r)]
     for leg in legs:
         stated = stated_at(leg.point) if leg.point != '8x8/1if' else stated_at('1x1/1if')
         for group in sorted(leg.groups):
@@ -220,7 +246,7 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     """A complete pass whose every record is within its class, the arm's group list, and statements: arm A's REMOVE
     at 240 us by the rule, over record.aecp and within the paced record, paced by the ADD 9 ms after it; arm B's
     accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; arm B's GET_AS_PATH at
-    210, held as an ordinary record; and arm B's SET_NAME at 350 reported, not held."""
+    210, answered with its entries, held as an ordinary record; and arm B's SET_NAME at 350 reported, not held."""
     hz = 100_000_000
     stated = {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8}
     a = fanout([(0, 20_000), (10, 22_500), (19, 21_000), (28, 15_000)],
@@ -228,7 +254,8 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 18_000, 0x10, 0)],
                                           LONG_GROUP: [Record(0, 91_000, 0x2D, 0)]})
     b = fanout([(0, 33_000), (10, 28_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
-    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0)]})
+    ports = Leg('1x1/1if', 'answering-ports', hz, hz,
+                {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0, ANSWERED_LENGTH)]})
     return [arm, ports], ['aecp-fanout', 'aecp', LONG_GROUP], stated
 
 
@@ -268,6 +295,8 @@ def controls() -> list[str]:
         (lambda p: p[1].groups['aecp'].pop(0), "missing arm B's GET_AS_PATH"),
         (lambda p: setattr(p[1].groups['aecp'][0], 'cycles', 22_400), "over the other record's 235 us (command "
                                                                        'GET_AS_PATH)'),
+        (lambda p: setattr(p[1].groups['aecp'][0], 'length', 16), 'a GET_AS_PATH answered SUCCESS with '
+                                                                  'control_data_length 16, not the'),
     )
     for name, entry in zip(CONTROLS, plants):
         if entry is not None and not refused(*entry):
@@ -275,21 +304,44 @@ def controls() -> list[str]:
     return escaped
 
 
+def port_findings() -> list[str]:
+    """What is wrong with the answering-ports arm's path port, whose answered read the pass holds: build.py must put
+    arm_path.py's port in the face's path port, and that port must read the count and each entry through the
+    window (two window reads in its source) and answer arm_path.ENTRIES of them."""
+    import build
+    patches = [new for _, new in build.VARIANTS['answering-ports']]
+    out = []
+    if not any(arm_path.B_PATH in new for new in patches):
+        out.append("the answering-ports arm's build does not define arm_path.py's path port (build.VARIANTS)")
+    if not any('image_face.ports.path=b_path;' in new for new in patches):
+        out.append("the answering-ports arm's build does not put b_path in the face's path port (build.VARIANTS)")
+    reads = arm_path.B_PATH.count('mbx_win_read(i, MBX_WIN_GSI, q, &w)')
+    if reads != 2 or f'{arm_path.ENTRIES}u' not in arm_path.B_PATH:
+        out.append(f"arm_path.py's port does not read the count and each entry through the window and answer "
+                   f'{arm_path.ENTRIES} of them')
+    return out
+
+
 def checks() -> list[tuple[str, bool, str]]:
-    """The harness self-test's checks of this one (load_grade.ceiling_checks): every planted defect refused."""
-    escaped = controls()
+    """The harness self-test's checks of this one (load_grade.ceiling_checks): every planted defect refused, and the
+    answering-ports arm's path port the one that reads the window (port_findings)."""
+    escaped, port = controls(), port_findings()
     return [(f'the record classes refuse {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in CONTROLS]
+            for name in CONTROLS] + [("the answering-ports arm's path port is arm_path.py's, which reads the window",
+                                     not port, '; '.join(port) or 'arm_path.B_PATH in build.VARIANTS')]
 
 
 def main(argv: list[str]) -> int:
     """Hold a pass's legs, or plant each control."""
     if argv == ['--selftest']:
-        escaped = controls()
+        escaped, port = controls(), port_findings()
         for name in escaped:
             print(f'ESCAPED {name}')
-        print(f'record classes: {len(CONTROLS) - len(escaped)} of {len(CONTROLS)} planted controls refused')
-        return int(bool(escaped))
+        for line in port:
+            print(f'REFUSED {line}')
+        print(f'record classes: {len(CONTROLS) - len(escaped)} of {len(CONTROLS)} planted controls refused; the '
+              f"answering-ports arm's path port {'is not' if port else 'is'} arm_path.py's")
+        return int(bool(escaped or port))
     if not argv or any(a.startswith('-') for a in argv):
         print(__doc__)
         return 2
