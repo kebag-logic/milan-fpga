@@ -383,6 +383,7 @@ class Suite {
     void check_filter_mismatch_count();
     void check_tokens_apart();
     void check_held_not_dropped();
+    void check_held_space_and_refusals();
     void check_refill_at_the_header();
     //! One AECP READ_DESCRIPTOR command for this entity from another controller, its sequence_id `seq`.
     static std::vector<std::uint8_t> aecp_read(std::uint16_t seq) {
@@ -390,11 +391,13 @@ class Suite {
         mbx_tb::put_be(f, 34, seq, 2);
         return f;
     }
-    //! Offer AECP commands one in flight, as a controller does (IEEE 1722.1-2021
-    //! 9.2.2.4): each at line rate as soon as the one before it is delivered,
+    //! Offer AECP commands one in flight, #917's workload (a controller may also
+    //! pipeline, IEEE 1722.1-2021 9.2.2; behind a held command those are
+    //! refused): each at line rate as soon as the one before it is delivered,
     //! or, with `paced`, a millisecond after the one before it was sent when it
-    //! was delivered at once. A command not delivered within one refill period
-    //! of its last byte is lost (the controller times out) and ends the run.
+    //! was delivered at once. The bench's deadline is next-refill delivery: a
+    //! command not delivered within one refill period of its last byte ends the
+    //! run (not the controller's 250 ms timeout, 9.3.2.6, which it would cost).
     struct InFlight {
         std::uint32_t delivered = 0;   //!< commands delivered
         std::uint32_t at_once = 0;     //!< of them, delivered with no millisecond waited
@@ -779,8 +782,8 @@ void Suite<Bench, Check>::check_drop_never_touches_an_unread_record() {
     ck_.that("D1 the record after it is still the next frame's", same_bytes(peek(kAdp).bytes, extra));
 }
 
-// The token bucket (NFR-SCOUT-02) and its refusal (#917; #665, comment
-// 6894152131 item 2): the burst passes at once, the frame past it is held and
+// The token bucket (NFR-SCOUT-02) and its refusal (#917; #665 ruling item 2):
+// the burst passes at once, the frame past it is held and
 // committed at the next refill, which it spends, and only a frame behind a
 // held one is refused, in RATE_DROP. Each frame carries its index at byte 60,
 // so the order and the bytes of every record are graded.
@@ -1538,11 +1541,12 @@ typename Suite<Bench, Check>::InFlight Suite<Bench, Check>::one_in_flight(std::u
     return run;
 }
 
-// #917 (#665, comment 6894152131 item 2): a frame the bucket has no token for
-// is held and committed at the next refill; only one behind a held frame is
-// dropped, and RATE_DROP counts it. On the AECP channel, whose controllers
-// keep one command in flight (IEEE 1722.1-2021 9.2.2.4), so a dropped command
-// costs a timeout and a retry.
+// #917 (#665 ruling item 2): a frame the bucket has no token for is held and
+// committed at the next refill; only a passing frame that fits behind a held
+// one is dropped, and RATE_DROP counts it. On the AECP channel, with the
+// workload #917 measured: a controller that keeps one command in flight, which
+// a dropped command costs a timeout and a retry (IEEE 1722.1-2021 9.3.2.6,
+// 9.3.6).
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_held_not_dropped() {
     const std::uint32_t ch = MBX_CH_AECP;
@@ -1637,6 +1641,108 @@ void Suite<Bench, Check>::check_held_not_dropped() {
     b_.ms(refill);
     ck_.dec("B4 back in range, the held record is committed at the refill", rx_pass(ch), burst + 1u);
     ck_.that("B4 whole, byte for byte", same_bytes(peek(ch).bytes, held));
+    release(ch, peek(ch));
+    check_held_space_and_refusals();
+}
+
+// #917, what a held record leaves for the frames behind it: the free space
+// past it (B7), the frames the filter refuses behind it (B8) and a channel
+// closed while it is held (B9).
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_held_space_and_refusals() {
+    const std::uint32_t ch = MBX_CH_AECP;
+    const std::uint32_t burst = MBX_CH_AECP_RATE_BURST;
+    const std::uint32_t refill = MBX_CH_AECP_RATE_REFILL_MS;
+    auto dropped = [&]() { return rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)) + rd(ch_reg(ch, MBX_CH_REG_RX_DROP)); };
+    auto err = [&]() { return field(rd(MBX_REG_IRQ_STATUS), MBX_IRQ_STATUS_ERR_LSB, 1); };
+    // The free space is the write head's (KL_mbx_rx.sv, the one decision that
+    // matters): a ring with room for one more record, which the held record
+    // takes, has none for the frame behind it, which counts in RX_DROP, and no
+    // unread record and not the held one is touched.
+    restart();
+    open(1u << ch);
+    const std::uint32_t rec = 2u + static_cast<std::uint32_t>(aecp_read(0).size() + 3u) / 4u;
+    const std::uint32_t fill = MBX_CH_AECP_RX_WORDS / rec - 1u;   // leaves room for one record, not two
+    std::vector<std::vector<std::uint8_t>> unread;
+    for (std::uint32_t k = 0; k < fill; ++k) {
+        if (k >= burst) {
+            b_.ms(refill);   // one token for each record past the burst
+        }
+        unread.push_back(aecp_read(static_cast<std::uint16_t>(0x7600u + k)));
+        b_.send_frame(unread.back(), 0);
+        b_.drain_rx();
+    }
+    const auto last = aecp_read(0x7700);
+    b_.send_frame(last, 0);
+    b_.send_frame(aecp_read(0x7701), 0);
+    b_.drain_rx();
+    ck_.dec("B7 the records fill the ring but one record's room", rx_pass(ch), fill);
+    ck_.dec("B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP",
+            rd(ch_reg(ch, MBX_CH_REG_RX_DROP)), 1);
+    ck_.dec("B7 and not in RATE_DROP", rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)), 0);
+    bool untouched = true;
+    for (const auto& f : unread) {
+        const Record r = peek(ch);
+        untouched = untouched && same_bytes(r.bytes, f);
+        release(ch, r);
+    }
+    ck_.that("B7 every unread record survives the held record and the frame behind it, byte for byte", untouched);
+    b_.ms(refill);
+    ck_.dec("B7 the held record is committed at the refill", rx_pass(ch), fill + 1u);
+    ck_.that("B7 whole, byte for byte", same_bytes(peek(ch).bytes, last));
+
+    // Only a frame that passes the filter and fits is refused behind a held
+    // one: a frame the identity term refuses, a frame cut inside its identity
+    // and one that ends before the subtype count nowhere, as anywhere else.
+    restart();
+    open(1u << ch);
+    std::vector<std::uint8_t> kept;
+    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+        kept = aecp_read(static_cast<std::uint16_t>(0x7800u + k));
+        b_.send_frame(kept, 0);
+    }
+    auto cut = aecp_read(0x7900);
+    cut.resize(22);   // inside target_entity_id (bytes 18 to 25)
+    auto stub = aecp_read(0x7901);
+    stub.resize(14);  // ends before the subtype
+    b_.send_frame(mbx_tb::aecp(0, kForeignEid, kForeignEid), 0);
+    b_.send_frame(cut, 0);
+    b_.send_frame(stub, 0);
+    b_.drain_rx(40000);
+    ck_.dec("B8 a frame the filter refuses behind a held one counts nowhere",
+            rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)) + rd(ch_reg(ch, MBX_CH_REG_RX_DROP)) + mismatches(), 0);
+    ck_.dec("B8 and sets no IRQ_STATUS.ERR", err(), 0);
+    for (std::uint32_t k = 0; k < burst; ++k) {
+        release(ch, peek(ch));
+    }
+    b_.ms(refill);
+    ck_.dec("B8 the held record is committed at the refill", rx_pass(ch), burst + 1u);
+    ck_.that("B8 whole, byte for byte", same_bytes(peek(ch).bytes, kept));
+
+    // A frame held when its channel closes passed the filter while it was open:
+    // the refill still commits it (MAILBOX_SPLIT.md, The held frame), and the
+    // closed channel takes nothing more.
+    restart();
+    open(1u << ch);
+    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+        kept = aecp_read(static_cast<std::uint16_t>(0x7A00u + k));
+        b_.send_frame(kept, 0);
+    }
+    b_.drain_rx(40000);
+    wr(MBX_REG_FILTER_EN, 0u);
+    b_.send_frame(aecp_read(0x7B00), 0);
+    b_.drain_rx();
+    for (std::uint32_t k = 0; k < burst; ++k) {
+        release(ch, peek(ch));
+    }
+    ck_.dec("B9 the frame held when its channel closes waits for the refill", rx_pass(ch), burst);
+    b_.ms(refill);
+    ck_.dec("B9 a frame held when its channel closes is still committed at the next refill", rx_pass(ch), burst + 1u);
+    ck_.that("B9 whole, byte for byte", same_bytes(peek(ch).bytes, kept));
+    release(ch, peek(ch));
+    b_.ms(2u * refill);
+    ck_.dec("B9 and the closed channel takes nothing more", rx_pass(ch), burst + 1u);
+    ck_.dec("B9 nor counts what it does not take", dropped() + mismatches(), 0);
 }
 
 // #917, at the clock: a refill that lands between a stored frame's verdict

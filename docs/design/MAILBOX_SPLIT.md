@@ -273,13 +273,15 @@ is frame bytes 14 onward: the contiguous buffer lwSRP's `mrp_rx()` and
 ### The held frame
 
 The ruling on [#665 (6894152131)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6894152131),
-item 2, on [#917](https://github.com/kebag-logic/milan-fpga/issues/917):
-a controller keeps one AECP command in flight (IEEE 1722.1-2021 9.2.2.4), so
-a command the bucket drops costs it a timeout and a retry, and at about 1 kHz
-a controller lost about one command in 21 once the burst was spent. The
-table's rates stay: a 1 ms refill would charge the load gate one record a
-millisecond, taking AECP's share from 0.047 to 0.235 and the load past 0.70.
-So a frame that finds no token is held instead of dropped:
+item 2, on [#917](https://github.com/kebag-logic/milan-fpga/issues/917).
+#917 measured a controller that keeps one AECP command in flight: at about
+1 kHz it lost about one command in 21 once the burst was spent, and each lost
+command cost it its transaction timeout and a retry (IEEE 1722.1-2021 9.3.2.6,
+9.3.6). One in flight is that workload, not a rule of the protocol: a
+controller may pipeline commands (9.2.2). The table's rates stay: a 1 ms
+refill would charge the load gate one record a millisecond, taking AECP's
+share from 0.047 to 0.235 and the load past 0.70. So a frame that finds no
+token is held instead of dropped:
 
 - **Where it waits.** In the ring, past `RX_HEAD`. `KL_mbx_rx` writes its
   words while it arrives and its two header words after the verdict, as for
@@ -295,10 +297,24 @@ So a frame that finds no token is held instead of dropped:
   its last byte arrived. A frame held when its channel is closed is still
   committed: it passed the filter while the channel was open, as a frame
   committed just before the close did. A reset forgets it.
+- **Its ingress allowance.** A record that finds a token is published within
+  64 clocks of its last byte; a held one waits up to its channel's refill
+  period more. [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+  states each path's allowance and the response margins it leaves, and the
+  [generated channel table](../reference/MAILBOX_CONTRACT.md#channels-and-the-ingress-filter)
+  states each channel's held allowance from its `refill_ms`.
 - **What is dropped.** A channel holds one frame. While it holds one its
-  bucket is empty, so every later frame of the channel finds no token and is
-  refused, in `RATE_DROP` (and `IRQ_STATUS.ERR`); the held frame is committed
-  first. Holding a frame counts nothing.
+  bucket is empty, so every later frame of the channel that passes the
+  filter and fits finds no token and is refused, in `RATE_DROP` (and
+  `IRQ_STATUS.ERR`); one the filter refuses is dropped uncounted and one
+  that does not fit counts in `RX_DROP`, as anywhere else. The held frame is
+  committed first. Holding a frame counts nothing.
+- **Its limit.** Once the burst is spent and a frame is held, any second
+  frame of the channel that passes within the refill period is refused and
+  counted: on AECP, a second controller's command, a pipelining controller's
+  next command, and a response to a command this entity sent as a controller,
+  which shares the bucket. The hold serves the one-in-flight workload #917
+  measured; it does not admit fifty commands sent with no wait.
 - **What is unchanged.** Every commit, held or not, spends one token, so the
   committed rate is the table's (the burst, then one record a refill period)
   and so is the load. The registers, the record layout and the contract
@@ -308,13 +324,18 @@ So a frame that finds no token is held instead of dropped:
   token takes the same clocks as before.
 
 The mailbox suite grades it on both adapters and on the host model (group
-`HeldNotDropped`, checks B0 to B4: fifty AECP commands sent one in flight at
-line rate all delivered in order, a third command behind a held one dropped
-and counted, a controller at one command a millisecond losing none of a
-hundred, a reset forgetting the held frame, a tail inside it), on the RTL at
-the clock (B5: a refill landing in each clock around the header writes) and
-over every clock of every check (B6: no channel holds a frame while its
-bucket holds a token).
+`HeldNotDropped`, checks B0 to B4 and B7 to B9: fifty AECP commands sent one
+in flight at line rate all delivered in order, each by the next refill, the
+bench's deadline; a third command behind a held one dropped and counted; a
+controller at one command a millisecond losing none of a hundred; a reset
+forgetting the held frame; a tail inside it; a ring with room for one record,
+which the held one takes, refusing the next in `RX_DROP` with every unread
+record intact; filtered and cut frames behind a held one counted nowhere; a
+frame held across a close committed), on the RTL at the clock (B5: a refill
+landing in each clock around the header writes) and over every clock of every
+check (B6: no channel holds a frame while its bucket holds a token). The CPU
+budget harness measures a held record from its last byte (group `aecp-held`,
+[its README](../../tb/verilator/ctrl_service_budget/README.md#a-held-record)).
 
 ## Bus adapters and the hard core
 
@@ -1754,14 +1775,14 @@ each fail by their kind:
 | Evidence | What it shows |
 |---|---|
 | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 163 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, the [split census's](#the-splits-control-face) 23, a positive and a negative control and a positive control in both placements; each of its 57 rules (31 of the class-D census, 12 of the port census, 14 of the split census) removed in turn, each letting its arms through. In each shape's split elaboration, each of the datapath's 80 ctl ports in one class (C 12, F 16, R 34, E 6, M 12), every publication and contract 2.3 field consumed but the four read in neither placement |
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 607 at one interface and 614 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter and the frame it holds (#917), the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 652 at one interface, 659 at two |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 622 at one interface and 629 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter and the frame it holds (#917), the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 667 at one interface, 674 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
 | the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.4), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
 | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
-| the same suite on the host model, in `make run-if2` | the 532 of the RTL's 614 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the same suite on the host model, in `make run-if2` | the 547 of the RTL's 629 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |

@@ -114,6 +114,16 @@ public:
         if (rx_commit(dut)) {
             std::printf("RXC %llu %u\n", ull(sys_), rx_channel(dut));
         }
+        // A record its channel's bucket had no token for is held (#917): its hold, in its commit's place, and
+        // its commit at the channel's next refill, which grade.py credits to the frame that channel holds.
+        if (rx_hold(dut)) {
+            std::printf("RXH %llu %u\n", ull(sys_), rx_channel(dut));
+        }
+        if (const unsigned released = rx_release(dut)) {
+            for (unsigned c = 0; c < n_ch; ++c) {
+                if ((released >> c) & 1u) std::printf("RXR %llu %u\n", ull(sys_), c);
+            }
+        }
         if (evt_write(dut)) {
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
             event_word(evt_addr(dut) % ev_words, evt_data(dut));

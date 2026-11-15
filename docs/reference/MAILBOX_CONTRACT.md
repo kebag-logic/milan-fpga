@@ -871,13 +871,15 @@ and no counter. An untagged frame whose EtherType some tuple names, matching no 
 counts once in `FILTER_MISMATCH`. A frame failing its identity term is dropped uncounted.
 A frame that ends before byte 14 is classified into nothing and counted nowhere.
 
-| Channel | id | receive ring | transmit ring | Max frame | Rate |
-|---|---:|---|---|---:|---|
-| `adp` | 0 | `0x1000`, 256 words | `0x1400`, 128 words | 128 | burst 8, one token per 10 ms |
-| `acmp` | 1 | `0x1800`, 256 words | `0x1C00`, 256 words | 128 | burst 16, one token per 5 ms |
-| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 5 ms |
-| `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | burst 8, one token per 20 ms |
-| `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | burst 32, one token per 2 ms |
+| Channel | id | receive ring | transmit ring | Max frame | Rate | Ingress allowance, held record |
+|---|---:|---|---|---:|---|---|
+| `adp` | 0 | `0x1000`, 256 words | `0x1400`, 128 words | 128 | burst 8, one token per 10 ms | 11 ms: one refill period and `T_ingress` |
+| `acmp` | 1 | `0x1800`, 256 words | `0x1C00`, 256 words | 128 | burst 16, one token per 5 ms | 6 ms: one refill period and `T_ingress` |
+| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 5 ms | 6 ms: one refill period and `T_ingress` |
+| `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | burst 8, one token per 20 ms | 21 ms: one refill period and `T_ingress` |
+| `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | burst 32, one token per 2 ms | 3 ms: one refill period and `T_ingress` |
+
+A record that finds a token is published within 64 mailbox cycles of its last byte: its ingress allowance, `T_ingress`, is 1 ms (FR_NFR.md 3.4.1). A held record is published at its channel's next refill, so its allowance is one refill period more, derived above from each channel's `refill_ms`.
 
 | Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | message_type | Why |
 |---|---:|---|---|---|---|---|---|

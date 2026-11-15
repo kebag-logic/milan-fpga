@@ -644,7 +644,7 @@ ARMS += (
 )
 
 
-#: ---- #917 (#665, comment 6894152131 item 2): a frame its channel's bucket has
+#: ---- #917 (#665 ruling item 2): a frame its channel's bucket has
 #: no token for is held past RX_HEAD and committed at the next refill, not
 #: dropped; only a frame behind a held one is refused (the model's twin is
 #: model-drop-instead-of-hold in sw/firmware/ctrl/test/ctrl_mutants.py) ----
@@ -674,6 +674,19 @@ ARMS += (
     Arm("rx-tail-inside-the-held-record-frees-space", "KL_mbx_rx.sv",
         "(used_w > ring_words_w || cused_w > ring_words_w)", "(used_w > ring_words_w)", 0,
         "B4 a tail ahead of RX_HEAD, inside the held record, leaves no free word"),
+    # the free space from RX_HEAD, not the write head: the frame behind a held one fits
+    # where the held record is and writes over the oldest unread record
+    *_both("rx-space-from-the-committed-head", "KL_mbx_rx.sv",
+           "    used_w       = wr_head_r[ch_r] - tail_w;", "    used_w       = head_r[ch_r] - tail_w;",
+           "B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP"),
+    # a frame the filter refuses behind a held one counted as a rate drop
+    Arm("rx-refused-behind-held-counted", "KL_mbx_rx.sv",
+        "vd_rate_r <= hit_r && rule_pass_w && !bad_w", "vd_rate_r <= hit_r && !bad_w", 0,
+        "B8 a frame the filter refuses behind a held one counts nowhere"),
+    # the held record's commit waits for an open channel: one held at a close is never committed
+    Arm("rx-release-gated-on-open", "KL_mbx_rx.sv",
+        "      rel_w[c]    = refill_w[c] && held_r[c];", "      rel_w[c]    = refill_w[c] && held_r[c] && open_i[c];",
+        0, "B9 a frame held when its channel closes is still committed at the next refill"),
     # a refill in the header-write clock not seen: the frame held beside the token it brings
     *_both("rx-refill-in-the-header-clock-missed", "KL_mbx_rx.sv",
            "assign tok_now_w   = (tokens_r[ch_r] != 8'd0) || refill_w[ch_r];",

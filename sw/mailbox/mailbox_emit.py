@@ -213,14 +213,24 @@ def _tuple_rows(contract: Contract) -> list[str]:
     return out + [""]
 
 
+#: FR_NFR.md 3.4.1's T_ingress for a record that finds a token: published within 64 mailbox cycles of
+#: its last byte. A held record (#917) waits up to one refill period of its channel more.
+T_INGRESS_MS = 1
+
+
 def _channel_rows(contract: Contract) -> list[str]:
     """The channel table, the tuple table and one rule table per channel."""
-    out = ["| Channel | id | receive ring | transmit ring | Max frame | Rate |",
-           "|---|---:|---|---|---:|---|"]
+    out = ["| Channel | id | receive ring | transmit ring | Max frame | Rate | Ingress allowance, held record |",
+           "|---|---:|---|---|---:|---|---|"]
     for ch in contract.channels:
         out.append(f"| `{ch.name}` | {ch.ident} | `0x{ch.rx_base:04X}`, {ch.rx_words} words "
                    f"| `0x{ch.tx_base:04X}`, {ch.tx_words} words | {ch.max_frame_bytes} "
-                   f"| burst {ch.burst}, one token per {ch.refill_ms} ms |")
+                   f"| burst {ch.burst}, one token per {ch.refill_ms} ms "
+                   f"| {ch.refill_ms + T_INGRESS_MS} ms: one refill period and `T_ingress` |")
+    out += ["", f"A record that finds a token is published within 64 mailbox cycles of its last byte: its ingress "
+                f"allowance, `T_ingress`, is {T_INGRESS_MS} ms (FR_NFR.md 3.4.1). A held record is published at its "
+                f"channel's next refill, so its allowance is one refill period more, derived above from each "
+                f"channel's `refill_ms`."]
     out.append("")
     out += _tuple_rows(contract)
     for ch in contract.channels:

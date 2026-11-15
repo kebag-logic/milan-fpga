@@ -35,15 +35,18 @@
 //                reads a partial record. The bytes and rules are the
 //                contract's (sw/mailbox/mailbox.yaml, KL_mbx_pkg).
 //
-//                A passing frame that finds its channel's bucket empty is held,
-//                not dropped (#917; #665, comment 6894152131 item 2; IEEE
-//                1722.1-2021 9.2.2.4: a controller keeps one command in flight,
-//                so a dropped one costs it a timeout and a retry). Its words and
-//                header are written as a committed frame's, past the head, and
-//                the head stays; at the channel's next refill the record is
-//                committed and takes that refill's token. A channel holds one
-//                frame: one that finds the bucket empty while a frame is held is
-//                the only frame the bucket refuses, and it counts in RATE_DROP.
+//                A passing frame that fits and finds its channel's bucket empty
+//                is held, not dropped (#917; #665 ruling item 2): a controller
+//                that keeps one command in flight, the workload #917 measured,
+//                would otherwise lose that command to its timeout and retry
+//                (IEEE 1722.1-2021 9.3.2.6, 9.3.6). A controller may pipeline
+//                commands (9.2.2); behind a held one those are refused. Its words
+//                and header are written as a committed frame's, past the head,
+//                and the head stays; at the channel's next refill the record is
+//                committed and takes that refill's token, open channel or not. A
+//                channel holds one frame: a passing frame that fits and finds the
+//                bucket empty while one is held is the only frame the bucket
+//                refuses, and it counts in RATE_DROP.
 //                Every commit, held or not, takes one token, so the committed
 //                rate is the table's (the burst, then one a refill period). The
 //                write head (wr_head_r) runs ahead of the head by the held

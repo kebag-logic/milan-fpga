@@ -295,7 +295,7 @@ inline std::vector<std::uint8_t> aecp(std::uint8_t message_type, std::uint64_t t
 constexpr std::uint16_t kControllerAvailable = 0x0003;
 
 //! The READ_DESCRIPTOR command type (IEEE 1722.1-2021 7.4.5, Table 7-140):
-//! a descriptor walk's command, which a controller keeps one of in flight.
+//! a descriptor walk's command.
 constexpr std::uint16_t kReadDescriptor = 0x0004;
 
 //! The frame with an 802.1Q C-tag (TPID 0x8100, then PCP 3 and VID 2, the SR

@@ -1095,9 +1095,9 @@ event_types:
 # (the identity term) holds, and it fits max_frame_bytes and the ring. It is
 # committed while the channel's token bucket holds a token, which it spends;
 # otherwise it is held past RX_HEAD and committed at the channel's next refill,
-# whose token it spends (#917; #665, comment 6894152131 item 2). A channel holds
-# one frame: a frame that finds the bucket empty while one is held is refused
-# and counts in RATE_DROP. The rates below are unchanged by the hold.
+# whose token it spends (#917; #665 ruling item 2). A channel holds one frame:
+# a frame that passes and fits and finds the bucket empty while one is held is
+# refused and counts in RATE_DROP. The rates below are unchanged by the hold.
 #
 # Untagged frames only, by construction: an 802.1Q tag puts its TPID (`tpids`,
 # IEEE 802.1Q-2018 Table 9-1) where the EtherType is read, no tuple may name a
