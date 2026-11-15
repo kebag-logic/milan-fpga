@@ -669,16 +669,18 @@ class Plant:
     words: str
 
 
-#: The platform's take of each frame, where AECP's acceptance of a REBOOT is first visible
+#: The platform's take of each frame, the call that hands it to its channel's handler
 TAKEN = '\town->fn(own->ctx, f);\n'
 
 PLANTS = {
-    # item 2: the reset port fired at the REBOOT's acceptance, in the take that accepts it, before its SUCCESS is
-    # handed to send
+    # item 2: the reset port fired in the take that accepts the REBOOT, before its SUCCESS is handed to send: as the
+    # take hands the AEM_COMMAND REBOOT to AECP's handler, which commits a plain response in the record's own turn
+    # (#894), so the port is written before the handler runs
     'reset-before-the-response': Plant(
         'plat/ctrl_plat.c', TAKEN,
-        TAKEN + '\tif (aecp_reboot_accepted(&ctrl_plat.aecp.core)) {\n'
-                '\t\tctrl_plat_io_write32(ctrl_plat.env->reboot, 1u);\n\t}\n', False,
+        '\tif (f->len >= 38u && f->bytes[14] == 0xfbu && (f->bytes[15] & 0x0fu) == 0u &&\n'
+        '\t    ((((unsigned)f->bytes[36] << 8) | f->bytes[37]) & 0x7fffu) == 0x2au) {\n'
+        '\t\tctrl_plat_io_write32(ctrl_plat.env->reboot, 1u);\n\t}\n' + TAKEN, False,
         'ORDER: the REBOOT\'s SUCCESS left the mailbox after the reset port fired'),
     # item 3: the request answered and never fired
     'request-ignored': Plant('plat/ctrl_plat.c', '\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n', '', False,

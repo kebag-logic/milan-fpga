@@ -88,7 +88,7 @@ Each must give a finding that carries its own words:
 
 | Plant | Edit | Its finding |
 |---|---|---|
-| `reset-before-the-response` | the port written in the take that accepts the REBOOT, before its SUCCESS is handed to send | ORDER: the REBOOT's SUCCESS left the mailbox after the reset port fired |
+| `reset-before-the-response` | the port written in the take that accepts the REBOOT, before AECP's handler runs, so before its SUCCESS is handed to send (a plain response is committed in the record's own turn since #894) | ORDER: the REBOOT's SUCCESS left the mailbox after the reset port fired |
 | `request-ignored` | the port never written | ORDER: the reset port never fired |
 | `write-torn` | the store not serviced once the loop stops | JOURNAL: the drain ended cap, not because the state was durable |
 | `any-descriptor-type` | a REBOOT of any descriptor type taken | REFUSE: refuse-input answered status 0 at cdl 16, not 11 at cdl 16 |
