@@ -1,0 +1,24 @@
+  [FAIL] T0 and RX_HEAD then covers the held record got=184 exp=207
+  [FAIL] T0 and committed at the refill after     got=9 exp=10
+  [FAIL] T0 its record is that frame
+  [FAIL] T1 one refill period buys exactly one more frame got=9 exp=11
+  [FAIL] T1 the next is held and the one behind it refused again got=1 exp=2
+  [FAIL] T1 the frame bought is the first of the three
+  [FAIL] T1 the held one is committed at the next refill got=9 exp=12
+  [FAIL] T1 its record is the second of the three
+  [FAIL] T1 the refused one never reaches the ring got=9 exp=12
+  [FAIL] T1 RX_HEAD has nothing past the tail     got=184 exp=276
+  [FAIL] B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered got=17 exp=50
+  [FAIL] B0 none counts in RATE_DROP or RX_DROP   got=1 exp=0
+  [FAIL] B0 and holding a command sets no IRQ_STATUS.ERR got=1 exp=0
+  [FAIL] B1 of three commands back to back on one token, the first is delivered at once got=0 exp=1
+  [FAIL] B1 the third, behind the held second, is dropped and counted in RATE_DROP got=0 exp=1
+  [FAIL] B1 the held second is delivered at the next refill got=0 exp=2
+  [FAIL] B1 the records are the first and the second, byte for byte, in order
+  [FAIL] B1 the third never reaches the ring      got=0 exp=2
+  [FAIL] B1 RATE_DROP counts it once              got=0 exp=1
+  [FAIL] B2 a controller sending a command a millisecond, one in flight, loses none of a hundred got=20 exp=100
+  [FAIL] B2 none counts in RATE_DROP or RX_DROP   got=1 exp=0
+  [FAIL] V0 the ring holds each committed frame once, byte for byte, in order, and nothing else
+== mbx (Wishbone host): checks: 607   failures: 22 ==
+RESULT: FAIL

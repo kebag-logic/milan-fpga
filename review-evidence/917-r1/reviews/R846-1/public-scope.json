@@ -1,0 +1,20 @@
+{
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/917",
+  "body": "The split's AECP ingress budget silently drops a controller's commands when they arrive back to back.\n\n- **Where:** `sw/mailbox/mailbox.yaml`, channel `aecp`, `rate: {burst: 16, refill_ms: 5}`; the verdict is taken at frame end in `hdl/milan/mailbox/KL_mbx_rx.sv` (around `:561`) and a frame arriving with no token is dropped.\n- **Seen on hardware:** the S12b rehearsal on the ALINX (#665 issuecomment-6893975393, finding A). A controller sending at about 1 kHz loses about 1 command in 21 once the burst is spent; at 5 ms and 20 ms spacing nothing is lost, and a model of the bucket reproduces every lost command. The all-fabric release has no such limit.\n- **Effect:** each lost command is a controller timeout and retry (IEEE 1722.1-2021 9.2.2.4), so a descriptor walk loses about one response per walk. Silently dropping a command from a controller that keeps one in flight is a regression against the release.\n\n**Decision** (#665 issuecomment-6894152131 item 2, maintainer-delegated, the owner may instead choose to flip with the limit documented):\n- The table's figures stay (burst 16, refill 5 ms); raising the rate is refused because the load gate charges one record per refill (AECP's share 0.047 -> 0.235 at 1 ms, the load past 0.70).\n- A command arriving with no token is **held** and delivered at the next refill. Only a command arriving behind a held one may be dropped, and it is **counted**.\n- Fabric and mailbox contract only; no firmware image change. Printing the drop counters waits until after the flip.\n\n**Acceptance:**\n- The mailbox bench: 50 back-to-back AECP reads, none lost; a third command behind a held one is dropped and counted.\n- On hardware: three descriptor walks with none unanswered.\n- The load and every row unchanged (no firmware image change); timing met at every corner.\n\nRelates to #665, #664.\n",
+  "prior_reviews": {
+    "reviews": []
+  },
+  "prior_threads": {
+    "review_threads": []
+  },
+  "comments": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/918#issuecomment-6899353434",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R845-1\n\nR845 (internal reviewer) reconstructs issue #917 / PR #918 at exact head `3926c271aaf77420fb9093694be0ab9d511b898d`, tree `09b50fe085b129c81e7b033b9611a861af4fb9d4`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/918#issuecomment-6899359223",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R846-1\n\nR846 (external reviewer) reconstructs issue #917 / PR #918 at exact head `3926c271aaf77420fb9093694be0ab9d511b898d`, tree `09b50fe085b129c81e7b033b9611a861af4fb9d4`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    }
+  ]
+}

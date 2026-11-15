@@ -1,0 +1,12 @@
+Authority inspected: IEEE Std 1722.1-2021, Clause 9, printed pages 355, 358 and 361-362.
+Local text extraction SHA-256: 966138f9a20368c94ee24456ca485b69956777f3821adf0b1d019685dd1c8a9a
+
+9.2.2 permits AEM and Address Access requests to be pipelined before their responses arrive.
+9.2.2.4 is the message_type field definition, with Table 9-1.
+9.3.2.6 defines the 250 ms transaction timeout, 240 ms entity response endpoint and 120 ms IN_PROGRESS cadence.
+9.3.6 specifies the AEM controller state machine, its inflight command collection and retry handling.
+
+The review's one-command-in-flight workload is supported by issue #917 and its public ruling.
+It is not a universal controller restriction imposed by 9.2.2.4.
+The five-millisecond bench deadline checks refill delivery, not the standard's controller timeout.
+No standard document or full extraction is redistributed in this packet.

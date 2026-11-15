@@ -1,0 +1,35 @@
+Inputs:
+CHECKOUT = isolated detached source clone
+PACKET = this packet directory
+COMPILER = the supplied pinned compiler wrapper
+
+Identity before use:
+Verilator 5.050 2026-07-01 rev v5.050
+
+Stock execution:
+In PACKET/scratch/tb/verilator/mbx, copied from CHECKOUT with tb/common present:
+make -j16 ROOT=CHECKOUT VERILATOR=COMPILER VBUILD_JOBS=3 run-wb run-axil run-cosim run-if2
+Equivalent portable reproduction: python3 -B run_stock.py CHECKOUT PACKET COMPILER
+
+Independent boundaries and mutations (two simultaneous foreground commands):
+python3 -B run_probes.py CHECKOUT PACKET COMPILER
+python3 -B run_mutations.py CHECKOUT PACKET COMPILER
+Probe compilation: two adapter builds, three compiler workers each.
+Mutation compilation: two builds, four compiler workers each.
+The seven mutation arms run against disposable RTL copies; source-head bytes are never modified.
+Expected mutation child exits: 1 with the named failed check; campaign exit: 0.
+The model probe initially needed its stack-header include path added; its corrected execution passed.
+
+Focused measurement-helper reproduction:
+python3 -B check_budget_owner.py CHECKOUT
+Expected: immediate control accepted, held-only history refused, held-plus-refused-follower history misattributed.
+
+Final source and receipt verification:
+python3 -B audit.py CHECKOUT PACKET
+The archive under scratch/review-evidence is the public ee633e64 snapshot.
+No parent/processor/system campaign is run by these scripts.
+
+Receipt packaging:
+python3 -B finalize.py CHECKOUT PACKET
+sha256sum -c MANIFEST.sha256
+Paths are normalized in public logs. Unmodified raw logs remain in scratch/raw and are not published.

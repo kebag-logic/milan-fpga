@@ -1,0 +1,10 @@
+  [FAIL] T0 only the frame behind the held one counts in RATE_DROP got=0 exp=1
+  [FAIL] T0 and not refused                       got=0 exp=1
+  [FAIL] T1 the next is held and the one behind it refused again got=0 exp=2
+  [FAIL] Q10 the bucket holds the frame past it and refuses the one behind that in RATE_DROP got=0 exp=1
+  [FAIL] B1 the third, behind the held second, is dropped and counted in RATE_DROP got=0 exp=1
+  [FAIL] B1 and the drop sets IRQ_STATUS.ERR      got=0 exp=1
+  [FAIL] B1 RATE_DROP counts it once              got=0 exp=1
+  [FAIL] V0 the one behind the held one counts once in RATE_DROP got=0 exp=1
+== mbx (Wishbone host): checks: 607   failures: 8 ==
+RESULT: FAIL

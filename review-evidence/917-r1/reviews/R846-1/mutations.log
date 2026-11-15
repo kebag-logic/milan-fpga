@@ -1,0 +1,7 @@
+rx-drop-instead-of-hold: caught=True rc=1 expected=B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered
+rx-hold-behind-a-held-frame: caught=True rc=1 expected=B1 the third, behind the held second, is dropped and counted in RATE_DROP
+rx-held-record-never-committed: caught=True rc=1 expected=T0 and RX_HEAD then covers the held record
+rx-next-frame-over-the-held-record: caught=True rc=1 expected=B1 the records are the first and the second, byte for byte, in order
+rx-tail-inside-the-held-record-frees-space: caught=True rc=1 expected=B4 a tail ahead of RX_HEAD, inside the held record, leaves no free word
+rx-refill-in-the-header-clock-missed: caught=True rc=1 expected=B5 a refill in the clock of its second commits the frame then
+rx-refill-in-the-header-clock-missed-axil: caught=True rc=1 expected=B5 a refill in the clock of its second commits the frame then

@@ -1,0 +1,44 @@
+  [FAIL] T0 only the frame behind the held one counts in RATE_DROP got=2 exp=1
+  [FAIL] T0 the next refill commits the held frame got=8 exp=9
+  [FAIL] T0 and RX_HEAD then covers the held record got=184 exp=207
+  [FAIL] T0 the held record is the frame past the burst, byte for byte
+  [FAIL] T0 and keeps the NOW_MS its last byte arrived at got=80 exp=0
+  [FAIL] T0 the held frame took the refill's token: the next frame is held in its turn got=8 exp=9
+  [FAIL] T0 and not refused                       got=2 exp=1
+  [FAIL] T0 and committed at the refill after     got=8 exp=10
+  [FAIL] T0 its record is that frame
+  [FAIL] T1 one refill period buys exactly one more frame got=8 exp=11
+  [FAIL] T1 the frame bought is the first of the three
+  [FAIL] T1 the held one is committed at the next refill got=8 exp=12
+  [FAIL] T1 its record is the second of the three
+  [FAIL] T1 the refused one never reaches the ring got=8 exp=12
+  [FAIL] T1 RX_HEAD has nothing past the tail     got=184 exp=276
+  [FAIL] Q10 the bucket holds the frame past it and refuses the one behind that in RATE_DROP got=2 exp=1
+  [FAIL] B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered got=16 exp=50
+  [FAIL] B0 none counts in RATE_DROP or RX_DROP   got=1 exp=0
+  [FAIL] B0 and every command after it within one refill period
+  [FAIL] B0 and holding a command sets no IRQ_STATUS.ERR got=1 exp=0
+  [FAIL] B1 of three commands back to back on one token, the first is delivered at once got=2 exp=1
+  [FAIL] B1 the third, behind the held second, is dropped and counted in RATE_DROP got=2 exp=1
+  [FAIL] B1 RATE_DROP counts it once              got=2 exp=1
+  [FAIL] B2 a controller sending a command a millisecond, one in flight, loses none of a hundred got=19 exp=100
+  [FAIL] B2 none counts in RATE_DROP or RX_DROP   got=1 exp=0
+  [FAIL] B2 the commands past what the bucket holds wait for a refill
+  [FAIL] B4 and not in RATE_DROP                  got=1 exp=0
+  [FAIL] B4 back in range, the held record is committed at the refill got=16 exp=17
+  [FAIL] B5 a refill in the clock of its first header word commits the frame then got=16 exp=17
+  [FAIL] B5 a refill in the clock of its first header word: nothing refused got=1 exp=0
+  [FAIL] B5 a refill in the clock of its first header word: and it is committed once got=16 exp=17
+  [FAIL] B5 a refill in the clock of its second commits the frame then got=16 exp=17
+  [FAIL] B5 a refill in the clock of its second: nothing refused got=1 exp=0
+  [FAIL] B5 a refill in the clock of its second: and it is committed once got=16 exp=17
+  [FAIL] B5 a refill the clock after its header words, the frame held commits the frame then got=16 exp=17
+  [FAIL] B5 a refill the clock after its header words, the frame held: nothing refused got=1 exp=0
+  [FAIL] B5 a refill the clock after its header words, the frame held: and it is committed once got=16 exp=17
+  [FAIL] B6 the checks held frames
+  [FAIL] V0 the one behind the held one counts once in RATE_DROP got=2 exp=1
+  [FAIL] V0 the refill commits the held one       got=8 exp=9
+  [FAIL] V0 the ring holds each committed frame once, byte for byte, in order, and nothing else
+  [FAIL] V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte got=4 exp=6
+== mbx (Wishbone host): checks: 607   failures: 42 ==
+RESULT: FAIL
