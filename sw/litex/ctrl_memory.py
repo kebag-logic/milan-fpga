@@ -260,12 +260,14 @@ LEDGERED: dict[str, Ledgered] = {
                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
                                          "cap raised to 59.0 as debt owed to S14, no hold"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
                                             "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
-                                            "(#665 decision D3)"),
+                                            "(#665 decision D3); 60.5, that cap, with the saved-state store's "
+                                            "name marks over layout 3's id space and its step a pass (#920): "
+                                            "131,224 B of rom past the 131,072 its 60.0 held, debt owed to S14"),
 }
 
 
