@@ -24,14 +24,14 @@ Changed:
 
 Validation (clean clone of `41ca9f87`, 0 changed paths before and after). The sweeps, each with its exact reach and limit:
 1. **Moved constants** (`constant_history.py`: 73 moved over 126 snapshots from `66f71326`; `figure_sweep.py`).
-   - **Reach:** in one sentence, a moved constant's name beside a number its history held and the head does not (for a stated table's key, only a number with a unit), or one of the reviewer's 31 hand-written prose subjects beside its hand-written values.
-   - **Limit:** a table cell whose unit is in the column header, a figure beside neither a name nor a listed subject, and a removed constant.
+   - **Reach:** for each moved constant, its name (a `#define`'s identifier, or a stated table's key, matched anywhere in the sentence) beside a number its history's values held and the head's value does not, other than 0, 1 and 2, not inside a longer number: a `#define`'s bare, with a `u` suffix, or followed by us, ms, cs or B; a table key's only followed by us, ms, cs or B; and a whole number of 1,000 or more only as written with a thousands separator (`1,010`, not `1010`). Or one of the reviewer's 31 hand-written rules: a prose subject pattern beside its hand-written value patterns.
+   - **Limit:** a superseded 0, 1 or 2; a superseded number of 1,000 or more written without a separator; a table cell whose unit is in the column header; a figure beside neither a name nor a listed subject; and a removed constant.
    - **Result:** 261 hits: 137 historical, 58 beside, 8 the head's own, 50 another quantity, 8 naming #916.
 2. **Removed constants** (`removed_constants.py`): 10 removed, and 8 lines name one, all history.
    - **Limit:** a removed constant's bound stated without its name.
 3. **Rows and loads** (ROW and LOAD), against `flip_grade.py --check` at both points.
-   - **Reach:** a two-decimal ms figure in a sentence naming a row, and a load of the form 0.xxx in a sentence naming the load.
-   - **Limit:** a load of 1 or more, a row figure of another precision or with four digits before the point, and a sentence naming neither.
+   - **Reach:** ROW: a figure of one to three digits, a point and two digits, not inside a longer number, directly followed by `ms` (with or without a space before it), ` and ` then a digit, ` within`, ` over`, `,` or ` (`, in a sentence containing ms, row, txL, R4L, R4, R5, R6, ACMP, ADP, MAAP, notice or tx, and not one of the head's rows (`flip_grade.py --check` at both points). LOAD: a figure `0.` and three digits, not inside a longer number, in a sentence containing load, and not one of the head's loads.
+   - **Limit:** a two-decimal figure followed by anything else, such as a table cell's ` |`. R837-14's probe counts 1,236 non-head two-decimal figures outside that follow-context in section 13, FR_NFR 3.4.1 and this body, among them 52 cells of the rows-history table, each labelled by its row's head. Also outside: a load of 1 or more, a row figure of another precision or of four or more digits before the point, and a sentence naming neither.
    - **Result:** 567 hits: 315 historical, 28 beside, 7 the head's own, 217 another quantity.
 4. **Retired artifacts:** one file deleted, `ctrl_retry_search.py`, and 15 lines name it, all history, `rows_grade.py`'s three included.
    - **Limit:** a retired file named by no path, file name, stem or listed prose name.
@@ -67,4 +67,4 @@ Open risks/questions:
 - **R837-10-S1 and S3, and R837-7-S2,** remain optional; each needs a code change.
 - **The packet:** `894-a773/round20/` (PR body, receipts, INDEX).
 
-(Edited in place at the manager's direction, to name the head `41ca9f87`; it first named `a0c25e5c`.)
+(Edited in place at the manager's direction: first to name the head `41ca9f87`, where it named `a0c25e5c`, then to state sweeps 1 and 3's reach exactly as their patterns are, R837-14-F2.)

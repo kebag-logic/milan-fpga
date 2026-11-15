@@ -1,0 +1,68 @@
+# item 3: every sentence of section 13, FR_NFR 3.4.1 and the PR body (at 41ca9f87) with a byte count, KiB, RAMB36, tiles, granule, spare or ledger, each read against the head's images (qall at the head: the round-14/16 identity tables); the ones fixed are HANDOFF-r20.md's list
+S13:1101.0	- a 16 KiB two-way fetch L1 on the split hart;
+S13:1113.0	| Size | 16 KiB: 128 sets | The owner's decision; section 12's model put both 1x1 rows within the 10 ms T_svc then proposed at this size and ways |
+S13:1115.0	| Line | 64 bytes | The generator's fixed line, as section 7 |
+S13:1120.0	`sw/builder/test_soc_options.py` restates the geometry and kills a larger and a smaller cache, a third way, one way, and the 4 KiB direct-mapped cache it replaces.
+S13:1123.0	It now requires one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in th
+S13:1128.0	| Split CPU | CPU WNS / WHS, ns | Bus WNS / WHS, ns | LUT | FF | The CPU's RAMB36 / RAMB18 | The CPU's tiles |
+S13:1130.0	| 4 KiB direct-mapped fetch L1 (section 10) | +0.952 / +0.041 | +2.440 / +0.070 | 3,902 | 6,828 | 6 / 11 | 11.5 |
+S13:1131.0	| 16 KiB two-way fetch L1 | +0.659 / +0.031 | +2.660 / +0.072 | 3,948 | 6,879 | 9 / 11 | 14.5 |
+S13:1134.0	The cache's data takes four RAMB36 where the 4 KiB cache took one; its tags stay in the core's RAMB18.
+S13:1136.0	[The area plan's ledger](MARK_II_AREA_PLAN.md) takes the 3 tiles: 124 after the conditional release, 2.5 over its 121.5-tile ceiling.
+S13:1167.0	Its bench checks it against a driver's word loop written from the contract, with a model of `KL_mbx`'s port and an AXI4 memory that stalls and errs, at every length to 96 bytes, the largest frame and the field's largest lengths; 21 planted defects are caught.
+S13:1180.0	- `parse_pass` clears a decoded value only on the pass that delivers it; the validation pass cleared 64 bytes an attribute for nothing.
+S13:1423.0	| Split CPU | WNS / WHS, ns | LUT | FF | The CPU's RAMB36 / RAMB18 | The CPU's tiles | Route |
+S13:1425.0	| 16 KiB two-way fetch L1, behind the crossing at 100 MHz ([above](#the-fetch-l1)) | CPU +0.659 / +0.031, bus +2.660 / +0.072 | 3,948 | 6,879 | 9 / 11 | 14.5 | no routing error |
+S13:1426.0	| 16 KiB two-way fetch L1, on `sys` at 100 MHz | +1.605 / +0.070 | 3,543 | 5,643 | 6 / 7 | 9.5 | no routing error |
+S13:1428.0	Without the crossing the CPU is 405 LUTs, 1,236 FFs and 5 tiles smaller.
+S13:1475.0	The store's blank check and verify now read back 128 bytes a step (`NVM_READ_BYTES`), so a save's read-back takes twice as many ticks: at 8x8 the blank check and the verify are 2.08 s of ticks, 1.04 s before, and a save there is 4,697.1 ms from the change to durable on a flash with no busy time (measured at that head on 2026-11-
+S13:1479.0	At the CPU's old 50 MHz, the 1x1, 4 KiB arm's `backlog-adp` and `backlog-adp-refill` were refused: the fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits, so with k records held only 16 - k + 1 commit, and those windows opened with 4 or 5 records held.
+S13:1500.0	| Blank-check read-back, 128 bytes | 73,491 | 72,841 |
+S13:1502.0	| Verify read-back, 128 bytes, compared with the stage | 76,234 | 76,737 |
+S13:1504.0	A read-back reads 128 bytes through the uncached window, each byte one SPI read; a program step issues one page through the command master a byte at a time.
+S13:1549.0	The first 1,000 ms are DR2a's first-dirty window, then the capture and the seal; the blank check and the verify read back 128 bytes a step, one step a tick, 104 ticks each at 8x8 for 13,256 bytes, 27 at 1x1 for 3,336, where a whole page a step took half as many.
+S13:1624.0	A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of the descriptor it names), so at 8x8/2if, KLJ3's 13,584-byte container since the merge of `dev-soft-core` `0fb66211` (13,256 bytes in KLJ2), S = 1 + 3 + 54 + 2 + 107 + 108 + 107 = 382 and T ≤ 12,470 ms; at 1x1, 3,444 bytes (3,336 in KLJ2), S = 102 and
+S13:1669.0	| Blank-check read-back, 128 bytes | 76,495 / 120,202 | 75,869 / 121,069 |
+S13:1671.0	| Verify read-back, 128 bytes | 76,048 / 83,867 | 76,917 / 122,059 |
+S13:1851.0	The part of [section 9.4 of the fast-connect design](SAVED_STATE_FASTCONNECT.md#94-the-deadlines), the N25Q128 at its datasheet maximum, erases a 64 KiB sector in up to 3 s (tSE) and programs a page in up to 5 ms (tPP).
+S13:2214.0	The firmware already runs each item as its own function, which does its work only once its source has posted it (ACMP's poll and AECP's `transmit` are entered every pass and return at once when nothing is owed, so an instance of those is a call that committed a frame of its channel), so this changes no code: at 8x8/2if the image
+S13:2214.1	The retained receive's retry rule (round 25, item 1) adds about 104 bytes of code, so `struct srp_mbx` now ends with its two frame buffers, which puts every other field within a load's reach of the adapter's address: the arm holds 122,556 bytes, 324 under the granule (`answering-later` 122,400, `answering-ports` 122,416, arm A 1
+S13:2214.2	The merge of `dev-soft-core` `1d6bf555` added 8 bytes to the image (ENTITY's `available_index`), which put the arm 4 bytes over; the arm's AVB and counters readers now share its path reader, which answers as they did, 16 bytes less.
+S13:2262.3	IEEE 1722-2016 B.3.4.2, Table B.8 (`MAAP_PROBE_BASE_MS` less `MAAP_PROBE_VARIATION_MS`);
+S13:2275.8	With #32 the 8x8/2if `answering-every-port` arm does not fit its ledger ([section 5](#5-fit)), so the costs only that arm stages, a notice's among them, are the first column's.
+S13:2298.3	No data symbol moved; 362 of the image's 448 functions moved, by -188 to +312 B (the first after the fan-out by 168).
+S13:2302.5	The cut also adds 152 B at the pin and 160 B with tsn-c-stack #32, which takes arm A's image with tsn-c-stack #32 over the 8x8/2if ledger (122,936 B in 122,880), so the graded column's leg would not build.
+S13:2304.5	The image grows by 112 to 120 B: arm A 122,440 B at 8x8/2if (122,328 before) and 107,232 B at 1x1/1if (107,112), the `answering-every-port` arm 122,748 B at 8x8/2if (122,636), each within its ledger; with tsn-c-stack #32 arm A's 8x8/2if image was 122,896 B, 58 RAMB36 against the 57.5 then ledgered for 8x8, two interfaces, so tha
+S13:2304.6	At this branch's merge of the pin move, which carries #32, arm A's 8x8/2if image is 123,112 B and the `answering-every-port` arm's 123,420 B, and the size fixture's entry ledgers 58.0, whose `rom` holds 124,928 B ([section 3](#3-named-refusals), [section 5](#5-fit)).
+S13:2310.9	At the merge of the pin move's round 4 head the 8x8 size fixture with two interfaces planned 58.5 RAMB36 against its 58.0, which refused its 8x8/2if builds; the ruling on that STOP ledgers it at 58.5 ([section 5](#5-fit)), and round 30 re-grades the composed image (next).
+S13:2312.3	The harness had first to follow KLJ3: its flash device takes writes only in the flash map's journal, 640 KiB at `0xe40000`, and a save's container is the stage less KLJ3's 10-byte record header. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if, round 29's seven, the owed row
+S13:2353.2	At the ruling's 20 ms the built design held none of the new channel rows by every source at 1x1/1if: ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, each waiting under AECP-first for every AECP record arriving in its window, and R4L 37.47 ms, AECP's burst with every notice the largest legal one, 550 B, waiting in the response buffer be
+S13:2357.0	The built design is the option's, then at the slice ruling's 800 us (950 us at the head, [below](#the-final-passs-restatements)): AECP first, and owed-notice slots of 552 B (`AECP_OWED_BYTES`), each holding the largest legal AECPDU, so every legal command's notice is queued and R4L is AECP's burst taken as R4's is.
+S13:2375.0	The largest legal notice's costs are measured: the CPU budget harness's `aecp-largest-notice` group sends REMOVE_AUDIO_MAPPINGS and ADD_AUDIO_MAPPINGS of 63 mappings, a control_data_length of 524, from a registered controller, so each response and each notice is 550 B and each notice goes to 15 controllers (31 on the 8x8 shape).
+S13:2382.0	At 8x8/2if the size fixture's image, at the merge of #810's `084cf7a8`, is 125,200 B of rom, 59.0 RAMB36, and the platform's 60.0: the ledger names both there, the fixture's at the 59.0 of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and the 
+S13:2382.2	At 1x1/1if the size fixture's image is 110,800 B of rom and 55,152 B of sram, 41.0 RAMB36, its 552 B slots included, since the one-row edit's cut ([below](#the-one-row-edit); 110,576 B and 40.5 RAMB36 before it).
+S13:2419.0	- **The mechanism** is where the data cache ([section 9](#9-the-cpus-data-cache): 8 KiB, direct-mapped, 64-byte lines) puts the store's state.
+S13:2419.1	KLJ3 grew it, `nvm_store.c`'s `nvm`, from 296 to 552 B.
+S13:2419.4	Those lines hold what every pass's polls read beside the store's status: SRP's interface and its fields ahead of its two frame buffers, its first 300 B at one interface.
+S13:2466.1	With the domain's 64 at 1x1/1if, the edit's stack frame moves 192 B and the largest legal command's record rose then from 91,625 CPU cycles to 98,720 by the 8 KiB direct-mapped data cache alone.
+S13:2469.0	- **The images.** Every image's rom is the same as round 8's or 8 B smaller, and sram and tiles are unchanged.
+S13:2475.0	- **Where the cycles went.** A committed-PC trace of each record, its lines read from a `-g` build of the same code, splits the REMOVE: 4,321 commits, 10,397 cycles of short pipeline stalls, 10,349 of instruction-fetch stalls (143 refills of 64 B, nearly all distinct lines) and 2,784 of data stalls. #904's one-pass check (`1b70c
+S13:2476.1	A mapping is copied a coordinate at a time and a row's words are composed in registers, so no edit calls `memcpy` but for its response's rows; the edit clears only the slots `place` forms and each mapping's link, marks and occurrences at its turn in the table, 64 B and 3 B a mapping at 1x1/1if; a REMOVE looks up only the rows of
+S13:2476.5	The cut moves every other record of the run by the layout alone: a variant that also wrote the response's rows from the table was 112 B longer and raised every other record of the group by 300 to 400 cycles.
+S13:2482.0	- **The images.** The cut added code to every image, its rom by alignment 224 B in each 1x1 image (the 1x1/1if size fixture 110,576 to 110,800 B, taking its next granule, 41.0 RAMB36, within 56) and 208 B in each 8x8 image (the 8x8/2if platform 130,496 to 130,704 B of 131,072, 60.0 RAMB36; the 8x8/1if platform at 56.0).
+S13:2494.0	- **The images.** The cut and the stamp add 216 B of rom to each image but the 1x1/1if size fixture, 224 B there (111,024 B, 41.0 RAMB36); the 8x8/2if platform holds 130,920 B of 131,072, 60.0 RAMB36, 152 B spare, and the 8x8/1if platform 129,624 B, 56.0.
+S13:2517.0	- The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
+FR:347.0	| MAAP | 50 ms | 20 ms | IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms x 10 % |
+FR:378.0	- MAAP has no DEFEND deadline: its three probes are 500 to 600 ms apart (IEEE 1722-2016 B.3.4.2, Tables B.7 and B.8).
+FR:413.0	| MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms;
+FR:414.0	| MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1 with constants B.3.3/Table B.8: strictly 30 s < announcement interval < 32 s;
+FR:451.0	  The five transmit rings hold 6,144 bytes, at most 256 records of the 14-byte minimum frame; padded, with FCS, preamble and gap, that is 21,504 bytes on the wire.
+PR:57.0	- **Every image is within its cap:** the 8x8/2if platform holds 130,920 B of 131,072, and the 1x1/1if size fixture 111,024 B (41.0 RAMB36).
+PR:123.0	- **The images:** the cut and the stamp add 216 B of rom to each image but the 1x1/1if size fixture, 224 B there (`receipts/images/rom-per-image.txt`).
+PR:123.1	Every image is within its cap: the 8x8/2if platform holds 130,920 B of 131,072 (152 B spare, 60.0 RAMB36), the 8x8/1if platform 129,624 B (56.0), and the 1x1/1if size fixture 111,024 B (41.0).
+PR:216.0	- **Per-image rom** (R838-6-F1, R837-6-R2): section 13's "220 B of rom to every image" is replaced by each image's growth, reconciled against `7398ec0a`.
+PR:216.1	Round 11's cut added 224 B to each 1x1 image (the size fixture 110,576 to 110,800 B) and 208 B to each 8x8 image (the 8x8/2if platform 130,496 to 130,704 B).
+PR:680.0	- **The decisions, pins and ledger** (`:2513`, `:2515-2517`) cite their sources.
+PR:725.0	| R838-6-F1 (MINOR), R837-6-R2: "the cut adds 220 B of rom to every image" | Replaced by each image's growth against `7398ec0a`: +224 B in each 1x1 image, +208 B in each 8x8 image.
+PR:725.1	Round 12's growth is stated the same way: +216 B, and +224 in the 1x1/1if size fixture | `SPLIT_CONTROL_MEMORY.md:2480`, its new subsection's images bullet | `receipts/images/rom-per-image.txt` (8 images at `7398ec0a`, `9606b3a9`, `fe0cef5b`) |
+PR:788.0	| R837-14-F1 (MINOR, Docs): `:2382` gives the round-11 fixture image, 110,800 B, as the head's;

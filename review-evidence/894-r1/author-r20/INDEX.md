@@ -1,19 +1,19 @@
 # 894-a773 round 20 output index
 
-Generated from the 105 files present after sanitizing (`scripts/index.py`), each row read back.
+Generated from the 137 files present after sanitizing (`scripts/index.py`), each row read back.
 No file here carries a host path, scripts included, so each row is the hash of the bytes as published. For an earlier packet whose scripts the archive redacted, the archive's outer `MANIFEST.json` is authoritative for those scripts: its `original_sha256` is the INDEX row, `path_redacted` marks the file.
 
 | File | Bytes | sha256 |
 |---|---:|---|
-| `HANDOFF-r20.md` | 2,709 | `029e054ea5614047f764fbe9539cccabd2d88e09b3d78e00bf95fc6eed302e36` |
-| `PR-BODY.md` | 113,603 | `a65e06a876925a53e76b08f9f87323f18fb8ebcdc34361b05b4a355d74abba8b` |
-| `REVIEW-READY-COMMENT.md` | 6,568 | `2e84f5f931d5d0b4e5db1f886cb32e7032aa12ea8ad4209fc2322eb2a512c7d9` |
+| `HANDOFF-r20.md` | 5,734 | `3eae7c58186c58fb4bce83a50f2ba0034002820ebf2ecf59eadcecc30677e76b` |
+| `PR-BODY.md` | 115,287 | `8b061b6a7ea6623bf6d7db1aed8edf1e17917cfac2d26af1ec9c2e188903bbf1` |
+| `REVIEW-READY-COMMENT.md` | 7,774 | `b9c632620a98ad2c4b2b3435e6b301a33c9adaa34d78eb7b6291209a7eb806db` |
 | `receipts/constant_history.txt` | 14,330 | `2d564a39e9700d39408f29a884c83e70934dc2ba28755ecfd2ce5b6ca458a042` |
 | `receipts/delta.diff` | 69,650 | `57f80a2ada0681e15b4d951d400e05f9f0c82a70150580537fba960e5d0e5a12` |
-| `receipts/figure-classes.txt` | 119,796 | `a4458bd9e399a1efd46b87d550290b4631a3ba32891e78a607eb1f4556342a6b` |
-| `receipts/figure_sweep.README.txt` | 233 | `229ab0ebd431c206d800be55d3dff211cc52435a3e47b005e780363029db8171` |
+| `receipts/figure-classes.txt` | 119,796 | `b039a100e4a2a6fc0f363531463c0191ad1a0e3b5fa3588d9e4f5dfaadc67231` |
+| `receipts/figure_sweep.README.txt` | 259 | `e64564579914467691da56e4ac905173ff41ea677101964db593a57524645d96` |
 | `receipts/figure_sweep.part00.tsv` | 106,054 | `e855c92c4e5985f4c6c17dd8186ac6eca7f51c406c73bca9a7dd44e9b562eebf` |
-| `receipts/figure_sweep.part01.tsv` | 105,879 | `3ee3d90dcc22d749cc36149ec8940ecf370be777cb7cf597638b1ecb7f725fde` |
+| `receipts/figure_sweep.part01.tsv` | 105,879 | `d34327f3c5a0b2064156fabbe6ad5d2d42ce1c1b6a541e22b8764f469eb99780` |
 | `receipts/flip-check-1x1.txt` | 1,177 | `5f03fa0bc0f07d2efa9efe5737923b96dd86c974e5e6530015e3baca5dabbf5f` |
 | `receipts/flip-check-8x8.txt` | 3,527 | `78bddeaaa124ca9ba5ebe70d0a133d63a9dc4e02621d5d79ac3bdfb312c87c93` |
 | `receipts/gates/SUMMARY.txt` | 3,494 | `0804f2797f46b111d375fae388b7ad46c1d98b626cef3a31125953fe87d649fe` |
@@ -94,6 +94,38 @@ No file here carries a host path, scripts included, so each row is the hash of t
 | `receipts/gates-a0c25e5c/todo_ownership.log` | 161 | `fdd63e613822d7490c02e02fd7fb90488ddf79eaf744fce5df267282e9829ed2` |
 | `receipts/identity/rows_grade.txt` | 415 | `96810ed7e92838d2dddf52862dcd0a83150c10be0d7eefac8109e93866ed80d5` |
 | `receipts/identity/tokens.txt` | 364 | `133695ac01533cd4c09d66160b2b8b88b2bc27cf6f5416f66066165ceb0e9c36` |
+| `receipts/local-fe1fd541/SUMMARY.txt` | 2,565 | `4e66fa8c18be58aae9377121bb4142ff48b225770269aefeafaac8fe21167440` |
+| `receipts/local-fe1fd541/archive.log` | 93 | `69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c` |
+| `receipts/local-fe1fd541/constant_history.log` | 34 | `dfad53ab37feba9ab8f1455e73bc43a87a6d0821ae86cb150d613f927729b750` |
+| `receipts/local-fe1fd541/cpp_idiom.log` | 316 | `19834bce52e94ed42f5719feed4c80ebddd5be31404341431fb56a6fa22b734c` |
+| `receipts/local-fe1fd541/delta.diff` | 72,997 | `7cb6932fb75f78339750fb58de224b8f76a067e7dfed1e2a739e4476b5c563f4` |
+| `receipts/local-fe1fd541/diff_check.log` | 6 | `2e22da2ab13713309ac75219e525b8e06ed02f3f1963b8feef203fa25827f93d` |
+| `receipts/local-fe1fd541/doc_map.log` | 61 | `74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16` |
+| `receipts/local-fe1fd541/doc_paths.log` | 101 | `f30598996b869bec3dded76b7969a09f3471417aec7df798bf2f668b8f740cb1` |
+| `receipts/local-fe1fd541/doc_style.log` | 47 | `e44785f7c4566223d097c60b7c622446f3c096a97e26bc660ef43f562ed3876e` |
+| `receipts/local-fe1fd541/docs_check.log` | 128 | `20919ff5b27183688cd021992e89e424d7f3a24c503f7800166383a1a8c1fd06` |
+| `receipts/local-fe1fd541/em_dash_41ca9f87.log` | 139 | `780e45fe704f86dfc14716047cecd555ef5ba57312a3b6e6a69f4035e1275799` |
+| `receipts/local-fe1fd541/em_dash_66adb9a9.log` | 142 | `e6dc7b5f423603e9c56d192a37df50a0b1f0bf6a198c42ad2f0db877c7bd272e` |
+| `receipts/local-fe1fd541/em_dash_cec88385.log` | 141 | `d394b6f91f23d25adf9ee1acde2289a97a12508d55809f79eeb282a87a148205` |
+| `receipts/local-fe1fd541/feature_status.log` | 29 | `802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0` |
+| `receipts/local-fe1fd541/figure-classes.txt` | 119,796 | `b039a100e4a2a6fc0f363531463c0191ad1a0e3b5fa3588d9e4f5dfaadc67231` |
+| `receipts/local-fe1fd541/figure_classify.log` | 126 | `9fbe344f43b916f52a10aa5fa403cc4227024505d0ab754ef332f41c0a9b5245` |
+| `receipts/local-fe1fd541/figure_sweep.log` | 50 | `8a8ce3f44542f8391b6f1b6018cf93715e1cf6848413e2ff30437942718d0965` |
+| `receipts/local-fe1fd541/flip_check_1x1.log` | 1,177 | `5f03fa0bc0f07d2efa9efe5737923b96dd86c974e5e6530015e3baca5dabbf5f` |
+| `receipts/local-fe1fd541/gptp_docs.log` | 41 | `d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d` |
+| `receipts/local-fe1fd541/hygiene.log` | 2,125 | `ecb48ef225fcb120c6f8d55c17f6a7dbf96c1b7ff731f65089dd3f9acc06dd5e` |
+| `receipts/local-fe1fd541/load_check.log` | 1,412 | `fdb86e75dda83423bf2412f84c3aa684055004d621eebd68957b3fbf8745a759` |
+| `receipts/local-fe1fd541/py_idiom.log` | 461 | `8b67e1b66cf18448700324f27fa61482db8c4ad6ad6a0df3300ab8bd2b7a69af` |
+| `receipts/local-fe1fd541/read-bytes-ramb36.txt` | 13,510 | `a0b2986589d2c6135ac15bf1ee2f38e1cf827de6b6da52d894e33f55d7f409c5` |
+| `receipts/local-fe1fd541/removed-constants-classes.txt` | 1,654 | `e489df603810be40848c380cfd85ad7c109a89798719baebd5755a27a204ee85` |
+| `receipts/local-fe1fd541/removed_classify.log` | 38 | `bad876e86758f0078091fc941e9d54e980cf7b36077a86bf660a18355b4e0b9c` |
+| `receipts/local-fe1fd541/removed_constants.log` | 38 | `8c714870d1fe3702db7f03ddb284d051fc256374893ab4a6fdbbfafc94eac433` |
+| `receipts/local-fe1fd541/retired-artifacts-classes.txt` | 2,044 | `721ccdb982ccce38ffc5cdcf27336565eb4385a1c4151616dd4d9789a231b8a2` |
+| `receipts/local-fe1fd541/retired_artifacts.log` | 37 | `9d68868ea9f11652c22dbe9b4243fe337a6f974eef7a1cd1174e4da3aefc1a73` |
+| `receipts/local-fe1fd541/retired_classify.log` | 54 | `fb57891f1fbb011a70190b05c74cc6dcf972d021b95f7f69a455b147ea4f1069` |
+| `receipts/local-fe1fd541/solution_docs.log` | 87 | `2acece2eac83ce1952b1a7a582e6e8d120ad15dc15d053a9eaa142991774a623` |
+| `receipts/local-fe1fd541/submodule_docs.log` | 47 | `c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b` |
+| `receipts/local-fe1fd541/todo_ownership.log` | 161 | `fdd63e613822d7490c02e02fd7fb90488ddf79eaf744fce5df267282e9829ed2` |
 | `receipts/read-section13.txt` | 23,401 | `19c918ca7850afe9839286cfd8073d0c634fbdc77b16f4853f096a3d38595b1d` |
 | `receipts/removed-constants-classes.txt` | 1,654 | `e489df603810be40848c380cfd85ad7c109a89798719baebd5755a27a204ee85` |
 | `receipts/removed_constants.tsv` | 2,421 | `218ffda6b600d64062b9c7766bb6b7e27d494eb397edbe8cb5216ab82bd1b901` |
