@@ -88,8 +88,9 @@ SOLVED = ('R4', 'R5', 'R6')
 #: the notices a reset can leave pending (load_grade.POINTS; aecp.h, AECP_NOTICES_MOST).
 POINTS = ('1x1/1if', '8x8/2if')
 #: A LINK event's stated cost in us (the most measured over every instance plus 5 %, rounded up to 5 us): the load has
-#: no LINK term, a LINK change having no arrival rate, so its tables do not state it.
-ROW_COSTS = {'1x1/1if': {'event.LINK': 150}, '8x8/2if': {'event.LINK': 300}}
+#: no LINK term, a LINK change having no arrival rate, so its tables do not state it. At 1x1/1if 155 under #894's
+#: SET_CONFIGURATION cut (14,715 CPU cycles in arm A's fixture group at fe0cef5b).
+ROW_COSTS = {'1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}}
 #: The sources the docstring names, each a part of every solved row's window (links R5's alone), and the terms of
 #: demand() that make each up.
 SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': ('timers',), 'gm': ('gm',),

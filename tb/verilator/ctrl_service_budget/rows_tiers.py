@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
+import edit_rows  # noqa: E402
 import shape_costs  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
@@ -134,7 +135,7 @@ LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
-SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own'), 'datapath': ('datapath',),
+SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own', 'edits'), 'datapath': ('datapath',),
            'tier 1: the first queued notice': ('notice',), 'tier 2: the slice a window opens on': ('slice',),
            'the retry spacing': ('spacing',), "THE PACE: R4L's burst ahead of its last": ('pace',)}
 
@@ -462,7 +463,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             break
         passes = n
     out['timers'] = timers
-    out.update(tier1_records(row, i, d, passes, arrive))
+    out.update(tier1_records(row, i, d, passes, arrive, None if row in LONG_ROWS else w_ms))
     if row not in (*TIER1_ROWS, *TX_ROWS):
         out.update(tier2)
     gm = sum(math.floor(w_ms / ms) + 1 for ms in load_grade.GM_INTERVALS_MS)
@@ -727,7 +728,7 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             "txL's AECP records not the largest legal command's", 'a channel the loop serves without its rows',
             "the tier-1 channels not the loop's", "THE TRANSMIT's stated figure under its row",
             "THE TRANSMIT's bound not the timer budget's", "a quota design over the pass's tier-1 time",
-            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS)
+            'a design whose quotas are not its order\'s', *paced_rows.CONTROLS, *edit_rows.CONTROLS)
 
 
 def control_names(root: Path) -> tuple[str, ...]:
@@ -878,10 +879,10 @@ def tree_controls(root: Path) -> list[str]:
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     tree, text = built_constants(root, '1x1/1if')[0], (root / loop).read_text()
     stated = f'#define CTRL_LOOP_SLICE_US {tree}u\n'
-    other = text.replace(stated, '#define CTRL_LOOP_SLICE_US 850u\n')
+    other = text.replace(stated, '#define CTRL_LOOP_SLICE_US 600u\n')
     if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] == tree or text.count(stated) != 1:
         escaped.append("the built design's slice not the rule's")
-    escaped += long_rows.controls(root) + paced_rows.controls(root)
+    escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
     # R4, and none is the tree's rule before it (notify)
     mailbox = 'sw/firmware/ctrl/aecp/aecp_mbx.h'
@@ -928,9 +929,9 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 29u : 98u)')}
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
     if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)

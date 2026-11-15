@@ -97,6 +97,7 @@ struct Core : testing::Test {
     bool bound=false;
     bool streaming=false;
     bool observations=true;
+    std::vector<bool> briefs; // each stream observation's brief flag, as the core asked it (#894)
     // #665: a response zeroes and writes only the bytes it sends, so each is
     // built over whatever the last one left: the clock port fills the idle
     // buffer with this, and every test's expected bytes see through it.
@@ -142,7 +143,8 @@ struct Core : testing::Test {
         ON_CALL(mock,Random).WillByDefault(Return(12345));
         ON_CALL(mock,Applied).WillByDefault(Return(true));
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
-            *v={0x0102030405060708,0x91e0f0000101,0x8877665544332211,0xff000000,12345,7,2,9,3,4,bound,streaming};
+            briefs.push_back(v->brief);
+            *v={0x0102030405060708,0x91e0f0000101,0x8877665544332211,0xff000000,12345,7,2,9,3,4,bound,streaming,v->brief};
             return observations;});
         ON_CALL(mock,Avb).WillByDefault([this](unsigned,uint16_t,aecp_avb_info*v){
             *v={0x0123456789abcdef,123456,0,7,3,2};return observations;});
@@ -1901,6 +1903,37 @@ TEST_F(Core, ConfigurationAndLockedSetRefusals)
     ask(6,b); // identical accepted value creates no additional state change
 }
 
+// The running check observes every stream of the configuration in force, each briefly: bound and running are all
+// it uses, so a port reading words for the rest reads one (#894; Milan v1.2 5.4.2.5). A read that reports a
+// stream's fields is whole.
+TEST_F(Core, TheRunningCheckObservesEveryStreamBriefly)
+{
+    size_t streams=0;
+    for(auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==a.configuration)++streams;
+    ASSERT_GT(streams,0u);
+    briefs.clear();ask(6,Bytes(4));
+    EXPECT_EQ(briefs,std::vector<bool>(streams,true))<<"SET_CONFIGURATION observes every stream, briefly";
+    auto b=target(6,0,12);put(b,4,get(desc(6).defaults+74,8),8);
+    briefs.clear();ask(8,b);ASSERT_FALSE(briefs.empty());
+    EXPECT_TRUE(briefs.front())<<"SET_STREAM_FORMAT's running check is brief";
+    briefs.clear();ask(15,target(6,0));
+    EXPECT_EQ(briefs,std::vector<bool>{false})<<"GET_STREAM_INFO reads the stream whole";
+}
+
+// SET_CONFIGURATION's change names whether its index moved, which the face's stream entries follow; its notify
+// rule is unchanged: the index in force notes its override's first SET alone (#894; aecp.h, changed).
+TEST_F(Core, AConfigurationChangeNamesWhetherItsIndexMoved)
+{
+    model.configurations=2;
+    {
+        testing::InSequence order;
+        EXPECT_CALL(mock,Changed(AECP_CHANGE_CONFIGURATION,0,0)).Times(1);
+        EXPECT_CALL(mock,Changed(AECP_CHANGE_CONFIGURATION,0,1)).Times(2);
+    }
+    Bytes b(4);ask(6,b);ask(6,b);put(b,2,1,2);ask(6,b);ask(6,b);put(b,2,0,2);ask(6,b);
+    EXPECT_EQ(a.configuration,0u);
+}
+
 TEST_F(Core, NameRefusalsAndNoOp)
 {
     ask(16,Bytes(71),7);ask(17,Bytes(7),7);
@@ -2331,6 +2364,20 @@ TEST_F(Core, SavedValuesRejectWrongFieldsAndDamagedDescriptors)
     EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_FORMAT,5,0,0},bytes.data(),8),AECP_ENTITY_MISBEHAVING);
     a.open=true;
     EXPECT_EQ(aecp_value_restore(&a,{AECP_CHANGE_NAME,0,0,0},bytes.data(),64),AECP_ENTITY_MISBEHAVING);
+}
+
+// #894: GET_AUDIO_MAP's response echoes its descriptor type and index and its map_index, and an ADD or REMOVE's
+// its descriptor type and index (IEEE 1722.1-2021 7.4.44.2, 7.4.45.2, 7.4.46.2), as each is taken, before the
+// descriptor is looked up: here one no model holds, so each is answered NO_SUCH_DESCRIPTOR.
+TEST_F(Core, MapCommandsEchoTheirDescriptorAndPage)
+{
+    for(unsigned cmd:{43u,44u,45u}){
+        Bytes body=target(15,0x0203,8);put(body,4,cmd==43u?0x0405u:0u,2);
+        const Bytes got=ask(cmd,body,2);
+        ASSERT_GE(got.size(),46u);
+        EXPECT_TRUE(get(got,38,2)==15u&&get(got,40,2)==0x0203u&&(cmd!=43u||get(got,42,2)==0x0405u))
+            <<"command "<<cmd<<": a map command's response echoes its descriptor and page";
+    }
 }
 
 TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
@@ -2790,6 +2837,46 @@ TEST_F(Core, MapEditWorkIsLinearInItsMappings)
             }
         }
     }
+}
+
+// #894: an edit clears what it reads before it writes, and only that: the slots place() forms, MAP_DOMAIN of them,
+// and each mapping's link, marks and occurrences at its turn (aecp_maps.c). Here each edit starts from the table an
+// earlier one left (aecp_maps.c, stale), so a read of what it did not clear finds a mapping, refuses one or walks the
+// table. With every channel widened to the domain's, as EveryKeyOfTheDomainIsItsOwn widens them, an ADD beside a row
+// at the domain's last position is accepted, a REMOVE of one of two equal rows removes one, and each stays within
+// 2 (n + R) visits.
+TEST_F(Core, MapEditWorkReadsOnlyWhatItCleared)
+{
+    auto &input=desc(14);unsigned clusters=get(input.value+12,2),base=get(input.value+14,2);
+    for(unsigned k=0;k<clusters;++k)put(desc(20,base+k).value+84,KEY_CHANNELS,2);
+    const uint64_t aaf=get(desc(6).value+74,8);
+    ASSERT_EQ(aaf>>56,2u);
+    for(auto &d:descriptors)
+        if(d.type==6u)put(d.value+74,(aaf&~(uint64_t(1023)<<22))|(uint64_t(KEY_CHANNELS)<<22),8);
+    const size_t last=size_t(KEY_FIRSTS)*KEY_CHANNELS-1;
+    unsigned type=0;
+    aecp_mapping far{},near{};
+    for(unsigned t:{14u,15u}){
+        for(const auto &k:accepted_keys(t)){
+            const size_t at=t==14u?size_t(k.cluster)*KEY_CHANNELS+k.cluster_channel:size_t(k.stream)*KEY_CHANNELS+k.channel;
+            if(at==last&&type==0){type=t;far=k;near=accepted_keys(t).front();}
+        }
+    }
+    ASSERT_NE(type,0u)<<"a port's key is at the domain's last position";
+    ASSERT_FALSE(near.stream==far.stream&&near.channel==far.channel&&near.cluster==far.cluster&&
+                 near.cluster_channel==far.cluster_channel);
+    SCOPED_TRACE(std::string(type==14u?"input":"output")+" port 0");
+    aecp_map &own=maps[type==14u?0:1];
+    std::vector<aecp_mapping> pool(8);
+    own.rows=pool.data();own.capacity=pool.size();
+    own.rows[0]=far;own.count=1;
+    aecp_map_work=0;edit_map(44,type,{near},0);
+    EXPECT_TRUE(same_rows(own,{far,near}))<<"an ADD beside a row at the domain's last position is accepted";
+    EXPECT_LE(aecp_map_work,2u*(1u+1u))<<"an edit of 1 mapping reading 1 row visits past twice their sum";
+    own.rows[0]=near;own.rows[1]=near;own.count=2;
+    aecp_map_work=0;edit_map(45,type,{near},0);
+    EXPECT_TRUE(same_rows(own,{near}))<<"a REMOVE of one of two equal rows removes one";
+    EXPECT_LE(aecp_map_work,2u*(1u+2u*2u))<<"an edit of 1 mapping reading 4 rows visits past twice their sum";
 }
 #endif
 
@@ -3417,6 +3504,30 @@ TEST_F(Mailbox, AnEditHoldsTheNextRecordForThePaceAndDropsNone)
     }
 }
 
+// THE PACE (#894; aecp_mbx.h): an accepted SET_CONFIGURATION costs a paced record's, so it holds the AECP channel's
+// next record as a checked edit does, until AECP_PACE_MS after it was taken, never dropped; one refused, its stream
+// running, holds nothing.
+TEST_F(Mailbox, AnAcceptedConfigurationHoldsTheNextRecordForThePace)
+{
+    auto send=[&](unsigned cmd,const Bytes &body){auto p=command(cmd,body);
+        ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();};
+    const Bytes query=target(14,0,8);
+    const Bytes config(4);
+    streaming=true;uint32_t sent=fabric.tx_sent;send(6,config);ASSERT_EQ(fabric.tx_sent,sent+1);
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+16,2)>>11,12u)<<"(refused, its stream running)";
+    sent=fabric.tx_sent;send(43,query);EXPECT_EQ(fabric.tx_sent,sent+1)<<"a refused SET_CONFIGURATION holds nothing";
+    streaming=false;sent=fabric.tx_sent;send(6,config);ASSERT_EQ(fabric.tx_sent,sent+1)<<"(accepted while no pace holds)";
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+16,2)>>11,0u);
+    sent=fabric.tx_sent;send(43,query);
+    for(unsigned ms=1;ms<AECP_PACE_MS;++ms){
+        mbx_model_advance_ms(&fabric,1);service();
+        ASSERT_EQ(fabric.tx_sent,sent)<<"held "<<ms<<" ms after the accepted SET_CONFIGURATION";
+    }
+    mbx_model_advance_ms(&fabric,1);service();
+    ASSERT_EQ(fabric.tx_sent,sent+1)<<"the held record is taken and answered once the pace has passed, never dropped";
+    EXPECT_EQ(get(mbx_model_tx_frame(&fabric,sent)->bytes+36,2)&0x7fffu,0x2bu)<<"the held record's answer";
+}
+
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
 {
     mbx_model_tx_pause(&fabric,true);Bytes filler(60);filler[14]=0xfb;
@@ -3505,8 +3616,9 @@ TEST_F(Latency, EveryCommandAndRefusalUsesOneArrivalBudget)
                     unsigned expected=cmd==40?554u:cmd==75?550u:1454u;
                     EXPECT_EQ(emitted->len,expected)<<"maximum path retains its full response body";
                 }
-                // an edit's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
-                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45)?AECP_PACE_MS:5);
+                // an edit's next record, and an accepted SET_CONFIGURATION's, waits for THE PACE (aecp_mbx.h), so
+                // the next arrives a pace on
+                mbx_model_advance_ms(&fabric,!malformed&&(cmd==44||cmd==45||cmd==6)?AECP_PACE_MS:5);
             }
         }
         for(unsigned msg:{2u,4u,8u}){
@@ -3578,8 +3690,11 @@ struct Far {
     std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
     std::vector<uint64_t> taken_at;                                   // the trace clock at each
     unsigned requests[MBX_WINDOWS]{};
+    std::vector<unsigned> selectors;                                  // each GSI request's selector
     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
-        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);return f.reply;
+        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);
+        if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
+        return f.reply;
     }
     static bool commit(void *p,unsigned i,const uint32_t *b) {
         auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
@@ -3631,8 +3746,13 @@ struct Face : Core {
     uint64_t accesses=0;
     std::vector<uint64_t> heads;     // the trace clock at each AECP TX_HEAD write
     std::vector<uint64_t> commits;   // and at each F_COMMIT write
+    unsigned entries=0;              // writes to a stream's entry, a sink's or a source's
     static void trace(void *p,bool write,uint32_t offset,uint32_t) {
         auto &s=*static_cast<Face*>(p);s.ns+=100;++s.accesses;
+        uint32_t reg=(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE;
+        if(write&&offset>=MBX_FACE_BASE&&offset<MBX_FACE_BASE+MBX_N_IF*MBX_FACE_STRIDE&&
+           ((reg>=SRC&&reg<SRC+MBX_N_PUB_SOURCES*MBX_FACE_SOURCE_STRIDE)||
+            (reg>=SNK&&reg<SNK+MBX_N_PUB_SINKS*MBX_FACE_SINK_STRIDE)))++s.entries;
         if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.heads.push_back(s.ns);
         if(write&&offset>=MBX_FACE_BASE&&(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE==MBX_FACE_REG_F_COMMIT)
             s.commits.push_back(s.ns);
@@ -3655,7 +3775,9 @@ struct Face : Core {
         EXPECT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),interface));service();
         if(fabric.tx_sent==before){ADD_FAILURE()<<"command "<<cmd<<" has a response";return Bytes(200);}
         auto f=mbx_model_tx_frame(&fabric,before);Bytes out(f->bytes,f->bytes+f->len);
-        EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;mbx_model_advance_ms(&fabric,5);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;
+        // an accepted SET_CONFIGURATION's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
+        mbx_model_advance_ms(&fabric,cmd==6&&status==0?AECP_PACE_MS:5);
         return out;
     }
     //! The block interface i's datapath took at its last commit.
@@ -3812,6 +3934,55 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
         mbx_model_far_bind(&fabric,&side);
     }
     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+}
+
+// The running check reads one GSI word a stream, selector 0, whose answer proves the window answers; bound and
+// running are their owners' (#894). A SET_CONFIGURATION naming the index in force still answers STREAM_IS_RUNNING
+// while an output streams, and ENTITY_MISBEHAVING while its observation cannot be made (Milan v1.2 5.4.2.5; IEEE
+// 1722.1-2021 7.4.7). GET_STREAM_INFO reads its six.
+TEST_F(Face, TheRunningCheckReadsOneWindowWordAStream)
+{
+    unsigned streams=0;
+    for(const auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==adapter.core.configuration)++streams;
+    ASSERT_GT(streams,0u);
+    Bytes config(4);
+    far.selectors.clear();receive(6,config);
+    EXPECT_EQ(far.selectors,std::vector<unsigned>(streams,0u))<<"one word a stream, selector 0";
+    far.selectors.clear();receive(15,target(6,0));
+    EXPECT_EQ(far.selectors,(std::vector<unsigned>{0,2,3,4,5,6}))<<"GET_STREAM_INFO reads its six";
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),1u));receive(6,config,12);
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),0u));receive(6,config);
+    far.reply=MBX_MODEL_SILENT;receive(6,config,10);
+}
+
+// A SET_CONFIGURATION that names the index in force moves no stream: its commit carries the settings alone and
+// writes no stream entry. One that moves the index writes every stream entry of the configuration it names, and
+// moving back writes them again (#894; aecp.h, changed).
+TEST_F(Face, OnlyAMovedConfigurationIndexWritesTheStreamEntries)
+{
+    Bytes config(4);
+    entries=0;commits.clear();receive(6,config);
+    EXPECT_EQ(entries,0u)<<"the index in force writes no stream entry";
+    ASSERT_FALSE(commits.empty())<<"its settings are committed";
+    EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_AECP,MBX_F_AECP_DYN_DIRTY_LSB,1),1u)<<"the override is a persisted setting";
+    // the streams are configuration 1's, each another format
+    model.configurations=2;
+    std::vector<aecp_descriptor*> moved;
+    for(auto &d:descriptors)if((d.type==5||d.type==6)&&d.configuration==0){d.configuration=1;moved.push_back(&d);}
+    ASSERT_FALSE(moved.empty());aecp_index(&adapter.core);
+    for(auto *d:moved)put(d->value+74,get(d->value+74,8)^0x1000,8);
+    put(config,2,1,2);entries=0;receive(6,config);
+    EXPECT_GT(entries,0u)<<"a moved index writes the stream entries";
+    for(auto *d:moved){
+        const auto &blk=taken(home(d->type,d->index));uint64_t format=get(d->value+74,8);
+        EXPECT_EQ(d->type==5?at64(blk,SNK+16*d->index+MBX_FACE_SNK_REG_F_FMT_IN_LO,SNK+16*d->index+MBX_FACE_SNK_REG_F_FMT_IN_HI)
+                            :at64(blk,SRC+16*d->index+MBX_FACE_SRC_REG_F_FMT_OUT_LO,SRC+16*d->index+MBX_FACE_SRC_REG_F_FMT_OUT_HI),
+                  format)<<"stream "<<d->type<<"/"<<d->index<<": the configuration it names";
+    }
+    entries=0;receive(6,config);EXPECT_EQ(entries,0u)<<"the same index again changes nothing";
+    for(auto *d:moved)d->configuration=0;
+    aecp_index(&adapter.core);put(config,2,0,2);entries=0;receive(6,config);
+    EXPECT_GT(entries,0u)<<"moving back writes them again";
 }
 
 // A commit the datapath does not acknowledge within the bound. The change

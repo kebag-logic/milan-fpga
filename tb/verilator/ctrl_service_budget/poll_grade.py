@@ -71,7 +71,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (725 us at 1x1/1if and
+#: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (735 us at 1x1/1if and
 #: 1,215 at 8x8/2if; #894's shape ruling, item (b)), which stated_us reads where the table holds 0.
 #: The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
@@ -88,10 +88,13 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: ACMP's item is its send less the offers THE KEPT COMMAND's redelivery nests in it, and a declined offer is its own
 #: (#908): measured over backlog-owed, the one group that stages owed ACMP frames, on the image that traces acmp_rx at
 #: the head ccb47e39, the send at most 4,744 and 6,134 CPU cycles (the whole poll 12,259 and 15,558 there) and a
-#: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if.
-ONE = dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=50, aecp=210,
+#: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. Under #894's edit cut ACMP's item at 1x1/1if is 55 us, the
+#: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
+#: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
+#: backlog-owed (6,239 at 5b264bf2).
+ONE = dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=55, aecp=210,
            aecp_long=365, acmp_declined=20)
-TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=65, aecp=275,
+TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=655, acmp_declined=20)
 #: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the
 #: answering-every-port arm and the answering-ports arm's aecp-largest-notice on the tree that merges #902 (#894's

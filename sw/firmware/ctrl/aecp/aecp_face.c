@@ -115,9 +115,11 @@ static void changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t in
 		stream = current(f, type, index);
 	}
 	unsigned home = stream != NULL ? interface_of(f, stream) : MBX_N_IF;
+	// a configuration's stream entries only when its index moved (aecp.h, changed)
+	bool every = kind == AECP_CHANGE_CONFIGURATION && index != 0u;
 	for (unsigned i = 0; i < f->core->cfg.interfaces; ++i) {
 		if (settings || i == home) {
-			publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);
+			publish(f, i, settings, i == home ? stream : NULL, every);
 		}
 	}
 }
@@ -157,12 +159,14 @@ static bool gsi(struct aecp_face *f, unsigned interface, unsigned kind, uint16_t
 // GET_STREAM_INFO's words (the processor's KL_aecp_engine gather face, kind 0):
 // 0 flags, 2 stream_id, 3 msrp_accumulated_latency, 4 {dest_mac, failure_code},
 // 5 failure_bridge_id, 6 {stream_vlan_id, flags_ex}. Selector 1, the format,
-// is the descriptor's own; 7 is the ACMP view's (ctrl_app_aecp.c).
+// is the descriptor's own; 7 is the ACMP view's (ctrl_app_aecp.c). A brief
+// observation, a running check's (aecp.h), reads word 0 alone: its answer is
+// the proof the window answers, and bound and running are their owners'.
 static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
 	struct aecp_face *f = ctx;
 	uint64_t w[7] = {0};
-	for (unsigned sel = 0; sel < 7u; ++sel) {
+	for (unsigned sel = 0; sel < (out->brief ? 1u : 7u); ++sel) {
 		if (sel != 1u && !gsi(f, interface, 0u, type, index, sel, 0u, 0u, &w[sel])) {
 			return false;
 		}

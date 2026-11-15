@@ -131,11 +131,18 @@ def channel_passes(row: str, i: Inputs, d: Design, ticks: int, notice: float, ar
     return math.ceil((first + notice) / drain) * (first > 0) + own + 1
 
 
-def channel_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[[str], int]) -> dict[str, float]:
+def edit_terms(i: Inputs, w_ms: float | None, records: int) -> dict[str, float]:
+    """The edits among a row's AECP records in a window of w_ms (edit_rows.terms), none where w_ms is None."""
+    import edit_rows  # here: edit_rows reads paced_rows, which reads this module
+    return edit_rows.terms(i, w_ms, records) if w_ms is not None else {}
+
+
+def channel_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[[str], int],
+                    w_ms: float | None = None) -> dict[str, float]:
     """A tier-1 channel row's records: its own burst ('aecp' for AECP's, else 'own'), and each other tier-1 channel's
     ahead of its last, every one the order serves first (AECP's under aecp-first, the others' for AECP's under
     others-first), the pass running's for AECP's under aecp-first with its notices queued, and otherwise at most its
-    records a pass in each of the row's passes."""
+    records a pass in each of the row's passes; in a window of w_ms, the edits among AECP's (edit_rows.terms)."""
     c, rate, x, q = i.c, i.rate, channel(row), per_pass(i, d)
     drain = i.h['CTRL_LOOP_DRAIN_US']
 
@@ -149,10 +156,11 @@ def channel_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callabl
             return q[o]
         return passes * q[o]
     ahead = {o: min(arrive(o), reach(o)) * c[f'record.{o}'] for o in TIER1 if o != x}
-    out = {'aecp': rate['aecp'][0] * c['record.aecp']} if x == 'aecp' else \
+    aecp = rate['aecp'][0] if x == 'aecp' else min(arrive('aecp'), reach('aecp'))
+    out = {'aecp': aecp * c['record.aecp']} if x == 'aecp' else \
         {'own': rate[x][0] * c[f'record.{x}'], 'aecp': ahead.pop('aecp')}
     out['others'] = sum(ahead.values())
-    return out
+    return {**out, **edit_terms(i, w_ms, aecp)}
 
 
 def tx_passes(i: Inputs, d: Design, ticks: int, notice: float, arrive: Callable[[str], int]) -> int:
@@ -180,28 +188,36 @@ def channel_row(row: str, d: Design) -> bool:
     return row in CHANNEL_BOUNDS or (row == 'R4' and d.tier1 not in ('turn', 'aecp-first'))
 
 
-def tier1_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[[str], int]) -> dict[str, float]:
-    """The tier-1 records ahead of the row's work in its window, and for R4 AECP's own burst and for the MRPDU row its
-    build."""
+def tier1_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[[str], int],
+                  w_ms: float | None = None) -> dict[str, float]:
+    """The tier-1 records ahead of the row's work in its window, AECP's apart, and for R4 AECP's own burst and for the
+    MRPDU row its build; in a window of w_ms, the edits among AECP's (edit_rows.terms), which a LONG_ROWS row, None,
+    charges at the largest legal command's record instead (paced_rows.record)."""
     h, c = i[0], i[1]
     if channel_row(row, d):
-        return channel_records(row, i, d, passes, arrive)
+        return channel_records(row, i, d, passes, arrive, w_ms)
     q = per_pass(i, d)
     cap = q['aecp']
     if row == 'R4':
         # `turn`: each other channel its cap in each of AECP's passes; `aecp-first`: only the pass running as the burst
         # arrives, whose tier-1 records may still be in hand
         reach = (passes - 1) * cap if d.tier1 == 'turn' else cap
-        return {'aecp': i[3]['aecp'][0] * c['record.aecp'],
-                'others': sum(min(arrive(o), reach) * c[f'record.{o}'] for o in TIER1 if o != 'aecp')}
-    if row == 'first':
+        count = {o: i[3]['aecp'][0] if o == 'aecp' else min(arrive(o), reach) for o in TIER1}
+        out = {}
+    elif row == 'first':
         # the pass running as the retry falls due: its tier-1 records, each channel's cap
-        return {'others': sum(min(arrive(o), q[o]) * c[f'record.{o}'] for o in TIER1)}
-    if row in TX_ROWS:
+        count = {o: min(arrive(o), q[o]) for o in TIER1}
+        out = {}
+    elif row in TX_ROWS:
         whole = d.slice_us >= h['CTRL_LOOP_BUILD_PASS_US']
-        build = 'CTRL_LOOP_BUILD_PASS_US' if whole else 'CTRL_LOOP_BUILD_ONE_PASS_US'
-        return {'others': sum(arrive(o) * c[f'record.{o}'] for o in TIER1), 'builds': h[build]}
-    return {'others': sum(min(arrive(o), passes * q[o]) * c[f'record.{o}'] for o in TIER1)}
+        count = {o: arrive(o) for o in TIER1}
+        out = {'builds': h['CTRL_LOOP_BUILD_PASS_US' if whole else 'CTRL_LOOP_BUILD_ONE_PASS_US']}
+    else:
+        count = {o: min(arrive(o), passes * q[o]) for o in TIER1}
+        out = {}
+    out = {'aecp': count['aecp'] * c['record.aecp'],
+           'others': sum(count[o] * c[f'record.{o}'] for o in TIER1 if o != 'aecp'), **out}
+    return {**out, **edit_terms(i, w_ms, count['aecp'])}
 
 
 def join_cs(text: str) -> int:

@@ -264,12 +264,14 @@ extern "C" {
 // #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
 // to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
-// AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3): 900 us.
+// AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3). The built slice
+// is the rule's choice, which the model's self-test holds (#894's ruling of
+// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut.
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
-// their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both
-// (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
+// their bounds (slice_choice). A 950 us slice holds one MRPDU's build, not both,
+// CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
 // there plus 5 %, at most 1,600 us (#894's shape ruling, item (b): a design
@@ -290,7 +292,10 @@ extern "C" {
 // CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
 // stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
 // has this left, so a unit under the record's measurement lets the slice run
-// past its length (#894's held-egress ruling, item (b)(ii)). And
+// past its length (#894's held-egress ruling, item (b)(ii)); it is the load
+// gate's record.srp at each point, the dearer of its two columns'
+// (load_grade.py, which refuses any other figure), so a record that starts
+// fits (#894). And
 // THE RETRY's round costs, which AECP's adapter admits a round at and its core
 // charges a refused attempt at: a round's cold start, CTRL_LOOP_RETRY_COLD_US
 // (aecp_mbx.h, AECP_ROUND_COLD_US), and a refused attempt's,
@@ -318,10 +323,10 @@ extern "C" {
 #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
-#define CTRL_LOOP_SLICE_US 900u
+#define CTRL_LOOP_SLICE_US 950u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
-#define CTRL_LOOP_BUILD_ONE_PASS_US 725u
-#define CTRL_LOOP_SRP_UNIT_US 250u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+#define CTRL_LOOP_SRP_UNIT_US 280u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
@@ -384,8 +389,9 @@ extern "C" {
 // build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
 // a pass given whole it carries (#894). A slice that holds one MRPDU's build
 // makes the declarations in the first: the srp group's after its Listener
-// Ready is 68,951 cycles at 1x1/1if, so a build of one is 725 us there (#894,
-// #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
+// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
+// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
 // refuted, with its rows (#894, owed to #872, #910). The builds are stated for
 // each shape (THE SHAPES, above). At 8x8/1if, one interface's 8x8 streams, the
@@ -438,7 +444,7 @@ extern "C" {
 // tree whose row passes this). At 8x8/2if, whose rows by every source are
 // reported and not held (#894, the owner's decision of 2026-11-12, owed to
 // #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 30u : 98u)
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
