@@ -1,0 +1,4 @@
+head: tx_statements(head)=[] rows_tiers escaped=[] flip_grade escaped=[]
+mutant skip 8x8/2if: tx_statements(head)=[] rows_tiers escaped=["THE TRANSMIT's stated figure under its row"] flip_grade escaped=["THE TRANSMIT's stated figure under its row"]
+mutant skip 1x1/1if: tx_statements(head)=[] rows_tiers escaped=["THE TRANSMIT's stated figure under its row", "THE TRANSMIT's bound not the timer budget's"] flip_grade escaped=["THE TRANSMIT's stated figure under its row"]
+PROBE PASS
