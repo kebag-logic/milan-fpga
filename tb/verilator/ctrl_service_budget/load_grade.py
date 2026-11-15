@@ -130,21 +130,27 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: sides', and on its merge with THE TIERS (#894) each cost the one of the side that moved it from their merge base
 #: 084cf7a8, MAAP's record #895's and every other #894's (#895); measured again on that merge, the same groups, each
 #: cost the larger of that and this table's: AECP's timer slot 65 to 75 and a TICK 45 to 50 at 1x1/1if, and at 8x8/2if
-#: AECP's timer slot 105 to 115, a TICK 40 to 55, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155,
-#: the code's placement the merge moves, not traced (#909); an AECP record stays #894's 235 us, which #894 checks
-#: (#895, the ruling of 2026-11-14 on its composition, item 2); on #894's round 11 a TICK at 1x1/1if 45 to 50 us, the
-#: larger of this table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink
-#: sending an owed frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A
-#: 4,612), and ACMP's owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30
-#: to 35 (2,859 cycles in notice-every-0; 2,093 at round 9's head) and ACMP's owed frame 65 to 70; on #895's merge of
-#: that round each cost the one of the side that moved it from their merge base 7398ec0a, the larger where both did
-#: (#895); measured again on that merge, every group of arm A, the answering-every-port and valid-destinations arms
-#: and arm B's aecp groups, each cost the larger of that and this table's: a pass's events' fixed part at 1x1/1if 30
-#: to 35 us, 3,041 CPU cycles in notice-burst-0 (2,623 at #895's merge before that round), not traced, the code's
-#: placement the cut moves (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895); and
-#: with the 1x1/1if slice at the rule's 950 us, every group of every arm at both points, each cost the larger of
-#: that and this table's: MAAP's timer slot at 8x8/2if 215 to 225 us, 21,120 CPU cycles in arm A's save group
-#: (19,993 at #895's merge with the tiers), not traced, in both columns (#895).
+#: AECP's timer slot 105 to 115, a TICK 40 to 55, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155, the
+#: code's placement the merge moves, not traced (#909); an AECP record stays #894's 235 us, which #894 checks (#895, the
+#: ruling of 2026-11-14 on its composition, item 2); under #894's edit cut a TICK at 1x1/1if 45 to 50 us, the larger of
+#: this table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an
+#: owed frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and
+#: ACMP's owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30 to 35 (2,859
+#: cycles in notice-every-0; 2,093 at 5b264bf2) and ACMP's owed frame 65 to 70; on #895's merge of that cut (9606b3a9)
+#: each cost the one of the side that moved it from their merge base 7398ec0a, the larger where both did (#895);
+#: measured again on that merge, every group of arm A, the answering-every-port and valid-destinations arms and arm B's
+#: aecp groups, each cost the larger of that and this table's: a pass's events' fixed part at 1x1/1if 30 to 35 us, 3,041
+#: CPU cycles in notice-burst-0 (2,623 at #895's merge before that cut), not traced, the code's placement the cut moves
+#: (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895); and with the 1x1/1if slice at
+#: the rule's 950 us, every group of every arm at both points, each cost the larger of that and this table's: MAAP's
+#: timer slot at 8x8/2if 215 to 225 us, 21,120 CPU cycles in arm A's save group (19,993 at #895's merge with the tiers),
+#: not traced, in both columns (#895); under #894's SET_CONFIGURATION cut (f275b619, paced at fe0cef5b), over every
+#: group of arm A and of the answering-every-port arm, AECP's timer slot at 1x1/1if 65 to 70, both columns, the larger
+#: of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753 at 9606b3a9, the same work, its fetches
+#: moved by the cut's code), and with the SRP drain's record cost at the load gate's (ctrl_loop.h, a47cd3f2) a TICK at
+#: 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's backlog-adp@program-0; on #895's merge of that cut each
+#: cost the one of the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's timer slot
+#: at 1x1/1if #895's 75, a TICK there #894's 55 (#895).
 #: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger
 #: of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
@@ -152,7 +158,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
-                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 50,
+                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
@@ -180,24 +186,27 @@ STATED_US = {
 #: points are measured on the pin's own legs, each cost the larger of that, this column's and, for a cost the walk does
 #: not move, the pin's column. On the merge of dev-soft-core 0fb66211 (#665) both points are measured again on the
 #: pin's legs, each cost the larger of that, this column's and the pin's; ctrl_loop.h states THE TRANSMIT's builds
-#: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's are those. Every cost that
-#: STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
+#: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's are those; under #894's
+#: SET_CONFIGURATION cut ctrl_loop.h states the build of one at 1x1/1if at 735 us, so this column's are 735. Every cost
+#: that STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
 #: Again so with SRP's Talker declarations (#895, the pin's legs above): beside the pin's moves, the polls' base 155 to
 #: 160 and 285 to 290 us, and at 1x1/1if ACMP's owed frame 120 to 125 and the registrar walk 20 to 25. On #895's merge
 #: with THE TIERS each cost is the one of the side that moved it from their merge base 084cf7a8: MAAP's record #895's,
 #: every other #894's, ACMP's owed frame among them, itemised (#894); measured again on that merge, each cost
 #: STATED_US's measurement raised is raised here with it, the larger: AECP's timer slot 75 and a TICK 50 at 1x1/1if,
 #: and at 8x8/2if AECP's timer slot 110 to 115, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155, its
-#: TICK's 85 the larger (#895); on #895's merge of #894's round 11 each cost the one of the side that moved it from
+#: TICK's 85 the larger (#895); on #895's merge of #894's edit cut each cost the one of the side that moved it from
 #: their merge base 7398ec0a, the larger where both did: ACMP's owed frame #894's, 55 and 70 us; measured again on
 #: that merge, each cost STATED_US's measurement raised is raised here with it: a pass's events' fixed part 35 us and
-#: the polls' base 215 at 1x1/1if, and MAAP's timer slot 225 at 8x8/2if (#895).
+#: the polls' base 215 at 1x1/1if, and MAAP's timer slot 225 at 8x8/2if; on its merge of #894's SET_CONFIGURATION
+#: cut each cost the one of the side that moved it from their merge base 9606b3a9, the larger where both did: AECP's
+#: timer slot 75 and a TICK 55 at 1x1/1if, a build of one and an owed MRPDU #894's 735 (#895).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
-                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 50,
+                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 215, 'item.reclaim': 25, 'item.retained': 280,
-                'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
+                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,
@@ -278,6 +287,30 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
              'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS',
              'AECP_NOTICE_US', 'AECP_ROUND_COLD_US')
     return {n: value(n) for n in names}
+
+
+#: The points whose SRP drain ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US bounds: the slice starts an SRP record only while it
+#: has that left (ctrl_loop.c), so it is the load gate's record.srp there, the dearer of the two columns' (#894).
+SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if')
+SRP_UNIT_HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+
+
+def srp_unit(root: Path, texts: dict[str, str] | None = None) -> list[str]:
+    """Each point whose SRP drain limit (CTRL_LOOP_SRP_UNIT_US, from the header or its planted copy) is not the load
+    gate's record.srp there: a limit below it starts a record the slice has no room for."""
+    text = (texts or {}).get(SRP_UNIT_HEADER) or (root / SRP_UNIT_HEADER).read_text()
+    body = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US (.+)$', text, re.M)[1].split('//')[0].strip()
+    pick = re.fullmatch(r'\(MBX_N_IF == (\d+)u \? (\d+)u : (\d+)u\)', body)
+    plain = re.fullmatch(r'\(?(\d+)u?\)?', body)
+    out = []
+    for point in SRP_UNIT_POINTS:
+        n_if = POINTS[point]['n_if']
+        got = int(plain[1]) if plain else int(pick[2] if n_if == int(pick[1]) else pick[3]) if pick else None
+        want = max(column[point]['record.srp'] for _, column in COLUMNS)
+        if got != want:
+            out.append(f"{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US {got} us, not the load gate's record.srp "
+                       f'{want} us')
+    return out
 
 
 def probe_retry_ms(root: Path) -> int:
@@ -411,7 +444,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound()
+    out = unbound() + srp_unit(root, texts)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -556,7 +589,21 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    return escaped + binding_controls(root)
+    return escaped + srp_unit_controls(root, base, fit) + binding_controls(root)
+
+
+def srp_unit_controls(root: Path, base: dict, fit: dict) -> list[str]:
+    """The SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, planted at each point, refused by name
+    by --check itself (findings); the head's own limit refused by none."""
+    header = (root / SRP_UNIT_HEADER).read_text()
+    real = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US .+$', header, re.M)[0]
+    one = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)')
+    two = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 300u)')
+    if srp_unit(root) or not all(any(f'{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US' in f
+                                     for f in findings(root, base, fit, {SRP_UNIT_HEADER: planted}))
+                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two))):
+        return ["the SRP drain's record cost not the load gate's"]
+    return []
 
 
 def binding_controls(root: Path) -> list[str]:
@@ -634,7 +681,7 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
-            "a column's name bound to the other's table")
+            "the SRP drain's record cost not the load gate's", "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:

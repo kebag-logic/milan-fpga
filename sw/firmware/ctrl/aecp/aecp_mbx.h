@@ -35,22 +35,23 @@ extern "C" {
 // interface yields none and caps none: its bound has no room for either, and its records wait no longer than two
 // interfaces'.
 #define AECP_ROUND_PACE_MS 2u
-// THE PACE (#894, #904): an ADD or REMOVE_AUDIO_MAPPINGS that is checked holds AECP's next record in its ring, never
-// dropped, until AECP_PACE_MS after the edit was taken (aecp_mbx.c, ready; the core stamps aecp.edited_ms with the
-// clock aecp_rx reads as it takes the record). The gate compares whole milliseconds, so two edits are taken more than
-// AECP_PACE_MS - 1 ms apart and a window of w ms holds at most ceil((w + 1) / AECP_PACE_MS) of them (#894's egress
-// ruling of 2026-11-13, item 2; paced_rows.py, edits). An edit's record grows with its mappings, so the rows that
-// count every AECP command as the largest legal one, R4L and txL, take at most that many; the tier model holds the
-// pace to the smallest, at most 13 ms, that holds txL within THE TRANSMIT's bound and R4L within 238 ms at 1x1/1if
-// (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the join timer at 20 cs, none did;
-// with it at 19 cs (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's contingent ruling of 2026-11-13, item 3) 6 ms did, and
-// with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling, item 1), and the largest legal
-// command's record re-measured under the bounded map work (item 3), 7 ms did; with each map key at its position in
-// the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's cost re-measured at 30 us,
-// txL is 49.69 ms at 7 ms, and 8 ms did (#894, #908); with MAAP's record at SRP's Talker declarations' 115 us, a
-// range lost to a peer's ANNOUNCE, and AECP's timer slot and the TICK re-measured on their merge with the tiers, txL
-// is 49.46 ms at 8 ms, and 9 ms does (#895, the ruling of 2026-11-14 on that merge, items 1 and 2). The gate reads
-// the core's clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
+// THE PACE (#894, #904): an ADD or REMOVE_AUDIO_MAPPINGS that is checked, and a SET_CONFIGURATION accepted, holds
+// AECP's next record in its ring, never dropped, until AECP_PACE_MS after it was taken (aecp_mbx.c, ready; the core
+// stamps aecp.edited_ms with the clock aecp_rx reads as it takes the record). The gate compares whole milliseconds, so
+// two paced records are taken more than AECP_PACE_MS - 1 ms apart and a window of w ms holds at most ceil((w + 1) /
+// AECP_PACE_MS) of them (#894's egress ruling of 2026-11-13, item 2; paced_rows.py, edits). An edit's record grows with
+// its mappings, so the rows that count every AECP command as the largest legal one, R4L and txL, take at most that
+// many; the tier model holds the pace to the smallest, at most 13 ms, that holds txL within THE TRANSMIT's bound and
+// R4L within 238 ms at 1x1/1if (paced_rows.py, choice): 8 ms did before #810's re-measured costs; at them, with the
+// join timer at 20 cs, none did; with it at 19 cs (ctrl_loop.h, CTRL_LOOP_JOIN_CS; #894's contingent ruling of
+// 2026-11-13, item 3) 6 ms did, and with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling,
+// item 1), and the largest legal command's record re-measured under the bounded map work (item 3), 7 ms did; with each
+// map key at its position in the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's
+// cost re-measured at 30 us, txL is 49.69 ms at 7 ms, and 8 ms did (#894, #908); with MAAP's record at SRP's Talker
+// declarations' 115 us, a range lost to a peer's ANNOUNCE, and AECP's timer slot and the TICK re-measured on their
+// merge with the tiers, txL is 49.46 ms at 8 ms, and 9 ms did (#895, the ruling of 2026-11-14 on that merge, items 1
+// and 2), as it does with #894's SET_CONFIGURATION cut composed, txL 52.09 ms at 8 ms (#895). The gate reads the
+// core's clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
 // AECP_REGISTRATIONS edits answers its last within 15 paces, their passes and its own row: within 238 ms at its
 // commit, IEEE 1722.1-2021 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
 #define AECP_PACE_MS 9u

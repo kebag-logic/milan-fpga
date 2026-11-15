@@ -1,24 +1,30 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """A final pass's AECP records held to their stated costs by class, and the pass held to every group they depend on
-(#894's round 11: the one-row map edit's record had grown past record.aecp in the one group that measures it,
-aecp-fanout, which no pass had run since round 4).
+(#894: the one-row map edit's record grew past record.aecp unseen, in the one group that measures it,
+aecp-fanout, which the gate passes after that growth did not run).
 
-Each AECP record is a span of the record handler (aecp_mbx.c, frame), from entry to return; its command is that of
-the first solicited AECP response committed at or after its start (grade.parse, Log.tx). Each is held, by the rule
-(its cycles at the CPU clock, plus 5 %, rounded up to 5 us), to its class's stated cost at the leg's point:
+Each AECP record is a span of the record handler (aecp_mbx.c, frame), from entry to return; its command and status
+are those of the first solicited AECP response committed at or after its start and before the next record's
+(grade.parse, Log.tx): a response the owed-notice queue does not take is committed by the pass's poll, after the
+span, and a record that answers nothing before the next one starts is unanswered, never named by a later record's
+response. Each is held, by the rule (its cycles at the CPU clock, plus 5 %, rounded up to 5 us), to its class's
+stated cost at the leg's point:
   long    every record of aecp-largest-notice, the largest legal command's: rows_tiers.LONG_RECORD_US;
-  edit    an ADD or REMOVE_AUDIO_MAPPINGS elsewhere that is paced, the next AECP record starting more than
-          AECP_PACE_MS - 1 ms after it (the gate compares whole milliseconds, aecp_mbx.c, ready), or none following:
-          edit_rows.EDIT_RECORD_US, which the tier model charges at most edits(w, P) of in a window;
-  other   every other record, and an edit that is not paced, which the pace's count does not bound:
+  paced   elsewhere, an ADD or REMOVE_AUDIO_MAPPINGS, or a SET_CONFIGURATION answered SUCCESS or IN_PROGRESS, that is
+          paced, the next AECP record starting more than AECP_PACE_MS - 1 ms after it (the gate compares whole
+          milliseconds, aecp_mbx.c, ready), or none following: edit_rows.EDIT_RECORD_US, which the tier model charges
+          at most edits(w, P) of in a window;
+  other   every other record, and one of those that is not paced, which the pace's count does not bound:
           load_grade.GRADED's record.aecp.
 The legs held are the formal measurement's (#665, README: the labelled arms are never it): arm A's, every group, the
 answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
-aecp-largest-notice, which the 8x8 shape runs there, and the edits of its aecp-fanout, over which EDIT_RECORD_US is
-measured; the rest (arm B's other records, the 8x8-1if point) are reported by class, not held. A pass is refused
-unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups): each stated cost measured over
-the arm depends on every one of them.
+aecp-largest-notice, which the 8x8 shape runs there, and in its aecp-fanout the paced records, over which
+EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches
+(arm A's observation ports never answer); the rest (arm B's other records, the 8x8-1if point) are reported by class,
+not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
+each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
+ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO.
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -36,21 +42,30 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 EDITS = {0x2C: 'ADD_AUDIO_MAPPINGS', 0x2D: 'REMOVE_AUDIO_MAPPINGS'}
+SET_CONFIGURATION, SET_STREAM_INFO = 0x06, 0x0E
+#: The statuses of an accepted SET_CONFIGURATION, which stamps the pace (aecp_commands.c): SUCCESS, IN_PROGRESS.
+ACCEPTED = (0, 9)
+#: The answering-ports arm's aecp-fanout records the formal measurement holds whatever their class, and a pass must run.
+HELD_COMMANDS = {SET_CONFIGURATION: 'SET_CONFIGURATION', SET_STREAM_INFO: 'SET_STREAM_INFO'}
 LONG_GROUP = 'aecp-largest-notice'
 #: The answering-ports arm's groups the formal measurement holds (above).
 HELD_IN_ARM_B = ('aecp', LONG_GROUP)
 #: The planted defects controls() plants, in its order.
 CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the edit record',
             'an edit over its record', 'an ordinary record over record.aecp', 'a long record over its record',
-            "a labelled arm's record held")
+            "a labelled arm's record held", "a pass missing arm B's SET_CONFIGURATION",
+            "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
+            'a SET_CONFIGURATION over the paced record', "a record named by a later record's response")
 
 
 @dataclass
 class Record:
-    """One AECP record: its start in bus cycles, its CPU cycles and its command's type (None if unanswered)."""
+    """One AECP record: its start in bus cycles, its CPU cycles, its command's type and its status (None if
+    unanswered)."""
     start: int
     cycles: int
     command: int | None
+    status: int | None = None
 
 
 @dataclass
@@ -69,7 +84,7 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (lane 894b's, reported)."""
+    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8 follow-up, reported)."""
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 
@@ -80,8 +95,19 @@ def statements(point: str, root: Path = ROOT) -> dict[str, int]:
     import load_grade
     import rows_tiers
     pace = rows_tiers.point_inputs(root, '1x1/1if').pace_ms
-    return {'long': rows_tiers.LONG_RECORD_US[point], 'edit': edit_rows.EDIT_RECORD_US[point],
+    return {'long': rows_tiers.LONG_RECORD_US[point], 'paced': edit_rows.EDIT_RECORD_US[point],
             'other': load_grade.GRADED[point]['record.aecp'], 'pace_ms': pace}
+
+
+def named(spans: list[tuple[int, int]], answers: list[tuple[int, int, int]]) -> list[Record]:
+    """Each span (its start in bus cycles, its CPU cycles) named by the first response (its commit in bus cycles,
+    command, status) at or after its start and before the next span's, else unanswered (the module's docstring)."""
+    out = []
+    for k, (start, cycles) in enumerate(spans):
+        stop = spans[k + 1][0] if k + 1 < len(spans) else None
+        hit = next(((cmd, st) for c, cmd, st in answers if c >= start and (stop is None or c < stop)), (None, None))
+        out.append(Record(start, cycles, *hit))
+    return out
 
 
 def read_leg(results: Path) -> tuple[Leg, dict]:
@@ -99,22 +125,25 @@ def read_leg(results: Path) -> tuple[Leg, dict]:
         spans = [(int(f[1]), int(f[3])) for f in (line.split() for line in text.splitlines())
                  if len(f) > 4 and f[0] == 'SPAN' and f[-1] == 'aecp_mbx:frame']
         parsed = grade.parse(text[:text.rfind('\n') + 1], leg.sys_hz, leg.cpu_hz)
-        answers = sorted((c, (fr[36] << 8 | fr[37]) & 0x7FFF) for c, ch, _, fr in parsed.tx
+        answers = sorted((c, (fr[36] << 8 | fr[37]) & 0x7FFF, fr[16] >> 3) for c, ch, _, fr in parsed.tx
                          if ch == aecp and len(fr) >= 38 and fr[15] & 1 and not (fr[15] & 0x0F == 1 and fr[36] & 0x80))
-        records = []
-        for start, cycles in spans:
-            command = next((cmd for c, cmd in answers if c >= start), None)
-            records.append(Record(start, cycles, command))
-        leg.groups[log.stem] = records
+        leg.groups[log.stem] = named(spans, answers)
     return leg, spec
 
 
-def held(leg: Leg, group: str, kind: str) -> bool:
-    """Whether the formal measurement holds a leg's group's records of a class (the module's docstring)."""
+def held(leg: Leg, group: str, kind: str, command: int | None = None) -> bool:
+    """Whether the formal measurement holds a leg's group's record of a class and command (the module's docstring)."""
     if leg.point == '8x8/1if':
         return False
     return leg.variant in ('none', 'answering-every-port') or (leg.variant == 'answering-ports' and (
-        group in HELD_IN_ARM_B or (group == 'aecp-fanout' and kind == 'edit')))
+        group in HELD_IN_ARM_B or (group == 'aecp-fanout' and (kind == 'paced' or command in HELD_COMMANDS))))
+
+
+def paceable(r: Record) -> str | None:
+    """The name of a record the pace holds the next one after, or None: an edit, or an accepted SET_CONFIGURATION."""
+    if r.command in EDITS:
+        return EDITS[r.command]
+    return 'SET_CONFIGURATION' if r.command == SET_CONFIGURATION and r.status in ACCEPTED else None
 
 
 def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Record, int, int, str]]:
@@ -124,14 +153,15 @@ def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Rec
     window = (stated['pace_ms'] - 1) * leg.sys_hz // 1000
     for k, r in enumerate(records):
         cost = rule(r.cycles, leg.cpu_hz)
+        name = paceable(r)
         if group == LONG_GROUP:
             out.append(('long', r, cost, stated['long'], 'the largest legal command\'s'))
-        elif r.command in EDITS:
+        elif name is not None:
             following = records[k + 1].start - r.start if k + 1 < len(records) else None
             if following is None or following > window:
-                out.append(('edit', r, cost, stated['edit'], f'{EDITS[r.command]}, paced'))
+                out.append(('paced', r, cost, stated['paced'], f'{name}, paced'))
             else:
-                out.append(('other', r, cost, stated['other'], f'{EDITS[r.command]} not paced: the next record '
+                out.append(('other', r, cost, stated['other'], f'{name} not paced: the next record '
                                                                 f'{following * 1000 / leg.sys_hz:.3f} ms after it'))
         else:
             name = f'0x{r.command:04x}' if r.command is not None else 'unanswered'
@@ -150,6 +180,14 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
         ran = {g for leg in arm for g in leg.groups}
         out += [f'the pass is missing {g}, a group of arm A at 1x1/1if, on which each stated cost measured over the '
                 'arm depends' for g in groups_of_arm if g not in ran]
+        ports = [leg for leg in legs if leg.point == '1x1/1if' and leg.variant == 'answering-ports']
+        fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
+        for command, name in HELD_COMMANDS.items():
+            got = [r for r in fanout if r.command == command and (command != SET_CONFIGURATION or r.status in ACCEPTED)]
+            if not got:
+                what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
+                           'aecp-fanout, whose accepted path no other arm reaches')
     for leg in legs:
         stated = stated_at(leg.point) if leg.point != '8x8/1if' else stated_at('1x1/1if')
         for group in sorted(leg.groups):
@@ -158,21 +196,31 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
                     continue
                 line = (f'{leg.point} {leg.variant} {group}: a record of {r.cycles:,} CPU cycles, {cost} us by the '
                         f'rule, over the {kind} record\'s {bound} us ({why})')
-                (out if held(leg, group, kind) else reported).append(line)
+                (out if held(leg, group, kind, r.command) else reported).append(line)
     return out, reported
 
 
+MS = 100_000  # bus cycles a millisecond at 100 MHz
+
+
+def fanout(spans: list[tuple[float, int]], answers: list[tuple[float, int, int]]) -> list[Record]:
+    """A synthetic aecp-fanout: spans (ms, CPU cycles) named by responses (ms, command, status), as read_leg names."""
+    return named([(round(s * MS), c) for s, c in spans], [(round(a * MS), cmd, st) for a, cmd, st in answers])
+
+
 def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
-    """A complete pass whose every record is within its class, the arm's group list, and statements: the REMOVE at
-    240 us by the rule, over record.aecp and within the edit record, paced by the ADD 9 ms after it, and arm B's
-    SET_CONFIGURATION reported, not held."""
-    hz, ms = 100_000_000, 100_000
-    stated = {'long': 975, 'edit': 260, 'other': 235, 'pace_ms': 8}
-    fanout = [Record(0, 20_000, 0x10), Record(10 * ms, 22_500, 0x2D), Record(19 * ms, 21_000, 0x2C),
-              Record(28 * ms, 15_000, 0x04)]
-    arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': fanout, 'aecp': [Record(0, 18_000, 0x10)],
-                                          LONG_GROUP: [Record(0, 91_000, 0x2D)]})
-    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': [Record(0, 33_000, 0x06)]})
+    """A complete pass whose every record is within its class, the arm's group list, and statements: arm A's REMOVE
+    at 240 us by the rule, over record.aecp and within the paced record, paced by the ADD 9 ms after it; arm B's
+    accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; and arm B's SET_NAME at
+    350 reported, not held."""
+    hz = 100_000_000
+    stated = {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8}
+    a = fanout([(0, 20_000), (10, 22_500), (19, 21_000), (28, 15_000)],
+               [(0.1, 0x10, 0), (10.1, 0x2D, 0), (19.1, 0x2C, 0), (28.1, 0x04, 0)])
+    arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 18_000, 0x10, 0)],
+                                          LONG_GROUP: [Record(0, 91_000, 0x2D, 0)]})
+    b = fanout([(0, 33_000), (10, 28_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
+    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': b})
     return [arm, ports], ['aecp-fanout', 'aecp', LONG_GROUP], stated
 
 
@@ -191,16 +239,27 @@ def controls() -> list[str]:
         planted = copy.deepcopy(legs)
         plant(planted)
         return any(words in f for f in findings(planted, arm, at)[0])
+
+    def unanswered(p: list[Leg]) -> None:
+        """Arm A's first record answers nothing and costs 245 us by the rule: named by the REMOVE's response after
+        it, it would be held paced, at 300."""
+        p[0].groups['aecp-fanout'] = fanout([(0, 23_000), (10, 22_500), (19, 21_000), (28, 15_000)],
+                                            [(10.1, 0x2D, 0), (19.1, 0x2C, 0), (28.1, 0x04, 0)])
     plants = (
         (lambda p: p[0].groups.pop('aecp-fanout'), 'the pass is missing aecp-fanout'),
-        (lambda p: setattr(p[0].groups['aecp-fanout'][2], 'start', 10 * 100_000 + 7 * 100_000 - 1),
-         'not paced'),
-        (lambda p: setattr(p[0].groups['aecp-fanout'][1], 'cycles', 25_000), 'over the edit record'),
+        (lambda p: setattr(p[0].groups['aecp-fanout'][2], 'start', 17 * MS - 1), 'REMOVE_AUDIO_MAPPINGS not paced'),
+        (lambda p: setattr(p[0].groups['aecp-fanout'][1], 'cycles', 29_000), '(REMOVE_AUDIO_MAPPINGS, paced)'),
         (lambda p: setattr(p[0].groups['aecp'][0], 'cycles', 22_400), 'over the other record'),
         (lambda p: setattr(p[0].groups[LONG_GROUP][0], 'cycles', 93_000), 'over the long record'),
+        None,
+        (lambda p: p[1].groups['aecp-fanout'].pop(1), "missing arm B's SET_CONFIGURATION"),
+        (lambda p: p[1].groups['aecp-fanout'].pop(2), "missing arm B's SET_STREAM_INFO"),
+        (lambda p: setattr(p[1].groups['aecp-fanout'][2], 'start', 17 * MS - 1), 'SET_CONFIGURATION not paced'),
+        (lambda p: setattr(p[1].groups['aecp-fanout'][1], 'cycles', 29_000), '(SET_CONFIGURATION, paced)'),
+        (unanswered, 'command unanswered'),
     )
-    for name, (plant, words) in zip(CONTROLS, plants):
-        if not refused(plant, words):
+    for name, entry in zip(CONTROLS, plants):
+        if entry is not None and not refused(*entry):
             escaped.append(name)
     return escaped
 
@@ -242,7 +301,7 @@ def main(argv: list[str]) -> int:
                 continue
             for group in leg.groups:
                 for kind, r, cost, bound, why in classes(leg, group, s):
-                    key = (kind, held(leg, group, kind))
+                    key = (kind, held(leg, group, kind, r.command))
                     if key not in dearest or r.cycles > dearest[key][0]:
                         dearest[key] = (r.cycles, cost, bound, f'{leg.variant} {group}: {why}')
         for (kind, is_held), (cycles, cost, bound, where) in sorted(dearest.items()):

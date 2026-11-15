@@ -876,11 +876,11 @@ def tree_controls(root: Path) -> list[str]:
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
     # header whose slice is another, the one built before the rule chose 950 us among them (#895), is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 950u : 1300u)'
-    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)')
+    stated = re.search(r'^#define CTRL_LOOP_SLICE_US .+$', (root / loop).read_text(), re.M)[0]
+    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 600u : 1300u)')
     tree = built_constants(root, 1)[0]
     if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
-            stated not in (root / loop).read_text():
+            'MBX_N_IF == 1u ?' not in stated:
         escaped.append("the built design's slice not the rule's")
     escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens

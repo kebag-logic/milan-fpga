@@ -264,24 +264,24 @@ extern "C" {
 // to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
 // AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3). The built slice
-// is the rule's choice at this tree's stated costs, a rule and not a number
-// (#895's ruling of 2026-11-15, item 1): 950 us, 900 before SRP's Talker
-// declarations' costs were measured again on #894's one-row edit's cut (#895).
+// is the rule's choice, which the model's self-test holds (#894's ruling of
+// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut.
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
-// their bounds (slice_choice), and the harness self-test refuses a tree whose
-// slice is not it. A 950 us slice holds one MRPDU's build, not both
-// (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
+// their bounds (slice_choice). A 950 us slice holds one MRPDU's build, not both,
+// CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
 // shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
 // measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
 // which states 1x1/1if's (#894).
 #define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 950u : 1300u)
-// An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
-// slice starts a record only while it has this left.
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
+// An SRP record's stated cost, the load gate's record.srp at each point, the
+// dearer of its two columns' (load_grade.py, which refuses any other figure):
+// the slice starts a record only while it has this left, so a record that
+// starts fits (#894).
+#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
@@ -318,13 +318,14 @@ extern "C" {
 // build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
 // a pass given whole it carries (#894). A slice that holds one MRPDU's build
 // makes the declarations in the first: the srp group's after its Listener
-// Ready is 68,951 cycles at 1x1/1if, so a build of one is 725 us there (#894,
-// #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
+// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
+// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
 // refuted, with its rows (#894, owed to #872).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
 #define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 725u : 1215u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 735u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.

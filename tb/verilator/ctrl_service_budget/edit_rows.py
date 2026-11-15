@@ -1,20 +1,23 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE PACE's edits among AECP's ordinary records (#894's round-11 amendment, the class split): every checked ADD or
-REMOVE_AUDIO_MAPPINGS is paced (aecp_maps.c stamps it, aecp_mbx.c, ready, holds the next record; paced_rows.py), so
-a row's window of w ms holds at most edits(w, P) of them, ceil((w + 1) / P). A tier-model row that is not one of
-rows_tiers.LONG_ROWS charges each AECP record it counts at record.aecp, the ordinary commands' record, and here those
-edits the difference to their own record, EDIT_RECORD_US: of the k records it counts, min(k, edits(w, P)) are edits,
-the dearest mix the pace allows. Unpaced (a pace of 0), the window holds as many edits as records, so every one is
-charged the edit's record. LONG_ROWS charge every edit the largest legal command's record (paced_rows.record) and take
-none of these.
+"""THE PACE's records among AECP's ordinary records (#894's class-split amendment, and its ruling 6883864236 item 3):
+every checked ADD or REMOVE_AUDIO_MAPPINGS and every accepted SET_CONFIGURATION is paced (aecp_maps.c and
+aecp_commands.c stamp it, aecp_mbx.c, ready, holds the next record; paced_rows.py), so a row's window of w ms holds at
+most edits(w, P) of them, ceil((w + 1) / P). A tier-model row that is not one of rows_tiers.LONG_ROWS charges each
+AECP record it counts at record.aecp, the ordinary commands' record, and here those paced records the difference to
+their class's, EDIT_RECORD_US: of the k records it counts, min(k, edits(w, P)) are paced, the dearest mix the pace
+allows. Unpaced (a pace of 0), the window holds as many paced records as records, so every one is charged the class's
+record. LONG_ROWS charge every paced record the largest legal command's record (paced_rows.record) and take none of
+these.
 
-EDIT_RECORD_US is a one-row edit's record as the CPU budget harness measures it, the AECP record handler (aecp_mbx.c,
-frame) of an ADD or REMOVE_AUDIO_MAPPINGS of one mapping, plus 5 %, rounded up to 5 us, the most over every arm that
-edits a map with one: the aecp-fanout group of arm A, whose input map holds a row, and of the answering-ports arm,
-whose port observation answers, so its output map is edited too (at 8x8/2if, whose input maps have capacity 0, only
-the output map). record_classes.py holds each measured edit to it, and every other AECP record to record.aecp. A
-module of the model alone: tier1_rows charges the term, rows_tiers solves the rows."""
+EDIT_RECORD_US is the paced class's record, the dearest of its members' (PACED), each as the CPU budget harness
+measures it, the AECP record handler (aecp_mbx.c, frame), plus 5 %, rounded up to 5 us, the most over every arm that
+reaches it: a one-row edit's, an ADD or REMOVE_AUDIO_MAPPINGS of one mapping, in the aecp-fanout group of arm A, whose
+input map holds a row, and of the answering-ports arm, whose port observation answers, so its output map is edited
+too (at 8x8/2if, whose input maps have capacity 0, only the output map); and an accepted SET_CONFIGURATION's, which
+only the answering-ports arm reaches (arm A's observation ports never answer, so its running check refuses).
+record_classes.py holds each measured paced record to it, and every other AECP record to record.aecp. A module of the
+model alone: tier1_rows charges the term, rows_tiers solves the rows."""
 from __future__ import annotations
 
 import sys
@@ -26,12 +29,18 @@ import paced_rows
 if TYPE_CHECKING:
     from rows_tiers import Inputs
 
-#: A one-row edit's record in us at each point (above), under the cut of #894's round 11: at 1x1/1if 24,360 CPU cycles,
-#: a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of one input row 22,728, 240;
-#: 27,851 at 7398ec0a); at 8x8/2if 30,563, a REMOVE of one output row, 325.
-EDIT_RECORD_US = {'1x1/1if': 260, '8x8/2if': 325}
-#: The planted defect controls() plants (rows_tiers.CONTROLS names it).
-CONTROLS = ("an unpaced edit charged at the non-edit record",)
+#: Each paced member's record in us at each point (above). A one-row edit's under #894's one-row edit cut, bc971054:
+#: at 1x1/1if 24,360 CPU cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE
+#: of one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; at 8x8/2if 30,563, a
+#: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
+#: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
+#: rule (33,724 at 9606b3a9, 355); at 8x8/2if 56,474, 595 (78,332, 825).
+PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 300},
+         '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
+#: The paced class's record at each point: the dearest of its members'.
+EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
+#: The planted defects controls() plants (rows_tiers.CONTROLS names them).
+CONTROLS = ("an unpaced edit charged at the non-edit record", "an unpaced SET_CONFIGURATION charged as ordinary")
 
 
 def point_of(i: Inputs) -> str:
@@ -52,9 +61,15 @@ def terms(i: Inputs, w_ms: float, records: int) -> dict[str, float]:
 
 
 def findings(i: Inputs) -> list[str]:
-    """Each count the term charges other than the rule's, at windows of 1 to 120 ms and counts of 1 to 40 records,
-    paced and unpaced: an unpaced window's records each the edit's, a paced window's no more than edits(w, P)."""
-    more = max(0.0, EDIT_RECORD_US[point_of(i)] - i.c['record.aecp'])
+    """A paced member charged below its record (the class's record is the dearest of its members'), and each count the
+    term charges other than the rule's, at windows of 1 to 120 ms and counts of 1 to 40 records, paced and unpaced: an
+    unpaced window's records each the class's, a paced window's no more than edits(w, P)."""
+    point = point_of(i)
+    below = [f'{member} charged below its record: {us} us, the paced class {EDIT_RECORD_US[point]} us'
+             for member, us in PACED[point].items() if us > EDIT_RECORD_US[point]]
+    if below:
+        return below
+    more = max(0.0, EDIT_RECORD_US[point] - i.c['record.aecp'])
     for pace in (0, i.pace_ms or 8):
         at = i._replace(pace_ms=pace)
         for w in range(1, 121):
@@ -69,8 +84,9 @@ def findings(i: Inputs) -> list[str]:
 
 
 def controls(root: Path) -> list[str]:
-    """The planted defect not refused: an unpaced edit charged at the non-edit record (the term taken as the pace's
-    count where no pace holds) must be refused by name, and must shorten a held row at 1x1/1if unpaced."""
+    """The planted defects not refused, each refused by name and shortening a held row at 1x1/1if: an unpaced edit
+    charged at the non-edit record (the term taken as the pace's count where no pace holds), unpaced; and an unpaced
+    SET_CONFIGURATION charged as ordinary (the class's record its edits' alone, the command left out of the pace)."""
     from unittest import mock
 
     import rows_tiers as rt
@@ -85,4 +101,11 @@ def controls(root: Path) -> list[str]:
         planted = rt.solve('ACMP', bare, rt.BUILT)[0]
     if not named or plain is None or planted is None or not planted < plain:
         escaped.append(CONTROLS[0])
+    plain = rt.solve('ACMP', i, rt.BUILT)[0]
+    edits_only = {**EDIT_RECORD_US, '1x1/1if': PACED['1x1/1if']['a one-row edit']}
+    with mock.patch.object(module, 'EDIT_RECORD_US', edits_only):
+        named = any(f.startswith('an accepted SET_CONFIGURATION charged below its record') for f in findings(i))
+        planted = rt.solve('ACMP', i, rt.BUILT)[0]
+    if not named or plain is None or planted is None or not planted < plain:
+        escaped.append(CONTROLS[1])
     return escaped

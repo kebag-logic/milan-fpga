@@ -3,7 +3,8 @@
 // wrapper's AECP faces carried in the fabric placement, in the mailbox's face
 // block.
 //   changed   writes each setting the core changed (class F) into the block of
-//             every interface it concerns and commits it, waiting at most
+//             every interface it concerns, a configuration's stream entries
+//             when its index moved (#894), and commits it, waiting at most
 //             MBX_FACE_ACK_CYCLES for the datapath's acknowledgement, before
 //             the port returns
 //   applied   false while a commit waits for its acknowledgement or an
@@ -24,7 +25,8 @@
 //             IEEE 1722.1-2021 7.5.2, 9.3.2.6)
 //   counters  GET_COUNTERS' 32 quadlets and counters_valid through the CTR window
 //   stream    GET_STREAM_INFO's words through the GSI window (kind 0), and an
-//             output's streaming level from the SRP owner's LICENCE
+//             output's streaming level from the SRP owner's LICENCE; a brief
+//             observation, a running check's, reads word 0 alone (#894)
 //   avb       GET_AVB_INFO's words through the GSI window (kind 1)
 //   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
 // Every window read is bounded (mbx_win_read); a read that finds no answer
