@@ -292,7 +292,9 @@ So a frame that finds no token is held instead of dropped:
   spends, so it waits at most one refill period. A refill that lands between
   the verdict and the header writes commits the frame at once: a channel
   holds a frame only while its bucket is empty. `ARRIVAL_MS` stays the time
-  its last byte arrived.
+  its last byte arrived. A frame held when its channel is closed is still
+  committed: it passed the filter while the channel was open, as a frame
+  committed just before the close did. A reset forgets it.
 - **What is dropped.** A channel holds one frame. While it holds one its
   bucket is empty, so every later frame of the channel finds no token and is
   refused, in `RATE_DROP` (and `IRQ_STATUS.ERR`); the held frame is committed
