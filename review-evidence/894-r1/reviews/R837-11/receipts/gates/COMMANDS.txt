@@ -1,0 +1,24 @@
+# Clean clone of 478ff78cc7752635147511490b06a0aa9ec1f25c (tree 16bb0a6cf86e27811d3f8ac3c3ff733cd7ae54bb), submodules
+# checked out at their gitlinks from the detached review clone; 0 changed paths before and after.
+# Interpreter: Python 3.14.10; the em-dash and TOC gates under a venv holding tools/markdown/requirements.txt
+# installed with --require-hashes (cmarkgfm 2025.10.22, html5lib 1.1). Each command run from the clone root (model
+# checks from tb/verilator/ctrl_service_budget); one log and one rc file each; SUMMARY.txt is rc and last line.
+python3 -B scripts/docs_check.py
+python3 -B scripts/check_feature_status.py
+python3 -B scripts/check_em_dash.py --base 66f713267f201d1a00d7f711e04b3a996d804dee   (also 867faf1e, b6f5c638)
+python3 -B scripts/check_doc_style.py [--selftest]
+python3 -B scripts/check_gptp_docs.py [--selftest]
+python3 -B scripts/check_solution_docs.py
+python3 -B scripts/check_submodule_docs.py
+python3 -B scripts/check_todo_ownership.py
+python3 -B scripts/check_hygiene.py --check
+python3 -B scripts/check_py_idiom.py
+python3 -B scripts/check_cpp_idiom.py
+python3 -B scripts/check_archive.py
+python3 -B scripts/check_doc_paths.py
+python3 -B scripts/gen_toc.py --verify-anchors ; python3 -B scripts/gen_toc.py --check
+git diff --check 66f713267f201d1a00d7f711e04b3a996d804dee HEAD
+python3 -B flip_grade.py --check --point 1x1/1if ; --check ; --check --point 8x8/2if ; --selftest
+python3 -B load_grade.py --check
+python3 -B rows_tiers.py --selftest
+python3 -B tier_grid.py --point 1x1/1if --out ../../receipts/tier_grid_1x1.out   (log: receipts/tier_grid_1x1.log)

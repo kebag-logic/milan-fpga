@@ -1,0 +1,65 @@
+32
+PR-BODY:119 [ROW:13.01 ROW:73.80 ROW:69.60 ROW:14.59 ROW:127.86 ROW:188.41 ROW:28.80 ROW:27.17 ROW:27.29 ROW:33.21 ROW:48.23] R4 13.01, R5 73.80, R6 69.60, the first queued notice 14.59, the last 127.86, R4L 188.41, ACMP 28.80, ADP 27.17, MAAP 27.29, tx 33.21 (`CTRL_LOOP_TX_MS` 34) and txL 48.23 ms.
+
+docs/design/SAVED_STATE_FORMAT_32X32.md:316 [ROW:419.43] | Boot read, both slots once | 419.43 ms | 1x link |
+
+docs/design/SPLIT_CONTROL_MEMORY.md:1285 [ROW:5.12 ROW:0.23] The first records take at most 5.12 ms, and the refilling bucket's row at most 0.23 ms.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:1386 [ROW:3.47] - in every composed window, up to six of its first passes: 100,328 to 173,282 cycles, 2.01 to 3.47 ms, whose largest modules are the memory primitives, ACMP's core, lwSRP and the SRP adapter.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:1387 [ROW:2.30 ROW:2.20] - **At 8x8/2if, at 100 MHz, one or two passes are over it**: the `backlog` window's first, 2.29 to 2.30 ms, and 2.20 ms with both drafts.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:1613 [ROW:0.77] Every row fits with the aged step a window opened at the limit takes, at each placement measured: the least margin is 0.101 ms, against 0.77 ms stated here at first, which held for windows opened from idle only ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2014 [ROW:17.11 ROW:16.46 ROW:10.88] At this head it fits: in the notice groups the last record of SRP's first burst is 16.48 to 17.11 ms after its commit at 8x8/2if, 15.98 to 16.46 ms with both drafts, and 10.23 to 10.88 ms at 1x1/1if; over every window staged, the last SRP record is at most 17.765 ms, a save's verify window opened on
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2204 [ROW:14.60 ROW:20.25] | the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.60 ms by every source, held to 20 | 20.25 ms by every source, stated 22 |
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2236 [ROW:0.70] [`load_grade.py`](../../tb/verilator/ctrl_service_budget/load_grade.py) computes that load at 1x1/1if, 8x8/2if and 32x32/2if and holds it to 0.70 (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 4), which leaves room for the rows: at 1x
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2244 [ROW:489.97 ROW:149.57] At 8x8/2if R4 is 489.97 ms, R5 162.96 and R6 149.57 ms, and the first queued notice is stated at 22 ms against tier 1's 20.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2244 [ROW:37.19 ROW:32.69] R5 is 37.19 ms and R6 32.69 ms, within SRP's 90; the first queued notice is held at 20 ms, its bound, and the last at 22 ms, within 125.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2256 [ROW:5.22] | `notices` | each descriptor's COUNTERS_CHANGED notice once a `holdoff_ms`, in THE RETRY's rounds, a round's own at `AECP_ROUND_COLD_US` + `AECP_NOTICE_US` (`aecp_mbx.h`, held by `round_grade.py`) | Milan v1.2 5.4.5.2, Table 5.22 (`mailbox.yaml` `counters_changed`) |
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2324 [ROW:2.92] - an SRP record, at whose cost its retry is stated, from 365 to 248 us (-32.1 %); or SRP's refill from 2 to 2.92 ms, its burst of 32 unchanged and its sustained rate 500 to 342 records a second;
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2325 [ROW:14.54] - AECP's refill from 5 to 14.54 ms (16 a burst; 200 to 69 records a second); a notice's cost alone cannot;
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2326 [ROW:19.76] - ACMP's refill from 5 to 19.76 ms (16 a burst; 200 to 51 a second); an ACMP record's cost alone cannot;
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2342 [PACE:6 ms] The tree may take the rule's choice instead of 800 us within 650 to 1,100 us, once every row holds there by every source (`rows_tiers.ruled`), and it does: with the join timer at 19 cs and the pace at 6 ms ([below](#the-contingent-moves-908)) every row held and the rule picked 900 us, txL binding, a
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2353 [ROW:27.26 ROW:24.98 ROW:37.47] ACMP 27.26 ms, ADP 24.86 and MAAP 24.98, each waiting under AECP-first for every AECP record arriving in its window, and R4L 37.47 ms, AECP's burst with every notice the largest legal one, 550 B, waiting in the response buffer behind 128 B slots and holding AECP to a record a pass.
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2520 [ROW:13.51] - **A change-notice retry** is taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst holds one, and a notice whose port answers is committe
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2539 [ROW:10.01] Its slope uses arm A at both ends, since the 8x8/1if point ran in arm A only: section 13's arm A 1x1/1if figures (the last AECP record's 10.01 ms), not the 1x1/1if column below, which is the worst of the arms.
+
+docs/reference/FR_NFR.md:381 [JOIN:20 cs TX_BOUND:40 ms] The split arms it at 19 cs, 190 ms, within Table 4.3's 180 to 240 ms, so those rows take 49 ms, derived in the code as 240 ms less the armed value and `T_egress` and never typed (`CTRL_LOOP_JOIN_CS`, `CTRL_LOOP_T_EGRESS_MS`, `CTRL_LOOP_TX_BOUND_MS`, `sw/firmware/ctrl/loop/ctrl_loop.h`); by [#894's c
+
+docs/reference/FR_NFR.md:392 [ROW:0.75] At 8x8/2if the stated bounds stand, 22 ms for the first and 62 ms for every other within a ceiling of 70 ms, [amended on 2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945): its rows by every source do not fit under the tiers, and are reported, not held, by the 
+
+docs/reference/FR_NFR.md:415 [TX_BOUND:40 ms] Under the control loop's priority tiers (option B, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)) SRP's records take decision D's 90 ms, and an MRPDU a timer owes 49 ms at the split, the most lateness the MRP timer budget holds ([#894's ruling of 2026-11-13](ht
+
+sw/firmware/ctrl/aecp/README.md:120 [QUEUED:125 ms] A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 130 ms at 1x1/1if (decision D's 125 ms, rounded up to t
+
+tb/verilator/ctrl_service_budget/README.md:172 [QUEUED:125 ms] R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`.
+
+tb/verilator/ctrl_service_budget/README.md:625 [ROW:0.90 ROW:18.49 ROW:17.04] | MAAP first PROBE (LINK_UP) | 0.90 (4.97) | 18.49 (38.98) **miss** / 17.04 (39.82) **miss** | 88 / 178 |
+
+tb/verilator/ctrl_service_budget/README.md:837 [ROW:8.60 ROW:14.03] On it, the first 4 KiB takes most of the gain: from 14.81 to 8.60 ms at 1x1 (42 %) and from 27.84 to 14.03 ms at 8x8 (50 %).
+
+tb/verilator/ctrl_service_budget/README.md:1346 [ROW:8.75] | aged: the delays across the tick's first 8.75 ms only | each flash phase's aged window opens after the save's own flash event |
+
+tb/verilator/ctrl_service_budget/README.md:1489 [ROW:0.70] The load gate has twelve planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost raised at 1x1/1if that the gate's own ceiling must hold (`load_grade.CEILING`) and at 8x8
+
+tb/verilator/ctrl_service_budget/load_grade.py:65 [ROW:5.22] descriptor's COUNTERS_CHANGED once a holdoff_ms, Milan v1.2 5.4.5.2, Table 5.22, mailbox.yaml).
+
+tb/verilator/ctrl_service_budget/selftest_mutants.py:891 [ROW:8.75] "aged: the delays across the tick's first 8.75 ms only": lambda:
+
+tb/verilator/ctrl_service_hooks/README.md:472 [ROW:2.76 ROW:4.68] Its first notice is committed after 2.76 and 4.68 ms, inside the 20 ms the amended bounds give a first notice.
+
+tb/verilator/media_phase/sim_render.cpp:248 [ROW:2.59] //! the first event 2.59 ms ahead, naming m + 126: events 4 and 5
+
