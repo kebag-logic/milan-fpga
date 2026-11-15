@@ -102,6 +102,8 @@ public:
         if (!out_) throw std::runtime_error("cannot open the transcript");
         words_[0x000u] = 0x4d494c4eu;   // ID, 'MILN'
         words_[0x004u] = 0x00020060u;   // VERSION, as every image before the flip (D2)
+        // the flash map's journal, the split placement's KLJ3 (#823): the only span the device lets a write touch
+        flash_.journal(journal_offset, journal_size);
         if (const char* journal = std::getenv("REBOOT_JOURNAL_IN")) flash_.load(journal, journal_offset);
         std::ifstream input(script);
         if (!input) throw std::runtime_error("cannot open the script");
