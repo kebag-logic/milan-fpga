@@ -914,7 +914,8 @@ TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
     const std::size_t from = frames.size();
     aem(42, entity0(), kCtl, kCtlMac);
     // from the loop's stop, ADP's ring is full for its SHUTDOWN's sends and its next poll's, then drained
-    bool owed = false, stopped = false;
+    bool owed = false;
+    bool stopped = false;
     for (unsigned k = 0; k < 1000 && reboot_writes().empty(); ++k) {
         pass_ms();
         if (!stopped && ctrl_plat.reboot != 0u) {
