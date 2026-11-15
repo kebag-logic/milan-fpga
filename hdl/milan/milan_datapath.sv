@@ -10206,11 +10206,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .tx_data_i        (i_ctl_tx_data),
       .tx_last_i        (i_ctl_tx_last),
       .tx_ready_o       (o_ctl_tx_ready),
+      //! the control lane's held handshake, as the wrapper's (#839): the
+      //! transmit gate holds the firmware's frames until both halves of the
+      //! station MAC are written, as it holds the processor's
       .m_axis_tx_tdata  (pp_tx_tdata_w),
       .m_axis_tx_tkeep  (pp_tx_tkeep_w),
-      .m_axis_tx_tvalid (pp_tx_tvalid_w),
+      .m_axis_tx_tvalid (pp_txs_tvalid_w),
       .m_axis_tx_tlast  (pp_tx_tlast_w),
-      .m_axis_tx_tready (pp_tx_tready_w),
+      .m_axis_tx_tready (pp_txs_tready_w),
       .rx_frames_o      (pp_rx_frames_w),
       .rx_drops_o       (pp_rx_drops_w),
       .tx_frames_o      (pp_tx_frames_w)
