@@ -135,13 +135,14 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+It is 60.5, that decision's cap, since the split's PHY poll (#919): the image's `rom` passes the 60.0 granule, so ROM debt of 4.5 RAMB36 is owed to S14, and the image is refused at 61.0 ([section 5](#5-fit)).
 The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
-The caps are 59.0 for the size fixture's point, which its entry now holds, and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.5 and 60.5.
+The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -367,7 +368,18 @@ The retry's rule added about 104 B of code, and with the two 1.5 KB buffers last
 | 8x8, one interface | 124,528 (123,936) / 96,240 | 54.0 | 129,624 (129,032) / 97,264 | 56.0 | at 56, accepted |
 | 8x8, two interfaces (largest) | 125,792 (125,200) / 113,168 | 59.0 | 130,920 (130,328) / 114,160 | 60.0 | within 59.0 and 60.5, ledgered at 59.0 and 60.0 |
 
-The size fixture's 8x8 image with two interfaces holds 125,792 B of `rom` in 126,976 at the head (125,200 at the ruling's head), past the 124,928 B that 58.5 holds, so its entry is 59.0 by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2 ([section 3](#3-named-refusals)). The platform's image there holds 130,920 B of `rom` in 131,072 at the head, 152 B before the granule its ledger's 60.0 holds (130,328 B and 744 B at the ruling's head). The platform's 8x8 one-interface image plans exactly 56.0, which the budget accepts ([section 3](#3-named-refusals)); its `sram` needs 97,264 B in 98,304. `ctrl_plat` is 17,536, 19,008, 18,176 and 20,288 B at the four points (`ctrl_memory_ledger.py`). #904's map checks and THE PACE added 480 to 488 B of `rom` at each point before the merge (`aecp_maps.c`, `aecp_mbx.c`), and the pace's stamp takes the tail padding of `struct aecp`, so no struct the ledger pins grows.
+The size fixture's 8x8 image with two interfaces holds 125,792 B of `rom` in 126,976 at the head (125,200 at the ruling's head), past the 124,928 B that 58.5 holds, so its entry is 59.0 by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2 ([section 3](#3-named-refusals)). The platform's image there held 130,920 B of `rom` in 131,072 at #894's merge, 152 B before the granule its ledger's 60.0 held (130,328 B and 744 B at the ruling's head); the PHY poll takes it past that granule (below). The platform's 8x8 one-interface image planned exactly 56.0 there, which the budget accepts ([section 3](#3-named-refusals)); its `sram` needed 97,264 B in 98,304. `ctrl_plat` was 17,536, 19,008, 18,176 and 20,288 B at the four points (`ctrl_memory_ledger.py` records the head's, below).
+
+**With the PHY poll** (#919: `plat/ctrl_plat_phy.c`, the release's PHY poll on THE STEP). The size fixture composes no PHY, so its images are unchanged. The platform's grow by the poll's code and its call sites, 1,444 B of `rom` at one interface and 1,452 B at two at 8x8, and by its 44 B of state in `struct ctrl_plat`, which the 64-byte aligned struct's padding holds at one interface and which takes one more alignment unit, 64 B, at two. Each image linked as `plat_ledger.py` links it, against the split SoC's own `csr.csv`, at the head, and at #894's merge (`659d7687`) in parentheses:
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | `ctrl_plat`, B | Against the cap |
+|---|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 117,516 (116,072) / 56,224 (56,224) | 43.0 (42.5) | 17,536 (17,536) | within 56 |
+| 1x1, two interfaces | 118,828 (117,384) / 58,400 (58,336) | 44.0 (43.5) | 19,072 (19,008) | within 56 |
+| 8x8, one interface | 131,068 (129,624) / 97,328 (97,264) | 56.0 (56.0) | 18,176 (18,176) | at 56, accepted; 4 B of `rom` before the granule that would make it 56.5 |
+| 8x8, two interfaces (largest) | 132,372 (130,920) / 114,288 (114,160) | 60.5 (60.0) | 20,352 (20,288) | at its entry's 60.5, the owner's cap, ledgered as S14's debt |
+
+The 8x8 one-interface image's 4 B are what a smaller poll left: a first version, 1,920 B of `rom`, planned 56.5, which the product SoC build refuses (it names no ledgered point), and the poll was cut to fit (#919). #904's map checks and THE PACE added 480 to 488 B of `rom` at each point before the merge (`aecp_maps.c`, `aecp_mbx.c`), and the pace's stamp takes the tail padding of `struct aecp`, so no struct the ledger pins grows.
 
 Before #810's merge the size fixture's images were 40.5, 41.0, 53.5 and 58.0 RAMB36 and the platform's 42.0, 43.0, 55.5 and 59.5 with #904's checks and THE PACE, and 40.0, 41.0, 53.5 and 58.0 and 42.0, 43.0, 55.5 and 59.5 without them; before the slots grew and the queue was compiled out, 38.5, 41.0, 52.0 and 58.0 and 40.5, 43.0, 54.0 and 59.5.
 
