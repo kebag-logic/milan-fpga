@@ -878,7 +878,7 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
     the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
-    after a page and within save_window.IDLE_MS of it, which the program phase issues every other tick, or before a
+    after a page and within save_window.IDLE_MS of it, which the program phase issues every other pass, or before a
     later page, as under a flood that paces a page every other aged step (the program phase); or that long or more
     after its last page, with no later page, while its read-backs have not yet read back every programmed byte (the
     verify). Refused otherwise, so that its passes are that phase's."""

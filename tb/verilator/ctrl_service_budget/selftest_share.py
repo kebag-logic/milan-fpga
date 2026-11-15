@@ -365,24 +365,25 @@ def phase_checks() -> list[Check]:
         except grade.Refusal:
             return False
         return True
-    verify = [100, 110, 120, 130, 140, 150]
-    first = synthetic_save(ms, [30, 50, 70], verify)
-    another = synthetic_save(ms, [30, 50, 70, 110], verify)
-    later = synthetic_save(ms, [30, 50, 70], verify)
-    later = (later[0] + [(200 * ms, grade.FLASH_ERASE, SLOT + 0x10000, 0),
-                         (220 * ms, grade.FLASH_PROGRAM, SLOT + 0x10000, 256)], later[1], later[2])
-    flooded = synthetic_save(ms, [30, 90, 150], [200, 230, 260, 290, 320, 350])
-    cases = [('blank', 20, first, True), ('blank', 5, first, False), ('blank', 40, first, False),
-             ('program', 40, first, True), ('program', 80, first, True), ('program', 20, first, False),
-             ('program', 105, first, False), ('verify', 105, first, True), ('verify', 60, first, False),
-             ('verify', 105, another, False), ('verify', 105, later, True), ('verify', 145, first, True),
-             ('verify', 155, first, False), ('program', 80, flooded, True), ('program', 160, flooded, True),
-             ('program', 185, flooded, False)]
+    # a step a pass (#920): pages 2 ms apart, read-backs 1 ms apart; a flooded save's pages 60 ms apart
+    verify = [10, 11, 12, 13, 14, 15]
+    first = synthetic_save(ms, [3, 5, 7], verify, erase=1)
+    another = synthetic_save(ms, [3, 5, 7, 11], verify, erase=1)
+    later = synthetic_save(ms, [3, 5, 7], verify, erase=1)
+    later = (later[0] + [(20 * ms, grade.FLASH_ERASE, SLOT + 0x10000, 0),
+                         (22 * ms, grade.FLASH_PROGRAM, SLOT + 0x10000, 256)], later[1], later[2])
+    flooded = synthetic_save(ms, [3, 63, 123], [150, 180, 210, 240, 270, 300], erase=1)
+    cases = [('blank', 2, first, True), ('blank', 0.5, first, False), ('blank', 4, first, False),
+             ('program', 4, first, True), ('program', 6.5, first, True), ('program', 2, first, False),
+             ('program', 10.5, first, False), ('verify', 10.5, first, True), ('verify', 6, first, False),
+             ('verify', 10.5, another, False), ('verify', 10.5, later, True), ('verify', 14.5, first, True),
+             ('verify', 15.8, first, False), ('program', 60, flooded, True), ('program', 124, flooded, True),
+             ('program', 126, flooded, False)]
     got = [opens(*case[:3]) for case in cases]
     want = [case[3] for case in cases]
     return [("a save's window is refused unless it opens inside its flash phase of the first save: the blank check "
-             "between the erase and the first page, the program phase within 30 ms of a page or before a later one, "
-             "as a flooded save's pages 60 ms apart, the verify 30 ms or more after its last page with no later page "
+             "between the erase and the first page, the program phase within 2 ms of a page or before a later one, "
+             "as a flooded save's pages 60 ms apart, the verify 2 ms or more after its last page with no later page "
              "and before its read-backs have read back every programmed byte", got == want, str(got))]
 
 
@@ -399,10 +400,10 @@ def bound_checks() -> list[Check]:
              "of the entity, which marks its two names, 12,110 ms at 8x8/2if (370 steps of a 13,256-byte container) "
              "and 4,070 ms at 1x1 (102 of 3,336 bytes)", got == (2, 2, 370, 12_110, 102, 4_070), str(got)),
             ("a change marked while a save is in flight, after its capture took the change's first record, waits for "
-             "the rest of that save, its steps less two, or its own first-dirty window where that is longer, then its "
-             "own: for a SET_NAME of the entity beside another's save, 22,150 ms at 8x8/2if (368 and 370 steps), "
-             "6,070 ms at 1x1 (100 and 102), and a 768-byte container's 1,820 ms, its window the longer",
-             flight == (22_150, 6_070, 1_820), str(flight))]
+             "the rest of that save, its steps less two, then its own, which starts at the first idle step after it "
+             "with no window (#920): for a SET_NAME of the entity beside another's save, 22,150 ms at 8x8/2if (368 "
+             "and 370 steps), 6,070 ms at 1x1 (100 and 102), and a 768-byte container's 1,570 ms (25 and 27), shorter "
+             "than its window and its save", flight == (22_150, 6_070, 1_570), str(flight))]
 
 
 def save_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
