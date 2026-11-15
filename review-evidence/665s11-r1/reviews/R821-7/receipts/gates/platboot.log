@@ -1,0 +1,30 @@
+# head d3e61e37aa9ff50949d3561bc061bc610163ffbc gate platboot: python3 -B scripts/platboot.py <clone> <scratch>/platboot
+== platboot if1 rc=0
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (1 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (1 ms)
+[----------] 23 tests from Boot (89 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 1 test suite ran. (92 ms total)
+[  PASSED  ] 23 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 23   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (23 tests, 0 failures, exit 0)
+wrote <scratch>/platboot/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/platboot/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/platboot/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+== platboot if2 rc=0
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (1 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (1 ms)
+[----------] 23 tests from Boot (115 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 1 test suite ran. (118 ms total)
+[  PASSED  ] 23 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 23   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (23 tests, 0 failures, exit 0)

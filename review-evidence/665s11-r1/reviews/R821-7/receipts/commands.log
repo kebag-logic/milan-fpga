@@ -1,0 +1,12 @@
+# Reviewer commands, round R821-7, run from the review clone at d3e61e37 (paths relative to the packet)
+python3 -I scripts/round22_parens.py <clone> d3e61e37aa9ff50949d3561bc061bc610163ffbc 86849933881c0c93a6435f8bc720d33f1577fe94  -> receipts/round22-parentheses.txt (rc 0)
+python3 -I scripts/round22_parens.py <clone> 33b0d03a 86849933881c0c93a6435f8bc720d33f1577fe94  -> receipts/round22-parentheses-negative-control-33b0d03a.txt (rc 1, expected)
+python3 -I scripts/text_identity.py <clone> 33b0d03a d3e61e37... ctrl_plat.h test_plat_boot.cpp poll_grade.py  -> receipts/text-identity.txt (rc 0)
+python3 -I scripts/text_identity.py <clone> 33b0d03a d3e61e37... docs/design/SPLIT_CONTROL_MEMORY.md  -> receipts/text-identity-negative-control.txt (rc 1, expected)
+gcc -fpreprocessed -dD -E -P -x c ctrl_plat.h at both heads, whitespace squeezed, sha256  -> receipts/ctrl_plat_h-tokens.txt (equal)
+diff author-r6 identity/{33b0d03a,d3566d44}/sha256.txt vs author-r7 identity/sha256.txt  -> receipts/image-identity-compare.txt (8/8 equal)
+python3 -I scripts/audit_index.py <packet author-r7>  -> receipts/packet-index-audit.txt (182/188 match; 6 path-redacted logs differ; 0 missing)
+gates: git diff --check (x2), docs_check, check_doc_style, check_py_idiom, check_cpp_idiom, ast parse of poll_grade.py  -> receipts/gates/*.log,*.rc (all 0)
+python3 -B scripts/platboot.py <clone> <scratch>/platboot  -> receipts/gates/platboot.log (if1 23/23, if2 23/23, rc 0)
+gh api commits/<head>/check-runs (read-only)  -> receipts/hosted-snapshot.tsv
+git status/ls-tree/hash-object  -> receipts/clone-integrity.txt
