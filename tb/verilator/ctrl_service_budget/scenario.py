@@ -46,6 +46,7 @@ import answers
 import datapath_window
 import frames as f
 import long_notice
+import save_burst
 import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -996,5 +997,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
-              *datapath_window.groups(p), *long_notice.groups(p, build)]
+              *datapath_window.groups(p), *long_notice.groups(p, build),
+              *(save_burst.groups(p, build) if p.interfaces == 1 else [])]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
