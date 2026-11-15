@@ -93,6 +93,7 @@ def scenario_groups(h: ModuleType, elf: Path) -> list[tuple[str, list[scenario.G
         for variant in ('none', 'answering-ports'):
             build = dict(elf=str(elf), variant=variant)
             groups = [*scenario.acmp_groups(p), *scenario.aecp_groups(p, build), *scenario.aecp_fanout_groups(p, build),
+                      *scenario.aecp_reboot_groups(p, build),
                       *scenario.backlog_groups(p), *scenario.adp_groups(p), *scenario.maap_groups(p),
                       *scenario.srp_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]
             out.append((f'{p.interfaces} interface(s), {variant}', groups))
