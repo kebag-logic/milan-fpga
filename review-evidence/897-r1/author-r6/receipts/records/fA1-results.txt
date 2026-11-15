@@ -1,0 +1,45 @@
+HEAD eca1b9ca8d9f0090ebc9b55b1bbb827d20bf7ffd DIRTY 0 fA1 1x1 aecp  start 11:37:01
+# image c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5
+== fA1/results: 1x1/1if none
+  aecp start    680.316 ms   11,318 cycles   120 us  command 0x0024 status 0 control_data_length 16
+  aecp start    686.042 ms   14,584 cycles   155 us  command 0x0004 status 0 control_data_length 328
+  aecp start    691.892 ms   10,158 cycles   110 us  command 0x0004 status 0 control_data_length 122
+  aecp start    697.612 ms   10,388 cycles   110 us  command 0x0004 status 0 control_data_length 164
+  aecp start    703.325 ms   11,038 cycles   120 us  command 0x0004 status 0 control_data_length 162
+  aecp start    709.149 ms   11,019 cycles   120 us  command 0x0004 status 0 control_data_length 162
+  aecp start    714.878 ms   10,187 cycles   110 us  command 0x0004 status 0 control_data_length 118
+  aecp start    720.680 ms   10,311 cycles   110 us  command 0x0004 status 0 control_data_length 102
+  aecp start    726.402 ms    9,709 cycles   105 us  command 0x0004 status 0 control_data_length 88
+  aecp start    732.203 ms   12,569 cycles   135 us  command 0x0004 status 0 control_data_length 468
+  aecp start    737.947 ms    9,385 cycles   100 us  command 0x0004 status 0 control_data_length 36
+  aecp start    743.656 ms    9,673 cycles   105 us  command 0x0004 status 0 control_data_length 36
+  aecp start    749.457 ms   10,143 cycles   110 us  command 0x0004 status 0 control_data_length 106
+  aecp start    755.175 ms   10,942 cycles   115 us  command 0x0004 status 0 control_data_length 129
+  aecp start    760.990 ms   10,202 cycles   110 us  command 0x0004 status 0 control_data_length 98
+  aecp start    766.710 ms    8,277 cycles    90 us  command 0x0007 status 0 control_data_length 16
+  aecp start    772.493 ms    8,065 cycles    85 us  command 0x0002 status 0 control_data_length 32
+  aecp start    778.740 ms   10,701 cycles   115 us  command 0x0011 status 0 control_data_length 84
+  aecp start    784.468 ms   11,322 cycles   120 us  command 0x0029 status 10 control_data_length 148
+  aecp start    790.286 ms   12,076 cycles   130 us  command 0x0027 status 10 control_data_length 32
+  aecp start    796.025 ms   10,948 cycles   115 us  command GET_AS_PATH status 10 control_data_length 16
+  aecp start    801.835 ms    8,578 cycles    95 us  command 0x3ff0 status 1 control_data_length 16
+  aecp start    807.613 ms    8,432 cycles    90 us  command 0x001b status 0 control_data_length 32
+  aecp start    813.299 ms   19,504 cycles   205 us  command 0x0010 status 0 control_data_length 84
+  aecp start    819.346 ms   13,793 cycles   145 us  command 0x0001 status 0 control_data_length 28
+  aecp start    825.163 ms   13,860 cycles   150 us  command 0x0001 status 0 control_data_length 28
+  aecp GET_AS_PATH response at 796.124 ms on port 0: status 10, sequence_id 24852, unsolicited False, descriptor_index 0, count 0, control_data_length 16 (16 + 8 x 0 = 16), frame 42 B, entries 
+
+# by command and status (record_top.py)
+fA1/results: 1x1/1if none
+  command 0x0010 status 0: 1 records, most 19,504 cycles, 205 us (aecp)
+  command 0x0004 status 0: 14 records, most 14,584 cycles, 155 us (aecp)
+  command 0x0001 status 0: 2 records, most 13,860 cycles, 150 us (aecp)
+  command 0x0027 status 10: 1 records, most 12,076 cycles, 130 us (aecp)
+  command 0x0029 status 10: 1 records, most 11,322 cycles, 120 us (aecp)
+  command 0x0024 status 0: 1 records, most 11,318 cycles, 120 us (aecp)
+  command 0x0028 status 10: 1 records, most 10,948 cycles, 115 us (aecp)
+  command 0x0011 status 0: 1 records, most 10,701 cycles, 115 us (aecp)
+  command 0x3ff0 status 1: 1 records, most 8,578 cycles, 95 us (aecp)
+  command 0x001b status 0: 1 records, most 8,432 cycles, 90 us (aecp)
+  command 0x0007 status 0: 1 records, most 8,277 cycles, 90 us (aecp)
+  command 0x0002 status 0: 1 records, most 8,065 cycles, 85 us (aecp)

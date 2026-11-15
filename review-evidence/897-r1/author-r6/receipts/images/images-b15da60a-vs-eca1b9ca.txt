@@ -1,0 +1,17 @@
+# harness arms: each b15da60a leg's ELF against eca1b9ca's final-pass leg
+gB1 PLAN answering-ports endstation_ax7101_1x1_tdm8 1 rom 111832 in 112640 sram 55152 in 55296 tiles 41.0 | cb862ec36a8eacafbcefa7bc0497d7e9683c10057e56f760da5c089155d746f5 | fB1 at eca1b9ca cb862ec36a8eacafbcefa7bc0497d7e9683c10057e56f760da5c089155d746f5 | identical
+gB8 PLAN answering-ports endstation_ax7101_8x8 2 rom 126600 in 126976 sram 113168 in 114688 tiles 59.0 | 77d041e7ad324bd30bcc8f8589312b2f29fac8e8d58661c17fc88b8999037de7 | fB8 at eca1b9ca 77d041e7ad324bd30bcc8f8589312b2f29fac8e8d58661c17fc88b8999037de7 | identical
+gA1 PLAN none endstation_ax7101_1x1_tdm8 1 rom 111344 in 112640 sram 55152 in 55296 tiles 41.0 | c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 | fA1 at eca1b9ca c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 | identical
+gA8 PLAN none endstation_ax7101_8x8 2 rom 126112 in 126976 sram 113168 in 114688 tiles 59.0 | 14bf8c34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 | fA8 at eca1b9ca 14bf8c34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 | identical
+gE1 PLAN answering-every-port endstation_ax7101_1x1_tdm8 1 rom 111660 in 112640 sram 55152 in 55296 tiles 41.0 | dbcaef08e5b97f598691f9bad7fe7faf516b5a4d2f0ddd4c24e47982cb17b171 | fE1 at eca1b9ca dbcaef08e5b97f598691f9bad7fe7faf516b5a4d2f0ddd4c24e47982cb17b171 | identical
+gN8 PLAN answering-every-port endstation_ax7101_8x8 2 rom 126436 in 126976 sram 113232 in 114688 tiles 59.0 | 12e8738535b01075b7f05f1630052c377970e4f34f3e619d71a86fcfc1f7cdd9 | fN8 at eca1b9ca 12e8738535b01075b7f05f1630052c377970e4f34f3e619d71a86fcfc1f7cdd9 | identical
+
+# the size fixture and the platform at the four points: b15da60a (boot-b15da60a) against eca1b9ca (boot-eca1b9ca)
+platform 1x1-if1 | 092ec7c19ff0b8ad38c131615ecb2005cd702492a8065880d6dd6063df05bf41 | eca1b9ca 092ec7c19ff0b8ad38c131615ecb2005cd702492a8065880d6dd6063df05bf41 | identical
+fixture 1x1-if1 | c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 | eca1b9ca c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 | identical
+platform 1x1-if2 | cf981f700e7cdf664e47aa5bc106e39c371d64d43c59c2abc1877ab06fe1d6d1 | eca1b9ca cf981f700e7cdf664e47aa5bc106e39c371d64d43c59c2abc1877ab06fe1d6d1 | identical
+fixture 1x1-if2 | d986742b7b20eb337fc3d857e94ca85a6a8f03a74c3fbc914db40f5645ae687c | eca1b9ca d986742b7b20eb337fc3d857e94ca85a6a8f03a74c3fbc914db40f5645ae687c | identical
+platform 8x8-if1 | 9f6b49e74380a5dd0c09fa768b2ea337f0352cc31466632e735ddb5f8f953fce | eca1b9ca 9f6b49e74380a5dd0c09fa768b2ea337f0352cc31466632e735ddb5f8f953fce | identical
+fixture 8x8-if1 | 4232cd6c65c63a33726804fe6a932196ab7ceb34feac3518457830d7ad1ce9c4 | eca1b9ca 4232cd6c65c63a33726804fe6a932196ab7ceb34feac3518457830d7ad1ce9c4 | identical
+platform 8x8-if2 | 9bc0c71c8563879d66d9df018915c72cbca1e360c6ee9f028594030c4f8ba3b9 | eca1b9ca 9bc0c71c8563879d66d9df018915c72cbca1e360c6ee9f028594030c4f8ba3b9 | identical
+fixture 8x8-if2 | 14bf8c34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 | eca1b9ca 14bf8c34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 | identical

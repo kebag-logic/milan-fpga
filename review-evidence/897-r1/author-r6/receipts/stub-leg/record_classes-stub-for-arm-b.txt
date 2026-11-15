@@ -1,0 +1,16 @@
+# the same legs with the stub-port leg in place of arm B's
+results-q1: 1x1/1if none, 24 groups, 1280 AECP records
+results-q2: 1x1/1if none, 24 groups, 311 AECP records
+results-q3: 1x1/1if none, 24 groups, 1294 AECP records
+results-q4: 1x1/1if none, 24 groups, 339 AECP records
+results: 1x1/1if answering-every-port, 16 groups, 1040 AECP records
+results: 1x1/1if answering-ports, 1 groups, 26 AECP records
+1x1/1if held long: the dearest 86,912 CPU cycles, 915 us by the rule, stated 975 us (none aecp-largest-notice: the largest legal command's)
+1x1/1if held other: the dearest 23,051 CPU cycles, 245 us by the rule, stated 245 us (answering-every-port notice-burst-0: command 0x0010)
+1x1/1if held paced: the dearest 22,609 CPU cycles, 240 us by the rule, stated 305 us (none aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH answered SUCCESS with its 8 entries (control_data_length 80) in aecp, whose answered read no other arm reaches
+REFUSED 1x1/1if answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length 16, not the 80 of the 8 entries the arm's path port reads and answers (arm_path.py): its record is not the answered read's
+RESULT: FAIL
+rc=1

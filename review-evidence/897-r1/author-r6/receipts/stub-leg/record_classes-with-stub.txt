@@ -1,0 +1,15 @@
+# every one-interface leg of round 5 and the scratch stub-port leg (arm B, 1x1/1if, aecp) beside them
+results-q1: 1x1/1if none, 24 groups, 1280 AECP records
+results-q2: 1x1/1if none, 24 groups, 311 AECP records
+results-q3: 1x1/1if none, 24 groups, 1294 AECP records
+results-q4: 1x1/1if none, 24 groups, 339 AECP records
+results: 1x1/1if answering-every-port, 16 groups, 1040 AECP records
+results: 1x1/1if answering-ports, 3 groups, 76 AECP records
+results: 1x1/1if answering-ports, 1 groups, 26 AECP records
+1x1/1if held long: the dearest 87,967 CPU cycles, 925 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 22,134 CPU cycles, 235 us by the rule, stated 245 us (answering-ports aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 23,051 CPU cycles, 245 us by the rule, stated 245 us (answering-every-port notice-burst-0: command 0x0010)
+1x1/1if held paced: the dearest 28,752 CPU cycles, 305 us by the rule, stated 305 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED 1x1/1if answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length 16, not the 80 of the 8 entries the arm's path port reads and answers (arm_path.py): its record is not the answered read's
+RESULT: FAIL
+rc=1
