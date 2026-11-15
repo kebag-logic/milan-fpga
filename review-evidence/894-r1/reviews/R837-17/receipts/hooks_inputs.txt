@@ -1,0 +1,36 @@
+## references in ctrl_service_hooks to files changed since 234bc149
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:13:from __future__ import annotations
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:15:import dataclasses
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:16:import io
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:17:import sys
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:18:import tempfile
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:19:from collections.abc import Callable
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:20:from contextlib import AbstractContextManager, ExitStack, redirect_stdout
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:21:from pathlib import Path
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:22:from unittest.mock import patch
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:26:import hooks  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:27:import hooks_build  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:30:import run  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:31:import grade  # noqa: E402  the CPU budget harness's grader, read only
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:32:import scenario  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:33:from scenario import CH, Group, Probe  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:34:import frames as f  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks_selftest.py:450:    expect(at['bound_ms'] == 20.0 and past['bound_ms'] == 20.0, f'the held bound includes W: {at["bound_ms"]}')
+tb/verilator/ctrl_service_hooks/hooks.py:8:ceiling) plus any normative wait W (FR_NFR.md 3.4.1, the per-family rule of
+tb/verilator/ctrl_service_hooks/hooks.py:27:from __future__ import annotations
+tb/verilator/ctrl_service_hooks/hooks.py:29:import dataclasses
+tb/verilator/ctrl_service_hooks/hooks.py:30:import sys
+tb/verilator/ctrl_service_hooks/hooks.py:31:from collections.abc import Callable
+tb/verilator/ctrl_service_hooks/hooks.py:32:from pathlib import Path
+tb/verilator/ctrl_service_hooks/hooks.py:33:from unittest.mock import patch
+tb/verilator/ctrl_service_hooks/hooks.py:37:sys.path.insert(0, str(ROOT / 'tb/verilator/ctrl_service_budget'))
+tb/verilator/ctrl_service_hooks/hooks.py:38:import frames as f  # noqa: E402  the CPU budget harness's frames, read only
+tb/verilator/ctrl_service_hooks/hooks.py:39:import grade  # noqa: E402  its grader, read only
+tb/verilator/ctrl_service_hooks/hooks.py:40:import scenario  # noqa: E402  its stimulus, read only
+tb/verilator/ctrl_service_hooks/hooks.py:41:from scenario import CH, MS, Group, Point, Probe  # noqa: E402
+tb/verilator/ctrl_service_hooks/hooks.py:52:#: Each family's normative timeout, against which the margin is recorded (FR_NFR.md 3.4.1): ADP's 2 s random
+tb/verilator/ctrl_service_hooks/hooks.py:82:    """A family's bound: min(T_svc, its 10 % ceiling) (FR_NFR.md 3.4.1; #665, the owner's decision of
+tb/verilator/ctrl_service_hooks/hooks.py:211:         'IEEE 1722.1-2021 7.5.2; FR_NFR.md 3.4.1)',
+tb/verilator/ctrl_service_hooks/hooks.py:318:    """H-COUNTERS (FR_NFR.md 3.4.2), with the answering face only: the CTR window answers, and the testbench
+tb/verilator/ctrl_service_hooks/hooks.py:442:    """H-DISC's aging (FR_NFR.md 3.4.2), as the CPU budget harness's acmp-disc reaches it: each interface's sink
+## selftest invocation sites

@@ -1,0 +1,56 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_mbx.h b/sw/firmware/ctrl/aecp/aecp_mbx.h
+index a69906788f..278dc306f2 100644
+--- a/sw/firmware/ctrl/aecp/aecp_mbx.h
++++ b/sw/firmware/ctrl/aecp/aecp_mbx.h
+@@ -19,12 +19,12 @@ extern "C" {
+ // round_grade.py). A round takes as many as what its pass has left holds (aecp.c, scan): four in a pass of its own at
+ // 8x8/2if, seven at 1x1/1if, and fewer beside refused attempts, each charged AECP_ATTEMPT_US.
+ // The one exception to the 5 %: the cold cost at 8x8/2if is 185 us, 2.7 % over the most measured, 180.16 us (a round
+-// of no notice beside two refused attempts, on the image that merged dev-soft-core 0fb66211), because 185 us is the
+-// most THE RETRY's search holds the first notice to AECP_QUEUED_FIRST_MS at: 186 us already fails it, since its binding
+-// pass, a build of one (1,215 us) carrying a round's cold start, five refused attempts and a notice beside THE SHARE's
+-// margin, is then over THE SHARE, which at 185 us it fills exactly: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665,
+-// decided 2026-11-13; FR_NFR.md 3.4.1). It expires at the 8x8/2if flip: #890 closes only with a measured cold cost of
+-// at most 176.1 us, or on a new owner decision.
++// of no notice beside two refused attempts, on the image that merged dev-soft-core 0fb66211), because 185 us was the
++// most the retry search, before THE TIERS retired it, held the first notice to AECP_QUEUED_FIRST_MS at: 186 us failed
++// it then, a build of one (1,215 us) with a cold start, five refused attempts and a notice beside THE SHARE's margin
++// being over THE SHARE, which 185 us filled: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665, decided 2026-11-13;
++// FR_NFR.md 3.4.1). Under THE TIERS that first notice is a tier row, reported (#890). It expires at the 8x8/2if flip:
++// #890 closes only with a measured cold cost of at most 176.1 us, or on a new owner decision.
+ #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
+ #define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 185u)
+ // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
+@@ -47,7 +47,7 @@ extern "C" {
+ // 2026-11-13, item 3) 6 ms did, and with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling,
+ // item 1), and the largest legal command's record re-measured under the bounded map work (item 3), 7 ms did; with each
+ // map key at its position in the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's
+-// cost re-measured at 30 us, txL is 49.69 ms at 7 ms, and 8 ms does (#894, #908). The gate reads the core's clock,
++// cost re-measured at 30 us, txL was 49.69 ms at 7 ms, and 8 ms did (#894, #908). The gate reads the core's clock,
+ // which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of AECP_REGISTRATIONS
+ // edits answers its last within 15 paces, their passes and its own row: within 238 ms at its commit, IEEE 1722.1-2021
+ // 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index e29cd45f4a..7b449c4534 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -319,8 +319,8 @@ extern "C" {
+ // a pass given whole it carries (#894). A slice that holds one MRPDU's build
+ // makes the declarations in the first: the srp group's after its Listener
+ // Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
+-// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
+-// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
++// cut, measured at fe0cef5b, the same build moved by the cut's code, so a build
++// of one is 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+ // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
+ // refuted, with its rows (#894, owed to #872).
+ #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
+@@ -368,7 +368,7 @@ extern "C" {
+ // tree whose row passes this). At 8x8/2if, whose rows by every source are
+ // reported and not held (#894, the owner's decision of 2026-11-12, owed to
+ // #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
+-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)
++#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)
+ #define CTRL_LOOP_TICK_US 430u
+ // A1: the backlogs the bound assumes, in records.
+ #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

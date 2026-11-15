@@ -1,0 +1,198 @@
+[R837] NEGATIVE - exact head 07ed787ee0448be2360f97e8af01194a499003ee
+
+# R837-17: narrow re-review of the live PR #902 body (issue #894), same head as R837-16
+
+Internal, cleared-context, independent review. Head `07ed787ee0448be2360f97e8af01194a499003ee`, tree `697298a1c8a5552b7ecd7f5790ccfbfeaa16cf13`. The review start is PR #902 issuecomment-6897550137. There is no commit since R837-16 (issuecomment-6897523873). The only artifact that changed is the live PR body, edited at 2026-11-15T16:22:00Z.
+
+**Verdict: NEGATIVE on one MINOR (Docs), R837-17-F1.**
+
+R837-16-F1 is closed at its cause: the sentence now says the hooks self-test ran at round 13's `234bc149`. R837-16-R3 is applied as given. Every "final head" in the body names `07ed787e`, or names its SHA and round. No sentence in the body says that evidence ran at a head where it did not run.
+
+The replacement sentence still has one problem. It says the self-test's result "carries by the identity of its inputs" because no commit touches `tb/verilator/ctrl_service_hooks/`. That is not true:
+
+- The self-test imports 25 repository files, and three of them changed after `234bc149`: `poll_grade.py`, `ctrl_loop.h` and `aecp_mbx.h`. The `ctrl_loop.h` change includes `CTRL_LOOP_TX_MS`, 98 to 99 at two interfaces.
+- The result does carry. I ran the self-test at the exact head and its output matches round 13's receipt line for line. Only the stated basis is wrong.
+- The wording came from R837-16's own example fix, which was incomplete.
+
+## How the task was reconstructed
+
+1. **The rules:** AGENTS.md sections 5 to 7 (exact-head evidence, lens coverage, and the ledger), plus the owner's rules in the review brief (RESIDUE, and the narrow scope).
+2. **The scope:** the brief's checks (1) to (4), and R837-16's F1, R1 to R3 and its ledger.
+3. **The body:**
+   - The live body was fetched through the API: 122,195 B, sha256 `4d54a675…`, `receipts/pr902_body.md`.
+   - The round-21 packet body came from evidence tree `471b48a4`: blob `89dca6ed`, 121,964 B, sha256 `57ad272a…`. That is the body R837-16 reviewed, `receipts/author-r21-PR-BODY.md`.
+4. **The delta:** `receipts/body_diff_r21_to_live.txt` and the word diff `receipts/body_worddiff_r21_to_live.txt`. Exactly three lines changed (265, 784 and 894), and one trailing blank line was added at 953. All three edits are the ones the manager named.
+5. **The tree:** not re-reviewed, as the brief directs. It is byte-identical to R837-16's head: the index hash is `2b9aa980…`, as R837-16 recorded (`receipts/clone-verify.txt`).
+
+## Checks (1) to (4)
+
+### (1) R837-16-F1 at its cause
+
+Body line 894 now reads: "its one reader is lane part a's `hooks_selftest`, which ran at round 13's final head, `234bc149`; no later commit touches `tb/verilator/ctrl_service_hooks/` (`git log 234bc149..HEAD -- tb/verilator/ctrl_service_hooks` is empty), so its result carries by the identity of its inputs."
+
+- **The head is right.** The published receipt `author-r13/receipts/lane/lane-234bc149/hooks_selftest.log` is blob `8f5fe3fd`; I verified it with `git hash-object`. Its header line names `234bc149ff88…` and its result is 28 of 28, 96 of 96. It is the only hooks receipt after round 11.
+- **The git claims are right** (`receipts/git_claims.txt`):
+  - `git log 234bc149..HEAD -- tb/verilator/ctrl_service_hooks` is empty.
+  - `git diff --name-only ed0df35b 234bc149` is `hooks.py` alone.
+  - Both commits are ancestors of the head.
+- **The carry basis is wrong.** That is the new finding, F1 below. F1 as R837-16 defined it (a claim of exact-head execution that did not happen) is **closed**.
+
+### (2) Every "final head" in the live body
+
+There are four uses (`receipts/head_phrase_scan.txt`):
+
+| Line | Text | State |
+|---|---|---|
+| 265 | "ran on a clean clone of round 13's final head `234bc149`" … "ran at that head" | SHA and round named (R837-16-R3's fix, exactly) |
+| 784 | "every gate on a clean clone of the final head (round 13's, `234bc149`)" | SHA and round named |
+| 894 | "The final head is `07ed787e`." | names `07ed787e` |
+| 894 | "which ran at round 13's final head, `234bc149`" | SHA and round named |
+
+**Result: PASS.** The other "final" hits are "final pass", "final image" and "final firmware". Each is a round-scoped noun, not a head.
+
+### (3) Execution-at-a-head claims across the body
+
+I scanned every "ran at", "ran on", "run at", "at the head", "this head", "final" and "re-ran"/"rerun" (86 hits, `receipts/head_phrase_scan.txt`).
+
+- **Hits that state figures.** Most hits give a figure "at the head" (the head's value of a constant or row), not an execution. They are outside this check, and R837-16 reviewed their figures at this head.
+- **Execution claims with a SHA.** Each names a SHA that its gate-table row (body lines 895 to 920) and its round's receipts agree with:
+  - `:264`: `c274b9f5`
+  - `:265`: `234bc149` and `ed0df35b`
+  - `:410`: `6b759b30`
+  - `:439`: `b6f5c638`
+  - `:716`: `41ca9f87`
+  - `:908`: `ed0df35b` and `234bc149`
+- **The gate table** gives a head per row. Its last row, round 21's (`07ed787e`), is backed by `author-r21/` as R837-16 verified.
+- **Round-scoped "at the head" for execution.** These sit under their round's heading, and their round's gate-table row names the SHA:
+  - `:35`: the Status bullet for round 19, "Three sweeps run at the head", at `26898c05`. Round 21 re-ran the four sweeps at `07ed787e`, and R837-16 reproduced them there.
+  - `:468`: 16.5, at `b6f5c638`.
+  - `:511`: 17.2, at `478ff78c`.
+
+  None claims a run at `07ed787e` that did not happen. The S1 suggestion below is optional.
+- **`:879` (How to validate):** `run.py --self-test`, "28 of 28; 96 of 96 mutants caught". I confirmed it at this head (`receipts/hooks_selftest_07ed787e.log`, rc 0).
+
+**Result:** no sentence states evidence as run at a head where it did not run. The one remaining defect is F1's carry basis.
+
+### (4) R837-16's verdict otherwise
+
+- No commit since R837-16, and the tree is byte-identical (`receipts/clone-verify.txt`).
+- The body delta is lines 265, 784 and 894, plus the trailing blank line (`receipts/body_diff_r21_to_live.txt`).
+- R837-16's CLEAN verdicts for Conformance, RTL, Robustness and Tests depend on the tree and not on these sentences, so they **stand** at this head.
+- R837-16's Docs lens is re-applied here to the changed body. It is UNCLEAN on R837-17-F1.
+
+## Findings
+
+### R837-17-F1: MINOR (Docs)
+
+- **Where:** live PR #902 body, line 894, "The final pass, gate by gate": "no later commit touches `tb/verilator/ctrl_service_hooks/` (`git log 234bc149..HEAD -- tb/verilator/ctrl_service_hooks` is empty), so its result carries by the identity of its inputs."
+- **Evidence:**
+  - **The import closure.** `scripts/import_closure.py` imports `hooks_selftest` at the head and lists the repository files loaded (`receipts/hooks_import_closure.txt`). There are 25, and 20 of them are outside `tb/verilator/ctrl_service_hooks/`. Among them are the CPU budget harness's `grade`, `scenario`, `frames` and `poll_grade` modules, `sw/mailbox/mailbox_model.py` and `tb/verilator/ctrl_split_boot/run.py`.
+  - **Header reads.** At import, modules in the closure read `sw/firmware/ctrl/loop/ctrl_loop.h` as text (`join_grade.py:29`, `mrpdu_grade.py:35`, `save_window.py:103`, `slice_grade.py:37`, `whole_grade.py:31`). They also read `sw/firmware/ctrl/aecp/aecp_mbx.h` (`notice_window.py:63`, `:71`; `round_grade.py:28`).
+  - **Changes after `234bc149`** (`receipts/name_only_234bc149.txt`, `receipts/header_diff_234bc149.txt`):
+    - `poll_grade.py:67`: a comment, from 250 to 280 us;
+    - `aecp_mbx.h`: comments only;
+    - `ctrl_loop.h`: a comment, and `CTRL_LOOP_TX_MS` from `98u` to `99u` at two interfaces (`b6f5c638`).
+  - **So the inputs are not identical.** The carry still holds, for a different reason:
+    - No file in the closure reads `CTRL_LOOP_TX_MS` (`receipts/tx_ms_readers.txt`, empty).
+    - The other changes are comments.
+    - I ran it directly: `python3 -B tb/verilator/ctrl_service_hooks/run.py --self-test` on a disposable clean clone at `07ed787e` gives rc 0, "28 of 28 checks pass; 96 of 96 mutants caught". Its output equals round 13's receipt except for the receipt's header line (`receipts/hooks_selftest_07ed787e.log`, `.rc`, `receipts/hooks_selftest_compare.txt`).
+  - **Where the wording came from.** This is R837-16's own example fix, which assumed that the harness reads only its own directory.
+- **Authority:** AGENTS.md section 7 (exact-head evidence). The Docs lens: the PR has to give a cold reviewer evidence they can check. Body line 265 states the rule as "The gates carry only by their inputs' identity".
+- **Why MINOR and not RESIDUE:** the sentence states a false basis for carrying a gate's evidence to the merge candidate's source head. That is the same class as R837-16-F1 and R837-15-F2, so it is not wording only. A reader who checks the identity claim finds three changed inputs and no recorded argument. The result itself is not in doubt.
+- **Impact:** the manager or a cold reviewer accepts the hooks self-test at `07ed787e` on an identity that does not hold. The true basis (changes to comments, and to a macro no file in the closure reads) is unrecorded, and so is the exact-head run.
+- **Required outcome:** the sentence states a carry basis that is true. Either:
+  - (a) name the changed inputs and why they do not affect the result; or
+  - (b) cite an exact-head run.
+
+  Exact fix for (a) and (b) together. Replace "so its result carries by the identity of its inputs." with:
+
+  > "and of the files it imports or reads outside that directory, later commits change `poll_grade.py` and `aecp_mbx.h` in comments only and `ctrl_loop.h` in comments and in `CTRL_LOOP_TX_MS`, which none of them reads, so its result carries to the head; run at `07ed787e` it prints the same 28 of 28 checks and 96 of 96 mutants (R837-17's `receipts/hooks_selftest_07ed787e.log`)."
+
+  Shorter alternative, (b) alone:
+
+  > "so it did not run again until R837-17 ran it at `07ed787e`: 28 of 28, 96 of 96, output identical to round 13's."
+
+  Line 265's rule sentence can stay, since its own claim (`ed0df35b` against `234bc149`) is exact.
+- **Verification:**
+  - Read line 894.
+  - `python3 -I -B scripts/import_closure.py <clone> receipts/name_only_234bc149.txt` lists the changed inputs the sentence must account for: `poll_grade.py` in the closure, and the header reads.
+  - Grep the closure for `CTRL_LOOP_TX_MS`: no reader.
+  - `git diff 234bc149 HEAD -- sw/firmware/ctrl/aecp/aecp_mbx.h tb/verilator/ctrl_service_budget/poll_grade.py` is comments only.
+
+## Residue (wording only; no lens made unclean; for the residue checklist)
+
+None new. R837-16-R1 and R2 (tree wording) stay on the residue checklist. R837-16-R3 is **closed**: line 265 reads exactly as the fix gave it.
+
+## Suggestions (optional)
+
+- **R837-17-S1 (Docs):** round-scoped "the head" in execution sentences. These are the round-19 Status bullet at `:35` ("Three sweeps run at the head"), 16.5 at `:468` and 17.2 at `:511` ("run again at the head"). Each is correct under its round's heading and gate-table row. Naming the SHA inline would stop a reader from taking it as `07ed787e`, as `:265` now does:
+  - `:35`: "at `26898c05`";
+  - `:468`: "at `b6f5c638`";
+  - `:511`: "at `478ff78c`".
+- **Retained from R837-16:** S1 (`rows_tiers.py:934-935`, per-point control) and S2 (no `rom-per-image` receipt at or after `c274b9f5`), plus the older suggestions R837-16 lists. The causes are unchanged, since no commit was made.
+
+## Prior findings at this head (resolved after my own pass)
+
+| Finding | State | Evidence |
+|---|---|---|
+| R837-16-F1 (hooks self-test said to run at the final head) | **Closed** at its cause; its replacement text raises R837-17-F1 | body `:894`; `author-r13/.../hooks_selftest.log` (blob `8f5fe3fd`) |
+| R837-16-R1, R2 (`SPLIT_CONTROL_MEMORY.md:361-370`, `:2003`) | Carried to the residue checklist (tree unchanged) | no commit since R837-16 |
+| R837-16-R3 (body `:265` "the final head") | **Closed** | body `:265` reads "round 13's final head `234bc149`" … "ran at that head" |
+| R837-16-S1, S2 and those it retains | Retained, optional | no commit |
+| R837-15 and earlier, as R837-16's table records | Still closed | tree byte-identical; body delta touches none of them |
+
+## Probes and receipts
+
+| Receipt | What |
+|---|---|
+| `receipts/pr902.json`, `receipts/pr902_body.md` | live PR state: head `07ed787e`, open, not draft, updated 2026-11-15T16:22:00Z |
+| `receipts/author-r21-PR-BODY.md` | round-21 body (blob `89dca6ed`, sha256 `57ad272a…`) |
+| `receipts/body_diff_r21_to_live.txt`, `receipts/body_worddiff_r21_to_live.txt` | the body delta: lines 265, 784, 894, plus a trailing blank line |
+| `receipts/head_phrase_scan.txt` | 86 hits with context |
+| `receipts/git_claims.txt`, `receipts/name_only_234bc149.txt`, `receipts/header_diff_234bc149.txt` | the git claims; the 11 files changed since `234bc149`; the two header diffs |
+| `receipts/hooks_import_closure.txt`, `receipts/tx_ms_readers.txt`, `receipts/hooks_inputs.txt`, `receipts/hooks_transitive.txt` | the self-test's import closure and header reads; no `CTRL_LOOP_TX_MS` reader |
+| `receipts/hooks_selftest_07ed787e.log`, `.rc`, `receipts/hooks_selftest_compare.txt` | exact-head self-test, rc 0, 28/28 and 96/96; identical to round 13's apart from the header line |
+| `receipts/hosted-check-runs.tsv` | hosted runs read at 2026-11-15T16:28:57Z: 8 completed success, 11 in progress, 7 queued, no completed failure (inspected, not accepted) |
+| `receipts/clone-verify.txt` | the clone after the probes |
+| `receipts/c6897523873.md`, `receipts/c6897550137.md` | R837-16's report and this round's review start, as read |
+
+The self-test ran on a disposable clone under `scratch/`, which is not published.
+
+The import-closure probe ran against the review clone with `-I -B`. An earlier attempt without `-B` left four ignored `__pycache__` directories, which I removed. The review clone is now clean:
+
+- `git status --porcelain --ignored` is empty.
+- The index (mode, sha, path) equals HEAD's tree (sha256 `2b9aa980…`, the same as R837-16's).
+- The six gitlinks are as recorded.
+
+## Reviewer-owned ledger
+
+| Lens | State | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | R837-16's artifacts (`ctrl_loop.h:371`, `FR_NFR.md` 3.4.1 `:380-394`, `aecp_mbx.h:22-27,50`, section 5 `:265-273`, `:335-348`, `:361-372`). Tree byte-identical (`receipts/clone-verify.txt`). The body delta (`receipts/body_diff_r21_to_live.txt`) changes no conformance or clause claim | R837-16, carried by R837-17 (no commit) | `07ed787ee0448be2360f97e8af01194a499003ee` |
+| RTL | CLEAN | R837-16's artifacts (no HDL, constraint or SoC file in `867faf1e..07ed787e`; `author-r16/receipts/identity/image-compare.txt`). Tree byte-identical | R837-16, carried by R837-17 | `07ed787ee0448be2360f97e8af01194a499003ee` |
+| Robustness | CLEAN | R837-16's artifacts (`ctrl_loop.c:203` compile-time only; `flip_grade.py:172-184`, `rows_tiers.py:929-936`). Tree byte-identical | R837-16, carried by R837-17 | `07ed787ee0448be2360f97e8af01194a499003ee` |
+| Tests | CLEAN | R837-16's artifacts. Plus at this head: `run.py --self-test` of `tb/verilator/ctrl_service_hooks` (rc 0, 28/28, 96/96, `receipts/hooks_selftest_07ed787e.log`), and its import closure (`receipts/hooks_import_closure.txt`). F1 is a statement about this evidence, not a test defect | R837-17 | `07ed787ee0448be2360f97e8af01194a499003ee` |
+| Docs | UNCLEAN (R837-17-F1) | Live PR body (sha256 `4d54a675…`): lines `:265`, `:784`, `:879`, `:894`, the gate table `:895-920`, and every head phrase (`receipts/head_phrase_scan.txt`). `author-r13/.../hooks_selftest.log`. Tree docs unchanged since R837-16 (R1 and R2 are residue) | R837-17 | `07ed787ee0448be2360f97e8af01194a499003ee` |
+
+## Real limits
+
+- **What I did not re-review:** the tree, as the brief directs. Conformance, RTL and Robustness, and Tests' tree artifacts, are carried from R837-16 at this same head, with no commit in between.
+- **What I ran:**
+  - the hooks self-test, on a disposable clone;
+  - the import-closure probe.
+- **What I did not run:** no harness campaign, sweep, model self-test, builder, Yosys, Vivado, act or hosted run.
+- **The import-closure probe has limits.** It lists modules loaded when `hooks_selftest` is imported, and text reads found by a basename grep. A file read only at run time through a computed path would not be listed. The exact-head run covers that gap for this gate.
+- **Not executed or not shown here:**
+  - no manager source bank runs at this head;
+  - physical calibration NOT RUN;
+  - field skips are not hardware proof;
+  - 8x8/2if rows are reported only, by decision (#890).
+
+## Pending manager duties
+
+- Route R837-17-F1 to the author, or apply its exact fix to the live body. Carry R837-16-R1 and R2 on the residue checklist.
+- Hosted contexts at the exact head: 18 of 26 were in progress or queued when read.
+- The current-dev merge candidate's builder and native banks at the merge turn. Source base `66f713267f201d1a00d7f711e04b3a996d804dee`, live dev `6b66f66d89cf25d2717687bcc2c3bf617685a99a`.
+- The external review, and merge authorization from the maintainer.
+
+R837-17 FINISHED

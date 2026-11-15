@@ -1,0 +1,96 @@
+## imports of budget modules used by hooks (grade, scenario, frames, run)
+# grade.py
+32:from __future__ import annotations
+34:import re
+35:from dataclasses import dataclass, field
+37:import answers
+38:import join_grade
+39:import mrpdu_grade
+40:import poll_grade
+41:import round_grade
+42:import slice_grade
+43:import save_grade
+44:import save_window
+45:import scenario
+46:import share
+47:import whole_grade
+710:    from the stimulus's declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
+# scenario.py
+39:from __future__ import annotations
+41:import sys
+42:from dataclasses import dataclass, field
+43:from pathlib import Path
+45:import answers
+46:import datapath_window
+47:import frames as f
+48:import long_notice
+49:import save_window
+53:from mailbox_model import load  # noqa: E402
+205:    import re
+408:    import re
+489:    import re
+496:    import re
+516:    import re
+# frames.py
+13:from __future__ import annotations
+15:from dataclasses import dataclass
+# run.py
+25:from __future__ import annotations
+27:import argparse
+28:import concurrent.futures
+29:import json
+30:import os
+31:import re
+32:import shlex
+33:import subprocess
+34:import sys
+35:from pathlib import Path
+88:    import grade
+150:    import join_grade
+151:    import mrpdu_grade
+152:    import poll_grade
+198:    import join_grade
+263:    import notice_window
+272:    import notice_window
+273:    import scenario
+345:    import share
+438:    import build as builder
+472:    import build as builder
+473:    import scenario
+511:    import answers
+518:    import grade
+519:    import long_notice
+568:    import build as builder
+591:        import save_window
+649:    import build as builder
+650:    import scenario
+680:    import build as builder
+681:    import poll_items
+702:    import notice_window
+703:    import scenario
+725:        import selftest
+733:    import build as builder
+734:    import scenario
+735:    import share
+814:    import build as builder
+## firmware/header reads in ctrl_service_hooks and its budget imports
+tb/verilator/ctrl_service_hooks/hooks.py:819:#: window: the datapath has one (plat/README.md, The ports).
+tb/verilator/ctrl_service_budget/grade.py:40:import poll_grade
+tb/verilator/ctrl_service_budget/grade.py:902:    and the store's step can be all such a pass does (ctrl_loop.h, THE STEP): a run whose longest
+tb/verilator/ctrl_service_budget/grade.py:952:                            polls=poll_grade.held(log, interfaces), slices=slice_grade.held(log, interfaces),
+tb/verilator/ctrl_service_budget/scenario.py:206:    header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
+tb/verilator/ctrl_service_budget/scenario.py:409:    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
+tb/verilator/ctrl_service_budget/scenario.py:490:    text = (ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
+tb/verilator/ctrl_service_budget/scenario.py:497:    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
+tb/verilator/ctrl_service_budget/scenario.py:517:    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
+tb/verilator/ctrl_service_budget/run.py:146:    items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
+tb/verilator/ctrl_service_budget/run.py:152:    import poll_grade
+tb/verilator/ctrl_service_budget/run.py:160:                                  "an SRP record's apply of " if o['kind'] == poll_grade.RECORD else
+tb/verilator/ctrl_service_budget/run.py:161:                                  "a declined ACMP offer of " if o['kind'] == poll_grade.DECLINED else
+tb/verilator/ctrl_service_budget/run.py:162:                                  "a kept ACMP command's accepted offer of " if o['kind'] == poll_grade.KEPT else
+tb/verilator/ctrl_service_budget/run.py:165:             for g in results for o in g['passes'].get('polls', {}).get('over', []) if o['kind'] != poll_grade.DECLINES]
+tb/verilator/ctrl_service_budget/run.py:168:               if o['kind'] == poll_grade.DECLINES] +
+tb/verilator/ctrl_service_budget/run.py:270:    interfaces: a failure whatever the options record, since the bound is the construction's (ctrl_loop.h, THE RETRY;
+tb/verilator/ctrl_service_budget/run.py:271:    aecp.h, aecp_mbx.h)."""
+tb/verilator/ctrl_service_budget/run.py:297:             'ctrl_loop.h, THE RETRY):', '', '| Group | ms | Bound ms | Recipients | Events held at the answer | '
+tb/verilator/ctrl_service_budget/run.py:622:        # each named by its group (poll_grade.held)
