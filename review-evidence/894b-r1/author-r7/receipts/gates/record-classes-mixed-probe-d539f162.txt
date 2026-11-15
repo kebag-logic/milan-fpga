@@ -1,0 +1,24 @@
+# R843-3-F2's verification: R843-3's mixed-point probe (its record_classes_mixed_probe.py, unchanged) through mixed_probe_gate.sh
+# (1) at d539f162 on a clean clone (lane gate record_classes_mixed_probe, rc 0):
+completeness map built as main() builds it: ['8x8/1if']
+mixed pass, 1x1/1if arm A absent and its SET_CONFIGURATION removed: findings 2
+   the pass runs no arm A leg at 1x1/1if
+   the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+the same pass held complete at 1x1/1if too: findings 5
+   the pass runs no arm A leg at 1x1/1if
+   the pass is missing aecp-fanout, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp-largest-notice, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+1x1/1if answering-ports alone (no arm A anywhere): findings 2 ['the pass runs no arm A leg at 1x1/1if']
+RESULT: PASS: the mixed-point pass is refused by name at 1x1/1if
+
+# (2) on af2c4d7a's record_classes.py, the same gate (rc 1: the mixed pass has 0 findings there):
+completeness map built as main() builds it: ['8x8/1if']
+mixed pass, 1x1/1if arm A absent and its SET_CONFIGURATION removed: findings 0
+the same pass held complete at 1x1/1if too: findings 5
+   the pass runs no arm A leg at 1x1/1if
+   the pass is missing aecp-fanout, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp-largest-notice, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+1x1/1if answering-ports alone (no arm A anywhere): findings 1 ['the pass runs no arm A leg at a point it is held at (1x1/1if, 8x8/1if)']
+MISSING: no arm A leg at 1x1/1if

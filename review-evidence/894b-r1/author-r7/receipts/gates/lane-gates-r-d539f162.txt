@@ -1,0 +1,51 @@
+# the lane gates at d539f162 (lane_gates_r7.sh, part(s) r, each on its own clean clone of the head, never piped): each gate's rc and its last line; 45 gates; those that exit 1 by design are named so (_exits_1)
+diffcheck_merge_base rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_merge_base: git diff --check 1d6bf5556ae28764361d85012b86394eb467d294 HEAD
+diffcheck_round1 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round1: git diff --check f9442a10ff7e673c6e65874ca7629b49201c589d HEAD
+diffcheck_810 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_810: git diff --check 66f713267f201d1a00d7f711e04b3a996d804dee HEAD
+diffcheck_round3 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round3: git diff --check 64688da3b211e8e0e2b92b6c24e5ad3bd7490104 HEAD
+diffcheck_round4 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round4: git diff --check 66adb9a987b56c2b1a12ce92d058e0bc1a57bc3a HEAD
+diffcheck_round5 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round5: git diff --check 9d7167bd35afbf888ff0dcc1c10fe0e572ff6312 HEAD
+diffcheck_810_084cf7a8 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_810_084cf7a8: git diff --check 084cf7a8455e9fa8e24a0e5bcf57c9557816c819 HEAD
+diffcheck_round6 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round6: git diff --check eebc37a32e15c81b3a855cdee49427e02c961590 HEAD
+diffcheck_round7_start rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round7_start: git diff --check ccb47e39a534f4c8d02af826fa50fcd6578a38de HEAD
+diffcheck_lane_start rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_lane_start: git diff --check 8a3791e44533d6b1cc26d486d0b18e7d83470dc1 HEAD
+diffcheck_902_round9_start rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_902_round9_start: git diff --check dd01b0afef87037ec485cd49b40a26b542854bdd HEAD
+diffcheck_902_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_902_head: git diff --check 5b264bf26416108add32d7fe5abca5252ffde2cb HEAD
+diffcheck_phase_a rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_phase_a: git diff --check bc8acc76fc524c167aa47613e54968e66ff02a17 HEAD
+diffcheck_902_7398 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_902_7398: git diff --check 7398ec0aeea468d92ff642a03a06e291a0cd58d1 HEAD
+diffcheck_round2_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round2_head: git diff --check 184d47cacc0b4eccb923cfbd4f2df9c3a05f5638 HEAD
+diffcheck_round3_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round3_head: git diff --check 716a8ae7979a31315a6e085959dc4dcc8b7ee022 HEAD
+diffcheck_round4_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round4_head: git diff --check 98c0b62be911f5cff7a03ebfee7f837c23847d14 HEAD
+diffcheck_902_234b rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_902_234b: git diff --check 234bc149ff888eb96659ecaaa5ce6e4fb27319d4 HEAD
+diffcheck_round5_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round5_head: git diff --check 0700f09e165aab86868b2d22da661681b045ce0f HEAD
+diffcheck_902_4ae8 rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_902_4ae8: git diff --check 4ae887a16674416fdbf9c3dc0a0e3aed056906f6 HEAD
+diffcheck_round6_head rc=0: # head d539f162994fe671bb804d8e8c93088535bf65cd gate diffcheck_round6_head: git diff --check af2c4d7a4a1930aba712792a7facd8e9cb88e7c7 HEAD
+comment_scan rc=0: # 7398ec0aeea4..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+comment_scan_lane rc=0: # 4ae887a16674..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+comment_scan_round6 rc=0: # af2c4d7a4a19..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+r844_comment_audit rc=0: R844-1 source_comment_audit.py over d539f162994fe671bb804d8e8c93088535bf65cd: 0 line(s)
+em_dash rc=0: check_em_dash: 0 finding(s) over 2407 added line(s) in 26 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [66adb9a9..HEAD]
+tier_grid rc=0: CHOSEN: slice 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2, least margin +0.0116
+py_idiom rc=0:   over-long line: 0 <= 0
+docs_check rc=0: docs_check: 0 finding(s) across 219 md files + 1600 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+harness_selftest rc=0: self-test: 0 failures
+rows_tiers_selftest rc=0: rows_tiers: 1033 of 1033 planted controls refused
+rows_tiers_report_exits_1 rc=1: OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 459.40 ms, over its bound 49 ms; the largest term aecp 108.69 ms
+load_selftest rc=0: load gate: 28 of 28 planted controls refused
+load_check rc=0: RESULT: PASS
+flip_selftest rc=0: flip check: 611 of 611 planted controls refused
+flip_check_exits_1 rc=1: RESULT: FAIL
+flip_check_1x1 rc=0: RESULT: PASS
+flip_check_8x8_1if rc=0: RESULT: PASS
+shape_costs rc=0: RESULT: PASS
+egress_ledger_selftest rc=0: RESULT: PASS: 13 mutants, 0 failure(s)
+record_classes_selftest rc=0: record classes: 14 of 14 planted controls refused
+record_classes_mixed_probe rc=0: RESULT: PASS: the mixed-point pass is refused by name at 1x1/1if
+record_classes_8x8_1if rc=0: RESULT: PASS
+flip_check_1x1_as_built_exits_1 rc=1: RESULT: FAIL
+flip_check_8x8_exits_1 rc=1: RESULT: FAIL
+
+# each part's clone after it ran (git status --short --untracked-files=all):
+part r: at d539f162, 0 line(s)
+
+45 gates, 0 bad

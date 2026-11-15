@@ -1,0 +1,83 @@
+# R843-3-F1's verification (f1_check.py): every figure section 13 states as 8x8/1if's gate, load and every-source rows against round 6's gate regrade and rows receipts (the head's image and graders) and the head's load_grade.py --check (lane gate load_check); 0.671 and 154,850 only as round 3's
+# (1) at d539f162 (a clean clone):
+ok           114 groups  section 13: yes  gate receipt: yes
+ok                 1717  section 13: yes  gate receipt: yes
+ok                4.860  section 13: yes  gate receipt: yes
+ok                7.231  section 13: yes  gate receipt: yes
+ok                6.014  section 13: yes  gate receipt: yes
+ok                4.629  section 13: yes  gate receipt: yes
+ok                6.255  section 13: yes  gate receipt: yes
+ok               10.474  section 13: yes  gate receipt: yes
+ok                4.114  section 13: yes  gate receipt: yes
+ok                2.168  section 13: yes  gate receipt: yes
+ok                2.812  section 13: yes  gate receipt: yes
+ok               26.636  section 13: yes  gate receipt: yes
+ok                2.547  section 13: yes  gate receipt: yes
+ok              187.397  section 13: yes  gate receipt: yes
+ok              190.147  section 13: yes  gate receipt: yes
+ok    352 in 113 groups  section 13: yes  gate receipt: yes
+ok               142809  section 13: yes  gate receipt: yes
+ok               138906  section 13: yes  gate receipt: yes
+ok                92744  section 13: yes  gate receipt: yes
+ok              2453084  section 13: yes  gate receipt: yes
+ok               202546  section 13: yes  gate receipt: yes
+ok                19.82  section 13: yes  rows receipt: yes
+ok               126.36  section 13: yes  rows receipt: yes
+ok               118.28  section 13: yes  rows receipt: yes
+ok                17.83  section 13: yes  rows receipt: yes
+ok               325.90  section 13: yes  rows receipt: yes
+ok               192.81  section 13: yes  rows receipt: yes
+ok                48.37  section 13: yes  rows receipt: yes
+ok                48.33  section 13: yes  rows receipt: yes
+ok                49.03  section 13: yes  rows receipt: yes
+ok                67.24  section 13: yes  rows receipt: yes
+ok               134.96  section 13: yes  rows receipt: yes
+ok                0.969  section 13: yes  rows receipt: yes
+ok                 1510  section 13: yes  rows receipt: yes
+ok                0.711  section 13: yes  load receipt: yes
+ok                0.673  section 13: yes  load receipt: yes
+ok                0.671  only as round 3's: yes
+ok              154,850  only as round 3's: yes
+RESULT: PASS: 0 bad
+
+# (2) the same check over af2c4d7a's section 13 (exit 1):
+BAD          114 groups  section 13: NO  gate receipt: yes
+BAD                1717  section 13: NO  gate receipt: yes
+BAD               4.860  section 13: NO  gate receipt: yes
+BAD               7.231  section 13: NO  gate receipt: yes
+BAD               6.014  section 13: NO  gate receipt: yes
+BAD               4.629  section 13: NO  gate receipt: yes
+BAD               6.255  section 13: NO  gate receipt: yes
+BAD              10.474  section 13: NO  gate receipt: yes
+BAD               4.114  section 13: NO  gate receipt: yes
+BAD               2.168  section 13: NO  gate receipt: yes
+BAD               2.812  section 13: NO  gate receipt: yes
+BAD              26.636  section 13: NO  gate receipt: yes
+BAD               2.547  section 13: NO  gate receipt: yes
+BAD             187.397  section 13: NO  gate receipt: yes
+BAD             190.147  section 13: NO  gate receipt: yes
+BAD   352 in 113 groups  section 13: NO  gate receipt: yes
+BAD              142809  section 13: NO  gate receipt: yes
+BAD              138906  section 13: NO  gate receipt: yes
+BAD               92744  section 13: NO  gate receipt: yes
+BAD             2453084  section 13: NO  gate receipt: yes
+BAD              202546  section 13: NO  gate receipt: yes
+BAD               19.82  section 13: NO  rows receipt: yes
+BAD              126.36  section 13: NO  rows receipt: yes
+BAD              118.28  section 13: NO  rows receipt: yes
+BAD               17.83  section 13: NO  rows receipt: yes
+BAD              325.90  section 13: NO  rows receipt: yes
+BAD              192.81  section 13: NO  rows receipt: yes
+BAD               48.37  section 13: NO  rows receipt: yes
+BAD               48.33  section 13: NO  rows receipt: yes
+BAD               49.03  section 13: NO  rows receipt: yes
+BAD               67.24  section 13: NO  rows receipt: yes
+BAD              134.96  section 13: NO  rows receipt: yes
+BAD               0.969  section 13: NO  rows receipt: yes
+ok                 1510  section 13: yes  rows receipt: yes
+ok                0.711  section 13: yes  load receipt: yes
+BAD               0.673  section 13: NO  load receipt: yes
+BAD               0.671  only as round 3's: NO
+BAD               0.671  only as round 3's: NO
+BAD             154,850  only as round 3's: NO
+RESULT: FAIL: 37 bad
