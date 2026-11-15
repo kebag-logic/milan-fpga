@@ -1,0 +1,105 @@
+Command: git rev-parse HEAD HEAD^{tree}
+af2c4d7a4a1930aba712792a7facd8e9cb88e7c7
+63cae1575a884c869dd92698c8d4a9bb685f6aba
+rc=0
+Command: git log --format=%h %p %s --first-parent 98c0b62b..HEAD
+af2c4d7a4a f8ea6d7254 Name #894's ledger ruling by its subject and items in egress_ledger.py's and load_grade.py's comments, and link it from section 13 (#894)
+f8ea6d7254 6bf90e0d64 State 8x8/1if's own ADP record by the rule, 130 us, where its nearest point's tsn-c-stack#32 column states 125, held to its measurement with planted controls; the load 0.711 and 0.673 (#894)
+6bf90e0d64 5aadbc8ce0 Derive 8x8/1if's held-egress ledger in egress_ledger.py by rule: the scenario's 60 ms hold plus the service behind it at the merged image's measurement plus 5 %, rounded up to 0.01 ms, with section 13 showing both measurements (#894)
+5aadbc8ce0 0700f09e16 4ae887a166 Merge #902's head 4ae887a1 (two-interface CTRL_LOOP_TX_MS at 99 ms and documents) beside THE SHAPES' 8x8/1if text (#894)
+0700f09e16 d09494c407 State 8x8/1if's SRP drain limit, its AECP record classes and its two restated polls in section 13 and FR_NFR 3.4.1 (#894)
+d09494c407 25c782a41c Restate 8x8/1if's walk and notice poll items by the rule on the image that merges #902's 234bc149, 55 and 145 us (#894)
+25c782a41c 1a0fedad38 Read a results directory's run refusals in egress_ledger.py, so its results mode, as its log mode, fails an instance not measured, with its controls and a mutant (#894)
+1a0fedad38 a15345f729 Hold 8x8/1if's AECP records at its own statements by the rule: its paced class, a one-row edit 320 and an accepted SET_CONFIGURATION 635 us, read by the shape, and its largest legal command 1,510 us (#894)
+a15345f729 b2737ba5f6 Word aecp.h's guard and egress_ledger.py's ledger and first mutant as they stand, with no development history in them (#894)
+b2737ba5f6 647d5c4a76 State 8x8/1if's SRP drain limit at the load gate's record.srp there, 365 us, as the drain ruling holds it at the other points, and hold it with a planted control at its measured 345 us (#894)
+647d5c4a76 98c0b62be9 234bc149ff Merge #902's head 234bc149 (rounds 11 to 13): the one-interface slice, build of one and SRP drain limit in THE SHAPES' 1x1/1if block, and the load gate's drain check read at each point's shape (#894)
+rc=0
+Command: git diff --stat 7398ec0a..HEAD
+ docs/design/MAILBOX_SPLIT.md                       |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                | 205 +++++--
+ docs/reference/FR_NFR.md                           |  13 +-
+ sw/firmware/ctrl/aecp/README.md                    |  51 +-
+ sw/firmware/ctrl/aecp/aecp.c                       |   5 +
+ sw/firmware/ctrl/aecp/aecp.h                       |  47 +-
+ sw/firmware/ctrl/aecp/aecp_commands.c              |  25 +-
+ sw/firmware/ctrl/aecp/aecp_face.c                  |  10 +-
+ sw/firmware/ctrl/aecp/aecp_face.h                  |   6 +-
+ sw/firmware/ctrl/aecp/aecp_maps.c                  | 103 +++-
+ sw/firmware/ctrl/aecp/aecp_mbx.c                   |   4 +
+ sw/firmware/ctrl/aecp/aecp_mbx.h                   |  39 +-
+ sw/firmware/ctrl/aecp/aecp_shape.py                |   6 +-
+ sw/firmware/ctrl/loop/ctrl_loop.h                  | 118 +++-
+ sw/firmware/ctrl/srp/README.md                     |  13 +-
+ sw/firmware/ctrl/srp/srp_entity.py                 |  24 +-
+ sw/firmware/ctrl/test/aecp_arms.py                 |  22 +-
+ .../ctrl/test/aecp_configuration_mutants.py        |  75 +++
+ sw/firmware/ctrl/test/aecp_map_mutants.py          |  56 ++
+ sw/firmware/ctrl/test/aecp_mutants.py              |   8 +-
+ sw/firmware/ctrl/test/aecp_retry_mutants.py        |  23 +
+ sw/firmware/ctrl/test/aecp_wire.py                 |   5 +-
+ sw/firmware/ctrl/test/ctrl_configs.py              |  15 +-
+ sw/firmware/ctrl/test/srp_arms.py                  |  39 +-
+ sw/firmware/ctrl/test/test_aecp.cpp                | 234 +++++++-
+ sw/firmware/gtest/README.md                        |   1 +
+ tb/verilator/ctrl_service_budget/README.md         |  41 +-
+ tb/verilator/ctrl_service_budget/build.py          |   2 +-
+ tb/verilator/ctrl_service_budget/edit_rows.py      | 120 ++++
+ tb/verilator/ctrl_service_budget/egress_ledger.py  | 432 ++++++++++++++
+ tb/verilator/ctrl_service_budget/flip_grade.py     |  74 ++-
+ tb/verilator/ctrl_service_budget/grade.py          |  13 +-
+ tb/verilator/ctrl_service_budget/load_grade.py     | 210 +++++--
+ tb/verilator/ctrl_service_budget/mrpdu_grade.py    |  25 +-
+ tb/verilator/ctrl_service_budget/notice_window.py  |  22 +-
+ tb/verilator/ctrl_service_budget/poll_grade.py     |  56 +-
+ tb/verilator/ctrl_service_budget/record_classes.py | 362 ++++++++++++
+ tb/verilator/ctrl_service_budget/round_grade.py    |  28 +-
+ tb/verilator/ctrl_service_budget/rows_grade.py     |  17 +-
+ tb/verilator/ctrl_service_budget/rows_tiers.py     |  50 +-
+ tb/verilator/ctrl_service_budget/run.py            |   8 +-
+ .../ctrl_service_budget/selftest_mutants.py        |  38 ++
+ .../ctrl_service_budget/selftest_notice.py         |  43 +-
+ tb/verilator/ctrl_service_budget/selftest_round.py | 125 ++++-
+ tb/verilator/ctrl_service_budget/shape_costs.py    | 621 +++++++++++++++++++++
+ tb/verilator/ctrl_service_budget/slice_grade.py    |  19 +-
+ tb/verilator/ctrl_service_budget/tier1_rows.py     |  48 +-
+ tb/verilator/ctrl_service_budget/whole_grade.py    |  15 +-
+ tb/verilator/ctrl_service_hooks/hooks.py           |   4 +-
+ 49 files changed, 3176 insertions(+), 346 deletions(-)
+rc=0
+Command: git diff --stat 98c0b62b..HEAD
+ docs/design/MAILBOX_SPLIT.md                       |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                | 149 ++++++---
+ docs/reference/FR_NFR.md                           |   8 +-
+ sw/firmware/ctrl/aecp/README.md                    |  34 +-
+ sw/firmware/ctrl/aecp/aecp.h                       |  14 +-
+ sw/firmware/ctrl/aecp/aecp_commands.c              |  25 +-
+ sw/firmware/ctrl/aecp/aecp_face.c                  |  10 +-
+ sw/firmware/ctrl/aecp/aecp_face.h                  |   6 +-
+ sw/firmware/ctrl/aecp/aecp_maps.c                  |  97 +++++-
+ sw/firmware/ctrl/aecp/aecp_mbx.h                   |  32 +-
+ sw/firmware/ctrl/loop/ctrl_loop.h                  |  33 +-
+ sw/firmware/ctrl/srp/README.md                     |   4 +-
+ .../ctrl/test/aecp_configuration_mutants.py        |  75 +++++
+ sw/firmware/ctrl/test/aecp_map_mutants.py          |  56 ++++
+ sw/firmware/ctrl/test/aecp_mutants.py              |   8 +-
+ sw/firmware/ctrl/test/test_aecp.cpp                | 181 ++++++++++-
+ sw/firmware/gtest/README.md                        |   1 +
+ tb/verilator/ctrl_service_budget/README.md         |  20 +-
+ tb/verilator/ctrl_service_budget/edit_rows.py      | 120 +++++++
+ tb/verilator/ctrl_service_budget/egress_ledger.py  | 115 ++++++-
+ tb/verilator/ctrl_service_budget/flip_grade.py     |  17 +-
+ tb/verilator/ctrl_service_budget/load_grade.py     | 144 +++++++-
+ tb/verilator/ctrl_service_budget/poll_grade.py     |  18 +-
+ tb/verilator/ctrl_service_budget/record_classes.py | 362 +++++++++++++++++++++
+ tb/verilator/ctrl_service_budget/rows_grade.py     |   5 +-
+ tb/verilator/ctrl_service_budget/rows_tiers.py     |  25 +-
+ tb/verilator/ctrl_service_budget/selftest_round.py |   6 +-
+ tb/verilator/ctrl_service_budget/tier1_rows.py     |  48 ++-
+ tb/verilator/ctrl_service_hooks/hooks.py           |   4 +-
+ 29 files changed, 1406 insertions(+), 213 deletions(-)
+rc=0
+Command: git diff --name-only 7398ec0a..HEAD -- hdl sw/litex sw/mailbox protocol-processor gptp-processor third_party
+rc=0
+Command: git diff --check 7398ec0a..HEAD
+rc=0

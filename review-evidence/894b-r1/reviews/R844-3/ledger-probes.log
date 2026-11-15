@@ -1,0 +1,188 @@
+Independent decimal rule: backlog.owed.if0: 63.40 ms
+Independent decimal rule: backlog.owed_behind0.if0: 63.64 ms
+Independent decimal rule: backlog.owed_behind1.if0: 63.93 ms
+Independent decimal rule: backlog.owed_behind2.if0: 64.16 ms
+Independent decimal rule: backlog.owed_behind3.if0: 64.41 ms
+Independent decimal rule: backlog-owed.service.acmp.last.if0: 62.30 ms
+Independent decimal rule: backlog-owed.service.aecp.last.if0: 61.94 ms
+all seven at limit: rc 0, expected 0
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+
+one cycle over backlog.owed.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40001 | 63.4 | +0.00001 | no |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed.if0 (backlog-owed): 63.40001 ms, over its ledger figure 63.4 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog.owed_behind0.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64001 | 63.64 | +0.00001 | no |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed_behind0.if0 (backlog-owed): 63.64001 ms, over its ledger figure 63.64 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog.owed_behind1.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93001 | 63.93 | +0.00001 | no |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed_behind1.if0 (backlog-owed): 63.93001 ms, over its ledger figure 63.93 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog.owed_behind2.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16001 | 64.16 | +0.00001 | no |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed_behind2.if0 (backlog-owed): 64.16001 ms, over its ledger figure 64.16 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog.owed_behind3.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41001 | 64.41 | +0.00001 | no |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed_behind3.if0 (backlog-owed): 64.41001 ms, over its ledger figure 64.41 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog-owed.service.acmp.last.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30001 | 62.3 | +0.00001 | no |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog-owed.service.acmp.last.if0 (backlog-owed): 62.30001 ms, over its ledger figure 62.3 ms by 0.00001 ms: a larger miss
+
+one cycle over backlog-owed.service.aecp.last.if0: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94001 | 61.94 | +0.00001 | no |
+RESULT: FAIL
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 61.94001 ms, over its ledger figure 61.94 ms by 0.00001 ms: a larger miss
+
+original large miss: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 100.00000 | 63.4 | +36.60000 | no |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- backlog.owed.if0 (backlog-owed): 100.00000 ms, over its ledger figure 63.4 ms by 36.60000 ms: a larger miss
+
+new miss: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 8 instance(s) read (8 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- independent.new.cpu.row (backlog-owed): a new budget miss, 21.00000 ms against its budget 20 ms
+
+run refusal: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- refused: the run refused 1 (an instance not measured): independent group: absent end
+
+missing run summary: rc 1, expected 1
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.40000 | 63.4 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.64000 | 63.64 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.93000 | 63.93 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 64.16000 | 64.16 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.41000 | 64.41 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.30000 | 62.3 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.94000 | 61.94 | +0.00000 | yes |
+RESULT: FAIL
+- missing: no results.json, so its run's refusals are not read (an instance not measured)
+
+published measured logs: rc 0, expected 0
+# 8x8-1if: the rows the egress decides against their ledger; 7 instance(s) read (7 measured) from 8 path(s), a log among them
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.237 (log) | 63.4 | -0.16250 | yes |
+| `backlog.owed_behind0.if0` | 63.459 (log) | 63.64 | -0.18050 | yes |
+| `backlog.owed_behind1.if0` | 63.739 (log) | 63.93 | -0.19050 | yes |
+| `backlog.owed_behind2.if0` | 63.957 (log) | 64.16 | -0.20250 | yes |
+| `backlog.owed_behind3.if0` | 64.191 (log) | 64.41 | -0.21850 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.184 (log) | 62.3 | -0.11550 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.846 (log) | 61.94 | -0.09350 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+
+Independent probes: 13 expected outcomes; decimal formula 7/7.

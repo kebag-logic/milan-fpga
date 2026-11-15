@@ -1,0 +1,23 @@
+Published manifest: 98 files verified; 13 path-redacted.
+Round 5 index: 44 matching files, 6 explained redactions.
+Round 6 index: 39 matching files, 7 explained redactions.
+All 8 image ELF and loadable SHA-256 pairs match a15345f7 -> 5aadbc8c -> af2c4d7a.
+All 6 fixed-image pairs equal upstream 4ae887a1.
+Bare merge attribution: all 7 BUDGET lines equal measured-image lines (microsecond resolution).
+BUDGET backlog.owed.if0: 63.237 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.459 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.739 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.957 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.191 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.184 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.846 ms over its budget 20 ms
+Published sweep: 65 suites, 2713040 checks, no failure, timeout or skip.
+Published local workflow execution: 139 steps rc 0; 226 NOT RUN.
+Published lane gates: 65 expected return codes.
+plat_ledger controls: 7 of 7 as required
+POINT 1x1-if1: rom 116,088 B, sram 56,224 B, 42.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 17536 B: PASS
+POINT 1x1-if2: rom 117,392 B, sram 58,336 B, 43.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19008 B: PASS
+POINT 8x8-if1: rom 129,640 B, sram 97,264 B, 56 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18176 B: PASS
+POINT 8x8-if2: rom 130,928 B, sram 114,160 B, 60 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 20288 B: PASS
+plat_ledger: PASS (0 finding(s))
+Evidence consistency: PASS. Hash receipts authenticate content consistency, not execution independently.

@@ -1,0 +1,22 @@
+PASS the unchanged ledger, every row at its figure: exit 0; RESULT: PASS: every row the CPU decides within its bound, no held-egress row over its ledger figure, no new budget miss, every instance measured, the joins within the gate
+PASS section 13's published measurement: exit 0; RESULT: PASS: every row the CPU decides within its bound, no held-egress row over its ledger figure, no new budget miss, every instance measured, the joins within the gate
+PASS backlog.owed.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed.if0 (backlog-owed): 63.40001 ms, over its ledger figure 63.4 ms by 0.00001 ms: a larger miss
+PASS backlog.owed.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog.owed.if0 (backlog-owed): 100.16000 ms, over its ledger figure 63.4 ms by 36.76000 ms: a larger miss
+PASS backlog.owed_behind0.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind0.if0 (backlog-owed): 63.64001 ms, over its ledger figure 63.64 ms by 0.00001 ms: a larger miss
+PASS backlog.owed_behind0.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind0.if0 (backlog-owed): 100.40000 ms, over its ledger figure 63.64 ms by 36.76000 ms: a larger miss
+PASS backlog.owed_behind1.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind1.if0 (backlog-owed): 63.93001 ms, over its ledger figure 63.93 ms by 0.00001 ms: a larger miss
+PASS backlog.owed_behind1.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind1.if0 (backlog-owed): 100.69000 ms, over its ledger figure 63.93 ms by 36.76000 ms: a larger miss
+PASS backlog.owed_behind2.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind2.if0 (backlog-owed): 64.16001 ms, over its ledger figure 64.16 ms by 0.00001 ms: a larger miss
+PASS backlog.owed_behind2.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind2.if0 (backlog-owed): 100.92000 ms, over its ledger figure 64.16 ms by 36.76000 ms: a larger miss
+PASS backlog.owed_behind3.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind3.if0 (backlog-owed): 64.41001 ms, over its ledger figure 64.41 ms by 0.00001 ms: a larger miss
+PASS backlog.owed_behind3.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind3.if0 (backlog-owed): 101.17000 ms, over its ledger figure 64.41 ms by 36.76000 ms: a larger miss
+PASS backlog-owed.service.acmp.last.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog-owed.service.acmp.last.if0 (backlog-owed): 62.30001 ms, over its ledger figure 62.3 ms by 0.00001 ms: a larger miss
+PASS backlog-owed.service.acmp.last.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog-owed.service.acmp.last.if0 (backlog-owed): 99.06000 ms, over its ledger figure 62.3 ms by 36.76000 ms: a larger miss
+PASS backlog-owed.service.aecp.last.if0: one bus cycle over its figure: exit 1; RESULT: FAIL; - the ledger: backlog-owed.service.aecp.last.if0 (backlog-owed): 61.94001 ms, over its ledger figure 61.94 ms by 0.00001 ms: a larger miss
+PASS backlog-owed.service.aecp.last.if0: a large increase: exit 1; RESULT: FAIL; - the ledger: backlog-owed.service.aecp.last.if0 (backlog-owed): 98.70000 ms, over its ledger figure 61.94 ms by 36.76000 ms: a larger miss
+PASS R844-1's larger-egress input (backlog.owed.if0 at 100.0 ms): exit 1; RESULT: FAIL; - the ledger: backlog.owed.if0 (backlog-owed): 100.00000 ms, over its ledger figure 63.4 ms by 36.60000 ms: a larger miss
+PASS R844-1's unmeasured input (a required row not measured beside the seven): exit 1; RESULT: FAIL; - the ledger: required.cpu.row (backlog-owed): not measured (unmeasured), so a new or larger miss is not ruled out
+PASS a leg whose run refused a group: exit 1; RESULT: FAIL; - the ledger: results: the run refused 1 (an instance not measured): backlog-owed: no end
+PASS a leg by its log alone, the published figures: exit 0; RESULT: PASS: every row the CPU decides within its bound, no held-egress row over its ledger figure, no new budget miss, every instance measured, the joins within the gate (legs by their log alone: the ledger and their own lines)
+PASS a leg by its log alone, a row printed 1 us over its figure: exit 1; RESULT: FAIL; - the ledger: backlog.owed_behind3.if0 (a log): 64.41150 ms at most, by its log, over its ledger figure 64.41 ms by 0.00150 ms: a larger miss
+RESULT: PASS: every control held
