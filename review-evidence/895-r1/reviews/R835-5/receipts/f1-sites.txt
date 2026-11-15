@@ -1,0 +1,29 @@
+sw/firmware/ctrl/plat/README.md:110: PRESENT
+  ...At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 392 B of `rom` past 60.0 with #894's one-row edit's cut, and its entry ledgers 60.5,...
+  head: 131,752 B in a 131,072 B 60.0 granule, 680 B past (ledger-final summary, section 5 table)
+
+docs/reference/FR_NFR.md:383: PRESENT
+  ... load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, which the built slice now is ([#894's ruling of 2026-11-15](https://github.com/kebag-log...
+  head: CTRL_LOOP_SLICE_US 900 at one interface (ctrl_loop.h), AECP_PACE_MS 9 (aecp_mbx.h)
+
+docs/reference/FR_NFR.md:383: PRESENT
+  ... rule chose 950 us, which the built slice now is ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms holds txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row holds by every s...
+  head: 9 ms pace, txL 48.58 ms, last queued 136.65 ms, ACMP 29.63 ms (flip-1x1-1if.log)
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2603: PRESENT
+  ...6876349104)), and it stays 235 us until #894 restates it. #894's round 11 cut the edit and took the edits as a class of their own ([above](#the-one-row-edit)): at this head a paced edit is at most 245 us by the rule and every other record 220 ([below](#the-compos...
+  head: dearest edit 23,877 cycles = 255 us, ordinary 225 us (author-r10 classes/plants/summary.md)
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2605: PRESENT
+  ...ign's tx row by every source rounded up to the ms, and `rows_tiers.tx_statements` refuses a figure under it: at 1x1/1if the row was 33.20 ms at round 5's head (33.69 at this head, [below](#the-rules-slice-built-895)), so the figure is 34 ...
+  head: tx row 34.00 ms at 1x1/1if (flip-1x1-1if.log)
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2605: PRESENT
+  ...895)), so the figure is 34 ms (30 before), within `CTRL_LOOP_TX_BOUND_MS`'s 49 (`ctrl_loop.c` holds it there at compile time); at 8x8/2if the row was 89.15 ms (94.99 at this head), under the 98 stated, which stands (reported, not held). A...
+  head: tx row 104.25 ms at 8x8/2if (flip-8x8-2if.log)
+
+docs/design/SPLIT_CONTROL_MEMORY.md:2606: PRESENT
+  .... At round 5's head the platform's 8x8/2if image planned 60.5 RAMB36, 184 B of `rom` past 60.0, and its entry is 60.5, the owner's cap, with 1,864 B left then (1,656 at this head, [below](#the-composition-measured-again-895)) and a debt o...
+  head: 1,368 B left at 60.5 (section 5 table, ledger-final summary)
+
+7 of 7 superseded statements present
