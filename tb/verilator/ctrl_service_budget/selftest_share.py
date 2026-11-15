@@ -196,8 +196,9 @@ def clock_checks(built: Callable[..., tuple[str, dict]], main_verdict: Callable[
 def save_checks() -> list[Check]:
     """A save in a composed window: each flash phase at eight tick phases, after the save's own event."""
     p = scenario.Point('8x8', 'endstation_ax7101_8x8', 2, 1, 2, 8, 8)
-    want = {'blank': ('flash erase 1', 10), 'program': ('flash program 1', 20),
-            'verify': (f'flash idle {30 * scenario.MS}', 10)}
+    # a step a pass (#920): a read-back's pass about 1 ms, a page's issue and wait 2 ms, the verify 2 ms after a page
+    want = {'blank': ('flash erase 1', 1), 'program': ('flash program 1', 2),
+            'verify': (f'flash idle {2 * scenario.MS}', 1)}
     seen: dict[str, list] = {}
     windows = save_window.windows(p)
     for g in windows:
@@ -213,8 +214,8 @@ def save_checks() -> list[Check]:
                       all(o for *_, o in rows))
     expect = {phase: ({event}, 8, period * scenario.MS, True) for phase, (event, period) in want.items()}
     loads = [grade.defined_load(g.name) == grade.defined_load('backlog-adp') for g in windows]
-    return [("each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's "
-             "period, the window opening after the save's own flash event", got == expect, str(got)),
+    return [("each flash phase of a save is staged at eight phases spread evenly across its heavy step's period, a "
+             "step a pass, the window opening after the save's own flash event", got == expect, str(got)),
             ("a save's window carries backlog-adp's defined load", all(loads) and len(loads) == 24, str(loads)),
             *aged_staging_checks(p, want), *second_checks(p), *phase_checks(), *bound_checks(), *held_checks()]
 
@@ -476,7 +477,7 @@ def second_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     got = (marked and (marked['ms'], marked['bound_ms'], marked['within'], marked['flight']), early, late)
     return [("a change marked while a save is in flight is timed from its mark to durable in the next save, against "
              "the bound with that save in flight, and refused when marked inside the first change's first-dirty "
-             "window or after the save in flight erased its slot", got == ((1550.7, 1_820, True, 2), None, None),
+             "window or after the save in flight erased its slot", got == ((1550.7, 1_570, True, 2), None, None),
              str(got))]
 
 

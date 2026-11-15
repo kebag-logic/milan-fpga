@@ -54,9 +54,10 @@ import nvm_layout3  # noqa: E402
 TARGET_MS, CUT_MS = 5000, 10000
 #: The controller's pace, from a frame to its next one, and its command timeout, in ms (the rehearsal's capture).
 FRAME_MS, RETRY_MS = 1.3, 250.0
-#: A token the bucket refills is counted this long after its period ends, in ms: the bucket refills on the fabric's
-#: ms tick (KL_mbx_rx.sv), whose phase the script does not know, so the controller never takes a token it may not have.
-TOKEN_SLACK_MS = 1.0
+#: The bucket refills one token a period up to its burst on the fabric's ms tick (KL_mbx_rx.sv, buckets), whose phase
+#: the script does not know: the schedule counts a refill this long after its period ends and sends only while it holds
+#: TOKEN_MARGIN tokens more than the frame takes, so it never sends a frame the fabric refuses.
+TOKEN_SLACK_MS, TOKEN_MARGIN = 1.0, 1
 #: The commands (IEEE 1722.1-2021 Table 7-125) and the sequence_ids the burst gives them.
 SET_NAME, GET_NAME = 0x0010, 0x0011
 SEQ = 0x9000
@@ -101,12 +102,19 @@ def order(table: list[tuple[int, int, int]]) -> list[int]:
 
 def schedule(count: int) -> list[float]:
     """The ms, from the first, of each of `count` AECP frames sent FRAME_MS apart while the channel's bucket holds a
-    token and RETRY_MS later where it would not (the contract's burst and refill, TOKEN_SLACK_MS short of each)."""
+    token and RETRY_MS later where it would not: the bucket full at the first, one token a frame, and one a refill
+    period up to the burst (KL_mbx_rx.sv), each refill TOKEN_SLACK_MS late and TOKEN_MARGIN tokens kept."""
     ch = scenario.CONTRACT.channels[scenario.CH['aecp']]
-    times, at = [], 0.0
+    times, at, tokens, refilled = [], 0.0, ch.burst, 0
     for _ in range(count):
-        while ch.burst + int(max(at - TOKEN_SLACK_MS, 0.0) // ch.refill_ms) - len(times) < 1:
+        while True:
+            while (refilled + 1) * ch.refill_ms + TOKEN_SLACK_MS <= at:
+                refilled += 1
+                tokens = min(ch.burst, tokens + 1)
+            if tokens > TOKEN_MARGIN:
+                break
             at += RETRY_MS
+        tokens -= 1
         times.append(at)
         at += FRAME_MS
     return times
@@ -180,13 +188,14 @@ def flight(p: scenario.Point, build: dict) -> scenario.Group:
     second = name_command(p, SET_NAME, SEQ + 2, table[entity], value(entity, b'again'))
     load = held(p, run_ms, aecp=True)
     offered = {c: sum(1 for _, ch, _ in load if ch == c) + (2 if c == 'aecp' else 0) for c in scenario.CH}
+    # the SET_NAME changes the entity_name and marks both its names (aecp_nvm.c), so the next save captures two
     marks = [k for k, (kind, _, _) in enumerate(table) if kind == 0]
     g = scenario.Group('save-flight', sim_ms=int(run_ms) + 3200,
                        save=dict(loaded=True, offered=offered,
                                  named=dict(kind='flight', image=image, base=name_base(), target_ms=TARGET_MS,
                                             records=len(marks),
-                                            sets=[dict(ordinal=k, seq=SEQ + 2, value=value(entity, b'again').hex())
-                                                  for k in marks])))
+                                            sets=[dict(ordinal=entity, seq=SEQ + 2,
+                                                       value=value(entity, b'again').hex())])))
     scenario.ready(g, p)
     scenario.announced(g)
     ms = scenario.MS
