@@ -86,7 +86,7 @@ A command's name is compared only as far as its terminator, so a received NUL (a
   - Once every other channel's ring has drained, ADP shuts down, so each advertising interface sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3) and no other frame follows it.
   - Once ADP's ring has drained too, the platform writes 1 to the port.
 
-  From the loop's last pass, `ctrl_plat_step` services the saved-state store on its own centisecond and its F_NVM, and ADP's poll until the port fires. So a journal write in progress completes and the drain sees it, and no frame is taken that could start another write during the PHY hold.
+  From the loop's last pass the platform services the saved-state store on its own centisecond and its F_NVM, and, once every other ring has drained, ADP's poll until the port fires. So a journal write in progress completes and the drain sees it, and no frame is taken that could start another write during the PHY hold.
   The sequence has no deadline: a ring the datapath never drains holds the port back, as the processor's MAC holds its request.
 
 ## Generated inputs

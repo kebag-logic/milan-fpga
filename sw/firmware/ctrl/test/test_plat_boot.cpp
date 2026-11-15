@@ -73,7 +73,7 @@
 //       (plat-reboot-takes-aecp-frames-after-the-success) and AECP's own
 //       silence (reboot-serves-after-its-success,
 //       reboot-probes-after-its-success and
-//       reboot-retries-after-its-success in aecp_mutants.py)
+//       reboot-retries-after-its-success in aecp_reboot_mutants.py)
 //   TheDepartingWaitsForEveryOtherRing: ENTITY_DEPARTING waits while the ACMP,
 //       the MAAP or the SRP ring holds a frame, so no frame committed before it
 //       follows it. AECP's ring holds only the REBOOT's own frames by then,
@@ -184,8 +184,9 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 
 // mbx_hal.h on the model, every access in the shared order; another
 // contract's bitstream answers ID without this contract's magic
-// ADP's TX_TAIL as the driver reads it (B18): while adp_full is nonzero, that many reads find its ring full; else,
-// with adp_one, room for one ADP frame, so the driver, which reads the tail only when the room it last read is short
+// ADP's TX_TAIL as the driver reads it (ADepartingTheRingRefusedHoldsTheReset): while adp_full is nonzero, that many
+// reads find its ring full; else, with adp_one, room for one ADP frame, so the driver, which reads the tail only when
+// the room it last read is short
 // (mbx.c), reads it at each send; else the model's
 unsigned adp_full = 0;
 bool adp_one = false;
@@ -978,7 +979,7 @@ TEST_F(Boot, B19NoFrameOfAnyChannelIsTakenFromTheSuccess) {
 // checks), the receive gate (plat-reboot-takes-aecp-frames-after-the-success, caught by
 // NoFrameOfAnyChannelIsTakenFromTheSuccess and TheGateHoldsWhileTheResponseCannotBeHandedOver) and AECP's own
 // silence (reboot-serves-after-its-success, reboot-probes-after-its-success and reboot-retries-after-its-success in
-// aecp_mutants.py)
+// aecp_reboot_mutants.py)
 TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
     env.reboot = kReboot;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
