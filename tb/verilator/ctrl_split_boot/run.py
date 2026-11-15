@@ -35,7 +35,8 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     duplex; a poll every CTRL_PLAT_PHY_POLL_US, within the release's
     250 ms publication bound; a loss latched between two polls published
     down then up by the next poll; a sustained loss published down; the
-    link's return published up by the first poll after it; and each frame,
+    link's return published up by the first poll after it, within that
+    bound; and each frame,
     from its pins leaving 0 to their release, within its stated cost,
     CTRL_PLAT_PHY_STEP_US (ctrl_plat_phy.h).
 --native-controls grades the native controls (NATIVE_CONTROLS), with no
@@ -109,9 +110,6 @@ PUBLICATION_MS = 250.0
 #: polls and a margin, and with five steps short enough that a run whose firmware never publishes ends inside
 #: SIM_LIMIT_MS.
 PHY_STEP_LIMIT_MS = 300
-#: The most frames one poll takes (ctrl_plat_phy.h): a probe, BMSR twice, BMCR, the extended status, the 1000BASE-T
-#: pair and the advertisement pair.
-POLL_FRAMES = 9
 #: IEEE 802.3 22.2.2.13: MDC high and low at least 160 ns each, its period at least 400 ns.
 MDC_HIGH_NS, MDC_PERIOD_NS = 160, 400
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
@@ -436,14 +434,13 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
             findings.append(f'PHY: {words_of}: {got}')
     if 'back' in events:
         rise = next((c for c, w in pubs if c > events['back'] and w == GIG_FULL), None)
-        # the next poll starts at most a period later and takes at most POLL_FRAMES frames, each within its stated cost
-        bound = poll_us + POLL_FRAMES * step_us
+        # the first poll after the return publishes it (checked above); and within the release's publication bound
         if rise is not None:
             report.append(f'PHY the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f} ms '
-                          f'after it, against {bound / 1000:.3f} ms')
-            if (rise - events['back']) / per_us > bound:
+                          f'after it, against the publication bound {PUBLICATION_MS:.0f} ms')
+            if (rise - events['back']) / per_us / 1000 > PUBLICATION_MS:
                 findings.append(f'PHY: the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f}'
-                                f' ms after it, past one poll period and its frames')
+                                f' ms after it, past the publication bound')
     timing = lines(log, 'PHYT')
     if timing:
         high, low, period = (int(x) / spec['sys_hz'] * 1e9 for x in timing[0])
