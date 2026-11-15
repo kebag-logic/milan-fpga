@@ -53,16 +53,20 @@ Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 The CPU generator is given the shipping split region list, each region as its aligned power-of-two pieces ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)), and that harness refuses a list that is not its own power-of-two cover.
 The results below were measured when the harness still widened each region to its cover.
-This SoC adds the two devices the platform reaches beyond the mailbox:
+This SoC adds the three devices the platform reaches beyond the mailbox:
 
 - the Milan CSR window, a Wishbone slave at `milan_soc.MILAN_CSR_BASE` named `milan_csr`, whose bus the testbench answers;
-- the UART, MilanSoC's own `sim` UART.
+- the UART, MilanSoC's own `sim` UART;
+- the PHY's MDIO bit-bang pair and link-status word (#919), named as the product's MilanMAC names them (`milan_mac_phy_mdio_w` and `_r`, LiteEth's `LiteEthPHYMDIO`, its input through the same two-register synchroniser; `milan_mac_link_status` at its reset value, link up at 1000 Mb/s full duplex), their pins on pads.
 
 [`sim_main.cpp`](sim_main.cpp) drives the clocks and the flash as that harness's testbench does, with a blank flash.
 The mailbox's datapath is idle with interface 0's link up.
 The CSR window answers from a register file holding builder gate 35's seeded words, ID and VERSION as the datapath's reset values.
 `TOD_RD_LO/HI` hold the simulated time of the last snapshot.
 After the ready line the testbench types `milan_status`, then `milan_gettime`, waits one millisecond, and types `milan_gettime` again, as the smoke grader does.
+The testbench is the PHY too: an IEEE 802.3 clause 22 peer at address 1, so the boot's probe misses once, 1000BASE-T full duplex negotiated, which launches bit k + 1 on MDC's rising edge k (22.3.4) and fails the run on a frame that is not a read driven then released.
+After the commands it holds the link for two polls, latches a loss that has already recovered (BMSR's latched-low link status, 22.2.4.2.13), drops the link until a poll publishes it down and one more, then brings it back, latched, until a poll publishes it up.
+A step of that script that waits past 300 ms says so and moves on, so a run whose firmware never publishes still completes and is graded.
 
 ## What is graded
 
@@ -72,8 +76,9 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
 - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and the approved T_svc = 20 ms.
+- **PHY** (#919): the published link word, `milan_mac_link_status`. The boot's probe reads PHYID1 at each address below the PHY's once, each miss published link down, then the PHY's 1000BASE-T full duplex; a poll starts every `CTRL_PLAT_PHY_POLL_US` (`ctrl_plat_phy.h`, read by its derivation from `scripts/nvm_shape.py`), within the release's 250 ms publication bound; the loss latched between two polls is published down, then up, by the next poll; the sustained loss is published down; the link's return is published up by the first poll after it, within a period and nine frames at their stated cost. Each frame, from its pins leaving 0 to their release, is within `CTRL_PLAT_PHY_STEP_US`, and MDC's shortest high and low times and period are at least IEEE 802.3 22.2.2.13's 160, 160 and 400 ns.
 - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
-- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; the PHY's word never written to `milan_mac_link_status`, and the loss a poll's first BMSR latched not published (`ctrl_plat_phy.c`), must each be a PHY finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
 - **Placement controls** (`--placement-controls` on a finished run, and last in `--self-test`): `split_soc.map_deviations` must find nothing on the true flash map, and must name a moved register, a register the SoC lacks, a moved window and a resized window. `boot_soc.build` must refuse, in its own words, an export given the map with `spiflash_master_cs` moved four bytes. Each planted defect of that refusal must then let the same map through: the refusal taken out of the build (`guard-removed`), and a `map_deviations` that finds nothing (`deviations-empty`). They need the product LiteX tree, as the boot does, and no hosted job runs them.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 

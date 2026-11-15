@@ -7,6 +7,7 @@ This directory is the target side of the [control firmware](../README.md).
 `ctrl_split.ld` and `ctrl_split_start.S` are the image's memory map and reset entry ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md)).
 The rest is the image's `main` and the platform it composes: the boot sequence, the CSR window, the console and the ports.
 `milan_baremetal.c` is read and never edited; this platform ports the duties #397's rule allows into the split image.
+`ctrl_plat_phy.c` is the PHY poll (#919).
 
 ## Contents
 
@@ -14,6 +15,7 @@ The rest is the image's `main` and the platform it composes: the boot sequence, 
 - **[The CSR window](#the-csr-window)** -- The generated identity and static policy, written as `configure_fabric()` writes them, and the two enables the split never sets.
 - **[The console](#the-console)** -- Decision D6's two commands, their lines, and the per-pass bound that keeps the console inside #397's tick rule.
 - **[The ports](#the-ports)** -- MAAP's allocation on the CSR window, the ACMP talker sources, SRP's sources and licences, and AECP's two observations.
+- **[The PHY](#the-phy)** -- The release's PHY poll on THE STEP: one Clause-22 frame a call, its pace, its half period, and where the published link goes.
 - **[Generated inputs](#generated-inputs)** -- The policy header from the builder's outputs, the bus map from the SoC's own `csr.csv`, and the flash map every link needs.
 - **[Tests and evidence](#tests-and-evidence)** -- The host arms, the trace against `milan_baremetal.c`, the planted defects and the boot simulation.
 - **[Not yet done](#not-yet-done)** -- What S3 leaves to later lanes and rulings, by name.
@@ -80,12 +82,26 @@ A command's name is compared only as far as its terminator, so a received NUL (a
 - **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
 - **AECP.** `random` is the loop's millisecond clock. GET_AS_PATH has no split source at this base and answers unavailable.
 
+## The PHY
+
+[`ctrl_plat_phy.c`](ctrl_plat_phy.c) is the release's `phy_link_tick` on the split's loop (#919).
+It reads the PHY's Clause-22 registers through the SoC's MDIO bit-bang pair (`milan_mac_phy_mdio_w` and `_r`) and publishes the resolved link, speed and duplex to `milan_mac_link_status`, the datapath's link input (REQ-MAC-03).
+Without it that word keeps its reset value, link up, and no consumer of the datapath's effective link sees a link change.
+
+- **The poll** is the release's. No PHY found, one address is probed a frame (PHYID1), a miss published link down and the next address probed at once, with no blocking scan. Found, BMSR: a loss it latched while the link was published up is published down first, and a second BMSR read gives the current state, so a loss that recovered between two polls publishes both edges in that poll. A link up is resolved from BMCR (the forced mode with autonegotiation off), then, once negotiation is complete, the 1000BASE-T control and status where the extended status offers it, then the advertisement and the partner's ability. Incomplete negotiation, an unacknowledged read and a master-slave fault stay link down.
+- **The pace.** A poll starts `CTRL_PLAT_PHY_POLL_US` after the last one started: the release's `PHY_POLL_NS`, by its own derivation, half the writer's 250 ms heartbeat (`MILAN_NVM_HEARTBEAT_MS`), 125 ms. A probe that misses is due again at once.
+- **THE STEP.** A frame is 65 bit periods, too long to stand beside a pass's records, and MDC has no maximum high or low time (IEEE 802.3 22.2.2.13), so the poll is resumable, one frame a call. `ctrl_plat_phy_store_step` is THE STEP's client the platform binds (`ctrl_loop.h`): the saved-state store's owed step first, unchanged, and the PHY's next frame only in a call whose store took no step of a save (none, or one from `OFF`, `IDLE` or `HELD`), with `CTRL_PLAT_PHY_STEP_US` of the pass's share left. While a poll owes a frame the client owes a step, so under input that never leaves a pass empty the frames ride THE STEP's age limit, in the passes given whole whose store step is an idle one.
+- **The half period** is at least 200 ns, so MDC is high and low at least 160 ns each in a period of at least 400 ns (22.2.2.13) and a sample follows the PHY's output delay, at most 300 ns after the rising edge (22.3.4). It is `ceil(CONFIG_CLOCK_FREQUENCY / 5 MHz)` turns of a spin at one cycle a turn, or one turn where arming times a run of 1,024 turns on the flash port's clock and finds a turn alone holds 200 ns. On the split CPU a turn is about 27 cycles, so one.
+- **The paths.** The poll is armed past the CSR identity check, so a window that failed it leaves the MDIO pins untouched. Every later stage polls: the ready loop through THE STEP, a refused stage on each turn of its console, as the release publishes the link on every path past its identity check (#70). A SoC whose `csr.csv` has no MDIO pair arms nothing.
+
+The published word reaches every consumer through the datapath's effective link (`milan_datapath.sv`, `eff_link_w`, `link_up` through the SoC's synchroniser and `LINK_CTRL[0]`, which resets 1): the AVB_INTERFACE LINK_UP and LINK_DOWN counters and their GET_COUNTERS notification (the face's COUNTERS_CHANGED, `ctrl_app_aecp.c`), the gPTP plane's port enable, whose toggle ends the Pdelay_Req cease (Milan v1.2 4.2.6.2.5), and the mailbox's LINK level and event, which ADP, MAAP and SRP take.
+
 ## Generated inputs
 
 [`ctrl_plat_gen.py`](ctrl_plat_gen.py) writes both headers; they are never hand-written:
 
 - `policy CONFIG` writes `ctrl_plat_policy_gen.h`: the identity and boot words from `boot_policy.fabric_constants()`, the one derivation `milan_soc.py` and builder gate 35 use; and each talker source's stream from the lwSRP table, the CRF output last at the builder's `CRF_SRP_MAXFRAME_B`.
-- `map CSR_CSV` writes `ctrl_plat_map_gen.h`: the `milan_csr` and `ctrl_mbx` regions and the UART's four registers, from the SoC's own `csr.csv`. The map does not depend on the image, so an export with any image gives it. A UART that pops on its `RXTX` read is refused.
+- `map CSR_CSV` writes `ctrl_plat_map_gen.h`: the `milan_csr` and `ctrl_mbx` regions, the UART's four registers and the PHY's three (`milan_mac_phy_mdio_w` and `_r`, `milan_mac_link_status`, all three or none, none written as 0), from the SoC's own `csr.csv`. The map does not depend on the image, so an export with any image gives it. A UART that pops on its `RXTX` read is refused, and so is a `csr.csv` with some but not all of the PHY's rows.
 
 `sw/firmware/ctrl/test/ctrl_plat_image.py` links the image with both, through `ctrl_srp_image.py`'s link, audits and bank plan.
 It also takes the flash map, which puts the saved-state flash port on the split SoC's addresses.
@@ -116,14 +132,14 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
 `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
 
 - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick;
+- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick. With a pin-level Clause-22 PHY behind that bus (`phy_peer.hpp`), the PHY poll alone (`test_plat_phy.cpp`, P1 to P10: the probe, the pace, the latched loss, every resolved mode, the error paths, the frame, THE STEP's room, the owed report, the half period, the clock's wrap) and composed (`test_plat_boot.cpp`, B11, B12 and L1 to L4: armed past the identity check, THE STEP's client, and the published word's consumers, the datapath's link modelled as the RTL builds it: each edge counted, notified by AECP, and the gPTP plane's port enable rising with the first poll after the link's return);
 - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
 - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
 
-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 40 defects, each caught by a named test on its own words.
-They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
+The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 63 defects, each caught by a named test on its own words.
+They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop. The PHY's 22 include the four #919 names, each reproducing a bench symptom: no poll, the latched loss not published, an edge not counted (a whole poll in one call, its loss and its recovery in the same turn), and the cease not ended on link-up (the second BMSR read dropped, so the link's return is published a poll late).
 
-The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
+The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse. It is the PHY too: it grades the published link word through a probe, a latched loss, a sustained loss and the link's return, MDC's timing, and each frame's cost on the split CPU against `CTRL_PLAT_PHY_STEP_US`.
 
 The split boot simulation generates F1's flash map from the split SoC's `csr.csv` and passes it to both platform links and boot exports.
 Each export checks the placement against that map.
