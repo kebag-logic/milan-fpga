@@ -38,8 +38,8 @@ ROOT = HERE.parents[2]
 DOC = ROOT / 'docs/design/SPLIT_CONTROL_MEMORY.md'
 #: The group whose rows the egress decides (scenario.py, backlog-owed).
 GROUP = 'backlog-owed'
-#: Each point's ledger: every row the egress decides and the figure its miss may reach, in ms (section 13's table at
-#: 8x8/1if: its measurement on the image the follow-up started from).
+#: Each point's ledger: every row the egress decides and the figure its miss may reach, in ms (section 13's ledger
+#: figures at 8x8/1if, which the held-egress ruling, item (a), holds a miss to).
 LEDGER = {'8x8-1if': {'backlog.owed.if0': 63.24, 'backlog.owed_behind0.if0': 63.47,
                       'backlog.owed_behind1.if0': 63.69, 'backlog.owed_behind2.if0': 63.91,
                       'backlog.owed_behind3.if0': 64.20, 'backlog-owed.service.acmp.last.if0': 62.18,
@@ -315,7 +315,7 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
 
 #: Each mutant of a rule, which some control must refuse.
 MUTANTS = {
-    'the earlier rule: a ledger row waived by its name whatever its size': lambda m: patch.object(
+    'a ledger row waived by its name whatever its size': lambda m: patch.object(
         m, 'over', lambda p, figure: False),
     "a grade's figure read at its log's microsecond": lambda m: patch.object(
         m, 'most', lambda p: round(p['ms'], 3) * PER_MS + (0 if p['exact'] else LOG_HALF)),

@@ -60,8 +60,8 @@ extern "C" {
 // It is stated for each shape an image is built at, with the round's cold start (THE SHAPES, ctrl_loop.h:
 // CTRL_LOOP_RETRY_ATTEMPT_US; #894's retry-cost ruling, item 1): 34 us, and 25 us at 8x8/1if, the line
 // over its rounds measured there. aecp.c, which charges it, reads the shape's table, a header of constants and
-// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's. Every
-// unit includes this header before the table, and most charge nothing, so the unit that charges one states it
+// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's. Most
+// units include this header before the table and charge nothing, so the unit that charges one states it
 // (AECP_CHARGES_ATTEMPTS) with the table already in force, and one that states it without the table fails here, in
 // THE SHAPES' words, not at the charge with an undeclared name (#894's retry-cost ruling, item 1).
 #if defined(AECP_CHARGES_ATTEMPTS) && !defined(CTRL_LOOP_RETRY_ATTEMPT_US)
