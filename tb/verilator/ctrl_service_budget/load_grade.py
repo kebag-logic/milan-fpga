@@ -132,14 +132,16 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: 1x1/1if 65 to 70, both columns, the larger of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753
 #: at 9606b3a9, the same work, its fetches moved by the cut's code), and with the SRP drain's record cost at the load
 #: gate's (ctrl_loop.h, a47cd3f2) a TICK at 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's
-#: backlog-adp@program-0. 32x32/2if is measured on the 32x32
-#: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
-#: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
-#: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
-#: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
-#: ctrl_loop.h's two-interface cost.
+#: backlog-adp@program-0; and with GET_AS_PATH read through the face (#897), over every group of arm A and of the
+#: answering-every-port arm and arm B's legs, an AECP record at 1x1/1if 235 to 245, both columns, 23,051 CPU cycles,
+#: that arm's SET_NAME in each of its sixteen groups (22,236 at 234bc149, the same work, its fetches moved by the
+#: read's code). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups,
+#: each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed
+#: MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build of
+#: one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
+#: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 70, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
@@ -170,9 +172,10 @@ STATED_US = {
 #: pin's legs, each cost the larger of that, this column's and the pin's; ctrl_loop.h states THE TRANSMIT's builds
 #: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's are those; under #894's
 #: SET_CONFIGURATION cut ctrl_loop.h states the build of one at 1x1/1if at 735 us, so this column's are 735. Every cost
-#: that STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
+#: that STATED_US's measurement on the image under THE TIERS (#894), or with GET_AS_PATH's read (#897), raised is
+#: raised here with it, the larger.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 70, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,

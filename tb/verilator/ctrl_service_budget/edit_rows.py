@@ -34,8 +34,10 @@ if TYPE_CHECKING:
 #: of one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; at 8x8/2if 30,563, a
 #: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
 #: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
-#: rule (33,724 at 9606b3a9, 355); at 8x8/2if 56,474, 595 (78,332, 825).
-PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 300},
+#: rule (33,724 at 9606b3a9, 355), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py),
+#: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
+#: 595 (78,332, 825), and 55,631 with that port.
+PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
 #: The paced class's record at each point: the dearest of its members'.
 EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
