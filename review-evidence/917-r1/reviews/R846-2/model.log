@@ -1,0 +1,8 @@
+COMMAND cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<checkout>/sw/firmware/ctrl/mbx -I<checkout>/sw/firmware/ctrl/host -I<checkout>/sw/firmware/ctrl/port -I<checkout>/sw/firmware/ctrl/loop -I<checkout>/sw/firmware/ctrl/adp -I<checkout>/sw/firmware/ctrl/maap -I<checkout>/sw/firmware/ctrl/acmp -I<checkout>/sw/firmware/ctrl/app -I<checkout>/sw/firmware/ctrl/test -I<checkout>/third_party/tsn-c-stack/include -I<checkout>/sw/firmware/ctrl_nvm -I<checkout>/tb/verilator/mbx -c <checkout>/sw/firmware/ctrl/host/mbx_model.c -o <packet>/scratch/model/model.o
+RC 0
+COMMAND c++ -std=c++17 -O2 -Wall -Wextra -Werror -I<checkout>/sw/firmware/ctrl/mbx -I<checkout>/sw/firmware/ctrl/host -I<checkout>/sw/firmware/ctrl/port -I<checkout>/sw/firmware/ctrl/loop -I<checkout>/sw/firmware/ctrl/adp -I<checkout>/sw/firmware/ctrl/maap -I<checkout>/sw/firmware/ctrl/acmp -I<checkout>/sw/firmware/ctrl/app -I<checkout>/sw/firmware/ctrl/test -I<checkout>/third_party/tsn-c-stack/include -I<checkout>/sw/firmware/ctrl_nvm -I<checkout>/tb/verilator/mbx <checkout>/tb/verilator/mbx/model_main.cpp <packet>/scratch/model/model.o -o <packet>/scratch/model/model
+RC 0
+COMMAND <packet>/scratch/model/model
+== mbx (host model, 1 interfaces): checks: 542   failures: 0 ==
+RESULT: PASS
+RC 0

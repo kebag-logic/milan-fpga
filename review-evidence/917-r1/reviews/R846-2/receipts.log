@@ -1,0 +1,58 @@
+[ok] rx-space-from-the-committed-head: 5 check(s) failed; first: [FAIL] B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP got=0 exp=1
+[ok] rx-space-from-the-committed-head-axil: 5 check(s) failed; first: [FAIL] B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP got=0 exp=1
+[ok] rx-refused-behind-held-counted: 2 check(s) failed; first: [FAIL] B8 a frame the filter refuses behind a held one counts nowhere got=2 exp=0
+[ok] rx-release-gated-on-open: 3 check(s) failed; first: [FAIL] B9 a frame held when its channel closes is still committed at the next refill got=16 exp=17
+Mailbox: four positive controls, 242/242 named catches
+Quick mutants: 13/13; render rerun: two PASS results and 5/5 leg checks
+== mbx record mover (KL_mbx_dma): checks: 520041   failures: 0 ==
+== mbx (Wishbone host): checks: 622   failures: 0 ==
+== mbx (AXI4-Lite host): checks: 667   failures: 0 ==
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+== mbx (Wishbone host, 2 interfaces): checks: 629   failures: 0 ==
+== mbx (AXI4-Lite host, 2 interfaces): checks: 674   failures: 0 ==
+== mbx (host model, 2 interfaces): checks: 547   failures: 0 ==
+Firmware control: 699/699 caught; published gate PASS
+Published budget self-test: zero failures, 214 caught, zero uncaught
+Workflow receipt table: 139 zero exits, 226 explicit skips; 137 readable exact-head logs
+# shard 1/4 (holds mbx) of the native sweep at 8f73ade5, clean clone
+shard run: 17 suites selected, 16 PASS, 0 FAIL, 1 TIMEOUT (milan_dp_render, the 1800 s wall clock under CPU contention: result unknown, not a failure); 2,046,585 checks, 0 in-suite failures (spec/01.log)
+milan_dp_render rerun on a fresh clean clone of 8f73ade5 (porcelain 0), same make target and environment, no wall clock: rc 0; 2 RESULT: PASS line(s), 0 RESULT: FAIL; its mutant leg: 5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)
+mbx in the shard: == mbx record mover (KL_mbx_dma): checks: 520041 failures: 0 ==; == mbx (Wishbone host): checks: 622 failures: 0 ==; == mbx (AXI4-Lite host): checks: 667 failures: 0 ==; == mbx cosim (firmware on the RTL and on the model): checks: 32 failures: 0 ==; == mbx (Wishbone host, 2 interfaces): checks: 629 failures: 0 ==; == mbx (AXI4-Lite host, 2 interfaces): checks: 674 failures: 0 ==; == mbx (host model, 2 interfaces): checks: 547 failures: 0 ==
+together: 17 of 17 suites pass at 8f73ade5
+
+held-1x1: {"start_sys": 100001422, "end_sys": 100525031, "ms": 5.23609, "budget_ms": 20.0, "ingress_ms": 4.98643, "ingress_allowance_ms": 6.0}
+held records (last byte, hold, commit, channel, interface, tag, bytes):
+   (100001422, 100001427, 100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60) ingress 4.986 ms
+refused after the mark: [(100001503, 0, '-', 60), (100001584, 0, '-', 60)]
+commits credited on aecp after the mark: [(100001265, 2, 0, '-', 60), (100001346, 2, 0, '-', 60), (100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60)]
+probe: {'status': 'measured', 'ms': 5.23609, 'budget_ms': 20.0, 'within_budget': True, 'ingress_ms': 4.98643, 'ingress_allowance_ms': 6.0}
+NEGATIVE CONTROL caught: refused: the receive commit at 100500065 follows no frame
+
+held-8x8-1if: {"start_sys": 100001422, "end_sys": 100512783, "ms": 5.11361, "budget_ms": 20.0, "ingress_ms": 4.98643, "ingress_allowance_ms": 6.0}
+held records (last byte, hold, commit, channel, interface, tag, bytes):
+   (100001422, 100001427, 100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60) ingress 4.986 ms
+refused after the mark: [(100001503, 0, '-', 60), (100001584, 0, '-', 60)]
+commits credited on aecp after the mark: [(100001265, 2, 0, '-', 60), (100001346, 2, 0, '-', 60), (100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60)]
+probe: {'status': 'measured', 'ms': 5.11361, 'budget_ms': 20.0, 'within_budget': True, 'ingress_ms': 4.98643, 'ingress_allowance_ms': 6.0}
+NEGATIVE CONTROL caught: refused: the receive commit at 100500065 follows no frame
+
+8x8/1if held and ordinary controls both exit 1 for the same three stated-cost overruns; known #914 scope
+groups recorded 94, regraded 94, absent 0, refusals 0, misses 7
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 94 of 94
+
+groups recorded 94, regraded 94, absent 0, refusals 0, misses 7
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 94 of 94
+
+1x1 firmware bb04b69678bda6d7aa21458b5a39da1a611c3211efabd314ff590e06f6c76978, 145496 bytes; ROM banks and constraints match comparison receipt
+8x8-1if firmware 506a1ae4da57e1d71f22201f02f4e1df49d6cb110dfe677c5d1fba0e154ca8fb, 158176 bytes; ROM banks and constraints match comparison receipt
+# KL_mbx_rx.sv at 3926c271 and 8f73ade5 (git show), each with KL_mbx_pkg.sv, through sv2v v0.0.12
+3926c271: sv2v rc 0, output sha256 50b2e99a4ba5ed57c8edd1c8c6c1527297ebfb94e1a3b1a93832250ede383836, 977 lines, stderr 0 bytes
+8f73ade5: sv2v rc 0, output sha256 50b2e99a4ba5ed57c8edd1c8c6c1527297ebfb94e1a3b1a93832250ede383836, 977 lines, stderr 0 bytes
+outputs byte-identical: yes
+KL_mbx_pkg.sv identical at both: yes
+non-comment, non-blank source lines differing: 0
+
+
+Evidence limit: large CPU logs are published by digest/size and excerpts, not full bytes; regrade claims above are author receipts.

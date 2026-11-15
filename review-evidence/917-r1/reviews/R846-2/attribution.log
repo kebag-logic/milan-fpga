@@ -1,0 +1,18 @@
+PASS: a held record's commit belongs to its own held frame, measured from its last byte
+PASS: the frame refused behind a held one is not credited with its commit
+PASS: a held record's ingress is held to one refill period and T_ingress
+PASS: a held record's commit on another channel is refused
+PASS: a held-record commit with no hold is refused
+PASS: a second hold on a channel holding one is refused
+PASS: a held record committed past its allowance is refused
+PASS: a held record never committed is not served
+PASS: a probe frame that was not held starts no held path
+{"case": "positive held frame with refused follower", "parsed": true, "rxc": [[500100, 2, 0, "s.held.if0", 60]], "held": [[1059, 1070, 500100, 2, 0, "s.held.if0", 60]], "refused": [[500089, 0, "follower", 60]], "row": {"status": "measured", "start_sys": 1059, "end_sys": 700000, "ms": 6.98941, "within_budget": true, "ingress_sys": 499041}}
+{"case": "positive other-channel commit while AECP held", "parsed": true, "rxc": [[2070, 1, 0, "other_channel", 60], [500100, 2, 0, "s.held.if0", 60]], "held": [[1059, 1070, 500100, 2, 0, "s.held.if0", 60]], "refused": [], "row": {"status": "measured", "start_sys": 1059, "end_sys": 700000, "ms": 6.98941, "within_budget": true, "ingress_sys": 499041}}
+{"case": "duplicate release", "parsed": false, "refusal": "the held-record commit at 500101 on channel 2 follows no held frame"}
+{"case": "missing release", "parsed": true, "rxc": [], "held": [[1059, 1070, -1, 2, 0, "s.held.if0", 60]], "refused": [[1059, 0, "s.held.if0", 60]], "row": {"status": "no start", "start_sys": null, "end_sys": null, "ms": null, "within_budget": null, "ingress_sys": null}}
+{"case": "release before hold in record order", "parsed": false, "refusal": "the held-record commit at 500100 on channel 2 follows no held frame"}
+{"case": "release timestamp before hold timestamp", "parsed": true, "rxc": [[1060, 2, 0, "s.held.if0", 60]], "held": [[1059, 1070, 1060, 2, 0, "s.held.if0", 60]], "refused": [], "row": {"status": "measured", "start_sys": 1059, "end_sys": 700000, "ms": 6.98941, "within_budget": true, "ingress_sys": 1}}
+{"case": "later same-channel frame commits before held frame", "parsed": true, "rxc": [[2070, 2, 0, "follower", 60], [500100, 2, 0, "s.held.if0", 60]], "held": [[1059, 1070, 500100, 2, 0, "s.held.if0", 60]], "refused": [], "row": {"status": "measured", "start_sys": 1059, "end_sys": 700000, "ms": 6.98941, "within_budget": true, "ingress_sys": 499041}}
+{"case": "negative control: previous attribution", "parsed": true, "rxc": [[500100, 2, 0, "follower", 60]], "held": [[1059, 1070, -1, 2, 0, "s.held.if0", 60]], "refused": [[1059, 0, "s.held.if0", 60]], "row": {"status": "no start", "start_sys": null, "end_sys": null, "ms": null, "within_budget": null, "ingress_sys": null}}
+Completed constructed-history attribution probes.
