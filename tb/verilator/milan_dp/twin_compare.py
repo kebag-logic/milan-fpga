@@ -83,7 +83,7 @@ PLANT_WORDS = {
                      "nothing",
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
                              "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
-    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
+    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an "
                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
     "vanished-available-index": "owed row entity-available-index: the difference has gone",
