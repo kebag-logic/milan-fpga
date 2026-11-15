@@ -319,8 +319,8 @@ extern "C" {
 // a pass given whole it carries (#894). A slice that holds one MRPDU's build
 // makes the declarations in the first: the srp group's after its Listener
 // Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
-// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
-// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// cut, measured at fe0cef5b, the same build moved by the cut's code, so a build
+// of one is 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
 // refuted, with its rows (#894, owed to #872).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)

@@ -67,7 +67,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
-#: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+#: makes, stated at the SRP record's cost (280 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
