@@ -246,6 +246,15 @@ TEST_P(NvmBoth, busy_steps) {
     Result r = go(port(), f, concat(change, {"--pass", "500"}));
     EXPECT_TRUE(r.at("steps") == 0 && r.at("step_owing") == 0 && r.at("phase") == NVM_P_IDLE)
         << "in the first-dirty window a pass with no centisecond takes nothing: " << r.text();
+    // a writer held while a slot's authority is unknown (#665 decision 2) is busy with nothing; the read faults
+    // that hold it reach the store through the model's port only
+    if (port() == Port::Model) {
+        r = go(port(), f, {"--slot-b", "g.bin", "--boot-fault", "read-fail:" + num(kReadTries) + ":0", "--boot",
+                           "--step-left", room, "--set", set_word(rid, new1), "--pass", "500"});
+        EXPECT_TRUE(r.at("steps") == 0 && r.at("step_owing") == 0 && r.at("phase") == NVM_P_HELD &&
+                    r.at("dirty") == 1)
+            << "a held writer's passes with no centisecond take nothing: " << r.text();
+    }
     r = go(port(), f, concat(change, {"--until-phase", num(NVM_P_CAPTURE), "--step-left", short_left, "--pass", "50"}));
     const long long started = r.at("steps");
     EXPECT_TRUE(r.at("phase") == NVM_P_CAPTURE && r.at("deferred") == 0 && r.at("step_owing") == 0)
