@@ -45,7 +45,8 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 	}
 }
 
-// One bit period (THE BIT): the pins with MDC low, a half period, the sample, MDC high, a half period, MDC low.
+// One bit period (THE BIT): the pins with MDC low (the bit before's falling edge), a half period, the sample, MDC
+// high, a half period; the next bit's first write, or the frame's release, lowers MDC.
 static uint32_t bit(const struct ctrl_plat_phy *phy, bool drive, uint32_t out)
 {
 	const uint32_t pins = (drive ? CTRL_PLAT_PHY_OE : 0u) | (out != 0u ? CTRL_PLAT_PHY_OUT : 0u);

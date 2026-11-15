@@ -50,18 +50,23 @@
 // ride THE STEP's age limit: one in each pass given whole to an aged step whose
 // store step is an idle one, every CTRL_LOOP_STEP_AGE + 1 centiseconds.
 //
-// THE BIT, as the release's phy_mdio_bit: the pins written with MDC low, a
-// half period, the MDIO pin sampled, MDC raised, a half period, MDC lowered.
-// The PHY drives each bit after an MDC rising edge, at most 300 ns later
-// (IEEE 802.3 22.3.4), and the sample follows that edge by both halves; MDC
-// is high and low at least 160 ns each in a period of at least 400 ns
-// (22.2.2.13). So each half spins at least 200 ns, counting the bus accesses
-// as none: ceil(CONFIG_CLOCK_FREQUENCY / CTRL_PLAT_PHY_HALF_HZ) turns, a turn
-// taking at least one cycle of the clock the CPU runs on; or one turn, where arming times a run of
-// CTRL_PLAT_PHY_CALIBRATION_TURNS turns on the arming clock and finds a turn
-// alone is that long: the run's time, less the clock's one microsecond of
-// resolution, over its turns, at least 200 ns. On the split CPU a turn, a load
-// and a store of its counter, takes about 27 cycles, so one turn a half.
+// THE BIT, the release's phy_mdio_bit with its last write folded into the
+// next bit's first: the pins written with MDC low, which lowers the bit
+// before's MDC with this bit's value, a half period, the MDIO pin sampled,
+// MDC raised, a half period; the frame's release lowers its last. The PHY
+// drives each bit after an MDC rising edge, at most 300 ns later (IEEE 802.3
+// 22.3.4), and the sample follows that edge by both halves; the STA's own bit
+// changes a half period after the edge it was sampled on and a half period
+// before the next, past 22.3.4's 10 ns of hold and setup; MDC is high and low
+// at least 160 ns each in a period of at least 400 ns (22.2.2.13). So each
+// half spins at least 200 ns, counting the bus accesses as none:
+// ceil(CONFIG_CLOCK_FREQUENCY / CTRL_PLAT_PHY_HALF_HZ) turns, a turn taking at
+// least one cycle of the clock the CPU runs on; or one turn, where arming
+// times a run of CTRL_PLAT_PHY_CALIBRATION_TURNS turns on the arming clock and
+// finds a turn alone is that long: the run's time, less the clock's one
+// microsecond of resolution, over its turns, at least 200 ns. On the split CPU
+// a turn, a load and a store of its counter, takes about 27 cycles, so one
+// turn a half.
 
 #ifndef CTRL_PLAT_PHY_H
 #define CTRL_PLAT_PHY_H
