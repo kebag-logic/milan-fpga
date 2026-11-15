@@ -1,0 +1,32 @@
+902-234bc149: heaviest base 19,074 CPU cycles (poll_grade); its pass 38,876 cycles, instr=5829 fetch_rom=207/17051 wait_mbx=339 wait_csr=437 code_words=14720
+merge-7e3db6b9: heaviest base 20,453 CPU cycles (poll_grade); its pass 38,731 cycles, instr=5911 fetch_rom=190/15464 wait_mbx=193 wait_csr=358 code_words=14880
+base merge-7e3db6b9 - 902-234bc149: +1,379 cycles; the pass by module, merge-7e3db6b9 - 902-234bc149:
+  mrp_mad               1,131 ->    436  -695
+  aecp                  2,600 ->  3,276  +676
+  ctrl_app_srp          3,360 ->  2,711  -649
+  mbx                   3,217 ->  2,694  -523
+  ctrl_mem              4,051 ->  4,483  +432
+  srp_mbx               3,935 ->  4,358  +423
+  ctrl_loop             4,114 ->  3,743  -371
+  maap_mbx                466 ->    745  +279
+  nvm_store             1,533 ->  1,810  +277
+  acmp                  8,447 ->  8,714  +267
+  acmp_mbx              1,026 ->    829  -197
+  maap                    524 ->    327  -197
+  aecp_mbx                242 ->    411  +169
+  ctrl_app_aecp         2,608 ->  2,466  -142
+  adp                     130 ->    257  +127
+  msrp                    348 ->    282  -66
+  aecp_nvm                175 ->    225  +50
+  aecp_commands           257 ->    220  -37
+  nvm_klj2                139 ->    164  +25
+  aecp_face               280 ->    286  +6
+  ctrl_aecp_image          29 ->     30  +1
+the heaviest base section by poll, 902-234bc149 -> merge-7e3db6b9:
+  adp_mbx:on_poll           136 ->    263  +127
+  acmp_mbx:on_poll          167 ->    333  +166
+  maap_mbx:poll           1,953 ->  1,947  -6
+  aecp_mbx:poll           1,763 ->  2,388  +625
+  ctrl_app_aecp:deliver   4,367 ->  5,207  +840
+  srp_mbx:poll            2,445 ->  2,284  -161
+  ctrl_app_srp:deliver    7,829 ->  7,539  -290

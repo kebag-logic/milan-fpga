@@ -1,0 +1,112 @@
+image-sha256-merge-663b519b against image-sha256-head-449d29d2: 552 and 552 files, the same set: True; differ: 12
+  one-interface images: 0
+  two-interface images: 12
+    arm-answering-every-port/image/30-srp_mbx.o
+    arm-answering-every-port/image/ctrl_app.elf [loadable]
+    arm-valid-destinations/image/30-srp_mbx.o
+    arm-valid-destinations/image/ctrl_app.elf [loadable]
+    fixture-1x1-if2/30-srp_mbx.o
+    fixture-1x1-if2/ctrl_app.elf [loadable]
+    fixture-8x8-if2/30-srp_mbx.o
+    fixture-8x8-if2/ctrl_app.elf [loadable]
+    plat/1x1-if2/34-srp_mbx.o
+    plat/1x1-if2/ctrl_app.elf [loadable]
+    plat/8x8-if2/34-srp_mbx.o
+    plat/8x8-if2/ctrl_app.elf [loadable]
+  unclassified-interface images: 0
+
+## arm-answering-every-port/image/30-srp_mbx.o: instructions, 2 differing line(s)
+  - 204:	7ed00693          	li	a3,2029
+  + 204:	7ee00693          	li	a3,2030
+
+## arm-answering-every-port/image/30-srp_mbx.o: section contents, 2 differing line(s)
+  - 0200 232adb26 9306d07e 2390dd00 63140c02  #*.&...~#...c...
+  + 0200 232adb26 9306e07e 2390dd00 63140c02  #*.&...~#...c...
+
+## arm-answering-every-port/image/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a1fc:	7ed00693          	li	a3,2029
+  +    a1fc:	7ee00693          	li	a3,2030
+
+## arm-answering-every-port/image/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a1f0 1346f4ff b3f6c600 232adb26 9306d07e  .F......#*.&...~
+  + 0a1f0 1346f4ff b3f6c600 232adb26 9306e07e  .F......#*.&...~
+
+## arm-valid-destinations/image/30-srp_mbx.o: instructions, 2 differing line(s)
+  - 204:	7ed00693          	li	a3,2029
+  + 204:	7ee00693          	li	a3,2030
+
+## arm-valid-destinations/image/30-srp_mbx.o: section contents, 2 differing line(s)
+  - 0200 232adb26 9306d07e 2390dd00 63140c02  #*.&...~#...c...
+  + 0200 232adb26 9306e07e 2390dd00 63140c02  #*.&...~#...c...
+
+## arm-valid-destinations/image/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a280:	7ed00693          	li	a3,2029
+  +    a280:	7ee00693          	li	a3,2030
+
+## arm-valid-destinations/image/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a280 9306d07e 2390dd00 63120c02 83258b00  ...~#...c....%..
+  + 0a280 9306e07e 2390dd00 63120c02 83258b00  ...~#...c....%..
+
+## fixture-1x1-if2/30-srp_mbx.o: instructions, 2 differing line(s)
+  - 1fc:	7ed00693          	li	a3,2029
+  + 1fc:	7ee00693          	li	a3,2030
+
+## fixture-1x1-if2/30-srp_mbx.o: section contents, 2 differing line(s)
+  - 01f0 13c6f4ff b3f6c600 23a4db0c 9306d07e  ........#......~
+  + 01f0 13c6f4ff b3f6c600 23a4db0c 9306e07e  ........#......~
+
+## fixture-1x1-if2/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a228:	7ed00693          	li	a3,2029
+  +    a228:	7ee00693          	li	a3,2030
+
+## fixture-1x1-if2/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a220 b3f6c600 23a4db0c 9306d07e 2310dd00  ....#......~#...
+  + 0a220 b3f6c600 23a4db0c 9306e07e 2310dd00  ....#......~#...
+
+## fixture-8x8-if2/30-srp_mbx.o: instructions, 2 differing line(s)
+  - 204:	7ed00693          	li	a3,2029
+  + 204:	7ee00693          	li	a3,2030
+
+## fixture-8x8-if2/30-srp_mbx.o: section contents, 2 differing line(s)
+  - 0200 232adb26 9306d07e 2390dd00 63140c02  #*.&...~#...c...
+  + 0200 232adb26 9306e07e 2390dd00 63140c02  #*.&...~#...c...
+
+## fixture-8x8-if2/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a1fc:	7ed00693          	li	a3,2029
+  +    a1fc:	7ee00693          	li	a3,2030
+
+## fixture-8x8-if2/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a1f0 1346f4ff b3f6c600 232adb26 9306d07e  .F......#*.&...~
+  + 0a1f0 1346f4ff b3f6c600 232adb26 9306e07e  .F......#*.&...~
+
+## plat/1x1-if2/34-srp_mbx.o: instructions, 2 differing line(s)
+  - 1fc:	7ed00693          	li	a3,2029
+  + 1fc:	7ee00693          	li	a3,2030
+
+## plat/1x1-if2/34-srp_mbx.o: section contents, 2 differing line(s)
+  - 01f0 13c6f4ff b3f6c600 23a4db0c 9306d07e  ........#......~
+  + 01f0 13c6f4ff b3f6c600 23a4db0c 9306e07e  ........#......~
+
+## plat/1x1-if2/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a208:	7ed00693          	li	a3,2029
+  +    a208:	7ee00693          	li	a3,2030
+
+## plat/1x1-if2/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a200 b3f6c600 23a4db0c 9306d07e 2310dd00  ....#......~#...
+  + 0a200 b3f6c600 23a4db0c 9306e07e 2310dd00  ....#......~#...
+
+## plat/8x8-if2/34-srp_mbx.o: instructions, 2 differing line(s)
+  - 204:	7ed00693          	li	a3,2029
+  + 204:	7ee00693          	li	a3,2030
+
+## plat/8x8-if2/34-srp_mbx.o: section contents, 2 differing line(s)
+  - 0200 232adb26 9306d07e 2390dd00 63140c02  #*.&...~#...c...
+  + 0200 232adb26 9306e07e 2390dd00 63140c02  #*.&...~#...c...
+
+## plat/8x8-if2/ctrl_app.elf [loadable]: instructions, 2 differing line(s)
+  -    a1dc:	7ed00693          	li	a3,2029
+  +    a1dc:	7ee00693          	li	a3,2030
+
+## plat/8x8-if2/ctrl_app.elf [loadable]: section contents, 2 differing line(s)
+  - 0a1d0 1346f4ff b3f6c600 232adb26 9306d07e  .F......#*.&...~
+  + 0a1d0 1346f4ff b3f6c600 232adb26 9306e07e  .F......#*.&...~

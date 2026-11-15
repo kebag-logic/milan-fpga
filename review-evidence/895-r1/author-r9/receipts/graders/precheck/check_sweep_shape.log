@@ -1,0 +1,8 @@
+  [sweep-shape] arty: num-streams 4, l2 0, render-lpf True == endstation_arty_4x4.yaml
+  [sweep-shape] ax7101: num-streams 1, l2 0, render-lpf False == endstation_ax7101_1x1_tdm8.yaml
+  [sweep-shape] build.sh cfg_arty: 15 design flags on the dry-run launch line agree with endstation_arty_current.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_arty_current/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax7101: 26 design flags on the dry-run launch line agree with endstation_ax7101_1x1_tdm8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax8x8: 26 design flags on the dry-run launch line agree with endstation_ax7101_8x8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_8x8/soc_params.json is its current emission
+  [sweep-shape] build.sh: `export PYTHONHASHSEED=0` on line 498 precedes the milan_soc.py launch on line 499
+  [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 29 precedes the milan_soc.py launch on line 119
+sweep shape gate: OK

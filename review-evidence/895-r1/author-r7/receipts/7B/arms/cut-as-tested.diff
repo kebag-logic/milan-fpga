@@ -1,0 +1,35 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 6b13c3494e..9730217f63 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -646,6 +646,13 @@ bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_
+         struct srp_interface *i = &m->ifs[interface];
+         // CTRL_SRP_SOURCES is at most MBX_N_PUB_SOURCES, under 32: a bit past the sources is no source
+         valid &= (1u << CTRL_SRP_SOURCES) - 1u;
++        // the gate and base of its last call: each valid source already holds base + n, so nothing changes (#895)
++        if (i->gate_seen && valid == i->gate && base == i->gate_base) {
++            m->busy = false;
++            return true;
++        }
++        i->gate_seen = true;
++        i->gate_base = base;
+         bool changed = valid != i->gate;
+         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+             if ((valid >> n & 1u) == 0u) {
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index a98f529a6d..4d06c1ca57 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -80,6 +80,12 @@ struct srp_interface {
+     uint32_t talkers;
+     uint32_t readdressed;
+     bool sources_owed;
++    // srp_mbx_gate's base at its last call, once one was taken: a call with
++    // that base and the gate it left changes nothing, so it returns at once
++    // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
++    // sources' destinations, and init clears both fields.
++    bool gate_seen;
++    uint64_t gate_base;
+ };
+ typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
+ struct srp_mbx_config {
