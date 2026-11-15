@@ -466,12 +466,11 @@ MUTANTS: dict[str, Patches] = {
         patch.object(answers, 'AVB_INFO', (0x0028, scenario.f.be(9, 2) + scenario.f.be(0, 2) + bytes(16)))],
     "scenario: the face's getters stated SUCCESS on the image as linked": lambda: [patch.object(
         answers, 'aecp_statuses', lambda build: dict(unknown_command='NOT_IMPLEMENTED'))],
-    'scenario: get_as_path sent on AVB_INTERFACE 0 at every interface': lambda: [patch.object(
-        answers, 'as_path', lambda i: (answers.AS_PATH, scenario.f.be(0, 2) + scenario.f.be(0, 2)))],
+    'scenario: get_as_path sent on AVB_INTERFACE 9, a descriptor no image has': lambda: [patch.object(
+        answers, 'AS_PATH', (0x0028, scenario.f.be(9, 2) + scenario.f.be(0, 2)))],
     'scenario: get_as_path stated SUCCESS on the image as linked': lambda: [patch.object(
         answers, 'aecp_statuses', lambda build, s=answers.aecp_statuses: {**s(build), 'get_as_path': 'SUCCESS'})],
-    'scenario: get_as_path sent as GET_AVB_INFO': lambda: [patch.object(
-        answers, 'as_path', lambda i: answers.AVB_INFO)],
+    'scenario: get_as_path sent as GET_AVB_INFO': lambda: [patch.object(answers, 'AS_PATH', answers.AVB_INFO)],
     "scenario: the talker's refusals stated SUCCESS": lambda: [patch.object(
         answers, 'TALKER', tuple((msg, 'SUCCESS') for msg, _ in answers.TALKER))],
     'flip: an over-ceiling row passes': lambda: [patch.object(flip_grade, 'findings', lambda *a, **k: [])],

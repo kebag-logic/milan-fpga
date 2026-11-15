@@ -458,7 +458,7 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         cmd(i, 'get_name', 0x0011, bytes(8))
         cmd(i, 'get_counters', 0x0029, f.be(9, 2) + f.be(0, 2))
         cmd(i, 'get_avb_info', *answers.AVB_INFO)
-        cmd(i, 'get_as_path', *answers.as_path(i))
+        cmd(i, 'get_as_path', *answers.AS_PATH)
         cmd(i, 'unknown_command', answers.UNKNOWN, bytes(4))
         mvu = f.mvu_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq[0]), 0x0000, bytes(2))
         end = f'resp:{aecp}:{seq[0]:x}'

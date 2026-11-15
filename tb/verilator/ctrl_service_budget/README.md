@@ -1205,9 +1205,9 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | run: a group whose row states no response is graded as any other | a run refuses a group whose row states no response, by name |
 | scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule) | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
 | scenario: the face's getters stated SUCCESS on the image as linked | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
-| scenario: get_as_path sent on AVB_INTERFACE 0 at every interface | the get_as_path row sends GET_AS_PATH on its own AVB_INTERFACE at its length, SUCCESS where the ports answer |
-| scenario: get_as_path stated SUCCESS on the image as linked | the get_as_path row sends GET_AS_PATH on its own AVB_INTERFACE at its length, SUCCESS where the ports answer |
-| scenario: get_as_path sent as GET_AVB_INFO | the get_as_path row sends GET_AS_PATH on its own AVB_INTERFACE at its length, SUCCESS where the ports answer |
+| scenario: get_as_path sent on AVB_INTERFACE 9, a descriptor no image has | the get_as_path row sends GET_AS_PATH on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: get_as_path stated SUCCESS on the image as linked | the get_as_path row sends GET_AS_PATH on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: get_as_path sent as GET_AVB_INFO | the get_as_path row sends GET_AS_PATH on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
 | scenario: the talker's refusals stated SUCCESS | the talker rows state the statuses Milan gives them, restated |
 | flip: an over-ceiling row passes | the load gate refuses a held point not held |
 | flip: read on the column graded with tsn-c-stack#32 | the flip check refuses the graded column read, not the pin |

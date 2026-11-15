@@ -100,16 +100,10 @@ def check(expect: str, own: bytes | None) -> str:
 #: GET_AVB_INFO (IEEE 1722.1-2021 7.4.40; Milan v1.2 5.4.2.23) on AVB_INTERFACE 0: its command_type 0x0027 and its
 #: command, descriptor_type and descriptor_index (7.4.40.1), four bytes (#882).
 AVB_INFO = (0x0027, f.be(9, 2) + f.be(0, 2))
-#: GET_AS_PATH (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897) on an interface's own AVB_INTERFACE: its
-#: command_type 0x0028, and its command, descriptor_index and reserved (7.4.41.1), four bytes.
-AS_PATH = 0x0028
-
-
-def as_path(interface: int) -> tuple[int, bytes]:
-    """GET_AS_PATH's command_type and command on that interface's AVB_INTERFACE."""
-    return AS_PATH, f.be(interface, 2) + f.be(0, 2)
-
-
+#: GET_AS_PATH (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897) on AVB_INTERFACE 0, the one every image holds,
+#: on every interface as get_avb_info's: its command_type 0x0028, and its command, descriptor_index and reserved
+#: (7.4.41.1), four bytes.
+AS_PATH = (0x0028, f.be(0, 2) + f.be(0, 2))
 #: The aecp group's unknown command: a reserved command_type (IEEE 1722.1-2021 Table 7-126) under 0x4000, since
 #: aecp.c keeps the field's low 14 bits and so answers a command at or above 0x4000 under another command_type
 #: (#891, whose fix sends 0x7FF0 again).
