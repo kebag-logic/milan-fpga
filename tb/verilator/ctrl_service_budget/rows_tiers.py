@@ -926,13 +926,13 @@ def channel_controls(root: Path) -> list[str]:
     moved = {srp: (root / srp).read_text().replace('drain_ch = MBX_CH_SRP + 1u;', 'drain_ch = MBX_CH_MAAP + 1u;')}
     if moved[srp] == (root / srp).read_text() or not unrowed(root, BUILT, one, moved):
         escaped.append("the tier-1 channels not the loop's")
-    # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
+    # ctrl_loop.h states THE TRANSMIT's figure at or over its row at each point, and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)'
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
     under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
-    if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
+    if figure not in header or tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)
     if bound not in header or not all(tx_statements(root, one, {loop: header.replace(bound, typed)}) for typed in (

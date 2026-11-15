@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""THE PACE's records among AECP's ordinary records (#894's class-split amendment, and its ruling 6883864236 item 3):
-every checked ADD or REMOVE_AUDIO_MAPPINGS and every accepted SET_CONFIGURATION is paced (aecp_maps.c and
+"""THE PACE's records among AECP's ordinary records (#894's class-split amendment, and its SET_CONFIGURATION ruling,
+item 3): every checked ADD or REMOVE_AUDIO_MAPPINGS and every accepted SET_CONFIGURATION is paced (aecp_maps.c and
 aecp_commands.c stamp it, aecp_mbx.c, ready, holds the next record; paced_rows.py), so a row's window of w ms holds at
 most edits(w, P) of them, ceil((w + 1) / P). A tier-model row that is not one of rows_tiers.LONG_ROWS charges each
 AECP record it counts at record.aecp, the ordinary commands' record, and here those paced records the difference to

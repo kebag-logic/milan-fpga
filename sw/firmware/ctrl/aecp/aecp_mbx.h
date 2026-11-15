@@ -50,7 +50,7 @@ extern "C" {
 // 2026-11-13, item 3) 6 ms did, and with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling,
 // item 1), and the largest legal command's record re-measured under the bounded map work (item 3), 7 ms did; with each
 // map key at its position in the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's
-// cost re-measured at 30 us, txL is 49.69 ms at 7 ms, and 8 ms does (#894, #908). The gate reads the core's clock,
+// cost re-measured at 30 us, txL was 49.69 ms at 7 ms, and 8 ms did (#894, #908). The gate reads the core's clock,
 // which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of AECP_REGISTRATIONS
 // edits answers its last within 15 paces, their passes and its own row: within 238 ms at its commit, IEEE 1722.1-2021
 // 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).

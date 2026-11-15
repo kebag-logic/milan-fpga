@@ -189,12 +189,17 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
-    under = {loop: text.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
-    with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements:
-                           f(r, p, under)):
-        if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 33 ms' in f for f in row_findings(root, one)):
-            escaped.append(CHANNEL_CONTROLS[1])
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)'
+    held = []
+    # each interface count's leg planted under its row alone, refused at its own point (8x8/2if's rows are reported,
+    # so its flip check exits 1 by design and only this control holds its statement)
+    for leg, point, said in (('33u : 99u', '1x1/1if', 33), ('34u : 98u', '8x8/2if', 98)):
+        under = {loop: text.replace(figure, figure.replace('34u : 99u', leg))}
+        with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements,
+                               u=under: f(r, p, u)):
+            held.append(any(f'CTRL_LOOP_TX_MS states {said} ms' in f for f in row_findings(root, (point,))))
+    if text.count(figure) != 1 or not all(held):
+        escaped.append(CHANNEL_CONTROLS[1])
     # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs, and T_egress; R4L's paced: 9.3.2.6's 240 ms
     # less T_ingress and T_egress (#894's contingent ruling of 2026-11-13, item 3; its egress ruling, item 1)
     if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 49 or \

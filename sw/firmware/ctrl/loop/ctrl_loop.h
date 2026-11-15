@@ -391,8 +391,8 @@ extern "C" {
 // a pass given whole it carries (#894). A slice that holds one MRPDU's build
 // makes the declarations in the first: the srp group's after its Listener
 // Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
-// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
-// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// cut, measured at fe0cef5b, the same build moved by the cut's code, so a build
+// of one is 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
 // refuted, with its rows (#894, owed to #872, #910). The builds are stated for
 // each shape (THE SHAPES, above). At 8x8/1if, one interface's 8x8 streams, the
@@ -445,7 +445,7 @@ extern "C" {
 // tree whose row passes this). At 8x8/2if, whose rows by every source are
 // reported and not held (#894, the owner's decision of 2026-11-12, owed to
 // #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

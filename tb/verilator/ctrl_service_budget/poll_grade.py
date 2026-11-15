@@ -70,7 +70,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: the most measured over every group of arm A and the answering-every-port arm at its point plus 5 %, rounded up to
 #: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
-#: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+#: makes, stated at the SRP record's cost (280 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (735 us at 1x1/1if and
 #: 1,215 at 8x8/2if; #894's shape ruling, item (b)), which stated_us reads where the table holds 0.
 #: The SRP record's and AECP's item (a notice to the
