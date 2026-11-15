@@ -140,10 +140,10 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: that round each cost the one of the side that moved it from their merge base 7398ec0a, the larger where both did
 #: (#895); measured again on that merge, every group of arm A, the answering-every-port and valid-destinations arms
 #: and arm B's aecp groups, each cost the larger of that and this table's: a pass's events' fixed part at 1x1/1if 30
-#: to 35 us, 3,041 CPU cycles in notice-burst-0 (2,623 at #895's merge before that round), the code's placement the
-#: cut moves (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895). 32x32/2if is
-#: measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
-#: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
+#: to 35 us, 3,041 CPU cycles in notice-burst-0 (2,623 at #895's merge before that round), not traced, the code's
+#: placement the cut moves (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895).
+#: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger
+#: of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
 #: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
 #: ctrl_loop.h's two-interface cost.

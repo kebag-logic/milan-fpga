@@ -107,7 +107,7 @@ An image on the stand-in `generated/csr.h` alone boots to ready and passes the s
 The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
-At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past 60.0, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4; `ctrl_memory.LEDGERED`), with 1,864 B of `rom` left.
+At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 392 B of `rom` past 60.0 with #894's one-row edit's cut, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4; `ctrl_memory.LEDGERED`), with 1,656 B of `rom` left.
 The owner's ruling (#665, 6505997821), and since 2026-11-12 the owner's flip decision, ledger that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
 Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
