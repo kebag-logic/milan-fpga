@@ -86,8 +86,12 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. On #894's round 11 ACMP's item at 1x1/1if is 55 us, the
 #: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
 #: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
-#: backlog-owed (6,239 at round 9's head).
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=55,
+#: backlog-owed (6,239 at round 9's head). With SRP's Talker declarations (#895), measured on their merge with that
+#: round, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
+#: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
+#: #894's own image measures 18,843 (200 us): MAAP's poll and SRP's delivery, which carry the Talker's declarations
+#: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass.
+STATED_US = {1: dict(base=215, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
              2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
                     aecp=275, aecp_long=655, acmp_declined=20)}

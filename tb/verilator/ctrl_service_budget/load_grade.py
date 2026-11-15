@@ -138,8 +138,11 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: 4,612), and ACMP's owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30
 #: to 35 (2,859 cycles in notice-every-0; 2,093 at round 9's head) and ACMP's owed frame 65 to 70; on #895's merge of
 #: that round each cost the one of the side that moved it from their merge base 7398ec0a, the larger where both did
-#: (#895). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost
-#: the larger of
+#: (#895); measured again on that merge, every group of arm A, the answering-every-port and valid-destinations arms
+#: and arm B's aecp groups, each cost the larger of that and this table's: a pass's events' fixed part at 1x1/1if 30
+#: to 35 us, 3,041 CPU cycles in notice-burst-0 (2,623 at #895's merge before that round), the code's placement the
+#: cut moves (#909), and the polls' base 205 to 215 (poll_grade.py), each in both columns (#895). 32x32/2if is
+#: measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
 #: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
@@ -147,7 +150,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 STATED_US = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 50,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.retained': 280, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 115, 'event.TICK': 55,
@@ -183,12 +186,14 @@ STATED_US = {
 #: STATED_US's measurement raised is raised here with it, the larger: AECP's timer slot 75 and a TICK 50 at 1x1/1if,
 #: and at 8x8/2if AECP's timer slot 110 to 115, a pass's events' fixed part 30 to 35 and MAAP's record 150 to 155, its
 #: TICK's 85 the larger (#895); on #895's merge of #894's round 11 each cost the one of the side that moved it from
-#: their merge base 7398ec0a, the larger where both did: ACMP's owed frame #894's, 55 and 70 us (#895).
+#: their merge base 7398ec0a, the larger where both did: ACMP's owed frame #894's, 55 and 70 us; measured again on
+#: that merge, each cost STATED_US's measurement raised is raised here with it: a pass's events' fixed part 35 us and
+#: the polls' base 215 at 1x1/1if (#895).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 50,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 215, 'item.reclaim': 25, 'item.retained': 280,
                 'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 115, 'event.TICK': 85,
