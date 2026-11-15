@@ -328,6 +328,38 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriods) {
     }
 }
 
+// The hold-off counts from the Leave's request, so it must cover the latest the Leave can leave: lwSRP's join timer
+// runs out within a JoinTime of the request, and THE TRANSMIT commits its MRPDU within CTRL_LOOP_TX_MS of that
+// centisecond (ctrl_loop.h). With the request on a centisecond and the loop held that long after it, the changed
+// destination still comes no sooner than two LeaveAllTime periods after the Leave on the wire (IEEE 802.1Q-2018
+// 35.2.2.8, Table 10-7); a hold-off without THE TRANSMIT's term, or with it rounded down, comes sooner.
+TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave) {
+    settle(); gate(1u,kBaseA); advance(400);
+    while (model.tick_div!=0u) advance(1);
+    trace();
+    const uint32_t first=model.tx_sent;
+    const uint32_t at=model.now_ms;
+    constexpr uint32_t kLatestLeaveMs=10u*CTRL_LOOP_JOIN_CS+CTRL_LOOP_TX_MS;
+    gate(0u,kBaseA); settle();
+    mbx_model_advance_ms(&model,kLatestLeaveMs);
+    settle();
+    advance(2000);
+    gate(1u,kBaseB);
+    advance_to(at+kHoldOffMs+400u);
+    untrace();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,0,first);
+        const auto *lv=leave(ds,1);
+        ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
+        EXPECT_EQ(lv->time_ms,at+kLatestLeaveMs) << "the Leave leaves as late as THE TRANSMIT's stated figure allows";
+        const auto *adv=declared(ds,1,lv->time_ms+1u);
+        ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
+        EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
+        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
+            << "the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave";
+    }
+}
+
 // A destination that changes while the source stays valid withdraws the old destination's Advertise and declares the
 // new one only once the hold-off ends; no Talker carries the old destination after its Leave.
 TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
