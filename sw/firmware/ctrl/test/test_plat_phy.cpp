@@ -239,6 +239,22 @@ TEST_F(PlatPhy, P5ErrorsAreLinkDown) {
     peer.regs[1] = 0xffffu;
     next();
     EXPECT_EQ(peer.word, 0u) << "P5 an all-ones BMSR is link down";
+    // each later register unacknowledged: BMCR, the extended status and the 1000BASE-T pair on a gigabit PHY,
+    // the advertisement on an MII one
+    peer.gigabit(7u);
+    for (const unsigned reg : {0u, 15u, 9u, 10u}) {
+        peer.nak = reg;
+        next();
+        EXPECT_EQ(peer.word, 0u) << "P5 an unacknowledged register " << reg << " is link down";
+        peer.nak = 32u;
+        next();
+        EXPECT_EQ(peer.word, kGigFull) << "P5 the register answering again resolves";
+    }
+    peer.regs[1] = 0x0024u;
+    peer.nak = 4u;
+    next();
+    EXPECT_EQ(peer.word, 0u) << "P5 an unacknowledged register 4 is link down";
+    peer.nak = 32u;
     // a PHY that never answers is probed forever, one address a call, link down meanwhile
     arm(kBus);
     peer.acknowledge = false;

@@ -206,6 +206,11 @@ L2 = "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by 
 P3 = "P3 a loss that recovered between two polls publishes link down, then link up"
 
 
+#: The map generator's PHY rows (#919), as ctrl_plat_gen.py holds them.
+GEN = "plat/ctrl_plat_gen.py"
+PARTIAL = "    if any(phy) and not all(phy):\n"
+
+
 def phy_mutants(mutant: type) -> tuple:
     """The PHY poll's (#919): the four the issue names (no poll, the loss not latched, an edge not counted, the
     cease not ended on link-up), each reproducing the bench's symptom, then the poll's own rules."""
@@ -232,16 +237,28 @@ def phy_mutants(mutant: type) -> tuple:
         m("plat-link-counter-change-dropped", "app/ctrl_app_aecp.c",
           "\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n", "\t\t(void)c;\n", "platboot1",
           "Phy.L3EachEdgeNotifiesTheCounters", "L3 each link edge sends one unsolicited GET_COUNTERS"),
+        # the bus map: the rows' addresses dropped, some rows accepted, none refused
+        m("plat-map-phy-rows-ignored", GEN, "if all(phy) else 0:08X}u", "if False else 0:08X}u", "platmap",
+          "PlatMap.M1AllThreeRowsGiveTheirAddresses", "M1 the PHY's three rows give their addresses"),
+        m("plat-map-partial-accepted", GEN, PARTIAL, "    if False:\n", "platmap", "PlatMap.M3SomeRowsAreRefused",
+          "M3 some but not all of the PHY's rows are refused"),
+        m("plat-map-absent-refused", GEN, PARTIAL, "    if not all(phy):\n", "platmap", "PlatMap.M2NoRowsGiveZero",
+          "M2 a SoC with no MDIO gives 0 for each"),
         # the guard and the paths
         # the poll armed before the identity check: a foreign window's pins bit-banged
         m("plat-phy-unguarded", PLAT, IDENTITY, ARM + IDENTITY, "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
           "B11 a foreign window's MDIO pins are never touched"),
-        m("plat-phy-refused-stage-unpolled", PLAT, "\t\t(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);\n", "", "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
+        m("plat-phy-refused-stage-unpolled", PLAT,
+          "\t\t(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);\n", "",
+          "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
           "B11 a stage refused past the identity check keeps publishing the link"),
         m("plat-phy-beside-a-save-step", PHY, "saving && s->steps != steps ? 0 :",
           "saving && s->steps != steps && false ? 0 :",
           "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
           "B12 a call whose store takes a step of its save carries no PHY frame"),
+        m("plat-phy-store-owed-dropped", PHY, "(int32_t)(deadline - nvm_store_clock(NULL))) ||\n\t       store;",
+          "(int32_t)(deadline - nvm_store_clock(NULL))) ||\n\t       (false && store);", "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 the client owes a step while the store owes one"),
         m("plat-phy-after-an-idle-step-refused", PHY, "saving && s->steps != steps ? 0 :",
           "(saving || true) && s->steps != steps ? 0 :", "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
           "B12 a call whose store step is an idle one carries one PHY frame"),
@@ -264,19 +281,24 @@ def phy_mutants(mutant: type) -> tuple:
           "PlatPhy.P4ResolvedModesAreTheReleases", "P4 the highest common mode of 4 and 5"),
         m("plat-phy-fault-ignored", PHY, " && (u & CTRL_PLAT_PHY_GSTAT_FAULT) == 0u", "", "platboot1",
           "PlatPhy.P4ResolvedModesAreTheReleases", "P4 a master-slave configuration fault is link down"),
-        m("plat-phy-ack-ignored", PHY, "return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);",
+        m("plat-phy-ack-ignored", PHY,
+          "return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);",
           "return (int32_t)(value & 0xffffu);",
           "platboot1", "PlatPhy.P5ErrorsAreLinkDown", "P5 a NAKed register is link down"),
         m("plat-phy-turnaround-driven", PHY, "k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS, hi",
-          "k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS + 1u, hi", "platboot1", "PlatPhy.P6FramesAreClause22Reads",
+          "k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS + 1u, hi", "platboot1",
+          "PlatPhy.P6FramesAreClause22Reads",
           "P6 every frame a Clause-22 read, driven then released"),
         m("plat-phy-no-deadline", PHY, "room >= (int32_t)CTRL_PLAT_PHY_STEP_US", "room >= -1000000",
-          "platboot1", "PlatPhy.P7OneFrameACallWithItsRoom", "P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left"),
+          "platboot1", "PlatPhy.P7OneFrameACallWithItsRoom",
+          "P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left"),
         m("plat-phy-not-owed", PHY, "\treturn phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, now);",
           "\treturn false;", "platboot1", "PlatPhy.P8OwedWhileAFrameIsDue",
           "P8 a probe that missed owes the next"),
-        m("plat-phy-half-period-short", PHY, "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)",
-          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ / 2u)", "platboot1", "PlatPhy.P9NoMdioArmsNothing",
+        m("plat-phy-half-period-short", PHY,
+          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)",
+          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ / 2u)", "platboot1",
+          "PlatPhy.P9NoMdioArmsNothing",
           "P9 the half period at 100 MHz: 200 ns, 20 turns"),
         m("plat-phy-timed-run-ignored", PHY, "\t\tphy->spin = 1u;\n", "", "platboot1", "PlatPhy.P9NoMdioArmsNothing",
           "P9 a run of 277 us: one turn holds 200 ns"),

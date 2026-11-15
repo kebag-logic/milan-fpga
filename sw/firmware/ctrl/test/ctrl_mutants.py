@@ -959,7 +959,7 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
             "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
-            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True)}
+            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True), "platmap": plat_arms.arm_platmap}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()

@@ -566,6 +566,13 @@ TEST_F(Phy, B12StepCarriesTheStoresSaveOrAPhyFrame) {
     EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US))
         << "B12 the client owes a step while the PHY owes a frame";
     EXPECT_EQ(peer.frames.size(), frames + 1u) << "B12 a call with no store step carries the PHY's frame";
+    // the poll's end, then a store step owed with no room for it: the store's owed step alone keeps the client owing
+    for (unsigned k = 0; k < 16u && ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) +
+                                                                                 CTRL_LOOP_SHARE_US); ++k) {
+    }
+    nvm_store_tick();
+    EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr)))
+        << "B12 the client owes a step while the store owes one";
 }
 
 TEST_F(Phy, L1ReadyLoopPublishesTheLink) {

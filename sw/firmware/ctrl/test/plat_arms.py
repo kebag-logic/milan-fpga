@@ -12,7 +12,10 @@
             (test_plat_phy.cpp, #919);
   plattrace the CSR initialisation against milan_baremetal.c's own, compiled on
             the host as builder gate 35 compiles it, for every shipped config,
-            with its planted controls (plat_trace.py).
+            with its planted controls (plat_trace.py);
+  platmap   ctrl_plat_gen.py's bus map and the PHY's rows (#919): all three
+            give their addresses, none gives 0 for each (no MDIO, so the poll
+            arms nothing), some but not all are refused, naming what is missing.
 """
 from __future__ import annotations
 
@@ -177,10 +180,52 @@ def arm_plattrace(tree: Tree) -> Outcome:
     return plat_trace.arm(tree.src, tree.out / "plattrace")
 
 
+#: The PHY's three rows in the platform's map fixture (ctrl_plat_csr.csv), and the macros they give.
+PHY_MAP = (("milan_mac_phy_mdio_w", "CTRL_PLAT_PHY_MDIO_W"), ("milan_mac_phy_mdio_r", "CTRL_PLAT_PHY_MDIO_R"),
+           ("milan_mac_link_status", "CTRL_PLAT_LINK_STATUS"))
+
+
+def map_run(tree: Tree, rows: list[str], out: Path) -> tuple[int, str, dict[str, int]]:
+    """ctrl_plat_gen.py map on a csr.csv of `rows`: its exit status, its stderr and each macro it defined."""
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "csr.csv").write_text("\n".join(rows) + "\n")
+    res = run([sys.executable, "-B", str(tree.src / "plat/ctrl_plat_gen.py"), "map", str(out / "csr.csv"),
+               "-o", str(out / "map.h")])
+    header = (out / "map.h").read_text() if res.returncode == 0 else ""
+    words = (ln.split() for ln in header.splitlines())
+    defined = {w[1]: int(w[2].rstrip("u"), 16) for w in words
+               if len(w) == 3 and w[0] == "#define" and w[2].startswith("0x")}
+    return res.returncode, res.stderr, defined
+
+
+def arm_platmap(tree: Tree) -> Outcome:
+    """The bus map's PHY rows (#919), each check in the campaign's `[FAIL] <test>: <words>` form."""
+    fixture = [ln for ln in (HERE / "ctrl_plat_csr.csv").read_text().splitlines() if ln and not ln.startswith("#")]
+    rows = {ln.split(",")[1]: int(ln.split(",")[2], 16) for ln in fixture}
+    without = [ln for ln in fixture if ln.split(",")[1] not in dict(PHY_MAP)]
+    out = tree.out / "platmap"
+    checks: list[tuple[str, bool, str]] = []
+    rc, _, defined = map_run(tree, fixture, out / "all")
+    checks.append(("PlatMap.M1AllThreeRowsGiveTheirAddresses", rc == 0 and all(defined.get(m) == rows[r]
+                   for r, m in PHY_MAP), f"M1 the PHY's three rows give their addresses (exit {rc}, {defined})"))
+    rc, _, defined = map_run(tree, without, out / "none")
+    checks.append(("PlatMap.M2NoRowsGiveZero", rc == 0 and all(defined.get(m) == 0 for _, m in PHY_MAP),
+                   f"M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit {rc}, {defined})"))
+    for missing, _ in PHY_MAP:
+        rc, err, _ = map_run(tree, [ln for ln in fixture if ln.split(",")[1] != missing], out / f"no-{missing}")
+        checks.append(("PlatMap.M3SomeRowsAreRefused", rc == 2 and missing in err,
+                       f"M3 some but not all of the PHY's rows are refused, naming {missing} (exit {rc})"))
+    failures = sum(not ok for _, ok, _ in checks)
+    log = [f"  [{'PASS' if ok else 'FAIL'}] {test}: {words}" for test, ok, words in checks]
+    log += [f"== ctrl split platform bus map: checks: {len(checks)}   failures: {failures} ==",
+            f"RESULT: {'FAIL' if failures else 'PASS'}"]
+    return Outcome("platmap", 1 if failures else 0, "\n".join(log))
+
+
 def all_arms(tree: Tree, require_rv32: bool) -> list[Outcome]:
     """Every platform arm, as the suites run them."""
     return [arm_plat(tree), arm_platboot(tree, 1), arm_platboot(tree, 2), arm_platrv32(tree, require_rv32),
-            arm_plattrace(tree)]
+            arm_plattrace(tree), arm_platmap(tree)]
 
 
 def coverage_arms(tree: Tree) -> list[Outcome]:
