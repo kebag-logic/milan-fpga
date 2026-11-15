@@ -1,0 +1,61 @@
+m2-drop-join-and-tx: 1 planted
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/arms-m2-drop-join-and-tx/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[FAIL] arm srp-srp_talker-if1-endstation_ax7101_1x1_tdm8
+    declared(ds,1,lv->time_ms+1u)
+    Which is: 0x55cf9b157870
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+    [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two LeaveAllTime periods after the Leave
+    declared(talker(last,0,first),1)
+    Which is: 0x55cf9b1575d0
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset
+    pub_of(model,last).talker_decl&1u
+    Which is: 1
+    0u
+    Which is: 0
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits
+    == ctrl SRP Talker declarations: checks: 11   failures: 3 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 3 failure(s) across 11 checks, exit 1)
+[FAIL] arm srp-srp_talker-if2-endstation_ax7101_8x8
+    declared(ds,1,lv->time_ms+1u)
+    Which is: 0x5592b02c4330
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends
+    declared(ds,1,lv->time_ms+1u)
+    Which is: 0x5592b02c4330
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: no Talker of a changed destination is declared before the hold-off ends
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+    [FAIL] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods: the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+    [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two LeaveAllTime periods after the Leave
+    [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two LeaveAllTime periods after the Leave
+    declared(talker(last,0,first),1)
+    Which is: 0x5592b02c4540
+    nullptr
+    Which is: (nullptr)
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset
+    pub_of(model,last).talker_decl&1u
+    Which is: 1
+    0u
+    Which is: 0
+    [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits
+    == ctrl SRP Talker declarations: checks: 11   failures: 3 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 3 failure(s) across 11 checks, exit 1)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+    == ctrl ADP ACMP MAAP SRP composition: checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+talker arms: FAIL
