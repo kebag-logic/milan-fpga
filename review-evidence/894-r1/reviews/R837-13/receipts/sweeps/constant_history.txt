@@ -1,0 +1,73 @@
+AECP_MBX_COMPLETIONS: head 32u; history 32u@66f71326, (MBX_CH_AECP_TX_WORDS / 12u + 1u)@755f8393, 32u@04d3c1cc, (MBX_CH_AECP_TX_WORDS / 12u + 1u)@91224a0d, 32u@3f469cef, (MBX_CH_AECP_TX_WORDS / 12u + 1u)@8bc1dfc0, 32u@ee35f22b
+AECP_OWED_BYTES: head 552u; history 128u@3f469cef, 552u@3a83e7cc
+AECP_PACE_MS: head 8u; history 8u@cd93cb56, 6u@1560e4f4, 7u@197012aa, 8u@1f47c09c
+AECP_QUEUED_MS: head (MBX_N_IF == 1u ? 130u : 62u); history (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@66f71326, (MBX_N_IF == 1u ? 125u : 62u)@3f469cef, (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@7f50ee6a, (MBX_N_IF == 1u ? 125u : 62u)@ee35f22b, (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@cd87c3b2, (MBX_N_IF == 1u ? 125u : 62u)@8cc3e5d3, (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@187eeed8, (MBX_N_IF == 1u ? 125u : 62u)@12180198, (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@6c284a97, (MBX_N_IF == 1u ? 125u : 62u)@eaa39acd, (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)@16eb95fc, (MBX_N_IF == 1u ? 125u : 62u)@6b9dad67, (MBX_N_IF == 1u ? 130u : 62u)@8cf7e2b7
+AECP_ROUND_COLD_US: head (MBX_N_IF == 1u ? 85u : 185u); history (MBX_N_IF == 1u ? 85u : 165u)@66f71326, (MBX_N_IF == 1u ? 85u : 185u)@6c284a97, (MBX_N_IF == 1u ? 85u : 165u)@eaa39acd, (MBX_N_IF == 1u ? 85u : 185u)@16eb95fc, (MBX_N_IF == 1u ? 85u : 165u)@6b9dad67, (MBX_N_IF == 1u ? 85u : 185u)@b138b676
+CTRL_LOOP_BUILD_ONE_PASS_US: head (MBX_N_IF == 1u ? 735u : 1215u); history (MBX_N_IF == 1u ? 405u : 1215u)@66f71326, (MBX_N_IF == 1u ? 430u : 1215u)@6c284a97, (MBX_N_IF == 1u ? 405u : 1215u)@eaa39acd, (MBX_N_IF == 1u ? 430u : 1215u)@16eb95fc, (MBX_N_IF == 1u ? 405u : 1215u)@6b9dad67, (MBX_N_IF == 1u ? 430u : 1215u)@b138b676, (MBX_N_IF == 1u ? 725u : 1215u)@7290f0f3, (MBX_N_IF == 1u ? 735u : 1215u)@21aeb997
+CTRL_LOOP_BUILD_PASS_US: head (MBX_N_IF == 1u ? 1010u : 1995u); history (MBX_N_IF == 1u ? 900u : 1995u)@66f71326, (MBX_N_IF == 1u ? 955u : 1995u)@ee35f22b, (MBX_N_IF == 1u ? 900u : 1995u)@cd87c3b2, (MBX_N_IF == 1u ? 955u : 1995u)@8cc3e5d3, (MBX_N_IF == 1u ? 900u : 1995u)@187eeed8, (MBX_N_IF == 1u ? 955u : 1995u)@12180198, (MBX_N_IF == 1u ? 1010u : 1995u)@6c284a97, (MBX_N_IF == 1u ? 955u : 1995u)@eaa39acd, (MBX_N_IF == 1u ? 1010u : 1995u)@16eb95fc, (MBX_N_IF == 1u ? 955u : 1995u)@6b9dad67, (MBX_N_IF == 1u ? 1010u : 1995u)@b138b676
+CTRL_LOOP_SLICE_US: head (MBX_N_IF == 1u ? 950u : 1300u); history 1300u@3f469cef, (MBX_N_IF == 1u ? 1050u : 1300u)@b7611ca4, (MBX_N_IF == 1u ? 1200u : 1300u)@8cc3e5d3, (MBX_N_IF == 1u ? 800u : 1300u)@5fe088b5, (MBX_N_IF == 1u ? 900u : 1300u)@dec9f1d7, (MBX_N_IF == 1u ? 950u : 1300u)@c274b9f5
+CTRL_LOOP_SRP_UNIT_US: head (MBX_N_IF == 1u ? 280u : 365u); history (MBX_N_IF == 1u ? 250u : 365u)@3f469cef, (MBX_N_IF == 1u ? 280u : 365u)@1c0ca94b
+CTRL_LOOP_TX_BOUND_MS: head (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS); history 40u@eaa39acd, (240u - 10u * CTRL_LOOP_JOIN_CS)@158265c2, (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)@96565297
+CTRL_LOOP_TX_MS: head (MBX_N_IF == 1u ? 34u : 99u); history (CTRL_LOOP_TX_PASSES * CTRL_LOOP_SHARE_US / 1000u)@66f71326, (MBX_N_IF == 1u ? 29u : 90u)@eaa39acd, (CTRL_LOOP_TX_PASSES * CTRL_LOOP_SHARE_US / 1000u)@16eb95fc, (MBX_N_IF == 1u ? 29u : 90u)@6b9dad67, (MBX_N_IF == 1u ? 28u : 90u)@5fe088b5, (MBX_N_IF == 1u ? 30u : 97u)@4bb4131c, (MBX_N_IF == 1u ? 30u : 98u)@a07de012, (MBX_N_IF == 1u ? 34u : 98u)@6ec12ad7, (MBX_N_IF == 1u ? 34u : 99u)@b6f5c638
+CTRL_TEST_WINDOW_WORDS: head 8192u; history 8192u@66f71326, 1024u@755f8393, 8192u@04d3c1cc, 1024u@91224a0d, 8192u@3f469cef, 1024u@8bc1dfc0, 8192u@ee35f22b
+MAP_SLOTS: head (gone); history 256u@1b70cedd, MAP_MOST(MAP_FIRSTS * MAP_CHANNELS, 1u)@f0611e7f, MAP_MOST(MAP_FIRSTS * MAP_CHANNELS, 256u)@992e52a0
+SRP_MBX_EVENT_MAX: head (1u + SRP_MBX_PUB_WITHDRAW); history (1u + SRP_MBX_PUB_WITHDRAW)@66f71326, (1u + SRP_MBX_PUB_RESET)@755f8393, (1u + SRP_MBX_PUB_WITHDRAW)@04d3c1cc, (1u + SRP_MBX_PUB_RESET)@91224a0d, (1u + SRP_MBX_PUB_WITHDRAW)@3f469cef, (1u + SRP_MBX_PUB_RESET)@8bc1dfc0, (1u + SRP_MBX_PUB_WITHDRAW)@ee35f22b
+SRP_MBX_PASS_MAX: head (SRP_MBX_LOOP_READS + CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \; history (SRP_MBX_LOOP_READS + CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@66f71326, (CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@755f8393, (SRP_MBX_LOOP_READS + CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@04d3c1cc, (CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@91224a0d, (SRP_MBX_LOOP_READS + CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@3f469cef, (CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@8bc1dfc0, (SRP_MBX_LOOP_READS + CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + SRP_MBX_EVENT_MAX) + \@ee35f22b
+SRP_MBX_POLL_MAX: head (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX); history (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)@66f71326, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))@755f8393, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)@04d3c1cc, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))@91224a0d, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)@3f469cef, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX + 2u * SRP_MBX_TX_MAX))@8bc1dfc0, (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)@ee35f22b
+SRP_MBX_RX_MAX: head 1u; history 1u@66f71326, 2u@755f8393, 1u@04d3c1cc, 2u@91224a0d, 1u@3f469cef, 2u@8bc1dfc0, 1u@ee35f22b
+edit_rows.EDIT_RECORD_US[1x1/1if]@0: head (gone); history 240@895f8906, 260@dd788ed5
+load_grade.STATED_US[centisecond]@3: head 150; history 125@66f71326, 130@7f50ee6a, 125@ee35f22b, 130@cd87c3b2, 125@8cc3e5d3, 130@187eeed8, 125@12180198, 130@6c284a97, 125@eaa39acd, 130@16eb95fc, 150@5bea2597, 125@6b9dad67, 150@b138b676
+load_grade.STATED_US[event.ADP]@2: head 115; history 110@66f71326, 115@8cc3e5d3, 110@187eeed8, 115@12180198, 110@6c284a97, 115@eaa39acd, 110@16eb95fc, 115@6b9dad67
+load_grade.STATED_US[event.AECP]@2: head 70; history 60@66f71326, 65@5bea2597, 60@6b9dad67, 65@b138b676, 70@21aeb997
+load_grade.STATED_US[event.AECP]@6: head 105; history 95@66f71326, 100@7f50ee6a, 95@ee35f22b, 100@cd87c3b2, 105@8cc3e5d3, 100@187eeed8, 105@12180198, 100@6c284a97, 105@eaa39acd, 100@16eb95fc, 110@5bea2597, 105@6b9dad67
+load_grade.STATED_US[event.GM]@3: head 40; history 35@66f71326, 40@5bea2597, 35@6b9dad67, 40@b138b676
+load_grade.STATED_US[event.TICK]@2: head 55; history 40@66f71326, 45@8cc3e5d3, 40@187eeed8, 45@12180198, 40@6c284a97, 45@eaa39acd, 40@16eb95fc, 45@5bea2597, 50@0a474c6f, 55@3909588f
+load_grade.STATED_US[event.TICK]@6: head 40; history 40@66f71326, 85@5bea2597, 40@6b9dad67
+load_grade.STATED_US[events_none]@3: head 30; history 25@66f71326, 30@8cc3e5d3, 25@187eeed8, 30@12180198, 25@6c284a97, 30@eaa39acd, 25@16eb95fc, 30@6b9dad67
+load_grade.STATED_US[events_none]@7: head 35; history 30@66f71326, 35@9606b3a9
+load_grade.STATED_US[item.aecp.notice]@7: head 275; history 270@66f71326, 275@8cc3e5d3, 270@187eeed8, 275@12180198, 270@6c284a97, 275@eaa39acd, 270@16eb95fc, 275@6b9dad67
+load_grade.STATED_US[item.retained]@3: head 280; history 250@66f71326, 260@7f50ee6a, 250@ee35f22b, 260@cd87c3b2, 250@8cc3e5d3, 260@187eeed8, 250@12180198, 260@6c284a97, 250@eaa39acd, 260@16eb95fc, 280@5bea2597, 250@6b9dad67, 280@b138b676
+load_grade.STATED_US[record.aecp]@1: head 235; history 205@66f71326, 235@8cc3e5d3, 205@187eeed8, 235@12180198, 205@6c284a97, 235@eaa39acd, 205@16eb95fc, 235@6b9dad67
+load_grade.STATED_US[record.srp]@1: head 280; history 250@66f71326, 260@7f50ee6a, 250@ee35f22b, 260@cd87c3b2, 250@8cc3e5d3, 260@187eeed8, 250@12180198, 260@6c284a97, 250@eaa39acd, 260@16eb95fc, 280@5bea2597, 250@6b9dad67, 280@b138b676
+load_grade.STATED_US_DONOR[base]@4: head 205; history 155@66f71326, 205@5bea2597, 155@6b9dad67, 205@b138b676
+load_grade.STATED_US_DONOR[base]@9: head 325; history 245@66f71326, 285@7f50ee6a, 245@ee35f22b, 285@cd87c3b2, 245@8cc3e5d3, 285@187eeed8, 245@12180198, 285@6c284a97, 245@eaa39acd, 285@16eb95fc, 325@5bea2597, 245@6b9dad67, 325@b138b676
+load_grade.STATED_US_DONOR[build]@5: head 1010; history 920@66f71326, 955@ee35f22b, 920@cd87c3b2, 955@8cc3e5d3, 920@187eeed8, 955@12180198, 1010@6c284a97, 955@eaa39acd, 1010@16eb95fc, 955@6b9dad67, 1010@b138b676
+load_grade.STATED_US_DONOR[build_one]@5: head 735; history 405@66f71326, 430@6c284a97, 405@eaa39acd, 430@16eb95fc, 405@6b9dad67, 430@b138b676, 725@7290f0f3, 735@21aeb997
+load_grade.STATED_US_DONOR[centisecond]@3: head 150; history 125@66f71326, 130@7f50ee6a, 125@ee35f22b, 130@cd87c3b2, 125@8cc3e5d3, 130@187eeed8, 125@12180198, 130@6c284a97, 125@eaa39acd, 130@16eb95fc, 150@5bea2597, 125@6b9dad67, 150@b138b676
+load_grade.STATED_US_DONOR[event.ADP]@2: head 115; history 110@66f71326, 115@8cc3e5d3, 110@187eeed8, 115@12180198, 110@6c284a97, 115@eaa39acd, 110@16eb95fc, 115@6b9dad67
+load_grade.STATED_US_DONOR[event.AECP]@2: head 70; history 60@66f71326, 65@5bea2597, 60@6b9dad67, 65@b138b676, 70@21aeb997
+load_grade.STATED_US_DONOR[event.AECP]@7: head 110; history 95@66f71326, 100@7f50ee6a, 95@ee35f22b, 100@cd87c3b2, 105@8cc3e5d3, 100@187eeed8, 105@12180198, 100@6c284a97, 105@eaa39acd, 100@16eb95fc, 110@5bea2597, 105@6b9dad67, 110@b138b676
+load_grade.STATED_US_DONOR[event.GM]@3: head 40; history 35@66f71326, 40@5bea2597, 35@6b9dad67, 40@b138b676
+load_grade.STATED_US_DONOR[event.TICK]@2: head 55; history 40@66f71326, 45@8cc3e5d3, 40@187eeed8, 45@12180198, 40@6c284a97, 45@eaa39acd, 40@16eb95fc, 45@5bea2597, 50@0a474c6f, 55@3909588f
+load_grade.STATED_US_DONOR[event.TICK]@7: head 85; history 75@66f71326, 85@5bea2597, 75@6b9dad67, 85@b138b676
+load_grade.STATED_US_DONOR[events_none]@3: head 30; history 25@66f71326, 30@8cc3e5d3, 25@187eeed8, 30@12180198, 25@6c284a97, 30@eaa39acd, 25@16eb95fc, 30@6b9dad67
+load_grade.STATED_US_DONOR[events_none]@8: head 35; history 30@66f71326, 35@9606b3a9
+load_grade.STATED_US_DONOR[item.acmp]@10: head 70; history 40@66f71326, 165@7f50ee6a, 40@ee35f22b, 165@cd87c3b2, 40@8cc3e5d3, 165@187eeed8, 40@12180198, 165@6c284a97, 40@eaa39acd, 165@16eb95fc, 40@6b9dad67, 165@b138b676, 65@5dc3fb35, 70@9606b3a9
+load_grade.STATED_US_DONOR[item.acmp]@5: head 55; history 35@66f71326, 120@7f50ee6a, 35@ee35f22b, 120@cd87c3b2, 35@8cc3e5d3, 120@187eeed8, 35@12180198, 120@6c284a97, 35@eaa39acd, 120@16eb95fc, 125@5bea2597, 35@6b9dad67, 125@b138b676, 50@5dc3fb35, 55@6ec12ad7
+load_grade.STATED_US_DONOR[item.aecp.notice]@8: head 275; history 270@66f71326, 275@8cc3e5d3, 270@187eeed8, 275@12180198, 270@6c284a97, 275@eaa39acd, 270@16eb95fc, 275@6b9dad67
+load_grade.STATED_US_DONOR[item.mrpdu]@5: head 735; history 405@66f71326, 430@6c284a97, 405@eaa39acd, 430@16eb95fc, 405@6b9dad67, 430@b138b676, 725@7290f0f3, 735@21aeb997
+load_grade.STATED_US_DONOR[item.retained]@4: head 280; history 250@66f71326, 260@7f50ee6a, 250@ee35f22b, 260@cd87c3b2, 250@8cc3e5d3, 260@187eeed8, 250@12180198, 260@6c284a97, 250@eaa39acd, 260@16eb95fc, 280@5bea2597, 250@6b9dad67, 280@b138b676
+load_grade.STATED_US_DONOR[item.walk]@5: head 35; history 20@66f71326, 35@5bea2597, 20@6b9dad67, 35@b138b676
+load_grade.STATED_US_DONOR[record.aecp]@1: head 235; history 205@66f71326, 235@8cc3e5d3, 205@187eeed8, 235@12180198, 205@6c284a97, 235@eaa39acd, 205@16eb95fc, 235@6b9dad67
+load_grade.STATED_US_DONOR[record.srp]@1: head 280; history 250@66f71326, 260@7f50ee6a, 250@ee35f22b, 260@cd87c3b2, 250@8cc3e5d3, 260@187eeed8, 250@12180198, 260@6c284a97, 250@eaa39acd, 260@16eb95fc, 280@5bea2597, 250@6b9dad67, 280@b138b676
+poll_grade.STATED_US[acmp]@0: head 55; history 65@66f71326, 120@7f50ee6a, 65@ee35f22b, 120@cd87c3b2, 65@8cc3e5d3, 120@187eeed8, 65@12180198, 120@6c284a97, 65@eaa39acd, 120@16eb95fc, 65@6b9dad67, 120@b138b676, 50@5dc3fb35, 55@6ec12ad7
+poll_grade.STATED_US[acmp]@2: head 70; history 185@66f71326, 195@8cc3e5d3, 185@187eeed8, 195@12180198, 185@6c284a97, 195@eaa39acd, 185@16eb95fc, 195@6b9dad67, 65@5dc3fb35, 70@9606b3a9
+poll_grade.STATED_US[aecp]@3: head 275; history 270@66f71326, 275@8cc3e5d3, 270@187eeed8, 275@12180198, 270@6c284a97, 275@eaa39acd, 270@16eb95fc, 275@6b9dad67
+poll_grade.STATED_US[aecp_long]@1: head 365; history 360@6b9dad67, 365@a07de012
+poll_grade.STATED_US[aecp_long]@3: head 655; history 650@6b9dad67, 655@a07de012
+poll_grade.STATED_US[base]@0: head 205; history 155@66f71326, 160@8cc3e5d3, 155@187eeed8, 160@12180198, 155@6c284a97, 160@eaa39acd, 155@16eb95fc, 205@5bea2597, 160@6b9dad67, 205@b138b676
+poll_grade.STATED_US[base]@2: head 325; history 280@66f71326, 325@5bea2597, 280@6b9dad67, 325@b138b676
+poll_grade.STATED_US[mrpdu]@0: head 735; history 405@66f71326, 430@6c284a97, 405@eaa39acd, 430@16eb95fc, 405@6b9dad67, 430@b138b676, 725@7290f0f3, 735@21aeb997
+poll_grade.STATED_US[rebuild]@2: head 690; history 630@66f71326, 690@5bea2597, 630@6b9dad67, 690@b138b676
+poll_grade.STATED_US[retained]@0: head 280; history 250@66f71326, 260@7f50ee6a, 250@ee35f22b, 260@cd87c3b2, 250@8cc3e5d3, 260@187eeed8, 250@12180198, 260@6c284a97, 250@eaa39acd, 260@16eb95fc, 280@5bea2597, 250@6b9dad67, 280@b138b676
+poll_grade.STATED_US[walk]@0: head 35; history 20@66f71326, 35@5bea2597, 20@6b9dad67, 35@b138b676
+rows_tiers.DATAPATH_US[AMAP_LIVE_WRITE]@0: head 30; history 20@b7611ca4, 25@8cc3e5d3, 30@1f47c09c
+rows_tiers.DATAPATH_US[AS_PATH_CHANGED]@0: head 35; history 30@b7611ca4, 35@a07de012
+rows_tiers.DATAPATH_US[AS_PATH_CHANGED]@1: head 40; history 35@b7611ca4, 40@a07de012
+rows_tiers.DATAPATH_US[AVB_INFO_CHANGED]@0: head 35; history 30@b7611ca4, 35@8cc3e5d3
+rows_tiers.DATAPATH_US[AVB_INFO_CHANGED]@1: head 40; history 35@b7611ca4, 40@a07de012
+rows_tiers.LONG_RECORD_US[1x1/1if]@0: head 975; history 7800@5fe088b5, 910@cd93cb56, 920@ed577af3, 940@a07de012, 975@197012aa
+rows_tiers.LONG_RECORD_US[8x8/2if]@0: head 1650; history 10080@5fe088b5, 1470@cd93cb56, 1555@ed577af3, 1650@88ed7082
+tier1_rows.CHANNEL_BOUNDS[ACMP]@0: head 30; history 20@0d9f1feb, 30@cfc66e03
+tier1_rows.CHANNEL_BOUNDS[ADP]@0: head 30; history 20@0d9f1feb, 30@cfc66e03
+tier1_rows.CHANNEL_BOUNDS[MAAP]@0: head 30; history 20@0d9f1feb, 30@cfc66e03
