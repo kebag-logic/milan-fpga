@@ -874,7 +874,7 @@ def tree_controls(root: Path) -> list[str]:
         if not broken(root, small, ('1x1/1if',)):
             escaped.append('the slice length not read')
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
-    # header whose slice is another, the one built before the rule chose 950 us among them (#895), is refused
+    # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     stated = re.search(r'^#define CTRL_LOOP_SLICE_US .+$', (root / loop).read_text(), re.M)[0]
     other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 600u : 1300u)')
