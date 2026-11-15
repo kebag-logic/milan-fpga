@@ -1,0 +1,63 @@
+# author-r6 receipts spot-checked by the reviewer (evidence commit 109c134b1dd25b96fba25dcaa628a37637e4fc3c)
+== records/fB1-results.txt
+HEAD eca1b9ca8d9f0090ebc9b55b1bbb827d20bf7ffd DIRTY 0 fB1 1x1 aecp,aecp-fanout,aecp-largest-notice --variant answering-ports start 11:28:05
+  aecp start    795.154 ms   16,208 cycles   175 us  command GET_AS_PATH status 0 control_data_length 80
+  aecp GET_AS_PATH response at 795.304 ms on port 0: status 0, sequence_id 24852, unsolicited False, descriptor_index 0, count 8, control_data_length 80 (16 + 8 x 8 = 80), frame 106 B, entries 001bc5fffe000000 001bc5fffe000001 001bc5fffe000002 001bc5fffe000003 001bc5fffe000004 001bc5fffe000005 001bc5fffe000006 001bc5fffe000007
+== records/fA1-results.txt
+HEAD eca1b9ca8d9f0090ebc9b55b1bbb827d20bf7ffd DIRTY 0 fA1 1x1 aecp  start 11:37:01
+  aecp start    796.025 ms   10,948 cycles   115 us  command GET_AS_PATH status 10 control_data_length 16
+  aecp GET_AS_PATH response at 796.124 ms on port 0: status 10, sequence_id 24852, unsolicited False, descriptor_index 0, count 0, control_data_length 16 (16 + 8 x 0 = 16), frame 42 B, entries 
+== records/fB8-results.txt
+HEAD eca1b9ca8d9f0090ebc9b55b1bbb827d20bf7ffd DIRTY 0 fB8 8x8 aecp,aecp-largest-notice,aecp-fanout --variant answering-ports start 11:31:33
+  aecp start    842.762 ms   16,397 cycles   175 us  command GET_AS_PATH status 0 control_data_length 80
+  aecp start    934.499 ms   15,966 cycles   170 us  command GET_AS_PATH status 0 control_data_length 80
+  aecp GET_AS_PATH response at 842.915 ms on port 0: status 0, sequence_id 24852, unsolicited False, descriptor_index 0, count 8, control_data_length 80 (16 + 8 x 8 = 80), frame 106 B, entries 001bc5fffe000000 001bc5fffe000001 001bc5fffe000002 001bc5fffe000003 001bc5fffe000004 001bc5fffe000005 001bc5fffe000006 001bc5fffe000007
+  aecp GET_AS_PATH response at 934.648 ms on port 1: status 0, sequence_id 24867, unsolicited False, descriptor_index 0, count 8, control_data_length 80 (16 + 8 x 8 = 80), frame 106 B, entries 001bc5fffe000000 001bc5fffe000001 001bc5fffe000002 001bc5fffe000003 001bc5fffe000004 001bc5fffe000005 001bc5fffe000006 001bc5fffe000007
+== records/fA8-results.txt
+HEAD eca1b9ca8d9f0090ebc9b55b1bbb827d20bf7ffd DIRTY 0 fA8 8x8 aecp  start 11:44:35
+  aecp start    844.828 ms   11,328 cycles   120 us  command GET_AS_PATH status 10 control_data_length 16
+  aecp start    938.310 ms   11,150 cycles   120 us  command GET_AS_PATH status 10 control_data_length 16
+  aecp GET_AS_PATH response at 844.929 ms on port 0: status 10, sequence_id 24852, unsolicited False, descriptor_index 0, count 0, control_data_length 16 (16 + 8 x 0 = 16), frame 42 B, entries 
+  aecp GET_AS_PATH response at 938.409 ms on port 1: status 10, sequence_id 24867, unsolicited False, descriptor_index 0, count 0, control_data_length 16 (16 + 8 x 0 = 16), frame 42 B, entries 
+== records/record_classes-b15da60a-legs.txt (tail)
+RESULT: PASS
+rc=0
+== stub-leg/record_classes-stub-for-arm-b.txt (REFUSED lines)
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH answered SUCCESS with its 8 entries (control_data_length 80) in aecp, whose answered read no other arm reaches
+REFUSED 1x1/1if answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length 16, not the 80 of the 8 entries the arm's path port reads and answers (arm_path.py): its record is not the answered read's
+RESULT: FAIL
+rc=1
+== stub-leg/stubB1-get_as_path.txt
+== stubB1/results: 1x1/1if answering-ports
+  aecp start    795.201 ms   10,019 cycles   110 us  command GET_AS_PATH status 0 control_data_length 16
+  aecp GET_AS_PATH response at 795.289 ms on port 0: status 0, sequence_id 24852, unsolicited False, descriptor_index 0, count 0, control_data_length 16 (16 + 8 x 0 = 16), frame 42 B, entries 
+== gates/lane/stub_probe_refused.log (tail)
+self-test rc 1; record_classes rc 1; restored
+== gates/lane/load_check.log HELD lines
+HELD 1x1/1if at the pin: the load 0.518, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.514, its ceiling 0.70
+== gates/lane/flip_check_1x1.log R4
+| 1x1/1if | R4 | 13.25 | 20 | -6.75 | 5 | aecp 3.920, timers 1.460, passes 1.175 |
+== by-design exits: body vs author-r5 (line 1 is the head)
+rows_tiers_report_exits_1 identical rc 1
+flip_check_exits_1 identical rc 1
+flip_check_1x1_as_built_exits_1 identical rc 1
+flip_check_8x8_exits_1 identical rc 1
+load_check identical rc 0
+== docs workflow rc files: 61, nonzero: 0
+== harness legs at b15da60a
+hs-gA1.rc 0
+hs-gA8.rc 0
+hs-gB1.rc 0
+hs-gB8.rc 0
+hs-gE1.rc 0
+hs-gN8.rc 0
+== images b15da60a vs eca1b9ca: 14 identical-tagged fixture/platform rows; harness rows:
+gB1 PLAN answering-ports endstation_ax71s 41.0 | cb862ec36a8eacafbcefa7bc0497d7e9683c10057e56f760da5c089155d746f5 | fB1 at eca1b9ca cb862ec36a8eacafbcefa7bc0497d7e9683c10057e56f760da5c089155d746f5 
+gB8 PLAN answering-ports endstation_ax719.0 | 77d041e7ad324bd30bcc8f8589312b2f29fac8e8d58661c17fc88b8999037de7 | fB8 at eca1b9ca 77d041e7ad324bd30bcc8f8589312b2f29fac8e8d58661c17fc88b8999037de7 
+gA1 PLAN none endstation_ax7101_1x1_tdm8863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 | fA1 at eca1b9ca c1863c228066bdfc8cf702a4bb5f122fbff6728df20cb462da8d98df79cbd8a5 
+gA8 PLAN none endstation_ax7101_8x8 2 roc34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 | fA8 at eca1b9ca 14bf8c34bc7602bdd3cd31c4620e77ceb1050c759a29c8e33af1d03837b0eca6 
+gE1 PLAN answering-every-port endstation tiles 41.0 | dbcaef08e5b97f598691f9bad7fe7faf516b5a4d2f0ddd4c24e47982cb17b171 | fE1 at eca1b9ca dbcaef08e5b97f598691f9bad7fe7faf516b5a4d2f0ddd4c24e47982cb17b171
+gN8 PLAN answering-every-port endstationles 59.0 | 12e8738535b01075b7f05f1630052c377970e4f34f3e619d71a86fcfc1f7cdd9 | fN8 at eca1b9ca 12e8738535b01075b7f05f1630052c377970e4f34f3e619d71a86fcfc1f7cdd9 

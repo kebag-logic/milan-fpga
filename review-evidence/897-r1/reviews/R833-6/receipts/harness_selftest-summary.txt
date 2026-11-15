@@ -1,0 +1,19 @@
+# python3 -B tb/verilator/ctrl_service_budget/run.py --self-test at b15da60ac66d449ebf00b51e6c84ba256e319229 (reviewer run), rc 0; full log sha256 60e41628def38ac236e8cdfa6ee49e0f3b714ea3e27f783aa292711afb329adc, 5002 lines
+PASS lines: 869; FAIL lines: 0; MUTANT caught: 250; other MUTANT lines: 0
+774:PASS: the record classes refuse a pass missing a group of arm A
+775:PASS: the record classes refuse an unpaced edit charged at the edit record
+776:PASS: the record classes refuse an edit over its record
+777:PASS: the record classes refuse an ordinary record over record.aecp
+778:PASS: the record classes refuse a long record over its record
+779:PASS: the record classes refuse a labelled arm's record held
+780:PASS: the record classes refuse a pass missing arm B's SET_CONFIGURATION
+781:PASS: the record classes refuse a pass missing arm B's SET_STREAM_INFO
+782:PASS: the record classes refuse an unpaced SET_CONFIGURATION charged as ordinary
+783:PASS: the record classes refuse a SET_CONFIGURATION over the paced record
+784:PASS: the record classes refuse a record named by a later record's response
+785:PASS: the record classes refuse a pass missing arm B's GET_AS_PATH
+786:PASS: the record classes refuse a GET_AS_PATH over record.aecp
+787:PASS: the record classes refuse a GET_AS_PATH answered SUCCESS with no entries
+788:PASS: the answering-ports arm's path port is arm_path.py's, which reads the window
+2585:MUTANT caught: build: arm B's path port answers no entries at once, reading no window (earlier rule): the answering-ports arm's path port is arm_path.py's, which reads the window (the answering-ports arm's build does not define arm_path.py's path port (build.VARIANTS))
+self-test: 0 failures
