@@ -1,0 +1,9 @@
+57.0	PRESENT-NOHIST	- **Every image is within its cap:** the 8x8/2if platform holds 130,920 B of 131,072, and the 1x1/1if size fixture 111,024 B (41.0 RAMB36).
+123.0	PRESENT-NOHIST	- **The images:** the cut and the stamp add 216 B of rom to each image but the 1x1/1if size fixture, 224 B there (`receipts/images/rom-per-image.txt`).
+123.1	PRESENT-NOHIST	Every image is within its cap: the 8x8/2if platform holds 130,920 B of 131,072 (152 B spare, 60.0 RAMB36), the 8x8/1if platform 129,624 B (56.0), and the 1x1/1if size fixture 111,024 B (41.0).
+216.0	PRESENT-NOHIST	- **Per-image rom** (R838-6-F1, R837-6-R2): section 13's "220 B of rom to every image" is replaced by each image's growth, reconciled against `7398ec0a`.
+216.1	OTHER	Round 11's cut added 224 B to each 1x1 image (the size fixture 110,576 to 110,800 B) and 208 B to each 8x8 image (the 8x8/2if platform 130,496 to 130,704 B).
+680.0	OTHER	- **The decisions, pins and ledger** (`:2513`, `:2515-2517`) cite their sources.
+725.0	PRESENT-NOHIST	| R838-6-F1 (MINOR), R837-6-R2: "the cut adds 220 B of rom to every image" | Replaced by each image's growth against `7398ec0a`: +224 B in each 1x1 image, +208 B in each 8x8 image.
+725.1	PRESENT-NOHIST	Round 12's growth is stated the same way: +216 B, and +224 in the 1x1/1if size fixture | `SPLIT_CONTROL_MEMORY.md:2480`, its new subsection's images bullet | `receipts/images/rom-per-image.txt` (8 images at `7398ec0a`, `9606b3a9`, `fe0cef5b`) |
+788.0	PRESENT-NOHIST	| R837-14-F1 (MINOR, Docs): `:2382` gives the round-11 fixture image, 110,800 B, as the head's;

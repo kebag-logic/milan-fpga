@@ -1,0 +1,5 @@
+347.0	OTHER	| MAAP | 50 ms | 20 ms | IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms x 10 % |
+378.0	PRESENT-NOHIST	- MAAP has no DEFEND deadline: its three probes are 500 to 600 ms apart (IEEE 1722-2016 B.3.4.2, Tables B.7 and B.8).
+413.0	OTHER	| MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms;
+414.0	OTHER	| MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1 with constants B.3.3/Table B.8: strictly 30 s < announcement interval < 32 s;
+451.0	PRESENT-NOHIST	  The five transmit rings hold 6,144 bytes, at most 256 records of the 14-byte minimum frame; padded, with FCS, preamble and gap, that is 21,504 bytes on the wire.
