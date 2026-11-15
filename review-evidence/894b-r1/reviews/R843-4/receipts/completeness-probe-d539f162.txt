@@ -1,0 +1,19 @@
+# reviewer completeness probe at d539f162 (record_classes.py of the head)
+ok  1x1/1if complete alone (as #902 held it): 0 findings
+ok  8x8/1if complete alone (its own requirement): 0 findings
+ok  both points complete: 0 findings
+ok  R843-3 F2 shape: 8x8/1if complete + 1x1/1if ports leg, SET_CONFIGURATION dropped: 2 findings
+      the pass runs no arm A leg at 1x1/1if
+      the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+ok  reverse: 1x1/1if complete + 8x8/1if ports leg alone (its arm B intact): 1 findings
+      the pass runs no arm A leg at 8x8/1if
+ok  8x8/1if complete + 1x1/1if ports leg intact (no arm A at 1x1/1if): 1 findings
+      the pass runs no arm A leg at 1x1/1if
+ok  8x8/1if ports leg alone: 1 findings
+      the pass runs no arm A leg at 8x8/1if
+ok  only an uncomplete point (8x8/2if legs): 1 findings
+      the pass runs no arm A leg at a point it is held at (1x1/1if, 8x8/1if)
+ok  empty pass: 1 findings
+      the pass runs no arm A leg at a point it is held at (1x1/1if, 8x8/1if)
+RESULT: PASS: 9 of 9 as expected
+rc=0

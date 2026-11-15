@@ -1,0 +1,33 @@
+# Reviewer row-by-row check of SPLIT_CONTROL_MEMORY.md section 13 (d539f162, lines 2547-2595) against the published receipts
+# gate  = ef79ca12:review-evidence/894b-r1/author-r6/receipts/harness/gate-8x8-1if-regraded-af2c4d7a.txt (round 5's a15345f7 measurement regraded)
+# rows  = d0318d2a (= ef79ca12) :review-evidence/894b-r1/author-r6/receipts/model/rows-8x8-1if-af2c4d7a.txt (blob 34a6136f in both)
+# load  = receipts/gates/load_check.log (this packet, load_grade.py --check at d539f162)
+# survey= ef79ca12:.../author-r6/receipts/model/survey-compare-ordinary-af2c4d7a.txt
+# taged = ef79ca12:.../author-r5/receipts/harness/control-transmit-aged-8x8-1if-a15345f7.txt
+# Each row: section 13's figure and instance | the receipt's figure and instance | match
+AECP 4.860 notice-every-6 held.aecp            | gate aecp 4.860 notice-every-6.held.aecp                  | yes
+ACMP 7.231 notice-burst-7 held.acmp            | gate acmp 7.231 notice-burst-7.held.acmp                  | yes
+ADP 6.014 notice-burst-7                       | gate adp 6.014 notice-burst-7.held.adp                    | yes
+ENTITY_AVAILABLE 4.629 backlog-adp@program-aged2-7 | gate disc 4.629 same group                            | yes
+MAAP 6.255 notice-every-4 held.maap            | gate maap 6.255 notice-every-4                            | yes
+SRP 10.474 notice-every-7 held.srp             | gate srp 10.474 notice-every-7                            | yes
+MRPDU 4.114 save-starved periodic              | gate mrpdu 4.114 save-starved.mrpdu.periodic              | yes
+AECP's notices 2.168 aecp-fanout SET_SAMPLING_RATE | gate notify 2.168 aecp_fanout.set_sampling_rate       | yes
+first queued 2.812 notice-burst-2, of 40       | gate queued table: notice-burst-2 first 2.812, 40 notices | yes
+last queued 26.636 notice-burst-4, of 40       | gate queued table: notice-burst-4 last 26.636             | yes
+R4L 2.547 refused (refused.conflict_last)      | gate largest: aecp_long.refused.conflict_last 2.547       | yes
+114 groups, 1,717 instances                    | gate header 114 groups, 1717 instances                    | yes
+every leg exit 0, no STATED, no refusal        | gate: 7 legs END rc=0, STATED lines 0, 0 refusals         | yes
+joins 352 in 113 groups 187.397 (notice-burst-0) to 190.147 (acmp-cmd) | gate join line identical            | yes
+slices srp 142,809 (blank-aged2-5), build 138,906 (srp), round 92,744 (notice-burst-3) | gate slice lines    | yes
+THE RETRY 2,453,084 rounds, none over          | gate: 2,453,084, over their stated cost 0                 | yes
+THE SHARE: one pass aecp-largest-notice 202,546 | gate: 1 pass, longest 202,546                            | yes
+load 0.711 pin, 0.673 tsn-c-stack#32           | load_check: 8x8/1if 0.711 0.673; rows receipt same        | yes
+every-source R4 19.82 R5 126.36 R6 118.28 first 17.83 last 325.90 R4L 192.81 ACMP 48.37 ADP 48.33 MAAP 49.03 tx 67.24 txL 134.96 | rows table, same eleven | yes
+"R4, first, R4L within; others over"           | rows: over-by negative exactly for R4, first, R4L         | yes
+load with every AECP command the largest 0.969 | rows: 0.969                                               | yes
+largest record 143,648 cycles 1,510 us         | rows derived at 1,510 us; section 13 :2591 143,648        | yes
+heaviest SRP record 32,047 cycles 340 us within 365 | survey record.srp 32,047 320.47 340 365 within        | yes
+transmit-aged on head's image 66.976-67.606 ms, 8 of 8 | taged: min 66.976 (-7), max 67.606 (-6), 8 of 8 caught | yes
+round-3 figures (0.671, 154,850, 2,455,411, 4.693, ...) | labelled round 3's or bracketed history only        | yes
+RESULT: every current figure equals its receipt, row and instance bound (not substring only)

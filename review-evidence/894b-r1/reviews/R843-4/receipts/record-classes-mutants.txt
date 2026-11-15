@@ -1,0 +1,33 @@
+## mutant M1-points-from-map-only: 'points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))' -> 'points = sorted(set(wanted))'
+ESCAPED a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+record classes: 13 of 14 planted controls refused
+selftest rc=1
+BAD R843-3 F2 shape: 8x8/1if complete + 1x1/1if ports leg, SET_CONFIGURATION dropped: 0 findings
+BAD reverse: 1x1/1if complete + 8x8/1if ports leg alone (its arm B intact): 0 findings
+BAD 8x8/1if complete + 1x1/1if ports leg intact (no arm A at 1x1/1if): 0 findings
+BAD 8x8/1if ports leg alone: 1 findings
+RESULT: FAIL: 5 of 9 as expected
+## mutant M2-legs-points-only: 'points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))' -> 'points = sorted({leg.point for leg in legs if leg.point in COMPLETE and leg.variant == 'none'} | set(wanted))'
+ESCAPED a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+record classes: 13 of 14 planted controls refused
+selftest rc=1
+BAD R843-3 F2 shape: 8x8/1if complete + 1x1/1if ports leg, SET_CONFIGURATION dropped: 0 findings
+BAD reverse: 1x1/1if complete + 8x8/1if ports leg alone (its arm B intact): 0 findings
+BAD 8x8/1if complete + 1x1/1if ports leg intact (no arm A at 1x1/1if): 0 findings
+BAD 8x8/1if ports leg alone: 1 findings
+RESULT: FAIL: 5 of 9 as expected
+## mutant M3-no-armA-message-dropped: '                out.append(f'the pass runs no arm A leg at {point}')' -> '                pass'
+ESCAPED a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+record classes: 13 of 14 planted controls refused
+selftest rc=1
+BAD R843-3 F2 shape: 8x8/1if complete + 1x1/1if ports leg, SET_CONFIGURATION dropped: 1 findings
+BAD reverse: 1x1/1if complete + 8x8/1if ports leg alone (its arm B intact): 0 findings
+BAD 8x8/1if complete + 1x1/1if ports leg intact (no arm A at 1x1/1if): 0 findings
+BAD 8x8/1if ports leg alone: 0 findings
+RESULT: FAIL: 5 of 9 as expected
+## mutant M4-armB-only-at-mapped: '            ports = [leg for leg in legs if leg.point == point and leg.variant == 'answering-ports']' -> '            ports = [leg for leg in legs if leg.point == point and leg.variant == 'answering-ports'] if point in wanted else [leg for leg in legs if leg.variant == 'answering-ports']'
+ESCAPED a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+record classes: 13 of 14 planted controls refused
+selftest rc=1
+BAD R843-3 F2 shape: 8x8/1if complete + 1x1/1if ports leg, SET_CONFIGURATION dropped: 1 findings
+RESULT: FAIL: 8 of 9 as expected
