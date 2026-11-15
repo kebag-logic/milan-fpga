@@ -1,0 +1,11 @@
+# every changed file, 234bc149..867faf1e, compared at its compiled or executed level
+# changed: docs/design/SPLIT_CONTROL_MEMORY.md docs/reference/FR_NFR.md sw/firmware/ctrl/loop/ctrl_loop.h sw/firmware/ctrl/srp/README.md tb/verilator/ctrl_service_budget/edit_rows.py tb/verilator/ctrl_service_budget/poll_grade.py
+# C/H: gcc -fpreprocessed -dD -E -P -x c (comments removed, no macro expanded), then byte compare
+sw/firmware/ctrl/loop/ctrl_loop.h@234bc149: 516 lines, token stream sha256 13d2df1e0b8efa832734c6bd2c24fdf1b4e72788e07b6d3f573a24b8dd6a49e5
+sw/firmware/ctrl/loop/ctrl_loop.h@b25530f6: 516 lines, token stream sha256 13d2df1e0b8efa832734c6bd2c24fdf1b4e72788e07b6d3f573a24b8dd6a49e5
+sw/firmware/ctrl/loop/ctrl_loop.h@867faf1e: 516 lines, token stream sha256 13d2df1e0b8efa832734c6bd2c24fdf1b4e72788e07b6d3f573a24b8dd6a49e5
+token streams identical: True (line counts equal, so every __LINE__ is too)
+# Python: ast.dump(ast.parse(src), include_attributes=True): line and column positions compared too
+tb/verilator/ctrl_service_budget/poll_grade.py: AST identical: True (a comment only)
+tb/verilator/ctrl_service_budget/edit_rows.py: AST but the module docstring identical: True; the docstring differs only by 'its ruling 6883864236 item 3' -> 'its SET_CONFIGURATION ruling, item 3': True; nothing reads edit_rows.__doc__ (git grep: no hit)
+# the other three changed files are Markdown
