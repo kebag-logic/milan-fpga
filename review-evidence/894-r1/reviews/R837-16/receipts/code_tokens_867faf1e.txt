@@ -1,0 +1,4 @@
+SAME sw/firmware/ctrl/aecp/aecp_mbx.h
+DIFF sw/firmware/ctrl/loop/ctrl_loop.h
+-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)
++#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)
