@@ -1,0 +1,39 @@
+# Gap assertions in the planted hold-off logs (gtest failure lines; adv->time_ms vs lv->time_ms + 20,000)
+== if2 talker-hold-off-drops-the-transmit-term
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20590 vs 20695
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave (14 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:358: Failure
+== if2 talker-hold-off-rounds-the-transmit-term-down
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20690 vs 20695
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave (5 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:358: Failure
+== if2 talker-hold-off-drops-the-join-and-transmit-terms
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20400 vs 20570
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (18 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:302: Failure
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:313: Failure
+== if1 talker-hold-off-drops-the-transmit-term
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20590 vs 20624
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave (2 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:358: Failure
+== if1 talker-hold-off-rounds-the-transmit-term-down
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20620 vs 20624
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave (5 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:358: Failure
+== if1 talker-hold-off-drops-the-join-and-transmit-terms
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLeaveAllMs), actual: 20400 vs 20570
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (8 ms)
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:302: Failure
+<clone>/sw/firmware/ctrl/test/srp_talker.cpp:313: Failure

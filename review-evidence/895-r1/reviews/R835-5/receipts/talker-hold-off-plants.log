@@ -1,0 +1,38 @@
+6 defects: talker-hold-off-skipped, talker-hold-off-one-leaveall, talker-hold-off-drops-the-transmit-term, talker-hold-off-drops-the-join-and-transmit-terms, talker-hold-off-rounds-the-transmit-term-down, talker-hold-off-never-ends
+== interfaces 2
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-drops-the-transmit-term: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-drops-the-join-and-transmit-terms: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-rounds-the-transmit-term-down: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plants/hold-off/if2/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+== interfaces 1
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-drops-the-transmit-term: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+[ok] talker-hold-off-drops-the-join-and-transmit-terms: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+[ok] talker-hold-off-rounds-the-transmit-term-down: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+probe talker-hold-off at [2, 1]: PASS
+
+real	0m52.714s
+user	1m6.475s
+sys	0m8.757s
