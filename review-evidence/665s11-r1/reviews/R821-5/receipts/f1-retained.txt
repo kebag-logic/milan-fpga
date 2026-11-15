@@ -1,0 +1,29 @@
+# F1 evidence at d3566d44
+## poll_grade.py (unchanged by the lane)
+70:#: makes, stated at the SRP record's cost (280 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+90:STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+## load_grade.py STATED_US 1x1/1if record.srp / item.retained
+146:    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+148:                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
+179:    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+182:                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 285,
+## SPLIT_CONTROL_MEMORY.md polls table row
+2238:| retained | `apply_receive` of a record its participant refused for storag
+| 280 (250) | 365 (395) |
+## history: the commit that last moved record.srp before this lane also moved poll_grade retained
+5bea2597ec Restate the load gate's and the polls' stated costs on the merge of dev-soft-core 0fb66211, the larger of round 30's measurement 
+-    '1x1/1if': {'record.srp': 260, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
++    '1x1/1if': {'record.srp': 280, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+-    '1x1/1if': {'record.srp': 260, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
++    '1x1/1if': {'record.srp': 280, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+-STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=260, mrpdu=430, acmp=120,
++STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=430, acmp=120,
+-             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,
++             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,
+## 7653571f touched poll_grade.py?
+0
+## author survey compare2, retained lines
+item.record                                   26,363   263.63   280    280 within   poll_grade.STATED_US[1] retained; E1/notice-every-1
+item.retained                                      0     0.00     0    285 within   load_grade.GRADED item.retained; A1/acmp-notk
+item.retained                                      0     0.00     0    285 within   load_grade.STATED_US item.retained; A1/acmp-notk
+item.retained                                      0     0.00     0    280 within   poll_grade.STATED_US[1] retained; A1/acmp-notk

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "$REVIEWS/665s11-r821-5-packet/scratch/tree/tb/verilator/ctrl_service_budget/record_classes.py", line 336, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "$REVIEWS/665s11-r821-5-packet/scratch/tree/tb/verilator/ctrl_service_budget/record_classes.py", line 309, in main
+    arm = [g.name for g in run.all_groups(scenario.point('1x1', spec), spec)]
+                                          ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/665s11-r821-5-packet/scratch/tree/tb/verilator/ctrl_service_budget/scenario.py", line 207, in point
+    header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/r5/legs2/A/image/adp_entity_gen.h'
