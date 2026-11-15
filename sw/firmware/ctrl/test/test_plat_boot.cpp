@@ -32,6 +32,24 @@
 //   B10 a controller's bind after READY is written back to the flash by the
 //       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
 //       acmp_nvm.h's boot order)
+//   B11 the PHY poll (#919, ctrl_plat_phy.h) is armed past the identity check:
+//       a foreign window's MDIO pins are never touched; a stage refused past
+//       it keeps publishing the PHY's link on its console's turns (#70)
+//   B12 THE STEP's client: a call whose store takes a step of its save carries
+//       no PHY frame, and one whose store step is an idle one, or that has no
+//       store step, carries one; the client owes a step while the PHY owes a
+//       frame
+//   L1  the ready loop publishes the PHY's link to milan_mac_link_status
+//   L2  the datapath's effective link (milan_datapath.sv eff_link_w, the
+//       published link_up through the SoC's synchroniser), modelled as a level
+//       that stands between two turns: a 3 s loss, and a loss that recovered
+//       between two polls, each move LINK_DOWN and LINK_UP by one
+//   L3  each edge's counter change reaches AECP, which sends a registered
+//       controller one unsolicited GET_COUNTERS for the AVB_INTERFACE, LINK_DOWN
+//       then LINK_UP moved by one
+//   L4  the link's return is published by the first poll after it, so the
+//       gPTP plane's port enable rises then and its Pdelay_Req cease ends
+//       (Milan v1.2 4.2.6.2.5), within CTRL_PLAT_PHY_POLL_US of the return
 
 #include <gtest/gtest.h>
 
@@ -96,12 +114,27 @@ int flash_erase(void* ctx, std::uint32_t addr) {
     return nvm_fmodel_port.erase(ctx, addr);
 }
 
+// The AVB_INTERFACE's link counters as the datapath counts them (milan_datapath.sv ctr_linkup_r and ctr_linkdn_r,
+// IEEE 1722.1-2021 Table 7-158: LINK_UP quadlet 0, LINK_DOWN quadlet 1; CTR_VALID_AVB_C), answered through the
+// face's CTR window
+struct LinkCounters {
+    bool served = false;
+    std::uint32_t up = 0, down = 0;
+};
+LinkCounters counters;
+
 struct Far {
     bool ack = true;
     std::vector<std::size_t> commits;   // the mailbox access count at each F_COMMIT
-    static mbx_model_reply answer(void*, unsigned, unsigned, const std::uint32_t*, std::uint64_t* data) {
+    static mbx_model_reply answer(void*, unsigned, unsigned window, const std::uint32_t* request, std::uint64_t* data) {
         *data = 0;
-        return MBX_MODEL_SILENT;
+        if (!counters.served || window != MBX_WIN_CTR ||
+            (request[0] >> MBX_CTR_REQ_TYPE_LSB & 0xffffu) != MBX_CTRCHG_AVB_INTERFACE_TYPE) {
+            return MBX_MODEL_SILENT;
+        }
+        const std::uint32_t word = request[1] >> MBX_CTR_WORD_WORD_LSB & 0x3fu;
+        *data = word == 0u ? counters.up : word == 1u ? counters.down : word == 32u ? 0x23u : 0u;
+        return MBX_MODEL_ANSWER;
     }
     static bool commit(void* p, unsigned, const std::uint32_t*) {
         auto& f = *static_cast<Far*>(p);
@@ -145,6 +178,7 @@ struct Boot : ::testing::Test {
         mailbox.clear();
         media.clear();
         other_contract = false;
+        counters = LinkCounters{};
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
         for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_link(&fabric, i, true);
@@ -401,6 +435,211 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
     EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u)
         << "B10 the bind is written back by the store's service on the loop's tick";
     EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
+}
+
+
+// ---- the PHY poll (#919) ---------------------------------------------------
+
+constexpr ctrl_plat_phy_bus kPhyBus = {0xf0002004u, 0xf0002008u, 0xf000201cu, 100000000u};
+constexpr std::uint32_t kGigFull = 13u;
+constexpr unsigned kPollMs = CTRL_PLAT_PHY_POLL_US / 1000u;
+
+// The boot with a 1000BASE-T PHY behind the bus at address 0, and the datapath's effective link as the RTL
+// builds it from the published word (L2): a level that stands between two turns, its edges counted, posted to the
+// mailbox as the LINK level and to the face as the AVB_INTERFACE's counter change, and kept as the gPTP plane's
+// port enable
+struct Phy : Boot {
+    phy_peer::Peer peer;
+    bool level = true;                                  // link_status resets link up
+    std::size_t seen = 0;
+    std::vector<std::pair<std::uint64_t, bool>> edges;  // the port enable's edges, (us, level)
+    std::uint32_t scanned = 0;                          // the mailbox's frames read for notices
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> notices;   // the AVB_INTERFACE's (LINK_UP, LINK_DOWN)
+    void SetUp() override {
+        Boot::SetUp();
+        peer = phy_peer::Peer{};
+        level = true;
+        seen = 0;
+        edges.clear();
+        scanned = 0;
+        notices.clear();
+        peer.w = kPhyBus.mdio_w;
+        peer.r = kPhyBus.mdio_r;
+        peer.status = kPhyBus.link_status;
+        peer.gigabit(0u);
+        bus().phy = &peer;
+        env.phy = kPhyBus;
+        counters.served = true;
+    }
+    // Each unsolicited GET_COUNTERS (IEEE 1722.1-2021 7.4.42) of the AVB_INTERFACE the mailbox sent: an AEM_RESPONSE
+    // (message_type 1) with the u bit, its block's quadlets 0 and 1
+    void scan() {
+        for (; scanned < fabric.tx_sent; ++scanned) {
+            const mbx_model_tx* f = mbx_model_tx_frame(&fabric, scanned);
+            ASSERT_NE(f, nullptr) << "a frame the capture dropped before it was read";
+            const auto quad = [f](unsigned at) {
+                return std::uint32_t(f->bytes[at]) << 24 | std::uint32_t(f->bytes[at + 1]) << 16 |
+                       std::uint32_t(f->bytes[at + 2]) << 8 | f->bytes[at + 3];
+            };
+            if (f->len >= 54u && f->bytes[12] == 0x22u && f->bytes[13] == 0xf0u && f->bytes[14] == 0xfbu &&
+                (f->bytes[15] & 0x0fu) == 1u && (f->bytes[36] & 0x80u) != 0u &&
+                ((f->bytes[36] & 0x7fu) << 8 | f->bytes[37]) == 0x0029u && (f->bytes[38] << 8 | f->bytes[39]) == 9) {
+                notices.push_back({quad(46), quad(50)});
+            }
+        }
+    }
+    void turn() {
+        ctrl_plat_step();
+        scan();
+        if (peer.published.size() == seen) return;
+        seen = peer.published.size();
+        const bool up = (peer.word & 1u) != 0u;
+        if (up == level) return;
+        level = up;
+        ++(up ? counters.up : counters.down);
+        edges.push_back({nvm_fmodel_now_us(), up});
+        mbx_model_set_link(&fabric, 0, up);
+        mbx_model_face_event(&fabric, 0, MBX_MODEL_EV_COUNTERS, MBX_CTRCHG_AVB_INTERFACE_TYPE, 0);
+    }
+    // `ms` milliseconds of both clocks, one at a time, `turns` turns in each
+    void run(unsigned ms, unsigned turns = 4) {
+        for (unsigned k = 0; k < ms; ++k) {
+            mbx_model_advance_ms(&fabric, 1u);
+            nvm_fmodel_advance_us(1000u);
+            for (unsigned n = 0; n < turns; ++n) turn();
+        }
+    }
+    // A loss of `ms`, then the link back, its loss latched in BMSR as a PHY latches it
+    void flap(unsigned ms) {
+        peer.link(false);
+        run(ms);
+        peer.link(true);
+        peer.latched_down = true;
+    }
+    unsigned pin_accesses() const {
+        return bus().count(0, kPhyBus.mdio_w, true) + bus().count(0, kPhyBus.mdio_r, false) +
+               bus().count(0, kPhyBus.link_status, true);
+    }
+};
+
+TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
+    bus().csr[CTRL_PLAT_CSR_ID] = 0x12345678u;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IDENTITY);
+    run(2u * kPollMs);
+    EXPECT_EQ(pin_accesses(), 0u) << "B11 a foreign window's MDIO pins are never touched";
+    TearDown();
+    SetUp();
+    image.assign(env.aem, env.aem + env.aem_bytes);
+    image[image.size() / 2] ^= 0x01u;
+    env.aem = image.data();
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IMAGE);
+    run(5);
+    EXPECT_FALSE(peer.published.empty()) << "B11 a stage refused past the identity check keeps publishing the link";
+    EXPECT_EQ(peer.word, kGigFull) << "B11 a stage refused past the identity check keeps publishing the link";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(Phy, B12StepCarriesTheStoresSaveOrAPhyFrame) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(5);
+    ASSERT_EQ(peer.word, kGigFull);
+    ASSERT_EQ(nvm_store_status()->phase, NVM_P_IDLE) << "a blank flash's store is idle";
+    nvm_fmodel_advance_us(CTRL_PLAT_PHY_POLL_US);
+    // the store's idle step: no flash, no record, so the PHY's frame follows it
+    nvm_store_tick();
+    std::uint32_t steps = nvm_store_status()->steps;
+    std::size_t frames = peer.frames.size();
+    EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US))
+        << "B12 the client owes a step while the PHY owes a frame";
+    EXPECT_EQ(nvm_store_status()->steps, steps + 1u) << "B12 the store's owed step is taken first";
+    EXPECT_EQ(peer.frames.size(), frames + 1u) << "B12 a call whose store step is an idle one carries one PHY frame";
+    // a save in flight: its step leaves the PHY no room in that call
+    ASSERT_EQ(nvm_store_commit_now(), 1);
+    nvm_store_tick();
+    steps = nvm_store_status()->steps;
+    frames = peer.frames.size();
+    EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US))
+        << "B12 the client owes a step while the PHY owes a frame";
+    EXPECT_EQ(nvm_store_status()->steps, steps + 1u) << "B12 the store's step of its save is taken";
+    EXPECT_EQ(peer.frames.size(), frames) << "B12 a call whose store takes a step of its save carries no PHY frame";
+    // no store step owed: the PHY's frame
+    EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US))
+        << "B12 the client owes a step while the PHY owes a frame";
+    EXPECT_EQ(peer.frames.size(), frames + 1u) << "B12 a call with no store step carries the PHY's frame";
+}
+
+TEST_F(Phy, L1ReadyLoopPublishesTheLink) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(5);
+    EXPECT_FALSE(peer.published.empty()) << "L1 the ready loop publishes the PHY's link";
+    EXPECT_EQ(peer.word, kGigFull) << "L1 the ready loop publishes the PHY's link";
+    const std::size_t pubs = peer.published.size();
+    run(3u * kPollMs);
+    EXPECT_GE(peer.published.size(), pubs + 2u) << "L1 a poll a period, each publishing the link";
+    EXPECT_LE(peer.published.size(), pubs + 3u) << "L1 a poll a period, each publishing the link";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(Phy, L2EveryEdgeIsCounted) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(5);
+    ASSERT_EQ(peer.word, kGigFull);
+    EXPECT_EQ(counters.up + counters.down, 0u) << "L2 a PHY up at boot moves neither counter";
+    flap(3000u);
+    run(kPollMs + 10u);
+    EXPECT_EQ(counters.down, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.up, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+    peer.latched_down = true;
+    run(kPollMs + 10u);
+    EXPECT_EQ(counters.down, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.up, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+    run(2u * kPollMs);
+    EXPECT_EQ(counters.up + counters.down, 4u) << "L2 a steady link moves neither";
+}
+
+// REGISTER_UNSOLICITED_NOTIFICATION (IEEE 1722.1-2021 7.4.37) from a controller, as the datapath delivers it
+std::vector<std::uint8_t> registration(std::uint64_t mac, std::uint64_t entity) {
+    std::vector<std::uint8_t> b(38, 0u);
+    const auto put = [&b](std::size_t at, std::uint64_t v, unsigned n) {
+        for (unsigned k = 0; k < n; ++k) b[at + k] = static_cast<std::uint8_t>(v >> (8u * (n - k - 1u)));
+    };
+    put(0, mac, 6);
+    put(6, 0x020000000081ull, 6);
+    put(12, 0x22f0u, 2);
+    b[14] = 0xfbu;
+    put(16, 12u, 2);
+    put(18, entity, 8);
+    put(26, 0x1020304050607080ull, 8);
+    put(34, 0x1234u, 2);
+    put(36, 0x0024u, 2);
+    return b;
+}
+
+TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(5);
+    const auto reg = registration(ctrl_plat.config.entity->mac, ctrl_plat.config.entity->entity_id);
+    ASSERT_TRUE(mbx_model_rx(&fabric, reg.data(), reg.size(), 0));
+    run(20);
+    notices.clear();
+    flap(3000u);
+    run(1500u);
+    EXPECT_EQ(notices, (std::vector<std::pair<std::uint32_t, std::uint32_t>>{{0u, 1u}, {1u, 1u}}))
+        << "L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one";
+}
+
+TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(5);
+    flap(3000u);
+    const std::uint64_t back = nvm_fmodel_now_us();
+    run(2u * kPollMs + 10u);
+    ASSERT_EQ(edges.size(), 2u) << "L4 the port enable falls with the loss and rises with the return";
+    EXPECT_FALSE(edges[0].second) << "L4 the port enable falls with the loss";
+    EXPECT_TRUE(edges[1].second) << "L4 the port enable rises with the return";
+    EXPECT_LE(edges[1].first - back, std::uint64_t{CTRL_PLAT_PHY_POLL_US} + 10000u)
+        << "L4 the first poll after the link's return publishes it up: the gPTP plane's port enable rises within "
+           "CTRL_PLAT_PHY_POLL_US of the return, ending its Pdelay_Req cease";
 }
 
 }  // namespace

@@ -6,6 +6,9 @@
 // ctrl_plat_io.h. Every access is logged in order, so a test reads the boot's
 // writes as the bus would carry them.
 //
+// A test may put a Clause-22 PHY (phy_peer.hpp) behind the bus: its MDIO pair
+// and link-status word then answer from it, every access still in the log.
+//
 // The CSR window's words start as builder gate 35's host register file holds
 // them (sw/builder/test_builder.py, _fabric_seed): bit 0 set and bit 3 clear,
 // the offset in the middle, so a cleared enable or a set bit changes the word
@@ -23,6 +26,7 @@
 #include "ctrl_plat_console.h"
 #include "ctrl_plat_csr.h"
 #include "ctrl_plat_io.h"
+#include "phy_peer.hpp"
 
 namespace plat_bus {
 
@@ -48,6 +52,7 @@ struct Bus {
     unsigned overruns = 0;                        // RXTX written while TXFULL was set
     std::deque<std::uint32_t> tod_hi;             // TOD_RD_HI's answers, in order (then the register)
     std::vector<std::uint64_t> stamps;            // a caller-maintained clock per access (optional)
+    phy_peer::Peer* phy = nullptr;                // the PHY behind the MDIO pair, or none
 
     void reset() {
         csr.clear();
@@ -57,6 +62,7 @@ struct Bus {
         tx_room = ~0u;
         overruns = 0;
         tod_hi.clear();
+        phy = nullptr;
         csr[CTRL_PLAT_CSR_ID] = CTRL_PLAT_MILAN_ID;
         csr[CTRL_PLAT_CSR_VERSION] = kVersion;
     }
@@ -77,7 +83,9 @@ struct Bus {
     }
     std::uint32_t read(std::uintptr_t address) {
         std::uint32_t value = 0;
-        if (address == kUartRegs.rxempty) {
+        if (phy != nullptr && phy->owns(address)) {
+            value = phy->read(address);
+        } else if (address == kUartRegs.rxempty) {
             value = rx.empty() ? 1u : 0u;
         } else if (address == kUartRegs.rxtx) {
             value = rx.empty() ? 0u : rx.front();
@@ -97,7 +105,9 @@ struct Bus {
     }
     void write(std::uintptr_t address, std::uint32_t value) {
         log.push_back({true, address, value});
-        if (address == kUartRegs.ev_pending && (value & CTRL_PLAT_UART_EV_RX) != 0u && !rx.empty()) {
+        if (phy != nullptr && phy->owns(address)) {
+            phy->write(address, value, log.size());
+        } else if (address == kUartRegs.ev_pending && (value & CTRL_PLAT_UART_EV_RX) != 0u && !rx.empty()) {
             rx.pop_front();
         } else if (address == kUartRegs.rxtx) {
             tx.push_back(static_cast<char>(value));

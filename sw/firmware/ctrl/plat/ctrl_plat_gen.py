@@ -17,11 +17,16 @@ policy CONFIG -o ctrl_plat_policy_gen.h
 
 map CSR_CSV -o ctrl_plat_map_gen.h
     The bus addresses the image reaches, from the SoC's own csr.csv: the
-    milan_csr and ctrl_mbx regions and the UART's four registers. The address
-    map is independent of the image (docs/design/SPLIT_CONTROL_MEMORY.md
-    section 4), so an export with any image gives the image's map. A csr.csv
-    whose UART pops its receive FIFO on the RXTX read (rx_fifo_rx_we) is
-    refused: the console pops it through EV_PENDING.
+    milan_csr and ctrl_mbx regions and the UART's four registers; the PHY's
+    MDIO pair and link-status word (milan_mac_phy_mdio_w and _r,
+    milan_mac_link_status; #919), all three or none, none written as 0, a SoC
+    with no MDIO, whose image polls no PHY (ctrl_plat_phy.h); and the clock the
+    CPU runs at, config_clock_frequency, the bus clock the split CPU runs on
+    (milan_soc.CTRL_CPU_CD). The address map is independent of the image
+    (docs/design/SPLIT_CONTROL_MEMORY.md section 4), so an export with any
+    image gives the image's map. A csr.csv whose UART pops its receive FIFO on
+    the RXTX read (rx_fifo_rx_we) is refused: the console pops it through
+    EV_PENDING. So is one with some but not all of the PHY's three rows.
 
 Exit 0 written; 2 refused (the input does not say what the header needs).
 """
@@ -50,6 +55,11 @@ MAP_ROWS = (("CTRL_PLAT_CSR_BASE", "memory_region", "milan_csr"),
             ("CTRL_PLAT_UART_TXFULL", "csr_register", "uart_txfull"),
             ("CTRL_PLAT_UART_RXEMPTY", "csr_register", "uart_rxempty"),
             ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"))
+#: The PHY's rows (#919): macro -> csr.csv register, all three or none (ctrl_plat_phy.h).
+PHY_ROWS = (("CTRL_PLAT_PHY_MDIO_W", "milan_mac_phy_mdio_w"), ("CTRL_PLAT_PHY_MDIO_R", "milan_mac_phy_mdio_r"),
+            ("CTRL_PLAT_LINK_STATUS", "milan_mac_link_status"))
+#: The SoC's clock, the split CPU's (milan_soc.CTRL_CPU_CD: the bus clock).
+CLOCK = ("CTRL_PLAT_CPU_HZ", "config_clock_frequency")
 #: LiteX's constant when the UART pops on the RXTX read (soc.py add_uart).
 RX_WE = "config_uart_rx_fifo_rx_we"
 
@@ -139,6 +149,15 @@ def map_header(csr_csv: Path) -> str:
         if (kind, name) not in rows:
             raise Refusal(f"{csr_csv.name} holds no {kind} {name}")
         lines.append(f"#define {macro} 0x{int(rows[(kind, name)], 16):08X}u")
+    phy = [("csr_register", name) in rows for _, name in PHY_ROWS]
+    if any(phy) and not all(phy):
+        missing = [name for (_, name), held in zip(PHY_ROWS, phy) if not held]
+        raise Refusal(f"{csr_csv.name} holds some of the PHY's registers but not {missing}")
+    for macro, name in PHY_ROWS:
+        lines.append(f"#define {macro} 0x{int(rows[('csr_register', name)], 16) if all(phy) else 0:08X}u")
+    if ("constant", CLOCK[1]) not in rows:
+        raise Refusal(f"{csr_csv.name} holds no constant {CLOCK[1]}")
+    lines.append(f"#define {CLOCK[0]} {int(rows[('constant', CLOCK[1])])}u")
     return "\n".join([
         "// SPDX-FileCopyrightText: 2026 Kebag Logic",
         "// SPDX-License-Identifier: CERN-OHL-W-2.0",
