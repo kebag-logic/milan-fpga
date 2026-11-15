@@ -333,8 +333,14 @@ The atomicity rules, from section 7 and the D3 register:
   covered the whole container. A power cut at any step boots the old values
   or the new ones, never a mix.
 - **DR2a.** The window opens at the first change still waiting for a
-  capture. A change the running capture has yet to reach is taken by that
-  capture and opens no window; a change it has passed opens its own.
+  capture. A change marked during a running capture joins it and opens no
+  window: one the capture has yet to reach, and one to a record no capture
+  holds, for which the capture walks again from the first record, taking only
+  such records, so it takes each record once and ends (#920). A change to a
+  record the capture has taken, or one marked after the capture, is the next
+  save's, which starts at the first idle step after the save in flight with no
+  window (#920; #665, the ruling of issuecomment-6899740728, item 1). A first
+  change keeps its 1,000 ms window.
 - **DR2c.** A failed attempt names its step (`VD_ERASE`, `VD_PROGRAM`,
   `VD_VERIFY`), keeps its records in flight and marks the claim stale. The
   captured work set gets three attempts in all, the first included. Each
@@ -412,8 +418,8 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   (option (c)).**
   - This store, the split writer F1, is not held to D5's 24.5 ms capture
     bound. It holds no owner while it captures, and a change behind its
-    cursor opens its own window (DR2a), so the hold the bound protects does
-    not exist in the split.
+    cursor joins the capture or is the next save's (DR2a), so the hold the
+    bound protects does not exist in the split.
   - Each step stays bounded by T_svc, under
     [FR_NFR 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
     as amended (20 ms, graded per family).
