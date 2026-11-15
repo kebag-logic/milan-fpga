@@ -82,9 +82,10 @@ it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`
 sets how many copies elaborate at once (2).
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
-its table; the default `make` runs twelve of them (one per leaf, one in the
-skeleton, one in the filter's tuple, one in the publication block, one in the
-face block and one per timing cut of #870, `--quick`).
+its table; the default `make` runs thirteen of them (one per leaf, one in
+the skeleton, one in the filter's tuple, one in the publication block, one in
+the face block, one per timing cut of #870 and the held frame's of #917,
+`--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -94,7 +95,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; twelve run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; thirteen run in the default make.
 - **[Run](#run)** -- The make targets.
 
 ## The top and the bench
@@ -158,7 +159,7 @@ filter table. Register offsets and field positions are the generated
 | Q7 | the CONTROLLER_AVAILABLE response for this controller delivered whole; one for another controller dropped even to this target; every message_type sent both ways: even ones pass on target_entity_id only, odd ones on controller_entity_id only |
 | Q8 | the own MAC per interface: on every interface index the stream can name, each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND only on its own interface, with the record's IF that index, and counts once elsewhere; a MAC differing in its high or low part; a rewritten own MAC |
 | Q9 | `FILTER_MISMATCH` judges the tuple whatever `FILTER_EN` holds, counts five failures as five, and sets `IRQ_STATUS.ERR`; valid, tagged, identity-refused and short frames leave it and ERR alone |
-| Q10 | tuple and identity refusals take no token: a full burst passes after them, the frame past it counts in RATE_DROP |
+| Q10 | tuple and identity refusals take no token: a full burst passes after them, the frame past it is held and only the one behind that counts in RATE_DROP |
 | Q12 | the adp channel's bound talkers (lane F3 round 2, #665 comment 6029368753): with the table empty no ENTITY_AVAILABLE passes; an enabled entry's talker passes as ENTITY_AVAILABLE and ENTITY_DEPARTING, whole and uncounted, and under no other message_type, ENTITY_DISCOVER included; another talker, an identity differing in either half, a frame that ends inside entity_id (even when its bytes, right-aligned, are an entry) and an entry with `BOUND_EN` clear are dropped uncounted; the last entry, a rewritten entry and every entry at once; DISCOVER's own terms unchanged |
 | Q13 | the table read is the arrival interface's: a talker bound on interface i passes there only, with the record's IF i, and on another interface or an index with no interface reaches no ring and counts nothing |
 | Q14 to Q17 | the table compared byte by byte as the identity arrives (lane F3 round 3, #665 comment 6032450078): the bound talker right after another talker's frame passes, and right after that one differing in its first identity byte only does not; an identity differing from the entry in any one of its eight bytes is refused; `BOUND_EID_LO`, then `BOUND_EID_HI`, rewritten with `BOUND_EN` still set takes effect; after a reset every entry reads 0 again, an entry enabled with no identity written holds talker 0, and one with `BOUND_EID_HI` alone written holds that word and 0 |
@@ -166,7 +167,8 @@ filter table. Register offsets and field positions are the generated
 | Q22, Q23 | the table's interface, on the RTL only (lane F3 round 4, R530-2-F1): on each interface, a bound talker's ENTITY_AVAILABLE with another talker's frame on another index right behind it, so the next frame is presented at the verdict, passes alone with the record's IF its own; with two interfaces, Q19 again on every interface past the first, the owed copy gating that interface's entry |
 | Q11 | the MAAP DEFEND (IEEE 1722-2016 B.2.1): a DEFEND to the own MAC delivered whole and uncounted; a PROBE, an ANNOUNCE and every reserved message_type there, and a DEFEND to a foreign unicast, never delivered and counted once each; a DEFEND to the own MAC for a range beside this entity's dropped uncounted; a multicast DEFEND still delivered; a DEFEND cut at byte 14 (no message_type: counted) and at byte 15 (no range: uncounted), then the next DEFEND delivered |
 | D0, D1 | the ring fills to its last whole record; a frame the space cannot hold, or one over the channel's limit, counts in RX_DROP and never touches an unread record |
-| T0, T1 | the token bucket: a burst of its depth, then one frame per refill period |
+| T0, T1 | the token bucket and its refusal (#917): a burst of its depth passes, the frame past it is held (RX_HEAD covers the burst only) and committed at the next refill, not before, byte for byte and with the NOW_MS of its arrival, and only the frame behind it counts in RATE_DROP; the held frame spends the refill's token, so the next frame is held in its turn; then one frame per refill period, the next held and the one behind it refused, which never reaches the ring |
+| B0 to B4 | the held frame (#917; #665 comment 6894152131 item 2), on the AECP channel: fifty READ_DESCRIPTOR commands sent one in flight, each at line rate as the one before it is delivered, all delivered, in order and byte for byte, none counted anywhere, the burst at once and every later one within one refill period, with no IRQ_STATUS.ERR (B0); three commands back to back on one token: the first delivered at once, the third, behind the held second, dropped and counted in RATE_DROP with ERR, the second delivered at the next refill, the third never (B1); a controller sending a command a millisecond, one in flight, losing none of a hundred (B2, the hardware finding); a reset forgetting the held command, the bucket full again (B3); a tail ahead of RX_HEAD inside the held record leaving no free word, the next frame in RX_DROP, and the held record committed whole once the tail is back in range (B4) |
 | X0, X1 | TX records leave byte for byte under backpressure, in commit order between channels; a wrong KIND, non-zero reserved bits in word 1, an unknown interface, a short or long LEN, or a payload past TX_HEAD is refused once and flushes the ring |
 | X2 | commit order across channels: ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave 1, 1, 2; after an SRP frame, AECP, ACMP, ADP leave as committed; SEQ 0xFFFF before 0x0000; equal SEQs round-robin from the channel served last |
 | H0 to H2 | a wrong host counter: an RX_TAIL ahead of RX_HEAD stores nothing (RX_DROP), a TX_HEAD a ring ahead of TX_TAIL is refused (TX_ERR), an EVT_TAIL ahead of EVT_HEAD posts nothing; each recovers once back in range |
@@ -176,7 +178,8 @@ filter table. Register offsets and field positions are the generated
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
 | G1 | on the RTL only (#870): GM_LO's word and its GM_HI snapshot are one identity whichever cycle the identity changes in, the change landing after edge 0 to 7 of the GM_LO read, which must see both identities over the sweep |
 | W0 | on the RTL only (#870): with the adp ring full to its last whole record, a frame the free space cannot hold counts in RX_DROP and each word the ring does not take still reaches the write port at its slot (head + 2 + its index), unwritten: only the port's enable carries the write decision |
-| V0, V1 | on the RTL only (#870): twelve frames queued back to back, every verdict among them (committed, RX_DROP for max_frame_bytes, FILTER_MISMATCH, refused by its identity term, RATE_DROP): a verdict for each, the next frame's first byte offered in both cycles of every verdict before it, each counter moved once and each committed record once, byte for byte and in order (V0); the next frame's first byte taken 6 clocks after a committed frame's last byte and 4 after any other's, one more than an unregistered verdict (V1) |
+| V0, V1 | on the RTL only (#870): thirteen frames queued back to back, every verdict among them (committed, RX_DROP for max_frame_bytes, FILTER_MISMATCH, refused by its identity term, held for the next refill, RATE_DROP behind the held one): a verdict for each, the next frame's first byte offered in both cycles of every verdict before it, each counter moved once and each committed record once, the held one at the refill, byte for byte and in order (V0); the next frame's first byte taken 6 clocks after a stored (committed or held) frame's last byte and 4 after any other's, one more than an unregistered verdict (V1) |
+| B5, B6 | on the RTL only (#917): a refill landing in the clock of a stored frame's first header word, of its second, and in the clock after them with the frame held, each committing it then, once, nothing refused (B5); and, over every clock of every check before it, no channel holding a frame while its bucket holds a token, and the checks did hold frames (B6) |
 | S0 | on the RTL only (#870): every word of the host window read, none setting two selects of the read multiplexer, its registers one and its holes none; and, last, over every register read of every check, none set two |
 | U0 | on the RTL only, last, over every clock of every check before it (#870): no receive ring word is written while the head the core sees that cycle covers it, and the checks did write ring words and move heads |
 | P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.4, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
@@ -240,7 +243,7 @@ controls too.
 | `rx-eq-own-is-eq-zero` | eq_own compares with zero | F2, DISCOVER for this entity passes |
 | `rx-field-length-unchecked` | a term holds on a truncated field | F2, truncated DISCOVER |
 | `rx-writes-past-free-space` | speculative writes ignore the free space | D0, every unread record survives |
-| `rx-bucket-never-drains` | a commit takes no token | T0, RATE_DROP |
+| `rx-bucket-never-drains` | a commit takes no token | T0, only the frame behind the held one in RATE_DROP |
 | `rx-lanes-big-endian` | ring lanes reversed | F1, byte k in word k/4 |
 | `rx-subtype-ignored` | classification ignores the tuple's subtype | C0, ACMP by entity_id |
 | `tx-reserved-word-unchecked` | a non-zero reserved word is sent | X1, counted once |
@@ -429,6 +432,25 @@ again"), with the windows it lays over one another:
 | `rx-verdict-acts-unregistered` (+`-axil`) | the verdict acting in the cycle it is taken | V0, both verdict cycles offered, and V1, one clock early |
 | `top-read-select-overlaps-another` | CAPS's select also set at ID's offset | S0, and R0 (ID reads ID OR CAPS) |
 | `top-read-window-overlaps-another` (AXI4-Lite) | DA_GATE's select also set at the face block's first word | S0 |
+
+The held frame (#917; #665 comment 6894152131 item 2) adds seven, each
+breaking one of its rules; `rx-drop-instead-of-hold` runs in the default
+`make`. Four fixtures follow the changed lines with their defects unchanged:
+`rx-bucket-never-drains` and `rx-refusal-takes-a-token` on the bucket's
+decrement, which a held record's commit now shares, `rx-tail-unguarded` on
+the free space, whose guard now covers a tail inside the held record too,
+and `rx-verdict-acts-unregistered`, whose unregistered verdict reads the
+held flag as the registered one does. The model's twin of the first is
+`model-drop-instead-of-hold` in `ctrl_mutants.py`:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `rx-drop-instead-of-hold` | a frame that finds the bucket empty dropped, as before #917 | B0, all fifty delivered (and T0, V0, B1 to B5) |
+| `rx-hold-behind-a-held-frame` | the frame behind a held one dropped uncounted | B1, the third counted in RATE_DROP |
+| `rx-held-record-never-committed` | the refill leaves RX_HEAD where it was | T0, the next refill commits the held frame |
+| `rx-next-frame-over-the-held-record` | the next frame's words based at RX_HEAD, over the held record's | B1, the records byte for byte |
+| `rx-tail-inside-the-held-record-frees-space` | the free space read from RX_HEAD alone | B4, no free word, RX_DROP |
+| `rx-refill-in-the-header-clock-missed` (+`-axil`) | a refill in the clock of the header writes not seen: the frame held beside the token it brings | B5, committed then (and B6) |
 
 ## Run
 

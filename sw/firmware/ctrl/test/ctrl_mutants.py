@@ -305,9 +305,15 @@ MUTANTS = (
            ("\tfor (unsigned i = 0; i < bytes; ++i) {\n"
             "\t\tp[i] = (uint8_t)(value >> (8u * (bytes - 1u - i)));\n\t}\n"),
            "platrv32", "", "the 64-bit shift helper (tsn-c-stack#27)"),
-    Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
-           "\tif (ch->tokens == 0u && false) {",
-           "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 the frames past it count in RATE_DROP"),
+    Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u && ch->rx_held_words != 0u) {",
+           "\tif (ch->tokens == 0u && ch->rx_held_words != 0u && false) {",
+           "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit",
+           "T0 only the frame behind the held one counts in RATE_DROP"),
+    # #917: a frame the bucket has no token for is held, not dropped
+    Mutant("model-drop-instead-of-hold", "host/mbx_model.c", "\tif (ch->tokens == 0u && ch->rx_held_words != 0u) {",
+           "\tif (ch->tokens == 0u) {",
+           "model", "Suite/MbxModelGroup.PassesOnTheModel/HeldNotDropped",
+           "B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered"),
     Mutant("seq-not-stamped", "mbx/mbx.c", "\ttx_seq = (uint16_t)(tx_seq + 1u);\n", "",
            "port", "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
            "D3 ACMP, ACMP, AECP committed by the driver"),

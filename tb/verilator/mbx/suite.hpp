@@ -86,7 +86,7 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 25;
+    static constexpr unsigned kGroups = 26;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
@@ -101,7 +101,9 @@ class Suite {
         // lane F-INT: the publication block (#665, comment 6088423771)
         "Publication",
         // contract 2.3: the face block (#665)
-        "Face"};
+        "Face",
+        // #917: a frame the bucket has no token for is held, not dropped
+        "HeldNotDropped"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
@@ -129,6 +131,19 @@ class Suite {
         restart();
         check_face_timing();
         ck_.dec("no bus access went unanswered in the face timing checks", b_.bus_timeouts, 0);
+    }
+
+    //! The held record's timing (#917): a refill landing in each clock from
+    //! the verdict to the clock after the header writes, which only a
+    //! cycle-by-cycle bench shows; then, over every clock of every check run
+    //! before, no channel holding a frame while its bucket holds a token (B6).
+    //! sim_main runs it after run_face_timing(); the model never does.
+    void run_hold_timing() {
+        check_refill_at_the_header();
+        ck_.dec("B6 no channel holds a frame while its bucket holds a token, over every clock of every check",
+                b_.hold_with_token, 0);
+        ck_.that("B6 the checks held frames", b_.hold_cycles > 0);
+        ck_.dec("no bus access went unanswered in the hold timing checks", b_.bus_timeouts, 0);
     }
 
     //! The receive side and the register read across their timing cuts (#870),
@@ -189,7 +204,8 @@ class Suite {
         case 21: check_maap_defend(); break;
         case 22: check_adp_bound_talkers(); break;
         case 23: check_publication(); break;
-        default: check_face(); break;
+        case 24: check_face(); break;
+        default: check_held_not_dropped(); break;
         }
     }
 
@@ -366,6 +382,26 @@ class Suite {
     void check_own_mac_per_interface();
     void check_filter_mismatch_count();
     void check_tokens_apart();
+    void check_held_not_dropped();
+    void check_refill_at_the_header();
+    //! One AECP READ_DESCRIPTOR command for this entity from another controller, its sequence_id `seq`.
+    static std::vector<std::uint8_t> aecp_read(std::uint16_t seq) {
+        auto f = mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac, kReadDescriptor);
+        mbx_tb::put_be(f, 34, seq, 2);
+        return f;
+    }
+    //! Offer AECP commands one in flight, as a controller does (IEEE 1722.1-2021
+    //! 9.2.2.4): each at line rate as soon as the one before it is delivered,
+    //! or, with `paced`, a millisecond after the one before it was sent when it
+    //! was delivered at once. A command not delivered within one refill period
+    //! of its last byte is lost (the controller times out) and ends the run.
+    struct InFlight {
+        std::uint32_t delivered = 0;   //!< commands delivered
+        std::uint32_t at_once = 0;     //!< of them, delivered with no millisecond waited
+        std::uint32_t longest = 0;     //!< the most milliseconds one waited
+        bool in_order = true;          //!< every record is its command, byte for byte, in order
+    };
+    InFlight one_in_flight(std::uint32_t n, std::uint16_t first_seq, bool paced);
     void check_maap_defend();
     void check_adp_bound_talkers();
     void check_bound_table_per_interface();
@@ -743,25 +779,76 @@ void Suite<Bench, Check>::check_drop_never_touches_an_unread_record() {
     ck_.that("D1 the record after it is still the next frame's", same_bytes(peek(kAdp).bytes, extra));
 }
 
+// The token bucket (NFR-SCOUT-02) and its refusal (#917; #665, comment
+// 6894152131 item 2): the burst passes at once, the frame past it is held and
+// committed at the next refill, which it spends, and only a frame behind a
+// held one is refused, in RATE_DROP. Each frame carries its index at byte 60,
+// so the order and the bytes of every record are graded.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_rate_limit() {
     open(1u << kAdp);
     const std::uint32_t burst = MBX_CH_ADP_RATE_BURST;
+    const std::uint32_t refill = MBX_CH_ADP_RATE_REFILL_MS;
+    std::uint32_t sent = 0;
+    auto frame = [&]() {
+        auto f = mbx_tb::adpdu(2, kOwnEid);
+        f[60] = static_cast<std::uint8_t>(++sent);
+        return f;
+    };
+    std::vector<std::vector<std::uint8_t>> frames;
     for (std::uint32_t i = 0; i < burst + 2u; ++i) {
-        b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
+        frames.push_back(frame());
+        b_.send_frame(frames.back(), 0);
     }
     b_.drain_rx(40000);
+    const std::uint32_t arrived_ms = rd(MBX_REG_NOW_MS);
     ck_.dec("T0 a burst of the bucket's depth passes", rx_pass(kAdp), burst);
-    ck_.dec("T0 the frames past it count in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 2);
+    ck_.dec("T0 the frame past it is held: RX_HEAD covers the burst only", rx_head(kAdp),
+            burst * (2u + static_cast<std::uint32_t>(frames[0].size() + 3u) / 4u));
+    ck_.dec("T0 only the frame behind the held one counts in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("T0 and nothing in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 0);
+    bool in_order = true;
     for (std::uint32_t i = 0; i < burst; ++i) {
-        release(kAdp, peek(kAdp));
+        const Record r = peek(kAdp);
+        in_order = in_order && same_bytes(r.bytes, frames[i]);
+        release(kAdp, r);
     }
-    b_.ms(MBX_CH_ADP_RATE_REFILL_MS);
-    b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
-    b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
+    ck_.that("T0 the burst's records are its frames, byte for byte, in order", in_order);
+    b_.ms(refill - 1u);
+    ck_.dec("T0 the held frame waits for the refill", rx_pass(kAdp), burst);
+    b_.ms(1);
+    ck_.dec("T0 the next refill commits the held frame", rx_pass(kAdp), burst + 1u);
+    const Record held = peek(kAdp);
+    ck_.that("T0 the held record is the frame past the burst, byte for byte", same_bytes(held.bytes, frames[burst]));
+    ck_.dec("T0 and keeps the NOW_MS its last byte arrived at", held.w1, arrived_ms);
+    release(kAdp, held);
+    frames.push_back(frame());
+    b_.send_frame(frames.back(), 0);
     b_.drain_rx();
-    ck_.dec("T1 one refill period buys exactly one more frame", rx_pass(kAdp), burst + 1u);
-    ck_.dec("T1 and the next is refused again", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 3);
+    ck_.dec("T0 the held frame took the refill's token: the next frame is held in its turn", rx_pass(kAdp),
+            burst + 1u);
+    ck_.dec("T0 and not refused", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    b_.ms(refill);
+    ck_.dec("T0 and committed at the refill after", rx_pass(kAdp), burst + 2u);
+    ck_.that("T0 its record is that frame", same_bytes(peek(kAdp).bytes, frames.back()));
+    release(kAdp, peek(kAdp));
+    b_.ms(refill);
+    for (std::uint32_t i = 0; i < 3u; ++i) {
+        frames.push_back(frame());
+        b_.send_frame(frames.back(), 0);
+    }
+    b_.drain_rx();
+    ck_.dec("T1 one refill period buys exactly one more frame", rx_pass(kAdp), burst + 3u);
+    ck_.dec("T1 the next is held and the one behind it refused again", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 2);
+    ck_.that("T1 the frame bought is the first of the three", same_bytes(peek(kAdp).bytes, frames[frames.size() - 3u]));
+    release(kAdp, peek(kAdp));
+    b_.ms(refill);
+    ck_.dec("T1 the held one is committed at the next refill", rx_pass(kAdp), burst + 4u);
+    ck_.that("T1 its record is the second of the three", same_bytes(peek(kAdp).bytes, frames[frames.size() - 2u]));
+    release(kAdp, peek(kAdp));
+    b_.ms(2u * refill);
+    ck_.dec("T1 the refused one never reaches the ring", rx_pass(kAdp), burst + 4u);
+    ck_.dec("T1 RX_HEAD has nothing past the tail", rx_head(kAdp), rx_tail_[kAdp]);
 }
 
 //! Commit one TX record; word 1 is `w1` with the next commit count in SEQ.
@@ -1409,13 +1496,180 @@ void Suite<Bench, Check>::check_tokens_apart() {
         b_.send_frame(mbx_tb::adpdu(2, kForeignEid), 0);
     }
     b_.drain_rx(40000);
-    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+    for (std::uint32_t k = 0; k < burst + 2u; ++k) {
         b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
     }
     b_.drain_rx(40000);
     ck_.dec("Q10 refusals by the filter take no token: a full burst still passes after them", rx_pass(kAdp), burst);
-    ck_.dec("Q10 the bucket refuses the frame past it in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("Q10 the bucket holds the frame past it and refuses the one behind that in RATE_DROP",
+            rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
     ck_.dec("Q10 and FILTER_MISMATCH counts the tuple failures only", mismatches(), 2u * burst);
+}
+
+template <class Bench, class Check>
+typename Suite<Bench, Check>::InFlight Suite<Bench, Check>::one_in_flight(std::uint32_t n, std::uint16_t first_seq,
+                                                                          bool paced) {
+    const std::uint32_t ch = MBX_CH_AECP;
+    InFlight run;
+    for (std::uint32_t k = 0; k < n; ++k) {
+        const auto f = aecp_read(static_cast<std::uint16_t>(first_seq + k));
+        const std::uint32_t before = rx_pass(ch);
+        b_.send_frame(f, 0);
+        b_.drain_rx();
+        std::uint32_t waited = 0;
+        while (rx_pass(ch) == before && waited <= MBX_CH_AECP_RATE_REFILL_MS) {
+            b_.ms(1);
+            ++waited;
+        }
+        if (rx_pass(ch) == before) {
+            break;
+        }
+        const Record r = peek(ch);
+        run.in_order = run.in_order && same_bytes(r.bytes, f);
+        release(ch, r);
+        ++run.delivered;
+        run.at_once += waited == 0u ? 1u : 0u;
+        run.longest = waited > run.longest ? waited : run.longest;
+        if (paced && waited == 0u) {
+            b_.ms(1);
+        }
+    }
+    return run;
+}
+
+// #917 (#665, comment 6894152131 item 2): a frame the bucket has no token for
+// is held and committed at the next refill; only one behind a held frame is
+// dropped, and RATE_DROP counts it. On the AECP channel, whose controllers
+// keep one command in flight (IEEE 1722.1-2021 9.2.2.4), so a dropped command
+// costs a timeout and a retry.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_held_not_dropped() {
+    const std::uint32_t ch = MBX_CH_AECP;
+    const std::uint32_t burst = MBX_CH_AECP_RATE_BURST;
+    const std::uint32_t refill = MBX_CH_AECP_RATE_REFILL_MS;
+    auto dropped = [&]() { return rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)) + rd(ch_reg(ch, MBX_CH_REG_RX_DROP)); };
+    auto err = [&]() { return field(rd(MBX_REG_IRQ_STATUS), MBX_IRQ_STATUS_ERR_LSB, 1); };
+    open(1u << ch);
+    const InFlight h0 = one_in_flight(50, 0x4000, false);
+    ck_.dec("B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered",
+            h0.delivered, 50);
+    ck_.that("B0 in order, byte for byte", h0.in_order);
+    ck_.dec("B0 none counts in RATE_DROP or RX_DROP", dropped(), 0);
+    ck_.dec("B0 the bucket's burst is delivered at once", h0.at_once, burst);
+    ck_.that("B0 and every command after it within one refill period", h0.longest >= 1u && h0.longest <= refill);
+    ck_.dec("B0 and holding a command sets no IRQ_STATUS.ERR", err(), 0);
+
+    b_.ms(refill);   // one token
+    const auto a = aecp_read(0x5001);
+    const auto b = aecp_read(0x5002);
+    const auto c = aecp_read(0x5003);
+    const std::uint32_t pass0 = rx_pass(ch);
+    b_.send_frame(a, 0);
+    b_.send_frame(b, 0);
+    b_.send_frame(c, 0);
+    b_.drain_rx();
+    ck_.dec("B1 of three commands back to back on one token, the first is delivered at once", rx_pass(ch) - pass0, 1);
+    ck_.dec("B1 the third, behind the held second, is dropped and counted in RATE_DROP",
+            rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("B1 and the drop sets IRQ_STATUS.ERR", err(), 1);
+    const Record ra = peek(ch);
+    release(ch, ra);
+    b_.ms(refill);
+    ck_.dec("B1 the held second is delivered at the next refill", rx_pass(ch) - pass0, 2);
+    const Record rb = peek(ch);
+    release(ch, rb);
+    ck_.that("B1 the records are the first and the second, byte for byte, in order",
+             same_bytes(ra.bytes, a) && same_bytes(rb.bytes, b));
+    b_.ms(2u * refill);
+    ck_.dec("B1 the third never reaches the ring", rx_pass(ch) - pass0, 2);
+    ck_.dec("B1 RATE_DROP counts it once", rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)), 1);
+
+    // the hardware finding of #917: a controller at about 1 kHz lost about one
+    // command in 21 once the burst was spent
+    restart();
+    open(1u << ch);
+    const InFlight h2 = one_in_flight(100, 0x6000, true);
+    ck_.dec("B2 a controller sending a command a millisecond, one in flight, loses none of a hundred", h2.delivered,
+            100);
+    ck_.that("B2 in order, byte for byte", h2.in_order);
+    ck_.dec("B2 none counts in RATE_DROP or RX_DROP", dropped(), 0);
+    ck_.that("B2 the commands past what the bucket holds wait for a refill", h2.at_once < 100u && h2.longest >= 1u);
+
+    restart();
+    open(1u << ch);
+    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+        b_.send_frame(aecp_read(static_cast<std::uint16_t>(0x7000u + k)), 0);
+    }
+    b_.drain_rx(40000);
+    ck_.dec("B3 the command past the burst is held", rx_pass(ch), burst);
+    restart();
+    open(1u << ch);
+    b_.ms(refill);
+    ck_.dec("B3 a reset forgets the held command: no record at the next refill", rx_pass(ch) + rx_head(ch), 0);
+    for (std::uint32_t k = 0; k < burst; ++k) {
+        b_.send_frame(aecp_read(static_cast<std::uint16_t>(0x7100u + k)), 0);
+    }
+    b_.drain_rx(40000);
+    ck_.dec("B3 and the bucket is full again: a burst passes", rx_pass(ch), burst);
+    ck_.dec("B3 none refused", dropped(), 0);
+
+    // RX_TAIL (mailbox.yaml): a value ahead of RX_HEAD leaves no free word,
+    // and one inside the held record is ahead of RX_HEAD
+    restart();
+    open(1u << ch);
+    std::vector<std::uint8_t> held;
+    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+        held = aecp_read(static_cast<std::uint16_t>(0x7200u + k));
+        b_.send_frame(held, 0);
+    }
+    b_.drain_rx(40000);
+    for (std::uint32_t k = 0; k < burst; ++k) {
+        release(ch, peek(ch));
+    }
+    wr(ch_reg(ch, MBX_CH_REG_RX_TAIL), (rx_tail_[ch] + 1u) & 0xFFFFu);
+    b_.send_frame(aecp_read(0x7300), 0);
+    b_.drain_rx();
+    ck_.dec("B4 a tail ahead of RX_HEAD, inside the held record, leaves no free word: the next frame counts in RX_DROP",
+            rd(ch_reg(ch, MBX_CH_REG_RX_DROP)), 1);
+    ck_.dec("B4 and not in RATE_DROP", rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)), 0);
+    wr(ch_reg(ch, MBX_CH_REG_RX_TAIL), rx_tail_[ch]);
+    b_.ms(refill);
+    ck_.dec("B4 back in range, the held record is committed at the refill", rx_pass(ch), burst + 1u);
+    ck_.that("B4 whole, byte for byte", same_bytes(peek(ch).bytes, held));
+}
+
+// #917, at the clock: a refill that lands between a stored frame's verdict
+// and its header writes commits it at once, and one in the clock after a
+// held frame's header writes commits it then, so a channel never holds a
+// frame beside a token (B6 counts that over every clock).
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_refill_at_the_header() {
+    const std::uint32_t ch = MBX_CH_AECP;
+    const std::uint32_t burst = MBX_CH_AECP_RATE_BURST;
+    const std::uint32_t refill = MBX_CH_AECP_RATE_REFILL_MS;
+    static const char* const kWhere[3] = {"in the clock of its first header word", "in the clock of its second",
+                                          "the clock after its header words, the frame held"};
+    for (unsigned k = 1; k <= 3u; ++k) {
+        restart();
+        open(1u << ch);
+        for (std::uint32_t i = 0; i < burst; ++i) {
+            b_.send_frame(aecp_read(static_cast<std::uint16_t>(0x7400u + i)), 0);
+        }
+        b_.drain_rx(40000);
+        b_.ms(refill - 1u);   // the next pulse completes the refill period
+        const auto f = aecp_read(static_cast<std::uint16_t>(0x7500u + k));
+        const bool landed = b_.send_frame_tick_after_verdict(f, 0, k);
+        const std::string where = std::string("B5 a refill ") + kWhere[k - 1u];
+        ck_.that((where + " lands as placed").c_str(), landed);
+        ck_.dec((where + " commits the frame then").c_str(), rx_pass(ch), burst + 1u);
+        ck_.dec((where + ": nothing refused").c_str(), rd(ch_reg(ch, MBX_CH_REG_RATE_DROP)), 0);
+        for (std::uint32_t i = 0; i < burst; ++i) {
+            release(ch, peek(ch));
+        }
+        ck_.that((where + ": the record is the frame").c_str(), same_bytes(peek(ch).bytes, f));
+        b_.ms(refill);
+        ck_.dec((where + ": and it is committed once").c_str(), rx_pass(ch), burst + 1u);
+    }
 }
 
 // The MAAP DEFEND (IEEE 1722-2016 B.2.1): PROBE and ANNOUNCE go to the MAAP
@@ -2186,7 +2440,8 @@ void Suite<Bench, Check>::check_verdict_back_to_back() {
     while (passing < MBX_CH_ADP_RATE_BURST) {
         pass(kOwnEid);
     }
-    frames.push_back({mbx_tb::adpdu(2, kOwnEid), false});   // past the bucket
+    pass(kOwnEid);                                           // past the bucket: held (#917), stored like the rest
+    frames.push_back({mbx_tb::adpdu(2, kOwnEid), false});   // behind the held one: refused
     const auto verdicts = b_.verdicts;
     const auto offered = b_.verdict_offered;
     b_.clear_rx_gaps();
@@ -2198,10 +2453,12 @@ void Suite<Bench, Check>::check_verdict_back_to_back() {
             frames.size());
     ck_.dec("V0 the next frame's first byte offered in both cycles of every verdict before it",
             b_.verdict_offered - offered, 2u * (frames.size() - 1u));
-    ck_.dec("V0 every frame that passes is committed once", rx_pass(kAdp), passing);
+    ck_.dec("V0 every frame that passes is committed once, the held one at the refill", rx_pass(kAdp), passing - 1u);
     ck_.dec("V0 the oversized one counts once in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
-    ck_.dec("V0 the one past the bucket counts once in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("V0 the one behind the held one counts once in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
     ck_.dec("V0 the one no tuple takes counts once in FILTER_MISMATCH", mismatches(), 1);
+    b_.ms(MBX_CH_ADP_RATE_REFILL_MS);
+    ck_.dec("V0 the refill commits the held one", rx_pass(kAdp), passing);
     bool intact = true;
     for (const auto& f : frames) {
         if (f.second) {

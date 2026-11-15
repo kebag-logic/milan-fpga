@@ -860,7 +860,10 @@ and the message_type (the low nibble of byte 15, 0 when the frame ends
 at byte 14) is one of the tuple's where it names some.
 The frame passes when its channel is open and one accept term (the identity term) holds.
 It must also fit max_frame_bytes and the free ring space.
-Then the channel's token bucket must hold a token.
+Then it is committed while the channel's token bucket holds a token, which it spends.
+Otherwise it is held past `RX_HEAD`, and committed at the channel's next refill,
+whose token it spends (#917). A channel holds one frame: a frame that finds the bucket
+empty while one is held is refused and counts in `RATE_DROP`.
 
 Untagged frames only, by construction: a VLAN tag's TPID (`0x8100`, `0x88A8`, `0x88E7`) sits where the
 EtherType is read, and no tuple names one, so a tagged frame reaches no channel
