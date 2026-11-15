@@ -1482,7 +1482,7 @@ asserts.
 | Plant | What it changes | Refused by, between the placements |
 |---|---|---|
 | `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
-| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
+| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 024b4c4b4c010001` |
 | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
 | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
 | `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |

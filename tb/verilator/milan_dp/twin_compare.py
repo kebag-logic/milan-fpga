@@ -67,7 +67,7 @@ TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
 #: each plant's words, which its refusal against the all-fabric capture must carry
 PLANT_WORDS = {
     "byte-flip": "ADP frame 1 differs at byte 34",
-    "srp-plus-k": "MSRP Talker Failed stream_id 0200000000010001",
+    "srp-plus-k": "MSRP Talker Failed stream_id 024b4c4b4c010001",
     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
                             "to the second controller",
     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
@@ -447,15 +447,15 @@ def entity_read(h: Half, sel: list[Sent], index: int) -> bool:
 
 #: STREAM_OUTPUT 0's GET_STREAM_INFO fields as the fabric notifies them: its talker declared after the
 #: PROBE_TX (stream_id, accumulated latency, the MAAP address, VLAN 2), and withdrawn about 15 s later
-OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "0200000000010000" "001e8480" "91e0f0000100" "00" "00"
+OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "024b4c4b4c010000" "001e8480" "91e0f0000100" "00" "00"
                               "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
 OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
 #: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
 #: Advertise for source 0, the split's Talker Failed for both sources
-FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
-SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d900017000000000000002000000000102"),
-                 (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
+FABRIC_TALKER = (1, "024b4c4b4c01000091e0f00001000002004900017000000000")
+SPLIT_TALKERS = ((2, "024b4c4b4c010000000000000000000200d9000170000000000000024b4c4b4c0102"),
+                 (2, "024b4c4b4c0100010000000000000002001d000170000000000000024b4c4b4c0102"))
 SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
                "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
 SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
@@ -472,12 +472,13 @@ OWED = (
         lambda h, sel: sel == [],
         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
         "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
+    # the split's count follows lwSRP's LeaveAll draws, seeded from the interface MAC (srp_mbx.c, mrp_port_configure)
     Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
         lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
         lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
         == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
         lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
-        == [(SPLIT_TALKERS[0], "New x2, JoinMt x89"), (SPLIT_TALKERS[1], "New x2, JoinMt x89")],
+        == [(SPLIT_TALKERS[0], "New x2, JoinMt x90"), (SPLIT_TALKERS[1], "New x2, JoinMt x90")],
         "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
         "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
         SRP_ROUND),
