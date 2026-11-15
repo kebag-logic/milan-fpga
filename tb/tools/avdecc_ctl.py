@@ -309,7 +309,7 @@ def main() -> None:
     """Point the controller at live silicon and print one JSON report per mode.
     Every opcode it can send is a READ, so no mode changes the device."""
     ap = argparse.ArgumentParser()
-    ap.add_argument('--iface', default='enp6s0')
+    ap.add_argument('--iface', default='<host-iface>')
     ap.add_argument('--controller-eid', default='0x6805CAFFFE95B2FF')
     ap.add_argument('--mode', required=True,
                     choices=['discover', 'counters', 'streaminfo', 'avbinfo',

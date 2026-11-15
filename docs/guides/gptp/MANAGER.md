@@ -5,6 +5,9 @@
 
 Use this page for delivery decisions.
 
+This guide covers the fabric plane until F6.
+The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
+
 ## Contents
 
 - **[Value](#value)** — Understand product ownership and benefits.
@@ -20,7 +23,7 @@ Use this page for delivery decisions.
 - Atomic publication prevents contradictory consumer state.
 - Direct health drives every AVTP uncertainty bit.
 
-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md).
+Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md).
 
 ## Status
 
@@ -50,7 +53,7 @@ Simulation remains necessary but insufficient.
 
 Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
 
-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md).
+Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md).
 
 ## Release evidence
 

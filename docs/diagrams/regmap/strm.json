@@ -1,0 +1,635 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "strm",
+  "heading": "0x800  -  Indexed per-stream window",
+  "registers": [
+    {
+      "acronym": "STRM_SEL",
+      "offset": "0x800",
+      "svg": "docs/diagrams/regmap/strm/STRM_SEL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 4,
+            "name": "STRM_IDX",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "STRM_DIR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "STRM_LSN0",
+            "attr": "W-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRM_SNAP",
+      "offset": "0x804",
+      "svg": "docs/diagrams/regmap/strm/STRM_SNAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "SNAP_BUSY",
+            "attr": "R/W1S-0"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_CTRL",
+      "offset": "0x810",
+      "svg": "docs/diagrams/regmap/strm/STRMW_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "STRMW_CTRL_0",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 7,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_SID_LO",
+      "offset": "0x814",
+      "svg": "docs/diagrams/regmap/strm/STRMW_SID_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_SID_HI",
+      "offset": "0x818",
+      "svg": "docs/diagrams/regmap/strm/STRMW_SID_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_DMAC_LO",
+      "offset": "0x81C",
+      "svg": "docs/diagrams/regmap/strm/STRMW_DMAC_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_DMAC_HI",
+      "offset": "0x820",
+      "svg": "docs/diagrams/regmap/strm/STRMW_DMAC_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_FMT_LO",
+      "offset": "0x824",
+      "svg": "docs/diagrams/regmap/strm/STRMW_FMT_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_FMT_HI",
+      "offset": "0x828",
+      "svg": "docs/diagrams/regmap/strm/STRMW_FMT_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_STATE",
+      "offset": "0x82C",
+      "svg": "docs/diagrams/regmap/strm/STRMW_STATE.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_CNTn",
+      "offset": "0x830",
+      "svg": "docs/diagrams/regmap/strm/STRMW_CNTn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_PDUS",
+      "offset": "0x858",
+      "svg": "docs/diagrams/regmap/strm/STRMW_PDUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_SRP",
+      "offset": "0x85C",
+      "svg": "docs/diagrams/regmap/strm/STRMW_SRP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_CTLR_LO",
+      "offset": "0x860",
+      "svg": "docs/diagrams/regmap/strm/STRMW_CTLR_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_CTLR_HI",
+      "offset": "0x864",
+      "svg": "docs/diagrams/regmap/strm/STRMW_CTLR_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_BIND",
+      "offset": "0x868",
+      "svg": "docs/diagrams/regmap/strm/STRMW_BIND.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_TUID_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_TUID_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_FLAGS_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_FLAGS_Q",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_RSVD_86C",
+      "offset": "0x86C",
+      "svg": "docs/diagrams/regmap/strm/STRMW_RSVD_86C.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

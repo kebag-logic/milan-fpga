@@ -1,0 +1,42 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "gptpl",
+  "heading": "0x7F0  -  applied gPTP timestamp latency corrections",
+  "registers": [
+    {
+      "acronym": "GPTP_LAT",
+      "offset": "0x7F0",
+      "svg": "docs/diagrams/regmap/gptpl/GPTP_LAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "EGRESS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "EGRESS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "INGRESS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "INGRESS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

@@ -115,6 +115,15 @@ constexpr uint64_t kGmB = 0x00BBDDFFFE040506ULL;
 //! 02:A1:B2:C3:D4:E5). Since FPGA-gPTP #82 the station is its own
 //! grandmaster from boot and publishes this identity until a peer wins.
 constexpr uint64_t kThisClock = 0x02A1B2FFFEC3D4E5ULL;
+//! The AX7101 station MAC and its MAC-derived entity_id (#840): the identity
+//! of the shipping image this leg loads, so the MAC and ADP registers and
+//! the AECP target agree with the ENTITY descriptor it serves.
+constexpr uint64_t kStationMac = 0x024B4C4B4C01ULL;
+constexpr uint64_t kEntityId = 0x024B4CFFFE4B4C01ULL;
+//! Octet k of the station MAC in wire order, the first octet at k = 0.
+constexpr uint32_t mac_octet(unsigned k) {
+    return static_cast<uint32_t>(kStationMac >> (40 - 8 * k)) & 0xFFu;
+}
 constexpr uint8_t kPriorityA = 100;
 constexpr uint8_t kPriorityB = 50;             //! better: the change is real
 constexpr uint64_t kClkHz = 2000000;
@@ -226,10 +235,10 @@ Frame crf_pdu(uint8_t seq, uint64_t gm_ns, bool mr) {
 
 Frame aecp(uint16_t command, uint16_t seq, const std::vector<uint8_t>& payload) {
     Frame f;
-    f.u48(0x020000000001ULL); f.u48(0x6805CA95B2D1ULL); f.u16(0x22F0);
+    f.u48(kStationMac); f.u48(0x6805CA95B2D1ULL); f.u16(0x22F0);
     f.u8(0xFB); f.u8(0x00);
     f.u16(static_cast<uint16_t>(12 + payload.size()));
-    f.u64(0x020000FFFE000001ULL); f.u64(0x6805CAFFFE95B2D1ULL);
+    f.u64(kEntityId); f.u64(0x6805CAFFFE95B2D1ULL);
     f.u16(seq); f.u16(command);
     for (uint8_t v : payload) f.u8(v);
     while (f.b.size() < 60) f.u8(0);
@@ -871,8 +880,11 @@ void GmStepHarness::reset() {
     run_cycles(16);
     dut_->axis_resetn = 1; dut_->gtx_resetn = 1;
     run_cycles(64);
-    write(0x108, 0x00000002); write(0x10C, 0x00000100);
-    write(0x608, 0x020000FF); write(0x604, 0xFE000001);
+    // MAC_ADDR_LO/HI carry the wire bytes LSB-first (REGISTER_MAP 0x108).
+    write(0x108, mac_octet(0) | (mac_octet(1) << 8) | (mac_octet(2) << 16) | (mac_octet(3) << 24));
+    write(0x10C, mac_octet(4) | (mac_octet(5) << 8));
+    write(0x608, static_cast<uint32_t>(kEntityId >> 32));
+    write(0x604, static_cast<uint32_t>(kEntityId));
     write(0x504, static_cast<uint32_t>(kPhcTickNs << 24));
     run_cycles(256);
 }

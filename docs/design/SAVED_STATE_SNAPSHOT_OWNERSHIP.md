@@ -1630,10 +1630,15 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-30 in the
+Timing. MEASURED on 2026-11-06 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#70 assignment of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-6515314113) requires this remeasurement, at `c71364bd` on dev `1e80128f`.
+The [#840 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/840#issuecomment-6670627857) requires this remeasurement, at `4ab1bca0` on dev `604899c0`.
+Its firmware adds the #840 PHY init, which writes a 1000BASE-T-only advertisement and restarts negotiation once, and inlines the MDIO bit routine.
+Its configs carry the station MACs `02:4B:4C:4B:4C:01` and `02:4B:4C:4B:4C:02`, and the capture harness addresses the configured MAC and its entity_id.
+The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out; the census and the processor pins are those of the receipt before.
+The #840 round-1 lane measured that one, at `d62417f1`, for its first PHY init and prototype identity; the lane started it itself.
+The [#70 assignment of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-6515314113) required the one before that, at `c71364bd` on dev `1e80128f`.
 Its firmware reports the entity enable as a request and the held enable at the restore wait's timeout.
 It also polls the PHY on every boot path past the CSR identity check.
 The capture harness, clocks and census are unchanged; the processor pins are dev's.
@@ -1658,11 +1663,12 @@ Capture-SoC RTL changes on dev moved the timing figures from the receipt before 
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
-Measured commit: `c71364bd34c31ea23c1f6be4758f389c138c63dd`.
-Measured tree: `69b8ed0ff4b699434720bd96d8a0bcfabe5dc636`.
-Firmware SHA-256: `60799c75d009ebbedbe0476ea0a8efe81f60d342141743956a8fd9a46229a625`.
-Protocol-processor pin: `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8`.
-gPTP-processor pin: `f97c18035be6ef5345e5af27db2124c5697c1b40`.
+Measured commit: `4ab1bca0116897c3e02bfe92206df0fd81d6dcb9`.
+Measured tree: `5d2dfb0098ccebbcef4df2591c19d849220eed1d`.
+Firmware SHA-256: `09c5d481bc4205b57a64e90e6e846292bdcfa1c79ee6b873a930a3b6ac904467`.
+Protocol-processor pin: `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645`.
+gPTP-processor pin: `135afd043309369a87ddbc8d6550aff8ec52a157`.
+The #70 receipt measured commit `c71364bd34c31ea23c1f6be4758f389c138c63dd`, firmware `60799c75d009ebbedbe0476ea0a8efe81f60d342141743956a8fd9a46229a625`, at pins `f65c8ff7` and `f97c1803`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1675,31 +1681,37 @@ The backend retains its nominal 50 ms hold.
 Its free-running millisecond tick gives a 49 ms guaranteed floor.
 The first tick can arrive immediately after ARM.
 The acceptance limit is therefore 24.5 ms, half that floor.
-**The worst 8x8 measurement is 13.86052 ms.**
-Its floor ratio is 3.5352x.
-The margin to 24.5 ms is 10.63948 ms.
-The previous receipt, #671's round 8, measured 13.86328 ms at the same census, and so did the two before it.
-39 of 96 captures repeat its system-cycle counts; the firmware's code layout moved.
+**The worst 8x8 measurement is 13.86384 ms.**
+Its floor ratio is 3.5344x.
+The margin to 24.5 ms is 10.63616 ms.
+The previous receipt, #840's round 1, measured 13.85922 ms at the same census.
+67 of 96 captures repeat its system-cycle counts: every 1x1 capture and the 100 MHz ON arm, 15 of 16 8x8 OFF captures and 4 of 16 at 100 MHz OFF.
+No 8x8 contract ON capture repeats; the firmware's code layout moved.
+The #70 receipt before it measured 13.86052 ms, and #671's round 8 13.86328 ms, and so did the two before that.
 The #621 receipt on dev measured 13.86318 ms, a 3.5345x floor ratio and a 10.63682 ms margin, at the same census.
 The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
-The firmware changed in its boot and restore-wait reports and its PHY poll only; `nvm_capture()`, the backend's capture hold and the census are unchanged.
+Since the #70 receipt the firmware changed in its PHY path only, which this SoC compiles out; `nvm_capture()`, the backend's capture hold and the census are unchanged.
 The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
 The receipt binds the new firmware and the unchanged census.
 
 Each point contains 16 captures per traffic arm.
 The published maximum includes every capture in both arms.
-The 1x1 maximum is 3.96490 ms (12.3584x floor ratio).
+The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
 
 | Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
 |---|---|---|---|---|
-| 1x1 | 50 / 100, contract | ON | 3.95892 to 3.96490 | 12.3584x |
-| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91178 | 12.5263x |
-| 8x8 | 50 / 100, contract | ON | 13.84558 to 13.86052 | 3.5352x |
-| 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
-| 8x8 | 100 / 100, non-contract | ON | 10.41876 to 10.42630 | 4.6997x |
-| 8x8 | 100 / 100, non-contract | OFF | 10.41406 to 10.41516 | 4.7047x |
+| 1x1 | 50 / 100, contract | ON | 3.95802 to 3.96810 | 12.3485x |
+| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91180 | 12.5262x |
+| 8x8 | 50 / 100, contract | ON | 13.84694 to 13.86384 | 3.5344x |
+| 8x8 | 50 / 100, contract | OFF | 13.61714 to 13.67682 | 3.5827x |
+| 8x8 | 100 / 100, non-contract | ON | 10.42120 to 10.43279 | 4.6967x |
+| 8x8 | 100 / 100, non-contract | OFF | 10.41591 to 10.41899 | 4.7030x |
+
+The #70 receipt, at `c71364bd`, measured 1x1 3.95892 to 3.96490 ms ON and 3.90676 to 3.91178 ms OFF.
+At 8x8 it measured 13.84558 to 13.86052 ms ON and 13.67538 to 13.68956 ms OFF.
+Its 100 MHz comparison measured 10.41876 to 10.42630 ms ON and 10.41406 to 10.41516 ms OFF.
 
 The #621 receipt on dev, at the same census and clocks:
 
@@ -1856,17 +1868,18 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The worst 8x8 copy is 13.86052 ms across both arms.
+   The worst 8x8 copy is 13.86384 ms across both arms.
    It covers 13,210 bytes and 164 records, including output maps.
-   Its ratio to the guaranteed 49 ms floor is 3.5352x.
-   The 24.5 ms margin is 10.63948 ms.
-   The previous receipt, #671's round 8, measured 13.86328 ms, with a 10.63672 ms margin.
+   Its ratio to the guaranteed 49 ms floor is 3.5344x.
+   The 24.5 ms margin is 10.63616 ms.
+   The previous receipt, #840's round 1, measured 13.85922 ms, with a 10.64078 ms margin.
+   The #70 receipt measured 13.86052 ms (a 10.63948 ms margin), and #671's round 8 13.86328 ms (10.63672 ms).
    The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
-   The 1x1 maximum is 3.96490 ms (12.3584x floor ratio).
+   The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 10.42630 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 10.43279 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.
