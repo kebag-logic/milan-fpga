@@ -12,9 +12,10 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 
 The ledger is section 13's table at 8x8/1if, the one point that has one (LEDGER; the self-test holds it to the table).
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
-bus cycles' time to 10 ns, one cycle at 100 MHz; or a run's log, whose BUDGET lines name every instance over its budget
-to 1 us, so a ledger row read there is held at the most its figure can be, and one printed at its ledger figure fails.
-A log must end in its run's summary, with no refusal and as many budget misses as BUDGET lines.
+bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
+whose BUDGET lines name every instance over its budget to 1 us, so a ledger row read there is held at the most its
+figure can be, and one printed at its ledger figure fails. A log must end in its run's summary, with no refusal and as
+many budget misses as BUDGET lines.
 
 usage: python3 -I egress_ledger.py --point 8x8-1if PATH ...   (each PATH a results directory or a run's log)
        python3 -I egress_ledger.py --selftest
@@ -109,6 +110,17 @@ def from_log(path: Path) -> tuple[list[dict], list[str]]:
     return out, refusals
 
 
+def run_refusals(path: Path) -> list[str]:
+    """A results directory's run's refusals (its results.json, run.py's summary): a group the harness refused has no
+    grade of its own, so a directory whose run refused, or that carries no results.json, cannot show every instance
+    measured."""
+    summary = path / 'results.json'
+    if not summary.is_file():
+        return [f"{path.name}: no results.json, so its run's refusals are not read (an instance not measured)"]
+    refused = json.loads(summary.read_text()).get('refusals') or []
+    return [f'{path.name}: the run refused {len(refused)} (an instance not measured): {refused[0]}'] if refused else []
+
+
 def read(paths: list[Path]) -> tuple[list[dict], list[str], bool]:
     """The instances of every path, the readers' findings, and whether any path is a log."""
     instances, findings, logs = [], [], False
@@ -117,7 +129,7 @@ def read(paths: list[Path]) -> tuple[list[dict], list[str], bool]:
             got = from_results(path)
             if not got:
                 findings.append(f'{path.name}: no group grade')
-            instances += got
+            instances, findings = instances + got, findings + run_refusals(path)
         elif path.is_file():
             got, refusals = from_log(path)
             instances, findings, logs = instances + got, findings + refusals, True
@@ -308,6 +320,15 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
                             ('a BUDGET line short of the summary', budget_lines(logged)[1:], summary(7))):
         rc, text = run(['--point', point, str(log_file(base, f'log-{label[:4]}', lines, s))])
         out.append((f'a log with {label} fails', rc == 1 and 'RESULT: FAIL' in text, f'rc {rc}'))
+    refused = grade_dir(base, 'refused', ledger)
+    (refused / 'results.json').write_text(json.dumps({'refusals': ['backlog-owed: no end: missing']}))
+    rc, text = run(['--point', point, str(refused)])
+    out.append(("a results directory whose run refused a group fails", rc == 1 and 'the run refused 1' in text,
+                f'rc {rc}'))
+    bare = grade_dir(base, 'bare', ledger)
+    (bare / 'results.json').unlink()
+    rc, text = run(['--point', point, str(bare)])
+    out.append(('a results directory with no results.json fails', rc == 1 and 'no results.json' in text, f'rc {rc}'))
     rc, _ = run(['--point', '1x1', str(base / 'at-ledger')])
     out.append(('a point with no ledger is refused', rc == 2, f'rc {rc}'))
     return out
@@ -326,6 +347,7 @@ MUTANTS = {
     "a log's figure read as exact": lambda m: patch.object(m, 'LOG_HALF', 0),
     "a ledger figure a hundredth over section 13's": lambda m: patch.dict(
         m.LEDGER['8x8-1if'], {'backlog.owed.if0': 63.25}),
+    "a run's refusals not read": lambda m: patch.object(m, 'run_refusals', lambda path: []),
     "a ledger row's name taken in any group": lambda m: patch.object(
         m, 'is_row', lambda p, ledger: p['probe'] in ledger),
 }
