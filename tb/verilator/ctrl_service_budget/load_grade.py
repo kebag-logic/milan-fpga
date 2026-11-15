@@ -132,16 +132,20 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: 1x1/1if 65 to 70, both columns, the larger of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753
 #: at 9606b3a9, the same work, its fetches moved by the cut's code), and with the SRP drain's record cost at the load
 #: gate's (ctrl_loop.h, a47cd3f2) a TICK at 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's
-#: backlog-adp@program-0. 32x32/2if is measured on the 32x32
+#: backlog-adp@program-0; and on the merge of #894's tiers into AECP's REBOOT (#871), whose image moves the hot
+#: code, over every 1x1/1if leg (all of arm A, the answering-every-port arm and arm B), both columns, each the larger
+#: of that and this table's: SRP's record 285 us (26,865 CPU cycles in arm A's backlog-adp@blank-aged1-2), AECP's 240
+#: (22,531, a SET_NAME in the answering-every-port arm's notice-burst-0), a pass's events' fixed part 40 (3,627 in its
+#: notice-burst-1), and a retained record's retry at SRP's record cost, 285. 32x32/2if is measured on the 32x32
 #: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
 #: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
 #: ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 70, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.retained': 280, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 105, 'event.TICK': 40,
@@ -172,10 +176,10 @@ STATED_US = {
 #: SET_CONFIGURATION cut ctrl_loop.h states the build of one at 1x1/1if at 735 us, so this column's are 735. Every cost
 #: that STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 70, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,

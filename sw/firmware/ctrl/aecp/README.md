@@ -117,7 +117,7 @@ The first two are the line over every round the CPU budget harness measured, plu
 A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
 While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
 So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
-A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 130 ms at 1x1/1if (decision D's 125 ms, rounded up to the next 5 ms from the last queued notice's row by every source after #908's cuts, by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2; `queued_bound.py`) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 135 ms at 1x1/1if (decision D's 125 ms, rounded up to the next 5 ms from the last queued notice's row by every source after #908's cuts, 134.74 ms with AECP's REBOOT, #871, 127.21 at #894's head, by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2; `queued_bound.py`) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
 `aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, the owed-notice queue holds one, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
 
 **The owed-notice queue** (#894; IEEE 1722.1-2021 7.5.2 and 9.3.5.4, Milan v1.2 5.4.5.1 and 5.4.5.2).
@@ -179,6 +179,23 @@ publication; otherwise it opens nothing and returns false. A commit the
 datapath has not acknowledged leaves its interface owed and the loop awake
 until a poll publishes it whole; until then every state-changing command is
 refused.
+
+REBOOT (IEEE 1722.1-2021 7.4.43; [#871](https://github.com/kebag-logic/milan-fpga/issues/871))
+is answered only where `aecp_config.reboot` says the platform resets the
+entity; elsewhere it is NOT_IMPLEMENTED. The routes are the processor's, in
+its order. A command shorter than Figure 7-68's four bytes is BAD_ARGUMENTS,
+another type NOT_SUPPORTED (no MEMORY_OBJECT firmware image exists) and
+another ENTITY index NO_SUCH_DESCRIPTOR. Another controller's lock is
+ENTITY_LOCKED (7.4.43.2), and a change the platform has not applied
+ENTITY_MISBEHAVING. A SUCCESS is notified to every other registered
+controller (7.5.2; Milan v1.2 5.4.5.2). From it no command is taken and no
+probe or notification is started, by the poll or by THE RETRY's round, and
+`aecp_reboot_accepted` is true: the platform then takes no received frame of
+any channel, as the processor's top discards every frame from its SUCCESS
+(REQ-FWX-001). `aecp_reboot_due` turns true once the owed-notice queue is
+empty and every frame owed has completed, the REBOOT's last; the platform
+then sends ENTITY_DEPARTING and nothing else, and resets
+([plat](../plat/README.md#the-ports)).
 
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement

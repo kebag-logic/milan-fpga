@@ -46,6 +46,7 @@ import answers
 import datapath_window
 import frames as f
 import long_notice
+import reboot_group
 import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -540,8 +541,7 @@ def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
     unchanged SET does not notify. With the answering-ports arm, whose stream
     observation answers, the group also measures the setters the unmodified
     fixture refuses for want of it (SET_CONFIGURATION, SET_STREAM_INFO) and
-    BIND_RX's GET_STREAM_INFO notice, which arm A's AECP retries forever.
-    """
+    BIND_RX's GET_STREAM_INFO notice, which arm A's AECP retries forever."""
     aecp, acmp = CH['aecp'], CH['acmp']
     ifs = range(p.interfaces)
     g = Group('aecp-fanout', sim_ms=2600)
@@ -995,6 +995,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
-              *datapath_window.groups(p), *long_notice.groups(p, build)]
+              *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
+              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

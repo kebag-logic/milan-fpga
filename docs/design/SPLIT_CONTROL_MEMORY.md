@@ -135,13 +135,14 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
 The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
-The caps are 59.0 for the size fixture's point, which its entry now holds, and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.5 and 60.5.
+The platform's entry is 60.5 since the merge of #894's tiers into AECP's REBOOT (#871): the composed image plans 60.5, past the 60.0, so by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the entry is raised to it, at the next half tile, as ROM debt owed to S14. That decision makes no ledger cap a stop for the flip lanes; the image must still fit the device and the build meet timing at every corner.
+The entries are 59.0 for the size fixture's point and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.5 and 61.0.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -166,8 +167,8 @@ It requires `budget` to refuse that image in three cases: without the override, 
 It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 Six planted ledgers each widen one entry to another point or image, or past its tiles.
-The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 60.5.
-The fixture's loses `image_allocation`, or plans 60.0.
+The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.0.
+The fixture's loses `image_allocation`, or plans the platform's 60.5.
 Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
@@ -265,12 +266,12 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
 **The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
 The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
 
-- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move;
+- the target platform's image may plan 60.0 RAMB36, capped at 60.5, and since AECP's REBOOT (#871) 60.5, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745); its debt is 4.5 RAMB36, 18,432 B of cold code to move;
 - the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
 - every other point, including every 1x1/1if point, stays at or under 56.
 
 S14 is the first lane after the flip.
-`ctrl_memory.LEDGERED` holds the platform's entry at 60.0 and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, 60.0 before AECP's REBOOT (#871), and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
@@ -370,6 +371,19 @@ The retry's rule added about 104 B of code, and with the two 1.5 KB buffers last
 The size fixture's 8x8 image with two interfaces holds 125,792 B of `rom` in 126,976 at the head (125,200 at the ruling's head), past the 124,928 B that 58.5 holds, so its entry is 59.0 by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2 ([section 3](#3-named-refusals)). The platform's image there holds 130,920 B of `rom` in 131,072 at the head, 152 B before the granule its ledger's 60.0 holds (130,328 B and 744 B at the ruling's head). The platform's 8x8 one-interface image plans exactly 56.0, which the budget accepts ([section 3](#3-named-refusals)); its `sram` needs 97,264 B in 98,304. `ctrl_plat` is 17,536, 19,008, 18,176 and 20,288 B at the four points (`ctrl_memory_ledger.py`). #904's map checks and THE PACE added 480 to 488 B of `rom` at each point before the merge (`aecp_maps.c`, `aecp_mbx.c`), and the pace's stamp takes the tail padding of `struct aecp`, so no struct the ledger pins grows.
 
 Before #810's merge the size fixture's images were 40.5, 41.0, 53.5 and 58.0 RAMB36 and the platform's 42.0, 43.0, 55.5 and 59.5 with #904's checks and THE PACE, and 40.0, 41.0, 53.5 and 58.0 and 42.0, 43.0, 55.5 and 59.5 without them; before the slots grew and the queue was compiled out, 38.5, 41.0, 52.0 and 58.0 and 40.5, 43.0, 54.0 and 59.5.
+
+**With AECP's REBOOT** (#871, merged on #894's tiers at `41ca9f87`: the platform's receive gate and reset port, AECP's acceptance and release, and THE RETRY held after the SUCCESS), measured from the built images by `tb/verilator/ctrl_split_boot/plat_ledger.py` (the platform's) and `ctrl_srp_image.py` (the size fixture's), each against its shape's split SoC export:
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against the cap |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 111,392 / 55,216 | 41.0 | 117,276 / 56,352 | 43.0 | 17,664 | within 56 |
+| 1x1, two interfaces | 112,680 / 57,376 | 42.5 | 118,604 / 58,464 | 43.5 | 19,136 | within 56 |
+| 8x8, one interface | 124,896 / 96,304 | 54.5 | 130,828 / 97,392 | 56.0 | 18,304 | at 56, accepted |
+| 8x8, two interfaces (largest) | 126,160 / 113,232 | 59.0 | 132,140 / 114,288 | 60.5 | 20,416 | ledgered at 59.0 and 60.5 |
+
+The platform's images take 1,796 to 1,836 B more `rom` than at #894's head, and `ctrl_plat` 128 B more at every point (the gate's saved bindings and the REBOOT's state in `struct aecp`).
+At 8x8 with two interfaces the platform's image plans 60.5 RAMB36, past the 60.0 its entry held, so by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the entry is raised to 60.5, ROM debt owed to S14 ([section 3](#3-named-refusals)).
+The size fixture's image at that point holds 126,160 B of `rom` in the 126,976 B of its 59.0, within its entry.
 
 The figures by part below are `b8628704`'s.
 
@@ -2201,10 +2215,10 @@ Before the tiers, a search of the loop's choices (`ctrl_retry_search.py`) held t
 
 | Bound | 1x1/1if | 8x8/2if |
 |---|---:|---:|
-| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.66 ms by every source, held to 20 (14.60 at `12180198`'s 1,200 us slice) | 20.93 ms by every source, stated 22 (20.25 at `12180198`) |
-| every notice queued behind it (`AECP_QUEUED_MS`) | 127.21 ms by every source, held to 130 (91.59, held to 125, at `12180198`'s 1,200 us slice) | 806.60 ms by every source, stated 62, ceiling 70 (647.23 at `12180198`) |
+| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.69 ms by every source, held to 20, with AECP's REBOOT (#871; 14.66 at `41ca9f87`, 14.60 at `12180198`'s 1,200 us slice) | 20.93 ms by every source, stated 22 (20.25 at `12180198`) |
+| every notice queued behind it (`AECP_QUEUED_MS`) | 134.74 ms by every source, held to 135, with AECP's REBOOT (#871; 127.21, held to 130, at `41ca9f87`; 91.59, held to 125, at `12180198`'s 1,200 us slice) | 806.60 ms by every source, stated 62, ceiling 70 (647.23 at `12180198`) |
 
-At 1x1/1if the first notice's bound is decision D's 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)), and the last's is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874)'s 130 ms (`AECP_QUEUED_MS`; decision D's 125 before it); at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), its rows by every source reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+At 1x1/1if the first notice's bound is decision D's 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)), and the last's is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874)'s, 135 ms with AECP's REBOOT (#871), its row rounded up to the next 5 ms (`AECP_QUEUED_MS`; 130 ms at #894's head, decision D's 125 before the amendment); at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), its rows by every source reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 
 ### The polls by source
 
@@ -2221,7 +2235,7 @@ The firmware already runs each item as its own function, which does its work onl
 | rebuild | `open_interface`, one interface a poll | a link change, one an interface (R5's) | 290 | 690 (630) |
 | walk | lwSRP's `mrp_attr_visit`, from a stale interface's snapshot | a centisecond of lwSRP's timers (`tick_ms`) or a build's declarations (THE TRANSMIT, a JoinTime a participant: IEEE 802.1Q-2018 10.7.4.1), one an interface an ordinary pass | 35 (20) | 60 |
 | reclaim | lwSRP's `mrp_reclaim`, two participants an interface | an SRP record or a build | 25 | 35 |
-| retained | `apply_receive` of a record its participant refused for storage, one waiting at a time | an SRP record (`mailbox.yaml` `rate`), retried only once the pool or an attribute changed since its refusal, at most once a centisecond, until it expires | 280 (250) | 365 (395) |
+| retained | `apply_receive` of a record its participant refused for storage, one waiting at a time | an SRP record (`mailbox.yaml` `rate`), retried only once the pool or an attribute changed since its refusal, at most once a centisecond, until it expires | 285 (250) | 365 (395) |
 | mrpdu | `build_mrpdu` of an MRPDU a build left owed (A3) | two a build | 735 (405) | 1,215 |
 | acmp | ACMP's poll, a call that committed an ACMP frame (A3) | ACMP's and ADP's records (`mailbox.yaml` `rate`) and ACMP's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26) | 55 (65) | 70 (185) |
 | aecp | AECP's `transmit`, a call that committed an AECP frame | AECP's records (`mailbox.yaml` `rate`) and the registrations' probes (Milan v1.2 5.4.5.3) | 210 (225) | 275 (340) |
@@ -2341,11 +2355,12 @@ The three coalesced datapath events, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_
 
 The slice at 1x1/1if was first the one with the largest least relative margin over the five rows there, on the 50 us grid of the tier model's first sweep: 1,200 us, 0.2673, the last queued notice binding at 91.59 of 125 ms. [#894's slice ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512) sets it to 800 us and gives the rule a sixth row, THE TRANSMIT's MRPDU with every AECP notice the largest legal one (txL), so `rows_tiers.slice_choice` ranks the six. The tree may take the rule's choice instead of 800 us within 650 to 1,100 us, once every row holds there by every source (`rows_tiers.ruled`), and it does: with the join timer at 19 cs and the pace at 6 ms ([below](#the-contingent-moves-908)) every row held and the rule picked 900 us, txL binding, and at the costs restated under the SET_CONFIGURATION cut it picks 950 us ([below](#the-final-passs-restatements)). A 950 us slice holds one MRPDU's build and not both (1,010 us, `CTRL_LOOP_BUILD_PASS_US`), so a build resumes in the next slice at both points (`CTRL_LOOP_BUILD_MOST`). A one-interface image takes that slice at every shape, 8x8/1if's too, though there it cannot hold one MRPDU's build: 92,421 to 95,074 CPU cycles on the CPU budget harness's `8x8-1if` point at the merge of #810's `084cf7a8` (95,230 to 97,960 before it, and 99,268 to 101,881 before #904), over the slice and over `CTRL_LOOP_BUILD_ONE_PASS_US`, which stated 1x1/1if's 430 us for every one-interface shape then (735 us now). A per-point slice and per-shape build costs there are not built (#894): `ctrl_loop.h` states its constants by the interface count alone, which `rows_grade.py` reads that way, and no image builder names the shape to the loop. One slice at both points could not be taken: an MRPDU's build at 8x8/2if is 1,215 us (`CTRL_LOOP_BUILD_ONE_PASS_US`) and cannot be divided. The rulings choose no slice at 8x8/2if, whose rows miss at every slice, and it keeps 1,300 us. The rows by every source at this head (`flip_grade.py --check --point 1x1/1if` and `--point 8x8/2if`; `rows_tiers.py`, the built design):
 
-| Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms; 130 at 1x1/1if) |
+| Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms; 135 at 1x1/1if) |
 |---|---:|---:|---:|---:|---:|---:|
-| 1x1/1if | 950 us | 13.10 | 74.07 | 69.86 | 14.66 | 127.21, within 130 (over 125) |
+| 1x1/1if | 950 us | 13.23 | 74.81 | 72.88 | 14.69 | 134.74, within 135 (over 125) |
 | 8x8/2if | 1,300 us | 44.24 | 206.45 | 196.31 | 20.93 | 806.60 |
 
+The 1x1/1if row is the head's with AECP's REBOOT merged (#871), its costs restated by the rule over every 1x1/1if leg; at #894's head `41ca9f87` it was 13.10, 74.07, 69.86, 14.66 and 127.21 ms, within 130.
 At the 800 us slice and the merged costs they were 12.80, 74.80, 69.91, 14.44 and **137.79** ms at 1x1/1if, the last queued notice over its 125 ms, waiting for SRP's records in each pass's slice at their merged cost (its largest term, 26.88 ms); before the merge of #810's `084cf7a8`, 12.26, 57.73, 55.99, 14.20 and 102.71 ms at 1x1/1if, and 42.47, 187.97, 178.28, 20.25 and 647.23 ms at 8x8/2if.
 
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 29.78 ms at 1x1/1if at the 900 us slice (29.80 at 800 us) and 97.06 ms at 8x8/2if (the tx row of `rows_tiers.py`, at the costs of the merge of #810's `084cf7a8`; 28.00 and 89.01 ms before it; 33.38 and 98.49 ms at the head), which `CTRL_LOOP_TX_MS` stated as 30 and 98 ms. At the head it states 34 and 99 ms: 34 at 1x1/1if since #894's round 11 ([below](#the-one-row-edit)), and 99 at two interfaces since the tx row there reached 98.49 ms (`rows_tiers.tx_statements` holds each interface count's figure at or over its row, and the self-tests plant each under it). That is over the 20 ms the loop before the tiers held it to by construction. [#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1, gives it tier 2's 90 ms where the MRP timer budget holds there, and otherwise the tightest value that does. The budget holds to 240 ms less the armed join time (`CTRL_LOOP_TX_BOUND_MS`, derived from `CTRL_LOOP_JOIN_CS`): lwSRP arms the join timer as an MRPDU is committed, so the join time plus the lateness must stay within Milan Table 4.3's 240 ms. At the 200 ms default that is 40 ms, and 90 ms would give 290; with the join timer at 19 cs, 190 ms ([below](#the-contingent-moves-908)), it is 50 ms, and with the fabric's `T_egress` counted, 49 ms ([the egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1; [below](#egress-counted)). The periodic and LeaveAll timers restart at their expiry. The row is held to that bound at 1x1/1if, and at compile time (`CTRL_LOOP_TX_MS`); at 8x8/2if it is reported.
@@ -2369,6 +2384,7 @@ The built design is the option's, then at the slice ruling's 800 us (950 us at t
 | SET_CONFIGURATION's record cut and paced, the paced class at 300 us: an 8 ms pace ([below](#set_configurations-record)) | 13.01 | 188.41, within 238 | 28.80 | 27.17 | 27.29 | 14.59 | 73.80 | 69.60 | 127.86, within 130, **over 125** | 33.21, within 49 | 48.23, within 49, **over 40** |
 | The final pass's restatements, AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and a TICK at 55, the SRP drain at the load gate's record cost: an 8 ms pace ([below](#the-final-passs-restatements)) | 13.05 | 188.43, within 238 | 28.90 | 27.25 | 27.37 | 14.61 | 74.02 | 69.81 | **132.71, over 130** | 33.33, within 49 | 48.38, within 49, **over 40** |
 | The slice rule's choice, 950 us ([below](#the-final-passs-restatements)): an 8 ms pace | 13.10 | 188.48, within 238 | 28.95 | 27.30 | 27.42 | 14.66 | 74.07 | 69.86 | 127.21, within 130, **over 125** | 33.38, within 49 | 48.43, within 49, **over 40** |
+| AECP's REBOOT merged (#871), its image's hot code moved: SRP's record and the drain's unit at 285 us, AECP's ordinary record at 240, the paced class at 305 and a pass's events' fixed part at 40, the last queued notice's bound at the 135 ms its row rules; 950 us and an 8 ms pace still the rules' choices | 13.23 | 188.51, within 238 | 29.22 | 27.53 | 27.65 | 14.69 | 74.81 | 72.88 | 134.74, within 135, **over 125** | 33.66, within 49 | 48.75, within 49, **over 40** |
 
 So at the merged costs, the join timer at 20 cs and the 800 us slice, the flip check refused 1x1/1if: the last queued notice and txL were over their bounds, and `tier_grid.py` held no design (420 candidates solved, 126 refused by their own rules, none holding every row and the load). After the contingent moves ([below](#the-contingent-moves-908)) it held every row, and `tier_grid.py` held 6 of the 420, choosing the built design at 900 us.
 

@@ -205,7 +205,7 @@
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; #894's
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 135 ms (aecp_mbx.h; #894's
 // amendment of 2026-11-13 to its contingent ruling, item 2).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
@@ -281,7 +281,7 @@ extern "C" {
 // dearer of its two columns' (load_grade.py, which refuses any other figure):
 // the slice starts a record only while it has this left, so a record that
 // starts fits (#894).
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 365u)
+#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 285u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.

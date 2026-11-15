@@ -542,7 +542,7 @@ SPLIT_CLK_SRC = "    assign pp_aecp_clk_src_index_w = i_ctl_clk_src_index;"
 SPLIT_RESTORE = "            pp_restore_fail_w, pp_restore_done_w, pp_restore_busy_w} = i_ctl_restore;"
 SPLIT_CTR_DATA = "    assign o_ctl_ctr_data        = pp_ctr_data_w;"
 SPLIT_AVB_CHG = "    assign o_ctl_avb_chg_p     = gsi_avb_chg_w;"
-SPLIT_REBOOT = "    assign pp_reboot_req_w      = 1'b0;"
+SPLIT_REBOOT = "    assign pp_reboot_req_w      = i_reboot_req;"
 SPLIT_OVER_LIMIT = "    assign pp_cd_srp_over_limit_w      = 1'b0;"
 SPLIT_RX_TLAST = "      .rx_tlast_i       (rx_axis_fabric.tlast),"
 SPLIT_GSI_DATA = "  output wire [63:0] o_ctl_gsi_data,"
@@ -596,10 +596,14 @@ SPLIT_PLANTS = (
     Plant("a face notification never raised", "datapath", ((SPLIT_AVB_CHG, "    assign o_ctl_avb_chg_p     = 1'b0;"),),
           "o_ctl_avb_chg_p is driven by a constant in the split, not by gsi_avb_chg_w", rule="split-drives",
           split=True),
-    Plant("the REBOOT request driven in the split", "datapath",
+    Plant("the REBOOT request from another port in the split", "datapath",
           ((SPLIT_REBOOT, "    assign pp_reboot_req_w      = i_ctl_lock_held;"),),
-          "pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by i_ctl_lock_held",
-          rule="split-tied", split=True),
+          "pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by i_ctl_lock_held in the "
+          "split, not by i_reboot_req", rule="split-tied", split=True),
+    Plant("the REBOOT request tied off in the split", "datapath",
+          ((SPLIT_REBOOT, "    assign pp_reboot_req_w      = 1'b0;"),),
+          "pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by a constant in the split, "
+          "not by i_reboot_req", rule="split-tied", split=True),
     Plant("a class-D value the block does not carry, driven in the split", "datapath",
           ((SPLIT_OVER_LIMIT, "    assign pp_cd_srp_over_limit_w      = i_ctl_dyn_dirty;"),),
           "pp_cd_srp_over_limit_w, the net of the wrapper's class-D value the block does not carry "
