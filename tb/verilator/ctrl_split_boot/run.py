@@ -122,10 +122,11 @@ MDC_HIGH_NS, MDC_PERIOD_NS = 160, 400
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
     # the PHY's word never reaches milan_mac_link_status; and the loss a poll's first BMSR latched not published
-    'phy-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(phy->bus.link_status, word);\n',
-                        '\t(void)phy;\n\t(void)word;\n', 'PHY'),
-    'phy-loss-not-latched': ('plat/ctrl_plat_phy.c', '\t\tpublish(phy, 0u);\n\t\tphy->published = 0u;\n',
-                             '\t\tphy->published = 0u;\n', 'PHY'),
+    'phy-unpublished': ('plat/ctrl_plat_phy.c', '\t\tctrl_plat_io_write32(phy->bus.link_status, status);\n',
+                        '\t\t(void)status;\n', 'PHY'),
+    'phy-loss-not-latched': ('plat/ctrl_plat_phy.c',
+                             '\t\t\t\tctrl_plat_io_write32(phy->bus.link_status, 0u);\n\t\t\t\tphy->published = 0u;\n',
+                             '\t\t\t\tphy->published = 0u;\n', 'PHY'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
