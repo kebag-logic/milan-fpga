@@ -117,7 +117,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
 #: rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
-#: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's round-6 ruling, item 4):
+#: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's ledger ruling, item 4):
 #: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
 #: states its own by the rule, in either column; the nearest point's table is untouched. OWN_MEASURED is each one's
 #: measurement, CPU cycles and where: 8x8/1if's ADP record on the image that merges #902's 234bc149, 12,210 cycles,

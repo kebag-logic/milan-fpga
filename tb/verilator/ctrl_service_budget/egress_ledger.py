@@ -10,8 +10,8 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
 - a budget miss of any other row is new, and fails.
 
-The ledger is derived at 8x8/1if, the one point that has one (#894's round-6 ruling on the held-egress ledger, items 2
-and 3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
+The ledger is derived at 8x8/1if, the one point that has one (#894's ledger ruling, items 2 and
+3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
 service behind it at the merged image's measurement (MEASURED) plus 5 %, rounded up to 0.01 ms (figure). Section 13's
 table states those figures, and the self-test holds the two together and the derivation to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
@@ -61,7 +61,7 @@ def hold_ms(text: str | None = None) -> int:
 
 HOLD_MS = hold_ms()
 #: Each row's measurement at 8x8/1if on the image that merges #902's 234bc149 (a15345f7's, arm A's backlog-owed),
-#: in ms to 10 ns: the figure the ledger derives from (#894's round-6 ruling, item 2).
+#: in ms to 10 ns: the figure the ledger derives from (#894's ledger ruling, item 2).
 MEASURED = {'8x8-1if': {'backlog.owed.if0': 63.23710, 'backlog.owed_behind0.if0': 63.45889,
                         'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746,
                         'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386,
@@ -243,8 +243,8 @@ def main(argv: list[str] | None = None) -> int:
 
 # ---- the self-test -----------------------------------------------------------------------------------------------
 
-#: Section 13's table of the rows the egress decides at 8x8/1if: the row, round 3's measurement, the merged image's,
-#: and the ledger figure derived from it.
+#: Section 13's table of the rows the egress decides at 8x8/1if: the row, the measurement at 716a8ae7, the merged
+#: image's, and the ledger figure derived from it.
 DOC_HEAD = ('| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | '
             'Measured on #902\'s 234bc149 merged, ms '
             '| Ledger, ms |')
