@@ -1,0 +1,345 @@
+[A775]
+
+## Contents
+
+- **[Status](#status)** — Round 11 is review-ready at its head: R835-5's one MINOR, its two residues and R836-5's residue closed, markdown only.
+- **[Linked Issue / roles](#linked-issue--roles)** — Public tasks, executor, and independent reviewers.
+- **[Rounds 6 to 11](#rounds-6-to-11)** — Each commit since round 5's head and what it answers.
+- **[Round 11](#round-11)** — R835-5 and R836-5, finding by finding.
+- **[Round 10](#round-10)** — R835-4 and R836-4, finding by finding, each with its file:line and its verification.
+- **[The findings](#the-findings)** — R835-3 and R836-3 finding by finding, and the two round 9 found in this branch's own evidence.
+- **[The rulings](#the-rulings)** — The rulings on rounds 6, 7B and 8's stops, item by item.
+- **[The 1x1/1if rows at the head](#the-1x11if-rows-at-the-head)** — Every row by every source with its margin, the per-pass headroom, the slice rule, the pace, the load and the self-tests.
+- **[THE TRANSMIT's figure at two interfaces](#the-transmits-figure-at-two-interfaces)** — The figure, the hold-off, the images by hash, the arms and the leg run again.
+- **[Every stated cost against the legs](#every-stated-cost-against-the-legs)** — The survey at both points.
+- **[The CPU budget harness](#the-cpu-budget-harness)** — Every arm at both points, and why the legs carry.
+- **[Image identity and ROM](#image-identity-and-rom)** — Each sync and change by hash, every point at its entry.
+- **[The full pass](#the-full-pass)** — Every hosted job step, the campaigns, the lane gates and the sweep at the exact head.
+- **[Description](#description)** — The validity gate and the declarations, and each source's stream_id (#905).
+- **[Authoritative references](#authoritative-references)** — Requirements/specification clauses and docs.
+- **[How to validate](#how-to-validate)** — Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What this does not do.
+- **[Definition of Done](#definition-of-done)** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Status
+
+**REVIEW READY** at `16ba667d` (`895-talker-redeclare` -> `dev-soft-core`), round 11 (the REVIEW READY is #895 issuecomment-6902951918): R836-5 is POSITIVE at `1215bd82` ([issuecomment-6901691558](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901691558)); R835-5 NEGATIVE ([issuecomment-6901818182](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901818182)) on one MINOR, closed [below](#round-11). Round 10's REVIEW READY is #895 issuecomment-6901464046.
+
+- **Round 7A** built the slice rule's choice, 950 us; every 1x1/1if row held.
+- **Round 7B** merged #902's round-13 head and made the ruling's one behaviour-neutral cut; the last queued notice was then 135.43 ms, over 130 at every slice in the ruled range, and the round stopped.
+- **Round 8** moved the bound to its row's **140 ms**, built the slice rule's **900 us** there, and measured every leg again on the rebuilt image. With 8x8/2if's costs restated its tx row is 104.25 ms, and the rule's 105 would move the Talker's hold-off at two interfaces: the round stopped.
+- **Round 9** carried out the ruling on that stop: `CTRL_LOOP_TX_MS` at two interfaces is **105 ms**, `SRP_REDECLARE_CS` there **2,030 cs**, every one-interface image unchanged by sha256 and each two-interface image different in one instruction; #902's `41ca9f87` and `07ed787e` merged; one full pass at `056d619d`.
+- **Round 10** closes every finding of both reviews ([below](#round-10)):
+  - **R836-4-F2 (MAJOR):** the head's class grader over every held leg at both points gives RESULT PASS, each class's dearest record within its statement (the paced class at 1x1/1if at its 300 us exactly), so **no statement moves**; the survey's two defects are fixed and both planted controls are refused on the real pass's evidence path, where round 8's survey passed them; the coverage claim states what the survey covers.
+  - **R835-4-F1 (MINOR):** a Talker test stages the latest Leave THE TRANSMIT allows, and three plants on `SRP_REDECLARE_CS`'s terms are each caught by name at both interface counts.
+  - **R836-4-F1 and R835-4-F2 (MINOR):** every superseded figure the docs stated as this head's is restated or given its subject, from an inventory of 178 hits.
+  - **The residues** (the roles) are taken, and R835-4-S1 and S2 too.
+- **Round 11** is one markdown-only commit, `16ba667d`: the seven statements R835-5-F1 lists, and the further ones its sweep found, each restated as this head's figure or bound to its image by short commit; R835-5-RS1, RS2 and R836-5-RS1 exactly. No non-markdown path changed after `1215bd82` ([below](#round-11)).
+- **Images:** no image changes after `056d619d` (552 of 552 identical by sha256). Seven paths changed: five markdown files and two test-side files, `sw/firmware/ctrl/test/srp_talker.cpp` and `srp_talker_mutants.py`. Every job that reads one ran again at the head; the rest of round 9's full pass carries ([the full pass](#the-full-pass)).
+
+No rebase, no force, no amend. No RTL, mailbox-contract, tsn-c-stack, lwSRP or donor change. This branch's firmware changes since round 6 are four: 7B's one behaviour-neutral cut; the bound, `AECP_QUEUED_MS`, 140 at one interface; the slice, `CTRL_LOOP_SLICE_US`, 900 at one interface; and THE TRANSMIT's figure, `CTRL_LOOP_TX_MS`, 105 at two interfaces, the one wire change the ruling allows. Round 10 changes no firmware.
+
+## Linked Issue / roles
+
+Relates to #895
+Relates to #905 (acceptance 1 to 3 and 5 here; 4 is the bench run)
+Relates to #894 (#902, merged into `dev-soft-core` as `659d7687` during round 9, its tree `07ed787e`'s, which this branch merged at `056d619d`; its names patch carried unchanged; `dev-soft-core` states `CTRL_LOOP_TX_MS` 99 and `AECP_QUEUED_MS` 130, which this PR moves to 105 and 140)
+Relates to #906, #907 (srptx findings, not fixed here)
+Relates to #908 (the last queued notice over 125 ms)
+Relates to #909 (the code and data placement the merges and the cut move, named, not chased)
+Relates to #890 (8x8/2if's share), #872 (the second-hart study, should the last queued notice pass 140 ms)
+Relates to #665
+
+Executor: `[A775]`
+Internal cleared-context reviewer: `[R835]`: R835-6, the one delta reviewer of round 11. R835-5 [started](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901529577), [NEGATIVE](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901818182) at `1215bd82`; R835-4 [started](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6899719764), [NEGATIVE](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6900107977) at `056d619d`; R835-3 started issuecomment-6881026642.
+External reviewer: `[R836]`: R836-5 [started](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901535392), [POSITIVE](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6901691558) at `1215bd82`; R836-4 [started](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6899726363), [NEGATIVE](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6899966960) at `056d619d`; R836-3 issuecomment-6881271637.
+
+Round 9's ruling asked for two delta reviews from round 5's head `62298ab5`; R835-4 and R836-4 were those, R835-5 and R836-5 re-reviewed round 10's head, and R835-6 reviews round 11's markdown delta.
+
+## Rounds 6 to 11
+
+| Commit | Round, item | What |
+|---|---|---|
+| `df0bc467` | 6, 1 | Merge #902's `9606b3a9` (#894's round 11). |
+| `3024e740` | 6, 2 | The polls' base at 1x1/1if 205 -> 215 us and a pass's events' fixed part 30 -> 35 us, both columns. |
+| `bf0844f1` | 6 | Section 13, section 5, FR_NFR 3.4.1, READMEs; R836-3-F1 and both RS1s. |
+| `ff943513`, `6d79b352` | 7A, 1 | The slice at the rule's 950 us (dropped at 7B's merge for #902's own). |
+| `58c99c67`, `4c9757ee` | 7A | 8x8/2if MAAP's timer slot 215 -> 225 us; section 13 "The rule's slice built (#895)". |
+| `7e3db6b9` | 7B | Merge #902's `234bc149` (the SET_CONFIGURATION cut, the slice at 950 us, `CTRL_LOOP_SRP_UNIT_US` 280); #902's slice code taken. |
+| `f14e56a9`, `1a917cf1` | 7B, 3 | The one behaviour-neutral cut: `srp_mbx_gate` returns at once on the gate and base its last call left; plant `talker-gate-repeat-ignores-its-base`. |
+| `2657af21`, `0c93071e` | 7B | The polls' base 215 -> 225 us (`save-held`, 21,094 cycles); section 13 "The composition with #894's SET_CONFIGURATION cut (#895)". |
+| `1143e3f5` | 8, sync | Merge #902's `b6f5c638` (`CTRL_LOOP_TX_MS` 99 at two interfaces). |
+| `2b7f8428` | 8, 1 | `AECP_QUEUED_MS` at one interface 130 -> 140, the queued rule's figure for its row; FR_NFR 3.4.1 amended, the row against 125, 130 and 140. |
+| `73388996` | 8, 4 | The slice at the rule's choice at the 140 ms bound, 900 us. |
+| `b69388c7` | 8, 7 | 8x8/2if, reported: the polls' base 325 -> 345, a notice past `AECP_FAN_BYTES` 655 -> 700, a pass's events' fixed part 35 -> 40, AMAP_LIVE_WRITE 25 -> 30 us. |
+| `f93317cb` | 8 | Section 13 "The bound and the slice at 140 ms (#895)", FR_NFR 3.4.1, the SRP README. |
+| `663b519b` | 9, sync | Merge #902's `41ca9f87` (#894's round 20: section 13's history in the past, `aecp_mbx.h` comments, `rows_grade.py`'s docstring). Section 13's three conflicting hunks taken word by word: #902's change wherever this branch left those words unchanged. |
+| `845364b6` | 9, 1 | `CTRL_LOOP_TX_MS` at two interfaces 99 -> 105, `SRP_REDECLARE_CS` there 2,029 -> 2,030 cs; the two self-test controls' figure and plants (34/105, under each row 33/104); FR_NFR 3.4.1, section 13 "THE TRANSMIT's figure at two interfaces (#895)", the SRP README, the harness README. |
+| `449d29d2` | 9 | `ctrl_memory_ledger.PLAT_8X8_1` 18,176 -> 18,240 B, the 64 B 7B's cut adds at 8x8/1if; section 3. |
+| `c772b1e5` | 9 | Section 13: the images by hash, the sync's, the Talker arms, the rows and the ledger. |
+| `249a3823` | 9 | The harness self-test's queued bound at 140 ms at one interface (`selftest_notice.py`: the pin (140, 62), the over-bound probe 141 ms), and `ctrl_loop.h`'s comment of it. |
+| `056d619d` | 9, sync | Merge #902's `07ed787e` (#894's round 20: sections 5 and 13's image sizes as its head's), docs only; where #902 states its head's sizes this branch states its own (126,608 and 131,752 B). |
+| `a97a3c3e` | 10, R835-4-F1 | `srp_talker.cpp`: `Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave`, the Leave as late as `CTRL_LOOP_TX_MS` allows; `srp_talker_mutants.py`: `talker-hold-off-drops-the-transmit-term`, `-rounds-the-transmit-term-down` and `-drops-the-join-and-transmit-terms`. Test-side only. |
+| `1215bd82` | 10, R836-4-F1, F2, R835-4-F2, S1, S2 | Docs: every superseded figure stated as this head's restated or given its subject; sections 5 and 13's provenance; section 5's table at this head; section 13 "The record classes graded (#895)"; FR_NFR 3.4.1, the AECP, platform and harness READMEs. Markdown only. |
+| `16ba667d` | 11, R835-5-F1, RS1, RS2 | Docs: `plat/README.md`'s ROM past 60.0 (680 B at this head, 392 at `bf0844f1`); FR_NFR 3.4.1's slice and pace clause bound to #894's head `07ed787e` and round 7B's merge `7e3db6b9`; section 13's marked subsections' "at this head" and "now" figures restated or bound to `bf0844f1`, `4c9757ee`, `62298ab5` or #894's head; RS1 "held 124,876 B"; RS2 "was, on #894's head,". Markdown only. |
+
+## Round 11
+
+R835-5 and R836-5 reviewed `1215bd82`. Every finding and residue is answered at `16ba667d`, one markdown-only commit.
+
+| Finding | Severity / lens | Answer | Verification |
+|---|---|---|---|
+| **R835-5-F1**: seven statements give an earlier image's figure as this head's | MINOR; Docs | `sw/firmware/ctrl/plat/README.md:110`: 680 B of `rom` past 60.0 at this head (392 B at round 6's `bf0844f1`), and 1,656 B "at `bf0844f1`". `FR_NFR.md:383`: the 950 us slice and its 8 ms pace bound to #894's head `07ed787e` in the past tense, the composition's 9 ms pace to round 7B's merge `7e3db6b9`. `SPLIT_CONTROL_MEMORY.md:2603`: 245 / 220 us at `bf0844f1`, this head's 255 (the dearest edit), 300 (paced) and 225 (ordinary); `:2605`: 33.69 and 94.99 at round 7A's `4c9757ee`, this head's 34.00 and 104.25; `:2606`: 1,656 at `bf0844f1`, this head's 1,368. The sweep R835-5-S2 describes found three more, each fixed: `:2595` "950 us now" (on #894's head), `:2604` "now 9 ms" (at round 5's `62298ab5`, and 9 at this head), `:2618` "at this head" in round 6's subsection (`bf0844f1`). | `scripts/f1_sites.py` (the review's): **0 of 7 present** (`receipts/docs/f1-sites.txt`). `receipts/docs/superseded-inventory.md`: the phrase sweep (every "at this head", "at the head", "this head's" and "now" in section 13's marked subsections, FR_NFR 3.4.1 and the READMEs this PR touches) and the figure sweep with R835-5's missed figures (392 B, 245, 220, 33.69, 94.99, 1,656, 1,864) added: 201 hits, every one classed, none a superseded figure stated as this head's. |
+| R835-5-RS1 | RESIDUE; Docs | `SPLIT_CONTROL_MEMORY.md:515`: "holds 124,876 B" -> "held 124,876 B", exactly. | The diff. |
+| R835-5-RS2 | RESIDUE; Docs | `SPLIT_CONTROL_MEMORY.md:2529`: "its bound at 1x1/1if is" -> "its bound at 1x1/1if was, on #894's head,", exactly. | The diff. |
+| R836-5-RS1 | RESIDUE; Docs | The roles name each review's start and published verdict; no "(next)" left. R835-6 is the one delta reviewer. | [The roles](#linked-issue--roles) against the starts 6901529577 and 6901535392. |
+| R835-5-S1 (publish the graded legs' records) | SUGGESTION | Retained, optional: publishing records is a non-markdown or packet change outside this markdown-only round. | |
+| R835-5-S2 (the phrase sweep) | SUGGESTION | Taken: run, and every hit fixed ([R835-5-F1](#round-11) above). | `round11/scripts/phrase_sweep.py`. |
+| R835-4-S3 | SUGGESTION | Retained, optional. | |
+
+**Paths after `1215bd82`:** `docs/design/SPLIT_CONTROL_MEMORY.md`, `docs/reference/FR_NFR.md` and `sw/firmware/ctrl/plat/README.md`, all markdown. No image input, no non-markdown path. The merge candidate of `1215bd82` carries its native bank.
+
+**Gates at `16ba667d`**, each on its own fresh clean clone: docs.yml's every job failed 0 (`verify_wf.py`: 61 steps ran, 34 not run with a reason, 0 bad; docs-check-no-git's after-run `git status` the known driver artifact); `firmware-unit` failed 0, its 6 steps rc 0, `fw_coverage.py --check` PASS (39 files); `git diff --check` against the source base and the merged #902 head, the idiom ratchets and `docs_check.py` rc 0; `check_doc_style.py`, `check_doc_paths.py`, `check_gptp_docs.py` and `check_em_dash.py` rc 0.
+
+## Round 10
+
+Both reviews of `056d619d` ran from round 5's `62298ab5`; every finding is answered here, each at the head `1215bd82`.
+
+| Finding | Severity / lens | Answer | Verification |
+|---|---|---|---|
+| **R836-4-F2**: the survey's paced class read under a key the grader never names, and its held predicate called without the record's command, so the paced class was "not staged" and arm B's SET_STREAM_INFO left out | MAJOR; Conformance, Tests, Docs | The survey reads `classes.paced` and gives `held` the record's command (`round10/scripts/costs_vs_stated.py:145,185`); `record.aecp` is counted like every other statement. The head's `record_classes.py` CLI over every preserved leg of rounds 8 and 9 (arm A merged, `answering-every-port`, `valid-destinations`, arm B, at 1x1/1if and 8x8/2if, one pass): **RESULT PASS**. The class maxima are tabulated below. No measurement exceeds its statement, so no restatement and no recomputation; rows, load, pace and slice stand. The coverage claim is corrected: section 13, "The record classes graded (#895)" (`docs/design/SPLIT_CONTROL_MEMORY.md`), and the rounds 6, 7A and 8 claims qualified at their lines. | `receipts/classes/record_classes-real.log` (PASS); `receipts/classes/survey-final/survey-1x1.txt` and `-8x8.txt` (UNDER 0, the paced row measured at 28,288 and 55,365 cycles); `receipts/classes/plants/summary.md`: an accepted SET_CONFIGURATION raised to 40,000 cycles (1x1/1if) and 60,000 (8x8/2if), and a SET_STREAM_INFO raised to 30,000 at each point, each refused by the class grader over every leg (`REFUSED ... over the paced record's 300 us`, `... over the other record's 235 us (command 0x000e)`) and by the corrected survey (UNDER 1, rc 1), each passed by round 8's survey (rc 0); unplanted copies pass all three. |
+| **R835-4-F1**: no executable control holds `SRP_REDECLARE_CS`'s THE TRANSMIT term | MINOR; Tests, Conformance | `srp_talker.cpp`: `Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave` requests the Leave on a centisecond, holds the loop `10 * CTRL_LOOP_JOIN_CS + CTRL_LOOP_TX_MS` after it, so the Leave leaves as late as the bound allows (checked: at the request plus that), and requires the changed destination at least two LeaveAllTime periods after the Leave on the wire (20,005 ms at two interfaces, 20,006 at one). `srp_talker_mutants.py`: the term dropped (the reviewer's m1: 19,895 and 19,966 ms), the term rounded down (19,995 and 19,996), and both terms dropped (m2). | The Talker arms at the head: `srp_talker.cpp` 12 tests at each count, PASS. The hold-off plants (`plants.py talker-hold-off`) at 8x8/2if and 1x1/1if: all six caught by name, the new ones on "the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave". The SRP campaign at the head: 421 rows, 76 `talker-` (38 at each count), all caught, 0 escaped. |
+| **R836-4-F1**: current-head statements describing earlier images and figures (`SPLIT_CONTROL_MEMORY.md:519-530, 2551, 2682, 2688, 2689`; `FR_NFR.md:390`) | MINOR; Docs | Each restated as this head's or given its subject: section 5's round-6 table bound to `bf0844f1` and followed by this head's table (`ctrl_plat` 18,240; platform 8x8/2if 131,752 B, 1,368 B left; fixture 126,608; arms 60 and 200 B); the tx row and `CTRL_LOOP_TX_MS`'s readers attributed to #894's image, with this head's 34.00 / 105 and `srp_mbx.c`'s read; #894's round-13 legs attributed, this branch's round-8 legs stated (130,341 and 218,322 passes, 0 over); the first notices 14.72 / 21.11 (14.66 / 20.93 at #894's head). | `receipts/docs/superseded-inventory.md`: every hit of each superseded figure in the tracked text, 178, each classed; none states a superseded figure as this head's. The doc gates at the head: docs.yml's every job failed 0; `docs_check.py` 0 findings; `check_em_dash.py` 0. |
+| **R835-4-F2**: four prose statements give #894's `AECP_QUEUED_MS` 130 or `CTRL_LOOP_TX_MS` 99 as this head's (`SPLIT_CONTROL_MEMORY.md:2266, 2689`, `aecp/README.md:120`, `ctrl_service_budget/README.md:172`) | MINOR; Docs | All four state 140 ms and 105 ms with #894's figure attributed, and so do every other instance the inventory found (the queued-notice table, the tiers' design line, the tier-2 slice, `plat/README.md`'s ROM, the harness README's planted bound). | As above: the inventory, and a grep of 130 ms and 99 ms beside `AECP_QUEUED_MS` and `CTRL_LOOP_TX_MS` finding only attributed or historical ones. |
+| **R836-4-RS1 = R835-4-RS1**: the roles name round 5's reviews | RESIDUE; Docs | Taken: [the roles](#linked-issue--roles) name R835-4 and R836-4 with their starts and verdicts, and R835-5 and R836-5 next. | The role lines against the starts 6899719764 and 6899726363. |
+| R835-4-S1: the 18 us is the bounds' headroom, not the flip check's | SUGGESTION; Tests, Docs | Taken: section 13's round-8 bullet says so. Reproduced: at a 226 us base the flip check refuses `CTRL_LOOP_TX_MS` 34 against the tx row's 34.02. | `receipts/flip-226.log`. |
+| R835-4-S2: `per_pass_threshold.py`'s path | SUGGESTION; Docs | Taken: section 13 names `review-evidence/895-r1/author-r8/scripts/per_pass_threshold.py` on the evidence branch. | The doc gates. |
+| R835-4-S3: a plant dropping `gate_seen` | SUGGESTION; Robustness | Retained, optional: no plant added this round. The reviewer checked the early return's premise holds at every writer of `gate`, `dest_mac` and `allocated`. | |
+
+**The record classes at the head**, the dearest record of each held class by the rule (`record_classes.py`, RESULT PASS):
+
+| Point | Class | Dearest record | CPU cycles | By the rule | Stated |
+|---|---|---|---:|---:|---:|
+| 1x1/1if | paced (`EDIT_RECORD_US`) | arm B's accepted SET_CONFIGURATION | 28,288 | 300 us | 300 us |
+| 1x1/1if | ordinary (`record.aecp`) | `answering-every-port`, `notice-burst-0` | 21,187 | 225 us | 235 us |
+| 1x1/1if | long (`LONG_RECORD_US`) | arm B, `aecp-largest-notice` | 86,698 | 915 us | 975 us |
+| 8x8/2if | paced | arm B's accepted SET_CONFIGURATION | 55,365 | 585 us | 595 us |
+| 8x8/2if | ordinary | `answering-every-port`, `notice-every-7` | 18,904 | 200 us | 265 us |
+| 8x8/2if | long | arm B, `aecp-largest-notice` | 126,152 | 1,325 us | 1,650 us |
+
+Arm B's SET_STREAM_INFO: 20,363 cycles at 1x1/1if (215 us of 235) and 17,511 and 17,300 at 8x8/2if (185 us of 265), held only with its command passed. **8x8/1if** is reported by class and never held (`record_classes.held`); this lane has no leg at that point (lane 894b's), and none was run.
+
+**The survey's coverage**: 63 statements a point in the nine table groups the rows and the load read; 57 measured, all within by the rule; 6 derived and not staged (the probe's item; the owed MRPDU in the polls and in the donor column; a build of both MRPDUs in the donor column and in the pass given whole). The rows' other header costs are `aecp_mbx.h`'s round costs, which each leg's round check holds (0 refusals in every leg), and `CTRL_LOOP_TICK_US`, a floor under the surveyed centisecond.
+
+## The findings
+
+| Finding | Severity / lens | Answer at this head |
+|---|---|---|
+| R835-3-F1: the 1x1/1if polls' base stated at 205 us against 20,456 cycles | MAJOR; Conformance, RTL, Tests, Docs | **Restated, and every stated table surveyed at both points at each image.** The base is 225 us (21,094 cycles in `save-held` on the cut's image, unchanged on the rebuilt one). The survey is UNDER 0 at both points at round 8's head, and no measured image and no table has moved since. Its attribution: on #902's own image the heaviest base is 19,074 cycles; the merges' growth is placement (#909), in AECP's poll and delivery, not in the Talker's polls. |
+| R835-3-F2: 8x8/2if AMAP_LIVE_WRITE stated at 25 us | MINOR; Conformance, Tests | **Restated by the rule:** 2,465 cycles on the rebuilt image, 30 us (`b69388c7`). It was 2,367 at round 6's head, within 25 then. |
+| R835-3-RS1: the roles lines | RESIDUE; Docs | Taken, as worded (above). |
+| R835-3-S1: `maap_mbx_start`'s written mark | SUGGESTION; Robustness | Retained, not taken. |
+| R835-3-S2: a cost audit against every table at each re-measure | SUGGESTION; Tests | Taken as evidence: `costs_vs_stated.py` before and after each restatement, at every image (round packets). |
+| R835-3-S3: section 5's title against its deltas' base | SUGGESTION; Docs | Taken. |
+| R835-2-S2 = R836-3-S5: the INDEX hashed before the scrub | SUGGESTION; Docs | Taken: each round's INDEX is generated after the scrub and checked. |
+| R836-3-F1: the closing R4 figure 12.85 ms | MINOR; Docs | Taken: the closing summary is the head's, R4 13.25 ms by every source at 900 us. |
+| R836-3-RS1: "move no byte" | RESIDUE; Docs | Taken, as worded. |
+| R836-3-S1 to S4 | SUGGESTION | Retained, optional. The cut's plant adds one Talker row, 35 in all. |
+| Found in round 9 by the executor: `plat_ledger.py` FAIL at 8x8/1if since 7B's cut (`ctrl_plat` 18,240 B, recorded 18,176), reported in round 8's body as PASS | for the reviewers' lens | **Fixed** (`449d29d2`): the record is 18,240. `plat_ledger.py` passes at every point at the head and `test_ctrl_memory.py` passes. The record is read only by those two, so no image changes. Round 8's body was wrong on this line. |
+| Found in round 9's first full pass: `tb/verilator/ctrl_service_budget/run.py --self-test` 2 failures at `c772b1e5`, `selftest_notice.queue_checks` pinning the bound at (130, 62) and probing 131 ms as a miss, stale since round 8's `2b7f8428` | for the reviewers' lens | **Fixed** (`249a3823`): the pin (140, 62) and the probe 141 ms, one over the bound as before; 0 failures at the final head. |
+
+## The rulings
+
+| Ruling, item | Answer |
+|---|---|
+| issuecomment-6886630886 (round 6's stop), 1: the slice as the rule's choice | 7A built 950 us. 7B took #902's 950 us at the merge. Round 8 builds the rule's 900 us at the new bound (`73388996`). |
+| same, 2 and 3: the 130 ms bound kept; the one cut if no slice holds | 7B made the one cut (`f14e56a9`). After it no slice in 650 to 1,100 us held at 130, and 7B stopped. |
+| same, 6 and 7: 7A and 7B, the order | Done; #902 first. |
+| issuecomment-6892130675 (7B's stop), 1: the bound follows its row in #901 | `2b7f8428`: 140 ms for the row's 135.43 at 950 us (136.65 at 900); FR_NFR 3.4.1 amended against 125, 130 and 140. |
+| same, 2: #902 untouched | No change to #902's code. Its head keeps 130. |
+| same, 3: `CTRL_LOOP_TX_MS` by the rule at both points | At 1x1/1if the rule gives the stated 34 (tx 34.00 at 900 us), the hold-off 2,023 cs. At 8x8/2if it gave 105, which moved the hold-off: round 8's stop, ruled in round 9. |
+| same, 4: the slice rule chooses again; the pace by its rule | 900 us (+0.0086); pace 9 ms. |
+| same, 5: no second cut, no placement chase | None. |
+| same, 7: rebuild, every leg, the survey, the margins and the 140 ms per-pass cost | Done in round 8 (below). The full pass ran in round 9. |
+| same, 8: #902's merged images by hash | 552 of 552 image files identical across that sync; #894's own 332 of 332 `b6f5c638` against `234bc149`. |
+| **issuecomment-6895331865 (round 8's stop), 1 and 2: (a), the hold-off follows the tx row** | `845364b6`: `CTRL_LOOP_TX_MS` at two interfaces 105, `SRP_REDECLARE_CS` there 2,030 cs; IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, so a changed destination is declared 10 ms later at two interfaces. |
+| same, 3: (b) and (c) refused | Neither taken. |
+| same, 4: own commit, FR_NFR 3.4.1, section 13, the SRP README; #902 keeps 99 | `845364b6` carries all three; #902 untouched. |
+| same, 5: no one-interface image changes, the two-interface ones only in that constant | 0 one-interface files differ; 12 two-interface files, each one instruction ([below](#the-transmits-figure-at-two-interfaces)). |
+| same, 5: the two-interface Talker arms and the 8x8/2if `valid-destinations` leg again | PASS (below). |
+| same, 5: sync onto #902's current head, image identity | `663b519b` (`41ca9f87`) and `056d619d` (`07ed787e`); 552 of 552 identical across each. |
+| same, 5: one full pass on a clean clone | [The full pass](#the-full-pass). |
+| same, 5: two delta reviews from round 5's head | For the reviewers, from `62298ab5`. |
+
+## The 1x1/1if rows at the head
+
+By every source, ms (`flip_grade.py --check --point 1x1/1if` at the head: PASS), at the built and ruled 900 us, the last queued notice's bound at 140 ms (`per_pass_threshold.py` on an export of the head):
+
+| Row | W | Bound | Margin | Relative |
+|---|---:|---:|---:|---:|
+| R4 | 13.25 | 20 | 6.75 | +0.3375 |
+| R5 | 75.84 | 90 | 14.16 | +0.1573 |
+| R6 | 73.36 | 90 | 16.64 | +0.1849 |
+| first queued notice | 14.72 | 20 | 5.28 | +0.2640 |
+| last queued notice | 136.65 | 140 | 3.35 | +0.0239 |
+| R4L | 203.57 | 238 | 34.43 | +0.1447 |
+| ACMP | 29.63 | 30 | 0.37 | +0.0123 |
+| ADP | 27.86 | 30 | 2.14 | +0.0713 |
+| MAAP | 27.96 | 30 | 2.04 | +0.0680 |
+| tx | 34.00 | 49 (`CTRL_LOOP_TX_MS` 34) | 15.00 | +0.3061 |
+| txL | 48.58 | 49 | 0.42 | +0.0086 |
+
+- **The per-pass headroom:** a pass's own cost is **260 us**, a pass's events' fixed part (35) plus its polls' base (225). Every row holds up to **278 us** (the last queued notice 137.93 ms). At **279 us** the last queued notice is 141.36 ms and txL 49.02 ms, both over: 18 us of headroom.
+- **The slice rule:** 900 us at +0.0086 (txL binding); 950 us is +0.0076, 1,000 us +0.0065, and 1,050 and 1,100 fail. `ruled` = built = 900. `tier_grid.py`: 6 of 420 hold, CHOSEN the built design.
+- **The pace:** 9 ms (txL 49.99 at 8).
+- **The load:** 0.517 at the pin, 0.514 with tsn-c-stack#32, 0.696 with every command the largest legal one.
+- **Self-tests at the head:** `rows_tiers.py --selftest` **1033 of 1033** (round 8: 1032, the one escape THE TRANSMIT's figure at 8x8/2if); `flip_grade.py --selftest` 585 of 585; `load_grade.py --selftest` 26 of 26.
+- **8x8/2if, reported:** R4 45.06, R5 209.00, R6 198.71, first 21.11, last 857.77, R4L 211.08, ACMP 68.94, tx 104.25 (105 stated), txL 466.85; load 0.798 / 0.756.
+
+## THE TRANSMIT's figure at two interfaces
+
+- **The figure.** `CTRL_LOOP_TX_MS` is the built design's tx row by every source rounded up to the ms: 34 ms at one interface (34.00) and **105 ms** at two (104.25). `rows_tiers.tx_statements` holds both at or over their rows.
+- **The hold-off.** `SRP_REDECLARE_CS` = 2 x 1,000 + `SRP_JOIN_CS` (19) + (`CTRL_LOOP_TX_MS` + 9) / 10: **2,030 cs** at two interfaces (2,029 at 99) and 2,023 at one. A withdrawn Talker's changed destination waits 10 ms longer at two interfaces, on the safe side of 35.2.2.8's least, 2,000 cs.
+- **The images, by sha256** (`image_sha.py`: each ELF's loadable bytes and every linked object of every image `ledger.sh` links, 552 files; `compare_images.py`):
+  - one-interface: **0 differ**;
+  - two-interface: **12 differ**, `srp_mbx.o` and the ELF of each of the platform's and the size fixture's 1x1 and 8x8 images and the harness's two 8x8/2if arms. Each differs in **one instruction**, `li a3,2029` to `li a3,2030` (`7ed00693` to `7ee00693`), and in no other instruction or section byte (`objdump -d` and `objdump -s`).
+- **Run again at two interfaces:**
+  - `srp_talker.cpp` at 8x8/2if, 11 tests, and at 1x1/1if, 11; the composition's `SrpGate` at 8x8/2if, 7; the SRP and ACMP arm at two interfaces, 76: **PASS**;
+  - the 8x8/2if `valid-destinations` leg (R9-W8, on a clean clone of `449d29d2`): 2 groups, 0 refusals, 0 budget misses, 0 of 3,052 passes over the share, no `STATED` line, 49 joins from 185.605 to 190.228 ms. Both groups' measured logs are **byte-identical** to round 8's leg on the image before; the results differ only in the head's stated tables and the build's hash.
+- **The campaigns** hold the hold-off's terms: SRP's campaign plants each (`talker-hold-off-one-leaveall`, `talker-hold-off-skipped`, ...), 70 Talker rows (35 at each interface count), every one caught ([below](#the-full-pass)).
+
+## Every stated cost against the legs
+
+No measured image and no stated table has changed since round 8's survey: the one-interface images are identical by hash, and the two-interface images differ only in the hold-off's constant, which no cost reads. The survey, corrected in round 10 (`costs_vs_stated.py`, by the rule over the legs, [round 10](#round-10)), covers this:
+
+- **The nine table groups the rows and the load read**, 63 statements a point. 57 are measured, every one within by the rule; 6 are derived and not staged: the probe's item; the owed MRPDU in the polls and in the donor column; a build of both MRPDUs in the donor column and in the pass given whole.
+- **The AECP record classes**, also held by the head's class grader over every held leg (RESULT PASS).
+- **Not in the survey:** `aecp_mbx.h`'s round costs, which each leg's round check holds, and `CTRL_LOOP_TICK_US`, a floor under the surveyed centisecond.
+
+| Point | At round 8's rebuilt image's tables (`73388996`) | At round 8's head and this one, corrected |
+|---|---|---|
+| 1x1/1if | UNDER 0 (the paced class unread, SET_STREAM_INFO left out) | UNDER 0, the paced class 28,288 cycles, 300 of 300 us |
+| 8x8/2if | UNDER 7: the base 32,705 (345; 325), a notice past `AECP_FAN_BYTES` 66,481 (700; 655), the fixed part 3,437 (40; 35), AMAP_LIVE_WRITE 2,465 (30; 25) | UNDER 0 (`b69388c7`), the paced class 55,365 cycles, 585 of 595 us |
+
+## The CPU budget harness
+
+Every group of every arm at both points on a clean clone of round 8's `73388996`, whose image is the head's at one interface by hash and at two interfaces but for the hold-off's constant:
+
+| Point | Arm | Groups | Refusals | Budget misses | `STATED` | rc |
+|---|---|---:|---:|---|---:|---:|
+| 1x1/1if | A (5 parts, merged) | 96 | 0 | 7 of 950 | 0 | 0 |
+| 1x1/1if | `answering-every-port`, `valid-destinations`, B | 16, 2, 3 | 0 | 0 | 0 | 0 |
+| 8x8/2if | A (5 parts, merged) | 94 | 0 | 7 of 994 | 0 | 0 |
+| 8x8/2if | `answering-every-port` | 16 | 0 | 0 | 16 (the base) | 1; **0 regraded** at `b69388c7` |
+| 8x8/2if | `valid-destinations` | 2 | 0 | 0 | 0 | 0; **again at this head's image: 0**, logs identical |
+| 8x8/2if | B | 3 | 0 | 0 | 2 (the long notice) | 1; **0 regraded** at `b69388c7` |
+
+- **Joins:** 359 at 1x1/1if (188.102 to 190.121 ms) and 750 at 8x8/2if (185.605 to 190.228), every one within 181 to 239.
+- **The misses** are arm A's seven held-egress rows at each point, as before.
+- **8x8/2if's share:** two passes of `answering-every-port` (at most 2.018 ms) and two of arm B's `aecp-largest-notice` (2.337 ms) are over the per-pass share. They are reported and belong to #890.
+
+## Image identity and ROM
+
+`image_sha.py` hashes every image `ledger.sh` links: each ELF's loadable bytes and every object, 552 files.
+- **7B's cut head `1a917cf1` against round 8's sync merge `1143e3f5`:** 552 of 552 identical.
+- **That merge against `73388996`** (the bound and the slice): 16 differ, every one a one-interface `ctrl_loop.o` or its ELF.
+- **`73388996` against round 9's sync merge `663b519b`:** 552 of 552 identical.
+- **That merge against `449d29d2`** (THE TRANSMIT's figure): 0 one-interface; 12 two-interface, each one instruction (above).
+- **`449d29d2` against `056d619d`** (the self-test fix, a comment, the second sync): 552 of 552 identical.
+- **`056d619d` against round 10's head `1215bd82`** (a test, its plants and the docs): 552 of 552 identical.
+
+ROM at the head (`plat_ledger.py` rc 0, PASS at every point, `ledger.sh` on clean clones of `449d29d2`, `056d619d` and `1215bd82`):
+
+| Point | Image | Entry or budget | rom / sram, RAMB36 | Left |
+|---|---|---:|---|---:|
+| 8x8/2if | platform | 60.5 | 131,752 / 114,224: 60.5 | 1,368 B |
+| 8x8/2if | fixture | 59.0 | 126,608 / 113,248: 59.0 | 368 B |
+| 8x8/2if | harness `answering-every-port` | 59.0 | 126,916 / 113,312: 59.0 | 60 B |
+| 8x8/2if | harness `valid-destinations` | 59.0 | 126,776 / 113,248: 59.0 | 200 B |
+| 8x8/1if | platform | 56 | 130,200 / 97,328: 56.0 (`ctrl_plat` 18,240 B, as recorded) | 872 B |
+| others | | 56 | within | |
+
+## The full pass
+
+**At round 10's head `1215bd82`**, every job reading a path round 10 changed ran again, each on its own fresh clean clone. The jobs reading none of those paths carry from round 9's full pass at `056d619d`, below; the images are identical by sha256.
+
+| Gate | Command | Result at `1215bd82` | Receipt |
+|---|---|---|---|
+| the jobs reading a changed path | `run_wf.py`: docs.yml's every job; rtl-fast's `changes`, `bdd-conformance`, `firmware-unit` and the three mutant jobs; rtl.yml's `full-ci-gate` | every job failed 0. docs-check-no-git's 3 steps rc 0; its driver's after-run `git status` fails since the job's own step removes `.git` (a driver artifact, as before) | `round10/receipts/gates/workflows` |
+| verify | `verify_wf.py <head>` over the four workflows, then `verify_r10.py` | 86 steps ran at the head and 53 carried from `056d619d` (each of a job reading no changed path, rc 0 there): 139, as at `056d619d`; 226 not run with a reason; 0 bad | `round10/receipts/gates/verify-table.md` |
+| firmware campaigns | firmware-{control,aecp,srp}-mutants | control 716 of 716 caught; AECP 299 rows; SRP 421 rows (76 `talker-`, 38 at each count, the three new hold-off plants among them); all caught, 0 escaped | `round10/receipts/gates/campaigns.txt` |
+| firmware unit and coverage | firmware-unit, `fw_coverage.py --check` | failed 0; `srp_talker.cpp` 12 tests at each count; coverage PASS (39 files) | `round10/receipts/gates/workflows` |
+| lane gates a | `lane_gates.sh a` | all rc 0 but `flip_check` and `flip_check_8x8` (rc 1 by design: 8x8/2if); `flip_check_1x1` rc 0; `harness_selftest` 0 failures; behave rc 0 | `round10/receipts/gates/lane` |
+| the record classes and the survey | `record_classes.py` over every preserved leg; `costs_vs_stated.py` corrected; the four plants | PASS; UNDER 0 at both points; each plant refused | `round10/receipts/classes` |
+| images and the ROM ledger | `ledger.sh`, `image_sha.py` on a clean clone of the head | 552 of 552 identical to `056d619d`'s; `plat_ledger.py` rc 0 | `round10/receipts/identity`, `ledger-final` |
+| carried from `056d619d` | rtl-fast's lint, Yosys, census, split CDC, firmware boundary and Verilator jobs; rtl.yml's Yosys tool and shards; elaborate.yml; lane gates b and c; the four-shard sweep | round 9's results, below | `round9/receipts` |
+
+**Round 9's full pass at `056d619d`**, on clean clones, the evidence the carried jobs keep. The first run, at `c772b1e5`, found one failure ([the findings](#the-findings)) and is kept (`round9/receipts/pass1-c772b1e5`).
+
+| Gate | Command | Result at `056d619d` | Receipt |
+|---|---|---|---|
+| every `run:` step of rtl-fast, rtl, docs, elaborate | `run_wf.py` per job, each on its own fresh clone (`gate_queue.sh`, 18 units on `cpu_ranges.py` pick8 ranges, or the session pool while a release hold took every pick) | every job failed 0. docs-check-no-git's 3 steps rc 0; its driver's after-run `git status` fails since the job's own step removes `.git` (a driver artifact, as before) | `gates/workflows` |
+| verify | `verify_wf.py <head> rtl-fast.yml rtl.yml docs.yml elaborate.yml --matrix=yosys-shards=shard:0-4,1-4,2-4,3-4` | rc 0: 139 steps ran, 226 not run with a reason, 0 bad (round 5: the same) | `gates/verify-table.md` |
+| firmware campaigns (in those jobs) | firmware-{control,aecp,srp}-mutants | control 716 of 716 caught; AECP 299 rows, SRP 415 rows (70 `talker-`, 35 at each interface count, among them `talker-hold-off-skipped`, `-one-leaveall` and `-never-ends`), all caught, 0 escaped | `gates/campaigns.txt` |
+| firmware coverage | firmware-unit's `fw_coverage.py --selftest` and `--check` | PASS (39 files) | `gates/workflows` |
+| job trees after | `run_wf.py` tree-after | clean, but firmware-unit and the three mutant jobs leave `?? dispatch-build/` (#902's shard-dispatch self-test, for #894, as before) | `gates/workflows/*tree-after.txt` |
+| lane gates a | `lane_gates.sh a` | all rc 0 but `flip_check` and `flip_check_8x8` (rc 1 by design: 8x8/2if); `flip_check_1x1` rc 0; **`harness_selftest` 0 failures** (1 at `c772b1e5`: 2 failures); behave rc 0 | `gates/lane` |
+| lane gates b, c | `lane_gates.sh b` / `c` | `test_builder.py --require-rv32` rc 0; `nvm_selftest`, `boot_1x1`, `boot_8x8`, `boot_native`, `boot_plants` rc 0 | `gates/lane` |
+| full Verilator sweep | `run_all_suites.sh --shard k/4`, each shard its own clone and its own `cpu_ranges.pick8()` range, with CI's `MAKEFLAGS=-j4` and the hosted job's `TSN_GEN_ROOT` in the env | 65 suites (15 + 17 + 17 + 16), 0 failed, 2,713,040 checks, 0 in-suite failures, each shard exit 0; `tsn_fuzz`'s field campaigns 164 and 675 pass, freshness PASS; shard trees clean after but shard 3's two `TEST_RESULTS.md` date stamps, restored | `sweep/` |
+| graders at the head | `flip_grade.py --check --point 1x1/1if`, `rows_tiers.py --selftest`, `tier_grid.py`, `load_grade.py --check`, the slice rule | PASS; 1033 of 1033; 6 of 420, CHOSEN the built 900 us; 0.517 / 0.514; `slice_choice` (900, +0.0086) = `ruled` = built; `tx_statements` [] | `graders/g-final` |
+| the ROM ledger | `ledger.sh` on a clean clone of the head | `plat_ledger.py` rc 0, PASS at every point; 552 of 552 image files identical to `449d29d2`'s | `ledger-final`, `identity/` |
+
+## Description
+
+### Validity and the declarations (rounds 1 and 2; the hold-off's figure at two interfaces in round 9)
+
+A source declares its MSRP Talker only while its SRP parameters are valid: MAAP holds its destination, and a probe of the last 15 s or a registered Listener asks for it (Milan v1.2 4.3.3.1, 5.3.7.4).
+- It declares at once, Talker Advertise with base + n and its TSpec, or Talker Failed (code 1) when its bandwidth does not fit.
+- A lapse withdraws it, its licence and TALKER_DECL bit first.
+- An unchanged destination is declared again at once. A changed one waits two LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, Table 10-7), plus a JoinTime and THE TRANSMIT's MRPDU by every source: `SRP_REDECLARE_CS`, 2,023 cs at one interface and **2,030 at two**.
+- `srp_mbx_gate` returns at once on the gate and base its last call left (7B's cut).
+
+### Each source's stream_id (#905, unchanged)
+
+The MAAP adapter (`maap_mbx.c`), which owns `DA_GATE`, writes each source's `SRC_SID_HI:SRC_SID_LO` through `mbx_pub_src_sid` while its gate bit is clear (`KL_mbx_pkg.sv:345`).
+
+## Authoritative references
+
+- #895 rulings issuecomment-6895331865 (round 9), 6892130675 (round 8), 6886630886 (round 7), 6876349305. #894 issuecomment-6888782796 (its round 13), 6872978311, 6867990126, 6845846512, 6862465874 (the queued bound's rule).
+- IEEE 1722.1-2021 9.3.2.6; IEEE 802.1Q-2018 10.7.11, 35.2.2.8, Tables 10-5 to 10-7; Milan v1.2 4.2.7.1.1 (Table 4.3), 4.3.2, 4.3.3.1, 5.3.7.4.
+- `docs/design/SPLIT_CONTROL_MEMORY.md` section 13 ("The bound and the slice at 140 ms (#895)", "THE TRANSMIT's figure at two interfaces (#895)"); FR_NFR.md 3.4.1; `sw/firmware/ctrl/loop/ctrl_loop.h` (`CTRL_LOOP_SLICE_US`, `CTRL_LOOP_TX_MS`); `sw/firmware/ctrl/aecp/aecp_mbx.h` (`AECP_QUEUED_MS`); `sw/firmware/ctrl/srp/srp_mbx.c` (`SRP_REDECLARE_CS`); `sw/litex/ctrl_memory_ledger.py`; `tb/verilator/ctrl_service_budget/queued_bound.py`, `rows_tiers.py`.
+
+## How to validate
+
+```sh
+git checkout 16ba667d && git submodule update --init --recursive
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if   # rc 0: last 136.65 of 140, ACMP 29.63, txL 48.58
+python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest               # rc 0: 1033 of 1033
+python3 -B tb/verilator/ctrl_service_budget/tier_grid.py --point 1x1/1if            # rc 0: 6 of 420, CHOSEN the built 900 us
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check                   # rc 0: 0.517 / 0.514
+python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir /tmp/plat        # rc 0: every point PASS
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4   # firmware-unit's: srp_talker.cpp 12 tests at each count
+# the record classes over a pass's legs (run.py --out directories, both points):
+python3 -I tb/verilator/ctrl_service_budget/record_classes.py RESULTS_DIR...      # rc 0: RESULT PASS on round 8/9's legs
+```
+
+## Known limitations / out of scope
+
+- **The margins:** ACMP has 0.37 ms and txL 0.42 ms left at 1x1/1if; a pass's own cost has 18 us of headroom to the bounds (279 us against 260), while `CTRL_LOOP_TX_MS` has none (any rise restates it by the rule); the paced record class at 1x1/1if is at its 300 us exactly.
+- **Layout sensitivity (#909):** the polls' base and the 8x8/2if costs move with code placement; restated by the rule, not chased.
+- **The ROM:** the `answering-every-port` 8x8/2if harness arm has 60 B left at 59.0 (graded in #898's composed check).
+- **Found before, for their own issues:** srptx `[TIME]` (#906) and the hold `[TX]` path (#907).
+- **8x8/1if** is lane 894b's: no leg there, so its AECP records are not reported by class here. The bench run (#895 acceptance 6, #905 acceptance 4) is the bench lane's.
+- **`dev-soft-core`** (with #902 merged) states `CTRL_LOOP_TX_MS` 99 and `AECP_QUEUED_MS` 130; this PR's head states 105 and 140, its own image's by the rulings. The candidate merge with `dev-soft-core` at `659d7687` has this head's tree, since `659d7687`'s tree is `07ed787e`'s.
+
+## Definition of Done
+
+- [x] Linked Issue acceptance criteria are satisfied (acceptance 4 composed holds at 1x1/1if; 8x8/2if reported)
+- [x] Required tests and local gates pass at the exact head (at `1215bd82` every job reading a changed path, the rest carried from `056d619d` by image identity, [above](#the-full-pass))
+- [ ] Current PR head has a successful `rtl-fast` verdict
+- [ ] Exact-head `verilator-suites` and `yosys-portability` after ready
+- [x] No undocumented requirement/interface change
+- [ ] Internal cleared-context review POSITIVE at the exact head
+- [ ] External review POSITIVE at the exact head
+- [ ] Every review lens covered clean at the merge candidate
+- [ ] Candidate merge validated, post-merge containment clean
