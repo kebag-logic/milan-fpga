@@ -1,0 +1,17 @@
+# 33b0d03a4ac899ed1601cd2cd97efbf66e293c9e flip_check_1x1: python3 -I tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.23 | 20 | -6.77 | 5 | aecp 3.840, timers 1.460, passes 1.225 |
+| 1x1/1if | R5 | 74.81 | 90 | -15.19 | 39 | others 10.965, passes 9.555, srp 9.120 |
+| 1x1/1if | R6 | 72.88 | 90 | -17.12 | 37 | others 10.965, srp 9.120, passes 9.065 |
+| 1x1/1if | first | 14.69 | 20 | -5.31 | 2 | spacing 8.000, steps 0.975, slice 0.950 |
+| 1x1/1if | last | 134.74 | 135 | -0.26 | 69 | srp 27.075, passes 16.905, others 14.840 |
+| 1x1/1if | R4L | 188.51 | 238 | -49.49 | 3 | pace 180.000, item.aecp 1.095, timers 1.090 |
+| 1x1/1if | ACMP | 29.22 | 30 | -0.78 | 17 | aecp 5.040, own 4.480, passes 4.165 |
+| 1x1/1if | ADP | 27.53 | 30 | -2.47 | 13 | others 6.690, aecp 5.040, passes 3.185 |
+| 1x1/1if | MAAP | 27.65 | 30 | -2.35 | 13 | others 6.930, aecp 5.040, passes 3.185 |
+| 1x1/1if | tx | 33.66 | 49 | -15.34 | 17 | others 8.125, aecp 5.280, passes 4.165 |
+| 1x1/1if | txL | 48.75 | 49 | -0.25 | 23 | aecp 11.145, others 9.160, item.aecp 8.395 |
+RESULT: PASS

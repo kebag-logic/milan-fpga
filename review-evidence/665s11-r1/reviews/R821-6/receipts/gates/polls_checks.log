@@ -1,0 +1,2 @@
+# 33b0d03a4ac899ed1601cd2cd97efbf66e293c9e polls_checks: cd tb/verilator/ctrl_service_budget && python3 -I -c "import sys; sys.path.insert(0, '.'); import selftest, selftest_polls; c = selftest_polls.polls_checks(selftest.synthetic, selftest.SYS_HZ, selftest.CPU_HZ, selftest.tx_record); bad = [x for x in c if not x[1]]; print(f'polls checks: {len(c) - len(bad)} of {len(c)} pass'); [print('FAIL', x[0], x[2]) for x in bad]; sys.exit(1 if bad else 0)"
+polls checks: 33 of 33 pass

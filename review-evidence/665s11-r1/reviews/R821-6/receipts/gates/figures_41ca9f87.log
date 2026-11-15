@@ -1,0 +1,13 @@
+# 41ca9f876b01e4af84d872b8bdbd751cc09debe0 figures_41ca9f87: python3 -I <packet>/scripts/figures_probe.py .
+1x1/1if event.ACMP: pin=185 donor=170
+1x1/1if event.MAAP: pin=165 donor=170
+1x1/1if record.acmp: pin=280 donor=265
+1x1/1if record.adp: pin=105 donor=100
+8x8/2if event.ACMP: pin=350 donor=210
+8x8/2if event.AECP: pin=105 donor=110
+8x8/2if event.TICK: pin=40 donor=85
+8x8/2if item.reclaim: donor=40 polls=35
+8x8/2if record.acmp: pin=440 donor=305
+8x8/2if record.adp: pin=240 donor=125
+1x1/1if retained chain (polls, pin item, donor item, pin record.srp, donor record.srp): (280, 280, 280, 280, 280)
+RESULT PASS

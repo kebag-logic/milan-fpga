@@ -1,0 +1,34 @@
+# round 22 (8684993388) polls table, 1x1/1if and 8x8/2if columns
+ the base | 155 | 280 
+ withdraw | 90 | 245 
+ rebuild | 290 | 630 
+ walk | 20 | 60 
+ reclaim | 25 | 35 
+ retained | 250 | 395 
+ mrpdu | 405 | 1,215 
+ acmp | 65 | 185 
+ aecp | 225 | 340 
+# round 22 poll_grade.STATED_US
+STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
+                    aecp=225),
+             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=395, mrpdu=1215, acmp=185,
+                    aecp=340)}
+# a0c25e5ccf row
+- retained | 250 | 395 
++ retained | 280 (250) | 365 (395) 
+# head 33b0d03a table
+2233: the base | 205 (155) | 325 (280) 
+2234: withdraw | 90 | 245 
+2235: rebuild | 290 | 690 (630) 
+2236: walk | 35 (20) | 60 
+2237: reclaim | 25 | 35 
+2238: retained | 285 (280) | 365 (395) 
+2239: mrpdu | 735 (405) | 1,215 
+2240: acmp | 55 (65) | 70 (185) 
+2241: aecp | 210 (225) | 275 (340) 
+# head legend
+2231:| Item 
+2243:Each figure in parentheses was round 22's
+# 41ca9f87 poll_grade retained
+90:STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+92:             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
