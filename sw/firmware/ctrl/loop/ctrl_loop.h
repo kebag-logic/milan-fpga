@@ -303,8 +303,9 @@ extern "C" {
 // and never on the interface count (#894's retry-cost ruling,
 // item 1). A shape not listed fails the build. Both two-interface shapes keep
 // the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
-// the heaviest SRP record measured there on the tree that merges #902,
-// srp_mbx's receive, 32,421 CPU cycles, plus 5 %, rounded up to 5 us: 345 us.
+// the load gate's record.srp there, 8x8/2if's 365 us, whose records that point
+// takes (load_grade.py, NEAREST), over the heaviest SRP record measured there,
+// srp_mbx's receive, 32,421 CPU cycles, 345 us by the rule.
 // THE RETRY's costs there are the line over its rounds measured on that tree,
 // the dearest at each count of refused attempts with notices charged at
 // AECP_NOTICE_US, that holds a round of every port refused (AECP_ROUND_PORTS)
@@ -333,7 +334,7 @@ extern "C" {
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
-#define CTRL_LOOP_SRP_UNIT_US 345u
+#define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams

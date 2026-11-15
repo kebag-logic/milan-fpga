@@ -278,8 +278,9 @@ def macros(root: Path, n_if: int | shape_costs.Shape) -> dict[str, int]:
 
 #: The points whose SRP drain ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US bounds: the slice starts an SRP record only while it
 #: has that left (ctrl_loop.c), so it is the load gate's record.srp there, the dearer of the two columns' (#894),
-#: read at the point's shape as THE SHAPES list it (shape_costs.at), never by its interface count.
-SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if')
+#: read at the point's shape as THE SHAPES list it (shape_costs.at), never by its interface count; at 8x8/1if the
+#: record.srp its NEAREST point's records state (stated).
+SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if', '8x8/1if')
 SRP_UNIT_HEADER = shape_costs.HEADER
 
 
@@ -293,7 +294,7 @@ def srp_unit(root: Path, texts: dict[str, str] | None = None) -> list[str]:
         except ValueError as refused:
             out.append(f'{point}: {refused}')
             continue
-        want = max(column[point]['record.srp'] for _, column in COLUMNS)
+        want = max(stated(root, point, column)['record.srp'] for _, column in COLUMNS)
         if got != want:
             out.append(f"{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US {got} us, not the load gate's record.srp "
                        f'{want} us')
@@ -608,9 +609,11 @@ def srp_unit_controls(root: Path, base: dict, fit: dict) -> list[str]:
     header = (root / SRP_UNIT_HEADER).read_text()
     one = unit_planted(header, shape_costs.of_point('1x1/1if', root), 250)
     two = unit_planted(header, shape_costs.of_point('8x8/2if', root), 300)
+    # 8x8/1if at its own measured record, 345 us, under the 365 us its NEAREST point's records state
+    eight = unit_planted(header, shape_costs.of_point('8x8/1if', root), 345)
     if srp_unit(root) or not all(any(f'{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US' in f
                                      for f in findings(root, base, fit, {SRP_UNIT_HEADER: planted}))
-                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two))):
+                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two), ('8x8/1if', eight))):
         return ["the SRP drain's record cost not the load gate's"]
     return []
 
