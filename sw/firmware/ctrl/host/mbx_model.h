@@ -116,6 +116,7 @@ struct mbx_model_channel {
 	uint16_t rate_drop;
 	uint16_t tx_err;
 	uint16_t rx_pass;
+	uint16_t rx_held_words; // the record held past rx_head for the next refill (#917), 0 when none
 	uint8_t tokens;
 	uint16_t refill;
 };
@@ -190,7 +191,9 @@ void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id
 
 // One frame on the ingress path (FCS stripped), arrived on `interface` (an
 // index with no interface in this build has no own MAC); true when it was
-// committed into an receive ring.
+// committed into a receive ring. A frame its channel's bucket has no token
+// for, while the channel holds none, is held (#917): false here, and
+// committed by the channel's next refill in mbx_model_advance_ms.
 bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface);
 
 // Hold the TX merge (records stay in their rings) or let it drain.

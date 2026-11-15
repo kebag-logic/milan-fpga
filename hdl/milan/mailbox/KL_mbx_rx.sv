@@ -35,6 +35,25 @@
 //                reads a partial record. The bytes and rules are the
 //                contract's (sw/mailbox/mailbox.yaml, KL_mbx_pkg).
 //
+//                A passing frame that finds its channel's bucket empty is held,
+//                not dropped (#917; #665, comment 6894152131 item 2; IEEE
+//                1722.1-2021 9.2.2.4: a controller keeps one command in flight,
+//                so a dropped one costs it a timeout and a retry). Its words and
+//                header are written as a committed frame's, past the head, and
+//                the head stays; at the channel's next refill the record is
+//                committed and takes that refill's token. A channel holds one
+//                frame: one that finds the bucket empty while a frame is held is
+//                the only frame the bucket refuses, and it counts in RATE_DROP.
+//                Every commit, held or not, takes one token, so the committed
+//                rate is the table's (the burst, then one a refill period). The
+//                write head (wr_head_r) runs ahead of the head by the held
+//                record: the next frame's words and its free space are based on
+//                it, so they never touch the held record, and the held record's
+//                commit leaves it where it is. A channel holds a frame only
+//                while its bucket is empty: a refill that lands between the
+//                verdict and the header writes commits the frame at once. A
+//                frame that finds a token takes the same clocks as before.
+//
 //                The ring write port is registered (#870, a timing cut: no
 //                path from head_r and the free space to the ring's block RAM),
 //                so a word is written the cycle after it is decided, and the
@@ -208,7 +227,9 @@ module KL_mbx_rx
   logic [1:0]              q_wr_r;
   logic [2:0]              q_cnt_r;
 
-  logic [15:0]             head_r      [MBX_N_CH_C];
+  logic [15:0]             head_r      [MBX_N_CH_C];   //! words committed: the head the core is given
+  logic [15:0]             wr_head_r   [MBX_N_CH_C];   //! head_r, plus the held record's words while one is held
+  logic                    held_r      [MBX_N_CH_C];   //! a record sits between head_r and wr_head_r, for the next refill
   logic [15:0]             head_pub_r  [MBX_N_CH_C];   //! head_r a cycle later: the head the core sees
   logic [15:0]             drop_r      [MBX_N_CH_C];
   logic [15:0]             rate_drop_r [MBX_N_CH_C];
@@ -434,16 +455,21 @@ module KL_mbx_rx
   end : classify
 
   // ---- free space and limits of the picked channel ---------------------------
+  // The space is the write head's, so a held record is never written over; a
+  // tail ahead of the head the core is given, which the core has no record
+  // to consume up to, leaves no free word, as one ahead of the write head does.
   logic [15:0] ring_words_w;
-  logic [15:0] used_w;
+  logic [15:0] used_w;          //! words between the tail and the write head
+  logic [15:0] cused_w;         //! words between the tail and the head the core is given
   logic [15:0] free_w;
   logic [9:0]  max_words_w;
   logic [15:0] tail_w;
   always_comb begin : space
     ring_words_w = 16'(MBX_CH_RX_WORDS_TBL_C[ch_r]);
     tail_w       = rx_tail_words_i[16*ch_r +: 16];
-    used_w       = head_r[ch_r] - tail_w;
-    free_w       = (used_w > ring_words_w) ? 16'd0 : ring_words_w - used_w;
+    used_w       = wr_head_r[ch_r] - tail_w;
+    cused_w      = head_r[ch_r] - tail_w;
+    free_w       = (used_w > ring_words_w || cused_w > ring_words_w) ? 16'd0 : ring_words_w - used_w;
     max_words_w  = 10'((MBX_CH_MAX_FRAME_BYTES_TBL_C[ch_r] + 3) / 4);
   end : space
 
@@ -483,7 +509,7 @@ module KL_mbx_rx
   assign drain_w      = cls_done_r && (q_cnt_r != 3'd0) && (st_r == RECV_S || st_r == FIN_S);
   assign drain_fits_w = (32'(q_idx_r[q_rd_r]) + 32'd2 < 32'(free_w))
                         && (10'(q_idx_r[q_rd_r]) < max_words_w);
-  assign drain_slot_w = head_r[ch_r] + 16'd2 + 16'(q_idx_r[q_rd_r]);
+  assign drain_slot_w = wr_head_r[ch_r] + 16'd2 + 16'(q_idx_r[q_rd_r]);
 
   // ---- the ring write port -----------------------------------------------------
   // The word is decided here and written the next cycle, from a register. Only
@@ -500,13 +526,13 @@ module KL_mbx_rx
             || st_r == HDR0_S || st_r == HDR1_S;
     unique case (st_r)
       HDR0_S: begin
-        waddr_w = MBX_RING_AW_C'(head_r[ch_r] & (ring_words_w - 16'd1));
+        waddr_w = MBX_RING_AW_C'(wr_head_r[ch_r] & (ring_words_w - 16'd1));
         wdata_w = (32'(cnt_r) << MBX_RXREC_W0_LEN_LSB_C)
                 | (32'(if_r) << MBX_RXREC_W0_IF_LSB_C)
                 | (32'(MBX_RX_KIND_C) << MBX_RXREC_W0_KIND_LSB_C);
       end
       HDR1_S: begin
-        waddr_w = MBX_RING_AW_C'((head_r[ch_r] + 16'd1) & (ring_words_w - 16'd1));
+        waddr_w = MBX_RING_AW_C'((wr_head_r[ch_r] + 16'd1) & (ring_words_w - 16'd1));
         wdata_w = arrival_ms_r << MBX_RXREC_W1_ARRIVAL_MS_LSB_C;
       end
       default: begin
@@ -536,18 +562,29 @@ module KL_mbx_rx
   // (#870, a timing cut: no path from the accept terms or the free space to an
   // action's enable). Every term it reads holds in between, since no byte is
   // taken outside RECV_S. The cost is one mailbox clock per received frame.
+  //
+  // The bucket's refusal (#917): a frame that finds no token is stored all the
+  // same while its channel holds none, and refused (RATE_DROP) only behind a
+  // held one. A stored frame is committed in HDR1 when its channel has a token
+  // then, or a refill in that cycle; otherwise it is held there, and its
+  // commit waits for the channel's next refill. A held channel's bucket is
+  // empty until that refill, whose token the held record takes, so no later
+  // frame is committed before it.
   logic fin_ready_w;    //! FIN with the queue drained: the verdict is taken this cycle
   logic bad_w;          //! the frame did not fit max_frame_bytes or the free space
   logic act_w;          //! the verdict taken last cycle acts this cycle (VRD_S)
   logic vd_drop_r;      //! the verdict: RX_DROP
-  logic vd_rate_r;      //! the verdict: RATE_DROP
-  logic vd_acc_r;       //! the verdict: committed, header writes follow
+  logic vd_rate_r;      //! the verdict: RATE_DROP, no token and a frame held
+  logic vd_acc_r;       //! the verdict: stored, header writes follow
   logic vd_mis_r;       //! the verdict: FILTER_MISMATCH
-  logic accept_w;       //! the frame is committed: header writes follow
-  logic commit_w;       //! the record's header is written this cycle (HDR1)
+  logic accept_w;       //! the frame is stored: header writes follow
+  logic tok_now_w;      //! the frame's channel has a token this cycle, or a refill in it
+  logic commit_w;       //! the frame's header is written this cycle (HDR1) and its record committed
+  logic hold_w;         //! the frame's header is written this cycle (HDR1) and its record held
   logic drop_w;         //! RX_DROP moves this cycle
   logic rate_w;         //! RATE_DROP moves this cycle
   logic mis_w;          //! FILTER_MISMATCH moves this cycle
+  logic refill_w [MBX_N_CH_C];   //! this tick completes channel c's refill period
   assign fin_ready_w = (st_r == FIN_S) && (q_cnt_r == 3'd0) && cls_done_r;
   assign bad_w       = overflow_r || oversize_r || (32'(cnt_r) > MBX_CH_MAX_FRAME_BYTES_TBL_C[ch_r]);
   always_ff @(posedge clk_i) begin : verdict_reg
@@ -558,8 +595,8 @@ module KL_mbx_rx
       vd_mis_r  <= 1'b0;
     end else if (fin_ready_w) begin
       vd_drop_r <= hit_r && rule_pass_w && bad_w;
-      vd_rate_r <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);
-      vd_acc_r  <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);
+      vd_rate_r <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0) && held_r[ch_r];
+      vd_acc_r  <= hit_r && rule_pass_w && !bad_w && ((tokens_r[ch_r] != 8'd0) || !held_r[ch_r]);
       vd_mis_r  <= mis_r;
     end
   end : verdict_reg
@@ -568,7 +605,9 @@ module KL_mbx_rx
   assign rate_w      = act_w && vd_rate_r;
   assign accept_w    = act_w && vd_acc_r;
   assign mis_w       = act_w && vd_mis_r;
-  assign commit_w    = (st_r == HDR1_S);
+  assign tok_now_w   = (tokens_r[ch_r] != 8'd0) || refill_w[ch_r];
+  assign commit_w    = (st_r == HDR1_S) && tok_now_w;
+  assign hold_w      = (st_r == HDR1_S) && !tok_now_w;
   assign err_p_o     = drop_w || rate_w || mis_w;
 
   // ---- the frame: bytes, words, terms, FSM ---------------------------------------
@@ -686,15 +725,24 @@ module KL_mbx_rx
   end : frame_fsm
 
   // ---- per-channel heads, counters and token buckets -------------------------------
-  logic [7:0]  tokens_nx_w [MBX_N_CH_C];   //! the bucket after this cycle's refill and commit
-  logic        refill_w    [MBX_N_CH_C];   //! this tick completes a refill period
+  // A held record is committed by its channel's next refill (rel_w), which
+  // takes that refill's token: the bucket holds none while a record is held,
+  // so the frame's own commit in HDR1 never meets a held record of its channel.
+  logic [7:0]  tokens_nx_w [MBX_N_CH_C];   //! the bucket after this cycle's refill and commits
+  logic        rel_w       [MBX_N_CH_C];   //! channel c's held record is committed this cycle
+  // the refill, apart from the commits it decides (tok_now_w reads it)
+  always_comb begin : refills
+    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
+      refill_w[c] = ms_tick_p_i && (32'(refill_r[c]) + 32'd1 >= MBX_CH_RATE_REFILL_MS_TBL_C[c]);
+    end
+  end : refills
   always_comb begin : buckets
     for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
       logic [8:0] tokens;
-      refill_w[c] = ms_tick_p_i && (32'(refill_r[c]) + 32'd1 >= MBX_CH_RATE_REFILL_MS_TBL_C[c]);
+      rel_w[c]    = refill_w[c] && held_r[c];
       tokens = {1'b0, tokens_r[c]};
       if (refill_w[c] && tokens < 9'(MBX_CH_RATE_BURST_TBL_C[c])) tokens = tokens + 9'd1;
-      if (commit_w && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;
+      if ((commit_w && ch_r == MBX_CH_W_C'(c)) || rel_w[c]) tokens = tokens - 9'd1;
       tokens_nx_w[c] = tokens[7:0];
     end
   end : buckets
@@ -704,6 +752,8 @@ module KL_mbx_rx
       mismatch_r <= '0;
       for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
         head_r[c]      <= '0;
+        wr_head_r[c]   <= '0;
+        held_r[c]      <= 1'b0;
         head_pub_r[c]  <= '0;
         drop_r[c]      <= '0;
         rate_drop_r[c] <= '0;
@@ -719,10 +769,18 @@ module KL_mbx_rx
         // published a cycle after the commit, when the last header word written
         // at the commit is in the ring
         head_pub_r[c] <= head_r[c];
+        // the record stored in HDR1 moves the write head, committed or held; a
+        // held record's commit moves the head up to it
+        if ((commit_w || hold_w) && ch_r == MBX_CH_W_C'(c)) wr_head_r[c] <= wr_head_r[c] + 16'd2 + 16'(widx_r);
         if (commit_w && ch_r == MBX_CH_W_C'(c)) begin
-          head_r[c] <= head_r[c] + 16'd2 + 16'(widx_r);
+          head_r[c] <= wr_head_r[c] + 16'd2 + 16'(widx_r);
+          pass_r[c] <= pass_r[c] + 16'd1;
+        end else if (rel_w[c]) begin
+          head_r[c] <= wr_head_r[c];
           pass_r[c] <= pass_r[c] + 16'd1;
         end
+        if (hold_w && ch_r == MBX_CH_W_C'(c)) held_r[c] <= 1'b1;
+        else if (rel_w[c]) held_r[c] <= 1'b0;
         tokens_r[c] <= tokens_nx_w[c];
         if (drop_w && ch_r == MBX_CH_W_C'(c) && drop_r[c] != 16'hFFFF) drop_r[c] <= drop_r[c] + 16'd1;
         if (rate_w && ch_r == MBX_CH_W_C'(c) && rate_drop_r[c] != 16'hFFFF)

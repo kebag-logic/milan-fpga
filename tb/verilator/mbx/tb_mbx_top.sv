@@ -33,7 +33,9 @@
 //                the core sees is written, and what the port carries when it
 //                writes nothing; so are the receive verdict's two cycles,
 //                and the register read multiplexer's selects in the cycle it
-//                is sampled, so the bench sees how many of them are set.
+//                is sampled, so the bench sees how many of them are set; and
+//                whether a channel holds a frame its bucket had no token for
+//                (#917), and whether one does while its bucket holds a token.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -206,8 +208,10 @@ module tb_mbx_top
   output logic [MBX_RING_AW_C-1:0]   probe_rxw_addr_o, //! its index inside that ring
   output logic [31:0]                probe_rxw_data_o, //! the word on the port, written or not
   output logic [1:0]                 probe_rx_vrd_o,   //! bit 0 the receive verdict is taken, bit 1 it acts
-  output logic [2:0]                 probe_rd_sel_o    //! a register read is answered (bit 0), with one select
+  output logic [2:0]                 probe_rd_sel_o,   //! a register read is answered (bit 0), with one select
                                                        //! of the read multiplexer set (bit 1), or two (bit 2)
+  output logic [1:0]                 probe_rx_hold_o   //! bit 0 a channel holds a frame (#917), bit 1 one holds
+                                                       //! a frame while its bucket holds a token
 );
 
   logic                    host_req_w;
@@ -309,6 +313,14 @@ module tb_mbx_top
     // the read multiplexer's selects in the cycle it is sampled (rd_q_r)
     assign probe_rd_sel_o   = {u_mbx.rd_q_r && !$onehot0(u_mbx.rd_hit_w), u_mbx.rd_q_r && |u_mbx.rd_hit_w,
                                u_mbx.rd_q_r};
+    // the held records (#917): a channel holds one only while its bucket is empty
+    always_comb begin : hold_probe
+      probe_rx_hold_o = '0;
+      for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
+        if (u_mbx.u_rx.held_r[c]) probe_rx_hold_o[0] = 1'b1;
+        if (u_mbx.u_rx.held_r[c] && u_mbx.u_rx.tokens_r[c] != 8'd0) probe_rx_hold_o[1] = 1'b1;
+      end
+    end : hold_probe
   end : g_bench
   else begin : g_soc
     assign mbx_we_w         = host_we_w;
@@ -323,6 +335,7 @@ module tb_mbx_top
     assign probe_rxw_data_o = '0;
     assign probe_rx_vrd_o   = '0;
     assign probe_rd_sel_o   = '0;
+    assign probe_rx_hold_o  = '0;
     logic unused_noise_w;
     assign unused_noise_w = ^{noise_addr_i, noise_data_i, noise_ctl_i};
   end : g_soc

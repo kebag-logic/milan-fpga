@@ -31,7 +31,7 @@ define the interface. The numbers live in one place, the generated
 - **[One contract, four outputs](#one-contract-four-outputs)** -- The YAML that is the only place a number is written, the four files generated from it, and the drift, cross-output and planted-defect checks.
 - **[Byte order](#byte-order)** -- Fixed bit positions for every 32-bit word, little-endian lanes for frame bytes, network order inside a frame.
 - **[Rings, records and events](#rings-records-and-events)** -- The record shapes, a head published only after the words it covers, commit order across channels, the doorbells and their range rule, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
-- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, the verdict that acts a clock after it is taken, and the MRPDU form the SRP channel hands lwSRP.
+- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, the verdict that acts a clock after it is taken, the MRPDU form the SRP channel hands lwSRP, and the frame the bucket holds for its next refill instead of dropping it.
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- A register read answered a cycle after a ring read or a write, through an AND-OR of one-hot selects; Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
@@ -192,9 +192,10 @@ nibble of byte 15) is one of the tuple's where it names some. A frame that
 ends at byte 14 has message_type 0, as the accept terms read it. The four-word
 queue holds bytes 0 to 15, so the decision at byte 15 never waits for a drain.
 The frame is then stored only when its channel is open, one of the
-channel's accept terms (its identity term) holds, it fits the channel's
-largest frame and the free ring space, and the channel's token bucket holds a
-token.
+channel's accept terms (its identity term) holds, and it fits the channel's
+largest frame and the free ring space. It is committed while the channel's
+token bucket holds a token; otherwise it is held and committed at the
+channel's next refill ([below](#the-held-frame)).
 
 | Channel | Destination MAC | EtherType | Subtype | Passes | Clause |
 |---|---|---|---|---|---|
@@ -236,8 +237,8 @@ token.
   `IRQ_STATUS.ERR`. The counter judges the tuple whatever `FILTER_EN` holds.
   A frame refused by its identity term, or for a closed channel, is not
   addressed to this entity and is dropped uncounted. So is a frame that ends
-  before byte 14. A size or space drop counts in `RX_DROP`, a rate drop in
-  `RATE_DROP`.
+  before byte 14. A size or space drop counts in `RX_DROP`, and a frame the
+  bucket refuses behind a held one in `RATE_DROP`.
 - **The adp channel takes its bound talkers' announcements.** Its third
   accept term (`eq_bound`, message types 0 and 1) compares entity_id with the
   enabled entries of the arrival interface's bound-talker table
@@ -246,7 +247,8 @@ token.
   [below](#discovery-and-the-adp-channels-filter)). This only adds, so the
   contract went to 2.1.
 - **The token buckets stay.** Only a committed frame takes a token, so a
-  frame the filter refuses spends none.
+  frame the filter refuses spends none. A frame that finds the bucket empty
+  is held, not dropped ([below](#the-held-frame)).
 - **The verdict acts a clock after it is taken.** It is taken once the last
   byte's word has drained, into four registers (committed, `RX_DROP`,
   `RATE_DROP`, `FILTER_MISMATCH`), and acts in the next mailbox clock on the
@@ -255,10 +257,10 @@ token.
   enable). That costs one mailbox clock per received frame, 10 ns at the
   split's 100 MHz, and none per host access. The receiver takes no byte in
   either cycle, so the next frame's first byte waits on `rx_ready` and is
-  taken once: 6 clocks after a committed frame's last byte, 4 after any
-  other's. The mailbox suite queues twelve frames back to back across every
-  verdict and checks each counted once and each committed record once, in
-  order (its checks V0 and V1).
+  taken once: 6 clocks after a stored (committed or held) frame's last byte,
+  4 after any other's. The mailbox suite queues thirteen frames back to back
+  across every verdict and checks each counted once and each committed record
+  once, in order (its checks V0 and V1).
 
 This narrows what the filter passes, so the contract went to major 2. A
 firmware built against major 1 would not write the own MAC the AECP channel
@@ -267,6 +269,52 @@ now matches, and `mbx_open()` refuses the other major.
 The SRP record carries the whole frame, so the MRPDU (ProtocolVersion first)
 is frame bytes 14 onward: the contiguous buffer lwSRP's `mrp_rx()` and
 `mrpdu_parse()` take, with the record's interface as `port_id`.
+
+### The held frame
+
+The ruling on [#665 (6894152131)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6894152131),
+item 2, on [#917](https://github.com/kebag-logic/milan-fpga/issues/917):
+a controller keeps one AECP command in flight (IEEE 1722.1-2021 9.2.2.4), so
+a command the bucket drops costs it a timeout and a retry, and at about 1 kHz
+a controller lost about one command in 21 once the burst was spent. The
+table's rates stay: a 1 ms refill would charge the load gate one record a
+millisecond, taking AECP's share from 0.047 to 0.235 and the load past 0.70.
+So a frame that finds no token is held instead of dropped:
+
+- **Where it waits.** In the ring, past `RX_HEAD`. `KL_mbx_rx` writes its
+  words while it arrives and its two header words after the verdict, as for
+  a committed frame, but leaves the head where it is. A second, per-channel
+  write head runs ahead of the head by the held record; the next frame's
+  words and its free space are based on it, so they never touch the held
+  record. A tail ahead of `RX_HEAD`, inside the held record too, leaves no
+  free word, as the contract says of any tail ahead of `RX_HEAD`.
+- **When it is committed.** At the channel's next refill, which its commit
+  spends, so it waits at most one refill period. A refill that lands between
+  the verdict and the header writes commits the frame at once: a channel
+  holds a frame only while its bucket is empty. `ARRIVAL_MS` stays the time
+  its last byte arrived. A frame held when its channel is closed is still
+  committed: it passed the filter while the channel was open, as a frame
+  committed just before the close did. A reset forgets it.
+- **What is dropped.** A channel holds one frame. While it holds one its
+  bucket is empty, so every later frame of the channel finds no token and is
+  refused, in `RATE_DROP` (and `IRQ_STATUS.ERR`); the held frame is committed
+  first. Holding a frame counts nothing.
+- **What is unchanged.** Every commit, held or not, spends one token, so the
+  committed rate is the table's (the burst, then one record a refill period)
+  and so is the load. The registers, the record layout and the contract
+  version are unchanged, so the firmware image is too; printing the drop
+  counters waits until after the flip. The mechanism is per channel, so every
+  channel of the table holds its frame the same way. A frame that finds a
+  token takes the same clocks as before.
+
+The mailbox suite grades it on both adapters and on the host model (group
+`HeldNotDropped`, checks B0 to B4: fifty AECP commands sent one in flight at
+line rate all delivered in order, a third command behind a held one dropped
+and counted, a controller at one command a millisecond losing none of a
+hundred, a reset forgetting the held frame, a tail inside it), on the RTL at
+the clock (B5: a refill landing in each clock around the header writes) and
+over every clock of every check (B6: no channel holds a frame while its
+bucket holds a token).
 
 ## Bus adapters and the hard core
 
@@ -1712,14 +1760,14 @@ each fail by their kind:
 | Evidence | What it shows |
 |---|---|
 | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 163 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, the [split census's](#the-splits-control-face) 23, a positive and a negative control and a positive control in both placements; each of its 57 rules (31 of the class-D census, 12 of the port census, 14 of the split census) removed in turn, each letting its arms through. In each shape's split elaboration, each of the datapath's 80 ctl ports in one class (C 12, F 16, R 34, E 6, M 12), every publication and contract 2.3 field consumed but the four read in neither placement |
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 525 at one interface and 532 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 570 at one interface, 577 at two |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 607 at one interface and 614 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter and the frame it holds (#917), the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 652 at one interface, 659 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
 | the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.4), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
 | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
-| the same suite on the host model, in `make run-if2` | the 490 of the RTL's 532 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the same suite on the host model, in `make run-if2` | the 532 of the RTL's 614 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
@@ -1729,7 +1777,7 @@ each fail by their kind:
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
 | the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); a change the datapath never takes answered within 120 ms of its IN_PROGRESS and 240 ms of its command, the service bound included, on the model's millisecond clock (`Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`), the expired lock read and refused as its owner's until then (`Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease`), SET_SYSTEM_UNIQUE_ID refused as every change is (`Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs`), and the final response leaving on the interface its command came in on (`Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; twelve of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; thirteen of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model, the held frame's (#917) among them |
 
 ## Default build
 
