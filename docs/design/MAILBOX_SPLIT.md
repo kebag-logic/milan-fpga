@@ -387,7 +387,7 @@ flowchart TB
   the pass has spent at most `CTRL_LOOP_DRAIN_US`, then, once AECP's take
   left none it would take, ACMP's, ADP's and MAAP's, each its due, then one a
   channel in turn; tier 2 only once tier 1 left no record to take: SRP's records in a
-  slice from the pass's start (`CTRL_LOOP_SLICE_US`: the slice rule's choice at one interface, 0.95 ms, and 1.3 ms at two), and
+  slice from the pass's start (`CTRL_LOOP_SLICE_US`, stated for each shape ([THE SHAPES](SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)): the slice rule's choice at 1x1/1if, 0.95 ms, 1.475 ms at 8x8/1if, and 1.3 ms at two interfaces), and
   THE TRANSMIT's build and THE RETRY's round each a slice of a pass given
   whole, the build resumed in the next slice where one cannot hold it.
   A pass that dispatches a centisecond takes one record of a channel, not
