@@ -368,10 +368,13 @@ extern "C" {
 #define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
 // (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
-// tree whose row passes this). At 8x8/2if, whose rows by every source are
-// reported and not held (#894, the owner's decision of 2026-11-12, owed to
-// #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)
+// tree whose row passes this): 105 ms at 8x8/2if for its 104.25 there (#895's
+// ruling of 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off
+// adds it (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
+// 8x8/2if, whose rows by every source are reported and not held (#894, the
+// owner's decision of 2026-11-12, owed to #872), it is over the bound, and
+// ctrl_loop.c holds 1x1/1if alone to it.
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

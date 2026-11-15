@@ -221,9 +221,13 @@ Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
 the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
-THE TRANSMIT's bound); a destination that changes while valid withdraws the old
-one first. Two LeaveAllTime periods are read as twice the LeaveAllTime the
-participants are configured with, 1000 cs (Table 10-7), not as two drawn
+THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
+departs: 2,023 cs at one interface and 2,030 at two, where the figure is 105 ms
+for the tx row's 104.25,
+[#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
+items 1 and 2; 35.2.2.8 sets only the least, 2,000 cs); a destination that
+changes while valid withdraws the old one first. Two LeaveAllTime periods are
+read as twice the LeaveAllTime the participants are configured with, 1000 cs (Table 10-7), not as two drawn
 LeaveAll periods (10.7.4.3 draws each between LeaveAllTime and 1.5 times it):
 the hold-off is the 20 s floor of the 20 to 30 s two drawn periods span, as
 acceptance 2 of #895 words it. An admission change swaps the type in place, the new type joined
