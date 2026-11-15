@@ -10,6 +10,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 import aecp_arms
+import aecp_configuration_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
@@ -576,8 +577,8 @@ DEFECTS = (
     # response, in their own field, never skipped; every window read and commit
     # bounded; a counter change event never missed
     defect('face-write-after-response', 'aecp_face.c',
-           'publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);',
-           'f->owed[i] = true;',
+           'publish(f, i, settings, i == home ? stream : NULL, every);',
+           'f->owed[i] = true; (void)every;',
            ('Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt',
             'one response, its commit taken inside the port')),
     defect('face-identify-in-the-configuration-field', 'aecp_face.c',
@@ -871,7 +872,8 @@ DEFECTS = (
             'AECP opens only once the initial publication is acknowledged')),
 ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

@@ -14,6 +14,7 @@ import build
 import datapath_window
 import grade
 import round_grade
+import rows_tiers
 import run
 import scenario
 import slice_grade
@@ -105,8 +106,9 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
     kinds = lambda s: [o['kind'] for o in s['over']]
     one = us[0] * cpu_hz // 1_000_000
-    out = [("each point's slice is ctrl_loop.h's stated length at it, 900 us at 1x1/1if and 1,300 us at 8x8/2if",
-            [slice_grade.stated_us(1), slice_grade.stated_us(2)] == us == [900, 1300], str(us)),
+    out = [("each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if",
+            [slice_grade.stated_us(1), slice_grade.stated_us(2)] == us == [rows_tiers.ruled(scenario.ROOT), 1300],
+            str(us)),
            ("a slice at one interface is held to that point's length",
             [o['kind'] for o in held('build', one + 1, 1)['over']] == ['build'] and not held('build', one, 1)['over'],
             ''),

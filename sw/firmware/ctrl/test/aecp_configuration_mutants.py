@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""aecp_configuration_mutants.py - the AECP campaign's planted defects in SET_CONFIGURATION's record (#894): the
+running check reads one GSI word a stream, selector 0, the proof its window answers, bound and running being their
+owners' (aecp_commands.c, running; aecp_face.c, stream); a configuration's stream entries are written only when its
+index moves, which its change names (aecp_commands.c, configuration; aecp_face.c, changed); and an accepted one is
+paced as a checked edit is (THE PACE, aecp_mbx.h). Statuses, their order and the notify rule are unchanged (Milan v1.2
+5.4.2.5; IEEE 1722.1-2021 7.4.7). aecp_mutants.py appends this table to its own, each row its defect()'s arguments: the
+name, the file in aecp/, the text, its replacement, and each test that must refuse it with its words.
+"""
+from __future__ import annotations
+
+ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
+    ('running-reads-every-word', 'aecp_face.c',
+     'for (unsigned sel = 0; sel < (out->brief ? 1u : 7u); ++sel) {',
+     'for (unsigned sel = 0; sel < 7u; ++sel) {',
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'one word a stream, selector 0')),
+    ('running-reads-no-word', 'aecp_face.c',
+     'for (unsigned sel = 0; sel < (out->brief ? 1u : 7u); ++sel) {',
+     'for (unsigned sel = 0; sel < (out->brief ? 0u : 7u); ++sel) {',
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'status for command 6'),
+     ('Face.StreamAvbAndFormatAreTheDatapathsWords', 'status for command 8')),
+    ('running-reads-another-word', 'aecp_face.c',
+     'for (unsigned sel = 0; sel < (out->brief ? 1u : 7u); ++sel) {',
+     'for (unsigned sel = out->brief ? 2u : 0u; sel < (out->brief ? 3u : 7u); ++sel) {',
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'one word a stream, selector 0')),
+    ('running-check-blind-to-the-licence', 'aecp_face.c',
+     'out->running = type == STREAM_OUTPUT && mbx_pub_licensed(interface, index);',
+     'out->running = !out->brief && type == STREAM_OUTPUT && mbx_pub_licensed(interface, index);',
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'status for command 6'),
+     ('Face.StreamAvbAndFormatAreTheDatapathsWords', 'status for command 8')),
+    ('running-check-reads-whole', 'aecp_commands.c',
+     'struct aecp_stream_info info = {.brief = true};',
+     'struct aecp_stream_info info = {.brief = false};',
+     ('Core.TheRunningCheckObservesEveryStreamBriefly', 'SET_CONFIGURATION observes every stream, briefly'),
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'one word a stream, selector 0')),
+    ('stream-read-brief', 'aecp_commands.c',
+     '\tmemset(out, 0, sizeof *out);\n\treturn observe(a, type, index, out);',
+     '\tmemset(out, 0, sizeof *out);\n\tout->brief = true;\n\treturn observe(a, type, index, out);',
+     ('Core.TheRunningCheckObservesEveryStreamBriefly', 'GET_STREAM_INFO reads the stream whole'),
+     ('Face.TheRunningCheckReadsOneWindowWordAStream', 'GET_STREAM_INFO reads its six')),
+    ('configuration-streams-every-time', 'aecp_face.c',
+     'bool every = kind == AECP_CHANGE_CONFIGURATION && index != 0u;',
+     'bool every = kind == AECP_CHANGE_CONFIGURATION;',
+     ('Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries', 'the index in force writes no stream entry')),
+    ('configuration-streams-never', 'aecp_face.c',
+     'bool every = kind == AECP_CHANGE_CONFIGURATION && index != 0u;',
+     'bool every = false;',
+     ('Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries', 'a moved index writes the stream entries')),
+    ('configuration-move-unnamed', 'aecp_commands.c',
+     'aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, moved ? 1u : 0u);',
+     'aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);',
+     ('Core.AConfigurationChangeNamesWhetherItsIndexMoved', 'Changed(AECP_CHANGE_CONFIGURATION,0,1)'),
+     ('Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries', 'a moved index writes the stream entries')),
+    ('configuration-move-always-named', 'aecp_commands.c',
+     'aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, moved ? 1u : 0u);',
+     'aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 1u);',
+     ('Core.AConfigurationChangeNamesWhetherItsIndexMoved', 'Changed(AECP_CHANGE_CONFIGURATION,0,0)'),
+     ('Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries', 'the index in force writes no stream entry')),
+    ('configuration-moved-by-its-override', 'aecp_commands.c',
+     'bool moved = a->configuration != wire_be16(in + 2);',
+     'bool moved = !aecp_overridden(a, entity, 1u);',
+     ('Core.AConfigurationChangeNamesWhetherItsIndexMoved', 'Changed(AECP_CHANGE_CONFIGURATION,0,0)'),
+     ('Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries', 'the index in force writes no stream entry')),
+    ('configuration-unpaced', 'aecp_commands.c',
+     '\t\t\ta->edited_ms = a->now;\n\t\t\tstruct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);',
+     '\t\t\tstruct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);',
+     ('Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace',
+      'held 1 ms after the accepted SET_CONFIGURATION')),
+    ('configuration-paced-when-refused', 'aecp_commands.c',
+     '\t\t} else if ((status = any_running(a)) != AECP_SUCCESS) {',
+     '\t\t} else if ((a->edited_ms = a->now, status = any_running(a)) != AECP_SUCCESS) {',
+     ('Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace',
+      'a refused SET_CONFIGURATION holds nothing')),
+)
