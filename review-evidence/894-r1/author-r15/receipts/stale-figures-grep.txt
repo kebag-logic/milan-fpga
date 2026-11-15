@@ -1,0 +1,72 @@
+# Round 14, R837-7-F1: every hit of the stale-figure tokens, each classified
+# tokens: 725, 33.01, 900 us, 0.515, 0.511, 13.05, 132.71, 50 (lines naming TICK), 65 (lines naming AECP, a timer or a slot),
+#         150 (lines naming LINK), 250 (lines naming SRP or the drain)
+# scope: SPLIT_CONTROL_MEMORY.md section 13, FR_NFR.md 3.4.1, every tracked README, every tracked .c .h .cpp .hpp .py .sv .svh .v .yml
+# classes: historical = stated as then or as an old value beside the head's; unrelated = another quantity
+# head figure = none left in current tense with an old value
+# historical 36, unrelated 28, total 64
+# 0.515, 0.511 and 150 (LINK): no hit
+historical	725	docs/design/SPLIT_CONTROL_MEMORY.md:2365	the rows-history table, 'And a build of one at 725 us' row
+historical	725	docs/design/SPLIT_CONTROL_MEMORY.md:2444	past tense: 'A 900 us slice held', 'By the rule it was 725 us ... 735 us since the SET_CONFIGURATION cut'
+unrelated	725	hdl/common/csr/milan_csr.sv:1490	725 Mb/s, the idleSlopes' sum
+unrelated	725	hdl/common/ethernet_packet_pkg.sv:268	725 Mb/s, the idleSlopes' sum
+unrelated	725	tb/verilator/csr/milan_csr_ref.sv:1470	725 Mb/s, the idleSlopes' sum
+unrelated	725	tb/verilator/csr/sim_main.cpp:432	725 Mb/s, the idleSlopes' sum
+historical	725	tb/verilator/ctrl_service_budget/load_grade.py:171	restatement history: 'at 1,010 and 725 us ... under #894's ... 735'; the table holds 735
+historical	33.01	docs/design/SPLIT_CONTROL_MEMORY.md:2368	the rows-history table, the one-row edit cut's row (a TICK at 50 us, tx 33.01)
+historical	33.01	docs/design/SPLIT_CONTROL_MEMORY.md:2480	'The tx row then took a seventeenth pass, 33.01 ms ... (33.38 ms at the head's 950 us slice)'; 'over the 50 stated' is ACMP's owed frame then
+historical	33.01	sw/firmware/ctrl/srp/README.md:238	'33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2342	'the rule picked 900 us' then, and 'at the costs restated under the SET_CONFIGURATION cut it picks 950 us'; '50 us grid' is the first sweep's step
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2351	explicitly 'at the costs of the merge of #810's 084cf7a8' (29.78 ms at 900 us); '50 ms' is a bound
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2364	the rows-history table, the contingent moves' row (19 cs, 6 ms, 900 us)
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2373	past tense: 'it held every row, and tier_grid.py held 6 of the 420, choosing the built design at 900 us'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2443	past tense: 'then followed the slice ruling's rule ... 900 us ... (950 us since #894's ruling of 2026-11-15)'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2444	past tense: 'A 900 us slice held', 'By the rule it was 725 us ... 735 us since the SET_CONFIGURATION cut'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2445	past tense: 'The last queued notice was then 125.84 ms at 900 us'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2457	past tense: the pace at the 975 us record, 'The slice rule still gave 900 us'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2467	past tense: item 4's re-measure, 'the slice rule still gave 900 us'
+historical	900 us	docs/design/SPLIT_CONTROL_MEMORY.md:2509	past tense: 'the last queued notice at 1x1/1if was 132.71 ms ... at the design then built (900 us ...)'
+historical	900 us	docs/reference/FR_NFR.md:383	'a TICK at 50 us ... 8 ms then held txL', 'was then 132.71 ms ... at the 900 us slice, and the slice rule chose 950 us, which the built slice now is'
+historical	900 us	sw/firmware/ctrl/srp/README.md:238	'33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it'
+unrelated	900 us	sw/trace/trace_selftest.c:255	a trace self-test's parsed count, 900u + rnd()
+unrelated	900 us	sw/trace/trace_selftest.c:318	a trace self-test's parsed count, 900u + rnd()
+historical	13.05	docs/design/SPLIT_CONTROL_MEMORY.md:2370	the rows-history table, the final pass's restatements' row at the 900 us design (R4 13.05, last 132.71); the head's row is the next
+historical	132.71	docs/design/SPLIT_CONTROL_MEMORY.md:2370	the rows-history table, the final pass's restatements' row at the 900 us design (R4 13.05, last 132.71); the head's row is the next
+historical	132.71	docs/design/SPLIT_CONTROL_MEMORY.md:2509	past tense: 'the last queued notice at 1x1/1if was 132.71 ms ... at the design then built (900 us ...)'
+historical	132.71	docs/reference/FR_NFR.md:383	'a TICK at 50 us ... 8 ms then held txL', 'was then 132.71 ms ... at the 900 us slice, and the slice rule chose 950 us, which the built slice now is'
+historical	50 us TICK	docs/design/SPLIT_CONTROL_MEMORY.md:2368	the rows-history table, the one-row edit cut's row (a TICK at 50 us, tx 33.01)
+historical	50 us TICK	docs/design/SPLIT_CONTROL_MEMORY.md:2479	'A TICK at 1x1/1if was then stated at 50 us ... it is 55 us since the SRP drain's record cost moved'; the cut's full arm's '50 us by the rule' is that arm's measurement
+historical	50 us TICK	docs/design/SPLIT_CONTROL_MEMORY.md:2489	'within event.TICK's 50 and 40 us then (55 at 1x1/1if since)'
+historical	50 us TICK	docs/reference/FR_NFR.md:383	'a TICK at 50 us ... 8 ms then held txL', 'was then 132.71 ms ... at the 900 us slice, and the slice rule chose 950 us, which the built slice now is'
+historical	50 us TICK	tb/verilator/ctrl_service_budget/load_grade.py:126	restatement history: 'under #894's edit cut a TICK at 1x1/1if 45 to 50 us'
+historical	50 us TICK	tb/verilator/ctrl_service_budget/load_grade.py:134	restatement history: 'a TICK at 1x1/1if 50 to 55'; the table holds 55
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1215	an earlier rows table in section 13 (### The rows), owed-row ms such as 65.13, not a timer slot
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1277	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1357	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1444	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1579	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1704	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:1899	a later rows table of the same kind, owed-row ms
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:2194	an 8x8/2if THE SHARE sum (1,215 a build of one there), not 1x1/1if's AECP timer slot
+unrelated	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:2246	ms figures (65.86 ms) and a record count (50 records), #665's rules
+historical	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:2310	#665's re-grade on the composed image, restatements written 'from X to Y'
+historical	65 AECP timer	docs/design/SPLIT_CONTROL_MEMORY.md:2312	#665 round 30's re-grade, restatements 'from X to Y' ('AECP's timer slot 60 to 65')
+unrelated	65 AECP timer	sw/firmware/ctrl/test/test_aecp.cpp:2912	default_count=65, a map count bound
+unrelated	65 AECP timer	tb/verilator/ctrl_service_budget/load_grade.py:149	item.aecp.response 65 at 8x8/2if, a head figure, not the timer slot
+unrelated	65 AECP timer	tb/verilator/ctrl_service_budget/load_grade.py:155	item.aecp.response 65 at 32x32/2if, a head figure
+unrelated	65 AECP timer	tb/verilator/ctrl_service_budget/load_grade.py:183	item.aecp.response 65 at 8x8/2if (donor table), a head figure
+unrelated	65 AECP timer	tb/verilator/ctrl_service_budget/load_grade.py:190	item.aecp.response 65 at 32x32/2if (donor table), a head figure
+unrelated	65 AECP timer	tb/verilator/ctrl_service_budget/rows_tiers.py:73	'under 65 us each', the room the walk (35) and reclaim (25) leave, true at the head
+unrelated	65 AECP timer	tb/verilator/ctrl_split_boot/README.md:91	65.026 ms to ready, a boot time
+unrelated	65 AECP timer	tb/verilator/milan_dp/README.md:989	a mutant row number
+unrelated	65 AECP timer	tb/verilator/milan_dp/README.md:1431	byte offset 65 in a twin-compare example
+unrelated	65 AECP timer	tb/verilator/milan_dp/twin_compare.py:73	byte offset 65 in a twin-compare example
+historical	250 SRP drain	docs/design/SPLIT_CONTROL_MEMORY.md:2224	the polls-by-source table of #665's round-22 ruling (its base 155 is superseded too, 205 at :2285 and :2340); poll_grade.STATED_US holds 280 at the head
+historical	250 SRP drain	docs/design/SPLIT_CONTROL_MEMORY.md:2292	#665 round 26's SRP record cut: '250 at 1x1/1if (250 before)'
+historical	250 SRP drain	docs/design/SPLIT_CONTROL_MEMORY.md:2310	#665's re-grade on the composed image, restatements written 'from X to Y'
+historical	250 SRP drain	docs/design/SPLIT_CONTROL_MEMORY.md:2340	#810's merge raising an SRP record 'to 280 us (250)': the old value in parentheses
+historical	250 SRP drain	docs/design/SPLIT_CONTROL_MEMORY.md:2498	past tense: 'ctrl_loop.h stated CTRL_LOOP_SRP_UNIT_US ... at 250 us', the SRP drain's move
+unrelated	250 SRP drain	sw/firmware/ctrl/test/test_aecp.cpp:1881	test clock step, ms+=250
+unrelated	250 SRP drain	sw/firmware/ctrl/test/test_aecp.cpp:1882	test clock step, ms+=250
+unrelated	250 SRP drain	sw/firmware/ctrl/test/test_aecp.cpp:2255	test clock step, ms+=250
+historical	250 SRP drain	tb/verilator/ctrl_service_budget/load_grade.py:570	the planted control: it writes the old 250 us limit into a copy of the header so --check must refuse it
