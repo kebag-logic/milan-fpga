@@ -244,7 +244,10 @@ class Ledgered:
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
 #: 59.5, its entry at 59.0, the cap #894's ruling of 2026-11-13 raises the owner's 58.5 to for the composed image,
-#: and the platform's at 60.5, the owner's decision's cap (#665). The
+#: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
+#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
+#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
+#: size fixture's at its cap. The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
@@ -260,12 +263,16 @@ LEDGERED: dict[str, Ledgered] = {
                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
                                          "cap raised to 59.0 as debt owed to S14, no hold"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
                                             "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
-                                            "(#665 decision D3)"),
+                                            "(#665 decision D3); 60.5, the cap, with GET_AS_PATH's read through the "
+                                            "face composed on the control loop's tiers, 168 B of rom past 60.0, by "
+                                            "#895's ruling of 2026-11-14, item 4, as #897's ruling of 2026-11-15, "
+                                            "item 1, takes it: ROM debt of 4.5 RAMB36 owed to the hybrid XIP work, "
+                                            "the cap fully used"),
 }
 
 
