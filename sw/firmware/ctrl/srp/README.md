@@ -207,7 +207,10 @@ or a matching Listener is registered. That is the MAAP adapter's DA gate
 (`ctrl_app_srp.c`) passes each pass to `srp_mbx_gate` with the range's base; the
 source's destination is base + n, on its own interface. The entry records a
 change and owes THE TRANSMIT's declarations; it calls no lwSRP function and
-makes no mailbox access. A composition with no gate (the unit fixture) sets
+makes no mailbox access. A call with the gate and base its last call left
+returns at once: only init and the entry write the gate and the sources'
+destinations, so it would change nothing (`gate_seen`, `gate_base`; the plant
+`talker-gate-repeat-ignores-its-base` drops the base from that test). A composition with no gate (the unit fixture) sets
 `sources_valid` and declares every source from creation.
 
 A valid source declares at once: Talker Advertise with its destination and

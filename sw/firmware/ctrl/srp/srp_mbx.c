@@ -646,6 +646,13 @@ bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_
         struct srp_interface *i = &m->ifs[interface];
         // CTRL_SRP_SOURCES is at most MBX_N_PUB_SOURCES, under 32: a bit past the sources is no source
         valid &= (1u << CTRL_SRP_SOURCES) - 1u;
+        // the gate and base of its last call: each valid source already holds base + n, so nothing changes (#895)
+        if (i->gate_seen && valid == i->gate && base == i->gate_base) {
+            m->busy = false;
+            return true;
+        }
+        i->gate_seen = true;
+        i->gate_base = base;
         bool changed = valid != i->gate;
         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
             if ((valid >> n & 1u) == 0u) {

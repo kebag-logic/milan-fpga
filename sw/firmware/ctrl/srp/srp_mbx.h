@@ -80,6 +80,12 @@ struct srp_interface {
     uint32_t talkers;
     uint32_t readdressed;
     bool sources_owed;
+    // srp_mbx_gate's base at its last call, once one was taken: a call with
+    // that base and the gate it left changes nothing, so it returns at once
+    // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
+    // sources' destinations, and init clears both fields.
+    bool gate_seen;
+    uint64_t gate_base;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
