@@ -23,10 +23,11 @@ aecp-largest-notice, which the 8x8 shape runs there, and in its aecp-fanout the 
 EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches
 (arm A's observation ports never answer); the rest (arm B's other records) are reported by class, not held. Each leg is
 held at its own point's statements, 8x8/1if's at 8x8/1if's (THE SHAPES; #894's shape ruling, item (b)), never at
-another point's. A pass is refused unless, at each point it is held at (COMPLETE) where it runs arm A, its arm A legs
-together ran every group of the arm (run.all_groups), each stated cost measured over the arm depending on every one of
-them, and its answering-ports leg there ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO; and a
-pass that runs arm A at no such point is refused.
+another point's. A pass is refused unless, at each point it is held at (COMPLETE) where it runs any leg, it runs arm A
+there, its arm A legs together ran every group of the arm (run.all_groups), each stated cost measured over the arm
+depending on every one of them, and its answering-ports leg there ran aecp-fanout's accepted SET_CONFIGURATION and its
+SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such point is refused. So a pass of
+8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if leg is held complete there too.
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -59,7 +60,8 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
             'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
             "an 8x8/1if record over its class's record reported, not held",
-            "an 8x8/1if pass missing arm B's SET_CONFIGURATION")
+            "an 8x8/1if pass missing arm B's SET_CONFIGURATION",
+            "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
 #: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
 #: 8x8/1if gate (THE SHAPES).
 COMPLETE = ('1x1/1if', '8x8/1if')
@@ -93,7 +95,7 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8 follow-up, reported)."""
+    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8/1if shape)."""
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 
@@ -179,13 +181,17 @@ def classes(leg: Leg, group: str, stated: dict[str, int]) -> list[tuple[str, Rec
 def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | None,
              stated_at: Callable[[str], dict[str, int]] = statements) -> tuple[list[str], list[str]]:
     """The pass's findings, which refuse it, and the reported lines of the legs not held. groups_of_arm is each
-    complete point's arm A groups (a list is 1x1/1if's alone), or None to hold no completeness."""
+    complete point's arm A groups (a list is 1x1/1if's alone), or None to hold no completeness. Completeness is held
+    at every point it names and at every point of COMPLETE the pass runs any leg at, so a point with legs and no arm A
+    leg is refused by name, whatever groups_of_arm holds."""
     out, reported = [], []
     if groups_of_arm is not None:
         wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
-        if not wanted:
+        points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))
+        if not points:
             out.append(f'the pass runs no arm A leg at a point it is held at ({", ".join(COMPLETE)})')
-        for point, groups in wanted.items():
+        for point in points:
+            groups = wanted.get(point, [])
             arm = [leg for leg in legs if leg.point == point and leg.variant == 'none']
             if not arm:
                 out.append(f'the pass runs no arm A leg at {point}')
@@ -292,17 +298,25 @@ def controls() -> list[str]:
             escaped.append(name)
     legs8, arm8, at8 = synthetic_8x8()
     if findings(legs8, arm8, at8) != ([], []):
-        escaped += list(CONTROLS[-2:])
+        escaped += list(CONTROLS[-3:])
         return escaped
     over = copy.deepcopy(legs8)
     over[1].groups['aecp-fanout'][1].cycles = 62_000  # 655 us by the rule, over 8x8/1if's paced 635
     if not any('8x8/1if answering-ports aecp-fanout' in f and '(SET_CONFIGURATION, paced)' in f
                for f in findings(over, arm8, at8)[0]):
-        escaped.append(CONTROLS[-2])
+        escaped.append(CONTROLS[-3])
     missing = copy.deepcopy(legs8)
     missing[1].groups['aecp-fanout'].pop(1)
     if not any("missing arm B's SET_CONFIGURATION: no answering-ports leg at 8x8/1if" in f
                for f in findings(missing, arm8, at8)[0]):
+        escaped.append(CONTROLS[-2])
+    # 8x8/1if complete beside 1x1/1if's answering-ports leg alone, its accepted SET_CONFIGURATION dropped: the map
+    # names 8x8/1if alone, as main() builds it from the arm A legs, and 1x1/1if is held complete all the same.
+    ports1 = copy.deepcopy(legs[1])
+    ports1.groups['aecp-fanout'] = [r for r in ports1.groups['aecp-fanout'] if r.command != SET_CONFIGURATION]
+    mixed = findings(copy.deepcopy(legs8) + [ports1], arm8, lambda point: stated if point == '1x1/1if' else at8(point))
+    if not ('the pass runs no arm A leg at 1x1/1if' in mixed[0] and any(
+            "missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if" in f for f in mixed[0])):
         escaped.append(CONTROLS[-1])
     return escaped
 
