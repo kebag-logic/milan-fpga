@@ -1,0 +1,600 @@
+The flip check (`flip_grade.py --check`) holds each point's rows to option B's tier bounds by every source: R4 and the first queued notice 20 ms, R5 and R6 90 ms, the last queued notice 125 ms. At #810's head 66f71326 it misses at both points, because round 23's tier design was ruled but not built.
+
+**Evidence at S2b's round 28 head** (the check's own output):
+- 1x1/1if R4 (the AECP channel's last record of its burst, beside the composed burst, every notice queued): **73.02 ms** by every source against 20 ms. Its largest terms: SRP's records ahead of AECP's, 16.50 ms; the other channels' records, 10.96 ms; the retained retries, 9.00 ms.
+- 1x1/1if R5 37.19 ms and R6 32.69 ms, within SRP's 90; the first queued notice at its 20 ms bound and the last at 22 ms, within 125.
+- The cause the model shows: THE DRAIN (`ctrl_loop.h`) takes SRP's records first, past `CTRL_LOOP_RX_PER_PASS`, and a pass that took more than that takes no other channel's. Round 23's tier design (a tier-1 record served before any tier-2 work, tier-2 work in slices of a stated length with tier 1 checked between them) is not built. Round 22's model of THE DRAIN in slices of 1 gave R4 34.76 ms at 1x1/1if, over 20 as well.
+- By measurement (the CPU budget harness), R4's rows fit: the least AECP row margin at 1x1/1if is 10.434 ms in arm A and 8.349 ms in the `answering-every-port` arm. Round 23 rules that no row is held by measurement alone.
+
+**Acceptance**
+1. `python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if` exits 0 at the 1x1/1if flip's head: every row by every source within its tier's bound, at that head's stated costs.
+2. `flip_grade.py --selftest` refuses every one of its controls at that head.
+
+**Scope (maintainer-delegated decision, 2026-11-12)**
+1. Model first. Put round 23's tier design into the every-source model (`rows_grade.py`) at 1x1/1if and 8x8/2if: a tier-1 record is served before any tier-2 work, and tier-2 work runs in slices of a stated length with tier 1 checked between them. Itemise every term of R4, R5, R6 and both queued notices at both points before any firmware change.
+2. If every row fits its bound at both points, build the tiers in THE DRAIN (`ctrl_loop.h`), measure them on the CPU budget harness, and pass `flip_grade.py --check` at both points.
+3. If any row still misses, stop and report the full term table. The bounds (20, 90 and 125 ms) and the every-source rule are not changed in this lane.
+
+The code branches from #810's head after its sync round. #890 (the 8x8/2if load ceiling) stays a grader-only change and does not close these rows.
+
+**Acceptance**
+1. `python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check` exits 0 at both points: every row by every source within its tier's bound.
+2. `flip_grade.py --selftest` refuses every one of its controls.
+3. The 1x1/1if long-window load stays at or under 0.70 and 8x8/2if at or under its flip ceiling.
+
+Relates to #665, #810 and #890.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6813600153
+[A10] Input for the model step: R712-7 S3 on #810 (issuecomment-6813595262). The notices caused by the AECP records ahead of R4's record are charged in `item.aecp` at 210 us, one a pass. THE RETRY sends notices only in rounds (`AECP_NOTICE_US` plus `AECP_ROUND_COLD_US`), and `rounds_us` never replenishes the queue past `AECP_NOTICES_MOST`. The reviewer's sensitivity run moves 1x1/1if R4 from 58.94 to 67.10 ms. The model states which rule holds, with the code line.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6813855717
+[A10] **Ruling on [A772]'s STOP (model step, head `f9442a10`): build the 1x1/1if design in round 2. 8x8/2if goes to the owner.** This is maintainer-delegated, except for the 8x8/2if gate.
+
+**1x1/1if.** Every row fits under one design: AECP first in tier 1, tier 2 SRP first in slices, and AECP taking its next record while a command's notice is owed. Round 2 builds it.
+- **The `aecp_ready` change is decided here.** No clause orders an unsolicited notification ahead of the next command or its response:
+  - IEEE 1722.1-2021 9.3.5.4: Figure 9-3 gives the WAITING state's `doUnsolicited` and `rcvdAEMCommand` guards no priority. See also 7.5.2.
+  - Milan v1.2 5.4.5.2: notifications are "sent asynchronously of any command" and sent "immediately", with no numeric bound. See also 5.4.5.1.
+- **Binding conditions:**
+  - (a) Per-controller notice order stays FIFO, with the sequence ID incremented per notice (Milan v1.2 5.4.5.1; IEEE 1722.1-2021 9.3.5.2.6).
+  - (b) A command's own response still precedes the notices it causes (Milan v1.2 5.4.5.2; 5.4.2.27's exception kept).
+  - (c) The owed-notice queue is bounded, AECP goes not-ready when it is full, and the model counts that depth.
+  - (d) A unit test and a behave scenario cover back-to-back state-changing commands from two controllers.
+- **The slice:** the one with the largest minimum relative margin across the five rows, expected 1,300 us. Not 600 us, where the last notice has 1.1 ms of margin.
+- **Also in round 2:** the datapath events' sink cost is measured; `flip_grade.py --check --point 1x1/1if` passes at the built costs; both points are re-measured, including an 8x8/2if stress run with every source at its contract rate.
+
+**8x8/2if.** No modelled ordering fits R4, R5, R6 or the last notice. Every cost would need to be 1.82 times smaller in the best design.
+- By measurement, the rows fit: round 28's least row margin is 6.515 ms (worst 13.485 ms against 20) and 4.018 ms in the `answering-every-port` arm.
+- Gating 8x8/2if's rows by measurement for the flip would relax the owner's rule that rows hold by every source, never by measurement alone. That is the owner's call, asked today.
+- Until the owner answers, no 8x8/2if gate or requirement text changes.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849
+[A10] **Owner decision 2026-11-12 05:47: option A for the flip gate.**
+- **1x1/1if:** the flip holds its rows by every source to option B's bounds (tier 1 20 ms, SRP 90 ms, last queued notice 125 ms). This is built in #894.
+- **8x8/2if:** the flip holds the long-window load at 0.75 (#890). It also needs a fresh measurement on the flip build, with every source at its contract rate, in which every row fits its bound.
+- **8x8/2if rows by every source:** reported, not gated, and owed to #872 (more compute), like 32x32. By the current model the worst row is SRP's R5 at 226 ms, against 90 ms and above MRP's 200 ms JoinTime. That is stated, not hidden.
+- This relaxes the 11-09 rule that rows hold by every source and never by measurement alone, for 8x8/2if only. The bounds themselves are unchanged.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820
+[A10] Ruling on round 2's F1 (the 8x8/2if size fixture over its ledger), maintainer-delegated under the owner's ROM decision of 2026-11-12 14:26 (fixture 8x8/2if 58.0, cap 58.5; platform 8x8/2if 60.0, cap 60.5; every other point at or under 56; all owed to S14).
+
+Fitting inside those caps is delegated; raising one is the owner's call. The owner is not needed now.
+
+1. PR #902's two reviews start at `12180198`. F1 is open there, and 8x8/2if's ledger is not ruled at that head.
+2. Now, in parallel with the reviews: a scratch-only composition of this head onto #810's current round 30 head and #895's head (PR #901). Its 8x8/2if fixture, 8x8/2if platform and 1x1/1if images are measured, rom and sram spare bytes stated separately for each.
+3. Round 3, after #810's round 30 is REVIEW READY:
+   - sync #810's tip;
+   - compile out the AECP owed-notice queue where its slot count is 0, derived from the slot count (no point literal, no mirrored constant);
+   - the 1x1/1if image stays byte-identical after the switch, or its rows and `flip_grade.py` run again;
+   - ledger each point within its cap from the built image;
+   - the 8x8/2if harness build attached as a raw receipt (no workflow job builds that image; a CI job for it is #495 residue).
+4. If a composed image is still over after removing only code that is dead at that point (no behaviour change, nothing relaxed at 1x1/1if), the round STOPs with the bytes over, the per-region table and the bytes already recovered. The owner then decides.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634
+[A10] Round 3 ruling on PR #902, from R837-1 (issuecomment-6840357283) and R838-1 (issuecomment-6840525113), both NEGATIVE at `12180198`. Maintainer-delegated. The F1 ledger ruling (issuecomment-6839847820) stands.
+
+**1. The MRPDU timer row (R837-1-2 = R838-1 F2): tier 2's 90 ms by every source.**
+- The 2026-11-06 ruling (#665 issuecomment-6681686082 item 3) held it at 20 ms. The owner's later option B tiers give SRP 90 ms, so 90 ms stays inside an owner bound. ACMP's T_svc of 20 ms does not move.
+- Conditions:
+  - The compile-time check is restored at the new bound. It is round 3's only firmware edit.
+  - The lane proves IEEE 802.1Q's join and leave timer budget with that lateness. Both the clause and its values are read in the standard, and the timers must re-arm from the due instant.
+  - If the budget does not hold at 90 ms, the row takes the tightest value that does.
+  - FR_NFR 3.4.1 cites this ruling and option B, and `flip_grade.py` holds the row, with a plant over it.
+  - The in-lane "open decision" wording is withdrawn.
+
+**2. Round 3 is model first.** No firmware change beyond item 1's check.
+- `rows_tiers.py` and `flip_grade.py` gain each tier-1 channel's last-record row by every source: AECP, including its largest legal notice (not 11 mappings), ACMP and ADP. Each gets a plant over and a plant within.
+- MAAP's row takes its existing FR_NFR bound. Where none exists, it takes 90 ms on item 1's reasoning, cited to MAAP's timers.
+- `flip_grade.py` fails when a channel the loop serves has no row. The channel list is derived from the firmware's table.
+- The search grid is declared before it runs: order (AECP first with per-pass quotas for the others, weighted round-robin), caps, slice, and slot size or a long-notice rule. Every candidate's per-row table is published, and no bound moves.
+
+**3.** If a design holds every row by every source at 1x1/1if within the 0.70 load, round 4 builds it. If none does, the round STOPs with the tables and the owner chooses. A bound that cannot be held stops the lane; the gate is never removed.
+
+**4.** R838-1 F3 to F7, R837-1's MINORs and both RESIDUEs are fixed in the build round.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6843318273
+[A10] **OWNER QUESTION on [A773]'s round-3 STOP (issuecomment-6843221090).** This replaces the open flip-date question (A: wait for every tier-1 row; B: flip with rows as debt). Work continues on the default.
+
+**The finding.**
+- No design in the 572-candidate grid holds every tier-1 row at 20 ms, by every source, at 1x1/1if.
+- Tier 1's composed burst is 48 records, and each pass adds about 0.55 ms. So the last tier-1 record lands at 23.4 to 24.3 ms under any order; the order only picks which channel is last.
+- The load is not the limit: 0.470, or 0.561 with every notice at its largest legal size.
+
+**What the protocols themselves require.**
+- ACMP: the requester times out a command after 200 ms (Milan v1.2 5.5.2.3, Table 5.26; IEEE 1722.1-2021 Table 8-1). The 20 ms row is FR_NFR 3.4.1's 10 % of that.
+- AECP: respond within 240 ms; the timeout is 250 ms (IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4).
+- ADP: no response deadline; AVAILABLE follows a DISCOVER after a random 0 to 4 s (Milan v1.2 5.6.3.5.4, Table 5.50; IEEE 1722.1-2021 6.2.4.2.2).
+- MAAP: no defend deadline; there are three probes 500 to 600 ms apart (IEEE 1722-2016 Table B.7, Table B.8, B.3.4.2).
+
+**Options**
+- **A (recommended, the default):**
+  - The ACMP, ADP and MAAP last-record rows go to **30 ms** by every source.
+  - AECP's rows stay at 20 ms. The largest legal notice is counted in R4L only, and the amendment says so.
+  - The design keeps the built 1,200 us slice and takes 552 B response slots. ACMP is then 27.26 ms, R4L 14.98, the last queued notice 91.59 of 125, and the MRPDU row within 40.
+  - Cost: ACMP service is 15 % of its 200 ms timeout, and 552 B slots cost about 6.8 KB more sram at 1x1/1if (the round measures every point against its cap). The flip waits for this build round and its two reviews.
+- **A':** 27 ms at a 550 us slice. Same wait, with 0.49 ms of margin, and 550 us is one grid step from the last queued notice's cliff (154.77 ms at 500 us).
+- **B:** flip on time with the three rows failing at 20 ms, as debt. Cost: a red gate at the flip, then firmware work of unknown size.
+- **C:** keep 20 ms and hold the flip until tier 1's bursts or the per-pass cost shrink. The date is open.
+
+Round 4 builds A, with the bound change in a commit of its own so that A', B or C can replace it. Nothing merges on this point until the owner answers.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391
+[A10] **Ruling on the owner questions issuecomment-6843318273 (the tier-1 rows) and the 8x8/2if size fixture over its cap.** The owner delegated both (2026-11-13 05:35); this is a maintainer-delegated decision.
+
+**1. Tier-1 rows: option A.**
+- At 1x1/1if, the last-record rows of ACMP, ADP and MAAP go to **30 ms** by every source. AECP's rows (R4, R4L, first) stay at 20 ms.
+- The design keeps the 1,200 us slice and takes 552 B response slots.
+- This amends FR_NFR 3.4.1. It is not debt.
+- Rationale:
+  - The 572-candidate grid floors at 23.4 to 24.3 ms under any order, with the load at 0.470.
+  - 30 ms is 15 % of ACMP's 200 ms command timeout (IEEE 1722.1-2021 Table 8-1); ADP and MAAP have no response deadline.
+  - A' has 0.49 ms of margin, one grid step from the last queued notice's 154.77 ms. B is a red gate, and C has no date.
+- **The carve-out is limited.** "The largest legal notice is counted in R4L only" covers internal bounds only. The MRPDU row's 40 ms comes from the specs (IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3). Round 4 reports it with the largest legal notice as a source, at 552 B slots; round 3's indicative figure at 128 B slots was 43.53 ms.
+- **STOP triggers** at round 4's measured head:
+  - any of the three rows over 30;
+  - R4 or R4L over 20;
+  - SRP's rows over 90;
+  - the last queued notice over 125;
+  - the MRPDU row over 40, the largest legal notice included;
+  - the load over 0.70.
+
+**2. The 8x8/2if fixture: option A, the names patch only.**
+- The measurement's `C4-names` patch is behaviour-neutral on reading. Runs merge only on a contiguous index and ordinal, and an entity's second name stays a run of its own. The old table stays the test's oracle in `test_aecp.cpp`.
+- The S2b lane (#810) carries it as a commit of its own, once the measurement's tests are green and before #901 and #902 merge. The harness image is over with #895 alone (212 B), so this lets either PR fit, in either order. The rows are re-measured.
+- #894 round 4 carries the queue compiled out at zero slots, keeping the hot-list name.
+- `C4-fwp-maps` is not carried; it is deferred to S14. It is semantics-neutral, but GCC documents the `optimize` attribute as unsuitable for production code, and it changes the map-command code R4L models, unmeasured.
+- Names plus the compiled-out queue leave 528 B spare in the fixture and 220 B in the harness image.
+- **Fallback:** if the final composed fixture or harness image is over 58.5, raise the fixture cap to 59.0 as debt owed to S14. No hold.
+- **STOP triggers:** the 8x8/2if platform image over 60.5, or any other point over 56.
+- Watch the 8x8/1if platform. The 552 B slots add 16 x 424 = 6,784 B of sram there; derived, not measured, that is 56.0 with the queue compiled out and 55.5 with the names patch.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844947317
+[A10] The owner confirmed option A (2026-11-13 06:21), as ruled in issuecomment-6844175391.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512
+[A10] **Ruling on [A773]'s round-4 STOP (issuecomment-6845795823), head `66adb9a9`. Round 5 follows.** This is a maintainer-delegated decision, within the delegation: no bound moves, and the slice is a design parameter. Option A's own text promised "the MRPDU row within 40", which the 1,200 us slice fails.
+
+**1. The slice at 1x1/1if: both levers.**
+- Change it to **800 us**.
+- `rows_tiers.slice_choice` gains a sixth row, the MRPDU with the largest legal notice, so the rule itself picks the slice.
+- Add a CPU budget harness group that sends a 550 B notice to 15 controllers. The measured cost plus 5 % replaces the stated 665 us.
+- After measuring, the lane may take the grid's choice within 650 to 1,100 us.
+- **STOP** if no slice in that range holds every row by every source (a measured cost over 719 us at 800 us, or over 736 us anywhere), or if the load is over 0.70.
+
+**2. 8x8/1if: gated as the owner's decision of 2026-11-12 gates 8x8** (the owner, 2026-11-13 06:47: "8x8 is a must, 2if parts an option").
+- **Held:**
+  - the load, at most **0.75**;
+  - a contract-rate measurement on the built image in which every row fits its bound (20, 30, 90 and 125 ms, and the MRPDU at 40), the largest-notice group included.
+- The every-source rows are modelled and reported, with the gap owed to #872.
+- The slice is the 1x1/1if value. A per-point slice, derived from the static shape, is allowed only if the common one fails, and must be reported.
+- **STOP** if any measured row is over its bound, the load is over 0.75, or the platform image is over 56 RAMB36.
+- A STOP here does not hold back the 1x1/1if part, which goes to review regardless.
+- 2if stays reported, not held, and its blockers go to #890.
+
+**3. Also.**
+- Round 4's item 5 (oversize AECP commands) is now #903. It is not in round 5, and behaviour is unchanged. FR_NFR 3.4.1 states that the rows cover legal notices only (IEEE 1722.1-2021 9.2.2.6).
+- The names patch stays with the S2b lane (#810).
+
+**Rationale**
+- 800 us is the grid's own choice (+0.1063, MRPDU 39.07 ms), six grid steps from the 500 us cliff.
+- At 800 us the unmeasured notice cost has only 54 us of headroom, and a 550 B frame is unlikely to cost less than the stated 665 us. So the measurement is required, not optional.
+- In the round-1 model, the 8x8 rows did not fit by every source under any order (1.82x the compute needed). An every-source gate at 8x8/1if would reopen a question only the owner can decide.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6848507008
+[A10] **Ruling on [A773]'s round-5 STOP (issuecomment-6848357677), head `9d7167bd`. Round 6 follows, with levers 1 and 3 together.** This is a maintainer-delegated decision, and the owner is notified.
+
+**What the head shows**
+- `aecp_find` is already run-indexed (`aecp_commands.c:27-34`). The cost is most likely the pairwise loop and repeated `position` scans (`aecp_maps.c:226-248`), inferred from 8x8 costing only 29 % more.
+- Outside `aecp_maps` the record is 38,784 cycles, stated 410 us, already over txL's 400 us. So lever 1 alone cannot hold txL.
+- No gPTP code is on this loop at the head. The 7.9 ms pass delays ACMP, ADP and MAAP records, SRP's slices and the events.
+
+**1. The map commands**
+- **Lever 1 (#904):** commits of their own in this lane, behaviour-neutral: one decode, an O(n) duplicate and conflict check, and no rescans.
+  - Required: the command's pass within THE SHARE at 1x1/1if and at 8x8/1if, a record of at most 1,400 us.
+  - Goal: a stated record of at most 1,000 us.
+- **Splitting the command with IN_PROGRESS** is allowed (IEEE 1722.1-2021 9.3.2.6, Table 7-141), and `aecp.c:492` has the mechanism. It cuts no total work, so it is the fallback only if the pass stays over THE SHARE.
+- **Lever 3,** unless the stated record is at most 400 us: a pace P on long map commands, through the existing rx-ready gate.
+  - Paced commands are held, never dropped, because 9.3.2.6 requires every response within 240 ms.
+  - The model picks the smallest P that holds txL at 40 ms, with P at most 13 ms (15 P + 20 < 240).
+- **R4L:** ordinary AECP rows stay at 20 ms. Paced long commands are bounded at 240 ms, the standard's response time, in a commit of its own.
+- **STOP** on any of these:
+  - a behaviour change;
+  - an image over its cap;
+  - a pass over THE SHARE;
+  - txL over 40 ms;
+  - P over 13 ms;
+  - the load over 0.70.
+
+**2. 8x8/1if**
+- Build the harness point.
+- Per-point slice: the measured one-MRPDU build plus 5 %, within 1,070 to 1,300 us, with the build costs derived per shape.
+- Run the contract-rate measurement after lever 1.
+- The every-source rows are reported and owed to #872. A STOP here does not hold the 1x1/1if part.
+- **STOP** on any of these:
+  - a measured row over its bound;
+  - the load over 0.75;
+  - the platform image over 56 RAMB36;
+  - the slice over 1,300 us.
+
+**3. Delegation**
+- This is within the delegation: R4L's bound is internal, the behaviour stays inside 9.3.2.6, and the change is reversible.
+- The owner is notified, because the R4L restatement rewords the confirmed option A.
+- It becomes an owner question only if txL cannot hold or the week-end flip slips.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6857835707
+[A10] **Ruling on round 6's STOP.** This is a maintainer-delegated decision.
+
+1. **Lane.** Round 7 stays in #894, with the same author. The cost cuts are tracked in #908 and land here as their own commits.
+2. **The sync is done.** dev-soft-core `cec88385` (#810 merged) is merged into `894-tiers` as `ccb47e39`. The tree is unchanged. **Freeze:** until #902 merges, nothing that moves a stated cost merges into dev-soft-core. So the order is #902, then #901, then #898.
+3. **Step 0, within 1 h, posted with no wait.** A model what-if of txL and the last queued notice, for P = 8 to 11:
+   - the polls' base at 155, 180 and 205 µs;
+   - ACMP's item at 35, 80 and 125 µs.
+
+   If no combination holds both rows, STOP there.
+4. **The levers.** All of them are behaviour-neutral, taken in this order (#908):
+   - Itemise each stated cost that is a maximum over unlike passes or items. Each item needs an occurrence bound proven from the firmware and a planted defect. The +5 % rule is unchanged.
+   - Attribute the polls' base growth (two-cycle register read, KLJ3, hot list without `nvm_any`).
+   - Cut the polls' base and ACMP's item.
+5. **The gate at 1x1/1if is unchanged, by every source.**
+   - Every row holds.
+   - txL is at most 40 ms at the smallest P with R4L at most 240 ms.
+   - The last queued notice is at most 125 ms.
+   - The load is at most 0.70, and every image is within its cap.
+6. **The gate at 8x8/1if follows the owner's rule:** load plus measured rows.
+   - **Held:**
+     - the load at most 0.75;
+     - the platform image at most 56 RAMB36;
+     - a contract-rate measurement on the built image, largest-notice group included. Every measured row is in bound (20, 30, 90 and 125 ms; MRPDU 40 ms; paced R4L 240 ms) with 0 budget misses.
+   - **The per-point slice stays:** 1,070 to 1,300 µs, with per-shape build costs.
+   - **Reported, no longer held:** the 1,400 µs record and the pass within THE SHARE, at 8x8/1if only. Ledger the stated 1,590 µs and refuse any growth. These stay #904's acceptance 2, open after the flip. Every-source rows remain #872's.
+   - **Not in this round:** one observation per stream per command, because it changes the port-read definition the map-edit test pins.
+   - **An 8x8/1if STOP doesn't hold back a 1x1/1if REVIEW READY.** If both points hold, it is one PR.
+7. **STOP on any of these:**
+   - a behaviour change;
+   - any 1x1/1if row over;
+   - a measured 8x8/1if row over;
+   - either load over;
+   - a cap over;
+   - a slice over 1,300 µs.
+
+**Basis.**
+- **txL's 40 ms is derived from the join timer.** Milan v1.2 4.2.7.1.1, Table 4.3: joinTime 200 ms by default, 180 to 240 ms. It is not moved here.
+- **R4L's 240 ms is the response time.** IEEE 1722.1-2021 9.3.2.6, and Milan v1.2 5.4.3.4.
+- **The last queued notice's 125 ms is the owner's bound.** Milan v1.2 5.4.5.2 gives no number. A question on it has gone to the owner. It doesn't block this round.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025
+[A10] **Contingent ruling: if #908's cuts don't bring the 1x1/1if rows back.** This is a maintainer-delegated decision. The owner delegated it on 11-13 and may override it.
+
+1. **Cuts first.** Do all of #908's levers (itemise, attribute, cut) and report them before any bound moves. A row that holds its original bound keeps it.
+2. **The last queued notice.** If round 7's final row is over 125 ms, its bound becomes **140 ms** at 1x1/1if by every source, and for the 8x8/1if measured row. It goes no further.
+3. **txL.** If txL is over 40 ms at every P with R4L at most 240 ms, arm the join timer at **19 cs**. The MRPDU bound (tx, txL and the 8x8/1if measured row) then becomes **50 ms**. In code it is derived as 240 minus the armed value, not typed. P stays the smallest that holds.
+4. **An added gate whenever item 3 applies.**
+   - The harness reports the shortest and longest join interval it sees in each group. The shortest must be at least 180.0 ms, the longest at most 240.0 ms.
+   - The flip check's bench capture must hold the same on the wire.
+5. **Unchanged:**
+   - R4 and the first queued notice at 20 ms;
+   - ACMP, ADP and MAAP at 30 ms;
+   - SRP at 90 ms;
+   - R4L at 240 ms;
+   - the loads at 0.70 and 0.75;
+   - the image caps.
+6. **Form.**
+   - Each move is its own commit amending FR_NFR 3.4.1 and citing this ruling.
+   - The report shows the row against both bounds.
+   - #908 stays open until the last notice is at most 125 ms and txL is at most 40 ms at 20 cs. The original bounds are then restored.
+
+**When it applies.**
+- It is judged on round 7's final rows, in the same round, with no STOP and no extra round. Step 0's what-if alone doesn't trigger it.
+- **It goes back to the owner, with the default "keep the bounds, another cut round", if any of these happen:**
+  - the last notice is over 140 ms;
+  - txL is over 50 ms at 19 cs;
+  - a join interval falls outside 180 to 240 ms in the harness or the capture;
+  - the 19 cs needs a code change in the lwSRP donor;
+  - any other row, a load or a cap fails.
+
+**Basis.**
+- **Rows as debt are refused.** At 20 cs, a txL over 40 ms models a join interval past the 240 ms maximum of Milan v1.2 4.2.7.1.1, Table 4.3.
+- **The join timer.** 190 ms is an allowed joinTime value (Table 4.3, 180 to 240 ms), and IEEE 802.1Q-2018 10.7.11 allows the timer values to be modified.
+- **The last notice.** Milan v1.2 5.4.5.2 says "immediately" and gives no number. 140 ms is 56 % of the 250 ms AECP timeout (IEEE 1722.1-2021 9.3.2.6).
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874
+[A10] **Amendment to issuecomment-6858269025, item 2.** If round 7's final last-queued-notice row is over 125 ms, the new bound is that row rounded up to the next 5 ms (130, 135 or 140 ms). It is never over 140 ms. Each bound moves only if its own row fails after #908's cuts, because the two rows are independent. Past these limits the second-hart study starts (#872, issuecomment-6862464924); no bound moves further.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730
+[A10] **Ruling on round 7's REVIEW READY (8a3791e4).** This is a maintainer-delegated decision.
+
+**(a) #902 merges on its 1x1/1if bar:** two POSITIVE reviews at `8a3791e4`. Adding 8x8/1if to it would void that head and the queued reviews.
+- 8x8/1if is an immediate follow-up lane under #894, which stays open.
+- That lane's branch `894-8x8-1if` is cut from `8a3791e4`. Its PR opens on dev-soft-core after #902 merges, not stacked on it.
+- The flip check holds both points.
+
+**(b) The 8x8/1if follow-up.**
+- **Where the shape is stated.** The builder emits the static shape it already holds (the source of `MBX_N_IF`) as build-time constants. `ctrl_loop.h` and `rows_grade.py` key the slice and build costs on them. No point name is typed by hand, and a shape not listed fails the build.
+- **1x1/1if doesn't move.** Only constants change, so the 1x1/1if images stay byte-identical and its rows carry over.
+- **The slice** is the measured build of one plus 5 %, and its cap is re-ruled from 1,300 to **1,600 µs**. The slice is a design parameter; the owner's gate is rows and load.
+- **What is measured:** the contract-rate run on the built image, with the largest-notice and `srp` groups included.
+  - 0 budget misses.
+  - Join intervals between 180.0 and 240.0 ms.
+  - Every measured row within its bound: 20, 30, 90 and 130 ms; MRPDU 50 ms; R4L 240 ms.
+  - The load at most 0.75, and the platform image at most 56.0.
+- **Two-core trigger** (#872, issuecomment-6862464924): a measured row over its bound, or the load over 0.75, at that slice.
+- **STOP:** a slice over 1,600 µs, an image over its cap, or a changed 1x1/1if image.
+
+**(c) 8x8/2if's 1,550 µs build is debt: #910,** which blocks #890. The two-interface parts are optional for the flip (owner, 11-13). The stated 1,215 µs stays marked refuted.
+
+**(d) txL's 0.01 ms model margin is acceptable, and no minimum margin is set.**
+- Every stated cost already carries 5 %, and the row is by every source with every notice the largest legal one.
+- The reserve is THE PACE: R4L is 158 of 240 ms. If a re-measure before the flip puts txL past 50 ms at P = 6, the rule takes the next P.
+- The follow-up lane publishes a model-only txL table for P = 7 to 11 at this head.
+- #901 and #898 must each pass the 1x1/1if flip check as composed with #902, or wait behind the flip.
+
+**(e) The join-interval capture on the wire is part of S12b's bench gate,** on the ALINX with the flip image.
+- It is taken from the tap in the first ten minutes and graded before the soak continues.
+- For each MRP participant: no gap under 180.0 ms, and each gap at most 240.0 ms where declarations queue behind a running timer.
+- A miss stops S12b.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126
+[A10] **Ruling on round 7's reviews (R837-2 and R838-2, both NEGATIVE): round 8.** This is a maintainer-delegated decision.
+
+1. **Egress is counted (R837-2-1).**
+   - **The MRPDU bound** is `240 − 10 × JOIN_CS − T_egress` = 49 ms, derived in code from the stated allowance. FR_NFR 3.4.1 line 426 states the split's figures.
+   - **R4L under the same rule:** IEEE 1722.1-2021 9.3.2.6's 240 ms is measured at the wire. So paced R4L is held at `240 − T_ingress − T_egress` = 238 ms, derived.
+   - **The harness join gate is commit-side,** so it holds 181.0 to 239.0 ms, derived from `T_egress`. The wire gate in S12b stays 180.0 to 240.0 ms.
+2. **The pace count (R837-2-2).** The model takes the firmware's `ceil((w + 1) / P)`, with a planted defect where the two counts differ. This comes **before** the pace is chosen, and the pace is then the smallest P that holds txL ≤ 49 ms with R4L ≤ 238 ms.
+3. **Map commands (R838-2-F2).**
+   - Work is bounded for rejected as well as accepted legal-length commands.
+   - Status, validation precedence, duplicate-removal multiplicity and atomicity are preserved, and the existing definition test passes unchanged.
+   - A counting control refuses n(n+1)/2 at 8, 16, 32 and 63 mappings.
+   - The maximum-length collision and conflict cases join `aecp-largest-notice`. Re-measure, restate at +5 %, and recompute every row. The structure is the author's choice.
+4. **The join grader (R838-2-F1).** It tells empty, late, absent and unresolved builds apart, with no silent horizon.
+   - Controls span the horizon, the 291 and 500 ms cases included.
+   - Re-grade every published interval and the timer-to-MRPDU rows.
+5. **Docs and residue** (R838-2-F3, R837-2-3, R837-2-4, R837-2-5): fixed in this round. They don't gate.
+6. **Lane 894b** takes the new bounds (49 and 238 ms) after its merge, re-measures the 8x8/1if command pass against its ledger, and checks 1x1/1if byte-identity against #902's merged head.
+
+**STOP on any of these:**
+- **No P up to 11 holds txL ≤ 49 ms with R4L ≤ 238 ms.** This is the two-core trigger: the #872 study starts.
+- The last queued notice over 140 ms. Up to there, the next-5-ms rule applies.
+- An image over its cap (the 8x8/1if platform image has no spare).
+- A map-command behaviour change.
+- The collision case's pass over THE SHARE at 1x1/1if.
+
+**Reviews:** both reviewers again, as delta reviews at the new head. Each verifies its own findings and the other's MAJORs.
+
+**Basis.** The contingent ruling put the 240 ms gate at the wire, so a commit-side 50 ms was 1 ms too generous. IEEE 802.1Q-2018 10.7.11 requires a requested opportunity "within the value specified for JoinTime", and Milan v1.2 4.2.7.1.1, Table 4.3, caps that value at 240 ms. This ruling tightens bounds; no owner question arises.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042
+[A10] **Ruling on round 8's reviews (R837-3 and R838-3, both NEGATIVE): round 9.** This is a maintainer-delegated decision.
+
+Both reviews confirm the rest of round 8: egress counted (49 ms, 238 ms, 181–239 ms), the pace count, P = 7, the grader, the behaviour-neutral rewrite, the 975 µs record. What remains is one root cause and docs.
+
+1. **The map table becomes a collision-free direct index (R838-3-F1, R837-3-1).** The index is the key's position in the port's bounded key domain: `stream_or_cluster × channels_per_stream + channel`, sized from the build-time shape constants. It is injective by construction, so the #904 work bound holds for every accepted geometry without a scope decision. Two guards are still needed:
+   - a `_Static_assert` that the table holds the whole key domain, sized from the shape constants and the largest channels-per-stream (or per-cluster) value;
+   - the existing range refusal runs before any index is formed, with the same status and validation precedence. An out-of-domain key never indexes the table.
+2. **The controls.**
+   - Enumerate every accepted key under each checked-in configuration and under R838-3's 16 × 4 geometry.
+   - Visits per mapping are constant, so the 63-mapping ADD and REMOVE meet 2(n+R) in both.
+   - Keep the 8/16/32/63 counting controls, the quadratic plants and the unchanged definition test.
+3. **The fallback, pre-approved only if the direct index doesn't fit memory:** a build-time injectivity check, taken in the same round. It narrows the geometries the builder accepts, so it needs a negative-configuration control, a statement in the builder's documentation, and a notice to the owner.
+4. **Then:**
+   - Re-measure, restate at +5 %, and recompute every row.
+   - The pace stays the smallest P holding txL at most 49 ms and R4L at most 238 ms.
+   - Watch the 1x1/1if fixture (8 B from its next block) and the 8x8/1if platform image, which has no spare.
+5. **Docs, fixed in this round:**
+   - R838-3-F2 and R837-3-2: 238 and 49 ms wherever current, the pace rule with its R4L condition, the current load figures, and the 30 ms decision linked to ruling 6844175391;
+   - R838-3-F3: the fixture's +184 B reconciled.
+
+**STOP:** round 8's triggers, plus any image over its cap.
+
+**Reviews:** both reviewers again, as delta reviews. Lane 894b picks this up by merge after #902 merges.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905
+[A10] **Ruling on the 8x8/1if lane's STOP (issuecomment-6871307898): round 2.** This is a maintainer-delegated decision.
+
+**(a) The two-core trigger is not met.**
+- `backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold. They miss in the same way at 1x1/1if and at 8x8/2if, and a second hart can't move them.
+- Every CPU-decided measured row holds, and the load is 0.706 of 0.75.
+- **The trigger, restated** (#872, issuecomment-6862464924): a CPU-decided measured row over its bound, or the load over 0.75.
+- **The held-egress rows stay recorded misses,** in the form 1x1/1if has today: the same row names, recorded in the ledger. A new or larger miss fails the leg. FR_NFR 3.4.1 charges TX backpressure to the service budget, so they are not ruled as passing.
+
+**(b) Round 2.**
+- **(i) The MRPDU row's harness budget** derives from `CTRL_LOOP_TX_BOUND_MS` (49 ms after #902's merge), with a planted defect one over. "0 budget misses" means none beyond the recorded egress rows.
+- **(ii) `CTRL_LOOP_SRP_UNIT_US` per shape,** at 8x8/1if's measurement plus 5 %. This isn't a STOP condition: a stated cost below its measurement is the defect. The 1x1 and 8x8/2if images stay byte-identical.
+- **(iii) The poll costs per shape,** from measurement plus 5 %, with the load recomputed.
+- **(iv) Check the firmware first.**
+  - Derive 8x8/1if's largest number of pending notices from its descriptors, through the shape header.
+  - If that exceeds `AECP_NOTICES_MOST` (12), the queue is undersized there: size it by shape, and prove no notice is dropped, with a plant.
+  - Then build the queued-notice and R4L arm at 8x8/1if and measure it: the first notice 20 ms, the last 130 ms, paced R4L 238 ms.
+- **(v) The full pass runs once, at the round-2 head.**
+
+**STOP:** the platform image over 56.0 (it has no spare, and (iv) may add RAM), a slice over 1,600 µs, or a changed 1x1 or 8x8/2if image.
+
+**(c) Sequencing.**
+- **Now:** (i), the shape keying of (ii) and (iii), the notice-count derivation, and building the arm.
+- **After #902 merges:**
+  - merge dev-soft-core, and take the shape header as the single source for #902 round 9's direct-index table;
+  - check byte-identity against the merged head;
+  - then measure, and run the full pass once.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6873298790
+[A10] **Round 10 of #894: the three MINOR findings at 5b264bf2.** This is a maintainer-delegated assignment, with no new decision. Both reviewers confirm everything else in round 9.
+
+1. **R837-4-1, as its report requires.**
+   - The `_Static_assert` bounds the declared slot array by the index range `place()` forms: `MAP_FIRSTS × MAP_CHANNELS`. Keep the floor and the domain as separate macros.
+   - Add a compile-time control: a planted undersized table, at a configuration where it would overflow, must be refused.
+   - The two document sentences say what the assertion holds, and say separately that the 256-slot floor is a layout choice (#909).
+   - No image or behaviour change: sha256 receipts for every image against 5b264bf2.
+2. **R838-4-F1.** `SPLIT_CONTROL_MEMORY.md`'s current row table and summary take the head's figures from `flip_grade.py --check --point 1x1/1if`. Any historical figures stay marked as a named head's.
+3. **R838-4-F2.** The PR body's validation command becomes `'Core.*Map*:Core.Every*'`, which runs 13 tests.
+4. **The RESIDUE items of both reports,** absorbed in the same pass.
+
+**Gates:** the firmware suite, coverage, the AECP campaign, the docs gates, the image sha256 check and the 1x1/1if flip check. No full sweep is needed if every image is byte-identical. Otherwise, the full pass once.
+
+**Reviews:** both reviewers, as delta reviews.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6876349104
+[A10] **#902: the AECP record must be checked before #902 merges.** This is a maintainer-delegated decision.
+
+**Why:** #895's round-4 STOP (#895 issuecomment-6875758968) measured the AECP record at 27,851 cycles at #902's head `7398ec0a`, against the 235 µs that #902 states. That is one run, with #895's parsers. #902's 235 comes from:
+- round 4's full arm A on `8cc3e5d3` (22,256 cycles);
+- H-L1N at the head (21,957 cycles).
+
+#902's final pass at `5b264bf2` ran five groups; `aecp-fanout` was not one of them.
+
+**The check:** lane 894 runs the full arm A at 1x1/1if on `7398ec0a`, with #902's own parsers. It is measurement only: no commit, no push.
+- **At most 235 µs:** the finding is dismissed, and #902 merges once its candidate bank passes.
+- **Over 235 µs:** #902 gets a round 11. First attribute the cost and cut it, within the bounds of rounds 5 to 9; otherwise restate it and recompute the rows. At 300 µs the composed ACMP row is 33.64 of 30 ms at any pace, which is the #872 two-core trigger, and the owner is told.
+
+The candidate bank for `7398ec0a` keeps running meanwhile. The merge order stays #902, then #901.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227
+[A10] **Ruling on 894b's round-2 report: round 3, for THE RETRY's cold cost at 8x8/1if.** This is a maintainer-delegated decision.
+
+**The finding:** `AECP_ROUND_COLD_US` and `AECP_ATTEMPT_US` are keyed on `MBX_N_IF` (`aecp_mbx.h:29`, `aecp.h:60`). So 8x8/1if takes the 1x1's 85 µs, against about 125 µs measured. The `answering-every-port` arm flags 1,654 rounds whose cost is over its statement.
+
+**Why it is a defect:** ruling issuecomment-6871343905, item (b)(ii), says a stated cost below its measurement is the defect, not a STOP condition. Phase B's scope did not let the author change the 8x8/1if image; this ruling does.
+
+**Round 3**
+1. Key both constants on the shape, through the shape header that `CTRL_LOOP_SHAPE` already uses, not on the interface count. At 8x8/1if, state them at the measurement plus 5 %. Every 1x1 and 8x8/2if image stays byte-identical; check the sha256.
+2. Re-measure once at 8x8/1if on the new image, with phase B's groups and criteria. The `answering-every-port` arm must show no cost over its statement.
+3. Restate section 13, FR_NFR 3.4.1 and the PR body figures. Then run the full pass once at the final head.
+
+**STOP on:**
+- a CPU-decided row over its bound;
+- the load over 0.75;
+- the platform image over 56.0;
+- a slice over 1,600 µs;
+- a changed 1x1 or 8x8/2if image.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878230332
+[A10] **#902 round 11: the AECP record is over its statement (MEASUREMENT issuecomment-6878200592).** This is a maintainer-delegated decision, per issuecomment-6876349104.
+
+**What was measured:**
+- **Map edits in `aecp-fanout`:** the one-row REMOVE_AUDIO_MAPPINGS is 27,851 cycles (295 µs by the rule), and ADD_AUDIO_MAPPINGS 22,932 (245 µs), against the 235 µs `record.aecp`.
+- **Cause:** #904's one-pass map-edit check (`1b70cedd`, round 6). No final pass since round 4 ran `aecp-fanout`.
+- **TICK:** one TICK is 4,617 cycles (50 µs by the rule), against 45.
+
+**Round 11**
+1. **Cut first.**
+   - Bring both map-edit records to at most 235 µs by the rule, which means at most 22,380 cycles measured.
+   - Keep the ruled behaviour: the direct index, the 2(n+R) work bound, and every refusal with its status and validation precedence.
+   - Attribute the cycles first, by function and by pass.
+2. **Only if no cut holds 235:** restate `record.aecp` at the measurement plus 5 %. Then recompute every row by every source, and THE PACE by its rule.
+3. **TICK:** attribute it. If no cut holds, restate it at the measurement plus 5 %.
+4. **The final pass runs the full arm A at 1x1/1if,** every group including `aecp-fanout`, and every other point's arms as in round 9. The gap that hid this growth is closed by a check that refuses a final pass missing any group a stated cost depends on.
+5. **Close as before:** byte-identity where nothing changed, the gates, the full pass once, and a round-11 PR body.
+
+**STOP if any of these is over its bound** (the #872 two-core trigger, and the owner is told):
+- a CPU-decided row: AECP 20, ACMP/ADP/MAAP 30, SRP 90, the last queued notice 130, txL 49 or paced R4L 238 ms;
+- the load, over 0.70 at 1x1/1if;
+- a behaviour change beyond the cut.
+
+#902's candidate bank at `7398ec0a` finishes as evidence only. A new bank runs at round 11's head. The lanes on #902's head sync again when it moves.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871
+[A10] **Round 11 amendment (maintainer-delegated, after a second opinion on the two-core question): no second hart for the flip, and the class split comes before any flat restatement.**
+
+**Why no second hart:** the over-bound record is a code-path cost, not the hart's capacity. One command class grew by 7,424 cycles at `1b70cedd`: `aecp_maps.c:370` clears the whole `struct edit`, at least 960 B, whatever the row count. The load is 0.513 of 0.70 at 1x1/1if and 0.709 of 0.75 at 8x8/1if. A second hart stays #872 item 1(a), for 32x32.
+
+**A flat restatement at 295 µs would STOP:** in a scratch regrade at `7398ec0a`, three rows go over.
+
+| Row | At 295 µs | Bound |
+|---|---:|---:|
+| ACMP | 33.12 ms | 30 ms |
+| Last queued notice | 135.06 ms | 130 ms |
+| txL at pace 8 | 52.94 ms | 49 ms |
+
+**Round 11, step 2, now reads:**
+1. **Cut first,** unchanged. REMOVE needs to lose 5,471 cycles and ADD 552.
+2. **If the cut does not hold 235, apply the CLASS SPLIT before any flat restatement.**
+   - Every checked map edit is already paced (`cd93cb56`), so a row's window holds ceil((w+1)/P) edits.
+   - Charge those at the edit record's measurement plus 5 %, and every other AECP record at 235. The largest non-edit record is 21,173 cycles.
+   - The scratch estimate, #902 alone at pace 8: ACMP 28.69, last queued notice 127.48, txL 48.12.
+   - This needs no firmware change and moves no bound. It needs a planted control: an unpaced edit charged at the non-edit figure must fail by name.
+   - The 63-mapping edit stays an R4L/txL-only row, as the standing model has it (`LONG_ROWS`).
+3. **Only if both fail:** restate flat, and STOP on the rows. That case goes to the owner.
+
+TICK at 50 µs moves no row: restate it at its measurement plus 5 % if it isn't cut.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6881004362
+[A10] For #902: the shard-dispatch self-test leaves `dispatch-build/keys/*.yaml` untracked in a firmware job's checkout (`aecp_arms.key_arms` writes them while the arm list is built, from `58e6b60f`). Found by #895 round 5.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6881287231
+[A10] For #902's round 11 and its delta reviews: #901's review R835-3-F1 (PR #901 issuecomment-6881281833) found the 1x1/1if polls' base stated at 205 µs in `poll_grade.py:87` (and `load_grade.py`'s `STATED_US_DONOR`) against 20,456 cycles measured on #901's head, which is 215 µs by the rule; at 215 the slice rule takes 950 µs against the built 900. The table is #902's (unchanged at `7398ec0a`). Round 11's final pass, or its reviewers, must check every stated table the rows read against this head's measurements by the rule (`poll_grade.STATED_US`, `rows_tiers.DATAPATH_US`, `ctrl_loop.h`'s pass costs), not only `load_grade.py`'s.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236
+[A10] **Round 12 ruling (maintainer-delegated), on round 11's open item (REVIEW READY issuecomment-6883768027): the answering-ports arm's SET_CONFIGURATION record.**
+
+The record (33,724 cycles at 1x1/1if, 355 µs by the rule; 78,332 at 8x8/2if) sits on a product path: the product's ports answer, as that arm's do. No stated cost covers it, so it is a defect and it blocks #902's merge. No bound moves and no debt is taken. Round 11's cut, class split and TICK stand.
+
+**Constraints**
+- **No fast path past the running check.** Milan v1.2 5.4.2.5 refuses the command whenever any Stream Input is bound or any Stream Output is streaming, which is stricter than IEEE 1722.1-2021 7.4.7.2. A SET_CONFIGURATION naming the current index must still answer STREAM_IS_RUNNING.
+- **No early refusal of another index.** It does not lower the worst case (the accepted path) and it changes status precedence.
+- **The command is not paced today.** Only map edits stamp the pace, so charging it in the paced class needs a firmware change.
+- **Its completion is a second cost.** The wait completes in the poll and republishes every stream. The TICK's figure comes from arm A, which never accepts the command.
+
+**Round 12, in order**
+1. Attribute the record and its completion tick at 1x1/1if and 8x8/2if, in one pass.
+2. Cut once, with no experiment series:
+   - publish every stream entry only when the index value changes;
+   - make the running check read only what it uses;
+   - leave statuses, their order and the notify rule unchanged.
+3. If the record is at most 235 µs by the rule at 1x1/1if, it is an ordinary record. Otherwise an accepted SET_CONFIGURATION stamps the pace. It then shares the edits' ceil((w+1)/P) count, and the class cost is the dearer of the two by the rule. A planted control charges an unpaced SET_CONFIGURATION as ordinary and must fail.
+4. Hold the completion tick against `event.TICK`, and restate it only by the rule.
+5. Hold the answering-ports `aecp-fanout` SET_CONFIGURATION and SET_STREAM_INFO records in `record_classes.py`, and refuse a pass that lacks them.
+6. The final pass and the docs. 8x8/2if and 8x8/1if stay reported, with the figures handed to #894's 8x8 lane.
+
+**STOP**
+- **To the maintainer:**
+  - any 1x1/1if row over its bound, or the load over 0.70, after steps 2 to 4;
+  - an image over its cap (8x8/2if has 368 B spare).
+- **To the manager:** a cut that needs a wire-visible change against Milan v1.2 5.4.2.5 or IEEE 1722.1-2021 7.4.7.
+
+**In flight:** round 11's delta reviews continue, and their findings fold into round 12. The candidate bank at `9606b3a9` is stopped, because round 12 changes the firmware images.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6886633874
+[A10] **For round 12, before its final pass (from #895 issuecomment-6886630886, item 8).** `ctrl_loop.h:280` states `CTRL_LOOP_SRP_UNIT_US` 250 µs at 1x1/1if as the load gate's SRP record cost; `load_grade.py` states that cost at 280. `ctrl_loop.c:322` limits the SRP drain at `start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US`, so a 280 µs record can start with 250 µs left. Not residue. Derive the constant from the stated cost, or hold it with a check and a planted control, at both points.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796
+[A10] **Ruling on #902's round-12 STOP (issuecomment-6888749411): round 13.** Maintainer-delegated. Not an owner decision: round 12's row STOP was addressed to the maintainer, and no bound, cap, clock or date moves.
+
+1. **The slice follows the rule here too.** The built one-interface slice is the slice rule's choice within 650 to 1,100 µs: 950 µs now. Own commit; `ctrl_loop.h` states the rule. The 130 ms bound stays. There is no second-hart trigger: every row holds at the rule's choice, and the load is 0.516. The four restatements, the cut, the pace stamp and the drain fix stand.
+2. **It lands in #902.** #895 takes #902's slice at its sync and drops its own slice commit, unless the rule chooses otherwise at its composed tables. #895's 7A keeps running; its 7B syncs on round 13's review head.
+3. **Reruns, on the rebuilt images:**
+   - every one-interface leg: arm A, answering-every-port, answering-ports and the 8x8/1if legs;
+   - the stated-table compare, then the pace and slice rules;
+   - the firmware jobs and the sweep;
+   - every gate on a clean clone of the final head, including those round 12 left.
+4. **Carries:** the 8x8/2if legs, by the two-interface images' byte identity, shown by hash. Any other job carries only with an identity proof of its inputs.
+5. **Round 12's step 4 is still open.** Stage a late-acknowledged SET_CONFIGURATION's completion in one group at each point and hold it by the rule. Otherwise show from the product port that it cannot complete late.
+6. **8x8/2if stays reported** and is no flip row. It needs nothing more here; the figures go to the 8x8 lane and #890. The 8x8/1if lane syncs onto round 13's head.
+7. **Reviews:** two delta reviews from round 11's head to round 13's, started at REVIEW READY with the packet published. The candidate runs beside them.
+
+**STOP, to the maintainer:**
+- any 1x1/1if row over its bound, or the load over 0.70, at the rule's slice;
+- the rule's choice moving a second time on a rebuilt image;
+- no pace up to 11 ms, or a join interval outside 181 to 239 ms;
+- an image over its cap;
+- item 5's cost putting a row over.
+

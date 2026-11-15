@@ -1,0 +1,43 @@
+compare-1x1.txt rows checked 263 exceptions 6
+  EXCEPTION ('item.aecp.notice', 34349, 365, 210, 'load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))')
+  EXCEPTION ('item.aecp.notice', 34349, 365, 210, 'load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))')
+  EXCEPTION ('record.aecp [aecp-fanout]', 22987, 245, 235, 'load_grade.GRADED record.aecp; A2/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)')
+  EXCEPTION ('record.aecp [aecp-fanout]', 22987, 245, 235, 'load_grade.STATED_US record.aecp; A2/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)')
+  EXCEPTION ('record.aecp [aecp-fanout]', 28376, 300, 235, 'load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+  EXCEPTION ('record.aecp [aecp-fanout]', 28376, 300, 235, 'load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+compare-1x1-E1-B1F.txt rows checked 91 exceptions 4
+  EXCEPTION ('item.aecp.notice', 34349, 365, 210, 'load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))')
+  EXCEPTION ('item.aecp.notice', 34349, 365, 210, 'load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))')
+  EXCEPTION ('record.aecp [aecp-fanout]', 28376, 300, 235, 'load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+  EXCEPTION ('record.aecp [aecp-fanout]', 28376, 300, 235, 'load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+compare-8x8.txt rows checked 66 exceptions 6
+  EXCEPTION ('build_one', 145595, 1530, 1215, 'load_grade.GRADED build_one; J8/srp')
+  EXCEPTION ('build_one', 145595, 1530, 1215, 'whole_grade.stated_us(2) build-one (ctrl_loop.h); J8/srp')
+  EXCEPTION ('item.aecp.notice', 61749, 650, 275, 'load_grade.GRADED item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))')
+  EXCEPTION ('item.aecp.notice', 61749, 650, 275, 'load_grade.STATED_US item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))')
+  EXCEPTION ('record.aecp [aecp-fanout]', 56474, 595, 265, 'load_grade.GRADED record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+  EXCEPTION ('record.aecp [aecp-fanout]', 56474, 595, 265, 'load_grade.STATED_US record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)')
+Attribution b1 [6322, 16131, 8823, 2448, 33724] sum verified
+Attribution b8 [17729, 37812, 7322, 15469, 78332] sum verified
+ROM fixture-1x1-1if 110576 110800 111024 growth 224 224 cap spare 1616
+ROM fixture-1x1-2if 111872 112096 112312 growth 224 216 cap spare 328
+ROM fixture-8x8-1if 124104 124312 124528 growth 208 216 cap spare 400
+ROM fixture-8x8-2if 125368 125576 125792 growth 208 216 cap spare 1184
+ROM platform-1x1-1if 115632 115856 116072 growth 224 216 cap spare 664
+ROM platform-1x1-2if 116944 117168 117384 growth 224 216 cap spare 1400
+ROM platform-8x8-1if 129200 129408 129624 growth 208 216 cap spare 1448
+ROM platform-8x8-2if 130496 130704 130920 growth 208 216 cap spare 152
+RULE 33724 cycles -> 355 us
+RULE 28509 cycles -> 300 us
+RULE 78332 cycles -> 825 us
+RULE 55377 cycles -> 585 us
+RULE 28376 cycles -> 300 us
+RULE 56474 cycles -> 595 us
+RULE 69635 cycles -> 735 us
+RULE 6206 cycles -> 70 us
+RULE 14715 cycles -> 155 us
+RULE 4784 cycles -> 55 us
+RULE 4692 cycles -> 50 us
+Attribution gap probe: Record(start=0, cycles=23000, command=6, status=0) actual span ends 23000, response 40000, class paced
+This demonstrates an optional attribution limit, not an observed misclassification in published runs.
+Arithmetic audit: PASS
