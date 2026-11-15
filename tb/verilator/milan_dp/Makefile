@@ -1015,13 +1015,13 @@ twin: build-twin
 # (twin_plants.py, through twin_compare.py --make-plant): the split's for a
 # difference no row covers, an owed difference gone, the entity's commands and
 # their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
-# out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
-# for the #860 rows' exact traces
+# out a declared attribute and the LeaveAll declarations; the fabric's for an owed
+# fabric defect gone, of which none is left (TWIN_FABRIC_PLANTS)
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
 TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
   table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
-TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
-  vanished-vid2-join-in vid2-registrar-in
+# none at this head: processor 801ef228 (#893) fixed the owed fabric defects (#857, #858, #860) they planted
+TWIN_FABRIC_PLANTS =
 twin-plants: build-twin
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \

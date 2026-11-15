@@ -109,7 +109,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #858 ENTITY available_index (the AIDX section of obj_notify)](#the-858-entity-available_index-the-aidx-section-of-obj_notify)** -- READ_DESCRIPTOR(ENTITY)'s available_index against the last ENTITY_AVAILABLE on the wire, through advertisements, a departure and a re-enable, with its four planted arms
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-eight planted defects and its make -j8 gate from a clean tree
-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
+- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, fourteen plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-six plants, four controls, two off-grid controls and twelve code mutants
 - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
@@ -1437,27 +1437,18 @@ a finding too: the lane that fixes it deletes the row.
 |---|---|---|---|
 | `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
 | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
-| `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
 
-The first two have one cause: the split's sources stay unallocated until an
+Both have one cause: the split's sources stay unallocated until an
 SRP adapter entry takes MAAP's range
 ([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
-The third is the fabric's: its AECP engine serves the image's ENTITY
-descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
-6.2.2.15).
+The fabric's ENTITY available_index row (#858) went with processor 801ef228
+(#893), which serves the last ENTITY_AVAILABLE's value: both halves now read 1.
 
 `OWED_GRADES` holds an owed defect that one half's grade finds. Its row asserts
 that half's exact behaviour and takes those grade findings out while it holds.
-It too is a finding once the defect has gone.
-
-| Row | Half | What it asserts | Owed to |
-|---|---|---|---|
-| `fabric-mvrp-leave-all` | all-fabric | its MVRP's one LeaveAll at 10201 ms, then VID 2's Lv at 20000 ms and no MVRPDU after it (IEEE 802.1Q-2018 10.7.9, Milan v1.2 Table 4.3) | #857 |
-| `fabric-domain-one-new` | all-fabric | its MSRP Domain's New x1 from 200 ms, then JoinMt x79 from 1000 ms, with no MSRPDU received (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again) | #860 |
-| `fabric-vid2-join-in` | all-fabric | its MVRP VID 2's New x1 from 5200 ms, JoinIn x15 from 6200 ms and Lv x1 from 20000 ms, with no MVRPDU received, so its Registrar MT throughout (Table 10-3; 10.7.6.3: sJ sends JoinIn only with the Registrar IN) | #860 |
-
-Each `fabric-*` row covers only its own half's grade findings: the LeaveAll
-gap for #857, and each attribute's Table 10-3 findings for #860.
+It too is a finding once the defect has gone. It holds no row at this head:
+its three, the fabric's MVRP LeaveAll (#857) and its Domain's and VID 2's one
+New and JoinIn (#860), went with processor 801ef228 (#893), which fixed them.
 
 The split's MVRP passes the Table 10-3 grade with no row. The Milan v1.2 4.3.2
 and 4.4.1 checks stay beside the grade
@@ -1466,7 +1457,7 @@ item 2).
 
 ### The plants
 
-`make twin-plants` runs twenty plants. Each must be refused by its words
+`make twin-plants` runs fourteen plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1475,9 +1466,8 @@ words must be in a finding the unplanted comparison does not make.
 The first three plant the split half as it runs (`twin_split.cpp --plant`).
 The rest plant a copy of one half's capture
 ([`twin_plants.py`](twin_plants.py), through `twin_compare.py --make-plant`).
-The last six plant the fabric's. Four of them land where the fix of an owed
-defect would. The other two keep #860's defect but change the trace its row
-asserts.
+None plants the fabric's at this head: the six that did landed the fixes of,
+or moved the traces of, the owed fabric defects #893's pin fixed.
 
 | Plant | What it changes | Refused by, between the placements |
 |---|---|---|
@@ -1495,12 +1485,6 @@ asserts.
 | `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
 | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
 | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
-| `vanished-mvrp-leave-all` | #857 fixed: the fabric's MVRP sends a LeaveAll every 12 s | `owed row fabric-mvrp-leave-all: the defect has gone` |
-| `vanished-available-index` | #858 fixed: the fabric's later ENTITY read carries available_index 1 | `owed row entity-available-index: the difference has gone` |
-| `vanished-domain-new` | #860 fixed for the Domain: the fabric's first JoinMt sent as a second New | `owed row fabric-domain-one-new: the defect has gone` |
-| `domain-trace-moved` | #860 kept, its trace changed: the fabric's first Domain JoinMt sent as JoinIn | `owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value 06030002: New x1 from ms 200, JoinIn x1 from ms 1000` |
-| `vanished-vid2-join-in` | #860 fixed for VID 2: the fabric's first JoinIn sent as a second New, each later JoinIn as JoinMt | `owed row fabric-vid2-join-in: the defect has gone` |
-| `vid2-registrar-in` | #860 kept, its Registrar changed: a peer's VID 2 JoinIn applied to the fabric at 6000 ms | `owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 MVRPDU(s)` |
 
 ### What it finds at this head
 
@@ -1520,21 +1504,14 @@ Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its
 VID 2 is JoinMt from 12 ms: the firmware declares it with Join!, not New!,
 which takes VO to VP, then AA, then QA. Both pass the Table 10-3 grade.
 
-The fabric's Domain and VID 2 fail it, and the two #860 rows hold them:
+At processor 801ef228 (#893) the fabric's pass it too, with no row:
 
-- **The Domain** is New at 200 ms, then JoinMt from 1000 ms. After one New an
-  Applicant is in AN, and Table 10-3's tx! sends New again from AN. The
-  processor documents its Domain participant that way: one New at startup and
-  at LINK_UP, then the re-joins
-  (`protocol-processor/hdl/srp/KL_srp_domain.sv`, and section 6.1 of its SRP
-  engine architecture).
-- **VID 2** is New at 5200 ms, then JoinIn from 6200 ms. From AN, Table
-  10-3's tx! sends New again, not a Join. No MVRPDU reaches the fabric, so its
-  Registrar is MT, and 10.7.6.3's sJ sends JoinMt, not JoinIn. The grade finds
-  JoinIn at 6200 ms, and the second VID 2 JoinIn inside the LeaveAll frame at
-  10201 ms.
-  The processor's MVRP participant re-joins with JoinIn only
-  (`protocol-processor/hdl/srp/KL_srp_vlan.sv`).
+- **The Domain** is New x2 from 200 ms, then JoinMt x78 from 600 ms, with no
+  MSRPDU received (Table 10-3: VN, AN, then AA by note 8; #860).
+- **VID 2** is New x2 from 5200 ms, then JoinMt x16 from 5600 ms and Lv at
+  20000 ms, its Registrar MT throughout (10.7.6.3: sJ sends JoinMt; #860).
+- **Its MVRP** sends a LeaveAll at 10201, 20600, 35400, 47000, 58800 and
+  71400 ms, after VID 2's Lv as before it (IEEE 802.1Q-2018 10.7.9; #857).
 
 ```sh
 make -C tb/verilator/milan_dp twin
