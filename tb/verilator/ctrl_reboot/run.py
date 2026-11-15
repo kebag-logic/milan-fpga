@@ -673,9 +673,9 @@ class Plant:
 TAKEN = '\town->fn(own->ctx, f);\n'
 
 PLANTS = {
-    # item 2: the reset port fired in the take that accepts the REBOOT, before its SUCCESS is handed to send: as the
-    # take hands the AEM_COMMAND REBOOT to AECP's handler, which commits a plain response in the record's own turn
-    # (#894), so the port is written before the handler runs
+    # item 2: the reset port fired before the REBOOT's SUCCESS is handed to send: in the take of every AEM_COMMAND
+    # REBOOT, before AECP's handler runs, which commits a plain response in the record's own turn (#894); so a refused
+    # REBOOT's take fires it too, and the accepted one's SUCCESS leaves after it
     'reset-before-the-response': Plant(
         'plat/ctrl_plat.c', TAKEN,
         '\tif (f->len >= 38u && f->bytes[14] == 0xfbu && (f->bytes[15] & 0x0fu) == 0u &&\n'
