@@ -20,7 +20,8 @@
 //   [RX]    an ADP frame at the MAC reaches the adp ring whole; an AAF frame
 //           never reaches the mailbox; a burst at the MAC past the datapath's
 //           own tap FIFO is counted in the datapath's PP_DIAG[15:8] net
-//   [TX]    a frame committed to the adp ring leaves the MAC byte for byte
+//   [TX]    a frame committed to the adp ring is held until both halves of the
+//           station MAC are written (#839), then leaves the MAC byte for byte
 //   [LINK]  the datapath's effective link sets LINK.UP, and its loss clears it
 //   [TAP]   KL_ctrl_split alone (tb_split_top's u_tap): each tuple class it
 //           accepts is handed out whole and each it refuses is not; a burst
@@ -70,6 +71,9 @@ class Tb {
                 tap_byte_ = d_->tap_data;
                 tap_byte_last_ = d_->tap_last;
                 rx_take_ = d_->rx_tvalid && d_->rx_tready;
+                aw_take_ = d_->s_axi_awvalid && d_->s_axi_awready;
+                w_take_ = d_->s_axi_wvalid && d_->s_axi_wready;
+                b_take_ = d_->s_axi_bvalid && d_->s_axi_bready;
                 tx_take_ = d_->tx_tvalid && d_->tx_tready;
                 tx_data_ = d_->tx_tdata;
                 tx_keep_ = d_->tx_tkeep;
@@ -94,7 +98,7 @@ class Tb {
         d_->rx_tvalid = 0;
         d_->tx_tready = 1;
         d_->link_up = 1;
-        // the CSR window stays idle here: no request, every response taken
+        // the CSR window is idle but for csr_wr: no request, every response taken
         d_->s_axi_awvalid = 0;
         d_->s_axi_wvalid = 0;
         d_->s_axi_arvalid = 0;
@@ -125,6 +129,22 @@ class Tb {
     }
     void wr(std::uint32_t off, std::uint32_t v) { (void)access(off, true, v); }
     std::uint32_t rd(std::uint32_t off) { return access(off, false, 0); }
+
+    //! One write to the datapath's CSR window (AXI4-Lite on dp_clk), address and data offered together, as the
+    //! platform's configure step makes it; returns once its response is taken.
+    void csr_wr(std::uint16_t addr, std::uint32_t v) {
+        d_->s_axi_awaddr = addr;
+        d_->s_axi_wdata = v;
+        d_->s_axi_wstrb = 0xF;
+        d_->s_axi_awvalid = 1;
+        d_->s_axi_wvalid = 1;
+        const std::uint64_t b0 = b_count_;
+        for (int i = 0; i < 400 && b_count_ == b0; ++i) sys(1);
+        if (b_count_ == b0) {
+            std::printf("FAIL CSR write at 0x%x never answered\n", addr);
+            ++fail_;
+        }
+    }
 
     //! Queue a frame for the MAC's receive side, little lane order.
     void mac_rx(const std::vector<std::uint8_t>& f) {
@@ -199,6 +219,9 @@ class Tb {
     }
 
     void on_dp_rise() {
+        if (aw_take_) d_->s_axi_awvalid = 0;
+        if (w_take_) d_->s_axi_wvalid = 0;
+        if (b_take_) ++b_count_;
         if (tap_beat_ && !tap_q_.empty()) tap_q_.pop_front();
         if (tap_q_.empty()) {
             d_->tap_tvalid = 0;
@@ -242,6 +265,10 @@ class Tb {
     std::uint64_t sys_cycles_ = 0;
     std::vector<Beat> rx_q_;
     bool rx_take_ = false;
+    bool aw_take_ = false;
+    bool w_take_ = false;
+    bool b_take_ = false;
+    std::uint64_t b_count_ = 0;
     bool tx_take_ = false;
     bool tx_last_ = false;
     std::uint64_t tx_data_ = 0;
@@ -507,6 +534,20 @@ void check_tx(Tb& tb) {
     }
     head = (head + 2u + static_cast<std::uint32_t>((f.size() + 3u) / 4u)) & 0xFFFFu;
     tb.wr(ch_reg(MBX_CH_ADP, MBX_CH_REG_TX_HEAD), head);
+    // #839: the transmit gate holds the control lane until both halves of the station MAC are written, so the
+    // frame waits for the station MAC the platform writes; it is the frame's own source address (frames.hpp's
+    // kSrcMac), in the CSR's LSB-first order ({MAC_ADDR_HI[15:0], MAC_ADDR_LO}, wire octet 6 + k in bits 8k),
+    // so the stamp leaves the frame as it was committed
+    std::uint64_t mac = 0;
+    for (unsigned k = 0; k < 6; ++k) mac |= ((mbx_tb::kSrcMac >> (8u * (5u - k))) & 0xFFu) << (8u * k);
+    const auto mac_lo = static_cast<std::uint32_t>(mac);
+    const auto mac_hi = static_cast<std::uint32_t>(mac >> 32);
+    (void)wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
+    tb.check("[TX] the gate holds the committed frame before the station MAC is written (#839)", tb.tx_frames.empty());
+    tb.csr_wr(0x108, mac_lo);
+    (void)wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
+    tb.check("[TX] ...and with its low half alone", tb.tx_frames.empty());
+    tb.csr_wr(0x10C, mac_hi);
     const std::uint64_t took = wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
     tb.check("[TX] the committed frame leaves the MAC", !tb.tx_frames.empty());
     if (tb.tx_frames.empty()) {

@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #858 ENTITY available_index (the AIDX section of obj_notify)](#the-858-entity-available_index-the-aidx-section-of-obj_notify)** -- READ_DESCRIPTOR(ENTITY)'s available_index against the last ENTITY_AVAILABLE on the wire, through advertisements, a departure and a re-enable, with its four planted arms
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
+- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-eight planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-six plants, four controls, two off-grid controls and twelve code mutants
 - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
@@ -1187,7 +1187,7 @@ contract's registers or a datapath net its consumers read:
 | `[FACE]` | a setting reaches the datapath only at its commit; the commit is acknowledged within `MBX_FACE_ACK_CYCLES` |
 | `[WIN]` | `CTR`, `AMAP` and `GSI` close `DONE` under their own tag; one request answered twice gives one non-empty word |
 | `[RX]` | an ADP frame reaches the adp ring whole; an AAF frame never reaches the mailbox; the datapath's drop count (`pp_rx_drops_w`, `PP_DIAG[15:8]`) reads 0, and a burst at the MAC past its tap's FIFO is counted there, each frame handed out or counted lost |
-| `[TX]` | a frame committed to the adp ring leaves the MAC byte for byte |
+| `[TX]` | a frame committed to the adp ring is held while the station MAC is unwritten and with its low half alone (#839's transmit gate, which holds the control lane in both placements), then leaves the MAC byte for byte once the bench writes both halves, as the platform's configure step does |
 | `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
 | `[POL]` | for every talker of the shape, LICENCE bit s alone reaches ACTIVE, admitted and the stream gate every talker's emission reads as bit s alone; the CRF source's licence term reads the gate's top bit; a cleared LICENCE closes them all. The split's generate drives the two nets the processor drives in the all-fabric build, and the gate and every consumer after it are one RTL in both placements (#867) |
 | `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO filled to its last word counts each control frame it loses once and no refused frame or one-beat runt, and the count saturates at 255 |
@@ -1211,14 +1211,16 @@ starts long before the link.
 python3 tb/verilator/milan_dp/split_parallel.py --selftest
 ```
 
-`make split-mutants` runs `split_mutants.py`. It plants twenty-six defects
-into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
-`KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
+`make split-mutants` runs `split_mutants.py`. It plants twenty-eight defects
+into copies of the datapath's split branch and the #839 transmit gate on its
+control lane, `KL_mbx_cdc`, its window and `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
 check it names, after a clean control passes. Eleven of them hold the Talker
 declaration's encoding, the tap's tuples and its drop count, and the
 datapath's own count wired to `PP_DIAG[15:8]`. Two hold the licence's path to
 the stream gate: the licence on the next source's ACTIVE term, and the CRF
-source's licence term on source 0's gate (#867).
+source's licence term on source 0's gate (#867). Two hold #839's transmit
+gate on the firmware's control lane: the lane taken past the gate, and the
+gate opened by the low half alone.
 
 `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
 the primitives as blackboxes. Every flop's inputs, every output and every
@@ -1240,7 +1242,8 @@ event, and the firmware itself. The two-placement simulation below runs the
 firmware.
 
 `tb_split_top` brings the datapath's CSR window (its AXI4-Lite port) out for
-that simulation; the split leg leaves it idle.
+that simulation; the split leg writes only the station MAC through it, for
+the `[TX]` checks.
 
 ## The two-placement simulation (`obj_twin_*`, #665)
 
