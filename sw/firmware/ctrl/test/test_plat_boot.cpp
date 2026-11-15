@@ -183,8 +183,11 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 
 // mbx_hal.h on the model, every access in the shared order; another
 // contract's bitstream answers ID without this contract's magic
-// While nonzero, that many reads of ADP's TX_TAIL find its ring full (B18)
-unsigned adp_full = 0;
+// ADP's TX_TAIL as the driver reads it (B18): the model's; room for one ADP frame, so the driver, which reads the
+// tail only when the room it last read is short (mbx.c), reads it at each send; or a full ring
+enum class AdpRing { Model, OneFrame, Full };
+AdpRing adp_ring = AdpRing::Model;
+constexpr unsigned kAdpRecord = MBX_TX_HDR_WORDS + (82u + 3u) / 4u;  // an ADPDU's frame, Milan v1.2 5.6.3
 // A channel, or -1: reads of its TX_TAIL find its last word not yet taken, so its ring holds a frame
 int busy_ch = -1;
 // Set, reads of AECP's TX_TAIL find its ring full, so no AECP frame can be handed over
@@ -192,9 +195,9 @@ bool aecp_full = false;
 
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
     std::uint32_t value = mbx_model_read(&fabric, offset);
-    if (adp_full != 0u && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
-        --adp_full;
-        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - MBX_CH_ADP_TX_WORDS);
+    if (adp_ring != AdpRing::Model && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        const unsigned room = adp_ring == AdpRing::OneFrame ? kAdpRecord : 0u;
+        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - (MBX_CH_ADP_TX_WORDS - room));
     }
     if (busy_ch >= 0 && offset == MBX_CH_BASE + static_cast<unsigned>(busy_ch) * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
         value = static_cast<std::uint16_t>(fabric.ch[busy_ch].tx_head - 1u);
@@ -268,7 +271,7 @@ struct Boot : ::testing::Test {
         held_at = 0;
         busy_ch = -1;
         aecp_full = false;
-        adp_full = 0;
+        adp_ring = AdpRing::Model;
         other_contract = false;
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
@@ -803,9 +806,12 @@ TEST_F(Boot, B15TheResetRestoresTheSavedStateAndAdvertisesAgain) {
     bind.listener = ctrl_plat.config.entity->entity_id;
     const auto frame = acmp_test::acmpdu(bind);
     ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0));
-    for (unsigned k = 0; k < 400 && (nvm_store_status()->dirty != 0 || nvm_store_status()->pending != 0 ||
+    for (unsigned k = 0; k < 2000 && (nvm_store_status()->dirty != 0 || nvm_store_status()->pending != 0 ||
                                      nvm_store_status()->commits_ok == 0u); ++k) {
+        // each pass carries a centisecond, and the store's step is taken by the pass after it, which takes
+        // nothing (THE STEP, ctrl_loop.h)
         pass_ms(10);
+        ctrl_plat_step();
     }
     ASSERT_GT(nvm_store_status()->commits_ok, 0u) << "B15 the name and the binding are saved";
     aem(42, entity0(), kCtl, kCtlMac);
@@ -869,7 +875,10 @@ TEST_F(Boot, B17NothingIsTakenOrSentOnceTheResetPortFired) {
     bind_rx();
     for (unsigned k = 0; k < 400 && (nvm_store_status()->dirty != 0 || nvm_store_status()->pending != 0 ||
                                      nvm_store_status()->commits_ok == 0u); ++k) {
+        // each pass carries a centisecond, and the store's step is taken by the pass after it, which takes
+        // nothing (THE STEP, ctrl_loop.h)
         pass_ms(10);
+        ctrl_plat_step();
     }
     ASSERT_TRUE(bound()) << "B17 the listener is bound and saved before the REBOOT";
     aem(42, entity0(), kCtl, kCtlMac);
@@ -893,17 +902,20 @@ TEST_F(Boot, B17NothingIsTakenOrSentOnceTheResetPortFired) {
 
 TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
     env.reboot = kReboot;
+    // full at the boot's first read, then room for one frame, so the driver reads ADP's tail at each send
+    adp_ring = AdpRing::Full;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    adp_ring = AdpRing::OneFrame;
     for (unsigned k = 0; k < 50; ++k) pass_ms();
     const std::size_t from = frames.size();
     aem(42, entity0(), kCtl, kCtlMac);
-    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
-    // ADP's ring is full for its SHUTDOWN's sends and its next poll's, then drained
-    adp_full = 2u * MBX_N_IF;
+    // ADP's ring is full from the loop's stop, for its SHUTDOWN's sends, until ENTITY_DEPARTING is owed; then drained
     bool owed = false;
-    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) {
+    for (unsigned k = 0; k < 1000 && reboot_writes().empty(); ++k) {
         pass_ms();
+        if (adp_ring == AdpRing::OneFrame && ctrl_plat.reboot != 0u) adp_ring = AdpRing::Full;
         for (unsigned i = 0; i < MBX_N_IF; ++i) owed = owed || ctrl_plat.app.adp.ifs[i].adp.departing_owed != 0u;
+        if (owed) adp_ring = AdpRing::Model;
     }
     EXPECT_TRUE(owed) << "B18 ENTITY_DEPARTING was owed while ADP's ring had no room";
     const auto gone = departing(from);
@@ -1067,10 +1079,12 @@ TEST_F(Boot, B22TheGateHoldsInThePassThatTakesTheReboot) {
 // stays in its ring, and once the ring has room the REBOOT completes and the reset port fires
 TEST_F(Boot, B23TheGateHoldsWhileTheResponseCannotBeHandedOver) {
     env.reboot = kReboot;
+    // from the boot's first read, so the driver, which reads the tail only when the room it last read is short
+    // (mbx.c), finds no room at the REBOOT's response; AECP sends nothing before it
+    aecp_full = true;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
     for (unsigned k = 0; k < 50; ++k) pass_ms();
     const std::size_t from = frames.size(), before = mailbox.size();
-    aecp_full = true;
     aem(42, entity0(), kCtl, kCtlMac);
     for (unsigned k = 0; k < 20; ++k) pass_ms();
     ASSERT_EQ(ctrl_plat.aecp.core.reboot, 1u) << "B23 the REBOOT is accepted, its frames not handed over";
