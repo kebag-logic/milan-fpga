@@ -184,10 +184,11 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 
 // mbx_hal.h on the model, every access in the shared order; another
 // contract's bitstream answers ID without this contract's magic
-// ADP's TX_TAIL as the driver reads it (B18): the model's; room for one ADP frame, so the driver, which reads the
-// tail only when the room it last read is short (mbx.c), reads it at each send; or a full ring
-enum class AdpRing { Model, OneFrame, Full };
-AdpRing adp_ring = AdpRing::Model;
+// ADP's TX_TAIL as the driver reads it (B18): while adp_full is nonzero, that many reads find its ring full; else,
+// with adp_one, room for one ADP frame, so the driver, which reads the tail only when the room it last read is short
+// (mbx.c), reads it at each send; else the model's
+unsigned adp_full = 0;
+bool adp_one = false;
 constexpr unsigned kAdpRecord = MBX_TX_HDR_WORDS + (82u + 3u) / 4u;  // an ADPDU's frame, Milan v1.2 5.6.3
 // A channel, or -1: reads of its TX_TAIL find its last word not yet taken, so its ring holds a frame
 int busy_ch = -1;
@@ -196,8 +197,9 @@ bool aecp_full = false;
 
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
     std::uint32_t value = mbx_model_read(&fabric, offset);
-    if (adp_ring != AdpRing::Model && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
-        const unsigned room = adp_ring == AdpRing::OneFrame ? kAdpRecord : 0u;
+    if ((adp_full != 0u || adp_one) && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        const unsigned room = adp_full != 0u ? 0u : kAdpRecord;
+        adp_full -= adp_full != 0u ? 1u : 0u;
         value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - (MBX_CH_ADP_TX_WORDS - room));
     }
     if (busy_ch >= 0 && offset == MBX_CH_BASE + static_cast<unsigned>(busy_ch) * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
@@ -272,7 +274,8 @@ struct Boot : ::testing::Test {
         held_at = 0;
         busy_ch = -1;
         aecp_full = false;
-        adp_ring = AdpRing::Model;
+        adp_full = 0;
+        adp_one = false;
         other_contract = false;
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
@@ -903,20 +906,23 @@ TEST_F(Boot, B17NothingIsTakenOrSentOnceTheResetPortFired) {
 
 TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
     env.reboot = kReboot;
-    // full at the boot's first read, then room for one frame, so the driver reads ADP's tail at each send
-    adp_ring = AdpRing::Full;
+    // full at the boot's first read, then room for one frame: the driver reads ADP's tail at each send
+    adp_full = 1u;
+    adp_one = true;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    adp_ring = AdpRing::OneFrame;
     for (unsigned k = 0; k < 50; ++k) pass_ms();
     const std::size_t from = frames.size();
     aem(42, entity0(), kCtl, kCtlMac);
-    // ADP's ring is full from the loop's stop, for its SHUTDOWN's sends, until ENTITY_DEPARTING is owed; then drained
-    bool owed = false;
+    // from the loop's stop, ADP's ring is full for its SHUTDOWN's sends and its next poll's, then drained
+    bool owed = false, stopped = false;
     for (unsigned k = 0; k < 1000 && reboot_writes().empty(); ++k) {
         pass_ms();
-        if (adp_ring == AdpRing::OneFrame && ctrl_plat.reboot != 0u) adp_ring = AdpRing::Full;
+        if (!stopped && ctrl_plat.reboot != 0u) {
+            stopped = true;
+            adp_full = 2u * MBX_N_IF;
+            adp_one = false;
+        }
         for (unsigned i = 0; i < MBX_N_IF; ++i) owed = owed || ctrl_plat.app.adp.ifs[i].adp.departing_owed != 0u;
-        if (owed) adp_ring = AdpRing::Model;
     }
     EXPECT_TRUE(owed) << "B18 ENTITY_DEPARTING was owed while ADP's ring had no room";
     const auto gone = departing(from);
