@@ -129,9 +129,9 @@ LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[
 #: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
 #: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
 #: at 1x1/1if under #894's bounded map work (a REMOVE of 63), 91,625 with each key at its position in the key domain
-#: (965 us; refused 23,883 to 75,892), and 156,716 on the 8x8 shape in the answering-ports arm, whose output map it
-#: edits (147,843 before); #904: one decode, one pass, where 742,470 and 959,647 were. record.aecp is shorter ones'.
-LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650}
+#: (965 us; refused 23,883 to 75,892), 156,716 at 8x8/2if in the answering-ports arm, whose output map it edits (147,843
+#: before), and 143,648 at 8x8/1if (THE SHAPES), 1,510 us (#904: one decode, one pass). record.aecp is shorter ones'.
+LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1510}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
