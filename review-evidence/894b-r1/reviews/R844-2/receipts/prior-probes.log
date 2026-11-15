@@ -1,0 +1,147 @@
+ARM control exit 0
+# 1 groups graded over 1 leg(s); 7 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.24000 | 63.24 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.47000 | 63.47 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.69000 | 63.69 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 63.91000 | 63.91 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.20000 | 64.2 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.18000 | 62.18 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.83000 | 61.83 | +0.00000 | yes |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 0
+Instances over their budget: 7; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 0
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: PASS: every row the CPU decides within its bound, no held-egress row over its ledger figure, no new budget miss, every instance measured, the joins within the gate
+
+
+ARM larger-egress exit 1
+# 1 groups graded over 1 leg(s); 7 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 100.00000 | 63.24 | +36.76000 | no |
+| `backlog.owed_behind0.if0` | 63.47000 | 63.47 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.69000 | 63.69 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 63.91000 | 63.91 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.20000 | 64.2 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.18000 | 62.18 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.83000 | 61.83 | +0.00000 | yes |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 0
+Instances over their budget: 7; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 1
+- backlog.owed.if0 (backlog-owed): 100.00000 ms, over its ledger figure 63.24 ms by 36.76000 ms: a larger miss
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: FAIL
+- the ledger: backlog.owed.if0 (backlog-owed): 100.00000 ms, over its ledger figure 63.24 ms by 36.76000 ms: a larger miss
+
+
+ARM unmeasured exit 1
+# 1 groups graded over 1 leg(s); 8 probe instances, 7 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.24000 | 63.24 | +0.00000 | yes |
+| `backlog.owed_behind0.if0` | 63.47000 | 63.47 | +0.00000 | yes |
+| `backlog.owed_behind1.if0` | 63.69000 | 63.69 | +0.00000 | yes |
+| `backlog.owed_behind2.if0` | 63.91000 | 63.91 | +0.00000 | yes |
+| `backlog.owed_behind3.if0` | 64.20000 | 64.2 | +0.00000 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.18000 | 62.18 | +0.00000 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.83000 | 61.83 | +0.00000 | yes |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 1
+- required.cpu.row (backlog-owed): unmeasured
+Instances over their budget: 7; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 1
+- required.cpu.row (backlog-owed): not measured (unmeasured), so a new or larger miss is not ruled out
+
+The longest tier-2 slice of each kind, against the stated slice 0 CPU cycles:
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 0, held to ; the heaviest by notices built: ; over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+
+RESULT: FAIL
+- the ledger: required.cpu.row (backlog-owed): not measured (unmeasured), so a new or larger miss is not ruled out
+
+
+PASS: original control passes; both original fault fixtures rejected by name

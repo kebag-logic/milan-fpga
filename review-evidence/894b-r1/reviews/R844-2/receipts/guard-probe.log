@@ -1,0 +1,6 @@
+PASS charger-correct-order: rc=0; expected diagnostic=None
+PASS charger-no-table: rc=1; expected diagnostic="THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+PASS charger-table-too-late: rc=1; expected diagnostic="THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+PASS noncharger-header-only: rc=0; expected diagnostic=None
+PASS undeclared-charger-limit: rc=1; expected diagnostic='CTRL_LOOP_RETRY_ATTEMPT_US'
+PASS: correct use and noncharging units compile; both declared misuse cases fail with the guard; undeclared misuse has the documented ordinary diagnostic

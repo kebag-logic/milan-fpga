@@ -1,0 +1,1069 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index ac0abddee1..77b0953061 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -2468,6 +2468,8 @@ Every row at 1x1/1if holds (the table [above](#the-tiers)), the load is 0.513 at
+ 
+ [#894's ruling on its round 7](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730), item (b), makes 8x8/1if the flip's other point and says where its slice is stated. [Its round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905) keys an SRP record's cost, the polls' costs and the notice count on the shape too, and derives the MRPDU row's budget from its bound. [Its round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227) keys THE RETRY's round costs, a round's cold start and a refused attempt's, on the shape as well.
+ 
++The source comments name these three by their subject, with the item they rest on: the shape ruling (round 7's), the held-egress ruling (round 2's) and the retry-cost ruling (round 3's); and the map-keying ruling, [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042).
++
+ **Where the shape is stated.** The image builder already holds the static shape: the interface count it compiles the mailbox contract at (`MBX_N_IF`), and the configuration. From the configuration, `srp_entity.py` writes the talker sources and listener sinks ADP advertises (`CTRL_SRP_SOURCES`, `CTRL_SRP_SINKS`) into the shape header that `srp_arms.prepared` force-includes into every unit an image compiles, the AEM descriptors that bear AECP's change notices (`CTRL_AEM_STREAM_INPUTS`, `CTRL_AEM_STREAM_OUTPUTS`, `CTRL_AEM_AVB_INTERFACES`, `CTRL_AEM_CLOCK_DOMAINS`, the builder's own descriptor counts), and the key domain of an AUDIO_MAP edit that sizes the map edits' direct index (`AECP_ENTITY_KEY_STREAMS`, `_STREAM_CHANNELS`, `_CLUSTERS`, `_CLUSTER_CHANNELS`: `aecp_shape.key_domain` of the image's own descriptors; [#894's round 9 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 1). The shape header is that domain's single source in every unit an image compiles ([the round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (c)): `aecp_entity_gen.h` states it only under `#ifndef CTRL_SRP_ENTITY_H`, for a host arm given no shape header, by the same derivation, and `shape_costs.py` holds both (its plants: the shape header not stating it, `aecp_entity_gen.h` stating it beside the shape header, and the two differing). `ctrl_loop.h` lists tier 2's slice, THE TRANSMIT's builds, an SRP record's stated cost, `CTRL_LOOP_SRP_UNIT_US`, and THE RETRY's round costs, `CTRL_LOOP_RETRY_COLD_US` and `CTRL_LOOP_RETRY_ATTEMPT_US`, for each shape (`CTRL_LOOP_SHAPE`), and a shape not listed fails the build in the words of its `#error`:
+ 
+ | Shape (interfaces, sources, sinks) | Point | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY's cold start, us | A refused attempt, us |
+@@ -2521,17 +2523,17 @@ Every row at 1x1/1if holds (the table [above](#the-tiers)), the load is 0.513 at
+ - **THE RETRY's rounds:** 2,455,411, every one within its shape's 165 + 255 n + 25 k us, so no leg prints a STATED line and every leg exits 0, the `answering-every-port` arm's included (it exited 1 on 1,654 rounds at round 2's costs). The closest is 89.9 % of its statement, a round of no notice beside two refused attempts.
+ - **The platform image** is 56.0 RAMB36, within its cap, before and after rounds 2 and 3.
+ - **The MRPDU row's harness budget** is THE TRANSMIT's bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it with `T_egress`, 49 ms (`mrpdu_grade.BUDGET_MS`, read once with the run-out resolution's `LATE_MS`; item (b)(i)), where it was T_svc's 20 ms. The self-test holds a row at the bound within it and one 1 ms over it a miss, and its plants hold the row one over the bound and at the earlier 20 ms. The `transmit-aged` control, an MRPDU owed held 300 passes, puts every group's timer-driven MRPDU over it at 8x8/1if (66.505 to 67.015 ms, 8 of 8 groups), on round 2's image and again on round 3's.
+-- **The rows the egress decides stay recorded misses** (item (a)), in the form 1x1/1if has them: `backlog-owed`'s seven rows, set by the scenario's 60 ms egress hold ([What is left](#what-is-left)), the ledger's names and figures below. They miss the same way at 1x1/1if (61.82 to 63.64 ms at `8a3791e4`) and at 8x8/2if. "No budget miss" at 8x8/1if is none beyond them; a new or larger miss fails the leg. Each is under round 1's figure; no other row missed its budget.
++- **The rows the egress decides stay recorded misses** (item (a)), in the form 1x1/1if has them: `backlog-owed`'s seven rows, set by the scenario's 60 ms egress hold ([What is left](#what-is-left)), the ledger's names and figures below. They miss the same way at 1x1/1if (61.82 to 63.64 ms at `8a3791e4`) and at 8x8/2if. "No budget miss" at 8x8/1if is none beyond them; a new or larger miss fails the leg: [`egress_ledger.py`](../../tb/verilator/ctrl_service_budget/egress_ledger.py) holds each row to its ledger figure below, a measured instance over it by as little as one bus cycle failing whatever its name, and fails every other miss. Each is under its ledger figure; no other row missed its budget.
+ 
+-| Row the egress decides (at 8x8/1if) | Measured, ms | Round 1, ms |
++| Row the egress decides (at 8x8/1if) | Measured, ms | Ledger, ms |
+ |---|---:|---:|
+ | `backlog.owed.if0` | 63.083 | 63.24 |
+ | `backlog.owed_behind0.if0` | 63.305 | 63.47 |
+ | `backlog.owed_behind1.if0` | 63.526 | 63.69 |
+ | `backlog.owed_behind2.if0` | 63.747 | 63.91 |
+ | `backlog.owed_behind3.if0` | 63.969 | 64.20 |
+-| `service.acmp.last.if0` | 62.025 | 62.18 |
+-| `service.aecp.last.if0` | 61.680 | 61.83 |
++| `backlog-owed.service.acmp.last.if0` | 62.025 | 62.18 |
++| `backlog-owed.service.aecp.last.if0` | 61.680 | 61.83 |
+ 
+ **THE RETRY's round costs at 8x8/1if** ([the round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1). Round 2's measurement held 1,654 of THE RETRY's rounds in the `answering-every-port` arm over their stated cost (`round_grade.py`), every one a round of no notice beside 1, 2 or 4 refused attempts: up to 12,547, 19,326 and 23,343 cycles against 11,900, 15,300 and 22,100. A round's cold start, `AECP_ROUND_COLD_US` (`aecp_mbx.h`), was keyed on `MBX_N_IF`, so 8x8/1if took the 1x1's 85 us; a refused attempt's, `AECP_ATTEMPT_US` (`aecp.h`), was one 34 us at every shape. A stated cost under its measurement is the defect ([the round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(ii)). Both are now stated for each shape in THE SHAPES (`CTRL_LOOP_RETRY_COLD_US`, `CTRL_LOOP_RETRY_ATTEMPT_US`, the table above), and the two AECP names are those names, never the interface count's.
+ - **The measurement.** Round 2's rounds at 8x8/1if, the dearest at each count of refused attempts with notices charged at `AECP_NOTICE_US`: 2,206 cycles with none, 12,547 with one, 19,326 with two and 23,343 with four, every port. The rule is #665's definition of the attempt, what a round of `AECP_ROUND_PORTS` refusals costs past its cold start, a refusal, and of the cold start, what any round implies at it: the line that holds every round and a round of every port refused at its cost, and of those the one with the least cold start. It runs through the rounds of two and of four refused attempts, 15,309 cycles once and 2,008.5 a refused attempt (153.09 and 20.09 us); plus 5 %, rounded up to 5 us, 165 and 25 us. The other arms' rounds were within the earlier 85 + 34 k us, which lies under that line for every k up to the four ports. The 125 us round 2 reported was the cold start implied at the 34 us attempt; measuring the attempt too gives this line.
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 508405434a..7e06c26da8 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -391,7 +391,7 @@ One exception, by the [maintainer-delegated decision of 2026-11-13](https://gith
+ The exception expires at the 8x8/2if flip: [#890](https://github.com/kebag-logic/milan-fpga/issues/890) closes only with a measured cold start of at most 176.1 us, or on a new owner decision.
+ At 8x8/2if the stated bounds stand, 22 ms for the first and 62 ms for every other within a ceiling of 70 ms, [amended on 2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945): its rows by every source do not fit under the tiers, and are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872; the flip there holds the long-window load at 0.75 (#890) and a fresh measurement in which every row fits its bound.
+ At 8x8/1if, one AVB Interface with the 8x8 streams, the flip holds the contract-rate run on the built image, its largest-notice, `srp` and queued-notice groups included, by [#894's ruling on its round 7](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730), item (b), and [its round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905): no budget miss beyond the rows the egress decides, every join interval within the harness's commit-side gate, 181.0 to 239.0 ms, every measured row within its bound (20, 30, 90 ms, the first queued notice's 20 and the last's 130 ms, the MRPDU's 49 ms and the paced R4L's 238 ms, [#894's egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), the long-window load at most 0.75 and the platform image at most 56.0 RAMB36. Measured on the tree that merges #902, and again on the image whose THE RETRY's round costs are its shape's ([#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227)), each holds: every row the CPU decides within its bound, every round of THE RETRY within its statement, the load 0.711 ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)).
+-The rows the egress decides are `backlog-owed`'s seven, set by the scenario's 60 ms egress hold: they miss in the same form at 1x1/1if and at 8x8/2if and stay recorded misses in the ledger by their row names ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)), not passing, since this clause charges TX backpressure to the service budget; a new or larger miss fails the leg (the round 2 ruling, item (a)).
++The rows the egress decides are `backlog-owed`'s seven, set by the scenario's 60 ms egress hold: they miss in the same form at 1x1/1if and at 8x8/2if and stay recorded misses in the ledger by their row names ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)), not passing, since this clause charges TX backpressure to the service budget; a new or larger miss fails the leg (the round 2 ruling, item (a)), which `tb/verilator/ctrl_service_budget/egress_ledger.py` holds: a row over its ledger figure, whatever its name, or any other miss, fails.
+ Its rows by every source are reported, not held, owed to #872; a measured row the CPU decides over its bound, or the load over 0.75, starts #872's second-hart study ([the trigger](https://github.com/kebag-logic/milan-fpga/issues/872#issuecomment-6862464924), as the round 2 ruling restates it).
+ Tier 2's slice, THE TRANSMIT's builds, an SRP record's stated cost, which the slice starts a record only within, and THE RETRY's round costs, a round's cold start and a refused attempt's (`AECP_ROUND_COLD_US`, `AECP_ATTEMPT_US`), are stated for each static shape the builder states, its interfaces and its streams, never by the interface count alone, and a shape not listed fails the build (THE SHAPES, `sw/firmware/ctrl/loop/ctrl_loop.h`; `tb/verilator/ctrl_service_budget/shape_costs.py`, which names a point whose round costs fall back to the interface count's; [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1): at 8x8/1if the slice is one MRPDU's build measured there plus 5 %, 1,475 us, within the ruling's 1,600 us, an SRP record 345 us, and THE RETRY's round 165 us once and 25 us a refused attempt. The harness holds a pass's polls at each shape's own stated costs (`poll_grade.py`). At 8x8/1if the record and the polls are its measurement on the tree that merges #902 plus 5 % (the round 2 ruling, items (b)(ii) and (b)(iii)).
+ The most notices a datapath reset can leave pending (`AECP_NOTICES_MOST`, `sw/firmware/ctrl/aecp/aecp.h`) is at one interface the image's own descriptors', which the shape header states: 12 at 1x1/1if and 40 at 8x8/1if, where it was the 1x1's 12 before (the round 2 ruling, item (b)(iv)). Each pending notice is kept in its descriptor's event, so none is dropped at any count; the host suite holds every notice the 8x8 descriptors hold kept and sent once, and a build whose descriptors hold more than the count fails.
+diff --git a/sw/firmware/ctrl/aecp/README.md b/sw/firmware/ctrl/aecp/README.md
+index 28743dce16..a632ff7a74 100644
+--- a/sw/firmware/ctrl/aecp/README.md
++++ b/sw/firmware/ctrl/aecp/README.md
+@@ -22,7 +22,14 @@ outside its own:
+ [`ctrl_loop.h`](../loop/ctrl_loop.h)'s table of shapes, for what a refused
+ attempt costs THE RETRY's round at the image's shape (`AECP_ATTEMPT_US`;
+ [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1), and calls nothing that it or the
+-mailbox header it includes declares. [`aecp_image.c`](aecp_image.c) validates the
++mailbox header it includes declares. [`aecp.c`](aecp.c), the one unit that charges
++that cost, includes the table before `aecp.h` and says it charges one
++(`AECP_CHARGES_ATTEMPTS`); `aecp.h` refuses a unit that says so without the table
++in force, in its `#error`'s THE SHAPES words, and the AECP campaign plants both
++(`attempt-charged-without-the-shapes`, `attempt-charged-before-the-shapes`). The
++host suite compiles the core at its arm's interfaces' own contract, and
++`test_aecp.cpp` asserts it (`MBX_N_IF == AECP_TEST_INTERFACES`), so the shape whose
++costs it charges is the one its arm configures. [`aecp_image.c`](aecp_image.c) validates the
+ generated AEM image and exposes descriptor spans; [`aecp_entity.py`](aecp_entity.py)
+ uses the existing builder generators and derives capacities from their output.
+ Every advertised descriptor is served by READ_DESCRIPTOR. Names and scalar
+diff --git a/sw/firmware/ctrl/aecp/aecp.c b/sw/firmware/ctrl/aecp/aecp.c
+index 6980d5b513..ffcdb46ae1 100644
+--- a/sw/firmware/ctrl/aecp/aecp.c
++++ b/sw/firmware/ctrl/aecp/aecp.c
+@@ -1,9 +1,11 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ // Transport-independent AECP owner. No allocation, image or register access.
+-#include "aecp_internal.h"
+-// THE RETRY's refused attempt is charged at its shape's stated cost (AECP_ATTEMPT_US, THE SHAPES; #894's ruling
+-// issuecomment-6878014227, item 1): the loop's header states it, and nothing it declares is called here.
++// THE RETRY's refused attempt is charged at its shape's stated cost (AECP_ATTEMPT_US, THE SHAPES; #894's retry-cost
++// ruling, item 1): the loop's header states it, and nothing it declares is called here. It is in force before aecp.h,
++// which refuses a unit that charges a refused attempt (AECP_CHARGES_ATTEMPTS) without it.
+ #include "ctrl_loop.h"
++#define AECP_CHARGES_ATTEMPTS
++#include "aecp_internal.h"
+ 
+ static struct aecp *port_owner;
+ 
+diff --git a/sw/firmware/ctrl/aecp/aecp.h b/sw/firmware/ctrl/aecp/aecp.h
+index c452c235cc..71d09cf2c8 100644
+--- a/sw/firmware/ctrl/aecp/aecp.h
++++ b/sw/firmware/ctrl/aecp/aecp.h
+@@ -58,9 +58,15 @@ extern "C" {
+ // CPU cycles past its first attempt's cold misses at 8x8/2if, the walk of the events included. So a round spends at
+ // most what it is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+ // It is stated for each shape an image is built at, with the round's cold start (THE SHAPES, ctrl_loop.h:
+-// CTRL_LOOP_RETRY_ATTEMPT_US; #894's ruling issuecomment-6878014227, item 1): 34 us, and 25 us at 8x8/1if, the line
++// CTRL_LOOP_RETRY_ATTEMPT_US; #894's retry-cost ruling, item 1): 34 us, and 25 us at 8x8/1if, the line
+ // over its rounds measured there. aecp.c, which charges it, reads the shape's table, a header of constants and
+-// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's.
++// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's. Every
++// unit includes this header before the table, and most charge nothing, so the unit that charges one states it
++// (AECP_CHARGES_ATTEMPTS) with the table already in force, and one that states it without the table fails here, in
++// THE SHAPES' words, not at the charge with an undeclared name (#894's retry-cost ruling, item 1).
++#if defined(AECP_CHARGES_ATTEMPTS) && !defined(CTRL_LOOP_RETRY_ATTEMPT_US)
++#error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
++#endif
+ #define AECP_ATTEMPT_US CTRL_LOOP_RETRY_ATTEMPT_US
+ // The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
+ // first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
+@@ -71,8 +77,8 @@ extern "C" {
+ // GET_AS_PATH and GET_COUNTERS, each clock domain's GET_COUNTERS. Each is kept in its descriptor's event
+ // (aecp_config.events), so none is dropped at any count: this is what a round may take and what the bound on queued
+ // notices counts. At one interface it is the image's own descriptors', which the shape header states
+-// (CTRL_AEM_STREAM_INPUTS and the rest, srp_entity.py; THE SHAPES, ctrl_loop.h; #894's ruling
+-// issuecomment-6871343905, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
++// (CTRL_AEM_STREAM_INPUTS and the rest, srp_entity.py; THE SHAPES, ctrl_loop.h; #894's held-egress
++// ruling, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
+ // shipping 1x1's descriptors. At two interfaces it is 40, the 8x8's, which no two-interface shape's descriptors pass.
+ // The CPU budget harness holds the model to it.
+ #ifdef CTRL_AEM_STREAM_INPUTS
+diff --git a/sw/firmware/ctrl/aecp/aecp_mbx.c b/sw/firmware/ctrl/aecp/aecp_mbx.c
+index 6833125f93..b0ed970977 100644
+--- a/sw/firmware/ctrl/aecp/aecp_mbx.c
++++ b/sw/firmware/ctrl/aecp/aecp_mbx.c
+@@ -3,8 +3,8 @@
+ #include "mbx_hal.h"
+ #include <string.h>
+ 
+-// The most a reset leaves pending is at least what the image's descriptors hold (aecp.h; #894's ruling
+-// issuecomment-6871343905, item (b)(iv)): a shape whose descriptors hold more fails the build.
++// The most a reset leaves pending is at least what the image's descriptors hold (aecp.h; #894's held-egress
++// ruling, item (b)(iv)): a shape whose descriptors hold more fails the build.
+ _Static_assert(AECP_NOTICES_HELD <= AECP_NOTICES_MOST, "AECP_NOTICES_MOST: the descriptors hold more notices");
+ 
+ static uint16_t tx_count(uint32_t reg)
+diff --git a/sw/firmware/ctrl/aecp/aecp_mbx.h b/sw/firmware/ctrl/aecp/aecp_mbx.h
+index bfcd64926e..05090bcad7 100644
+--- a/sw/firmware/ctrl/aecp/aecp_mbx.h
++++ b/sw/firmware/ctrl/aecp/aecp_mbx.h
+@@ -26,7 +26,7 @@ extern "C" {
+ // decided 2026-11-13; FR_NFR.md 3.4.1). It expires at the 8x8/2if flip: #890 closes only with a measured cold cost of
+ // at most 176.1 us, or on a new owner decision. The cold start, and a refused attempt's AECP_ATTEMPT_US, are stated
+ // for each shape (THE SHAPES, ctrl_loop.h: CTRL_LOOP_RETRY_COLD_US and CTRL_LOOP_RETRY_ATTEMPT_US), never by the
+-// interface count (#894's ruling issuecomment-6878014227, item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over
++// interface count (#894's retry-cost ruling, item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over
+ // its rounds measured, and 185 us at both two-interface shapes.
+ #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
+ #define AECP_ROUND_COLD_US CTRL_LOOP_RETRY_COLD_US
+diff --git a/sw/firmware/ctrl/aecp/aecp_shape.py b/sw/firmware/ctrl/aecp/aecp_shape.py
+index eb8a409e48..6cf92a5f50 100644
+--- a/sw/firmware/ctrl/aecp/aecp_shape.py
++++ b/sw/firmware/ctrl/aecp/aecp_shape.py
+@@ -101,8 +101,8 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
+               f"#define AECP_ENTITY_MAP_ROWS {total}u", f"#define AECP_ENTITY_MAP_MAX {maximum}u",
+               f"#define AECP_ENTITY_OUTPUTS {overlay['descriptor_counts']['STREAM_OUTPUT']}u"]
+     # the key domain is the shape header's in every unit an image compiles (srp_entity.py, force-included first); a
+-    # compile given none, a host arm, takes the image's own from here, by the same derivation (#894's ruling
+-    # issuecomment-6871343905, item (c))
++    # compile given none, a host arm, takes the image's own from here, by the same derivation (#894's held-egress
++    # ruling, item (c))
+     result += ["#ifndef CTRL_SRP_ENTITY_H", *key_domain(blob), "#endif"]
+     result += table_macro("AECP_ENTITY_NAMES_INIT", ordinals)
+     result += table_macro("AECP_ENTITY_MAPS_INIT(rows)", maps)
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index a04bc6d0ec..fa7be918f5 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -272,11 +272,11 @@ extern "C" {
+ // (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
+ // at every slice: 1,300 us there, which also holds one MRPDU's build,
+ // CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
+-// there plus 5 %, at most 1,600 us (#894's ruling issuecomment-6867393730, item
+-// (b): a design parameter, the rows and the load the owner's gate): 1,475 us,
++// there plus 5 %, at most 1,600 us (#894's shape ruling, item (b): a design
++// parameter, the rows and the load the owner's gate): 1,475 us,
+ // CTRL_LOOP_BUILD_ONE_PASS_US there, which the build measures again at that slice.
+ //
+-// THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)). The slice and
++// THE SHAPES (#894's shape ruling, item (b)). The slice and
+ // THE TRANSMIT's builds' stated costs depend on the static shape an image is
+ // built at, which its builder states: the interfaces, MBX_N_IF (the mailbox
+ // contract it compiles against), and the talker sources and listener sinks ADP
+@@ -290,12 +290,12 @@ extern "C" {
+ // CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
+ // stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
+ // has this left, so a unit under the record's measurement lets the slice run
+-// past its length (#894's ruling issuecomment-6871343905, item (b)(ii)). And
++// past its length (#894's held-egress ruling, item (b)(ii)). And
+ // THE RETRY's round costs, which AECP's adapter admits a round at and its core
+ // charges a refused attempt at: a round's cold start, CTRL_LOOP_RETRY_COLD_US
+ // (aecp_mbx.h, AECP_ROUND_COLD_US), and a refused attempt's,
+ // CTRL_LOOP_RETRY_ATTEMPT_US (aecp.h, AECP_ATTEMPT_US), each keyed on the shape
+-// and never on the interface count (#894's ruling issuecomment-6878014227,
++// and never on the interface count (#894's retry-cost ruling,
+ // item 1). A shape not listed fails the build. Both two-interface shapes keep
+ // the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
+ // the heaviest SRP record measured there on the tree that merges #902,
+diff --git a/sw/firmware/ctrl/srp/srp_entity.py b/sw/firmware/ctrl/srp/srp_entity.py
+index 528b21f736..058f348e8d 100644
+--- a/sw/firmware/ctrl/srp/srp_entity.py
++++ b/sw/firmware/ctrl/srp/srp_entity.py
+@@ -2,10 +2,10 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Generate the static entity shape from the authoritative builder counts: the streams ADP advertises, which size
+ the SRP tables and pool, the AEM descriptors that bear AECP's change notices, from which aecp.h derives the
+-most notices a datapath reset can leave pending (AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item
+-(b)(iv)), and the key domain of an AUDIO_MAP edit, which sizes the map edits' direct index (aecp_maps.c;
+-aecp_shape.key_domain of the image's own descriptors; #894's ruling issuecomment-6870437042, item 1, with the
+-shape header its single source, issuecomment-6871343905, item (c))."""
++most notices a datapath reset can leave pending (AECP_NOTICES_MOST; #894's held-egress ruling, item (b)(iv)), and
++the key domain of an AUDIO_MAP edit, which sizes the map edits' direct index (aecp_maps.c;
++aecp_shape.key_domain of the image's own descriptors; #894's map-keying ruling, item 1, with the
++shape header its single source, the held-egress ruling, item (c))."""
+ from __future__ import annotations
+ import argparse
+ import sys
+diff --git a/sw/firmware/ctrl/test/aecp_arms.py b/sw/firmware/ctrl/test/aecp_arms.py
+index 7c5b31e87f..f8021f4047 100644
+--- a/sw/firmware/ctrl/test/aecp_arms.py
++++ b/sw/firmware/ctrl/test/aecp_arms.py
+@@ -108,9 +108,15 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
+         inc += extra
+         sources += modules
+         host_sources += host
+-    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's ruling
+-    # issuecomment-6878014227, item 1): after a mailbox group's, whose contract is its interfaces' own
+-    inc += [f"-I{tree.src / 'loop'}", f"-I{tree.src / 'mbx'}"]
++    # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the contract it includes; #894's
++    # retry-cost ruling, item 1): after a mailbox group's, whose contract is its interfaces' own; with none, the
++    # generated contract at the arm's interfaces (srp_arms.prepared), so the shape is its interfaces' as test_aecp.cpp
++    # asserts. The debug arm's test configures one interface whatever the arm's count, so it keeps the tracked one's.
++    contract = tree.src
++    if not (mailbox or debug) and interfaces != 1:
++        from srp_arms import prepared
++        contract, _ = prepared(tree, interfaces, out / "contract", config)
++    inc += [f"-I{contract / 'loop'}", f"-I{contract / 'mbx'}"]
+     if debug:
+         inc += ["-DCTRL_REENTRY_ASSERT"]
+     if work:
+@@ -153,9 +159,9 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
+ 
+ 
+ #: The mailbox tests run at the 8x8 shape at one interface: the notices a datapath reset leaves, where the most is its
+-#: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)), and THE RETRY's
+-#: round's refused attempts charged at its shape's cost beside its shape's cold start (THE SHAPES; the ruling
+-#: issuecomment-6878014227, item 1).
++#: own descriptors' (aecp.h, AECP_NOTICES_MOST; #894's held-egress ruling, item (b)(iv)), and THE RETRY's
++#: round's refused attempts charged at its shape's cost beside its shape's cold start (THE SHAPES; the retry-cost
++#: ruling, item 1).
+ EIGHT_ONE = ("Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:"
+              "Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort")
+ 
+diff --git a/sw/firmware/ctrl/test/aecp_retry_mutants.py b/sw/firmware/ctrl/test/aecp_retry_mutants.py
+index 5b47e9bf9e..bc466ef130 100644
+--- a/sw/firmware/ctrl/test/aecp_retry_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_retry_mutants.py
+@@ -8,6 +8,12 @@ replacement, and each test that must refuse it with its words.
+ """
+ from __future__ import annotations
+ 
++from aecp_map_mutants import BUILD
++
++#: The words aecp.h refuses a unit that charges a refused attempt with when THE SHAPES' table is not in force.
++NO_SHAPES = "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) " \
++    'in force'
++
+ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
+     ('retry-in-the-bursts-pass', 'aecp.c',
+      'return !a->retry_hold && scan(a);',
+@@ -189,6 +195,16 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
+      '\t\t\t\ta->round_us -= 2 * AECP_ATTEMPT_US;\n',
+      ('Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort',
+       "a notice's time left after the refusal's charge")),
++    # the charge is the shape's (THE SHAPES; #894's retry-cost ruling, item 1): the unit that charges it states so
++    # with the table in force first, and aecp.h refuses it without the table, or with it only after, by its words
++    ('attempt-charged-without-the-shapes', 'aecp.c',
++     '#include "ctrl_loop.h"\n#define AECP_CHARGES_ATTEMPTS\n',
++     '#define AECP_CHARGES_ATTEMPTS\n',
++     (BUILD, NO_SHAPES)),
++    ('attempt-charged-before-the-shapes', 'aecp.c',
++     '#include "ctrl_loop.h"\n#define AECP_CHARGES_ATTEMPTS\n#include "aecp_internal.h"\n',
++     '#define AECP_CHARGES_ATTEMPTS\n#include "aecp_internal.h"\n#include "ctrl_loop.h"\n',
++     (BUILD, NO_SHAPES)),
+     ('retry-notice-uncharged', 'aecp.c',
+      '\t\ta->round_us -= a->notice_us;\n',
+      '',
+@@ -234,7 +250,7 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
+      '#define AECP_ROUND_PACE_MS 200u',
+      ('Mailbox.EveryNoticePendingAtOnceMeetsItsBound',
+       'every queued notice within AECP_QUEUED_MS')),
+-    # the most a reset leaves pending (aecp.h, AECP_NOTICES_MOST; #894's ruling issuecomment-6871343905, item (b)(iv)):
++    # the most a reset leaves pending (aecp.h, AECP_NOTICES_MOST; #894's held-egress ruling, item (b)(iv)):
+     # a built notice that takes its descriptor's other kept notices with it drops them
+     ('notice-dropped-with-its-descriptors-next', 'aecp.c',
+      '\t\t\t\te->pending &= (uint8_t)~(1u << bit);\n',
+diff --git a/sw/firmware/ctrl/test/aecp_wire.py b/sw/firmware/ctrl/test/aecp_wire.py
+index 23864c2068..c4f79caa64 100644
+--- a/sw/firmware/ctrl/test/aecp_wire.py
++++ b/sw/firmware/ctrl/test/aecp_wire.py
+@@ -131,7 +131,7 @@ def build(args: argparse.Namespace, bench: Path) -> Path:
+     if match is None:
+         raise ValueError("model include directory missing")
+     # THE SHAPES, from which aecp.c charges a refused attempt (ctrl_loop.h and the tracked contract it includes; #894's
+-    # ruling issuecomment-6878014227, item 1): a compile with no shape header, at the shipping shape
++    # retry-cost ruling, item 1): a compile with no shape header, at the shipping shape
+     inc = [f"-I{ROOT/'sw/firmware/ctrl/aecp'}", f"-I{args.stack/STACK_INCLUDE}", f"-I{output}",
+            f"-I{ROOT/'sw/firmware/ctrl/loop'}", f"-I{ROOT/'sw/firmware/ctrl/mbx'}"]
+     objects = []
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+index 593b27ab58..779778e09f 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -130,8 +130,8 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
+     return Outcome(name,bool(failures),log)
+ 
+ 
+-#: The words the build fails with at a shape ctrl_loop.h does not list (its #error; THE SHAPES, #894's ruling
+-#: issuecomment-6867393730, item (b)).
++#: The words the build fails with at a shape ctrl_loop.h does not list (its #error; THE SHAPES, #894's shape
++#: ruling, item (b)).
+ UNLISTED = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+ 
+ 
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index 78431652e0..5eb168a7c9 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -34,7 +34,13 @@ extern "C" {
+ #include "acmp_nvm.h"
+ #include "srp_mbx.h"
+ #endif
++#include "mbx_contract.h"
+ }
++// The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
++// so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
++// item 1). aecp_arms.core_arm gives each arm its interfaces' own contract; one at another's fails here.
++static_assert(MBX_N_IF==AECP_TEST_INTERFACES,
++              "THE SHAPES: the host arm's mailbox contract (MBX_N_IF) is not at its interfaces (AECP_TEST_INTERFACES)");
+ #ifdef AECP_TEST_APP
+ #include "acmp_fake.hpp"
+ #endif
+@@ -3300,8 +3306,8 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
+     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
+ }
+ 
+-// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's ruling
+-// issuecomment-6871343905, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
++// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's held-egress
++// ruling, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
+ // exactly the most its shape header's descriptors derive, and each is built and sent once as its port answers.
+ TEST_F(Mailbox, EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce)
+ {
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 7b2f3c3c4c..f9691a3c8a 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -153,6 +153,15 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+ - **A run-out with nothing to send** releases nothing, its builds sending no frame, and the MRPDU a later request then sends at once, its join timer idle, ends no interval: the `srp` group's after its Listener Ready, 714.82 ms after the one before at 1x1, is that.
+ - **Every MRP timer's run-out** is resolved by its builds (`mrpdu_grade.resolve`): released, empty where its first build sends nothing, late where its first frame, or its first build where it sends none, comes past THE TRANSMIT's 49 ms, absent where no build follows it in a log that runs on past that, and unresolved where the log ends first. A build's frames include what it left owed, which the poll sends before the next build.
+ - **Each group's shortest and longest**, and its run-outs by outcome, print on a `JOINS` line. An interval under 181.0 ms or over 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end since the harness sees commits (the egress ruling's item 1), or a late or absent build, prints `STATED` and fails the run whatever findings it records.
++[`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
++`backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
++[FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
++- **The ledger** (`LEDGER`) is [section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table at 8x8/1if, the one point that has one; the self-test holds it to that table, row for row and figure for figure.
++- **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
++- **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
++- **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
++- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses eight mutants, among them the earlier rule that waived a ledger row by its name whatever its size.
++
+ [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+ Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+ That is the column at this tree's TSN stack pin. A second, `STATED_US_DONOR`, is measured with tsn-c-stack #32 applied at the pin in a scratch build (the ACMP core walking only the sinks an entry changed), each cost stated at every point. The gate holds 1x1/1if in both columns, the pin's being the image that merges and the donor's the load the pin move owes (#665), each named in what it finds (`load_grade.COLUMNS`), and reports both.
+diff --git a/tb/verilator/ctrl_service_budget/egress_ledger.py b/tb/verilator/ctrl_service_budget/egress_ledger.py
+new file mode 100644
+index 0000000000..e763a24f35
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/egress_ledger.py
+@@ -0,0 +1,353 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The rows the egress decides, held to their ledger (#894, #872; FR_NFR.md 3.4.1; SPLIT_CONTROL_MEMORY.md section 13).
++
++backlog-owed's seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their
++budget at every point, and stay recorded misses by their row names and figures, not passing, since 3.4.1 charges TX
++backpressure to the service budget. A new or larger miss fails the leg (#894's held-egress ruling, item (a)), so:
++- a measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name;
++- a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
++- a budget miss of any other row is new, and fails.
++
++The ledger is section 13's table at 8x8/1if, the one point that has one (LEDGER; the self-test holds it to the table).
++The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
++bus cycles' time to 10 ns, one cycle at 100 MHz; or a run's log, whose BUDGET lines name every instance over its budget
++to 1 us, so a ledger row read there is held at the most its figure can be, and one printed at its ledger figure fails.
++A log must end in its run's summary, with no refusal and as many budget misses as BUDGET lines.
++
++usage: python3 -I egress_ledger.py --point 8x8-1if PATH ...   (each PATH a results directory or a run's log)
++       python3 -I egress_ledger.py --selftest
++"""
++from __future__ import annotations
++
++import argparse
++import contextlib
++import io
++import json
++import re
++import subprocess
++import sys
++import tempfile
++from collections.abc import Callable
++from pathlib import Path
++from unittest.mock import patch
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[2]
++DOC = ROOT / 'docs/design/SPLIT_CONTROL_MEMORY.md'
++#: The group whose rows the egress decides (scenario.py, backlog-owed).
++GROUP = 'backlog-owed'
++#: Each point's ledger: every row the egress decides and the figure its miss may reach, in ms (section 13's table at
++#: 8x8/1if: its measurement on the image the follow-up started from).
++LEDGER = {'8x8-1if': {'backlog.owed.if0': 63.24, 'backlog.owed_behind0.if0': 63.47,
++                      'backlog.owed_behind1.if0': 63.69, 'backlog.owed_behind2.if0': 63.91,
++                      'backlog.owed_behind3.if0': 64.20, 'backlog-owed.service.acmp.last.if0': 62.18,
++                      'backlog-owed.service.aecp.last.if0': 61.83}}
++#: Units of a figure: 10 ns, one cycle of the 100 MHz bus, the resolution of a grade's ms (grade.py rounds it to 5
++#: places), and half a log's printed microsecond in those units.
++PER_MS, LOG_HALF = 100_000, 50
++BUDGET_LINE = re.compile(r'^BUDGET (\S+): (?:never (?:released|answered), at least )?([\d.]+) ms over its budget '
++                         r'([\d.]+) ms')
++SUMMARY = re.compile(r'^(\d+) groups graded, (\d+) refusals, (\d+) budget misses')
++
++
++def units(ms: float) -> int:
++    """A figure in 10 ns units."""
++    return round(ms * PER_MS)
++
++
++def most(p: dict) -> int:
++    """The most an instance can be, in 10 ns units: its grade's figure, or its log's printed figure and half its
++    printed unit."""
++    return units(p['ms']) + (0 if p['exact'] else LOG_HALF)
++
++
++def over(p: dict, figure: float) -> bool:
++    """An instance over its ledger figure, or a log's not shown within it."""
++    return most(p) > units(figure)
++
++
++def new_miss(p: dict) -> bool:
++    """A budget miss of a row the ledger does not hold."""
++    return not p['within_budget']
++
++
++def from_results(path: Path) -> list[dict]:
++    """Every instance of a results directory's group grades (run.py's <group>.json; results.json is the run's)."""
++    out = []
++    for f in sorted(path.glob('*.json')):
++        g = json.loads(f.read_text())
++        if f.name == 'results.json' or 'probes' not in g:
++            continue
++        out += [dict(group=g['group'], probe=p['probe'], status=p.get('status'), ms=p.get('ms'), exact=True,
++                     within_budget=p.get('within_budget', True), budget_ms=p.get('budget_ms'),
++                     never=bool(p.get('starved') or p.get('unanswered'))) for p in g['probes']]
++    return out
++
++
++def from_log(path: Path) -> tuple[list[dict], list[str]]:
++    """A run's log: an instance for each BUDGET line, its group unnamed, and the log's own findings."""
++    text = path.read_text(errors='replace').splitlines()
++    out, refusals = [], []
++    for line in text:
++        m = BUDGET_LINE.match(line)
++        if m:
++            out.append(dict(group=None, probe=m[1], status='measured', ms=float(m[2]), exact=False,
++                            within_budget=False, budget_ms=float(m[3]), never=' never ' in line))
++        elif line.startswith('BUDGET '):
++            refusals.append(f'{path.name}: a BUDGET line not in the harness\'s form: {line!r}')
++    summary = [SUMMARY.match(line) for line in text if SUMMARY.match(line)]
++    if len(summary) != 1:
++        refusals.append(f'{path.name}: {len(summary)} run summaries, not one: the run did not end, or two are mixed')
++    else:
++        s = summary[0]
++        if int(s[2]):
++            refusals.append(f'{path.name}: the run refused {s[2]} (an instance not measured)')
++        if int(s[3]) != len(out):
++            refusals.append(f'{path.name}: {len(out)} BUDGET lines for the run\'s {s[3]} budget misses')
++    return out, refusals
++
++
++def read(paths: list[Path]) -> tuple[list[dict], list[str], bool]:
++    """The instances of every path, the readers' findings, and whether any path is a log."""
++    instances, findings, logs = [], [], False
++    for path in paths:
++        if path.is_dir():
++            got = from_results(path)
++            if not got:
++                findings.append(f'{path.name}: no group grade')
++            instances += got
++        elif path.is_file():
++            got, refusals = from_log(path)
++            instances, findings, logs = instances + got, findings + refusals, True
++        else:
++            findings.append(f'{path}: neither a results directory nor a log')
++    return instances, findings, logs
++
++
++def is_row(p: dict, ledger: dict) -> bool:
++    """An instance of a ledger row: its name, in the group that has it (a log names no group)."""
++    return p['probe'] in ledger and p['group'] in (GROUP, None)
++
++
++def unseen(ledger: dict, seen: dict, logs: bool) -> list[str]:
++    """Each ledger row with no measured instance."""
++    return [f'{name}: no measured instance of the ledger row' + (
++        ' (a log names only the instances over their budget)' if logs else '') for name in ledger if not seen[name]]
++
++
++def findings(instances: list[dict], point: str, logs: bool = False) -> list[str]:
++    """What fails the leg at a point: a ledger row over its figure, one not measured, an instance not measured or never
++    released or answered, and a new budget miss."""
++    ledger = LEDGER[point]
++    out, seen = [], {name: [] for name in ledger}
++    for p in instances:
++        where = f"{p['probe']} ({p['group'] or 'a log'})"
++        if p['status'] != 'measured':
++            out.append(f'{where}: not measured ({p["status"]}), so a new or larger miss is not ruled out')
++        elif is_row(p, ledger):
++            seen[p['probe']].append(p)
++            figure = ledger[p['probe']]
++            if p['never']:
++                out.append(f'{where}: never released or answered, at least {p["ms"]:.5f} ms, so not within its ledger '
++                           f'figure {figure} ms')
++            elif over(p, figure):
++                out.append(f'{where}: {most(p) / PER_MS:.5f} ms' + ('' if p['exact'] else ' at most, by its log') +
++                           f', over its ledger figure {figure} ms by {(most(p) - units(figure)) / PER_MS:.5f} ms: a '
++                           'larger miss')
++        elif p['never'] or new_miss(p):
++            out.append(f'{where}: a new budget miss, {p["ms"]:.5f} ms against its budget {p["budget_ms"]} ms')
++    return out + unseen(ledger, seen, logs)
++
++
++def table(instances: list[dict], point: str) -> list[str]:
++    """Each ledger row's worst measured instance against its figure."""
++    rows = ['| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |',
++            '|---|---:|---:|---:|---|']
++    for name, figure in LEDGER[point].items():
++        ps = [p for p in instances if p['status'] == 'measured' and is_row(p, LEDGER[point]) and p['probe'] == name]
++        if not ps:
++            rows.append(f'| `{name}` | not measured | {figure} | | no |')
++            continue
++        p = max(ps, key=most)
++        shown = f"{p['ms']:.5f}" if p['exact'] else f"{p['ms']:.3f} (log)"
++        rows.append(f'| `{name}` | {shown} | {figure} | {(most(p) - units(figure)) / PER_MS:+.5f} | '
++                    f'{"no" if over(p, figure) or p["never"] else "yes"} |')
++    return rows
++
++
++def main(argv: list[str] | None = None) -> int:
++    """Grade the paths at a point, or run the self-test."""
++    parser = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
++    parser.add_argument('--point', choices=sorted(LEDGER))
++    parser.add_argument('--selftest', action='store_true')
++    parser.add_argument('paths', nargs='*', type=Path)
++    args = parser.parse_args(argv)
++    if args.selftest:
++        return selftest()
++    if not args.point or not args.paths:
++        parser.error('--point and at least one PATH, or --selftest')
++    instances, found, logs = read(args.paths)
++    found += findings(instances, args.point, logs)
++    measured = sum(p['status'] == 'measured' for p in instances)
++    print(f'# {args.point}: the rows the egress decides against their ledger; {len(instances)} instance(s) read '
++          f'({measured} measured) from {len(args.paths)} path(s)' + (', a log among them' if logs else ''))
++    print('\n'.join(table(instances, args.point)))
++    print('RESULT: ' + ('FAIL\n' + '\n'.join(f'- {f}' for f in found) if found else
++                        'PASS: no ledger row over its figure, every one measured, no new budget miss'))
++    return 1 if found else 0
++
++
++# ---- the self-test -----------------------------------------------------------------------------------------------
++
++def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
++    """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and its measurement."""
++    block = text.split('| Row the egress decides (at 8x8/1if) | Measured, ms | Ledger, ms |', 1)[1].split('\n\n', 1)[0]
++    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
++    return {n: float(f) for n, _, f in rows}, {n: float(m) for n, m, _ in rows}
++
++
++def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
++              status: dict[str, str] | None = None, never: tuple[str, ...] = ()) -> Path:
++    """A results directory of one backlog-owed grade, each ledger row at its figure here, and extra probes."""
++    d = base / name
++    d.mkdir(parents=True)
++    probes = [dict(probe=n, status=(status or {}).get(n, 'measured'), ms=round(ms, 5), budget_ms=20.0,
++                   within_budget=False, **({'unanswered': True} if n in never else {})) for n, ms in figures.items()]
++    (d / f'{GROUP}.json').write_text(json.dumps(dict(group=GROUP, probes=probes, passes={})))
++    if extra:
++        (d / 'other.json').write_text(json.dumps(dict(group='other', probes=list(extra), passes={})))
++    (d / 'results.json').write_text('{}')
++    return d
++
++
++def log_file(base: Path, name: str, lines: list[str], summary: str | None) -> Path:
++    """A run's log: its BUDGET lines and summary."""
++    path = base / f'{name}.log'
++    path.write_text('\n'.join([*lines, *([summary] if summary else []), 'END rc=0']) + '\n')
++    return path
++
++
++def budget_lines(figures: dict[str, float]) -> list[str]:
++    """BUDGET lines as run.py prints them."""
++    return [f'BUDGET {n}: {ms:.3f} ms over its budget 20 ms' for n, ms in figures.items()]
++
++
++def summary(misses: int, refusals: int = 0) -> str:
++    """A run's summary line as run.py prints it."""
++    return f'22 groups graded, {refusals} refusals, {misses} budget misses (7 of 213 probe instances, 4 of 24 paths)'
++
++
++def in_process(argv: list[str]) -> tuple[int, str]:
++    """main() here, so a mutant patched into this module is the one graded."""
++    text = io.StringIO()
++    with contextlib.redirect_stdout(text), contextlib.redirect_stderr(text):
++        try:
++            rc = main(argv)
++        except SystemExit as refusal:  # argparse's refusal of its arguments
++            rc = refusal.code
++    return rc, text.getvalue()
++
++
++def as_process(argv: list[str]) -> tuple[int, str]:
++    """This file run as its own process, its exit status the verdict."""
++    r = subprocess.run([sys.executable, '-I', str(Path(__file__).resolve()), *argv], capture_output=True, text=True,
++                       check=False)
++    return r.returncode, r.stdout + r.stderr
++
++
++def failing(rc: int, text: str, name: str) -> bool:
++    """A nonzero exit whose findings name the row."""
++    return rc != 0 and any(line.startswith((f'- {name} ', f'- {name}:')) for line in text.splitlines())
++
++
++def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tuple[str, bool, str]]:
++    """Each control and whether it held: (name, held, detail)."""
++    point, ledger = '8x8-1if', LEDGER['8x8-1if']
++    doc_figures, measured = doc_ledger(DOC.read_text())
++    out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
++            str(doc_figures))]
++    rc, text = run(['--point', point, str(grade_dir(base, 'at-ledger', ledger))])
++    out.append(('the unchanged ledger, every row at its figure, passes', rc == 0 and 'RESULT: PASS' in text,
++                f'rc {rc}'))
++    rc, text = run(['--point', point, str(grade_dir(base, 'published', measured))])
++    out.append(("section 13's measurement passes", rc == 0, f'rc {rc}'))
++    for k, name in enumerate(ledger):
++        for kind, ms in (('one cycle', ledger[name] + 1 / PER_MS), ('a large increase', ledger[name] + 36.76)):
++            rc, text = run(['--point', point, str(grade_dir(base, f'{kind[:5]}-{k}', {**ledger, name: ms}))])
++            out.append((f'{name} {kind} over its figure ({ms:.5f} ms) exits nonzero naming it', failing(rc, text, name),
++                        f'rc {rc}'))
++    other = dict(probe='backlog-adp@blank-6.service.aecp.last.if0', status='measured', ms=20.001, budget_ms=20.0,
++                 within_budget=False)
++    rc, text = run(['--point', point, str(grade_dir(base, 'new', ledger, (other,)))])
++    out.append(('a miss of another row is new and fails, named', failing(rc, text, other['probe']), f'rc {rc}'))
++    fits = dict(other, ms=19.999, within_budget=True)
++    rc, _ = run(['--point', point, str(grade_dir(base, 'fits', ledger, (fits,)))])
++    out.append(('another row within its budget passes', rc == 0, f'rc {rc}'))
++    name = 'backlog.owed_behind2.if0'
++    rc, text = run(['--point', point, str(grade_dir(base, 'absent', {n: v for n, v in ledger.items() if n != name}))])
++    out.append(('a ledger row with no instance fails, named', failing(rc, text, name), f'rc {rc}'))
++    rc, text = run(['--point', point, str(grade_dir(base, 'unmeasured', ledger, status={name: 'no end'}))])
++    out.append(('a ledger row not measured fails, named', failing(rc, text, name), f'rc {rc}'))
++    rc, text = run(['--point', point, str(grade_dir(base, 'never', ledger, never=(name,)))])
++    out.append(('a ledger row never answered, within its figure, fails', failing(rc, text, name), f'rc {rc}'))
++    rc, text = run(['--point', point, str(grade_dir(base, 'elsewhere', ledger, (dict(other, probe=name, ms=20.5),)))])
++    out.append(("a ledger row's name in another group is a new miss", failing(rc, text, name), f'rc {rc}'))
++    logged = {n: round(v - 0.001, 3) for n, v in ledger.items()}
++    rc, _ = run(['--point', point, str(log_file(base, 'log-under', budget_lines(logged), summary(7)))])
++    out.append(("a log's rows a printed microsecond under their figures pass", rc == 0, f'rc {rc}'))
++    rc, _ = run(['--point', point, str(log_file(base, 'log-published', budget_lines(measured), summary(7)))])
++    out.append(("a log of section 13's measurement passes", rc == 0, f'rc {rc}'))
++    rc, text = run(['--point', point, str(log_file(base, 'log-at', budget_lines({**logged, name: ledger[name]}),
++                                                   summary(7)))])
++    out.append(("a log's row printed at its figure fails: its log does not show it within", failing(rc, text, name),
++                f'rc {rc}'))
++    for label, lines, s in (('no summary', budget_lines(logged), None),
++                            ('a refusal', budget_lines(logged), summary(7, 1)),
++                            ('a BUDGET line short of the summary', budget_lines(logged)[1:], summary(7))):
++        rc, text = run(['--point', point, str(log_file(base, f'log-{label[:4]}', lines, s))])
++        out.append((f'a log with {label} fails', rc == 1 and 'RESULT: FAIL' in text, f'rc {rc}'))
++    rc, _ = run(['--point', '1x1', str(base / 'at-ledger')])
++    out.append(('a point with no ledger is refused', rc == 2, f'rc {rc}'))
++    return out
++
++
++#: Each mutant of a rule, which some control must refuse.
++MUTANTS = {
++    'the earlier rule: a ledger row waived by its name whatever its size': lambda m: patch.object(
++        m, 'over', lambda p, figure: False),
++    "a grade's figure read at its log's microsecond": lambda m: patch.object(
++        m, 'most', lambda p: round(p['ms'], 3) * PER_MS + (0 if p['exact'] else LOG_HALF)),
++    'a ledger row at its figure failing': lambda m: patch.object(
++        m, 'over', lambda p, figure: m.most(p) >= m.units(figure)),
++    'a new miss waived': lambda m: patch.object(m, 'new_miss', lambda p: False),
++    'a ledger row with no instance passing': lambda m: patch.object(m, 'unseen', lambda ledger, seen, logs: []),
++    "a log's figure read as exact": lambda m: patch.object(m, 'LOG_HALF', 0),
++    "a ledger figure a hundredth over section 13's": lambda m: patch.dict(
++        m.LEDGER['8x8-1if'], {'backlog.owed.if0': 63.25}),
++    "a ledger row's name taken in any group": lambda m: patch.object(
++        m, 'is_row', lambda p, ledger: p['probe'] in ledger),
++}
++
++
++def selftest() -> int:
++    """Every control in this process and, for the exit status, as its own process; then each mutant refused."""
++    me = sys.modules[__name__]
++    bad = 0
++    with tempfile.TemporaryDirectory() as tmp:
++        for mode, run in (('in process', in_process), ('as a process', as_process)):
++            for name, held, detail in controls(Path(tmp) / mode.replace(' ', '-'), run):
++                print(f"{'PASS' if held else 'FAIL'} [{mode}] {name}: {detail}")
++                bad += not held
++        for k, (name, plant) in enumerate(MUTANTS.items()):
++            with plant(me):
++                refused = [n for n, held, _ in controls(Path(tmp) / f'mutant-{k}', in_process) if not held]
++            print(f"{'caught' if refused else 'ESCAPED'} mutant {name!r}" + (f': {refused[0]}' if refused else ''))
++            bad += not refused
++    print(f'RESULT: {"PASS" if not bad else "FAIL"}: {len(MUTANTS)} mutants, {bad} failure(s)')
++    return 1 if bad else 0
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/tb/verilator/ctrl_service_budget/flip_grade.py b/tb/verilator/ctrl_service_budget/flip_grade.py
+index 40b4454303..e9844aa1ec 100644
+--- a/tb/verilator/ctrl_service_budget/flip_grade.py
++++ b/tb/verilator/ctrl_service_budget/flip_grade.py
+@@ -22,7 +22,7 @@ when a channel the loop serves has no row (rows_tiers.unrowed, the channels read
+ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if must pass --check --point 1x1/1if;
+ 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
+ 
+-8x8/1if is the flip's other point (#894's ruling issuecomment-6867393730, items (a) and (b)), held by --check --point
++8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
+ 8x8/1if to its load, at most 0.75, the 8x8 shape's stated costs with THE TRANSMIT's builds at its own shape
+ (load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
+ measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
+@@ -52,7 +52,7 @@ import shape_costs  # noqa: E402
+ 
+ ROOT = load_grade.ROOT
+ #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
+-#: 0.75 (#894's ruling issuecomment-6867393730, item (b)).
++#: 0.75 (#894's shape ruling, item (b)).
+ FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
+ #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
+ #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
+@@ -139,7 +139,7 @@ def controls(root: Path) -> list[str]:
+         escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if')
+     if COLUMN is not load_grade.STATED_US:
+         escaped.append('the graded column read, not the pin')
+-    # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's ruling issuecomment-6867393730,
++    # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
+     # item (b): the slice at most 1,600 us, a shape not listed failing the build)
+     escaped += [f'the table of shapes: {name}' for name in shape_costs.controls(root)]
+     return escaped + row_controls(root) + built_controls(root)
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index c2a3b632c8..88cea46a56 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -108,11 +108,11 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
+           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
+           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
+           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
+-#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's ruling
+-#: issuecomment-6867393730, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
++#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
++#: ruling, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
+ #: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
+ #: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
+-#: the polls' base and items its own shape's (poll_grade.STATED_US; the ruling issuecomment-6871343905, item (b)(iii)),
++#: the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress ruling, item (b)(iii)),
+ #: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
+ #: rest is owed to #872.
+ NEAREST = {'8x8/1if': '8x8/2if'}
+@@ -238,7 +238,7 @@ RETRY_RULE = {
+ def macros(root: Path, n_if: int | shape_costs.Shape) -> dict[str, int]:
+     """The integer constants the load reads from the tree, at a shape's interfaces or at that many; THE TRANSMIT's
+     builds as ctrl_loop.h lists them at the shape, or with an interface count at the shipping shape's streams
+-    (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
++    (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
+     text = ''.join((root / p).read_text() for p in (
+         'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'sw/firmware/ctrl/aecp/aecp_mbx.h',
+         'third_party/tsn-c-stack/include/acmp.h', 'third_party/tsn-c-stack/include/maap.h',
+diff --git a/tb/verilator/ctrl_service_budget/mrpdu_grade.py b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+index 736c0fe72f..d8e31a54fe 100644
+--- a/tb/verilator/ctrl_service_budget/mrpdu_grade.py
++++ b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+@@ -3,7 +3,7 @@
+ """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
+ periodic or LeaveAll timer made owed, timed from the deadline, the centisecond whose TICK ran the timer out, to the TX
+ commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives
+-it (BUDGET_MS; #894's ruling issuecomment-6871343905, item (b)(i)), where the family's T_svc held it before THE TIERS.
++it (BUDGET_MS; #894's held-egress ruling, item (b)(i)), where the family's T_svc held it before THE TIERS.
+ 
+ A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
+ no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
+@@ -35,7 +35,7 @@ PATH = 'mrpdu'
+ #: a run-out's build past it is late, and a log that runs on past it with no build after a run-out has none.
+ LATE_MS = tx_budget_ms((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
+ #: The row's harness budget in ms: that bound, read once (LATE_MS), where the family's T_svc held it before THE TIERS
+-#: (#894's ruling issuecomment-6871343905, item (b)(i): the MRP timer budget's lateness).
++#: (#894's held-egress ruling, item (b)(i): the MRP timer budget's lateness).
+ BUDGET_MS = LATE_MS
+ #: The outcomes of a timer's run-out (resolve), and those that fail a run.
+ OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
+diff --git a/tb/verilator/ctrl_service_budget/notice_window.py b/tb/verilator/ctrl_service_budget/notice_window.py
+index c1535f599d..bd73146104 100644
+--- a/tb/verilator/ctrl_service_budget/notice_window.py
++++ b/tb/verilator/ctrl_service_budget/notice_window.py
+@@ -144,8 +144,8 @@ def every_notice(build: dict) -> list[tuple[int, int, int]]:
+ 
+ def notices_most(build: dict) -> int:
+     """AECP_NOTICES_MOST (aecp.h) at the build's shape: the most notices a reset can leave pending, derived at one
+-    interface from the descriptors the build's shape header states (shape_costs.notices_most; #894's ruling
+-    issuecomment-6871343905, item (b)(iv))."""
++    interface from the descriptors the build's shape header states (shape_costs.notices_most; #894's held-egress
++    ruling, item (b)(iv))."""
+     return shape_costs.notices_most(scenario.ROOT / 'configs' / f"{build['shape']}.yaml", build['interfaces'])
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index 61727d5b00..afe20a0c3f 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -66,13 +66,13 @@ import shape_costs
+ #: A pass's first and last firmware poll, and each item's traced function and its sending channel (poll_items).
+ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: The stated costs in microseconds at each shape ctrl_loop.h lists (THE SHAPES, shape_costs.Shape: MBX_N_IF,
+-#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's ruling issuecomment-6871343905, item (b)(iii)), at 1x1/1if and 8x8/2if each
++#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's held-egress ruling, item (b)(iii)), at 1x1/1if and 8x8/2if each
+ #: the most measured over every group of arm A and the answering-every-port arm at its point plus 5 %, rounded up to
+ #: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
+ #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
+ #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+ #: that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as THE SHAPES list it (725 us at 1x1/1if and
+-#: 1,215 at 8x8/2if; #894's ruling issuecomment-6867393730, item (b)), which stated_us reads where the table holds 0.
++#: 1,215 at 8x8/2if; #894's shape ruling, item (b)), which stated_us reads where the table holds 0.
+ #: The SRP record's and AECP's item (a notice to the
+ #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
+ #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
+@@ -95,7 +95,7 @@ TWO = dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
+            aecp_long=655, acmp_declined=20)
+ #: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the
+ #: answering-every-port arm and the answering-ports arm's aecp-largest-notice on the tree that merges #902 (#894's
+-#: round 2 ruling issuecomment-6871343905, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
++#: held-egress ruling, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
+ #: the withdrawal 10,317, the rebuild 55,813, the walk 4,701, the reclaim 2,604, ACMP's owed frame 6,813 and a declined
+ #: offer 2,542, a notice 13,297 (the answering-every-port arm) and a long one 30,097; a retained record's retry at the
+ #: SRP record's cost there (CTRL_LOOP_SRP_UNIT_US, 32,421 cycles).
+diff --git a/tb/verilator/ctrl_service_budget/round_grade.py b/tb/verilator/ctrl_service_budget/round_grade.py
+index d3e860ab81..bcc7df6280 100644
+--- a/tb/verilator/ctrl_service_budget/round_grade.py
++++ b/tb/verilator/ctrl_service_budget/round_grade.py
+@@ -8,7 +8,7 @@ loop calls (ctrl_loop.c's round_of, a SPAN line) is held here to AECP_ROUND_COLD
+ AECP_ATTEMPT_US, n the notices it built, each a success of the event scan (aecp.c's finish, a CALL line inside the
+ round), and k its refused attempts, its aecp_command calls (CALL lines) less n. Each cost is read at the image's shape
+ (THE SHAPES, shape_costs.py): AECP_ROUND_COLD_US and AECP_ATTEMPT_US are the shape's own, never the interface count's
+-(#894's ruling issuecomment-6878014227, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
++(#894's retry-cost ruling, item 1), and AECP_NOTICE_US is the interface count's, as aecp_mbx.h derives it.
+ """
+ from __future__ import annotations
+ 
+diff --git a/tb/verilator/ctrl_service_budget/rows_grade.py b/tb/verilator/ctrl_service_budget/rows_grade.py
+index 625b3563e1..59ecb575d9 100644
+--- a/tb/verilator/ctrl_service_budget/rows_grade.py
++++ b/tb/verilator/ctrl_service_budget/rows_grade.py
+@@ -117,7 +117,7 @@ NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'C
+ def header(root: Path, n_if: int | shape_costs.Shape, texts: dict[str, str] | None = None) -> dict[str, int]:
+     """The loop's and AECP's constants at a shape's interfaces, or at that many, each expression evaluated (or a
+     planted header's); THE TRANSMIT's builds as ctrl_loop.h lists them at the shape, or with an interface count at the
+-    shipping shape's streams (shape_costs.at, THE SHAPES; #894's ruling issuecomment-6867393730, item (b))."""
++    shipping shape's streams (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
+     text = ''.join((texts or {}).get(p) or (root / p).read_text() for p in load_grade.ROW_HEADERS)
+     macros = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
+     macros['MBX_N_IF'] = str(shape_costs.interfaces(n_if))
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 368e0b8a50..d82c052d51 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -519,7 +519,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
+     import long_notice
+     import shape_costs
+     # the costs the passes, polls and slices are held to are the image's shape's: what its builder states for the
+-    # configuration and interfaces it was built at (THE SHAPES, #894's ruling issuecomment-6867393730, item (b)); a
++    # configuration and interfaces it was built at (THE SHAPES, #894's shape ruling, item (b)); a
+     # self-test's spec, which names no configuration, is at the shipping shape's streams
+     shape = shape_costs.of_config(ROOT / 'configs' / f"{spec['shape']}.yaml", spec['interfaces'], ROOT) \
+         if 'shape' in spec else None
+diff --git a/tb/verilator/ctrl_service_budget/selftest_notice.py b/tb/verilator/ctrl_service_budget/selftest_notice.py
+index 8a3537c071..308d81a085 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_notice.py
++++ b/tb/verilator/ctrl_service_budget/selftest_notice.py
+@@ -4,7 +4,7 @@
+ its last recipient's commit, a row later than its 20 ms fails the run whatever its options record, build.py's age-less
+ plant is caught only when every group's row is late, its aged build's plant only when every group's timer-driven MRPDU
+ is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's, held
+-to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's ruling issuecomment-6871343905, item (b)(i)).
++to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's held-egress ruling, item (b)(i)).
+ 
+ selftest.py passes its synthetic-log helpers in, so this module imports nothing of it.
+ """
+@@ -87,7 +87,7 @@ def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
+     late = timer_rows(synthetic, tx_sequence, TICK_AT + (bound + 1) * ms)
+     none = timer_rows(synthetic, tx_sequence, TICK_AT + (bound - 1) * ms, built=False)
+     return [("THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure "
+-             "(#894's ruling issuecomment-6871343905, item (b)(i))",
++             "(#894's held-egress ruling, item (b)(i))",
+              mrpdu_grade.BUDGET_MS == bound and [r['budget_ms'] for r in within] == [float(bound)],
+              str((mrpdu_grade.BUDGET_MS, bound, [r['budget_ms'] for r in within]))),
+             (f"a timer's MRPDU is timed from its TICK to its commit, at its bound, {bound} ms, within it",
+diff --git a/tb/verilator/ctrl_service_budget/selftest_round.py b/tb/verilator/ctrl_service_budget/selftest_round.py
+index 678951352e..aef6b8da71 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_round.py
++++ b/tb/verilator/ctrl_service_budget/selftest_round.py
+@@ -31,7 +31,7 @@ def header_us(given: int | shape_costs.Shape) -> dict[str, int | None]:
+     """The round's costs as the headers state them at a shape, or at that many interfaces at the streams ctrl_loop.h
+     takes with no shape header, read here apart from round_grade.stated_us and shape_costs: AECP_NOTICE_US's ternary on
+     the interface count, and AECP_ROUND_COLD_US and AECP_ATTEMPT_US each the name its header gives it, as the shape's
+-    own block of ctrl_loop.h's table states that name (THE SHAPES; #894's ruling issuecomment-6878014227, item 1); a
++    own block of ctrl_loop.h's table states that name (THE SHAPES; #894's retry-cost ruling, item 1); a
+     cost that is not one of the block's names is None."""
+     ctrl = scenario.ROOT / 'sw/firmware/ctrl'
+     text = ''.join((ctrl / 'aecp' / name).read_text() for name in ('aecp.h', 'aecp_mbx.h'))
+@@ -98,8 +98,8 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+     at8 = lambda n, k: (own['cold'] + n * own['notice'] + k * own['attempt']) * cpu_hz // 1_000_000
+     fit8, miss8 = held(at8(0, 2), 0, 2, interfaces=eight), held(at8(0, 2) + 1, 0, 2, interfaces=eight)
+     out.append(("a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists "
+-                "for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's ruling "
+-                "issuecomment-6878014227, item 1)",
++                "for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's "
++                "retry-cost ruling, item 1)",
+                 None not in own.values() and round_grade.stated_us(eight) == own and
+                 (own['cold'], own['attempt']) != (single['cold'], single['attempt']) and fit8['over'] == [] and
+                 [(o['notices'], o['refused']) for o in miss8['over']] == [(0, 2)],
+@@ -149,7 +149,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+             [o['kind'] for o in held('build', one + 1, 1)['over']] == ['build'] and not held('build', one, 1)['over'],
+             ''),
+            ("THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to "
+-            "its build of one, apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
++            "its build of one, apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))",
+             {k: whole_grade.stated_us(shapes['8x8/1if'])[k] for k in ('build', 'build-one')} ==
+             {'build': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD],
+              'build-one': shape_costs.at(shapes['8x8/1if'])[shape_costs.BUILD_ONE]} and
+@@ -158,7 +158,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+             whole_grade.stated_us(shapes['8x8/1if'])['build-one'] != whole_grade.stated_us(1)['build-one'],
+             str((whole_grade.stated_us(shapes['8x8/1if']), poll_grade.stated_us(shapes['8x8/1if'])['mrpdu']))),
+            ("a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams "
+-            "apart from 1x1/1if's (THE SHAPES, #894's ruling issuecomment-6867393730, item (b))",
++            "apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))",
+             slice_grade.stated_us(shapes['8x8/1if']) == wide != us[0] and
+             [o['kind'] for o in held('build', wide_cycles + 1, shapes['8x8/1if'])['over']] == ['build'] and
+             not held('build', wide_cycles, shapes['8x8/1if'])['over'] and
+@@ -190,7 +190,7 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
+                    shape: shape_costs.Shape) -> list[Check]:
+     """A pass's polls at a shape of its own (8x8/1if) held to that shape's stated costs, not the interface count's
+-    (poll_grade.STATED_US; #894's ruling issuecomment-6871343905, item (b)(iii)): its base at the shape's cost fits it
++    (poll_grade.STATED_US; #894's held-egress ruling, item (b)(iii)): its base at the shape's cost fits it
+     and a cycle over does not, where the interface count's cost refuses it."""
+     ratio, start = sys_hz // cpu_hz, 10_000
+ 
+@@ -205,7 +205,7 @@ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: i
+     own, count = poll_grade.stated_us(shape), poll_grade.stated_us(shape.interfaces)
+     limit = own['base'] * cpu_hz // 1_000_000
+     return [("a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE "
+-             "SHAPES, #894's ruling issuecomment-6871343905, item (b)(iii)): its base at them fits and a cycle over "
++             "SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over "
+              "does not, where 1x1/1if's refuses it",
+              own != count and own['base'] > count['base'] and held(limit, shape) == [] and
+              held(limit + 1, shape) == [('base', limit + 1)] and held(limit, shape.interfaces) == [('base', limit)],
+diff --git a/tb/verilator/ctrl_service_budget/shape_costs.py b/tb/verilator/ctrl_service_budget/shape_costs.py
+index 75a31d6599..0a9939fb42 100644
+--- a/tb/verilator/ctrl_service_budget/shape_costs.py
++++ b/tb/verilator/ctrl_service_budget/shape_costs.py
+@@ -1,9 +1,9 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""THE SHAPES (#894; the ruling issuecomment-6867393730, item (b)): the static shape an image is built at, as its
++"""THE SHAPES (#894's shape ruling, item (b)): the static shape an image is built at, as its
+ builder states it, and tier 2's slice, THE TRANSMIT's builds' stated costs, an SRP record's stated cost and THE RETRY's
+-round costs that ctrl_loop.h lists for it (the ruling issuecomment-6871343905, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per
+-shape; the ruling issuecomment-6878014227, item 1: a round's cold start and a refused attempt per shape).
++round costs that ctrl_loop.h lists for it (the held-egress ruling, item (b)(ii): CTRL_LOOP_SRP_UNIT_US per
++shape; the retry-cost ruling, item 1: a round's cold start and a refused attempt per shape).
+ 
+ A shape is (interfaces, talker sources, listener sinks): MBX_N_IF, from the mailbox contract the builder compiles an
+ image against, and CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes from the configuration into the shape
+@@ -16,11 +16,11 @@ streams, the ones ctrl_loop.h states as CTRL_LOOP_SOURCES and CTRL_LOOP_SINKS wi
+ srp_entity.py writes for the shipping configuration (srp_arms.DEFAULT_ENTITY; findings).
+ 
+ The shape header also states the AEM descriptors that bear AECP's change notices (CTRL_AEM_STREAM_INPUTS and the rest),
+-from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's ruling
+-issuecomment-6871343905, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
++from which aecp.h derives AECP_NOTICES_MOST, the most notices a datapath reset can leave pending (#894's held-egress
++ruling, item (b)(iv)): findings holds it at each point to the notices the descriptors hold, counted
+ apart from aecp.h (notices_held), at one interface exactly. And it states the key domain of an AUDIO_MAP edit, which
+-sizes the map edits' direct index (aecp_maps.c; #894's ruling issuecomment-6870437042, item 1), as its single source
+-in every unit an image compiles (the ruling issuecomment-6871343905, item (c)): aecp_entity_gen.h states it only for a
++sizes the map edits' direct index (aecp_maps.c; #894's map-keying ruling, item 1), as its single source
++in every unit an image compiles (the held-egress ruling, item (c)): aecp_entity_gen.h states it only for a
+ compile given no shape header, by the same derivation (key_findings).
+ 
+ The harness and the model key these costs on the shape the builder writes for a point's configuration and interfaces
+@@ -49,11 +49,11 @@ NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_P
+          'CTRL_LOOP_RETRY_COLD_US', 'CTRL_LOOP_RETRY_ATTEMPT_US')
+ SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
+ #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
+-#: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's ruling
+-#: issuecomment-6878014227, item 1).
++#: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's retry-cost
++#: ruling, item 1).
+ RETRY = {'AECP_ROUND_COLD_US': ('sw/firmware/ctrl/aecp/aecp_mbx.h', RETRY_COLD),
+          'AECP_ATTEMPT_US': ('sw/firmware/ctrl/aecp/aecp.h', RETRY_ATTEMPT)}
+-#: The most a slice may be, in microseconds: the ruling issuecomment-6867393730, item (b), which re-rules the cap from
++#: The most a slice may be, in microseconds: #894's shape ruling, item (b), which re-rules the cap from
+ #: 1,300 us; a design parameter, the rows and the load the owner's gate.
+ SLICE_MOST_US = 1600
+ #: The shipping configuration, a compile's shape without a shape header (srp_arms.DEFAULT_ENTITY).
+@@ -322,7 +322,7 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
+ 
+ 
+ def retry_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
+-    """THE RETRY's round costs keyed on the shape (#894's ruling issuecomment-6878014227, item 1): AECP_ROUND_COLD_US
++    """THE RETRY's round costs keyed on the shape (#894's retry-cost ruling, item 1): AECP_ROUND_COLD_US
+     and AECP_ATTEMPT_US each defined once as the name the table states it by (RETRY), not a figure of its own nor a
+     ternary on the interface count; and at each point, each evaluated as its header derives it there, the costs the
+     table lists for that point's shape. A point whose cost falls back to the interface count's, or to one figure at
+@@ -438,7 +438,7 @@ def controls(root: Path = ROOT) -> list[str]:
+                     line, f'#define {BUILD} {2 * c[BUILD_ONE]}u\n#define {BUILD_ONE} {c[BUILD_ONE]}u\n')}):
+                 escaped.append('a build of both at two builds of one')
+             break
+-    # the cap itself, the ruling's (issuecomment-6867393730, item (b): re-ruled from 1,300 to 1,600 us)
++    # the cap itself, the shape ruling's (item (b): re-ruled from 1,300 to 1,600 us)
+     if SLICE_MOST_US != 1600:
+         escaped.append('the slice cap not the ruling\'s 1,600 us')
+     # the model's points built at another configuration than the harness's
+diff --git a/tb/verilator/ctrl_service_budget/slice_grade.py b/tb/verilator/ctrl_service_budget/slice_grade.py
+index ca702d2a73..c408c4a452 100644
+--- a/tb/verilator/ctrl_service_budget/slice_grade.py
++++ b/tb/verilator/ctrl_service_budget/slice_grade.py
+@@ -34,7 +34,7 @@ BUILD = mrpdu_grade.BUILD
+ 
+ def stated_us(interfaces: int | shape_costs.Shape) -> int:
+     """The slice length ctrl_loop.h states at a shape, or at that many interfaces at the shipping shape's streams
+-    (shape_costs.at; #894's ruling issuecomment-6867393730, item (b)), in microseconds."""
++    (shape_costs.at; #894's shape ruling, item (b)), in microseconds."""
+     return shape_costs.at(interfaces, scenario.ROOT)[SLICE]
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/whole_grade.py b/tb/verilator/ctrl_service_budget/whole_grade.py
+index a8770e5cf3..0177a82bcb 100644
+--- a/tb/verilator/ctrl_service_budget/whole_grade.py
++++ b/tb/verilator/ctrl_service_budget/whole_grade.py
+@@ -29,7 +29,7 @@ ROUND_IDLE_CYCLES = 1000
+ 
+ def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
+     """Each kind's stated cost in microseconds at a shape, or at that many interfaces at the shipping shape's streams
+-    (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's ruling issuecomment-6867393730, item
++    (ctrl_loop.h): the builds' as THE SHAPES list them (shape_costs.at; #894's shape ruling, item
+     (b)), the step's by the interface count."""
+     text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
+     pattern = r'#define {} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)'
