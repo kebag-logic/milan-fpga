@@ -557,7 +557,12 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    # the SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, at each point: refused by name
+    return escaped + srp_unit_controls(root, base, fit) + binding_controls(root)
+
+
+def srp_unit_controls(root: Path, base: dict, fit: dict) -> list[str]:
+    """The SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, planted at each point, refused by name
+    by --check itself (findings); the head's own limit refused by none."""
     header = (root / SRP_UNIT_HEADER).read_text()
     real = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US .+$', header, re.M)[0]
     one = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)')
@@ -565,8 +570,8 @@ def controls(root: Path) -> list[str]:
     if srp_unit(root) or not all(any(f'{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US' in f
                                      for f in findings(root, base, fit, {SRP_UNIT_HEADER: planted}))
                                  for point, planted in (('1x1/1if', one), ('8x8/2if', two))):
-        escaped.append("the SRP drain's record cost not the load gate's")
-    return escaped + binding_controls(root)
+        return ["the SRP drain's record cost not the load gate's"]
+    return []
 
 
 def binding_controls(root: Path) -> list[str]:
