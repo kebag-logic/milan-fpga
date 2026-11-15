@@ -18,9 +18,11 @@
 //                              marks nothing;
 //   change_by_record_id        a change named by its record id marks that
 //                              record;
-//   capture_window_edges       a change the running capture has passed, or
-//                              one after its last latch, opens a window of
-//                              its own (DR2a).
+//   capture_window_edges       a change to a record the running capture has
+//                              taken is the next save's, which starts at the
+//                              first idle step after it; one to a record no
+//                              capture holds, after its last latch, joins it
+//                              (DR2a; #920).
 
 #include <gtest/gtest.h>
 
@@ -110,9 +112,10 @@ TEST_F(NvmModel, change_by_record_id) {
         << " / " << unknown.text();
 }
 
-// DR2a at the capture's edges: a change to a record the running capture has
-// already passed, and a change after its last latch while it is still in
-// the capture phase, each wait a window of their own.
+// DR2a at the capture's edges (#920): a change to a record the running capture
+// has taken is the next save's, which starts at the first idle step after the
+// save in flight, with no window; a change after its last latch, while it is
+// still in the capture phase, to a record no capture holds joins it.
 TEST_P(NvmBoth, capture_window_edges) {
     const unsigned first = rids().front();
     const unsigned last = rids().back();
@@ -120,13 +123,18 @@ TEST_P(NvmBoth, capture_window_edges) {
     Result r = go(port(), f,
                   {"--slot-b", "g.bin", "--boot", "--set-pattern", "1", "--until-phase", num(NVM_P_CAPTURE),
                    "--service", "3", "--mark", "--set", set_word(first, value(first, 9)), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
+    EXPECT_TRUE(r.at("ok") == 2 && r.ok_at.size() == 2u && r.erases.size() == 2u && r.erases[1] > r.ok_at[0] &&
+                r.erases[1] - r.ok_at[0] < 100 * kMs && after_mark(r, 1) < 1000 * kMs && r.at("dirty") == 0)
         << "a change the capture has passed: erase " << after_mark(r, 1) << " us after it: " << r.text();
     r = go(port(), f,
            {"--slot-b", "g.bin", "--boot", "--set", set_word(last, value(last, 1)), "--until-phase",
-            num(NVM_P_CAPTURE), "--service", "1", "--mark", "--set", set_word(first, value(first, 9)), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
-        << "a change after the capture's last latch: erase " << after_mark(r, 1) << " us after it: " << r.text();
+            num(NVM_P_CAPTURE), "--service", "1", "--mark", "--set", set_word(first, value(first, 9)), "--until-idle",
+            "--dump-slot-a", "a.bin"});
+    EXPECT_TRUE(r.at("ok") == 1 && r.erases.size() == 1u && r.at("dirty") == 0 && r.at("pending") == 0)
+        << "a change after the capture's last latch joins it: " << r.text();
+    r = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "g.bin", "--boot", "--dump-state", "st"});
+    expect_state(f, "st", with(fx().payloads("golden"), {{last, value(last, 1)}, {first, value(first, 9)}}),
+                 "a change after the capture's last latch");
 }
 
 }  // namespace
