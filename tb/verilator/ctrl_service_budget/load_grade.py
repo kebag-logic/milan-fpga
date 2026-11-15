@@ -127,7 +127,10 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an owed
 #: frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and ACMP's
 #: owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30 to 35 (2,859 cycles
-#: in notice-every-0; 2,093 at 5b264bf2) and ACMP's owed frame 65 to 70. 32x32/2if is measured on the 32x32
+#: in notice-every-0; 2,093 at 5b264bf2) and ACMP's owed frame 65 to 70; and under #894's SET_CONFIGURATION cut
+#: (f275b619, paced at fe0cef5b), over every group of arm A and of the answering-every-port arm, AECP's timer slot at
+#: 1x1/1if 65 to 70, both columns, the larger of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753
+#: at 9606b3a9, the same work, its fetches moved by the cut's code). 32x32/2if is measured on the 32x32
 #: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
@@ -135,7 +138,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
-                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 65, 'event.TICK': 50,
+                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 70, 'event.TICK': 50,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 130,
@@ -163,14 +166,15 @@ STATED_US = {
 #: points are measured on the pin's own legs, each cost the larger of that, this column's and, for a cost the walk does
 #: not move, the pin's column. On the merge of dev-soft-core 0fb66211 (#665) both points are measured again on the
 #: pin's legs, each cost the larger of that, this column's and the pin's; ctrl_loop.h states THE TRANSMIT's builds
-#: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's are those. Every cost that
-#: STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
+#: at 1x1/1if at 1,010 and 725 us, and an owed MRPDU is a build of one's, so this column's are those; under #894's
+#: SET_CONFIGURATION cut ctrl_loop.h states the build of one at 1x1/1if at 735 us, so this column's are 735. Every cost
+#: that STATED_US's measurement on the image under THE TIERS (#894) raised is raised here with it, the larger.
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
-                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 65, 'event.TICK': 50,
+                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 70, 'event.TICK': 50,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 30, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 280,
-                'item.mrpdu': 725, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 725, 'step': 975},
+                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 110, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 35, 'item.aecp.notice': 275,

@@ -68,7 +68,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 725 and 1,215 us). The SRP record's and AECP's item (a notice to the
+#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
@@ -87,7 +87,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
 #: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
 #: backlog-owed (6,239 at 5b264bf2).
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=725, acmp=55,
+STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
              2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
                     aecp=275, aecp_long=655, acmp_declined=20)}
