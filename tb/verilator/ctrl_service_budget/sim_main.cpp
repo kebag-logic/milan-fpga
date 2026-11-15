@@ -140,6 +140,9 @@ public:
         put(dut.mbx_tx_ready, tx_ready_);
         put(dut.mbx_link_up, std::uint8_t(link_));
         put(dut.mbx_gm_change, std::uint8_t(gm_pulse_));
+        put(dut.mbx_avb_chg, std::uint8_t(dp_pulse_[0]));
+        put(dut.mbx_asp_chg, std::uint8_t(dp_pulse_[1]));
+        put(dut.mbx_amap_wr, std::uint8_t(dp_pulse_[2]));
         if (gm_dirty_) {
             for (unsigned i = 0; i < n_if; ++i) set_gm(dut, i, gm_id_[i], gm_domain_[i]);
             gm_dirty_ = false;
@@ -246,6 +249,7 @@ private:
 
     void ingress_sample(Vsim& dut) {
         gm_pulse_ = 0;
+        dp_pulse_[0] = dp_pulse_[1] = dp_pulse_[2] = 0;
         if (frames_.empty() || sys_ < ingress_at_ || !dut.mbx_rx_valid || !dut.mbx_rx_ready) return;
         if (offset_ == 0)
             std::printf("RXS %llu %u %zu %s\n", ull(sys_), frames_.front().interface,
@@ -594,6 +598,16 @@ private:
                 gm_pulse_ |= 1u << i;
                 gm_dirty_ = true;
                 std::printf("GM %llu %u\n", ull(sys_), i);
+            } else if (s.op == "datapath") {
+                // datapath <avb|asp|amap> <if>: a one-cycle pulse of the face block's change input (#894), which the
+                // mailbox posts as AVB_INFO_CHANGED, AS_PATH_CHANGED or AMAP_LIVE_WRITE
+                static constexpr std::array<const char*, 3> kinds = {"avb", "asp", "amap"};
+                unsigned kind = 3;
+                for (unsigned k = 0; k < 3; ++k) if (s.args.at(0) == kinds[k]) kind = k;
+                if (kind == 3) throw std::runtime_error("unknown datapath change " + s.args.at(0));
+                const unsigned i = std::stoul(s.args.at(1));
+                dp_pulse_[kind] |= 1u << i;
+                std::printf("DATAPATH %llu %s %u\n", ull(sys_), kinds[kind], i);
             } else if (s.op == "flood") {
                 // flood gm <0|1>: a grandmaster change as every pass starts while on (flood_gm)
                 if (s.args.at(0) != "gm") throw std::runtime_error("unknown flood " + s.args.at(0));
@@ -667,6 +681,7 @@ private:
     std::uint64_t ingress_at_ = 0, gap_ = 20;
     bool tx_ready_ = true;
     unsigned link_ = 0, gm_pulse_ = 0;
+    unsigned dp_pulse_[3] = {0, 0, 0};   // the datapath change pads' pulses: AVB_INFO, AS_PATH, the live map
     bool gm_dirty_ = true;
     std::array<std::uint64_t, n_if> gm_id_{};
     std::array<unsigned, n_if> gm_domain_{};
@@ -704,6 +719,9 @@ void initialize(Vsim& dut) {
     dut.mbx_tx_ready = 1;
     dut.mbx_link_up = 0;
     dut.mbx_gm_change = 0;
+    dut.mbx_avb_chg = 0;
+    dut.mbx_asp_chg = 0;
+    dut.mbx_amap_wr = 0;
     dut.flash_tx_ready = 0;
     dut.flash_rx_valid = 0;
     dut.eval();

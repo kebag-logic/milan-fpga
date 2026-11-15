@@ -149,7 +149,7 @@ TEST_F(SrpRetry, AnAttributeChangeAloneAllowsTheRetry) {
     ASSERT_FALSE(adapter.ifs[0].moved);
     for(unsigned n=0;n<300 && !adapter.ifs[0].moved;++n) {
         loop.ticks[0]();
-        if(adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
+        if(adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     }
     ASSERT_TRUE(adapter.ifs[0].moved) << "every Applicant or Registrar change lwSRP reports is marked";
     ASSERT_EQ(ctrl_pool_returned,returned) << "no block returned";
@@ -383,7 +383,10 @@ TEST_F(SrpRetry, WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped) {
 }
 
 TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding) {
-    settle(); advance(400);
+    // Two JoinTimes in (CTRL_LOOP_JOIN_CS), so the record's expiry 1000 ms after it arrives (SRP_RX_RETRY_MS) falls
+    // on the second join count's end after the periodic MRPDU at 1000 ms: the build it owes resumes across slices as
+    // the records behind it are taken (#894).
+    settle(); advance(2u*10u*CTRL_LOOP_JOIN_CS);
     const unsigned i=MBX_N_IF-1;
     EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),0,2),i);
     auto f=domains(150);

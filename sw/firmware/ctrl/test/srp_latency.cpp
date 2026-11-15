@@ -85,8 +85,9 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
             if(la && !seen[i][p]) {
                 seen[i][p]=true; EXPECT_GE(ms,due[i][p]);
                 const unsigned last=last_ms[i][p];
-                const unsigned wait=last+200>due[i][p] ? last+200-due[i][p] : 0;
-                ASSERT_LE(wait,200u);
+                const unsigned join_ms=10u*CTRL_LOOP_JOIN_CS; // the armed JoinTime (ctrl_loop.h)
+                const unsigned wait=last+join_ms>due[i][p] ? last+join_ms-due[i][p] : 0;
+                ASSERT_LE(wait,join_ms);
                 bound(mvrp?"MVRP LeaveAll":"MSRP LeaveAll",due[i][p]*ns_per_ms,
                       commits.at(k),wait);
             }
@@ -137,9 +138,10 @@ TEST_F(SrpLatency, FullRingRetainsOriginalOriginAndElevenMillisecondStallFails) 
     mbx_model_tx_pause(&model,true); std::vector<uint8_t> filler(60);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
     // THE TRANSMIT builds in the first pass that takes at most one event (ctrl_loop.h): at two interfaces the
-    // first pass takes both LINK records
+    // first pass takes both LINK records; a slice holds CTRL_LOOP_BUILD_MOST of an interface's two MRPDUs, so its
+    // startup build takes 2 / CTRL_LOOP_BUILD_MOST passes (THE TIERS)
     commits.clear(); now_ns=0;
-    for(unsigned n=0;n<4u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    for(unsigned n=0;n<4u*2u/CTRL_LOOP_BUILD_MOST && !adapter.owed_len;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
     const uint64_t origin=0;
     mbx_model_advance_ms(&model,11); now_ns=11*ns_per_ms; ctrl_loop_service(&loop);

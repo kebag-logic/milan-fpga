@@ -71,7 +71,7 @@ TEST_F(SrpWalk, ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire) {
         for(unsigned i=0;i<MBX_N_IF;++i) {
             bool seen=false;
             for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
-                d.type==1 && d.time_ms==n*200) {
+                d.type==1 && d.time_ms==n*10u*CTRL_LOOP_JOIN_CS) {
                 EXPECT_EQ(d.event,unsigned(event)); seen=true;
             }
             EXPECT_TRUE(seen);
@@ -87,7 +87,7 @@ TEST_F(SrpWalk, ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire) {
     // for an unbound sink; test the same applicant row through Domain.
     input({P::Msg{4,4,false,{P::Vec{false,1,P::fv_domain(6,3,2),{3},{}}}}});
     advance(200); capture(); bool domain_join=false;
-    for(const auto &d:declarations) if(d.type==4 && d.ethertype==0x22ea && d.time_ms==600) {
+    for(const auto &d:declarations) if(d.type==4 && d.ethertype==0x22ea && d.time_ms==3u*10u*CTRL_LOOP_JOIN_CS) {
         EXPECT_EQ(d.event,unsigned(P::app_msg(P::app_next(P::QA,P::eRJoinMt,false,true),false,true)));
         domain_join=true;
     }

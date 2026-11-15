@@ -35,9 +35,11 @@ import re
 from dataclasses import dataclass, field
 
 import answers
+import join_grade
 import mrpdu_grade
 import poll_grade
 import round_grade
+import slice_grade
 import save_grade
 import save_window
 import scenario
@@ -188,6 +190,9 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.traced.append((kind, *rest))
         elif kind in ('LINK', 'GM'):
             log.pads.append((int(rest[0]), kind, int(rest[1])))
+        elif kind == 'DATAPATH':
+            # sim_main.cpp's datapath change pulse (#894): DATAPATH <cycle> <avb|asp|amap> <interface>
+            log.pads.append((int(rest[0]), f'DATAPATH-{rest[1]}', int(rest[2])))
         elif kind == 'EVW':
             cycle, addr, data = int(rest[0]), int(rest[1]), int(rest[2], 16)
             evt[addr] = (cycle, data)
@@ -944,6 +949,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
                             stated=whole_grade.held(log, interfaces), rounds=round_grade.held(log, interfaces),
-                            polls=poll_grade.held(log, interfaces)),
+                            polls=poll_grade.held(log, interfaces), slices=slice_grade.held(log, interfaces),
+                            joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)

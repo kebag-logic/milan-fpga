@@ -227,7 +227,9 @@ bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_
 	// Init storage may be uninitialized: charge its refusal to the caller.
 	if (!aecp_enter(NULL)) return false;
 	memset(a, 0, sizeof *a);
-	if (cfg->interfaces == 0u || cfg->interfaces > AECP_INTERFACES ||
+	if (cfg->interfaces == 0u || cfg->interfaces > AECP_INTERFACES || cfg->owed_slots > 0xffu ||
+	    (cfg->owed_slots != 0u && cfg->owed == NULL) ||
+	    (cfg->owed_slots != 0u && cfg->queue == NULL) ||
 	    cfg->model->count == 0u || cfg->model->count >= 0xffffu || cfg->model->configurations == 0u) {
 		return false;
 	}
@@ -274,9 +276,13 @@ void aecp_open(struct aecp *a)
 	arm(a);
 }
 
+// Ready for a record while no response is owed, no notice waits in the response buffer and the owed-notice queue has
+// a slot: a command's notice owed in the queue does not hold the next record (#894, the ruling of 2026-11-12: no clause
+// orders a notice ahead of the next command or its response, IEEE 1722.1-2021 9.3.5.4 and 7.5.2, Milan v1.2 5.4.5.2).
 bool aecp_ready(struct aecp *a)
 {
-	return aecp_enter(a) && a->open && !a->response_owed && !a->notify;
+	return aecp_enter(a) && a->open && !a->response_owed && !a->notify &&
+	       (a->owed_count == 0u || a->owed_count < a->cfg.owed_slots);
 }
 
 bool aecp_locked(struct aecp *a, uint64_t *owner)
@@ -376,7 +382,26 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 	finish(a, status, body);
 }
 
-static bool transmit(struct aecp *a);
+static bool transmit(struct aecp *a, bool drains);
+
+_Static_assert(AECP_OWED_BYTES >= 26u + 524u, "an owed-notice slot must hold the largest legal AECPDU");
+
+// A command's notice, as its response is about to be sent, into the owed-notice queue's tail when a slot holds it, so
+// AECP takes its next record while the notice is owed; true when it is queued (#894).
+static bool owe(struct aecp *a)
+{
+	if (a->owed_count >= a->cfg.owed_slots || a->response_bytes > AECP_OWED_BYTES) {
+		return false;
+	}
+	const unsigned tail = a->owed_head + a->owed_count;
+	struct aecp_owed *o = &a->cfg.owed[tail < a->cfg.owed_slots ? tail : tail - a->cfg.owed_slots];
+	memcpy(o->frame, a->response, a->response_bytes);
+	o->bytes = (uint16_t)a->response_bytes;
+	o->requester = a->requester;
+	++a->owed_count;
+	a->notify = false;
+	return true;
+}
 
 void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t len)
 {
@@ -481,9 +506,11 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 			a->start_deadline = a->now + 8u;
 		}
 	}
-	// A plain response is committed in the record's turn, so the pass may take the channel's next (#665)
-	if (!a->notify && !a->waiting && !a->start_pending) {
-		(void)transmit(a);
+	// A plain response is committed in the record's turn, so the pass may take the channel's next (#665); so is one whose
+	// notice the owed-notice queue takes: its response first, its notice to the poll, after every notice owed before it
+	// (#894; Milan v1.2 5.4.5.1 and 5.4.5.2)
+	if (!a->waiting && !a->start_pending && (!a->notify || (a->cfg.queue != NULL && a->cfg.queue->owe(a)))) {
+		(void)transmit(a, false);
 	}
 	arm(a);
 }
@@ -606,34 +633,31 @@ static inline void address(uint8_t *f, const struct aecp_registration *r, uint64
 // reports lost is owed: the notice resumes at its recipient, whose sequence_id
 // it did not spend (IEEE 1722.1-2021 7.5.2: each registered controller is sent
 // the notice).
-static bool fan_out(struct aecp *a)
+static bool fan_out(struct aecp *a, uint8_t *frame, size_t bytes, uint64_t requester, unsigned *at, uint8_t *other)
 {
 	const unsigned total = a->cfg.interfaces * AECP_REGISTRATIONS;
-	const bool fan = a->ports->fan != NULL && a->response_bytes <= AECP_FAN_BYTES;
-	uint8_t *frame = a->response;
-	uint8_t *other = a->response + AECP_FAN_BYTES;
+	const bool fan = a->ports->fan != NULL && other != NULL && bytes <= AECP_FAN_BYTES;
 	bool owed = false;
 	bool lost = false;
 	unsigned held = 0; // the recipient of the frame the fan port holds uncommitted, and its registration
 	struct aecp_registration *held_r = NULL;
-	a->response[36] |= 0x80u;
+	frame[36] |= 0x80u;
 	if (fan) {
-		memcpy(other, frame, a->response_bytes);
+		memcpy(other, frame, bytes);
 	}
 	aecp_port_begin(a);
-	unsigned k = a->recipient;
+	unsigned k = *at;
 	while (!owed && k < total) {
 		const unsigned i = k / AECP_REGISTRATIONS;
 		struct aecp_registration *r = &a->registry[i][k % AECP_REGISTRATIONS];
 		// the interface's used slots from k on (aecp.used), each a step of r and k
 		for (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS); slots != 0u; slots >>= 1, ++r, ++k) {
-			if ((slots & 1u) == 0u || r->controller == a->requester) {
+			if ((slots & 1u) == 0u || r->controller == requester) {
 				continue;
 			}
 			address(frame, r, a->cfg.mac[i]);
-			const enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :
-				a->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie) ? AECP_FAN_TAKEN :
-				AECP_FAN_REFUSED;
+			const enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, bytes) :
+				a->ports->send(a->ports->ctx, i, frame, bytes, a->tx_cookie) ? AECP_FAN_TAKEN : AECP_FAN_REFUSED;
 			if (taken != AECP_FAN_TAKEN) {
 				owed = true;
 				lost = taken == AECP_FAN_LOST;
@@ -670,13 +694,29 @@ static bool fan_out(struct aecp *a)
 		k = held;
 		--held_r->sequence;
 	}
-	a->recipient = k;
+	*at = k;
 	aecp_port_end(a);
-	a->notify = owed;
 	return owed;
 }
 
-static bool transmit(struct aecp *a)
+// The owed-notice queue's oldest notice, its walk of the recipients from where it stopped; its slot freed once the walk
+// reaches its last recipient (#894). A poll's only, where it drains; a count past none means owe queued it, with the
+// queue's operations given.
+static void owed_drain(struct aecp *a)
+{
+	struct aecp_owed *o = &a->cfg.owed[a->owed_head];
+	a->counter_event = a->cfg.model->count;
+	if (!fan_out(a, o->frame, o->bytes, o->requester, &a->owed_recipient, a->notify ? NULL : a->response)) {
+		a->owed_recipient = 0u;
+		a->owed_head = a->owed_head + 1u < a->cfg.owed_slots ? (uint8_t)(a->owed_head + 1u) : 0u;
+		--a->owed_count;
+	}
+}
+
+const struct aecp_owed_queue aecp_owed_queue = {owe, owed_drain};
+
+// The response owed, if any: true while its ring has no room for it.
+static bool respond(struct aecp *a)
 {
 	if (a->response_owed) {
 		if (!send(a)) {
@@ -689,7 +729,31 @@ static bool transmit(struct aecp *a)
 			a->probe_recipient = -1;
 		}
 	}
-	return a->notify && fan_out(a);
+	return false;
+}
+
+// The notices owed, true while one is left: the owed-notice queue's oldest, one a call where it drains and none in a
+// record's turn, then the response buffer's, so every recipient has them in the order their commands were taken, each
+// at its next sequence_id (#894; Milan v1.2 5.4.5.1, IEEE 1722.1-2021 9.3.5.2.6). The queue's walk alternates with the
+// response buffer, free once its response is sent, or sends frame by frame while a notice waits there.
+static bool notices(struct aecp *a, bool drains)
+{
+	if (a->owed_count != 0u) {
+		if (drains) {
+			a->cfg.queue->drain(a);
+		}
+		return a->owed_count != 0u || a->notify;
+	}
+	a->notify = a->notify && fan_out(a, a->response, a->response_bytes, a->requester, &a->recipient,
+					 a->response + AECP_FAN_BYTES);
+	return a->notify;
+}
+
+// AECP's send: the response owed, then the notices, the owed-notice queue's oldest only where it drains, from the
+// poll; none of the queue's in a record's turn or THE RETRY's round (#894).
+static bool transmit(struct aecp *a, bool drains)
+{
+	return respond(a) || notices(a, drains);
 }
 
 static bool scan(struct aecp *a);
@@ -836,7 +900,7 @@ bool aecp_poll(struct aecp *a)
 		}
 		aecp_start_done(a, false, false);
 	}
-	if (transmit(a)) {
+	if (transmit(a, true)) {
 		return true;
 	}
 	if (a->waiting) {
@@ -872,7 +936,7 @@ bool aecp_poll(struct aecp *a)
 // What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it.
 static bool round_waits(const struct aecp *a)
 {
-	return a->response_owed || a->notify || a->waiting || a->start_pending;
+	return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;
 }
 
 bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)
@@ -890,7 +954,7 @@ bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)
 	// every attempt starts with a notice's time left, and a refused one is charged to the round (scan)
 	for (unsigned n = 0; n < notices && !owed && scan(a); ++n) {
 		a->round_us -= a->notice_us;
-		owed = transmit(a);
+		owed = transmit(a, false);
 	}
 	arm(a);
 	return owed || a->retry_held;

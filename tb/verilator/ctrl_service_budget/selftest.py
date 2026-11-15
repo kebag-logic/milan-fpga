@@ -743,8 +743,8 @@ def build_checks() -> list[Check]:
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces'} and named['8x8'] in ctrl_memory.LEDGERED
-            and not any(others.values()), f'{named}; other points {others}')]
+            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
+            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
@@ -927,8 +927,8 @@ def checks() -> list[Check]:
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
-            *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ),
-            *polls_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(), *answer_checks(sys.modules[__name__]),
+            *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
+            *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
             *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
             *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ),

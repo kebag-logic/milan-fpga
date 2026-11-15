@@ -37,7 +37,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
-POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
+POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
+          '8x8-1if': ('endstation_ax7101_8x8', 1)}
 
 
 def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
@@ -140,9 +141,14 @@ def share_misses(results: list[dict]) -> list[str]:
 
 
 def stated_misses(results: list[dict]) -> list[str]:
-    """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost THE RETRY's
-    search counts from (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy items
-    dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held)."""
+    """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost the rows by
+    every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
+    items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
+    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
+    absent (join_grade.held, mrpdu_grade.resolve)."""
+    import join_grade
+    import mrpdu_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -152,9 +158,53 @@ def stated_misses(results: list[dict]) -> list[str]:
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
             [f"{g['group']}: " + ("a pass's polls base of " if o['kind'] == 'base' else
                                   "an SRP record's apply of " if o['kind'] == poll_grade.RECORD else
+                                  "a declined ACMP offer of " if o['kind'] == poll_grade.DECLINED else
+                                  "a kept ACMP command's accepted offer of " if o['kind'] == poll_grade.KEPT else
                                   f"a {o['kind']} item of ")
              + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
-             for g in results for o in g['passes'].get('polls', {}).get('over', [])])
+             for g in results for o in g['passes'].get('polls', {}).get('over', []) if o['kind'] != poll_grade.DECLINES]
+            + [f"{g['group']}: {o['cycles']} declined ACMP offers, over their bound of two a sent owed frame and one "
+               f"({o['sends']} sent)" for g in results for o in g['passes'].get('polls', {}).get('over', [])
+               if o['kind'] == poll_grade.DECLINES] +
+            [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
+             f"stated slice {g['passes']['slices']['limit']:,}"
+             for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
+            [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
+             f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
+            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
+             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
+              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
+              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
+             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])
+
+
+#: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
+SLICE_KINDS = {'srp': "SRP's records", 'build': "THE TRANSMIT's build", 'round': "THE RETRY's round"}
+
+
+def print_slices(results: list[dict]) -> None:
+    """The SLICES line: how many tier-2 slices the groups hold and each kind's longest, against the stated slice."""
+    sliced = [g['passes']['slices'] for g in results if g['passes'].get('slices', {}).get('slices')]
+    if sliced:
+        longest = {kind: max(s['longest'][kind] for s in sliced) for kind in SLICE_KINDS}
+        print(f"SLICES {sum(s['slices'] for s in sliced)} tier-2 slices; the longest "
+              + ', '.join(f"{SLICE_KINDS[kind]} {cycles:,}" for kind, cycles in longest.items())
+              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,} (THE TIERS)")
+
+
+def print_joins(results: list[dict]) -> None:
+    """Each group's JOINS line: its join intervals' count, shortest and longest (join_grade.py; #894's contingent
+    ruling of 2026-11-13, item 4)."""
+    import join_grade
+    for g in results:
+        j = g['passes'].get('joins') or {}
+        runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
+        if j.get('count'):
+            print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
+                  f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}; MRP "
+                  f"timers' run-outs: {runs}")
+        elif runs:
+            print(f"JOINS {g['group']}: no join interval; MRP timers' run-outs: {runs}")
 
 
 def saves(results: list[dict]) -> list[dict]:
@@ -463,8 +513,10 @@ def unstated(group: object) -> list[str]:
 
 
 def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list, list, list]:
-    """Every group's grade, the refusals and the budget misses; each grade is written beside its log."""
+    """Every group's grade, the refusals and the budget misses; each grade is written beside its log. The largest
+    legal notice's group that measured no such notice is refused (long_notice.missing)."""
     import grade
+    import long_notice
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         refusals += unstated(group)
@@ -483,7 +535,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
                               f"at least {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
             elif not r['within_budget']:
                 misses.append(f"{r['probe']}: {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
-    return results, refusals, misses
+    return results, refusals + long_notice.missing(results), misses
 
 
 #: The access faults #791's region decode raises: whichever access first meets a rom
@@ -729,6 +781,8 @@ def main() -> int:
         print(f"STEPS {sum(s['passes'] for _, s in stepped)} passes carry the store's step; the longest "
               f"{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), {group}; the longest step {store['store_cycles']:,} "
               f"({store['store_ms']:.3f} ms), {where}")
+    print_slices(results)
+    print_joins(results)
     opened = aged(results)
     if opened:
         least = min(opened, key=lambda a: a['margin_ms'])

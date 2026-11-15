@@ -124,7 +124,7 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     // The pass's frames padded to the channel's maximum (srp_cost_probe.hpp), so the measurement holds the whole
     // transmit term. THE TRANSMIT's call has a pass of its own, with no poll beside it (ctrl_loop.h).
     srp_probe={&model,0,0,0,true};
-    const auto transmit_pass=cost([&]{loop.transmit(loop.transmit_ctx);});
+    const auto transmit_pass=cost([&]{loop.transmit(loop.transmit_ctx,2u);});
     const auto observed=srp_probe;
     srp_probe={};
     ASSERT_GT(adapter.transmitted,sent);
@@ -145,7 +145,7 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     const auto record=cost([&]{ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&taken),MBX_STATUS_OK);});
     check("SRP maximum RX record bound",record,SRP_MBX_RX_RECORD_MAX);
     ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
+    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     const auto pass=cost([&]{ctrl_loop_service(&loop);});
     ASSERT_GT(pass,record);
     check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
@@ -214,7 +214,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     EXPECT_EQ(poll(),idle) << "the poll builds no MRPDU";
     EXPECT_EQ(srp_probe.sends,0u) << "the poll builds no MRPDU";
     srp_probe={};
-    auto build=[&] { return srp_cost(model,[&]{loop.transmit(loop.transmit_ctx);}); };
+    auto build=[&] { return srp_cost(model,[&]{loop.transmit(loop.transmit_ctx,2u);}); };
     unsigned sends=0;
     uint64_t most=0;
     // a declaration made after a build owes the participant whose join timer is idle a pass of its own
@@ -266,7 +266,7 @@ TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
     receive_before_poll(frame(4,{6,4,0,3},0));
     // the adoption is a declaration, which THE TRANSMIT's call makes with its build after the pass's poll
     // (ctrl_loop.h), so the pass's term is the two together
-    const auto adoption=pub([&] { poll(); loop.transmit(loop.transmit_ctx); });
+    const auto adoption=pub([&] { poll(); loop.transmit(loop.transmit_ctx,2u); });
     EXPECT_EQ(adoption,3u) << "a Domain adoption publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL once each";
     settle(); advance(200);
     EXPECT_CALL(licence,Change(0,0,true));
@@ -298,7 +298,7 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
         << "pass event records are funded independently";
     // Those resets' polls: receive waits until the new participants are built.
     for (unsigned n=0;n<2u;++n) loop.polls[0].fn(loop.polls[0].ctx);
-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
+    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
     // Ethernet padding needs no allocation; the real readiness check runs.
     loop.rx[MBX_CH_SRP]=receive;

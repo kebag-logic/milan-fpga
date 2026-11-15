@@ -103,8 +103,8 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
 
 def stated_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
-    """A pass given whole to a build or an aged step against the cost THE RETRY's search counts from, and what is not
-    held to one: a pass whose round did something, and a pass that built nothing."""
+    """A pass given whole to a build or an aged step against the cost the rows by every source charge it, and what is
+    not held to one: a pass whose round did something, and a pass that built nothing."""
     limits = {kind: us * cpu_hz // 1_000_000 for kind, us in whole_grade.stated_us(2).items()}
 
     def held(cycles: int, builds: int = 0, aged: bool = False, aecp: int = 0) -> dict:

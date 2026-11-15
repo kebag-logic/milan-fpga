@@ -82,13 +82,14 @@ def queue_checks() -> list[Check]:
         dict(status='measured', path=[notice_window.QUEUED, 0], ms=last, budget_ms=bound,
              within_budget=last <= bound)])]
     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
-                     ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1)))
-    return [("a queued notice's bound is the constants', 22 ms at one interface and 62 ms at two", got == (22, 62),
-             str(got)),
+                     ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
+                      (19.5, 131.0, 1)))
+    return [("a queued notice's bound is the constants', the last queued notice's 130 ms at one interface (#894's "
+             "amendment of 2026-11-13 to decision D's 125) and 62 ms at two", got == (130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
              first == (20, 22), str(first)),
             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",
-             verdicts == (0, 1, 1, 0, 1), str(verdicts))]
+             verdicts == (0, 1, 1, 0, 1, 1), str(verdicts))]
 
 
 def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem_response: Callable,

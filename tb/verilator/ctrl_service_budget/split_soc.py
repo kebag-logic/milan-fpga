@@ -174,7 +174,8 @@ def platform_for(contract: object, n_if: int) -> object:
                   ('rx_valid', 1), ('rx_ready', 1), ('rx_data', 8), ('rx_last', 1), ('rx_if', w['interface']),
                   ('tx_valid', 1), ('tx_ready', 1), ('tx_data', 8), ('tx_last', 1), ('tx_if', w['interface']),
                   ('tx_ch', w['channel']), ('host_req', 1), ('host_we', 1), ('host_addr', w['addr']),
-                  ('host_wdata', 32), ('host_ack', 1), ('host_rdata', 32), ('ms_tick', 1)]
+                  ('host_wdata', 32), ('host_ack', 1), ('host_rdata', 32), ('ms_tick', 1),
+                  ('avb_chg', n_if), ('asp_chg', n_if), ('amap_wr', n_if)]
     flash_fields = [('cs', 1), ('tx_valid', 1), ('tx_ready', 1), ('tx_data', 32), ('tx_len', 6),
                     ('tx_width', 4), ('rx_valid', 1), ('rx_ready', 1), ('rx_data', 32)]
     platform.add_extension([('mbx', 0, *[Subsignal(n, Pins(width)) for n, width in mbx_fields]),
@@ -206,6 +207,9 @@ class StimulusMailbox(LiteXModule):
             o_host_be_o=c['be'], i_host_ack_i=c['ack'], i_host_rdata_i=c['rdata'])
         face = face_ports(contract, n_if)
         face['i_fw_ack_p_i'] = self.slowest_ack(face['o_fw_send_o'], n_if, contract)
+        # The datapath's three coalesced change events (mailbox.yaml event types 6 to 8) on the testbench's pads, so a
+        # group can post them and their sinks' cost be measured (#894); idle unless a script pulses one (DATAPATH_PADS)
+        face.update({name: getattr(pads, pad) for name, pad in DATAPATH_PADS.items()})
         self.specials += Instance('KL_mbx',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
             i_host_req_i=h['req'], i_host_we_i=h['we'], i_host_addr_i=h['addr'], i_host_wdata_i=h['wdata'],
@@ -223,7 +227,8 @@ class StimulusMailbox(LiteXModule):
         """The slowest datapath contract 2.3 allows: each interface's commit acknowledged by a
         one-cycle fw_ack_p_i pulse face_ack_cycles(contract) bus cycles after its fw_send_o
         rises (#665). The harness measures a CPU budget, so each commit waits as long as the
-        contract lets it. This is the one face input not held idle as CtrlMailbox holds it."""
+        contract lets it. This and the datapath change pads (DATAPATH_PADS), idle unless a script pulses one, are the
+        face inputs not held idle as CtrlMailbox holds them."""
         bound = face_ack_cycles(contract)
         ack = Signal(n_if)
         for i in range(n_if):
@@ -250,6 +255,11 @@ def unread_publication(contract: object, n_if: int) -> dict[str, object]:
                 o_pub_started_o=Signal(n_if * contract.pub_sinks),
                 o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
 
+
+#: The face block's datapath change inputs the testbench drives (sim_main.cpp, `datapath`), each a pad of the mbx
+#: resource: GET_AVB_INFO's and AS_PATH's change an interface, and the live map's write (mailbox.yaml event types 6 to
+#: 8). CtrlMailbox holds them idle; the harness pulses them only where a group asks (#894: their sinks' cost).
+DATAPATH_PADS = {'i_avb_chg_p_i': 'avb_chg', 'i_asp_chg_p_i': 'asp_chg', 'i_amap_wr_p_i': 'amap_wr'}
 
 #: The face block's inputs (contract 2.3), each held idle by name as CtrlMailbox holds it: the
 #: datapath's commit acknowledgement, the four windows' answers and the face events. The

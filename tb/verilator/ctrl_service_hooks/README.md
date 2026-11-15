@@ -52,7 +52,7 @@ python3 -B tb/verilator/ctrl_service_hooks/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one interface, the shipping shape.
 `8x8` is `endstation_ax7101_8x8` with two, the largest.
-At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, owed to lane S14.
+At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, and 59.5 since the control loop's tiers (#894, [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820)), owed to lane S14.
 
 `--cpu-clock` names the CPU clock: `sys`, the product's 100 MHz, by default, or `milan`, the 50 MHz history clock. The bus stays at 100 MHz.
 `--arm answering` runs the labelled answering-face arm ([The SoC and the testbench](#the-soc-and-the-testbench)), the only arm with H-COUNTERS.
@@ -150,7 +150,7 @@ A late plant spins 120,000 turns in the hook's service path, each a load and a s
 | `acmp-order` | `acmp_mbx.c` `on_frame`: a command is held and taken after the next | `hooks-order-acmp` | `ORDER H-ACMP` |
 | `aecp-late` | `aecp_mbx.c` `frame`: spins before `aecp_rx` | `hooks-late-aecp` | `LATE H-AECP` on `hooks-late-aecp.read_descriptor.if0` |
 | `aecp-order` | `aecp_face.c` `changed` defers the publication to the face's poll, and `aecp.c` no longer waits for it | `aecp` | `ORDER H-AECP` |
-| `notify-late` | `aecp.c` `transmit`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` on `hooks-late-notify.set_name.if0` |
+| `notify-late` | `aecp.c` `fan_out`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` on `hooks-late-notify.set_name.if0` |
 | `notify-order` | `aecp.c` `transmit`: the notifications are sent before the owed response | `aecp-fanout` | `ORDER H-NOTIFY` |
 | `counters-late` | `ctrl_app_aecp.c` `face_event`: spins on COUNTERS_CHANGED | `hooks-counters` | `LATE H-COUNTERS` on `counters.first.if0` |
 | `counters-order` | `aecp.c` `asynchronous`: the 1 s spacing after a counter push's departure is dropped | `hooks-counters` | `ORDER H-COUNTERS` |

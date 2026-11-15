@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The costs THE RETRY's search rests on (#665; ctrl_loop.h, CTRL_LOOP_STEP_PASS_US, CTRL_LOOP_BUILD_PASS_US and
-CTRL_LOOP_BUILD_ONE_PASS_US; sw/firmware/ctrl/test/ctrl_retry_search.py). A pass given whole to a build or an aged step
-leaves the round after it what that work leaves of THE SHARE, and the search counts the notices such a pass carries
-from these costs, so a dearer pass would carry fewer notices than the bound says, with no pass over the share to show
-it. A pass whose round found nothing to do is its work alone, and each is held to its stated cost here.
+"""The costs the rows by every source charge a pass given whole (#665, #894; ctrl_loop.h, CTRL_LOOP_STEP_PASS_US,
+CTRL_LOOP_BUILD_PASS_US and CTRL_LOOP_BUILD_ONE_PASS_US; rows_tiers.py). A pass given whole to a build or an aged step
+leaves the round after it what that work leaves of its slice, and the rows charge such a pass these costs, so a
+dearer pass would leave its slice less than the rows say, with no pass over the share to show it. A pass whose round
+found nothing to do is its work alone, and each is held to its stated cost here.
 """
 from __future__ import annotations
 

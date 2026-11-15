@@ -134,8 +134,8 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
       'then the next pass tries it though input waits')),
     # the round's room (#665): what its pass has left, under the margin, at a notice's stated cost
     ('retry-yield-ignored', 'aecp_mbx.c',
-     'const unsigned most = l->backlog ? yield : AECP_NOTICES_MOST;',
-     'const unsigned most = yield + AECP_NOTICES_MOST;',
+     'l->backlog ? yield : AECP_NOTICES_MOST;',
+     'yield + AECP_NOTICES_MOST;',
      ('Mailbox.ARoundFillsWhatItsPassHasLeft',
       'however much of the pass is left')),
     ('retry-yield-spent-by-nothing', 'aecp_mbx.c',

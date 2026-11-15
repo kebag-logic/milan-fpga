@@ -291,7 +291,7 @@ TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
             unsigned count=0;
             for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==type) {
                 ASSERT_LT(count,3u); const unsigned events[]={0,0,3};
-                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,200*count); ++count;
+                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count); ++count;
                 if(type==4) EXPECT_EQ(d.value,(std::vector<uint8_t>{6,3,0,2}));
                 else {
                     const unsigned index=type==1 ? 0 : 1;
@@ -307,7 +307,7 @@ TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
         }
         unsigned count=0;
         for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x88f5) {
-            EXPECT_EQ(d.type,1u); EXPECT_EQ(d.event,3u); EXPECT_EQ(d.time_ms,200*count);
+            EXPECT_EQ(d.type,1u); EXPECT_EQ(d.event,3u); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count);
             EXPECT_EQ(d.value,(std::vector<uint8_t>{0,2})); ++count;
         }
         EXPECT_EQ(count,2u);
@@ -440,8 +440,9 @@ TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     wire_put_be(filler.data()+12,0x22ea,2);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
     // THE TRANSMIT builds in the first pass that takes at most one event (ctrl_loop.h): at two interfaces the
-    // first pass takes both LINK records
-    for(unsigned n=0;n<4u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    // first pass takes both LINK records; a slice holds CTRL_LOOP_BUILD_MOST of an interface's two MRPDUs, so its
+    // startup build takes 2 / CTRL_LOOP_BUILD_MOST passes (THE TIERS)
+    for(unsigned n=0;n<4u*2u/CTRL_LOOP_BUILD_MOST && !adapter.owed_len;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
     EXPECT_FALSE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
     std::vector<uint8_t> owed(adapter.owed_frame,adapter.owed_frame+adapter.owed_len);
@@ -485,7 +486,7 @@ TEST_F(Srp, ReentryFromOutputIsRefusedAndCounted) {
         mbx_frame f{}; f.len=17; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         f.len=0; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         EXPECT_FALSE(loop.polls[loop.n_polls-1].fn(&adapter));
-        loop.transmit(loop.transmit_ctx);
+        loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
         loop.ticks[loop.n_ticks-1]();
         EXPECT_FALSE(srp_mbx_init(&adapter,&config));
         EXPECT_EQ(adapter.reentries,before+10);
@@ -547,7 +548,7 @@ TEST_F(Srp, AttachmentFailureIsAtomicAndDetachesAfterLoopReset) {
     ctrl_loop_init(&loop); ctrl_loop_bind_rx(&loop,MBX_CH_SRP,[](void*,const mbx_frame*){},nullptr);
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop));
     ctrl_loop_init(&loop);
-    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*){},[](void*){return false;},nullptr));
+    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*,unsigned){},[](void*){return false;},nullptr));
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop))<<"a loop whose THE TRANSMIT client is bound is refused";
     EXPECT_EQ(loop.n_polls,0u);
     ctrl_loop_init(&loop);
@@ -732,14 +733,16 @@ TEST_F(Srp, SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind) {
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,7)); settle();
     EXPECT_EQ(adapter.ifs[0].sinks[1].declared,2u);
     advance(200); const unsigned first=model.tx_sent;
+    // what is declared after the first unbind, whatever the JoinTime's grid (CTRL_LOOP_JOIN_CS)
+    const unsigned unbound=model.now_ms;
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); advance(200); capture();
-    for(const auto &d:declarations) if(d.time_ms>=1000 && d.ethertype==0x22ea && d.type==3) {
+    for(const auto &d:declarations) if(d.time_ms>unbound && d.ethertype==0x22ea && d.type==3) {
         EXPECT_NE(d.event,5u)<<"one remaining binding retains the Listener";
     }
     EXPECT_TRUE(adapter.ifs[0].sinks[1].vlan_sent);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0)); advance(200); capture();
     bool vlan_left=false; bool listener_left=false;
-    for(const auto &d:declarations) if(d.event==5 && d.time_ms>=1000) {
+    for(const auto &d:declarations) if(d.event==5 && d.time_ms>unbound) {
         vlan_left|=d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,7});
         listener_left|=d.ethertype==0x22ea && d.type==3;
     }
@@ -1288,8 +1291,13 @@ TEST_F(Srp, RefusedPeerDomainDoesNotSurviveLinkRestart) {
     ASSERT_GE(held.size(),2u);
     ctrl_loop_service(&loop);
     ASSERT_TRUE(adapter.ifs[0].domain_owed);
+    // the old link's reset discards the owed Domain: once it is taken neither owed nor adopted, whatever build ran
+    // before it, a build resumed across slices included (#894)
+    mbx_model_set_link(&model,0,false); settle();
+    EXPECT_TRUE(!adapter.ifs[0].domain_owed && adapter.ifs[0].domain.vid == 2u)
+        <<"old link's refused Domain must be discarded at its reset";
     for(void *p:held) ctrl_pool_free(&pool,p);
-    mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true); settle(); advance(400);
+    mbx_model_set_link(&model,0,true); settle(); advance(400);
     EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"old link's refused Domain must be discarded";
     EXPECT_EQ(adapter.ifs[0].domain.priority,3u);
 }
@@ -1515,7 +1523,7 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     settle();
     EXPECT_EQ(adapter.tx_due,0u)<<"a settled adapter owes no MRPDU";
     // every participant now owes an MRPDU (Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks)
-    for (unsigned n=0;n<19u;++n) loop.ticks[0]();
+    for (unsigned n=0;n+1u<CTRL_LOOP_JOIN_CS;++n) loop.ticks[0]();
     EXPECT_EQ(adapter.tx_due,0u)<<"no centisecond before a join timer's end owes one";
     loop.ticks[0]();
     EXPECT_NE(adapter.tx_due,0u)<<"the centisecond that ends a join timer owes its interface's MRPDUs";
@@ -1530,7 +1538,8 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     EXPECT_NE(ctrl_loop_service(&loop),0u);
     EXPECT_EQ(loop.stats.transmit_passes,passes+1u)<<"the pass goes to the build";
     EXPECT_EQ(loop.stats.rx_records,rx)<<"it takes no record";
-    EXPECT_EQ(adapter.transmitted,sent+2u)<<"and sends both participants' MRPDUs of the first interface that owes";
+    EXPECT_EQ(adapter.transmitted,sent+CTRL_LOOP_BUILD_MOST)
+        <<"and sends the MRPDUs its slice holds of the first interface that owes, both where it holds them";
     settle();
     EXPECT_EQ(adapter.transmitted,sent+2u*MBX_N_IF)<<"the next such pass the next interface's";
     EXPECT_EQ(loop.stats.rx_records,rx+1u)<<"and the pass after them takes the record";
@@ -1557,15 +1566,141 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     settle();
 }
 
+namespace {
+ctrl_transmit_fn whole_transmit;
+unsigned slice_most;   // the MRPDUs the test's slices hold
+unsigned slice_calls, slice_frames, slice_widest;
+mbx_model *slice_model;
+void sliced_transmit(void *ctx, unsigned) {
+    const unsigned before = slice_model->tx_sent;
+    whole_transmit(ctx, slice_most);
+    ++slice_calls;
+    slice_frames = slice_model->tx_sent - before;
+    slice_widest = slice_frames > slice_widest ? slice_frames : slice_widest;
+}
+ctrl_poll_fn gap_poll;   // SRP's poll, run in each gap a slice leaves between an adoption's MSRP and its MVRP
+unsigned gap_slices;     // the slices that ended with a resume owed and interface 0's VLAN unsent
+bool gap_licensed;       // whether interface 0's Talker was licensed in such a gap, after its poll
+void gapped_transmit(void *ctx, unsigned) {
+    whole_transmit(ctx, 1u);
+    const auto *m = static_cast<const srp_mbx *>(ctx);
+    if (m->tx_resume != 0u && !m->ifs[0].vlan_sent) {
+        ++gap_slices;
+        static_cast<void>(gap_poll(ctx));   // an ordinary pass's poll between the two slices
+        gap_licensed = gap_licensed || m->ifs[0].active[0];
+    }
+}
+}
+
+// THE TIERS (#894): where a slice holds one MRPDU (CTRL_LOOP_BUILD_MOST 1, both points), a Domain that moves the VID,
+// adopted in a build's first slice, goes out in its MSRP MRPDU and the MVRP MRPDU follows in the next slice, an
+// ordinary pass's poll between the two; the Talker's licence waits for the MVRP commit (vlan_sent; Milan v1.2 4.3.2).
+TEST_F(Srp, ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent) {
+    whole_transmit = loop.transmit;
+    loop.transmit = gapped_transmit;
+    gap_poll = nullptr;
+    for (unsigned k = 0; k < loop.n_polls; ++k) {
+        if (loop.polls[k].ctx == &adapter) {
+            gap_poll = loop.polls[k].fn;
+        }
+    }
+    ASSERT_NE(gap_poll, nullptr);
+    gap_slices = 0u;
+    gap_licensed = false;
+    settle();
+    EXPECT_CALL(licence, Change(0, 0, true));
+    offer(frame(3, identity(0), 1, 2), 0);
+    ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+    unsigned grants = 0u;
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, false)).Times(::testing::AnyNumber());
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, true))
+        .WillRepeatedly([&](unsigned, unsigned, bool) {
+            ++grants;
+            EXPECT_TRUE(adapter.ifs[0].vlan_sent) << "the Talker's licence waits for the MVRP commit";
+        });
+    offer(frame(4, {6, 4, 0, 3}, 0));
+    advance(400);
+    EXPECT_EQ(adapter.ifs[0].domain.vid, 3u) << "(the Domain was adopted)";
+    EXPECT_GE(gap_slices, 1u) << "a slice ends between the adoption's MSRP and its MVRP, a poll run there";
+    EXPECT_FALSE(gap_licensed) << "no Talker is licensed there while its VLAN is unsent";
+    EXPECT_EQ(grants, 1u) << "and the Talker is licensed again once its VLAN is sent";
+    ::testing::Mock::VerifyAndClearExpectations(&licence);
+    EXPECT_CALL(licence, Change(::testing::_, ::testing::_, ::testing::_)).Times(::testing::AnyNumber());
+    loop.transmit = whole_transmit;
+}
+
+// THE TRANSMIT's build resumes across slices (THE TIERS; #665, the decision of 2026-11-09, item 2): the same SRP
+// frames, in the same order, as the build made whole, each call making at most the MRPDUs its slice holds; a reset
+// between two slices leaves the new participants a whole build.
+TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
+    const auto frames = [&](unsigned most) {
+        TearDown();
+        SetUp();
+        whole_transmit = loop.transmit;
+        slice_model = &model;
+        slice_most = most;
+        slice_calls = slice_widest = 0u;
+        loop.transmit = sliced_transmit;
+        settle();
+        msrp_stream_id sid{{2,1,2,3,4,5,6,7}}; uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+        EXPECT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,2));
+        offer(frame(4,{6,5,0,3},0));   // a Domain to adopt
+        for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+        settle();
+        std::vector<std::vector<uint8_t>> out;
+        for (unsigned k=0;k<model.tx_sent;++k) {
+            const auto *f=mbx_model_tx_frame(&model,k);
+            out.emplace_back(f->bytes,f->bytes+f->len);
+        }
+        loop.transmit = whole_transmit;
+        return std::make_pair(out, slice_calls);
+    };
+    const auto whole = frames(2u);
+    const auto sliced = frames(1u);
+    EXPECT_GT(whole.first.size(),2u*MBX_N_IF)<<"(the scenario builds every participant's MRPDUs)";
+    EXPECT_LE(slice_widest,1u)<<"a slice that holds one MRPDU makes one";
+    EXPECT_GT(sliced.second,whole.second)<<"so the build takes more slices";
+    EXPECT_EQ(sliced.first,whole.first)<<"a build resumed across slices sends the frames of the build made whole";
+    // a reset between two slices: the interface's new participants build whole, MSRP's first, not from where the
+    // build it was resuming stopped
+    TearDown();
+    SetUp();
+    whole_transmit = loop.transmit;
+    slice_model = &model;
+    slice_most = 1u;
+    loop.transmit = sliced_transmit;
+    settle();
+    adapter.tx_due = 1u;
+    loop.transmit(loop.transmit_ctx, 1u);
+    ASSERT_NE(adapter.tx_resume,0u)<<"(a build resuming at its next participant)";
+    mbx_model_set_link(&model,0,false);
+    mbx_model_set_link(&model,0,true);
+    // the reset and the rebuild before THE TRANSMIT's next slice (one held off, as by tier 1's records)
+    loop.transmit = [](void*,unsigned){};
+    for (unsigned n=0;n<64u;++n) static_cast<void>(ctrl_loop_service(&loop));
+    ASSERT_NE(adapter.ifs[0].msrp,nullptr)<<"(the interface rebuilt)";
+    loop.transmit = sliced_transmit;
+    adapter.tx_due |= 1u;
+    const unsigned before = model.tx_sent;
+    settle();
+    unsigned first = 0u;
+    for (unsigned k=before;k<model.tx_sent && first==0u;++k) {
+        const auto *f=mbx_model_tx_frame(&model,k);
+        if (f->interface==0u) first=wire_be16(f->bytes+12);
+    }
+    EXPECT_EQ(first,0x22eau)<<"a reset ends the build it was resuming: its new participants build whole, MSRP first";
+    loop.transmit = whole_transmit;
+}
+
 // A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a
 // build of a participant that sends nothing leaves it, and an Applicant moved while it runs owes nothing before it
 // ends. LeaveAll's timer owes its LeaveAll whatever the join timer's count (802.1Q Table 10-5).
 TEST_F(Srp, TheJoinCountFollowsWhatABuildSent) {
     settle();
-    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    for (unsigned n=0;n<CTRL_LOOP_JOIN_CS;++n) loop.ticks[0]();
     settle();
     const uint8_t left=adapter.join_left[0];
-    EXPECT_EQ(left,20u)<<"a sent MRPDU restarts its participant's count at the JoinTime";
+    EXPECT_EQ(left,CTRL_LOOP_JOIN_CS)<<"a sent MRPDU restarts its participant's count at the JoinTime";
     EXPECT_EQ(adapter.tx_due,0u);
     for (unsigned n=0;n<5u;++n) loop.ticks[0]();
     EXPECT_EQ(adapter.join_left[0],left-5u)<<"each centisecond takes one off it";
