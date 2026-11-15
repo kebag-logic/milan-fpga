@@ -1,0 +1,27 @@
+docs_check	.	scripts/docs_check.py
+feature_status	.	scripts/check_feature_status.py
+em_dash_66f71326	.	scripts/check_em_dash.py --base 66f713267f201d1a00d7f711e04b3a996d804dee
+em_dash_867faf1e	.	scripts/check_em_dash.py --base 867faf1e7321e1260f86701f01d7de0c94e67490
+em_dash_478ff78c	.	scripts/check_em_dash.py --base 478ff78cc7752635147511490b06a0aa9ec1f25c
+doc_style	.	scripts/check_doc_style.py
+doc_style_selftest	.	scripts/check_doc_style.py --selftest
+gptp_docs	.	scripts/check_gptp_docs.py
+gptp_docs_selftest	.	scripts/check_gptp_docs.py --selftest
+solution_docs	.	scripts/check_solution_docs.py
+submodule_docs	.	scripts/check_submodule_docs.py
+todo_ownership	.	scripts/check_todo_ownership.py
+hygiene	.	scripts/check_hygiene.py --check
+py_idiom	.	scripts/check_py_idiom.py
+cpp_idiom	.	scripts/check_cpp_idiom.py
+archive	.	scripts/check_archive.py
+doc_paths	.	scripts/check_doc_paths.py
+toc_anchors	.	scripts/gen_toc.py --verify-anchors
+toc_check	.	scripts/gen_toc.py --check
+doc_map	.	docs/DOC_MAP.gen.py --check
+flip_1x1	tb/verilator/ctrl_service_budget	flip_grade.py --check --point 1x1/1if
+flip_8x8	tb/verilator/ctrl_service_budget	flip_grade.py --check --point 8x8/2if
+flip_both	tb/verilator/ctrl_service_budget	flip_grade.py --check
+flip_selftest	tb/verilator/ctrl_service_budget	flip_grade.py --selftest
+load_check	tb/verilator/ctrl_service_budget	load_grade.py --check
+load_selftest	tb/verilator/ctrl_service_budget	load_grade.py --selftest
+rows_tiers_selftest	tb/verilator/ctrl_service_budget	rows_tiers.py --selftest

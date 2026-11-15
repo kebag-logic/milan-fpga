@@ -1,0 +1,9 @@
+## F1: 91.59|14.60|20.25|647.23 across the sweep's scope at the head
+docs/design/SPLIT_CONTROL_MEMORY.md:1742:| SRP record, every channel at its refill rate, the longest | 18 | 8.67 / 8.69 | 7.65 / 7.68 | 14.60 / 14.81 | 13.88 / 13.89 |
+docs/design/SPLIT_CONTROL_MEMORY.md:2204:| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.66 ms by every source, held to 20 (14.60 at `12180198`'s 1,200 us slice) | 20.93 ms by every source, stated 22 (20.25 at `12180198`) |
+docs/design/SPLIT_CONTROL_MEMORY.md:2205:| every notice queued behind it (`AECP_QUEUED_MS`) | 127.21 ms by every source, held to 130 (91.59, held to 125, at `12180198`'s 1,200 us slice) | 806.60 ms by every source, stated 62, ceiling 70 (647.23 at `12180198`) 
+docs/design/SPLIT_CONTROL_MEMORY.md:2342:The slice at 1x1/1if was first the one with the largest least relative margin over the five rows there, on the 50 us grid of the tier model's first sweep: 1,200 us, 0.2673, the last queued notice binding at 91.59 of 125
+docs/design/SPLIT_CONTROL_MEMORY.md:2349:At the 800 us slice and the merged costs they were 12.80, 74.80, 69.91, 14.44 and **137.79** ms at 1x1/1if, the last queued notice over its 125 ms, waiting for SRP's records in each pass's slice at their merged cost (it
+## PR body
+## F2: EDIT_RECORD_US beside 240|260|325
+docs/design/SPLIT_CONTROL_MEMORY.md:2477:- **The edits a class of their own** ([`edit_rows.py`](../../tb/verilator/ctrl_service_budget/edit_rows.py)). Every checked edit is paced, so of the k AECP records a row counts in a window of w ms at most `min(k, ceil((w + 1) / P))` are edits (all k unpaced);

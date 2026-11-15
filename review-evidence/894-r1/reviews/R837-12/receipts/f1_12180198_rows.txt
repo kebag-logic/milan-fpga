@@ -1,0 +1,14 @@
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+| 1x1/1if | R4 | 12.71 | 20 | -7.29 | 5 | aecp 3.760, timers 1.410, slice 1.200 |
+| 1x1/1if | first | 14.60 | 20 | -5.40 | 2 | spacing 8.000, others 1.420, slice 1.200 |
+| 1x1/1if | last | 91.59 | 125 | -33.41 | 44 | others 19.240, srp 18.250, item.aecp 9.240 |
+RESULT: PASS
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+| 8x8/2if | first | 20.25 | 20 | +0.25 | 2 | spacing 8.000, timers 2.520, others 2.150 |
+| 8x8/2if | last | 647.23 | 125 | +522.23 | 244 | srp 128.115, others 122.925, passes 75.640 |
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 42.47 ms, over its bound 20 ms; the largest term timers 11.18 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 187.97 ms, over its bound 90 ms; the largest term others 45.81 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 178.28 ms, over its bound 90 ms; the largest term others 44.03 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 20.25 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 647.23 ms, over its bound 125 ms; the largest term srp 128.12 ms
+RESULT: FAIL
