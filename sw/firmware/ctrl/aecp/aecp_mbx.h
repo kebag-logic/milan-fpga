@@ -47,7 +47,7 @@ extern "C" {
 // 2026-11-13, item 3) 6 ms did, and with T_egress counted, txL's bound 49 ms (CTRL_LOOP_TX_BOUND_MS; the egress ruling,
 // item 1), and the largest legal command's record re-measured under the bounded map work (item 3), 7 ms did; with each
 // map key at its position in the build's key domain (aecp_maps.c; #894's ruling of 2026-11-14) and AMAP_LIVE_WRITE's
-// cost re-measured at 30 us, txL is 49.69 ms at 7 ms, and 8 ms did (#894, #908); with MAAP's record at SRP's Talker
+// cost re-measured at 30 us, txL was 49.69 ms at 7 ms, and 8 ms did (#894, #908); with MAAP's record at SRP's Talker
 // declarations' 115 us, a range lost to a peer's ANNOUNCE, and AECP's timer slot and the TICK re-measured on their
 // merge with the tiers, txL is 49.46 ms at 8 ms, and 9 ms did (#895, the ruling of 2026-11-14 on that merge, items 1
 // and 2), as it does with #894's SET_CONFIGURATION cut composed, txL 52.09 ms at 8 ms (#895). The gate reads the
