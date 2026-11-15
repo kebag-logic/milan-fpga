@@ -1,0 +1,80 @@
+# #901's 8238156d against this branch's 2170b22e, file by file: the +/- lines of each commit's own diff (from its parent), sorted
+
+== docs/design/SPLIT_CONTROL_MEMORY.md: 10 lines identical; 18 only in 8238156d; 17 only in 2170b22e
+-- only in 8238156d:
++
++
++
++|---|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 111,928 / 55,184 | 41.0 | 116,992 / 56,224 | 43.0 | 17,536 |
++| 1x1, two interfaces | 113,472 / 57,360 | 42.5 | 118,560 / 58,400 | 43.5 | 19,072 |
++| 8x8, one interface | 124,608 / 96,288 | 54.5 | 129,720 / 97,264 | 56.0, accepted | 18,176 |
++| 8x8, two interfaces (largest) | 126,112 / 113,232 | 59.0, its ledger's | 131,256 / 114,224 | 60.5, its ledger's cap | 20,352 |
++Against #894's head `5b264bf2`, each image linked from the same inputs, SRP's Talker declarations add 504 to 1,608 B of `rom` an image, the most at the 1x1 two-interface points, and 0 to 64 B of `sram`, 64 B at both two-interface points; t
++**At this branch's head, #895 on #894's tiers `7398ec0a`**, planned the same way ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4):
++`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.0 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
++| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
++The platform's 8x8 image with two interfaces holds 131,256 B of `rom`, 184 B past the 131,072 that 60.0 holds, so its entry is 60.5, the cap of the owner's decision: 1,864 B of `rom` left, a debt of 4.5 RAMB36 owed to S14, and the cap full
++The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 
++The size fixture's 8x8 image with two interfaces holds 126,112 B in 126,976 (864 B to spare), the harness's `answering-every-port` arm 126,420 B (556 B) and its `valid-destinations` arm 126,280 B (696 B), each within the 59.0 #894's entry 
++- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://gi
+-- only in 2170b22e:
+-| 1x1, one interface (shipping) | 110,904 (+328) / 55,152 | 41.0 (was 40.5) | 115,952 (+312) / 56,224 | 42.5 | 17,536 |
++| 1x1, one interface (shipping) | 111,344 (+320) / 55,152 | 41.0 | 116,392 (+304) / 56,224 | 42.5 | 17,536 |
+-| 1x1, two interfaces | 112,192 (+320) / 57,312 | 41.5 | 117,264 (+312) / 58,336 | 43.5 | 19,008 |
++| 1x1, two interfaces | 112,632 (+320) / 57,312 | 41.5 | 117,704 (+312) / 58,336 | 43.5 | 19,008 |
+-| 8x8, one interface | 124,424 (+320) / 96,240 | 54.0 | 129,520 (+312) / 97,264 | 56.0, the budget | 18,176 |
++| 8x8, one interface | 124,848 (+320) / 96,240 | 54.0 | 129,944 (+304) / 97,264 | 56.0, the budget | 18,176 |
+-| 8x8, two interfaces (largest) | 125,688 (+320) / 113,168 | 59.0, its entry | 130,816 (+312) / 114,160 | 60.0, its entry | 20,288 |
++| 8x8, two interfaces (largest) | 126,112 (+320) / 113,168 | 59.0, its entry | 131,240 (+312) / 114,160 | 60.5, its entry, the owner's cap | 20,288 |
+-**At the merge of #894's tiers, `894-tiers` `5b264bf2`, with GET_AS_PATH read through the face's GSI window** (#897: the platform's stub and the fixture's removed), planned the same way, the platform's by `plat_ledger.py`, one runtime for 
++**At the merge of #894's tiers at its round-13 head, `894-tiers` `234bc149`, with GET_AS_PATH read through the face's GSI window** (#897: the platform's stub and the fixture's removed), planned the same way, the platform's by `plat_ledger.
++`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since GET_AS_PATH's read composed with the tiers (#897), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [rulin
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.0 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.5 |
++The platform's entry is 60.5 since GET_AS_PATH's read through the face composed with the tiers (#897), by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, as [#897's rulin
++The read adds no `sram` and moves no writable object: every symbol of `.data`, `.bss` and the stack has the address and size it has at `234bc149`, in both images at the four points. `ctrl_plat` is unchanged at every point. The platform's 8
+-The read adds no `sram` and moves no writable object: every symbol of `.data`, `.bss` and the stack has the address and size it has at `5b264bf2`, in both images at the four points. `ctrl_plat` is unchanged at every point. One plan moves b
++- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since GET_AS_PATH's read composed with the tiers (#897) 60.5, the cap, by [#895's ruling of 2026-11-14](https://
+
+== sw/firmware/ctrl/plat/README.md: 0 lines identical; 4 only in 8238156d; 4 only in 2170b22e
+-- only in 8238156d:
++At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past 60.0, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14](https://
+-At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), 184 B of `rom` past the 60.0 its entry ledgers (`ctrl_memory.LEDGERED`), which refuses its link until that en
++- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), past the 60.0 the owner's [decision of 2026-11-12](https://github.com/ke
+-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and SRP's Talker declarations (#895), past the 60.0 the owner's [decision of 2026-11-12](https://github.com/ke
+-- only in 2170b22e:
+-At 8x8 with two interfaces the image plans 60.0 RAMB36, the 60.0 its entry ledgers (`ctrl_memory.LEDGERED`), refused at 60.5.
++At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and GET_AS_PATH's read through the face (#897), 168 B of `rom` past 60.0, and its entry ledgers 60.5, the owner's cap ([#895's ruling of 2026-11-14
+-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.0 RAMB36, the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip, 
++- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 60.5 RAMB36 with the control loop's tiers (#894) and GET_AS_PATH's read through the face (#897), past the 60.0 the owner's [decision of 2026-11-12](https://git
+
+== sw/litex/ctrl_memory.py: 2 lines identical; 9 only in 8238156d; 11 only in 2170b22e
+-- only in 8238156d:
++#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
++                                            "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
+-                                            "declarations (#895)"),
++                                            "declarations (#895); 60.5, the cap, with SRP's Talker "
++                                            "declarations composed on the control loop's tiers, 184 B of rom past "
++#: ledgered the size fixture's at its cap. The
++                                            "owed to the hybrid XIP work, the cap fully used"),
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.0,
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
+-- only in 2170b22e:
++#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
++#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
+-                                            "(#665 decision D3)"),
++                                            "(#665 decision D3); 60.5, the cap, with GET_AS_PATH's read through the "
++                                            "#895's ruling of 2026-11-14, item 4, as #897's ruling of 2026-11-15, "
++                                            "face composed on the control loop's tiers, 168 B of rom past 60.0, by "
++                                            "item 1, takes it: ROM debt of 4.5 RAMB36 owed to the hybrid XIP work, "
++#: size fixture's at its cap. The
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.5,
++                                            "the cap fully used"),
+
+== sw/litex/ctrl_memory_ledger.py: 30 lines identical; 0 only in 8238156d; 0 only in 2170b22e
+
+== sw/litex/test_ctrl_memory.py: 4 lines identical; 0 only in 8238156d; 0 only in 2170b22e

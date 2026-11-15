@@ -1,0 +1,32 @@
+b58a54300726961745c4d39fe686b8c885094549
+parents f098f893d57e0fa3ec95a7e459313c5cfe4f4224 234bc149ff888eb96659ecaaa5ce6e4fb27319d4
+subject Merge 894-tiers 234bc149 (#902 round 13, not merged) into the split's GET_AS_PATH lane, each conflict kept from both sides
+
+ docs/design/MAILBOX_SPLIT.md                       |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  60 +++-
+ docs/reference/FR_NFR.md                           |   2 +-
+ sw/firmware/ctrl/aecp/README.md                    |  34 ++-
+ sw/firmware/ctrl/aecp/aecp.h                       |  10 +-
+ sw/firmware/ctrl/aecp/aecp_commands.c              |  25 +-
+ sw/firmware/ctrl/aecp/aecp_face.c                  |  10 +-
+ sw/firmware/ctrl/aecp/aecp_face.h                  |   6 +-
+ sw/firmware/ctrl/aecp/aecp_maps.c                  |  97 +++++--
+ sw/firmware/ctrl/aecp/aecp_mbx.h                   |  32 +--
+ sw/firmware/ctrl/loop/ctrl_loop.h                  |  27 +-
+ sw/firmware/ctrl/srp/README.md                     |   4 +-
+ .../ctrl/test/aecp_configuration_mutants.py        |  75 +++++
+ sw/firmware/ctrl/test/aecp_map_mutants.py          |  56 ++++
+ sw/firmware/ctrl/test/aecp_mutants.py              |   8 +-
+ sw/firmware/ctrl/test/test_aecp.cpp                | 178 +++++++++++-
+ sw/firmware/gtest/README.md                        |   1 +
+ tb/verilator/ctrl_service_budget/README.md         |  12 +-
+ tb/verilator/ctrl_service_budget/edit_rows.py      | 111 +++++++
+ tb/verilator/ctrl_service_budget/flip_grade.py     |   6 +-
+ tb/verilator/ctrl_service_budget/load_grade.py     |  80 +++++-
+ tb/verilator/ctrl_service_budget/poll_grade.py     |  11 +-
+ tb/verilator/ctrl_service_budget/record_classes.py | 319 +++++++++++++++++++++
+ tb/verilator/ctrl_service_budget/rows_grade.py     |   5 +-
+ tb/verilator/ctrl_service_budget/rows_tiers.py     |  22 +-
+ tb/verilator/ctrl_service_budget/selftest_round.py |   6 +-
+
+# conflicted: docs/design/SPLIT_CONTROL_MEMORY.md sw/firmware/ctrl/test/aecp_mutants.py sw/firmware/ctrl/test/test_aecp.cpp

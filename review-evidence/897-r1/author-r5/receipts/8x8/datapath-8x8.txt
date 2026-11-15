@@ -1,0 +1,5 @@
+# 8x8/2if datapath-events, arm A: 234bc149 (atA8base) vs 6ef7a8ff (m2A8); eventcost.py; rule_us is the rule figure (max x 1.05, up to 5 us)
+AVB_INFO_CHANGED 234bc149 3740 37.4 rule 40 | 6ef7a8ff 3864 38.64 rule 45
+AS_PATH_CHANGED 234bc149 3367 33.67 rule 40 | 6ef7a8ff 3456 34.56 rule 40
+AMAP_LIVE_WRITE 234bc149 2319 23.19 rule 25 | 6ef7a8ff 2388 23.88 rule 30
+rows_tiers.DATAPATH_US 8x8/2if: AVB_INFO_CHANGED 40, AS_PATH_CHANGED 40, AMAP_LIVE_WRITE 25 (a reported point, not restated)

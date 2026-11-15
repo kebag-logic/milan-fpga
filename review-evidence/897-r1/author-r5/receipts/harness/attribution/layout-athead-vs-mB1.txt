@@ -1,0 +1,7 @@
+# arm B 1x1/1if text symbols with a unique name: b58a5430 (athead, the stub port) vs 3079bb1e (mB1, arm_path.py's port)
+# shift in B: symbols, the lowest address in mB1
+shift -12 B: 3 symbols, the lowest at 0000ee2c b_counters
+shift 0 B: 245 symbols, the lowest at 00000000 _start
+shift 120 B: 1 symbols, the lowest at 0000eea4 b_path
+shift 304 B: 159 symbols, the lowest at 0000efe0 a_random
+# the ports: athead b_path 0000ee2c, mB1 b_path 0000eea4

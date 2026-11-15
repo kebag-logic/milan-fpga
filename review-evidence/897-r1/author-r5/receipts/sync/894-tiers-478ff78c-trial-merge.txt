@@ -1,0 +1,27 @@
+# 894-tiers moved 234bc149 -> 478ff78c during round 5 (6 commits); not merged (round 5 is on #902's round-13 head)
+478ff78cc7 2026-11-15 10:19:00 +0100 State section 13's pre-tiers JoinTime product and every other superseded statement figure as history, beside the head's where one moved (#894)
+b6f5c638eb 2026-11-15 09:35:14 +0100 State CTRL_LOOP_TX_MS at two interfaces at 99 ms, over the tx row's 98.49, and plant each interface count's statement under its row in the self-tests (#894)
+eed2e40dcb 2026-11-15 09:35:14 +0100 State THE PACE's direct-index txL at 7 ms as history in aecp_mbx.h's comment (#894)
+6b759b30d0 2026-11-15 09:07:13 +0100 State every superseded 1x1/1if row figure in section 13 and FR_NFR 3.4.1 as history or beside the head's, txL 48.43 and R4L 188.48 among them (#894)
+867faf1e73 2026-11-15 08:40:31 +0100 Name #894's SET_CONFIGURATION ruling in the paced rows' docstring by its subject, not its comment ID (#894)
+b25530f6d8 2026-11-15 08:28:25 +0100 State each figure the SET_CONFIGURATION cut and the slice moved as the head's or as history, and item 5's clock and reset precondition, in section 13, FR_NFR 3.4.1, the SRP README and two comments (#894)
+
+ docs/design/SPLIT_CONTROL_MEMORY.md            | 46 +++++++++++++-------------
+ docs/reference/FR_NFR.md                       |  4 +--
+ sw/firmware/ctrl/aecp/aecp_mbx.h               |  2 +-
+ sw/firmware/ctrl/loop/ctrl_loop.h              |  6 ++--
+ sw/firmware/ctrl/srp/README.md                 |  2 +-
+ tb/verilator/ctrl_service_budget/README.md     |  2 +-
+ tb/verilator/ctrl_service_budget/edit_rows.py  |  4 +--
+ tb/verilator/ctrl_service_budget/flip_grade.py | 17 ++++++----
+ tb/verilator/ctrl_service_budget/poll_grade.py |  2 +-
+ tb/verilator/ctrl_service_budget/rows_tiers.py |  6 ++--
+ 10 files changed, 48 insertions(+), 43 deletions(-)
+
+# trial merge of 478ff78c into eca1b9ca in a scratch clone, aborted, never committed:
+Auto-merging docs/design/SPLIT_CONTROL_MEMORY.md
+Auto-merging docs/reference/FR_NFR.md
+CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+Auto-merging tb/verilator/ctrl_service_budget/README.md
+Auto-merging tb/verilator/ctrl_service_budget/edit_rows.py
+Automatic merge failed; fix conflicts and then commit the result.

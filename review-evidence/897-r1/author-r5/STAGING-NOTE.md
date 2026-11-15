@@ -1,0 +1,1 @@
+The manager redacted one line of scripts/receipts3.py for publication: a substitution pair naming a local session temp directory now reads '/tmp/<redacted-session-dir>'. Original sha256 1240a77cc4fa71f022e55ecfcd306faa58778ba127d60e51f772dd0bb03a5617; published sha256 69369db93bbad3c2f58c58d8cc8cab3ef6f05cee92625bde17f6fc9ec4295bd5. No receipt changed.

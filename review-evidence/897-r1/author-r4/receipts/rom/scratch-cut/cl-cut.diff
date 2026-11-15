@@ -1,0 +1,19 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_face.c b/sw/firmware/ctrl/aecp/aecp_face.c
+index db6c616d28..da8e4004cb 100644
+--- a/sw/firmware/ctrl/aecp/aecp_face.c
++++ b/sw/firmware/ctrl/aecp/aecp_face.c
+@@ -259,11 +259,9 @@ static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *out, s
+ {
+ 	struct aecp_face *f = ctx;
+ 	uint64_t n = 0;
+-	if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {
+-		return false;
+-	}
+-	for (unsigned k = 0; k < (unsigned)n; ++k) {
+-		if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {
++	for (unsigned k = 0; k == 0u || k <= (unsigned)n; ++k) {
++		if (!gsi(f, interface, 2u, AVB_INTERFACE, index, k == 0u ? 0u : 8u, k == 0u ? 0u : k - 1u, 0u,
++			 k == 0u ? &n : &out[k - 1u]) || n > capacity) {
+ 			return false;
+ 		}
+ 	}

@@ -1,0 +1,11 @@
+HEAD 234bc149ff888eb96659ecaaa5ce6e4fb27319d4 DIRTY 0 atbase 1x1 aecp-fanout --variant answering-ports start 09:47:00
+1 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 13 paths), 0 of 122 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+rc=0 elapsed=223s end 09:50:43
+PLAN answering-ports endstation_ax7101_1x1_tdm8 1 rom 111184 in 112640 sram 55152 in 55296 tiles 41.0
+results: 1x1/1if answering-ports, 1 groups, 29 AECP records
+1x1/1if reported other: the dearest 21,501 CPU cycles, 230 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 19,925 CPU cycles, 210 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x000e)
+1x1/1if held paced: the dearest 28,376 CPU cycles, 300 us by the rule, stated 300 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH answered SUCCESS in aecp, whose answered read no other arm reaches
+RESULT: FAIL

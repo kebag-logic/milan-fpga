@@ -1,0 +1,22 @@
+# the platform's 8x8/2if objects whose .text+.rodata differ, 234bc149 -> b58a5430
+aecp_face.o: 3396 -> 3736 (340)
+ctrl_plat.o: 24062 -> 24042 (-20)
+# aecp_face.o functions at b58a5430 (nm -S, decimal)
+00000000 00000008 T aecp_face_attach
+00000000 00000016 t random_value
+00000000 00000020 t current.isra.0
+00000000 00000068 T aecp_face_open
+00000000 00000076 t interface_of.isra.0
+00000000 00000132 t applied
+00000000 00000136 t gsi
+00000000 00000144 T aecp_face_poll
+00000000 00000152 T aecp_face_status
+00000000 00000184 T aecp_face_init
+00000000 00000212 t format
+00000000 00000220 t counters
+00000000 00000280 t path
+00000000 00000324 t avb
+00000000 00000356 t changed
+00000000 00000376 t stream
+00000000 00000452 t write_stream
+00000000 00000580 t publish
