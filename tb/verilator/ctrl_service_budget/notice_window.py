@@ -38,8 +38,8 @@ ANSWER_MS = 3150
 #: NOW_MS of the SET_NAME, the first BIND_RX (notice-retried-0) and the load's start.
 SET_MS, BIND_MS, LOAD_MS = 1700, 3000, 3010
 #: How long the load runs past ANSWER_MS, in ms: the longest queued bound (AECP_QUEUED_MS), with room for the row to
-#: show it.
-RUN_MS = 130
+#: show it; 135 since AECP's REBOOT's merge on the tiers (#871).
+RUN_MS = 135
 #: The groups, one a millisecond across the retry's 8 ms spacing.
 PHASES = 8
 #: The row's path: run.notice_misses holds every instance of it to its bound.
@@ -58,8 +58,8 @@ def names() -> list[str]:
 
 def queued_ms(interfaces: int) -> int:
     """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h): the bound every queued notice meets, the last queued
-    notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment of 2026-11-13,
-    queued_bound.py) and the stated 62 ms at two."""
+    notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment of 2026-11-13, 135 with
+    AECP's REBOOT, #871, queued_bound.py) and the stated 62 ms at two."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp_mbx.h').read_text()
     one, two = re.search(r'#define AECP_QUEUED_MS \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
     return int(one if interfaces == 1 else two)
