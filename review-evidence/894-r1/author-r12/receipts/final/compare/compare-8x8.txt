@@ -1,0 +1,75 @@
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          27,797   277.97   295    325 within   load_grade.GRADED base; L8L/aecp-largest-notice
+base                                          27,797   277.97   295    325 within   poll_grade.STATED_US[2] base; L8L/aecp-largest-notice
+build                                              0     0.00     0   2035 within   load_grade.GRADED build; L8A/datapath-events
+build                                              0     0.00     0   1995 within   whole_grade.stated_us(2) build (ctrl_loop.h); L8A/datapath-events
+build_one                                    145,595  1455.95  1530   1215 OVER-raw load_grade.GRADED build_one; J8/srp
+build_one                                    145,595  1455.95  1530   1215 OVER-raw whole_grade.stated_us(2) build-one (ctrl_loop.h); J8/srp
+centisecond                                   45,082   450.82   475    510 within   load_grade.GRADED centisecond; B8F/aecp-fanout.log
+centisecond                                   45,082   450.82   475    510 within   load_grade.STATED_US centisecond; B8F/aecp-fanout.log
+event.ACMP                                    15,106   151.06   160    210 within   load_grade.GRADED event.ACMP; TIMER#2, 1 taken
+event.ACMP                                    15,106   151.06   160    350 within   load_grade.STATED_US event.ACMP; TIMER#2, 1 taken
+event.ADP                                      7,923    79.23    85    120 within   load_grade.GRADED event.ADP; TIMER#0, 5 taken
+event.ADP                                      7,923    79.23    85    120 within   load_grade.STATED_US event.ADP; TIMER#0, 5 taken
+event.AECP                                     9,613    96.13   105    110 within   load_grade.GRADED event.AECP; TIMER#6, 81 taken
+event.AECP                                     9,613    96.13   105    105 within   load_grade.STATED_US event.AECP; TIMER#6, 81 taken
+event.GM                                       3,145    31.45    35    320 within   load_grade.GRADED event.GM; GM, 391 taken
+event.GM                                       3,145    31.45    35    320 within   load_grade.STATED_US event.GM; GM, 391 taken
+event.LINK                                    14,753   147.53   155    300 within   rows_grade.ROW_COSTS event.LINK; LINK, 6 taken
+event.MAAP                                    16,006   160.06   170    215 within   load_grade.GRADED event.MAAP; TIMER#4, 12 taken
+event.MAAP                                    16,006   160.06   170    215 within   load_grade.STATED_US event.MAAP; TIMER#4, 12 taken
+event.TICK                                     3,282    32.82    35     85 within   load_grade.GRADED event.TICK; TICK, 1140 taken
+event.TICK                                     3,282    32.82    35     40 within   load_grade.STATED_US event.TICK; TICK, 1140 taken
+events_none                                    2,205    22.05    25     35 within   load_grade.GRADED events_none; L8O/backlog-owed.log
+events_none                                    2,205    22.05    25     35 within   load_grade.STATED_US events_none; L8O/backlog-owed.log
+item.acmp                                      6,307    63.07    70     70 within   load_grade.GRADED item.acmp; L8O/backlog-owed
+item.acmp                                      6,307    63.07    70     70 within   poll_grade.STATED_US[2] acmp; L8O/backlog-owed
+item.acmp_declined                             1,693    16.93    20     20 within   poll_grade.STATED_US[2] acmp_declined; L8O/backlog-owed
+item.acmp_kept                                 8,191    81.91    90    440 within   poll_grade.record_us (load_grade.STATED_US record.acmp); L8O/backlog-owed
+item.aecp                                     25,882   258.82   275    275 within   poll_grade.STATED_US[2] aecp; L8N/notice-every-0
+item.aecp_long                                61,749   617.49   650    655 within   poll_grade.STATED_US[2] aecp_long; L8L/aecp-largest-notice
+item.aecp_long                                61,749   617.49   650    655 within   rows_tiers.LONG_NOTICE_US; L8L/aecp-largest-notice
+item.mrpdu                                         0     0.00     0   1215 within   load_grade.GRADED item.mrpdu; L8A/datapath-events
+item.mrpdu                                         0     0.00     0   1215 within   poll_grade.STATED_US[2] mrpdu; L8A/datapath-events
+item.rebuild                                       0     0.00     0    690 within   poll_grade.STATED_US[2] rebuild; L8A/datapath-events
+item.reclaim                                   3,209    32.09    35     40 within   load_grade.GRADED item.reclaim; J8/srp
+item.reclaim                                   3,209    32.09    35     35 within   poll_grade.STATED_US[2] reclaim; J8/srp
+item.record                                   30,402   304.02   320    365 within   poll_grade.STATED_US[2] retained; L8N/notice-every-0
+item.retained                                      0     0.00     0    365 within   load_grade.GRADED item.retained; L8A/datapath-events
+item.retained                                      0     0.00     0    365 within   load_grade.STATED_US item.retained; L8A/datapath-events
+item.retained                                      0     0.00     0    365 within   poll_grade.STATED_US[2] retained; L8A/datapath-events
+item.walk                                      3,928    39.28    45     60 within   load_grade.GRADED item.walk; J8/srp
+item.walk                                      3,928    39.28    45     60 within   poll_grade.STATED_US[2] walk; J8/srp
+item.withdraw                                      0     0.00     0    245 within   poll_grade.STATED_US[2] withdraw; L8A/datapath-events
+record.acmp                                   21,304   213.04   225    305 within   load_grade.GRADED record.acmp; L8N/notice-every-0.log
+record.acmp                                   21,304   213.04   225    440 within   load_grade.STATED_US record.acmp; L8N/notice-every-0.log
+record.adp                                     1,120    11.20    15    125 within   load_grade.GRADED record.adp; L8N/notice-every-0.log
+record.adp                                     1,120    11.20    15    240 within   load_grade.STATED_US record.adp; L8N/notice-every-0.log
+record.maap                                    8,901    89.01    95    130 within   load_grade.GRADED record.maap; L8N/notice-every-0.log
+record.maap                                    8,901    89.01    95    130 within   load_grade.STATED_US record.maap; L8N/notice-every-0.log
+record.srp                                    30,756   307.56   325    365 within   load_grade.GRADED record.srp; L8N/notice-every-0.log
+record.srp                                    30,756   307.56   325    365 within   load_grade.STATED_US record.srp; L8N/notice-every-0.log
+step                                          22,810   228.10   240   1030 within   load_grade.GRADED step; L8N/notice-every-0
+step                                          22,810   228.10   240   1030 within   whole_grade.stated_us(2) step (ctrl_loop.h); L8N/notice-every-0
+item.aecp.notice                              61,749   617.49   650    275 OVER-raw load_grade.GRADED item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))
+item.aecp.notice                              61,749   617.49   650    275 OVER-raw load_grade.STATED_US item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))
+item.aecp.response                             2,224    22.24    25     65 within   load_grade.GRADED item.aecp.response; L8O/backlog-owed (1 frame(s))
+item.aecp.response                             2,224    22.24    25     65 within   load_grade.STATED_US item.aecp.response; L8O/backlog-owed (1 frame(s))
+event.AMAP_LIVE_WRITE                          2,319    23.19    25     25 within   rows_tiers.DATAPATH_US AMAP_LIVE_WRITE; datapath-events.log@80807559
+event.AS_PATH_CHANGED                          3,367    33.67    40     40 within   rows_tiers.DATAPATH_US AS_PATH_CHANGED; datapath-events.log@80399814
+event.AVB_INFO_CHANGED                         3,740    37.40    40     40 within   rows_tiers.DATAPATH_US AVB_INFO_CHANGED; datapath-events.log@71600058
+record.aecp [notice-every-0]                  23,485   234.85   250    265 within   load_grade.GRADED record.aecp; L8N/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [notice-every-0]                  23,485   234.85   250    265 within   load_grade.STATED_US record.aecp; L8N/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [aecp-largest-notice]            146,678  1466.78  1545   1650 within   rows_tiers.LONG_RECORD_US; L8L/results/aecp-largest-notice: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+record.aecp [backlog-owed]                    14,974   149.74   160    265 within   load_grade.GRADED record.aecp; L8O/results/backlog-owed: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-owed]                    14,974   149.74   160    265 within   load_grade.STATED_US record.aecp; L8O/results/backlog-owed: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [aecp-fanout]                     56,474   564.74   595    265 OVER-raw load_grade.GRADED record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     56,474   564.74   595    265 OVER-raw load_grade.STATED_US record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+
+# 6 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+build_one                                    145,595  1455.95  1530   1215 OVER-raw load_grade.GRADED build_one; J8/srp
+build_one                                    145,595  1455.95  1530   1215 OVER-raw whole_grade.stated_us(2) build-one (ctrl_loop.h); J8/srp
+item.aecp.notice                              61,749   617.49   650    275 OVER-raw load_grade.GRADED item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))
+item.aecp.notice                              61,749   617.49   650    275 OVER-raw load_grade.STATED_US item.aecp.notice; L8L/aecp-largest-notice (31 frame(s))
+record.aecp [aecp-fanout]                     56,474   564.74   595    265 OVER-raw load_grade.GRADED record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     56,474   564.74   595    265 OVER-raw load_grade.STATED_US record.aecp; B8F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)

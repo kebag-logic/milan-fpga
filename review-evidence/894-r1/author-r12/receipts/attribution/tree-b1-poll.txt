@@ -1,0 +1,16 @@
+# span poll@10dc from CPU cycle 83560524: 20631 cycles, 4189 commits
+  20631     27  poll@10dc
+  20463    226    aecp_poll
+  18486     36      transmit
+  18230     46        owed_drain
+  17894   1266          fan_out
+   9338    160            fan
+   7669   1408              mbx_tx_begin
+   2027    550                mbx_tx_commit
+    625      1            memcpy
+    619     61              forward
+    441     42            fan_end
+    212     36              mbx_tx_commit
+    160     12            sent_frame
+    693    272      arm
+    165     21      now

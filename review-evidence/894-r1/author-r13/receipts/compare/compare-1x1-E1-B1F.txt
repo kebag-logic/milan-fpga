@@ -1,0 +1,98 @@
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          16,700   167.00   180    205 within   load_grade.GRADED base; B1F/aecp-largest-notice
+base                                          16,700   167.00   180    205 within   poll_grade.STATED_US[1] base; B1F/aecp-largest-notice
+build                                              0     0.00     0   1010 within   load_grade.GRADED build; E1/notice-every-0
+build                                              0     0.00     0   1010 within   whole_grade.stated_us(1) build (ctrl_loop.h); E1/notice-every-0
+build_one                                     42,838   428.38   450    735 within   load_grade.GRADED build_one; E1/notice-every-0
+build_one                                     42,838   428.38   450    735 within   whole_grade.stated_us(1) build-one (ctrl_loop.h); E1/notice-every-0
+centisecond                                   13,162   131.62   140    150 within   load_grade.GRADED centisecond; E1/notice-every-1.log
+centisecond                                   13,162   131.62   140    150 within   load_grade.STATED_US centisecond; E1/notice-every-1.log
+event.ACMP                                    13,173   131.73   140    170 within   load_grade.GRADED event.ACMP; TIMER#1, 16 taken
+event.ACMP                                    13,173   131.73   140    185 within   load_grade.STATED_US event.ACMP; TIMER#1, 16 taken
+event.ADP                                      7,767    77.67    85    115 within   load_grade.GRADED event.ADP; TIMER#0, 19 taken
+event.ADP                                      7,767    77.67    85    115 within   load_grade.STATED_US event.ADP; TIMER#0, 19 taken
+event.AECP                                     6,206    62.06    70     70 within   load_grade.GRADED event.AECP; TIMER#3, 1276 taken
+event.AECP                                     6,206    62.06    70     70 within   load_grade.STATED_US event.AECP; TIMER#3, 1276 taken
+event.GM                                       3,120    31.20    35     40 within   load_grade.GRADED event.GM; GM, 15796 taken
+event.GM                                       3,120    31.20    35     40 within   load_grade.STATED_US event.GM; GM, 15796 taken
+event.LINK                                    11,819   118.19   125    155 within   rows_grade.ROW_COSTS event.LINK; LINK, 19 taken
+event.MAAP                                    13,582   135.82   145    170 within   load_grade.GRADED event.MAAP; TIMER#2, 51 taken
+event.MAAP                                    13,582   135.82   145    165 within   load_grade.STATED_US event.MAAP; TIMER#2, 51 taken
+event.TICK                                     3,119    31.19    35     55 within   load_grade.GRADED event.TICK; TICK, 5441 taken
+event.TICK                                     3,119    31.19    35     55 within   load_grade.STATED_US event.TICK; TICK, 5441 taken
+events_none                                    1,617    16.17    20     30 within   load_grade.GRADED events_none; E1/notice-burst-0.log
+events_none                                    1,617    16.17    20     30 within   load_grade.STATED_US events_none; E1/notice-burst-0.log
+item.acmp                                          0     0.00     0     55 within   load_grade.GRADED item.acmp; E1/notice-every-0
+item.acmp                                          0     0.00     0     55 within   poll_grade.STATED_US[1] acmp; E1/notice-every-0
+item.acmp_declined                                 0     0.00     0     20 within   poll_grade.STATED_US[1] acmp_declined; E1/notice-every-0
+item.acmp_kept                                     0     0.00     0    280 within   poll_grade.record_us (load_grade.STATED_US record.acmp); E1/notice-every-0
+item.aecp                                     18,107   181.07   195    210 within   poll_grade.STATED_US[1] aecp; B1F/aecp-fanout
+item.aecp_long                                34,349   343.49   365    365 within   poll_grade.STATED_US[1] aecp_long; B1F/aecp-largest-notice
+item.aecp_long                                34,349   343.49   365    365 within   rows_tiers.LONG_NOTICE_US; B1F/aecp-largest-notice
+item.mrpdu                                         0     0.00     0    735 within   load_grade.GRADED item.mrpdu; E1/notice-every-0
+item.mrpdu                                         0     0.00     0    735 within   poll_grade.STATED_US[1] mrpdu; E1/notice-every-0
+item.rebuild                                       0     0.00     0    290 within   poll_grade.STATED_US[1] rebuild; E1/notice-every-0
+item.reclaim                                   1,120    11.20    15     25 within   load_grade.GRADED item.reclaim; E1/notice-every-0
+item.reclaim                                   1,120    11.20    15     25 within   poll_grade.STATED_US[1] reclaim; E1/notice-every-0
+item.record                                   25,901   259.01   275    280 within   poll_grade.STATED_US[1] retained; E1/notice-every-2
+item.retained                                      0     0.00     0    280 within   load_grade.GRADED item.retained; E1/notice-every-0
+item.retained                                      0     0.00     0    280 within   load_grade.STATED_US item.retained; E1/notice-every-0
+item.retained                                      0     0.00     0    280 within   poll_grade.STATED_US[1] retained; E1/notice-every-0
+item.walk                                      1,719    17.19    20     35 within   load_grade.GRADED item.walk; E1/notice-every-0
+item.walk                                      1,719    17.19    20     35 within   poll_grade.STATED_US[1] walk; E1/notice-every-0
+item.withdraw                                      0     0.00     0     90 within   poll_grade.STATED_US[1] withdraw; E1/notice-every-0
+record.acmp                                   19,453   194.53   205    265 within   load_grade.GRADED record.acmp; E1/notice-burst-4.log
+record.acmp                                   19,453   194.53   205    280 within   load_grade.STATED_US record.acmp; E1/notice-burst-4.log
+record.adp                                     1,705    17.05    20    100 within   load_grade.GRADED record.adp; E1/notice-burst-0.log
+record.adp                                     1,705    17.05    20    105 within   load_grade.STATED_US record.adp; E1/notice-burst-0.log
+record.maap                                    6,251    62.51    70     90 within   load_grade.GRADED record.maap; E1/notice-every-0.log
+record.maap                                    6,251    62.51    70     90 within   load_grade.STATED_US record.maap; E1/notice-every-0.log
+record.srp                                    26,366   263.66   280    280 within   load_grade.GRADED record.srp; E1/notice-every-2.log
+record.srp                                    26,366   263.66   280    280 within   load_grade.STATED_US record.srp; E1/notice-every-2.log
+step                                          79,401   794.01   835    975 within   load_grade.GRADED step; E1/notice-burst-0
+step                                          79,401   794.01   835    975 within   whole_grade.stated_us(1) step (ctrl_loop.h); E1/notice-burst-0
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+record.aecp [notice-burst-0]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-0: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-0]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-0: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-1]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-1: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-1]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-1: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-2]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-2: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-2]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-2: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-3]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-3: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-3]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-3: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-4]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-4: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-4]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-4: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-5]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-5: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-5]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-5: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-6]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-6: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-6]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-6: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-7]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-7: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-7]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-7: AEM_COMMAND SET_NAME
+record.aecp [notice-every-0]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [notice-every-0]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [notice-every-1]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-1: AEM_COMMAND SET_NAME
+record.aecp [notice-every-1]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-1: AEM_COMMAND SET_NAME
+record.aecp [notice-every-2]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-2: AEM_COMMAND SET_NAME
+record.aecp [notice-every-2]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-2: AEM_COMMAND SET_NAME
+record.aecp [notice-every-3]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-3: AEM_COMMAND SET_NAME
+record.aecp [notice-every-3]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-3: AEM_COMMAND SET_NAME
+record.aecp [notice-every-4]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-4: AEM_COMMAND SET_NAME
+record.aecp [notice-every-4]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-4: AEM_COMMAND SET_NAME
+record.aecp [notice-every-5]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-5: AEM_COMMAND SET_NAME
+record.aecp [notice-every-5]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-5: AEM_COMMAND SET_NAME
+record.aecp [notice-every-6]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-6: AEM_COMMAND SET_NAME
+record.aecp [notice-every-6]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-6: AEM_COMMAND SET_NAME
+record.aecp [notice-every-7]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-7: AEM_COMMAND SET_NAME
+record.aecp [notice-every-7]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-7: AEM_COMMAND SET_NAME
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-largest-notice]             87,674   876.74   925    975 within   rows_tiers.LONG_RECORD_US; B1F/results/aecp-largest-notice: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+record.aecp [aecp]                            18,891   188.91   200    235 within   load_grade.GRADED record.aecp; B1F/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+record.aecp [aecp]                            18,891   188.91   200    235 within   load_grade.STATED_US record.aecp; B1F/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+
+# 4 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)

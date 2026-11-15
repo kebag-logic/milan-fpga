@@ -1,0 +1,8 @@
+# r12-2-H-81N
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r12/fp2-wt\ $SCRATCH/r12/gates-out/builds2/H-81N\ 8x8-1if\ 1\ --variant\ answering-every-port\ --groups\ notice-every-0 
+rc 1
+HEAD a47cd3f2d3c93e635c24b32fbc194687d1319011 DIRTY 0 point 8x8-1if jobs 1 args --variant answering-every-port --groups notice-every-0 start 2026-11-15T02:06:37
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+    raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}')
+RuntimeError: the model holds 40 notices, not AECP_NOTICES_MOST at 8x8-1if
+END rc=1 2026-11-15T02:07:51

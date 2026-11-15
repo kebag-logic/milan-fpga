@@ -1,0 +1,11 @@
+# r13-H-L8A
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r13/fp-wt\ $SCRATCH/r13/gates-out/builds/H-L8A\ 8x8\ 1\ --groups\ datapath-events 
+rc 0
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 8x8 jobs 1 args --groups datapath-events start 2026-11-15T04:59:26
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 75 passes carry the store's step; the longest 32,944 CPU cycles (0.329 ms), datapath-events; the longest step 3,165 (0.032 ms), datapath-events
+SLICES 3074 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,540, THE RETRY's round 10,263 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS datapath-events: 6 join interval(s), the shortest 186.644 ms and the longest 189.987 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 155 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-15T05:03:13

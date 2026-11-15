@@ -1,0 +1,12 @@
+# r12-E1-head
+bash scripts/leg.sh $SCRATCH/r12/img-wt $SCRATCH/r12/builds/E1-head 1x1 2 --variant answering-every-port --groups notice-every-5\,notice-burst-5 
+rc 0
+HEAD 9606b3a915de284c71d3063c2e8d94b097f18241 DIRTY 0 point 1x1 jobs 2 args --variant answering-every-port --groups notice-every-5,notice-burst-5 start 2026-11-14T23:14:25
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 624 passes carry the store's step; the longest 100,537 CPU cycles (1.005 ms), notice-burst-5; the longest step 77,686 (0.777 ms), notice-burst-5
+SLICES 37585 tier-2 slices; the longest SRP's records 75,046, THE TRANSMIT's build 43,084, THE RETRY's round 50,097 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-5: 3 join interval(s), the shortest 187.921 ms and the longest 190.044 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-5: 3 join interval(s), the shortest 187.921 ms and the longest 190.044 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 35 probe instances, 0 of 7 paths), 0 of 2741 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T23:27:34

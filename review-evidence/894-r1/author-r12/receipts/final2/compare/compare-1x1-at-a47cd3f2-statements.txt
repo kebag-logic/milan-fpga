@@ -1,0 +1,274 @@
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          19,074   190.74   205    205 within   load_grade.GRADED base; A2/acmp-cmd
+base                                          19,074   190.74   205    205 within   poll_grade.STATED_US[1] base; A2/acmp-cmd
+build                                              0     0.00     0   1010 within   load_grade.GRADED build; A1/acmp-notk
+build                                              0     0.00     0   1010 within   whole_grade.stated_us(1) build (ctrl_loop.h); A1/acmp-notk
+build_one                                     69,635   696.35   735    735 within   load_grade.GRADED build_one; A2/srp
+build_one                                     69,635   696.35   735    735 within   whole_grade.stated_us(1) build-one (ctrl_loop.h); A2/srp
+centisecond                                   13,409   134.09   145    150 within   load_grade.GRADED centisecond; A1/save-starved.log
+centisecond                                   13,409   134.09   145    150 within   load_grade.STATED_US centisecond; A1/save-starved.log
+event.ACMP                                    13,384   133.84   145    170 within   load_grade.GRADED event.ACMP; TIMER#1, 27 taken
+event.ACMP                                    13,384   133.84   145    185 within   load_grade.STATED_US event.ACMP; TIMER#1, 27 taken
+event.ADP                                      8,011    80.11    85    115 within   load_grade.GRADED event.ADP; TIMER#0, 123 taken
+event.ADP                                      8,011    80.11    85    115 within   load_grade.STATED_US event.ADP; TIMER#0, 123 taken
+event.AECP                                     6,206    62.06    70     70 within   load_grade.GRADED event.AECP; TIMER#3, 9479 taken
+event.AECP                                     6,206    62.06    70     70 within   load_grade.STATED_US event.AECP; TIMER#3, 9479 taken
+event.GM                                       3,519    35.19    40     40 within   load_grade.GRADED event.GM; GM, 109219 taken
+event.GM                                       3,519    35.19    40     40 within   load_grade.STATED_US event.GM; GM, 109219 taken
+event.LINK                                    14,715   147.15   155    155 within   rows_grade.ROW_COSTS event.LINK; LINK, 118 taken
+event.MAAP                                    14,185   141.85   150    170 within   load_grade.GRADED event.MAAP; TIMER#2, 318 taken
+event.MAAP                                    14,185   141.85   150    165 within   load_grade.STATED_US event.MAAP; TIMER#2, 318 taken
+event.TICK                                     4,784    47.84    55     50 OVER     load_grade.GRADED event.TICK; TICK, 37006 taken
+event.TICK                                     4,784    47.84    55     50 OVER     load_grade.STATED_US event.TICK; TICK, 37006 taken
+events_none                                    2,020    20.20    25     30 within   load_grade.GRADED events_none; A1/backlog-adp@program-aged2-6.log
+events_none                                    2,020    20.20    25     30 within   load_grade.STATED_US events_none; A1/backlog-adp@program-aged2-6.log
+item.acmp                                      4,602    46.02    50     55 within   load_grade.GRADED item.acmp; A2/backlog-owed
+item.acmp                                      4,602    46.02    50     55 within   poll_grade.STATED_US[1] acmp; A2/backlog-owed
+item.acmp_declined                             1,497    14.97    20     20 within   poll_grade.STATED_US[1] acmp_declined; A2/backlog-owed
+item.acmp_kept                                 6,236    62.36    70    280 within   poll_grade.record_us (load_grade.STATED_US record.acmp); A2/backlog-owed
+item.aecp                                     18,107   181.07   195    210 within   poll_grade.STATED_US[1] aecp; B1F/aecp-fanout
+item.aecp_long                                34,349   343.49   365    365 within   poll_grade.STATED_US[1] aecp_long; B1F/aecp-largest-notice
+item.aecp_long                                34,349   343.49   365    365 within   rows_tiers.LONG_NOTICE_US; B1F/aecp-largest-notice
+item.mrpdu                                         0     0.00     0    735 within   load_grade.GRADED item.mrpdu; A1/acmp-notk
+item.mrpdu                                         0     0.00     0    735 within   poll_grade.STATED_US[1] mrpdu; A1/acmp-notk
+item.rebuild                                  26,599   265.99   280    290 within   poll_grade.STATED_US[1] rebuild; A2/fixture
+item.reclaim                                   1,270    12.70    15     25 within   load_grade.GRADED item.reclaim; A1/save-starved
+item.reclaim                                   1,270    12.70    15     25 within   poll_grade.STATED_US[1] reclaim; A1/save-starved
+item.record                                   25,901   259.01   275    280 within   poll_grade.STATED_US[1] retained; E1/notice-every-2
+item.retained                                      0     0.00     0    280 within   load_grade.GRADED item.retained; A1/acmp-notk
+item.retained                                      0     0.00     0    280 within   load_grade.STATED_US item.retained; A1/acmp-notk
+item.retained                                      0     0.00     0    280 within   poll_grade.STATED_US[1] retained; A1/acmp-notk
+item.walk                                      3,262    32.62    35     35 within   load_grade.GRADED item.walk; A2/srp
+item.walk                                      3,262    32.62    35     35 within   poll_grade.STATED_US[1] walk; A2/srp
+item.withdraw                                  7,108    71.08    75     90 within   poll_grade.STATED_US[1] withdraw; A1/backlog
+record.acmp                                   19,598   195.98   210    265 within   load_grade.GRADED record.acmp; A2/fixture.log
+record.acmp                                   19,598   195.98   210    280 within   load_grade.STATED_US record.acmp; A2/fixture.log
+record.adp                                     8,821    88.21    95    100 within   load_grade.GRADED record.adp; A1/backlog-adp-refill.log
+record.adp                                     8,821    88.21    95    105 within   load_grade.STATED_US record.adp; A1/backlog-adp-refill.log
+record.maap                                    6,292    62.92    70     90 within   load_grade.GRADED record.maap; A2/save-held.log
+record.maap                                    6,292    62.92    70     90 within   load_grade.STATED_US record.maap; A2/save-held.log
+record.srp                                    26,366   263.66   280    280 within   load_grade.GRADED record.srp; E1/notice-every-2.log
+record.srp                                    26,366   263.66   280    280 within   load_grade.STATED_US record.srp; E1/notice-every-2.log
+step                                          80,551   805.51   850    975 within   load_grade.GRADED step; A2/backlog-adp@program-aged2-5
+step                                          80,551   805.51   850    975 within   whole_grade.stated_us(1) step (ctrl_loop.h); A2/backlog-adp@program-aged2-5
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+item.aecp.response                             2,372    23.72    25     60 within   load_grade.GRADED item.aecp.response; A2/backlog-owed (1 frame(s))
+item.aecp.response                             2,372    23.72    25     60 within   load_grade.STATED_US item.aecp.response; A2/backlog-owed (1 frame(s))
+event.AMAP_LIVE_WRITE                          2,639    26.39    30     30 within   rows_tiers.DATAPATH_US AMAP_LIVE_WRITE; datapath-events.log@72142271
+event.AS_PATH_CHANGED                          3,133    31.33    35     35 within   rows_tiers.DATAPATH_US AS_PATH_CHANGED; datapath-events.log@71942033
+event.AVB_INFO_CHANGED                         3,197    31.97    35     35 within   rows_tiers.DATAPATH_US AVB_INFO_CHANGED; datapath-events.log@67533416
+record.aecp [aecp-fanout]                     22,987   229.87   245    235 OVER     load_grade.GRADED record.aecp; A1/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+record.aecp [aecp-fanout]                     22,987   229.87   245    235 OVER     load_grade.STATED_US record.aecp; A1/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+record.aecp [aecp]                            18,436   184.36   195    235 within   load_grade.GRADED record.aecp; A1/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+record.aecp [aecp]                            18,436   184.36   195    235 within   load_grade.STATED_US record.aecp; A1/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+record.aecp [backlog-adp-refill]              14,518   145.18   155    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp-refill: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-adp-refill]              14,518   145.18   155    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp-refill: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-adp@blank-0]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-0]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-2]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-2]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-4]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-4]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-6]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-6]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-0]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-0]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-2]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-2]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-4]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-4]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-6]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-6]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-0]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-0]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-2]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-2]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-4]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-4]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-6]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@blank-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-6]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@blank-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-0]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-0]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-2]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-2]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-4]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-4]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-6]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-6]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-0]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-0]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-2]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-2]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-4]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-4]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-6]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-6]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-0]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-0]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-2]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-2]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-4]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-4]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-6]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@program-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-6]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@program-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-0]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-0]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-2]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-2]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-4]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-4]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-6]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-6]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-0]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-0]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged1-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-2]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-2]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged1-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-4]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-4]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged1-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-6]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-6]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged1-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-0]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-0]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged2-0: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-2]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-2]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged2-2: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-4]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-4]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged2-4: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-6]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A1/results/backlog-adp@verify-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-6]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A1/results/backlog-adp@verify-aged2-6: AEM_COMMAND SET_NAME
+record.aecp [backlog]                         15,201   152.01   160    235 within   load_grade.GRADED record.aecp; A1/results/backlog: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog]                         15,201   152.01   160    235 within   load_grade.STATED_US record.aecp; A1/results/backlog: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [save-starved]                    20,321   203.21   215    235 within   load_grade.GRADED record.aecp; A1/results/save-starved: AEM_COMMAND SET_NAME
+record.aecp [save-starved]                    20,321   203.21   215    235 within   load_grade.STATED_US record.aecp; A1/results/save-starved: AEM_COMMAND SET_NAME
+record.aecp [save]                            20,163   201.63   215    235 within   load_grade.GRADED record.aecp; A1/results/save: AEM_COMMAND SET_NAME
+record.aecp [save]                            20,163   201.63   215    235 within   load_grade.STATED_US record.aecp; A1/results/save: AEM_COMMAND SET_NAME
+record.aecp [aecp-largest-notice]             87,895   878.95   925    975 within   rows_tiers.LONG_RECORD_US; A2/results/aecp-largest-notice: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+record.aecp [backlog-adp]                     14,518   145.18   155    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-adp]                     14,518   145.18   155    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-adp@blank-1]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-1]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-3]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-3]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-5]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-5]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-7]             20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-7]             20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-1]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-1]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-3]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-3]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-5]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-5]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-7]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged1-7]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-1]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-1]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-3]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-3]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-5]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-5]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-7]       20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@blank-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@blank-aged2-7]       20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@blank-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-1]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-1]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-3]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-3]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-5]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-5]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-7]           20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-7]           20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-1]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-1]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-3]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-3]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-5]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-5]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-7]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged1-7]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-1]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-1]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-3]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-3]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-5]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-5]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-7]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@program-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@program-aged2-7]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@program-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-1]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-1]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-3]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-3]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-5]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-5]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-7]            20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-7]            20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-1]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-1]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged1-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-3]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-3]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged1-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-5]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-5]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged1-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-7]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged1-7]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged1-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-1]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-1]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged2-1: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-3]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-3]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged2-3: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-5]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-5]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged2-5: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-7]      20,423   204.23   215    235 within   load_grade.GRADED record.aecp; A2/results/backlog-adp@verify-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-adp@verify-aged2-7]      20,423   204.23   215    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-adp@verify-aged2-7: AEM_COMMAND SET_NAME
+record.aecp [backlog-owed]                    15,185   151.85   160    235 within   load_grade.GRADED record.aecp; A2/results/backlog-owed: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [backlog-owed]                    15,185   151.85   160    235 within   load_grade.STATED_US record.aecp; A2/results/backlog-owed: AEM_COMMAND READ_DESCRIPTOR
+record.aecp [fixture]                         19,587   195.87   210    235 within   load_grade.GRADED record.aecp; A2/results/fixture: AEM_COMMAND SET_NAME (fixture.set_name.if0)
+record.aecp [fixture]                         19,587   195.87   210    235 within   load_grade.STATED_US record.aecp; A2/results/fixture: AEM_COMMAND SET_NAME (fixture.set_name.if0)
+record.aecp [save-held]                       20,321   203.21   215    235 within   load_grade.GRADED record.aecp; A2/results/save-held: AEM_COMMAND SET_NAME
+record.aecp [save-held]                       20,321   203.21   215    235 within   load_grade.STATED_US record.aecp; A2/results/save-held: AEM_COMMAND SET_NAME
+record.aecp [save-second]                     20,609   206.09   220    235 within   load_grade.GRADED record.aecp; A2/results/save-second: AEM_COMMAND SET_NAME
+record.aecp [save-second]                     20,609   206.09   220    235 within   load_grade.STATED_US record.aecp; A2/results/save-second: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-0]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-0: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-0]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-0: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-1]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-1: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-1]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-1: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-2]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-2: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-2]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-2: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-3]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-3: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-3]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-3: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-4]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-4: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-4]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-4: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-5]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-5: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-5]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-5: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-6]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-6: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-6]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-6: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-7]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-burst-7: AEM_COMMAND SET_NAME
+record.aecp [notice-burst-7]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-burst-7: AEM_COMMAND SET_NAME
+record.aecp [notice-every-0]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [notice-every-0]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-0: AEM_COMMAND SET_NAME
+record.aecp [notice-every-1]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-1: AEM_COMMAND SET_NAME
+record.aecp [notice-every-1]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-1: AEM_COMMAND SET_NAME
+record.aecp [notice-every-2]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-2: AEM_COMMAND SET_NAME
+record.aecp [notice-every-2]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-2: AEM_COMMAND SET_NAME
+record.aecp [notice-every-3]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-3: AEM_COMMAND SET_NAME
+record.aecp [notice-every-3]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-3: AEM_COMMAND SET_NAME
+record.aecp [notice-every-4]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-4: AEM_COMMAND SET_NAME
+record.aecp [notice-every-4]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-4: AEM_COMMAND SET_NAME
+record.aecp [notice-every-5]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-5: AEM_COMMAND SET_NAME
+record.aecp [notice-every-5]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-5: AEM_COMMAND SET_NAME
+record.aecp [notice-every-6]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-6: AEM_COMMAND SET_NAME
+record.aecp [notice-every-6]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-6: AEM_COMMAND SET_NAME
+record.aecp [notice-every-7]                  22,236   222.36   235    235 within   load_grade.GRADED record.aecp; E1/results/notice-every-7: AEM_COMMAND SET_NAME
+record.aecp [notice-every-7]                  22,236   222.36   235    235 within   load_grade.STATED_US record.aecp; E1/results/notice-every-7: AEM_COMMAND SET_NAME
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-largest-notice]             87,674   876.74   925    975 within   rows_tiers.LONG_RECORD_US; B1F/results/aecp-largest-notice: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+record.aecp [aecp]                            18,891   188.91   200    235 within   load_grade.GRADED record.aecp; B1F/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+record.aecp [aecp]                            18,891   188.91   200    235 within   load_grade.STATED_US record.aecp; B1F/results/aecp: AEM_COMMAND SET_NAME (aecp.set_name.if0)
+
+# 8 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+event.TICK                                     4,784    47.84    55     50 OVER     load_grade.GRADED event.TICK; TICK, 37006 taken
+event.TICK                                     4,784    47.84    55     50 OVER     load_grade.STATED_US event.TICK; TICK, 37006 taken
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.GRADED item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+item.aecp.notice                              34,349   343.49   365    210 OVER-raw load_grade.STATED_US item.aecp.notice; B1F/aecp-largest-notice (15 frame(s))
+record.aecp [aecp-fanout]                     22,987   229.87   245    235 OVER     load_grade.GRADED record.aecp; A1/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+record.aecp [aecp-fanout]                     22,987   229.87   245    235 OVER     load_grade.STATED_US record.aecp; A1/results/aecp-fanout: AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.GRADED record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+record.aecp [aecp-fanout]                     28,376   283.76   300    235 OVER-raw load_grade.STATED_US record.aecp; B1F/results/aecp-fanout: AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)

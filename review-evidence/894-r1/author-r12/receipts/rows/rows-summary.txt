@@ -1,0 +1,15 @@
+row 96 rc=1 [ESCAPED] face-write-after-response: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+row 104 rc=0 [ok] running-reads-every-word: Face.TheRunningCheckReadsOneWindowWordAStream
+row 105 rc=0 [ok] running-reads-no-word: Face.TheRunningCheckReadsOneWindowWordAStream:Face.StreamAvbAndFormatAreTheDatapathsWords
+row 106 rc=0 [ok] running-reads-another-word: Face.TheRunningCheckReadsOneWindowWordAStream
+row 107 rc=0 [ok] running-check-blind-to-the-licence: Face.TheRunningCheckReadsOneWindowWordAStream:Face.StreamAvbAndFormatAreTheDatapathsWords
+row 108 rc=0 [ok] running-check-reads-whole: Core.TheRunningCheckObservesEveryStreamBriefly:Face.TheRunningCheckReadsOneWindowWordAStream
+row 109 rc=0 [ok] stream-read-brief: Core.TheRunningCheckObservesEveryStreamBriefly:Face.TheRunningCheckReadsOneWindowWordAStream
+row 110 rc=0 [ok] configuration-streams-every-time: Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+row 111 rc=0 [ok] configuration-streams-never: Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+row 112 rc=0 [ok] configuration-move-unnamed: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+row 113 rc=0 [ok] configuration-move-always-named: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+row 114 rc=0 [ok] configuration-moved-by-its-override: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+row 96 rc=0 [ok] face-write-after-response: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+row 115 rc=0 [ok] configuration-unpaced: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+row 116 rc=0 [ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace

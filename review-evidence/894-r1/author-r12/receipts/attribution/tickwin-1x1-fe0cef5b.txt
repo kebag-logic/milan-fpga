@@ -1,0 +1,11 @@
+# aecp-fanout.log: step aecp_fanout.set_configuration.if0, bus cycles 83115111 to 83738484
+event TICK                1 taken, most  2,159 CPU cycles at 83304792, 25 us by the rule
+span  aecp_mbx:frame         at 83625448: 28,376 CPU cycles, 300 us by the rule
+span  aecp_mbx:poll          at 83659895: 20,097 CPU cycles, 215 us by the rule
+span  ctrl_app_aecp:deliver  at 83680026:  4,358 CPU cycles, 50 us by the rule
+# aecp-fanout.log: step aecp_fanout.set_stream_info.if0, bus cycles 83738484 to 84523494
+event TICK                1 taken, most  2,383 CPU cycles at 84302409, 30 us by the rule
+span  aecp_mbx:frame         at 84418312: 19,925 CPU cycles, 210 us by the rule
+span  aecp_mbx:poll          at 84444614: 19,076 CPU cycles, 205 us by the rule
+span  ctrl_app_aecp:deliver  at 84463724:  4,913 CPU cycles, 55 us by the rule
+span  aecp_mbx:poll          at 84480549:  3,005 CPU cycles, 35 us by the rule

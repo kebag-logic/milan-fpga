@@ -1,0 +1,11 @@
+# r12-cutB8
+bash scripts/leg.sh $SCRATCH/r12/cut-wt $SCRATCH/r12/builds/cutB8 8x8 1 --variant answering-ports --groups aecp-fanout 
+rc 0
+HEAD f275b619993e230f90b5d1b0545514265d79ecb7 DIRTY 0 point 8x8 jobs 1 args --variant answering-ports --groups aecp-fanout start 2026-11-14T22:01:28
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 100 passes carry the store's step; the longest 38,497 CPU cycles (0.385 ms), aecp-fanout; the longest step 3,433 (0.034 ms), aecp-fanout
+SLICES 4071 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 89,573, THE RETRY's round 36,263 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-fanout: 6 join interval(s), the shortest 187.668 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 22 probe instances, 0 of 20 paths), 0 of 171 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-14T22:08:54

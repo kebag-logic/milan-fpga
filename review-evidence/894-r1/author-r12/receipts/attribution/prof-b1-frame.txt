@@ -1,0 +1,62 @@
+# span frame from CPU cycle 83520025: 33724 cycles, 6322 commits, 149 fetch refills
+function (self)                     cycles commits refills
+aecp_command                          6198    1203      16
+aecp_rx                               3828     416      29
+aecp_find                             2141     554       2
+memset                                1890     540       2
+publish@13dc8                         1875     486       8
+forward                               1726     259       5
+aecp_stream_read                      1370     248       6
+write_stream                          1134     290       5
+arm@1994                              1101     272       3
+stream@a760                           1032     196       7
+mbx_tx_begin                           877      88       6
+view_of                                628      90       2
+transmit@80b4                          554      52       6
+changed@13fd8                          549      57       6
+header                                 467      69       3
+aecp_overridden                        415      84       1
+wire_be32@66c0                         392      66       2
+mbx_face_write_source                  357     104       0
+owe                                    329      42       3
+mbx_tx_commit                          328      49       1
+running                                319      74       2
+aecp_keep                              312      48       1
+aecp_note                              297      30       1
+current.isra.0                         297     132       0
+changed@145e0                          293      25       4
+
+# by call path (depth 3)
+   8376  frame > aecp_rx > aecp_command > aecp_note
+   6618  frame > aecp_rx > aecp_command > running
+   6198  frame > aecp_rx > aecp_command
+   3828  frame > aecp_rx
+   1491  frame > aecp_rx > transmit@80b4 > send@85f8
+   1182  frame > aecp_rx > aecp_command > aecp_keep
+   1101  frame > aecp_rx > arm@1994
+    600  frame > aecp_rx > applied@f444 > applied@12e30
+    554  frame > aecp_rx > transmit@80b4
+    467  frame > aecp_rx > header
+    329  frame > aecp_rx > owe
+    317  frame > aecp_rx > wire_be64@66ec > wire_be32@66c0
+    288  frame > aecp_rx > aecp_command > aecp_foreign_lock
+    274  frame > aecp_rx > aecp_command > aecp_override
+    234  frame > aecp_rx > owe > memcpy
+    214  frame > aecp_rx > header > aecp_put64
+    207  frame > aecp_rx > header > aecp_put48
+    202  frame > aecp_rx > now@1600
+    170  frame > aecp_rx > aecp_command > aecp_put16
+    165  frame > aecp_rx > aecp_command > body
+    150  frame > aecp_rx > wire_be64@66ec
+    127  frame > aecp_rx > aecp_command > aecp_overridden
+    108  frame > aecp_rx > applied@f444
+    103  frame > aecp_rx > aecp_ready > aecp_enter
+     75  frame > aecp_rx > wire_be32@66c0
+     74  frame > aecp_rx > transmit@80b4 > sent_frame
+     64  frame > aecp_rx > aecp_ready
+     58  frame > aecp_rx > aecp_command > aecp_find
+     57  frame > aecp_rx > arm@1994 > timer
+     35  frame > aecp_rx > finish@f518
+
+# aecp_command: 23456 cycles by pass (callees charged to the line of their call)
+  23456   81 refills  other (line 0)

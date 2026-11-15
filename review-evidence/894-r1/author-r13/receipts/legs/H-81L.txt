@@ -1,0 +1,16 @@
+# r13-H-81L
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r13/fp-wt\ $SCRATCH/r13/gates-out/builds/H-81L\ 8x8-1if\ 1\ --variant\ answering-ports\ --groups\ aecp-largest-notice 
+rc 1
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 8x8-1if jobs 1 args --variant answering-ports --groups aecp-largest-notice start 2026-11-15T04:57:16
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 202,546 (2.025 ms)
+STEPS 78 passes carry the store's step; the longest 26,362 CPU cycles (0.264 ms), aecp-largest-notice; the longest step 2,577 (0.026 ms), aecp-largest-notice
+SLICES 4343 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 94,601, THE RETRY's round 2,086 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.484 ms and the longest 190.079 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 1 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED aecp-largest-notice: a build-one pass of 94,601 CPU cycles, over its stated 73,500
+STATED aecp-largest-notice: a build-one pass of 92,066 CPU cycles, over its stated 73,500
+STATED aecp-largest-notice: a build-one pass of 92,181 CPU cycles, over its stated 73,500
+STATED aecp-largest-notice: a pass's polls base of 20,580 CPU cycles, over its stated 20,500
+END rc=1 2026-11-15T05:02:42

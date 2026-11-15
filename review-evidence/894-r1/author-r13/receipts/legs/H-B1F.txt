@@ -1,0 +1,13 @@
+# r13-H-B1F
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r13/fp-wt\ $SCRATCH/r13/gates-out/builds/H-B1F\ 1x1\ 3\ --variant\ answering-ports\ --groups\ aecp-fanout\,aecp\,aecp-largest-notice 
+rc 0
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 1x1 jobs 3 args --variant answering-ports --groups aecp-fanout,aecp,aecp-largest-notice start 2026-11-15T04:56:36
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 241 passes carry the store's step; the longest 20,884 CPU cycles (0.209 ms), aecp-fanout; the longest step 1,967 (0.020 ms), aecp-fanout
+SLICES 16557 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 41,780, THE RETRY's round 25,899 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.116 ms and the longest 189.906 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp: 3 join interval(s), the shortest 188.116 ms and the longest 189.906 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.116 ms and the longest 189.906 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+3 groups graded, 0 refusals, 0 budget misses (0 of 44 probe instances, 0 of 43 paths), 0 of 339 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-15T05:01:41

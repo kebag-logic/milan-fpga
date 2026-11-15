@@ -1,0 +1,117 @@
+# stated: load_grade.GRADED record.aecp 235 us (STATED_US pin column 235); rows_tiers.LONG_RECORD_US 975 us for aecp-largest-notice; rule = cycles/100 x 1.05 rounded up to 5 us
+group                              records most cycles      us  rule stated over  command
+A4/results/aecp-largest-notice          21      87,895  878.95   925    975 -     AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+B1F/results/aecp-largest-notice         21      87,674  876.74   925    975 -     AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_long.remove_audio_mappings.if0)
+B1F/results/aecp-fanout                 29      28,376  283.76   300    235 OVER  AEM_COMMAND SET_CONFIGURATION (aecp_fanout.set_configuration.if0)
+A2/results/aecp-fanout                  25      22,987  229.87   245    235 rule  AEM_COMMAND REMOVE_AUDIO_MAPPINGS (aecp_fanout.remove_audio_mappings.if0)
+E1/results/notice-burst-0               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-1               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-2               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-3               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-4               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-5               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-6               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-burst-7               49      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-0               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-1               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-2               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-3               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-4               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-5               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-6               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+E1/results/notice-every-7               81      22,236  222.36   235    235 -     AEM_COMMAND SET_NAME
+A3/results/save-second                   2      20,609  206.09   220    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-0          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-2          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-4          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-6          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged1-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged1-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged1-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged1-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged2-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged2-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged2-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@blank-aged2-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-0        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-2        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-4        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-6        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-aged2-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-aged2-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@program-aged2-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@verify-0         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@verify-2         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@verify-4         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A1/results/backlog-adp@verify-6         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@program-aged1-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@program-aged1-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@program-aged1-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@program-aged1-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@program-aged2-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged1-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged1-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged1-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged1-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged2-0      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged2-2      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged2-4      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/backlog-adp@verify-aged2-6      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-1          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-3          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-5          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-7          17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged1-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged1-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged1-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged1-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged2-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged2-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged2-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@blank-aged2-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-1        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-3        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-5        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-7        17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-aged2-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-aged2-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@program-aged2-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@verify-1         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@verify-3         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@verify-5         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A3/results/backlog-adp@verify-7         17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@program-aged1-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@program-aged1-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@program-aged1-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@program-aged1-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@program-aged2-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged1-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged1-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged1-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged1-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged2-1      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged2-3      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged2-5      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A4/results/backlog-adp@verify-aged2-7      17      20,423  204.23   215    235 -     AEM_COMMAND SET_NAME
+A2/results/save-starved                929      20,321  203.21   215    235 -     AEM_COMMAND SET_NAME
+A4/results/save-held                   929      20,321  203.21   215    235 -     AEM_COMMAND SET_NAME
+A2/results/save                          1      20,163  201.63   215    235 -     AEM_COMMAND SET_NAME
+A4/results/fixture                       3      19,587  195.87   210    235 -     AEM_COMMAND SET_NAME (fixture.set_name.if0)
+B1F/results/aecp                        25      18,891  188.91   200    235 -     AEM_COMMAND SET_NAME (aecp.set_name.if0)
+A2/results/aecp                         25      18,436  184.36   195    235 -     AEM_COMMAND SET_NAME (aecp.set_name.if0)
+A2/results/backlog                      16      15,201  152.01   160    235 -     AEM_COMMAND READ_DESCRIPTOR
+A4/results/backlog-owed                 16      15,185  151.85   160    235 -     AEM_COMMAND READ_DESCRIPTOR
+A2/results/backlog-adp-refill           16      14,518  145.18   155    235 -     AEM_COMMAND READ_DESCRIPTOR
+A4/results/backlog-adp                  16      14,518  145.18   155    235 -     AEM_COMMAND READ_DESCRIPTOR
+A1/results/acmp-notk                     0
+A2/results/acmp-disc                     0
+A2/results/adp-advertise                 0
+A2/results/adp-discover                  0
+A2/results/adp-link                      0
+A2/results/datapath-events               0
+A4/results/acmp-cmd                      0
+A4/results/acmp-noresp                   0
+A4/results/adp-gm                        0
+A4/results/control                       0
+A4/results/maap                          0
+A4/results/srp                           0

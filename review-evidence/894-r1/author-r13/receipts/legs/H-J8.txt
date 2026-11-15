@@ -1,0 +1,15 @@
+# r13-H-J8
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r13/fp-wt\ $SCRATCH/r13/gates-out/builds/H-J8\ 8x8\ 1\ --groups\ srp 
+rc 1
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 8x8 jobs 1 args --groups srp start 2026-11-15T05:03:56
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 278 passes carry the store's step; the longest 35,020 CPU cycles (0.350 ms), srp; the longest step 3,260 (0.033 ms), srp
+SLICES 11694 tier-2 slices; the longest SRP's records 33,089, THE TRANSMIT's build 145,595, THE RETRY's round 2,325 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp: 6 join interval(s), the shortest 185.486 ms and the longest 189.985 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 10 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 0 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 136,104 CPU cycles, over its stated 121,500
+STATED srp: a build-one pass of 145,595 CPU cycles, over its stated 121,500
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 136,104 CPU cycles, over the stated slice 130,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 145,595 CPU cycles, over the stated slice 130,000
+END rc=1 2026-11-15T05:15:43

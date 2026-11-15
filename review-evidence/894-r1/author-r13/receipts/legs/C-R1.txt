@@ -1,0 +1,20 @@
+# r13-C-R1
+bash -c bash\ $SCRATCH/scripts/leg.sh\ $SCRATCH/r13/fp-wt\ $SCRATCH/r13/gates-out/builds/C-R1\ 1x1\ 1\ --mutation\ acmp-redelivered-every-poll 
+rc 0
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 1x1 jobs 1 args --mutation acmp-redelivered-every-poll start 2026-11-15T04:56:56
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 276 passes carry the store's step; the longest 21,469 CPU cycles (0.215 ms), backlog-owed; the longest step 2,097 (0.021 ms), backlog-owed
+SLICES 19491 tier-2 slices; the longest SRP's records 77,529, THE TRANSMIT's build 41,827, THE RETRY's round 1,822 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 187.956 ms and the longest 190.012 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 310 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-owed: a pass's polls base of 34,135 CPU cycles, over its stated 20,500
+STATED backlog-owed: a declined ACMP offer of 2,127 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,094 CPU cycles, over its stated 2,000
+STATED backlog-owed: 318 declined ACMP offers, over their bound of two a sent owed frame and one (12 sent)
+END rc=0 2026-11-15T05:09:14

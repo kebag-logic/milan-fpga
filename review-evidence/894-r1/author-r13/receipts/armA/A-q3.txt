@@ -1,0 +1,36 @@
+# r13-A-q3
+bash r13/scripts/armA.sh 3 $SCRATCH/r13/fp-wt $SCRATCH/r13/gates-out/builds/A 
+rc 0
+HEAD c274b9f513e5d9ae578aacb641f533dc9ac0015d DIRTY 0 point 1x1 jobs 8 args --reuse-build --out $SCRATCH/r13/gates-out/builds/A/results-q3 --groups save-second,backlog-adp@blank-1,backlog-adp@blank-3,backlog-adp@blank-5,backlog-adp@blank-7,backlog-adp@program-1,backlog-adp@program-3,backlog-adp@program-5,backlog-adp@program-7,backlog-adp@verify-1,backlog-adp@verify-3,backlog-adp@verify-5,backlog-adp@verify-7,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-3,backlog-adp@blank-aged2-5,backlog-adp@blank-aged2-7,backlog-adp@blank-aged1-1,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-5,backlog-adp@blank-aged1-7,backlog-adp@program-aged2-1,backlog-adp@program-aged2-3,backlog-adp@program-aged2-5 start 2026-11-15T04:57:16
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 7805 passes carry the store's step; the longest 96,742 CPU cycles (0.967 ms), backlog-adp@blank-aged1-1; the longest step 78,702 (0.787 ms), backlog-adp@program-3
+SLICES 532958 tier-2 slices; the longest SRP's records 77,547, THE TRANSMIT's build 42,476, THE RETRY's round 8,577 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS save-second: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 21 empty
+JOINS backlog-adp@blank-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@blank-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@blank-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@blank-7: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@program-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-7: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-7: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged2-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged2-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged2-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged2-7: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged1-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged1-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged1-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged1-7: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@program-aged2-1: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-3: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-5: 3 join interval(s), the shortest 187.994 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+AGED 11 windows opened with the step's age at its limit or one short of it, 4 aged steps among their records; the least margin 10.128 ms, backlog-adp@blank-aged1-3.service.srp.last.if0 at 9.872 ms
+SAVE save-second: durable 6030.421 ms after its change (stated worst case 6,070 ms, 102 steps, longest gap between flash steps 30.8 ms) within
+24 groups graded, 0 refusals, 0 budget misses (0 of 253 probe instances, 0 of 11 paths), 0 of 64540 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 2026-11-15T06:14:03
