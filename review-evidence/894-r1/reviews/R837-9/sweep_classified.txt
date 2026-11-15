@@ -1,0 +1,28 @@
+# Reviewer sweep of every superseded 1x1/1if row figure at 6b759b30 (scripts/tokens.py builds the row
+# tokens from section 13's rows-history table: every non-head cell value differing from the head row's
+# column; plus 8x8/2if earlier rows, the tx row's earlier figures, earlier loads, the 900 us state's
+# figures, and txL/R4L by non-built pace). Tokens: tokens_sweep.txt (123). Scope: every tracked text
+# file, tables included (scripts/sweep.sh), and the live PR body. Hits: sweep_hits.txt (226 path:line:token
+# over every tracked file, before the pace tokens) and the PR-body grep in REPORT.md.
+#
+# CLASS current-superseded (a superseded figure stated as current):
+sw/firmware/ctrl/aecp/aecp_mbx.h:50  49.69  "txL is 49.69 ms at 7 ms, and 8 ms does"; the tree's model at the head gives 52.09 ms at 7 ms (pace_probe.txt) -> R837-9-F1
+#
+# CLASS history or beside the head's figure (each read in context, ctx.py):
+docs/design/SPLIT_CONTROL_MEMORY.md:2349,2351,2361-2370 (rows-history table rows, each labelled by its head),2380,2402,2436,2445,2447,2457,2459,2467,2477,2480,2491,2509
+docs/reference/FR_NFR.md:383,387
+sw/firmware/ctrl/srp/README.md:238 (33.01 and 29.78 beside the head's 33.38)
+PR body lines 115,194,304-311,374-381,408,410 (each dated by commit or round, or quoting a prior state)
+#
+# CLASS unrelated (another quantity sharing the digits):
+docs/design/SPLIT_CONTROL_MEMORY.md:754,769,905,945,1015,1081,1084,1272,1337,1352,1365,1533,1732,1893,2112,2628 (earlier sections' measured-row tables)
+docs/design/SPLIT_CONTROL_MEMORY.md:2204,2205 (the pre-tiers decision table, its own columns), 2318,2322,2330 (the load-gate section's own columns)
+docs/diagrams/ts_modular_ring.svg:26 (a polyline coordinate)
+docs/findings/117_AUDIO_CONTINUITY.md:206, 117_GPTP_SILICON_EVIDENCE.md:1009, 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:359 (bench figures)
+tb/tools/torture_campaign.py:8074 (a test resolution value)
+tb/verilator/ctrl_service_budget/README.md:536,540,580,681,827,1135 (other harness tables and a planted ADP figure)
+tb/verilator/fw_service_budget/README.md:84 (seconds of WIP)
+#
+# Separate check (not a row token): the 8x8/2if tx row at the head, 98.49 ms (tx_probe.txt), beside
+# CTRL_LOOP_TX_MS's 98 at two interfaces, which the tree's own rows_tiers.tx_statements refuses
+# (txstmt_probe.txt) -> R837-9-F2
