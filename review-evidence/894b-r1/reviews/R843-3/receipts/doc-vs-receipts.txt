@@ -1,0 +1,45 @@
+# section 13 at af2c4d7a4a1930aba712792a7facd8e9cb88e7c7, the lines that state 8x8/1if's gate, load and every-source rows
+2546:- **8x8/1if's own ADP record** ([#894's round-6 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6892938049), item 4): its nearest point supplies a cost only while 8x8/1if's measurement is within it. On the image that merges #902's `234bc149` an ADP record measured 12,210 cycles (arm A's `backlog-adp-refill`), 130 us by the rule, over the 125 us 8x8/2if's tsn-c-stack#
+2547:- **The load** at 8x8/1if takes those polls, and its records and events stay 8x8/2if's: 0.711 at the pin and 0.671 with tsn-c-stack#32, within 0.75, with THE RETRY's cold start at its shape's 165 us (0.709 and 0.670 at round 2's 85 us; 0.710 and 0.670 at round 1's polls).
+2550:**The gate at 8x8/1if** is the contract-rate run on the built image: every group of arm A, the `answering-every-port` arm (the queued notices) and the `answering-ports` arm's `aecp-largest-notice` (the largest legal command, the paced R4L row as measured). Measured once more on round 3's image, THE RETRY at 165 and 25 us (`d8629751`, on the tree that merges #902's `7398ec0a`), 112 groups and 
+2565:- **Every row the CPU decides is within its bound,** and the long-window load is 0.711 at the pin and 0.671 with tsn-c-stack#32, within 0.75. The second-hart trigger is a row the CPU decides over its bound or the load over 0.75 (the round 2 ruling, item (a)), so it is not met.
+2566:- **Join intervals:** 346 in 111 groups, 186.687 to 190.705 ms, within the harness's commit-side gate, 181.0 to 239.0 ms ([the egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1). Of the MRP timers' 2,311 run-outs, 1,332 were released and 979 empty; none was late, absent or unresolved.
+2568:- **THE RETRY's rounds:** 2,455,411, every one within its shape's 165 + 255 n + 25 k us, so no leg prints a STATED line and every leg exits 0, the `answering-every-port` arm's included (it exited 1 on 1,654 rounds at round 2's costs). The closest is 89.9 % of its statement, a round of no notice beside two refused attempts.
+2591:**The AECP records by class at 8x8/1if** (`record_classes.py`, which holds 8x8/1if's legs at 8x8/1if's own statements since the merge of #902's `234bc149`, where it reported them at 1x1/1if's): the paced class is the dearer of a one-row edit's record, 30,277 cycles, a REMOVE of one output row in the answering-ports arm, 320 us by the rule, and an accepted SET_CONFIGURATION's, 60,027 there, 63
+2594:- **The rows by every source,** derived with 8x8/1if's own polls, its round costs, the 40 notices a reset leaves and the largest legal command measured there (its record 154,850 cycles, 1,630 us, and its notice 320 us), and the records' and events' costs 8x8/2if's: R4 18.64, R5 113.95, R6 108.80, the first queued notice 17.07, the last 274.91, R4L 192.91, ACMP 45.56, ADP 44.85, MAAP 46.26, tx
+2595:- **The load with every AECP command the largest legal one:** 0.993 (0.991 at the 85 us cold start).
+2554:| AECP (20) | 4.693 | `notice-every-7`, `held.aecp` |
+2562:| The last queued notice (130) | 26.195 (23.730) | `notice-burst-3`, of 40 queued |
+
+# the round-6 packet's derivation at the head (model/rows-8x8-1if-af2c4d7a.txt)
+# 8x8/1if's rows by every source and the load at af2c4d7a (rows_8x8_1if_r5.py): DERIVED, reported, owed to #872 (identical to f8ea6d72's)
+# 8x8/1if, derived, paced class 635 us (8x8/1if), at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475, 'CTRL_LOOP_SRP_UNIT_US': 365, 'CTRL_LOOP_RETRY_COLD_US': 165, 'CTRL_LOOP_RETRY_ATTEMPT_US': 25} (shape (1, 9, 9)): slice 1475 us, pace 8 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1510 us, item.aecp.long 320 us, notices 40
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 19.82 | 20 | -0.18 | aecp 4.24, timers 3.67, others 1.62 |
+| R5 | 126.36 | 90 | +36.36 | others 24.66, passes 12.42, srp 11.68 |
+| R6 | 118.28 | 90 | +28.28 | others 23.41, srp 11.68, passes 11.34 |
+| first | 17.83 | 20 | -2.17 | spacing 8.00, others 1.62, slice 1.48 |
+| last | 325.90 | 130 | +195.90 | srp 69.35, others 47.11, passes 35.64 |
+| R4L | 192.81 | 238 | -45.19 | pace 180.00, timers 1.94, others 1.62 |
+| ACMP | 48.37 | 30 | +18.37 | own 7.04, timers 6.79, aecp 6.62 |
+| ADP | 48.33 | 30 | +18.33 | others 12.30, aecp 6.62, timers 6.38 |
+| MAAP | 49.03 | 30 | +19.03 | others 13.88, aecp 6.62, timers 6.38 |
+| tx | 67.24 | 49 | +18.24 | others 17.55, timers 7.98, passes 7.83 |
+| txL | 134.96 | 49 | +85.96 | aecp 32.30, others 25.34, item.aecp 18.56 |
+
+Long-window load at the pin: 0.711 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.055, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.673 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 0.969
+
+# the round-5/6 regrade of the head's image (harness/gate-8x8-1if-regraded-af2c4d7a.txt): its header and worst rows
+# round 5's measurement (a15345f7's image, which af2c4d7a carries) regraded with af2c4d7a's graders: scripts/gate_r5.py over every leg; exit 0 (byte-identical to the regrade at f8ea6d72)
+# 114 groups graded over 7 leg(s); 1717 probe instances, 1717 measured
+10:| aecp | AECP | 221 | 4.860 | `notice-every-6.held.aecp.if0` (notice-every-6) | 20.0 | 20 | 0 |
+38:Over every group: the first at most 2.812 ms, the last at most 26.636 ms; 640 queued notices in 16 groups
+69:Join intervals: 352 in 113 groups, the shortest 187.397 ms (notice-burst-0), the longest 190.147 ms (acmp-cmd), against the commit-side gate 181.0 to 239.0
+83:THE RETRY's rounds: 2,453,084, held to attempt 25 us, cold 165 us, notice 255 us; the heaviest by notices built: 0: 24,302 (notice-every-0), 1: 22,465 (aecp-fanout), 4: 92,744 (notice-burst-3); ove
+
+# the head's load gate (load_grade.py --check), 8x8/1if
+5:| 8x8/1if | 0.711 | 0.673 | the flip check, 0.75 at the pin (flip_grade.py) | 

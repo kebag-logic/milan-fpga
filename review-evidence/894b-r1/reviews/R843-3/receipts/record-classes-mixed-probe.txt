@@ -1,0 +1,8 @@
+completeness map built as main() builds it: ['8x8/1if']
+mixed pass, 1x1/1if arm A absent and its SET_CONFIGURATION removed: findings 0
+the same pass held complete at 1x1/1if too: findings 5
+   the pass runs no arm A leg at 1x1/1if
+   the pass is missing aecp-fanout, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+   the pass is missing aecp-largest-notice, a group of arm A at 1x1/1if, on which each stated cost measured over the arm depends
+1x1/1if answering-ports alone (no arm A anywhere): findings 1 ['the pass runs no arm A leg at a point it is held at (1x1/1if, 8x8/1if)']
