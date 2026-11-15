@@ -35,10 +35,11 @@
 // the datapath's KL_reboot_ctrl: the saved state drains, the MAC empties, the
 // PHY is held in reset and the configuration reloads
 // (docs/design/REBOOT_RESET.md). From the loop's last pass, ctrl_plat_step
-// services the saved-state store and its F_NVM, and, from ADP's shutdown, ADP until the port. So a
-// journal write in progress completes and the drain sees it, and no frame is
-// taken that could start another during the PHY hold. A ring the datapath
-// never drains holds the port back: the sequence has no deadline.
+// services the saved-state store and its F_NVM, and, from ADP's shutdown, ADP
+// until the port. So a journal write in progress completes and the drain sees
+// it, and no frame is taken that could start another during the PHY hold. A
+// ring the datapath never drains holds the port back: the sequence has no
+// deadline.
 // A stage that refuses stops the boot there: nothing after it runs, ADP never
 // starts, the loop is never serviced, and only the console answers, as the
 // all-fabric image keeps its BIOS console when its fabric stays disabled.

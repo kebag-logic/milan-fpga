@@ -2235,7 +2235,7 @@ The firmware already runs each item as its own function, which does its work onl
 | rebuild | `open_interface`, one interface a poll | a link change, one an interface (R5's) | 290 | 690 (630) |
 | walk | lwSRP's `mrp_attr_visit`, from a stale interface's snapshot | a centisecond of lwSRP's timers (`tick_ms`) or a build's declarations (THE TRANSMIT, a JoinTime a participant: IEEE 802.1Q-2018 10.7.4.1), one an interface an ordinary pass | 35 (20) | 60 |
 | reclaim | lwSRP's `mrp_reclaim`, two participants an interface | an SRP record or a build | 25 | 35 |
-| retained | `apply_receive` of a record its participant refused for storage, one waiting at a time | an SRP record (`mailbox.yaml` `rate`), retried only once the pool or an attribute changed since its refusal, at most once a centisecond, until it expires | 285 (280) | 365 (395) |
+| retained | `apply_receive` of a record its participant refused for storage, one waiting at a time | an SRP record (`mailbox.yaml` `rate`), retried only once the pool or an attribute changed since its refusal, at most once a centisecond, until it expires | 285 (250) | 365 (395) |
 | mrpdu | `build_mrpdu` of an MRPDU a build left owed (A3) | two a build | 735 (405) | 1,215 |
 | acmp | ACMP's poll, a call that committed an ACMP frame (A3) | ACMP's and ADP's records (`mailbox.yaml` `rate`) and ACMP's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26) | 55 (65) | 70 (185) |
 | aecp | AECP's `transmit`, a call that committed an AECP frame | AECP's records (`mailbox.yaml` `rate`) and the registrations' probes (Milan v1.2 5.4.5.3) | 210 (225) | 275 (340) |

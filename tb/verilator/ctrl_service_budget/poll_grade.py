@@ -70,8 +70,8 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: makes, stated at the SRP record's cost (285 and 365 us; 280 at 1x1/1if before AECP's REBOOT, #871), and an owed
 #: MRPDU is a part of a build of one, stated at that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The
 #: SRP record's and AECP's item (a notice to the registered controllers) are measured on the image whose notice is
-#: built once and addressed per recipient and whose
-#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
+#: built once and addressed per recipient and whose SRP comparisons are same()'s (#665: the notice and SRP record
+#: cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
 #: ACMP's item at 1x1/1if takes the adapter's redelivery of the kept command and the records behind it, which a poll
 #: that sends an owed frame now runs (acmp_mbx.c). On the merge of dev-soft-core 0fb66211 (#665), each cost, every item

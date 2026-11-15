@@ -186,8 +186,7 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 // contract's bitstream answers ID without this contract's magic
 // ADP's TX_TAIL as the driver reads it (ADepartingTheRingRefusedHoldsTheReset): while adp_full is nonzero, that many
 // reads find its ring full; else, with adp_one, room for one ADP frame, so the driver, which reads the tail only when
-// the room it last read is short
-// (mbx.c), reads it at each send; else the model's
+// the room it last read is short (mbx.c), reads it at each send; else the model's
 unsigned adp_full = 0;
 bool adp_one = false;
 constexpr unsigned kAdpRecord = MBX_TX_HDR_WORDS + (82u + 3u) / 4u;  // an ADPDU's frame, Milan v1.2 5.6.3
