@@ -302,7 +302,9 @@ token is held instead of dropped:
   period more. [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
   states each path's allowance and the response margins it leaves, and the
   [generated channel table](../reference/MAILBOX_CONTRACT.md#channels-and-the-ingress-filter)
-  states each channel's held allowance from its `refill_ms`.
+  states each channel's held allowance from its `refill_ms`. `gen_mailbox.py`
+  writes the margin table's ingress and margin columns from the same
+  `refill_ms`, and `--check` fails when they differ from it.
 - **What is dropped.** A channel holds one frame. While it holds one its
   bucket is empty, so every later frame of the channel that passes the
   filter and fits finds no token and is refused, in `RATE_DROP` (and

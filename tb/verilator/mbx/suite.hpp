@@ -1646,8 +1646,8 @@ void Suite<Bench, Check>::check_held_not_dropped() {
 }
 
 // #917, what a held record leaves for the frames behind it: the free space
-// past it (B7), the frames the filter refuses behind it (B8) and a channel
-// closed while it is held (B9).
+// past it, the frames the filter refuses behind it and a channel
+// closed while it is held.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_held_space_and_refusals() {
     const std::uint32_t ch = MBX_CH_AECP;

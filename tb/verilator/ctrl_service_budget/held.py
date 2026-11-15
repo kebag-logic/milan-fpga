@@ -7,8 +7,10 @@ RX_HEAD (hold_w, an RXH line where a commit's RXC would be) and the channel's ne
 line for channel c). The commit is the held frame's own: never a frame ended since, which the filter or the bucket
 refused, nor another channel's. A held record's ingress allowance is one refill period of its channel (mailbox.yaml)
 and T_ingress (FR_NFR.md 3.4.1), so its path is measured from its frame's last byte (an rxh:<channel> start) and its
-commit must come within that allowance. A commit on a channel holding none, a second hold on a channel holding one and
-a commit outside the allowance are refused; a held record never committed by the run's end was not served.
+commit must come within that allowance. A channel holding a record commits it first, after its hold. A held-record
+commit on a channel holding none, a second hold on a channel holding one, a commit outside the allowance, a commit
+stamped at or before its hold and any other commit on the channel while it holds one (a later frame overtaking it)
+are refused; a held record never committed by the run's end was not served. Other channels commit as they do.
 """
 from __future__ import annotations
 
@@ -37,6 +39,28 @@ def hold(log: grade.Log, pending: list, ch: int, cycle: int) -> None:
     log.holding[ch] = (*grade.last_frame(pending, cycle, log.refused, 'hold'), cycle)
 
 
+def overtaken(log: grade.Log, ch: int, cycle: int) -> None:
+    """A channel holding a record commits it first: KL_mbx_rx refuses every passing frame of the channel at its
+    verdict while one is held, so a commit (RXC) on that channel would be a later frame overtaking it."""
+    if ch in log.holding:
+        raise grade.Refusal(f'the commit at {cycle} on channel {ch} overtakes the record it holds, '
+                            f'{log.holding[ch][1]}, held at {log.holding[ch][4]}')
+
+
+def follows_hold(ch: int, held_at: int, cycle: int) -> None:
+    """A held record's commit comes after its hold: the refill commits only a record held in an earlier clock."""
+    if cycle <= held_at:
+        raise grade.Refusal(f'the held-record commit at {cycle} on channel {ch} does not follow its hold at '
+                            f'{held_at}')
+
+
+def commit(log: grade.Log, pending: list, cycle: int, ch: int) -> tuple[int, int, int, str, int]:
+    """parse()'s RXC line: (cycle, channel, interface, tag, bytes), the frame the commit's verdict follows
+    (grade.owner), refused while its channel holds a record (overtaken); other channels commit as they do."""
+    overtaken(log, ch, cycle)
+    return (cycle, ch, *grade.owner(pending, cycle, log.refused))
+
+
 def release(log: grade.Log, pending: list, ch: int, cycle: int) -> tuple[int, str, int]:
     """The frame a held record's commit at cycle belongs to: (interface, tag, bytes), the one channel ch holds; the
     frames pending since its hold are not this commit's."""
@@ -44,6 +68,7 @@ def release(log: grade.Log, pending: list, ch: int, cycle: int) -> tuple[int, st
     if ch not in log.holding:
         raise grade.Refusal(f'the held-record commit at {cycle} on channel {ch} follows no held frame')
     interface, tag, size, end, held_at = log.holding.pop(ch)
+    follows_hold(ch, held_at, cycle)
     allowance = round(allowance_ms(ch) * log.sys_hz / 1000)
     if not end < cycle <= end + allowance:
         raise grade.Refusal(f'the held record {tag} on channel {ch} was committed {cycle - end} cycles after its '

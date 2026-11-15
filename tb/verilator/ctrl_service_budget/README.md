@@ -384,14 +384,18 @@ A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but w
 A frame its channel's bucket had no token for is held (#917; [MAILBOX_SPLIT.md, The held frame](../../../docs/design/MAILBOX_SPLIT.md#the-held-frame)): `KL_mbx_rx` writes its record past RX_HEAD at its verdict and commits it at the channel's next refill.
 The testbench prints the hold as `RXH <cycle> <channel>`, in its commit's place, and the commit as `RXR <cycle> <channel>`, reading `hold_w` and `rel_w[c]` passively ([`observe.vlt`](observe.vlt)).
 [`held.py`](held.py) credits the commit to the frame that channel holds: never to a frame ended since, which the filter or the bucket refused, nor to another channel's.
-A commit on a channel holding none, a second hold on a channel holding one, and a commit later than the held allowance after the frame's last byte are refused; a held record never committed by the run's end is refused as not served.
+A channel holding a record commits it first, after its hold: `KL_mbx_rx` refuses every passing frame of the channel at its verdict while one is held, and a refill commits only a record held in an earlier clock.
+So a held-record commit on a channel holding none, a second hold on a channel holding one, a commit later than the held allowance after the frame's last byte, a commit stamped at or before its hold, and any other commit (`RXC`) on the channel while it holds one, a later frame overtaking it, are refused; a held record never committed by the run's end is refused as not served.
+Another channel's commit, between the hold and its commit or in the commit's own clock, is that frame's as it would be with nothing held.
 The allowance is one refill period of the channel (`mailbox.yaml`) and `T_ingress`, 1 ms ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 
 Group `aecp-held` measures it at every point.
 Just after a refill (NOW_MS 1000, `held.AT_MS`, a refill tick of AECP's bucket), sixteen AECP frames the core takes and drops at once empty the bucket: a message type with no command contract, to this entity as a controller (`aecp.c` ignores it).
 Then a READ_DESCRIPTOR finds no token and is held, and two frames follow it, one for another target, which the filter refuses, and one the bucket refuses.
 Its path, `aecp.held.read_descriptor`, starts at its frame's last byte (`rxh:<channel>`), so its ingress delay counts against the AECP row's bound, and its row reports that delay and the allowance it was held to.
+Its row's figure already contains that delay; [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)'s held margins subtract the held `T_ingress` again on top of the bound, which is conservative.
 The self-test plants the attribution before #917, a commit given to the frame whose last byte passed last, and its check "a held record's commit belongs to its own held frame" fails on a frame refused 11 cycles before that commit ([`selftest_held.py`](selftest_held.py)).
+It also removes each ordering guard (`held.overtaken`, `held.follows_hold`), and its checks "a commit on the channel holding a record is refused" and "a held record's commit stamped before its hold is refused" fail; two more checks keep another channel's commit, between the hold and its commit and in the commit's clock, credited to its own frame.
 Point `8x8-1if` is one interface of the 8x8 shape, the flip's 8x8 measurement point (#665 ruling item 1); `run.py --point 8x8-1if --groups aecp-held` runs the group there.
 
 ## Results

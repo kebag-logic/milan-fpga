@@ -446,6 +446,10 @@ MUTANTS: dict[str, Patches] = {
     "marker: a held record's commit goes to the last frame ended (earlier rule)":
         lambda: [patch.object(held, 'release',
                               lambda log, pending, ch, cycle: grade.owner(pending, cycle, log.refused))],
+    "marker: a later frame's commit overtakes the record its channel holds (no ordering guard)":
+        lambda: [patch.object(held, 'overtaken', lambda log, ch, cycle: None)],
+    "marker: a held record's commit before its hold is taken (no ordering guard)":
+        lambda: [patch.object(held, 'follows_hold', lambda ch, held_at, cycle: None)],
     'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
     "answers: a response's status is not checked": lambda: [patch.object(
         answers, 'differs', lambda kind, got, want, f=answers.differs: f(kind, (got[0], want[1]), want))],

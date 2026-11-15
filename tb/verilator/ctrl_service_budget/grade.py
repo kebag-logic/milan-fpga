@@ -193,8 +193,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'RXE':
             pending_rx.append((*rxs, int(rest[0])))
         elif kind == 'RXC':
-            cycle = int(rest[0])
-            log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
+            log.rxc.append(held.commit(log, pending_rx, int(rest[0]), int(rest[1])))
         elif kind in ('RXH', 'RXR'):
             held.observe(kind, rest, pending_rx, log)
         elif kind == 'ENTRY':

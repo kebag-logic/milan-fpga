@@ -3,7 +3,9 @@
 """The self-test's checks of a record its channel's bucket held (#917, held.py), on synthetic logs.
 
 Among them a frame refused behind a held one, its last byte 11 cycles before the held record's commit, which the
-attribution before #917 credited with that commit (selftest_mutants.py plants that rule again).
+attribution before #917 credited with that commit, a later frame's commit on the held channel overtaking the held
+record and a held record's commit stamped before its hold; selftest_mutants.py plants the earlier rule again and
+removes each ordering guard.
 """
 from __future__ import annotations
 
@@ -64,4 +66,29 @@ def held_checks(st: types.ModuleType) -> list[tuple[str, bool, str]]:
     out.append(('a probe frame that was not held starts no held path',
                 st.one(st.synthetic(at_once), probe).get('status')
                 == 'no start', ''))
+    return out + ordering_checks(st, probe, lines, response)
+
+
+def ordering_checks(st: types.ModuleType, probe: scenario.Probe, lines: list[str],
+                    response: list[str]) -> list[tuple[str, bool, str]]:
+    """A held record commits first on its channel and after its hold (held.overtaken, held.follows_hold); a
+    frame of another channel commits as it does, between the hold and its commit or in the commit's clock."""
+    prefix = lines[:4]
+    overtakes = prefix + ['RXS 2000 0 60 -', 'RXE 2059', f'RXC 2070 {AECP}', f'RXR 500100 {AECP}', *response]
+    out = [('a commit on the channel holding a record is refused: a later frame does not overtake it',
+            'overtakes the record it holds' in refused_by(st, overtakes, probe), refused_by(st, overtakes, probe))]
+    early = prefix + [f'RXR 1060 {AECP}', *response]
+    out.append(("a held record's commit stamped before its hold is refused",
+                'does not follow its hold' in refused_by(st, early, probe), refused_by(st, early, probe)))
+    between = prefix + ['RXS 2000 0 60 other', 'RXE 2059', f'RXC 2070 {ACMP}', *lines[4:]]
+    log, r = grade.parse(st.synthetic(between), st.SYS_HZ, st.CPU_HZ), st.one(st.synthetic(between), probe)
+    out.append(('a commit on another channel while one is held is its own frame, and the held record still its own',
+                [(ch, tag) for _, ch, _, tag, _ in log.rxc] == [(ACMP, 'other'), (AECP, 's.held.if0')]
+                and r.get('status') == 'measured' and r.get('start_sys') == 1059, f'{log.rxc} {r}'))
+    same_clock = prefix + ['RXS 500030 0 60 other', 'RXE 500089', f'RXC 500100 {ACMP}', f'RXR 500100 {AECP}',
+                           *response]
+    log, r = grade.parse(st.synthetic(same_clock), st.SYS_HZ, st.CPU_HZ), st.one(st.synthetic(same_clock), probe)
+    out.append(("another channel's commit in the clock of the held record's commit is credited to each frame",
+                [(ch, tag) for _, ch, _, tag, _ in log.rxc] == [(ACMP, 'other'), (AECP, 's.held.if0')]
+                and r.get('status') == 'measured' and not log.refused, f'{log.rxc} {log.refused} {r}'))
     return out
