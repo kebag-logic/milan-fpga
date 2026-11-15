@@ -1,0 +1,122 @@
+b58a54300726961745c4d39fe686b8c885094549 Merge 894-tiers 234bc149 (#902 round 13, not merged) into the split's GET_AS_PATH lane, each conflict kept from both sides
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 36da83cd7f..d0b46738f8 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -2482,17 +2482,6 @@ Every row at 1x1/1if holds (the table [above](#the-tiers)), the load is 0.513 at
+ - **The controls** (item 2). `Core.EveryAcceptedMapKeyIsItsOwn` adds and removes every key a port accepts, in commands of 63 mappings, each key held as its own. The work arm runs it at every checked-in configuration and at two wider geometries the builder accepts, 16 talkers of 4 channels and 16 of up to 32 (`aecp_arms.py`, `KEY_GEOMETRIES`), each edit within 2 (n + R). `Core.EveryKeyOfTheDomainIsItsOwn` fills the whole domain and `Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn` holds its edge. The 8, 16, 32 and 63 counting controls and the quadratic plants stay, and new plants of colliding indices and a domain one channel wide are caught.
+ - **The images.** Every image's rom is the same as round 8's or 8 B smaller, and sram and tiles are unchanged.
+ 
+-<<<<<<< f098f893d5 (Hold aecp_mutants.py within the 1,000-line module limit at the merge of 894-tiers 7398ec0a, GET_AS_PATH's face plants in their own aecp_face_mutants.py (#897))
+-### GET_AS_PATH through the face
+-
+-With #897 a GET_AS_PATH is read through its AVB interface's GSI window, kind 2: the count, then each entry, each word a bounded window read (`aecp_face.c`, `path`; `mbx_win_read`, `MBX_WIN_GSI_WAIT_CYCLES`). Before it, the size fixture's and the platform's `path` port answered false at once. The shipped datapath serves at most eight entries (`KL_gptp_engine.sv` clamps the pathTrace count to 8; `milan_datapath.sv`, `asp_*`), so a read is at most nine words. It enters three terms of the rows, each within its stated cost at 1x1/1if at the merge of `894-tiers` `5b264bf2`:
+-
+-- **AS_PATH_CHANGED's take and sinks** (`rows_tiers.DATAPATH_US`, 35 us). The sink marks the notice and reads nothing. The `datapath-events` group measures 30.64, 30.02 and 23.34 us for AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE (30.55, 31.57 and 25.51 at `5b264bf2`), within the 35, 35 and 30 stated at the point the flip check holds (8x8/2if's rows are reported, not held).
+-- **Its notice in THE RETRY's rounds** (`AECP_ROUND_COLD_US` + n x `AECP_NOTICE_US` + k x `AECP_ATTEMPT_US`: 85, 255 and 34 us). The test SoC never answers a window, so each attempt reads the count to its timeout and fails, a refused attempt: 378 to 796 CPU cycles a word in a scratch build that traces `mbx_win_read`, and no round over its stated cost (`round_grade.py`). The answering arms' `path` stands in without a read, so the answered notice is measured in a scratch copy of the `answering-every-port` arm whose `path` reads the count and eight entries, each word to the contract's whole bound, and answers the eight. The round that builds it is 46,397 CPU cycles in `notice-every-0` and 47,490 in `notice-burst-0` (the eight entries 3,032 of them) against the 59,500 it is admitted at, a cold start and two notices, and in both groups no round, notice or pass is over its bound.
+-- **A GET_AS_PATH command's record** (`record.aecp`, 235 us). No group sends one. Its handler is GET_AVB_INFO's (`aecp_commands.c`), whose record with one unanswered word is 11,655 CPU cycles in arm A. Eight words more at the most a word took (877 cycles), their answers' two data words each at the most a mailbox read took (60 cycles) and the 64 B of entries put it at about 19,950 cycles, 200 us.
+-
+-So no stated cost moves. The rows are the direct index's in the table [above](#the-tiers), and `flip_grade.py --check --point 1x1/1if` passes on the composed tree with the same figures: txL 48.09 ms within 49 is the tightest, and the load is 0.513 at the pin and 0.509 with tsn-c-stack #32.
+-=======
+ ### The one-row edit
+ 
+ The full arm A at 1x1/1if on `7398ec0a` ([#894's measurement](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878200592)) found the AECP record over its statement in `aecp-fanout`, a group no pass had run since round 4: a REMOVE_AUDIO_MAPPINGS of one row 27,851 CPU cycles (295 us by the rule) and its ADD 22,932 (245), against `record.aecp`'s 235 us. [#894's round 11](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878230332) cut it first and, [as amended](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871), took the edits as a class of their own where the cut left the REMOVE over:
+@@ -2532,7 +2521,16 @@ Every stated table was compared by the rule, at the final firmware, against the
+ - A TICK, once the SRP drain's record cost is the load gate's ([above](#the-srp-drains-record-cost)), 4,784 cycles in arm A's `backlog-adp@program-0` (4,692 before it): 55 us, both columns.
+ 
+ With them **the last queued notice at 1x1/1if is 132.71 ms, over its 130 ms**, at the built design (900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue): it takes 70 passes, two more, and its largest term is SRP's 26.32 ms. The slice rule (`tier_grid.py`) holds 10 of 420 candidates and chooses 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2. Without the build of one's and the TICK's restatements every row held, the last queued notice at 127.98 ms; either alone puts it over (132.64 and 132.65 ms). Every other 1x1/1if row holds by every source, the load is 0.516 and 0.512, and the pace stays 8 ms. [#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796) takes the rule's choice: the built slice at one interface is the slice rule's within 650 to 1,100 us, 950 us now, which `ctrl_loop.h` states and the model's self-test holds; the 130 ms bound stays. At 950 us every 1x1/1if row holds by every source (the table [above](#the-tiers)): R4 13.10 ms, the last queued notice 127.21, ACMP 28.95 and txL 48.43; the load is 0.516 and 0.512, the pace stays 8 ms, and the slice rule chooses the built design. `CTRL_LOOP_BUILD_MOST` stays 1, a 950 us slice being shorter than a build of both of an interface's MRPDUs (1,010 us). Only the one-interface images change, `ctrl_loop.o` at equal sizes; every one-interface leg was measured again on them, and every stated table holds there by the rule but for the class lines. A SET_CONFIGURATION cannot complete late on the product port: the datapath takes a commit on its crossing's pulse with no backpressure and acknowledges it within the contract's 64 cycles (2 polls on the split composition, `sim_split.cpp`), which the firmware outwaits, so no interface is ever owed and no change waits.
+->>>>>>> 234bc149ff (Anchor the hooks harness's face plant on the publication line the SET_CONFIGURATION cut wrote, its stream flag kept referenced (#894))
++
++### GET_AS_PATH through the face
++
++With #897 a GET_AS_PATH is read through its AVB interface's GSI window, kind 2: the count, then each entry, each word a bounded window read (`aecp_face.c`, `path`; `mbx_win_read`, `MBX_WIN_GSI_WAIT_CYCLES`). Before it, the size fixture's and the platform's `path` port answered false at once. The shipped datapath serves at most eight entries (`KL_gptp_engine.sv` clamps the pathTrace count to 8; `milan_datapath.sv`, `asp_*`), so a read is at most nine words. It enters three terms of the rows, each within its stated cost at 1x1/1if at the merge of `894-tiers` `5b264bf2`:
++
++- **AS_PATH_CHANGED's take and sinks** (`rows_tiers.DATAPATH_US`, 35 us). The sink marks the notice and reads nothing. The `datapath-events` group measures 30.64, 30.02 and 23.34 us for AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE (30.55, 31.57 and 25.51 at `5b264bf2`), within the 35, 35 and 30 stated at the point the flip check holds (8x8/2if's rows are reported, not held).
++- **Its notice in THE RETRY's rounds** (`AECP_ROUND_COLD_US` + n x `AECP_NOTICE_US` + k x `AECP_ATTEMPT_US`: 85, 255 and 34 us). The test SoC never answers a window, so each attempt reads the count to its timeout and fails, a refused attempt: 378 to 796 CPU cycles a word in a scratch build that traces `mbx_win_read`, and no round over its stated cost (`round_grade.py`). The answering arms' `path` stands in without a read, so the answered notice is measured in a scratch copy of the `answering-every-port` arm whose `path` reads the count and eight entries, each word to the contract's whole bound, and answers the eight. The round that builds it is 46,397 CPU cycles in `notice-every-0` and 47,490 in `notice-burst-0` (the eight entries 3,032 of them) against the 59,500 it is admitted at, a cold start and two notices, and in both groups no round, notice or pass is over its bound.
++- **A GET_AS_PATH command's record** (`record.aecp`, 235 us). No group sends one. Its handler is GET_AVB_INFO's (`aecp_commands.c`), whose record with one unanswered word is 11,655 CPU cycles in arm A. Eight words more at the most a word took (877 cycles), their answers' two data words each at the most a mailbox read took (60 cycles) and the 64 B of entries put it at about 19,950 cycles, 200 us.
++
++So no stated cost moves. The rows are the direct index's in the table [above](#the-tiers), and `flip_grade.py --check --point 1x1/1if` passes on the composed tree with the same figures: txL 48.09 ms within 49 is the tightest, and the load is 0.513 at the pin and 0.509 with tsn-c-stack #32.
+ 
+ ### What is left
+ 
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/aecp_mutants.py
+index a3e9dc4f44..53306f33ca 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -872,12 +872,8 @@ DEFECTS = (
+             'AECP opens only once the initial publication is acknowledged')),
+ ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
+-<<<<<<< f098f893d5 (Hold aecp_mutants.py within the 1,000-line module limit at the merge of 894-tiers 7398ec0a, GET_AS_PATH's face plants in their own aecp_face_mutants.py (#897))
+-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS)
+-=======
+-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) \
++    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
+->>>>>>> 234bc149ff (Anchor the hooks harness's face plant on the publication line the SET_CONFIGURATION cut wrote, its stream flag kept referenced (#894))
+ 
+ 
+ def caught(test: str, words: str, result: Outcome) -> bool:
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_aecp.cpp
+index 195108c5ec..c0ca709b8d 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -3637,12 +3637,13 @@ struct Far {
+     std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
+     std::vector<uint64_t> taken_at;                                   // the trace clock at each
+     unsigned requests[MBX_WINDOWS]{};
+-<<<<<<< f098f893d5 (Hold aecp_mutants.py within the 1,000-line module limit at the merge of 894-tiers 7398ec0a, GET_AS_PATH's face plants in their own aecp_face_mutants.py (#897))
+     std::array<std::vector<uint64_t>,MBX_N_IF> asp{};   // the path sequence each interface's datapath serves
+     uint64_t asp_count=~0ull;                           // a count word other than the sequence's length, when set
+     std::vector<std::array<uint32_t,3>> asked;          // each GSI kind 2 request: interface, GSI_REQ, GSI_SEL
++    std::vector<unsigned> selectors;                                  // each GSI request's selector
+     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
+         auto &f=*static_cast<Far*>(p);++f.requests[w];
++        if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
+         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
+         *d=word(i,w,r,f.verdict);return f.reply;
+     }
+@@ -3652,13 +3653,6 @@ struct Far {
+         const unsigned ord=(sel>>8)&255u;
+         if(word_sel==0u)return asp_count!=~0ull?asp_count:asp.at(i).size();
+         return word_sel==8u&&ord<asp.at(i).size()?asp.at(i)[ord]:0u;
+-=======
+-    std::vector<unsigned> selectors;                                  // each GSI request's selector
+-    static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
+-        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);
+-        if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
+-        return f.reply;
+->>>>>>> 234bc149ff (Anchor the hooks harness's face plant on the publication line the SET_CONFIGURATION cut wrote, its stream flag kept referenced (#894))
+     }
+     static bool commit(void *p,unsigned i,const uint32_t *b) {
+         auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
+@@ -3900,7 +3894,6 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
+     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+ }
+ 
+-<<<<<<< f098f893d5 (Hold aecp_mutants.py within the 1,000-line module limit at the merge of 894-tiers 7398ec0a, GET_AS_PATH's face plants in their own aecp_face_mutants.py (#897))
+ namespace {
+ //! A GET_AS_PATH command (IEEE 1722.1-2021 7.4.41.1): descriptor_index, then reserved.
+ Bytes as_path(unsigned index) { Bytes b(4);put(b,0,index,2);return b; }
+@@ -4021,7 +4014,8 @@ TEST_F(Face, AnUnansweredAsPathWordFailsItsPortThere)
+             EXPECT_EQ(n,9u)<<"a failed port reports no count";
+         }
+     }
+-=======
++}
++
+ // The running check reads one GSI word a stream, selector 0, whose answer proves the window answers; bound and
+ // running are their owners' (#894). A SET_CONFIGURATION naming the index in force still answers STREAM_IS_RUNNING
+ // while an output streams, and ENTITY_MISBEHAVING while its observation cannot be made (Milan v1.2 5.4.2.5; IEEE
+@@ -4069,7 +4063,6 @@ TEST_F(Face, OnlyAMovedConfigurationIndexWritesTheStreamEntries)
+     for(auto *d:moved)d->configuration=0;
+     aecp_index(&adapter.core);put(config,2,0,2);entries=0;receive(6,config);
+     EXPECT_GT(entries,0u)<<"moving back writes them again";
+->>>>>>> 234bc149ff (Anchor the hooks harness's face plant on the publication line the SET_CONFIGURATION cut wrote, its stream flag kept referenced (#894))
+ }
+ 
+ // A commit the datapath does not acknowledge within the bound. The change
