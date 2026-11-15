@@ -251,7 +251,7 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	}
 	ctrl_plat_csr_policy(env->csr, env->policy);
 	// past the identity check: the PHY's link is published on every path from here (ctrl_plat.h, THE PHY)
-	ctrl_plat_phy_arm(&p->phy, &env->phy);
+	ctrl_plat_phy_arm(&p->phy, &env->phy, env->flash->now_us, env->flash->ctx);
 	if (!maap_owner(p)) {
 		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: MAAP port refused; entity disabled\r\n");
 	}
@@ -296,13 +296,11 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 
 void ctrl_plat_step(void)
 {
-	struct ctrl_plat *p = &ctrl_plat;
-	if (p->stage == CTRL_PLAT_READY) {
-		ctrl_loop_step(&p->app.loop);
+	if (ctrl_plat.stage == CTRL_PLAT_READY) {
+		ctrl_loop_step(&ctrl_plat.app.loop);
 	} else {
-		(void)ctrl_plat_console_poll(&p->console);
+		(void)ctrl_plat_console_poll(&ctrl_plat.console);
 		// a refused stage's turn has no loop and no store step: a frame has the turn's share (THE PHY)
-		const uint32_t now = (uint32_t)p->env->flash->now_us(p->env->flash->ctx);
-		(void)ctrl_plat_phy_step(&p->phy, now, now + CTRL_LOOP_SHARE_US);
+		(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);
 	}
 }

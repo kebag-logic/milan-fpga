@@ -55,8 +55,13 @@
 // The PHY drives each bit after an MDC rising edge, at most 300 ns later
 // (IEEE 802.3 22.3.4), and the sample follows that edge by both halves; MDC
 // is high and low at least 160 ns each in a period of at least 400 ns
-// (22.2.2.13). So each half spins at least 200 ns of the CPU's clock, counting
-// each turn of the spin as one cycle and the bus accesses as none.
+// (22.2.2.13). So each half spins at least 200 ns, counting the bus accesses
+// as none: ceil(CONFIG_CLOCK_FREQUENCY / CTRL_PLAT_PHY_HALF_HZ) turns, a turn
+// taking at least one cycle of the clock the CPU runs on; or one turn, where arming times a run of
+// CTRL_PLAT_PHY_CALIBRATION_TURNS turns on the arming clock and finds a turn
+// alone is that long: the run's time, less the clock's one microsecond of
+// resolution, over its turns, at least 200 ns. On the split CPU a turn, a load
+// and a store of its counter, takes about 27 cycles, so one turn a half.
 
 #ifndef CTRL_PLAT_PHY_H
 #define CTRL_PLAT_PHY_H
@@ -77,7 +82,6 @@ struct ctrl_plat_phy_bus {
 	uintptr_t mdio_w;       // [0] MDC, [1] the output enable, [2] the driven MDIO bit
 	uintptr_t mdio_r;       // [0] the MDIO pin
 	uintptr_t link_status;  // [0] link up, [2:1] speed (0 10, 1 100, 2 1000 Mb/s), [3] full duplex
-	uint32_t cpu_hz;        // the clock the CPU runs at, which the half period's spin counts
 };
 
 // mdio_w's fields.
@@ -124,12 +128,17 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_ADDRESSES 32u
 // A half period's least length, as the reciprocal of a time: 1 / 200 ns (the file's head, THE BIT).
 #define CTRL_PLAT_PHY_HALF_HZ 5000000u
+// The turns arming times (THE BIT): long against the clock's microsecond, short beside the boot.
+#define CTRL_PLAT_PHY_CALIBRATION_TURNS 1024u
 
 // THE PACE: the release's PHY_POLL_NS, as milan_baremetal.c derives it, in microseconds.
 #define CTRL_PLAT_PHY_POLL_US (MILAN_NVM_HEARTBEAT_MS * 1000u / 2u)
 // One frame's stated cost in microseconds on the split CPU (THE STEP): the most measured, plus 5 %, rounded up to
-// 5 us. A frame is taken only while this much of the pass's share is left.
-#define CTRL_PLAT_PHY_STEP_US 200u
+// 5 us, the margin holding the call's few instructions around the frame's pins. Measured by the split boot
+// simulation on the platform image, from a frame's first pin write to its release (tb/verilator/ctrl_split_boot,
+// the PHY grade, which fails a frame over this figure): 16,784 CPU cycles at 1x1/1if, 167.84 us. A frame is taken
+// only while this much of the pass's share is left.
+#define CTRL_PLAT_PHY_STEP_US 180u
 
 // Where a poll is: idle, or the frame it takes next.
 enum ctrl_plat_phy_stage {
@@ -147,7 +156,8 @@ enum ctrl_plat_phy_stage {
 
 struct ctrl_plat_phy {
 	struct ctrl_plat_phy_bus bus;
-	bool armed;             // past the CSR identity check, on a bus with MDIO
+	uint64_t (*clock)(void *ctx);   // the pace's clock, microseconds; NULL while not armed
+	void *ctx;
 	bool found;             // a PHY answered PHYID1 at `address`
 	bool polled;            // a poll has started since the last probe that missed (the release's phy_last_poll)
 	uint8_t stage;          // enum ctrl_plat_phy_stage
@@ -157,18 +167,18 @@ struct ctrl_plat_phy {
 	uint32_t published;     // the word last published by a poll
 	int32_t bmsr;           // the BMSR the poll resolves
 	int32_t local;          // the first of a pair, read before the second
-	uint32_t frames;        // frames taken
-	uint32_t deferred;      // calls a frame was owed in and had no room
 };
 
 // Arm the poll on `bus`: called once the CSR window passed its identity check, so nothing touches the MDIO pins
-// of a fabric that failed it. A bus with no MDIO pair arms nothing.
-void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus *bus);
+// of a fabric that failed it. A bus with no MDIO pair arms nothing. `clock` (microseconds, counting up; the flash
+// port's, which THE STEP's deadline is read on) paces the poll and times the spin's turns (THE BIT).
+void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus *bus, uint64_t (*clock)(void *ctx),
+		       void *ctx);
 
-// The PHY's share of THE STEP at `now`, on the clock `deadline` is read on (microseconds, wrapping): the poll's
-// next frame when one is owed and CTRL_PLAT_PHY_STEP_US remain before `deadline`, at most one a call. True while a
-// frame is owed: a poll in progress, a poll due, or a probe that missed.
-bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, uint32_t now, uint32_t deadline);
+// The PHY's share of THE STEP, `room` microseconds left of the pass's share: the poll's next frame when one is owed
+// on the arming clock and CTRL_PLAT_PHY_STEP_US are left, at most one a call. True while a frame is owed: a poll in
+// progress, a poll due, or a probe that missed. An unarmed poll owes nothing and touches nothing.
+bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room);
 
 // THE STEP's client the platform binds (ctrl_loop_set_step, with nvm_store_clock): the saved-state store's step,
 // as nvm_store_step, then the PHY's frame only where the store took none; ctx is the struct ctrl_plat_phy. True

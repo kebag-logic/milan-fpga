@@ -38,19 +38,35 @@
 #include "plat_bus.hpp"
 
 #include "ctrl_plat_phy.h"
+#include <generated/soc.h>
 
 namespace {
 
 using plat_bus::bus;
 
-constexpr ctrl_plat_phy_bus kBus = {0xf0002004u, 0xf0002008u, 0xf000201cu, 100000000u};
-constexpr std::uint32_t kRoom = 2000u;   // a call's deadline: THE SHARE's 2.0 ms, ample room
+constexpr ctrl_plat_phy_bus kBus = {0xf0002004u, 0xf0002008u, 0xf000201cu};
+constexpr std::int32_t kRoom = 2000;   // a call's room: THE SHARE's 2.0 ms
 constexpr std::uint32_t kGigFull = 13u, kGigHalf = 5u, kFull100 = 11u, kHalf100 = 3u, kFull10 = 9u, kHalf10 = 1u;
+
+// The arming clock, the poll's pace: each read `step` microseconds after the last (0: a clock that stands, as F1's
+// model's does between its advances).
+std::uint64_t clock_us = 0, clock_step = 0;
+std::uint64_t clock_read(void*) { return clock_us += clock_step; }
 
 struct PlatPhy : ::testing::Test {
     phy_peer::Peer peer;
     ctrl_plat_phy phy{};
     std::uint32_t now = 1000u;
+    void arm(const ctrl_plat_phy_bus& b, std::uint64_t step = 0) {
+        clock_step = step;
+        ctrl_plat_phy_arm(&phy, &b, clock_read, nullptr);
+        clock_step = 0;
+    }
+    // One call at `at` with `room` microseconds of the pass's share left.
+    bool step(std::uint32_t at, std::int32_t room) {
+        clock_us = at;
+        return ctrl_plat_phy_step(&phy, room);
+    }
     void SetUp() override {
         bus().reset();
         peer.w = kBus.mdio_w;
@@ -58,9 +74,9 @@ struct PlatPhy : ::testing::Test {
         peer.status = kBus.link_status;
         peer.gigabit(7u);
         bus().phy = &peer;
-        ctrl_plat_phy_arm(&phy, &kBus);
+        arm(kBus);
     }
-    bool call(std::uint32_t at) { return ctrl_plat_phy_step(&phy, at, at + kRoom); }
+    bool call(std::uint32_t at) { return step(at, kRoom); }
     // Calls at `at` until nothing is owed, at most `most`; the calls taken.
     unsigned poll(std::uint32_t at, unsigned most = 64) {
         unsigned n = 0;
@@ -224,7 +240,7 @@ TEST_F(PlatPhy, P5ErrorsAreLinkDown) {
     next();
     EXPECT_EQ(peer.word, 0u) << "P5 an all-ones BMSR is link down";
     // a PHY that never answers is probed forever, one address a call, link down meanwhile
-    ctrl_plat_phy_arm(&phy, &kBus);
+    arm(kBus);
     peer.acknowledge = false;
     for (unsigned k = 0; k < 40u; ++k) EXPECT_TRUE(call(now)) << "P5 an absent PHY is probed again at once";
     EXPECT_EQ(peer.word, 0u) << "P5 an absent PHY is link down";
@@ -245,7 +261,6 @@ TEST_F(PlatPhy, P6FramesAreClause22Reads) {
         if (a.write && a.address == kBus.mdio_w) last = a.value;
     }
     EXPECT_EQ(last, 0u) << "P6 the pins are released after a frame";
-    EXPECT_EQ(phy.frames, peer.frames.size()) << "P6 the poll counts its frames";
 }
 
 TEST_F(PlatPhy, P7OneFrameACallWithItsRoom) {
@@ -261,15 +276,12 @@ TEST_F(PlatPhy, P7OneFrameACallWithItsRoom) {
         << "P7 seven misses, the probe, then the first poll's six frames (BMSR twice: nothing published up yet)";
     now += CTRL_PLAT_PHY_POLL_US;
     std::size_t frames = peer.frames.size();
-    EXPECT_TRUE(ctrl_plat_phy_step(&phy, now, now + CTRL_PLAT_PHY_STEP_US - 1u))
-        << "P7 a frame without its room is owed";
+    EXPECT_TRUE(step(now, CTRL_PLAT_PHY_STEP_US - 1)) << "P7 a frame without its room is owed";
     EXPECT_EQ(peer.frames.size(), frames) << "P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left";
-    EXPECT_EQ(phy.deferred, 1u) << "P7 a frame without its room is counted deferred";
-    EXPECT_TRUE(ctrl_plat_phy_step(&phy, now, now + CTRL_PLAT_PHY_STEP_US))
-        << "P7 a frame with exactly its room is taken";
+    EXPECT_TRUE(step(now, CTRL_PLAT_PHY_STEP_US)) << "P7 a frame with exactly its room is taken";
     EXPECT_EQ(peer.frames.size(), frames + 1u) << "P7 a frame with exactly its room is taken";
     frames = peer.frames.size();
-    EXPECT_TRUE(ctrl_plat_phy_step(&phy, now, now - 1u)) << "P7 a deadline already past takes no frame";
+    EXPECT_TRUE(step(now, -1)) << "P7 a deadline already past takes no frame";
     EXPECT_EQ(peer.frames.size(), frames) << "P7 a deadline already past takes no frame";
 }
 
@@ -278,34 +290,41 @@ TEST_F(PlatPhy, P8OwedWhileAFrameIsDue) {
     found();
     EXPECT_FALSE(call(now)) << "P8 a published poll owes nothing until the next is due";
     EXPECT_FALSE(call(now + CTRL_PLAT_PHY_POLL_US - 1u)) << "P8 a published poll owes nothing until the next is due";
-    EXPECT_TRUE(ctrl_plat_phy_step(&phy, now + CTRL_PLAT_PHY_POLL_US, now + CTRL_PLAT_PHY_POLL_US))
-        << "P8 a due poll is owed though it has no room";
+    EXPECT_TRUE(step(now + CTRL_PLAT_PHY_POLL_US, 0)) << "P8 a due poll is owed though it has no room";
     EXPECT_TRUE(call(now + CTRL_PLAT_PHY_POLL_US)) << "P8 a poll in progress owes its next frame";
 }
 
 TEST_F(PlatPhy, P9NoMdioArmsNothing) {
     ctrl_plat_phy_bus none = kBus;
     none.mdio_w = 0u;
-    ctrl_plat_phy_arm(&phy, &none);
+    arm(none);
     const std::size_t accesses = bus().log.size();
     EXPECT_FALSE(call(now)) << "P9 a bus with no MDIO pair owes nothing";
     EXPECT_EQ(bus().log.size(), accesses) << "P9 and touches nothing";
-    ctrl_plat_phy_arm(&phy, &kBus);
+    arm(kBus);
+    EXPECT_EQ(phy.spin, (CONFIG_CLOCK_FREQUENCY + 4999999u) / 5000000u)
+        << "P9 the half period at the SoC's clock: 200 ns, a turn a cycle";
     EXPECT_EQ(phy.spin, 20u) << "P9 the half period at 100 MHz: 200 ns, 20 turns";
-    ctrl_plat_phy_bus arty = kBus;
-    arty.cpu_hz = 83333000u;
-    ctrl_plat_phy_arm(&phy, &arty);
-    EXPECT_EQ(phy.spin, 17u) << "P9 the half period at 83.333 MHz: ceil(16.67) turns";
+    // a timed run: e us for CTRL_PLAT_PHY_CALIBRATION_TURNS turns, so a turn takes at least (e - 1) us / 1024
+    arm(kBus, 277u);
+    EXPECT_EQ(phy.spin, 1u) << "P9 a run of 277 us: one turn holds 200 ns";
+    arm(kBus, 206u);
+    EXPECT_EQ(phy.spin, 1u) << "P9 a run of 206 us: one turn holds 200 ns, 205 / 1024 us";
+    arm(kBus, 205u);
+    EXPECT_EQ(phy.spin, 20u) << "P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20";
+    arm(kBus, 1u);
+    EXPECT_EQ(phy.spin, 20u) << "P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20";
 }
 
 TEST_F(PlatPhy, P10TheClockWraps) {
     now = 0xfffff000u;
     found();
+    EXPECT_FALSE(call(now + 10u)) << "P10 a poll is not due again before the clock wraps";
     EXPECT_FALSE(call(now + CTRL_PLAT_PHY_POLL_US - 1u)) << "P10 the wrapped difference paces the poll";
     EXPECT_TRUE(call(now + CTRL_PLAT_PHY_POLL_US)) << "P10 the wrapped difference paces the poll";
     (void)poll(now + CTRL_PLAT_PHY_POLL_US);
     const std::size_t frames = peer.frames.size();
-    EXPECT_TRUE(call(now)) << "P10 a clock that went back makes a poll due at once";
+    EXPECT_TRUE(call(5u)) << "P10 a clock that went back makes a poll due at once";
     EXPECT_EQ(peer.frames.size(), frames + 1u) << "P10 a clock that went back makes a poll due at once";
 }
 

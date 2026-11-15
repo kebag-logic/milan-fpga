@@ -440,7 +440,7 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
 
 // ---- the PHY poll (#919) ---------------------------------------------------
 
-constexpr ctrl_plat_phy_bus kPhyBus = {0xf0002004u, 0xf0002008u, 0xf000201cu, 100000000u};
+constexpr ctrl_plat_phy_bus kPhyBus = {0xf0002004u, 0xf0002008u, 0xf000201cu};
 constexpr std::uint32_t kGigFull = 13u;
 constexpr unsigned kPollMs = CTRL_PLAT_PHY_POLL_US / 1000u;
 

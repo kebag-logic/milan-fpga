@@ -13,6 +13,15 @@
 // datapath's, and TOD_RD_LO/HI holding the simulated time of the last
 // PTP_CMD snapshot. Every figure it prints is an observed bus-cycle count.
 //
+// It is the PHY too (#919): an IEEE 802.3 clause 22 peer on the MDIO pins at
+// address kPhyAddress, 1000BASE-T full duplex negotiated, which launches bit
+// k + 1 on MDC's rising edge k (22.3.4) and fails the run on a frame that is
+// not a read driven then released. After the commands it holds the link for
+// two polls, latches a loss that has already recovered (BMSR's latched-low
+// link status, 22.2.4.2.13), then drops the link until a poll publishes it
+// down and one more, and brings it back, latched, until a poll publishes it
+// up.
+//
 // Output lines, which run.py grades:
 //   CSRR <cycle> <offset> <value>   a window read
 //   CSRW <cycle> <offset> <value>   a window write
@@ -20,6 +29,10 @@
 //   READY <cycle>                   the ready line's last byte
 //   STOPPED <cycle>                 a stop line's last byte (the boot refused a stage)
 //   IN <cycle> <command>            a command's first byte taken by the UART
+//   PHYF <first> <last> <addr> <reg> an MDIO frame: the cycles its pins left and returned to 0
+//   PHYP <cycle> <word>             a write to milan_mac_link_status
+//   PHYS <cycle> <event>            the script's link: latched, down, back
+//   PHYT <high> <low> <period>      MDC's shortest high and low times and period within a frame, in bus cycles
 //   SUMMARY sys=<cycles> cpu=<cycles> ...
 #include "Vsim.h"
 #include "boot_config.hpp"
@@ -40,6 +53,90 @@ namespace {
 
 unsigned long long ull(std::uint64_t value) { return value; }
 
+//! The PHY's address: one past the first, so the boot's probe misses once.
+constexpr unsigned kPhyAddress = 1u;
+
+// The clause 22 peer on the MDIO pins (fw_service_budget/phy.hpp's, at kPhyAddress, with BMSR's latch).
+class Phy {
+public:
+    void sample(Vsim& dut, std::uint64_t cycle) {
+        const unsigned pins = dut.phy_pins;
+        if (pins != 0u && previous_ == 0u && bit_ == 0u) start_ = cycle;
+        if ((pins & 1u) && !(previous_ & 1u)) {
+            if (bit_ > 0u) {
+                low_ = std::min(low_, cycle - fall_);
+                period_ = std::min(period_, cycle - rose_);
+            }
+            rose_ = cycle;
+            rise(pins, cycle);
+        }
+        if (!(pins & 1u) && (previous_ & 1u)) {
+            high_ = std::min(high_, cycle - rose_);
+            fall_ = cycle;
+        }
+        if (!(pins & 1u) && bit_ == 64u && pins == 0u) {
+            std::printf("PHYF %llu %llu %u %u\n", ull(start_), ull(cycle), (command_ >> 5) & 31u, command_ & 31u);
+            bit_ = 0;
+            command_ = 0;
+            reply_ = 1;
+        }
+        previous_ = pins;
+        if (dut.phy_publish) {
+            word_ = dut.phy_status;
+            std::printf("PHYP %llu %u\n", ull(cycle), word_);
+            ++publications_;
+        }
+    }
+    void report() const { std::printf("PHYT %llu %llu %llu\n", ull(high_), ull(low_), ull(period_)); }
+    unsigned reply() const { return reply_; }
+    unsigned word() const { return word_; }
+    unsigned publications() const { return publications_; }
+    void latch() { latched_ = true; }
+    void link(bool up) { up_ = up; }
+
+private:
+    void rise(unsigned pins, std::uint64_t cycle) {
+        if (bit_ >= 64u) throw std::runtime_error("MDIO frame longer than 64 bit periods");
+        if (bit_ < 46u) {
+            if (!(pins & 2u)) throw std::runtime_error("MDIO preamble or command not driven");
+            if (bit_ < 32u && !(pins & 4u)) throw std::runtime_error("MDIO preamble bit not one");
+            if (bit_ >= 32u) command_ = (command_ << 1) | ((pins >> 2) & 1u);
+            reply_ = 1;
+        } else {
+            if (pins & 2u) throw std::runtime_error("MDIO turnaround or data driven by the STA");
+            if ((command_ >> 10) != 6u) throw std::runtime_error("MDIO frame not a clause 22 read");
+            const bool addressed = ((command_ >> 5) & 31u) == kPhyAddress;
+            if (bit_ == 46u) value_ = reg(command_ & 31u, addressed);
+            reply_ = bit_ == 46u ? 0u : bit_ == 63u ? 1u : ((value_ >> (62u - bit_)) & 1u);
+            if (!addressed) reply_ = 1;
+        }
+        (void)cycle;
+        ++bit_;
+    }
+    unsigned reg(unsigned r, bool addressed) {
+        switch (r) {
+        case 0: return 0x1000u;
+        case 1: {
+            const bool latched = latched_ && addressed;
+            if (latched) latched_ = false;
+            return (up_ && !latched) ? 0x0124u : 0x0120u;
+        }
+        case 2: return 0x001cu;
+        case 4: return 0x01e1u;
+        case 5: return 0x01e1u;
+        case 9: return 0x0300u;
+        case 10: return 0x0c00u;
+        case 15: return 0x3000u;
+        default: return 0u;
+        }
+    }
+    unsigned previous_ = 0, bit_ = 0, command_ = 0, reply_ = 1, value_ = 0, word_ = 13u, publications_ = 0;
+    std::uint64_t start_ = 0, rose_ = 0, fall_ = 0;
+    std::uint64_t high_ = ~0ull, low_ = ~0ull, period_ = ~0ull;
+    bool latched_ = false;
+    bool up_ = true;
+};
+
 class Bench {
 public:
     explicit Bench(const char* transcript) : flash_(0, 0), out_(transcript) {
@@ -59,6 +156,7 @@ public:
         csr_sample(dut, time_ps);
         uart_sample(dut);
         flash_sample(dut);
+        phy_.sample(dut, sys_);
         script();
     }
 
@@ -74,11 +172,13 @@ public:
         dut.flash_tx_ready = !flash_pending_ && dut.flash_cs;
         dut.flash_rx_valid = flash_pending_ && sys_ >= flash_at_;
         dut.flash_rx_data = flash_response_;
+        dut.phy_reply = phy_.reply();
     }
 
     bool done() const { return done_; }
 
     void report() const {
+        phy_.report();
         std::printf("SUMMARY sys=%llu cpu=%llu csr_reads=%u csr_writes=%u uart_bytes=%zu\n", ull(sys_),
                     ull(sys_ * cpu_hz / sys_hz), csr_reads_, csr_writes_, transcript_.size());
     }
@@ -144,12 +244,49 @@ private:
         } else if (step_ == 1 || step_ == 3 || step_ == 6) {
             type(step_ == 1 ? "milan_status" : "milan_gettime");
         } else if ((step_ == 2 || step_ == 4 || step_ == 7) && seen("TAI_NS=", mark_) && transcript_.back() == '\n') {
-            if (step_ == 7) done_ = true;
             next();
         } else if (step_ == 5 && sys_ >= wait_until_) {
             next();
+        } else if (step_ >= 8) {
+            phy_script();
         }
     }
+
+    // The PHY's link after the commands: two polls up, a loss latched that has already recovered, then the link
+    // down until a poll publishes it down and one more, then back, latched, until a poll publishes it up. A step
+    // that waits past phy_step_limit_ms says so and moves on, so a run whose firmware never publishes still
+    // completes and is graded: what it waited for is then missing from its log.
+    void phy_script() {
+        const unsigned n = phy_.publications();
+        if (step_ != phy_step_) {
+            phy_step_ = step_;
+            phy_since_ = sys_;
+            phy_mark_ = n;
+        }
+        const bool late = sys_ - phy_since_ > phy_step_limit_ms * (sys_hz / 1000u);
+        const bool met = (step_ == 8 && phy_.word() == 13u) || (step_ == 9 && n >= phy_mark_ + 2u) ||
+                         (step_ == 10 && n >= phy_mark_ + 2u && phy_.word() == 13u) ||
+                         (step_ == 11 && n >= phy_mark_ + 3u && phy_.word() == 0u) ||
+                         (step_ == 12 && n > phy_mark_ && phy_.word() == 13u);
+        if (!met && !late) return;
+        if (!met) event("timeout");
+        if (step_ == 9) {
+            phy_.latch();
+            event("latched");
+        } else if (step_ == 10) {
+            phy_.link(false);
+            event("down");
+        } else if (step_ == 11) {
+            phy_.link(true);
+            phy_.latch();
+            event("back");
+        } else if (step_ == 12) {
+            done_ = true;
+        }
+        next();
+    }
+
+    void event(const char* what) const { std::printf("PHYS %llu %s\n", ull(sys_), what); }
 
     void type(const char* command) {
         std::printf("IN %llu %s\n", ull(sys_), command);
@@ -165,6 +302,7 @@ private:
     }
 
     Flash flash_;
+    Phy phy_;
     std::ofstream out_;
     std::map<std::uint32_t, std::uint32_t> words_;
     std::string transcript_;
@@ -178,6 +316,9 @@ private:
     unsigned csr_writes_ = 0;
     unsigned step_ = 0;
     std::size_t mark_ = 0;
+    unsigned phy_mark_ = 0;   // the PHY's publications as the script's last step began
+    unsigned phy_step_ = 0;   // the script's step phy_since_ is of
+    std::uint64_t phy_since_ = 0;
     bool csr_ack_ = false;
     bool flash_cs_ = false;
     bool flash_pending_ = false;
@@ -199,6 +340,7 @@ void initialize(Vsim& dut) {
     dut.flash_tx_ready = 0;
     dut.flash_rx_valid = 0;
     dut.milan_csr_ack = 0;
+    dut.phy_reply = 1;
     dut.eval();
 }
 

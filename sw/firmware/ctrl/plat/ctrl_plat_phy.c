@@ -6,20 +6,42 @@
 #include "ctrl_plat_phy.h"
 
 #include <stddef.h>
+#include <string.h>
+
+#include <generated/soc.h>
 
 #include "ctrl_plat_io.h"
 #include "nvm_store.h"
 
-void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus *bus)
-{
-	*phy = (struct ctrl_plat_phy){.bus = *bus, .armed = bus->mdio_w != 0u};
-	// at least a half period's cycles, one a turn: ceil(cpu_hz / CTRL_PLAT_PHY_HALF_HZ)
-	phy->spin = (bus->cpu_hz + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ;
-}
+// THE BIT: a half period's turns at one cycle a turn of the clock the CPU runs on, the SoC's (CONFIG_CLOCK_FREQUENCY:
+// the split CPU runs on the bus clock, milan_soc.CTRL_CPU_CD), and the run, in microseconds, past which a turn alone
+// holds 200 ns: ceil(turns us / 200 ns)
+#define CYCLES_HALF ((CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)
+#define TIMED_ONE ((CTRL_PLAT_PHY_CALIBRATION_TURNS * 1000000u + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)
 
 static void spin(uint32_t turns)
 {
 	for (volatile uint32_t n = turns; n != 0u; n = n - 1u) {
+	}
+}
+
+void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus *bus, uint64_t (*clock)(void *ctx),
+		       void *ctx)
+{
+	memset(phy, 0, sizeof *phy);
+	if (bus->mdio_w == 0u) {
+		return;
+	}
+	phy->bus = *bus;
+	phy->clock = clock;
+	phy->ctx = ctx;
+	// THE BIT: CYCLES_HALF turns, or one where a timed run of more than TIMED_ONE us (at least TIMED_ONE, less the
+	// clock's resolution) shows a turn alone holds 200 ns
+	phy->spin = CYCLES_HALF;
+	const uint32_t before = (uint32_t)clock(ctx);
+	spin(CTRL_PLAT_PHY_CALIBRATION_TURNS);
+	if ((uint32_t)clock(ctx) - before > TIMED_ONE) {
+		phy->spin = 1u;
 	}
 }
 
@@ -32,166 +54,135 @@ static uint32_t bit(const struct ctrl_plat_phy *phy, bool drive, uint32_t out)
 	const uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;
 	ctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);
 	spin(phy->spin);
-	ctrl_plat_io_write32(phy->bus.mdio_w, pins);
 	return in;
 }
 
-// One Clause-22 read of `reg` at the poll's address: the preamble, ST OP PHYAD REGAD driven, the turnaround
-// released, the 16 data bits, the pins released. A PHY that does not pull the turnaround's second bit low did not
-// answer: -1, never a value (the release's acknowledgement rule).
-static int32_t frame(struct ctrl_plat_phy *phy, uint32_t reg)
+// One Clause-22 read of `reg` at the poll's address, its 64 bit periods in one pass: the preamble's ones and ST OP
+// PHYAD REGAD driven, then the turnaround and the 16 data bits released, the pins released after. The last 32
+// samples stay in `value`: the turnaround's second bit at bit 16, D15 to D0 below it. A PHY that does not pull that
+// turnaround bit low did not answer: -1, never a value (the release's acknowledgement rule).
+static int32_t frame(const struct ctrl_plat_phy *phy, uint32_t reg)
 {
-	const uint32_t command = CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg;
-	for (uint32_t i = 0; i < CTRL_PLAT_PHY_PREAMBLE_BITS; ++i) {
-		(void)bit(phy, true, 1u);
-	}
-	for (uint32_t i = CTRL_PLAT_PHY_COMMAND_BITS; i != 0u; --i) {
-		(void)bit(phy, true, command >> (i - 1u) & 1u);
-	}
-	(void)bit(phy, false, 0u);
-	const uint32_t ack = bit(phy, false, 0u);
+	// the 64 bits as a shift register of two words: the preamble's 32 ones, then ST OP PHYAD REGAD, then zeros
+	uint32_t hi = ~0u;
+	uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
 	uint32_t value = 0;
-	for (uint32_t i = 0; i < CTRL_PLAT_PHY_DATA_BITS; ++i) {
-		value = value << 1 | bit(phy, false, 0u);
+	for (uint32_t k = 0; k < 64u; ++k) {
+		value = value << 1 | bit(phy, k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS, hi >> 31);
+		hi = hi << 1 | lo >> 31;
+		lo <<= 1;
 	}
 	ctrl_plat_io_write32(phy->bus.mdio_w, 0u);
-	++phy->frames;
-	return ack != 0u ? -1 : (int32_t)value;
+	return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);
 }
 
-static void publish(const struct ctrl_plat_phy *phy, uint32_t word)
+static uint32_t up(uint32_t speed, uint32_t full)
 {
-	ctrl_plat_io_write32(phy->bus.link_status, word);
-}
-
-static uint32_t word(uint32_t speed, bool full)
-{
-	return CTRL_PLAT_PHY_LINK_UP | speed << CTRL_PLAT_PHY_SPEED_LSB | (full ? CTRL_PLAT_PHY_FULL_DUPLEX : 0u);
-}
-
-// The poll's end: its word published, and kept as the word the next poll's latched loss is judged against.
-static void finish(struct ctrl_plat_phy *phy, uint32_t status)
-{
-	publish(phy, status);
-	phy->published = status;
-	phy->stage = CTRL_PLAT_PHY_IDLE;
+	return CTRL_PLAT_PHY_LINK_UP | speed << CTRL_PLAT_PHY_SPEED_LSB | (full != 0u ? CTRL_PLAT_PHY_FULL_DUPLEX : 0u);
 }
 
 // The highest mode the advertisement and the link partner's ability share (22.2.4.3), or link down.
 static uint32_t common_mode(uint32_t common)
 {
 	if ((common & CTRL_PLAT_PHY_AN_100_FULL) != 0u) {
-		return word(CTRL_PLAT_PHY_SPEED_100, true);
+		return up(CTRL_PLAT_PHY_SPEED_100, 1u);
 	}
 	if ((common & CTRL_PLAT_PHY_AN_100_HALF) != 0u) {
-		return word(CTRL_PLAT_PHY_SPEED_100, false);
+		return up(CTRL_PLAT_PHY_SPEED_100, 0u);
 	}
 	if ((common & CTRL_PLAT_PHY_AN_10_FULL) != 0u) {
-		return word(CTRL_PLAT_PHY_SPEED_10, true);
+		return up(CTRL_PLAT_PHY_SPEED_10, 1u);
 	}
-	return (common & CTRL_PLAT_PHY_AN_10_HALF) != 0u ? word(CTRL_PLAT_PHY_SPEED_10, false) : 0u;
+	return (common & CTRL_PLAT_PHY_AN_10_HALF) != 0u ? up(CTRL_PLAT_PHY_SPEED_10, 0u) : 0u;
 }
 
-// BMCR (22.2.4.1): the forced mode with autonegotiation off; else the extended status once negotiation is complete
-static void control(struct ctrl_plat_phy *phy, int32_t value)
-{
-	const uint32_t c = (uint32_t)value;
-	if (value < 0) {
-		finish(phy, 0u);
-	} else if ((c & CTRL_PLAT_PHY_BMCR_AN_ENABLE) == 0u) {
-		const uint32_t speed = (c & CTRL_PLAT_PHY_BMCR_SPEED_MSB) != 0u ? CTRL_PLAT_PHY_SPEED_1000 :
-				       (c & CTRL_PLAT_PHY_BMCR_SPEED_LSB) != 0u ? CTRL_PLAT_PHY_SPEED_100 :
-				       CTRL_PLAT_PHY_SPEED_10;
-		finish(phy, word(speed, (c & CTRL_PLAT_PHY_BMCR_FULL) != 0u));
-	} else if (((uint32_t)phy->bmsr & CTRL_PLAT_PHY_BMSR_AN_DONE) == 0u) {
-		finish(phy, 0u);
-	} else {
-		phy->stage = ((uint32_t)phy->bmsr & CTRL_PLAT_PHY_BMSR_EXTENDED) != 0u ? CTRL_PLAT_PHY_EXTENDED :
-			     CTRL_PLAT_PHY_LOCAL;
-	}
-}
+// The register each stage's frame reads, in enum ctrl_plat_phy_stage's order.
+static const uint8_t regs[] = {0u, CTRL_PLAT_PHY_PHYID1, CTRL_PLAT_PHY_BMSR, CTRL_PLAT_PHY_BMSR, CTRL_PLAT_PHY_BMCR,
+			       CTRL_PLAT_PHY_ESTAT, CTRL_PLAT_PHY_GCTRL, CTRL_PLAT_PHY_GSTAT, CTRL_PLAT_PHY_ANAR,
+			       CTRL_PLAT_PHY_ANLPAR};
 
-// BMSR: a loss latched while the link was published up is published first; a second read then gives the
-// current state unless the link stood up through the latch
-static void status(struct ctrl_plat_phy *phy, int32_t value)
-{
-	if (value >= 0 && ((uint32_t)value & CTRL_PLAT_PHY_BMSR_LINK) == 0u && (phy->published & CTRL_PLAT_PHY_LINK_UP) != 0u) {
-		publish(phy, 0u);
-		phy->published = 0u;
-	}
-	if (value >= 0 && (phy->published & CTRL_PLAT_PHY_LINK_UP) == 0u && phy->stage == CTRL_PLAT_PHY_STATUS) {
-		phy->stage = CTRL_PLAT_PHY_CURRENT;
-		return;
-	}
-	phy->bmsr = value;
-	if (value >= 0 && value != 0xffff && ((uint32_t)value & CTRL_PLAT_PHY_BMSR_LINK) != 0u) {
-		phy->stage = CTRL_PLAT_PHY_CONTROL;
-	} else {
-		finish(phy, 0u);
-	}
-}
-
-// The frame `stage` names, and what it decides
+// The frame `stage` names, and what it decides: the next stage, by default the one after it, or the poll's end,
+// its word published and kept as the word the next poll's latched loss is judged against (link down unless
+// resolved). A probe that missed ends so, with link down.
 static void take(struct ctrl_plat_phy *phy)
 {
-	switch (phy->stage) {
-	case CTRL_PLAT_PHY_PROBE: {
-		const int32_t id = frame(phy, CTRL_PLAT_PHY_PHYID1);
-		if (id <= 0 || id == 0xffff) {
-			// no PHY here: the next address, at once, and link down meanwhile
-			phy->address = (uint8_t)((phy->address + 1u) % CTRL_PLAT_PHY_ADDRESSES);
-			phy->polled = false;
-			phy->stage = CTRL_PLAT_PHY_IDLE;
-			publish(phy, 0u);
-		} else {
+	const uint32_t stage = phy->stage;
+	const int32_t v = frame(phy, regs[stage]);
+	const uint32_t u = (uint32_t)v;
+	uint32_t next = stage + 1u;
+	uint32_t status = 0u;
+	switch (stage) {
+	case CTRL_PLAT_PHY_PROBE:
+		if ((uint32_t)v - 1u < 0xfffeu) {   // 1 to 0xfffe: not 0, all ones, or unacknowledged (-1)
 			phy->found = true;
-			phy->stage = CTRL_PLAT_PHY_STATUS;
+			break;
 		}
+		// no PHY here: the next address, at once, and link down meanwhile (nothing is published up before a PHY is
+		// found, so the word kept stays the release's, 0)
+		phy->address = (uint8_t)((phy->address + 1u) % CTRL_PLAT_PHY_ADDRESSES);
+		phy->polled = false;
+		next = CTRL_PLAT_PHY_IDLE;
 		break;
-	}
 	case CTRL_PLAT_PHY_STATUS:
 	case CTRL_PLAT_PHY_CURRENT:
-		status(phy, frame(phy, CTRL_PLAT_PHY_BMSR));
+		// a loss latched while the link was published up is published first; a second read then gives the
+		// current state, unless the link stood up through the latch or the read failed
+		if (stage == CTRL_PLAT_PHY_STATUS && v >= 0) {
+			if ((u & CTRL_PLAT_PHY_BMSR_LINK) == 0u && (phy->published & CTRL_PLAT_PHY_LINK_UP) != 0u) {
+				ctrl_plat_io_write32(phy->bus.link_status, 0u);
+				phy->published = 0u;
+			}
+			if ((phy->published & CTRL_PLAT_PHY_LINK_UP) == 0u) {
+				break;
+			}
+		}
+		phy->bmsr = v;
+		// link down, all ones or unacknowledged (u at least 0xffff) is the poll's end, link down
+		next = (u & CTRL_PLAT_PHY_BMSR_LINK) == 0u || u >= 0xffffu ? CTRL_PLAT_PHY_IDLE : CTRL_PLAT_PHY_CONTROL;
 		break;
-	case CTRL_PLAT_PHY_CONTROL:
-		control(phy, frame(phy, CTRL_PLAT_PHY_BMCR));
-		break;
-	case CTRL_PLAT_PHY_EXTENDED: {
-		const int32_t e = frame(phy, CTRL_PLAT_PHY_ESTAT);
-		if (e < 0) {
-			finish(phy, 0u);
-		} else {
-			phy->stage = ((uint32_t)e & CTRL_PLAT_PHY_ESTAT_1000T) != 0u ? CTRL_PLAT_PHY_GIG_LOCAL :
-				     CTRL_PLAT_PHY_LOCAL;
+	case CTRL_PLAT_PHY_CONTROL: {
+		// BMCR (22.2.4.1): the forced mode with autonegotiation off; else the extended status once it is complete
+		const uint32_t bmsr = (uint32_t)phy->bmsr;
+		next = CTRL_PLAT_PHY_IDLE;
+		if (v >= 0 && (u & CTRL_PLAT_PHY_BMCR_AN_ENABLE) == 0u) {
+			status = up((u & CTRL_PLAT_PHY_BMCR_SPEED_MSB) != 0u ? CTRL_PLAT_PHY_SPEED_1000 :
+				    (u & CTRL_PLAT_PHY_BMCR_SPEED_LSB) != 0u ? CTRL_PLAT_PHY_SPEED_100 : CTRL_PLAT_PHY_SPEED_10,
+				    u & CTRL_PLAT_PHY_BMCR_FULL);
+		} else if (v >= 0 && (bmsr & CTRL_PLAT_PHY_BMSR_AN_DONE) != 0u) {
+			next = (bmsr & CTRL_PLAT_PHY_BMSR_EXTENDED) != 0u ? CTRL_PLAT_PHY_EXTENDED : CTRL_PLAT_PHY_LOCAL;
 		}
 		break;
 	}
+	case CTRL_PLAT_PHY_EXTENDED:
+		next = v < 0 ? CTRL_PLAT_PHY_IDLE :
+		       (u & CTRL_PLAT_PHY_ESTAT_1000T) != 0u ? CTRL_PLAT_PHY_GIG_LOCAL : CTRL_PLAT_PHY_LOCAL;
+		break;
 	case CTRL_PLAT_PHY_GIG_LOCAL:
 	case CTRL_PLAT_PHY_LOCAL:
-		phy->local = frame(phy, phy->stage == CTRL_PLAT_PHY_LOCAL ? CTRL_PLAT_PHY_ANAR : CTRL_PLAT_PHY_GCTRL);
-		++phy->stage;
+		phy->local = v;
 		break;
 	case CTRL_PLAT_PHY_GIG_PEER: {
 		// 1000BASE-T (40.5.1.1): GCTRL's advertisement two bits below GSTAT's partner ability; a fault is no link
-		const int32_t peer = frame(phy, CTRL_PLAT_PHY_GSTAT);
-		if (phy->local < 0 || peer < 0 || ((uint32_t)peer & CTRL_PLAT_PHY_GSTAT_FAULT) != 0u) {
-			finish(phy, 0u);
-			break;
-		}
-		const uint32_t common = (uint32_t)phy->local << 2 & (uint32_t)peer;
-		if ((common & (CTRL_PLAT_PHY_G_1000_FULL | CTRL_PLAT_PHY_G_1000_HALF)) != 0u) {
-			finish(phy, word(CTRL_PLAT_PHY_SPEED_1000, (common & CTRL_PLAT_PHY_G_1000_FULL) != 0u));
-		} else {
-			phy->stage = CTRL_PLAT_PHY_LOCAL;
+		const uint32_t common = (uint32_t)phy->local << 2 & u;
+		next = CTRL_PLAT_PHY_IDLE;
+		if (phy->local >= 0 && v >= 0 && (u & CTRL_PLAT_PHY_GSTAT_FAULT) == 0u) {
+			next = (common & (CTRL_PLAT_PHY_G_1000_FULL | CTRL_PLAT_PHY_G_1000_HALF)) != 0u ? CTRL_PLAT_PHY_IDLE :
+			       CTRL_PLAT_PHY_LOCAL;
+			status = next != CTRL_PLAT_PHY_IDLE ? 0u :
+				 up(CTRL_PLAT_PHY_SPEED_1000, common & CTRL_PLAT_PHY_G_1000_FULL);
 		}
 		break;
 	}
-	default: {   // CTRL_PLAT_PHY_PEER
-		const int32_t peer = frame(phy, CTRL_PLAT_PHY_ANLPAR);
-		finish(phy, phy->local < 0 || peer < 0 ? 0u : common_mode((uint32_t)phy->local & (uint32_t)peer));
+	default:   // CTRL_PLAT_PHY_PEER
+		next = CTRL_PLAT_PHY_IDLE;
+		status = phy->local < 0 || v < 0 ? 0u : common_mode((uint32_t)phy->local & u);
 		break;
 	}
+	if (next == CTRL_PLAT_PHY_IDLE) {
+		ctrl_plat_io_write32(phy->bus.link_status, status);
+		phy->published = status;
 	}
+	phy->stage = (uint8_t)next;
 }
 
 // A poll is due once the last one started CTRL_PLAT_PHY_POLL_US ago (wrap-safe: a clock that went back is a
@@ -201,42 +192,39 @@ static bool due(const struct ctrl_plat_phy *phy, uint32_t now)
 	return !phy->polled || now - phy->started >= CTRL_PLAT_PHY_POLL_US;
 }
 
-bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, uint32_t now, uint32_t deadline)
+bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room)
 {
-	if (!phy->armed) {
+	if (phy->clock == NULL) {
 		return false;
 	}
-	const bool owed = phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, now);
-	if (!owed) {
+	const uint32_t now = (uint32_t)phy->clock(phy->ctx);
+	if (phy->stage == CTRL_PLAT_PHY_IDLE && !due(phy, now)) {
 		return false;
 	}
-	if ((int32_t)(deadline - now) < (int32_t)CTRL_PLAT_PHY_STEP_US) {
-		++phy->deferred;
-		return true;
+	// a frame only with its stated cost left (THE STEP); else it stays owed
+	if (room >= (int32_t)CTRL_PLAT_PHY_STEP_US) {
+		if (phy->stage == CTRL_PLAT_PHY_IDLE) {
+			phy->polled = true;
+			phy->started = now;
+			phy->stage = phy->found ? CTRL_PLAT_PHY_STATUS : CTRL_PLAT_PHY_PROBE;
+		}
+		take(phy);
 	}
-	if (phy->stage == CTRL_PLAT_PHY_IDLE) {
-		phy->polled = true;
-		phy->started = now;
-		phy->stage = phy->found ? CTRL_PLAT_PHY_STATUS : CTRL_PLAT_PHY_PROBE;
-	}
-	take(phy);
 	return phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, now);
 }
 
-// Whether a store step from `phase` touches the flash or a record: every phase but OFF, IDLE and HELD, whose
-// steps only judge whether a save is due (nvm_store.c, nvm_step)
-static bool saving(enum nvm_phase phase)
-{
-	return phase != NVM_P_OFF && phase != NVM_P_IDLE && phase != NVM_P_HELD;
-}
+// A store step from a save's phases, CAPTURE to VERIFY, touches the flash or a record; one from OFF, IDLE or HELD
+// only judges whether a save is due (nvm_store.c, nvm_step)
+_Static_assert(NVM_P_OFF < NVM_P_CAPTURE && NVM_P_IDLE < NVM_P_CAPTURE && NVM_P_HELD > NVM_P_VERIFY &&
+	       NVM_P_VERIFY - NVM_P_CAPTURE == 7, "a save's phases are CAPTURE to VERIFY, and only they");
 
 bool ctrl_plat_phy_store_step(void *ctx, uint32_t deadline)
 {
 	const struct nvm_status *s = nvm_store_status();
 	const uint32_t steps = s->steps;
-	const bool heavy = saving(s->phase);
+	const bool saving = (uint32_t)s->phase - NVM_P_CAPTURE <= (uint32_t)(NVM_P_VERIFY - NVM_P_CAPTURE);
 	const bool store = nvm_store_step(NULL, deadline);
-	const uint32_t now = nvm_store_clock(NULL);
 	// a call whose store took a step of its save leaves the PHY no room: its frame waits for the next call
-	return ctrl_plat_phy_step(ctx, now, heavy && s->steps != steps ? now : deadline) || store;
+	return ctrl_plat_phy_step(ctx, saving && s->steps != steps ? 0 : (int32_t)(deadline - nvm_store_clock(NULL))) ||
+	       store;
 }

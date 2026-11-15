@@ -29,6 +29,15 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     transcript, each check's verdict printed; and each command's duty against
     #397's 500 ms tick rule and T_svc = 20 ms: its span, and its longest gap
     between two response bytes, which bounds the loop pass that sends them.
+  - PHY (#919): the published link word, milan_mac_link_status, as the
+    testbench's clause 22 PHY answers: the boot's probe one address a
+    frame, a miss published link down, then the PHY's 1000BASE-T full
+    duplex; a poll every CTRL_PLAT_PHY_POLL_US, within the release's
+    250 ms publication bound; a loss latched between two polls published
+    down then up by the next poll; a sustained loss published down; the
+    link's return published up by the first poll after it; and each frame,
+    from its pins leaving 0 to their release, within its stated cost,
+    CTRL_PLAT_PHY_STEP_US (ctrl_plat_phy.h).
 --native-controls grades the native controls (NATIVE_CONTROLS), with no
 build: a stand-in for the model prints a valid boot's observations, then ends
 as each control says, and each must be graded as it requires, on its run and
@@ -89,6 +98,22 @@ STAND_IN = {
     'clkv-fabric-owner': 'no datapath: CLKV_STAT is the stand-in register file\'s word',
     'gptp-locked': 'no gPTP peer and no datapath: CLKV_STAT is the stand-in register file\'s word',
 }
+#: The testbench's PHY (#919): its address, and its 1000BASE-T full duplex as ctrl_plat_phy.h publishes it (link up,
+#: speed 2 at bits 2:1, full duplex at bit 3).
+PHY_ADDRESS = 1
+GIG_FULL = 1 | 2 << 1 | 1 << 3
+#: The release's link publication bound (docs/findings/397_SERVICE_BUDGET.md, "PHY poll derivation and simulation"):
+#: a steady link is published at least every 250 ms.
+PUBLICATION_MS = 250.0
+#: How long a step of the testbench's PHY script waits for the publication it needs before it moves on, in ms: two
+#: polls and a margin, and with five steps short enough that a run whose firmware never publishes ends inside
+#: SIM_LIMIT_MS.
+PHY_STEP_LIMIT_MS = 300
+#: The most frames one poll takes (ctrl_plat_phy.h): a probe, BMSR twice, BMCR, the extended status, the 1000BASE-T
+#: pair and the advertisement pair.
+POLL_FRAMES = 9
+#: IEEE 802.3 22.2.2.13: MDC high and low at least 160 ns each, its period at least 400 ns.
+MDC_HIGH_NS, MDC_PERIOD_NS = 160, 400
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
 #: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
 #: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 2,000,000 turns before
@@ -96,6 +121,11 @@ STAND_IN = {
 #: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
+    # the PHY's word never reaches milan_mac_link_status; and the loss a poll's first BMSR latched not published
+    'phy-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(phy->bus.link_status, word);\n',
+                        '\t(void)phy;\n\t(void)word;\n', 'PHY'),
+    'phy-loss-not-latched': ('plat/ctrl_plat_phy.c', '\t\tpublish(phy, 0u);\n\t\tphy->published = 0u;\n',
+                             '\t\tphy->published = 0u;\n', 'PHY'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
@@ -234,6 +264,7 @@ def verilate(out: Path, spec: dict) -> Path:
         f'constexpr std::uint64_t cpu_hz = {spec["cpu_hz"]}ULL;',
         f'constexpr std::uint32_t csr_size = {spec["csr_size"]}u;',
         f'constexpr std::uint64_t sim_limit_ps = {SIM_LIMIT_MS}ULL * 1000000000ULL;',
+        f'constexpr std::uint64_t phy_step_limit_ms = {PHY_STEP_LIMIT_MS}ULL;',
         'constexpr const char* ready_line = "Milan split control firmware: ready\\r\\n";',
         'constexpr const char* stop_prefix = "Milan split: ";', '']))
     flags = f'-O3 -std=c++17 -Wall -Wextra -I{ROOT}/tb/common -I{out} -I{SIBLING}'
@@ -321,6 +352,110 @@ def native(log: str, status: int | None) -> tuple[list[str], str]:
     return findings, f'NATIVE exit status {"not saved" if status is None else status}; {tally}'
 
 
+def phy_constants() -> tuple[float, float]:
+    """CTRL_PLAT_PHY_POLL_US, by its derivation from the writer's heartbeat (scripts/nvm_shape.py, the generated
+    MILAN_NVM_HEARTBEAT_MS), and CTRL_PLAT_PHY_STEP_US as ctrl_plat_phy.h states it, each in us."""
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from nvm_shape import WRITER_TIMING_MS
+    header = (ROOT / 'sw/firmware/ctrl/plat/ctrl_plat_phy.h').read_text()
+    if '#define CTRL_PLAT_PHY_POLL_US (MILAN_NVM_HEARTBEAT_MS * 1000u / 2u)' not in header:
+        raise RuntimeError('ctrl_plat_phy.h derives CTRL_PLAT_PHY_POLL_US otherwise than this grade reads it')
+    step = re.search(r'^#define CTRL_PLAT_PHY_STEP_US (\d+)u$', header, re.M)
+    if step is None:
+        raise RuntimeError('ctrl_plat_phy.h states no CTRL_PLAT_PHY_STEP_US')
+    return WRITER_TIMING_MS['MILAN_NVM_HEARTBEAT_MS'] * 1000 / 2, float(step[1])
+
+
+def polls(publications: list[tuple[int, int]], gap: int) -> list[list[tuple[int, int]]]:
+    """The publications grouped by poll: a new poll after a gap of more than `gap` bus cycles."""
+    out: list[list[tuple[int, int]]] = []
+    for cycle, word in publications:
+        if not out or cycle - out[-1][-1][0] > gap:
+            out.append([])
+        out[-1].append((cycle, word))
+    return out
+
+
+def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]]:
+    """The published link word after ready (#919): its findings and report lines."""
+    findings, report = [], []
+    poll_us, step_us = phy_constants()
+    per_us = spec['sys_hz'] / 1e6
+    frames = [tuple(int(x) for x in f) for f in lines(log, 'PHYF')]
+    pubs = [(int(c), int(w)) for c, w in lines(log, 'PHYP')]
+    events = {name: int(c) for c, name in lines(log, 'PHYS')}
+    if not frames or not pubs:
+        findings.append(f'PHY: {len(frames)} MDIO frame(s) and {len(pubs)} publication(s): the PHY is not polled')
+        return findings, report
+    if 'timeout' in events:
+        findings.append('PHY: a step of the script waited past its limit for the publication it needs')
+    found = next((k for k, f in enumerate(frames) if f[2] == PHY_ADDRESS), None)
+    probe = [(f[2], f[3]) for f in frames[:found]] if found is not None else []
+    if found is None or probe != [(a, 2) for a in range(PHY_ADDRESS)] or frames[found][3] != 2:
+        findings.append(f'PHY: the probe read {probe} before the PHY, not PHYID1 at each address below '
+                        f'{PHY_ADDRESS} once')
+    elif any(f[2] != PHY_ADDRESS for f in frames[found:]):
+        findings.append('PHY: a frame at another address once the PHY was found')
+    span = max(f[1] - f[0] for f in frames)
+    span_us = span / per_us
+    report.append(f'PHY {len(frames)} frames, {len(pubs)} publications; the longest frame {span} bus cycles '
+                  f'({span * spec["cpu_hz"] // spec["sys_hz"]} CPU cycles, {span_us:.2f} us) against the stated '
+                  f'CTRL_PLAT_PHY_STEP_US {step_us:.0f} us')
+    if span_us > step_us:
+        findings.append(f'PHY: a frame of {span_us:.2f} us is over its stated cost, {step_us:.0f} us')
+    groups = polls(pubs, int(poll_us * per_us / 2))
+    words = [[w for _, w in g] for g in groups]
+    if found is not None and words[:1] != [[0] * PHY_ADDRESS + [GIG_FULL]]:
+        findings.append(f'PHY: the boot\'s poll published {words[:1]}, not link down a miss, then the PHY\'s '
+                        f'1000BASE-T full duplex ({GIG_FULL})')
+    # a poll starts with its first frame: one that follows the frame before it by more than half a period; the
+    # firmware reads the clock it is paced on just before that frame's first pin
+    starts = [f[0] for k, f in enumerate(frames) if k == 0 or f[0] - frames[k - 1][1] > poll_us * per_us / 2]
+    steady = [b - a for a, b in zip(starts, starts[1:]) if b < events.get('down', starts[-1] + 1)]
+    if steady:
+        report.append(f'PHY polls {len(starts)}; between two starts before the loss {min(steady) / per_us / 1000:.3f}'
+                      f' to {max(steady) / per_us / 1000:.3f} ms against CTRL_PLAT_PHY_POLL_US '
+                      f'{poll_us / 1000:.0f} ms and the publication bound {PUBLICATION_MS:.0f} ms')
+        if max(steady) / per_us / 1000 > PUBLICATION_MS or min(steady) / per_us < poll_us - 1:
+            findings.append(f'PHY: polls {min(steady)} to {max(steady)} bus cycles apart, not every '
+                            f'CTRL_PLAT_PHY_POLL_US within {PUBLICATION_MS:.0f} ms')
+
+    def after(event: str) -> list[list[int]]:
+        """The words of each poll after the script's event."""
+        at = events.get(event)
+        return [] if at is None else [[w for _, w in g] for g in groups if g[0][0] > at]
+    wants = (('latched', [0, GIG_FULL], 'a loss latched between two polls is not published down, then up, by the '
+                                        'next poll'),
+             ('down', [0, 0], 'a loss is not published down by the next poll'),
+             ('back', [GIG_FULL], 'the link\'s return is not published up by the first poll after it'))
+    for event, want, words_of in wants:
+        got = after(event)[:1]
+        report.append(f'PHY after {event}: the next poll published {got[0] if got else "nothing"}')
+        if got != [want]:
+            findings.append(f'PHY: {words_of}: {got}')
+    if 'back' in events:
+        rise = next((c for c, w in pubs if c > events['back'] and w == GIG_FULL), None)
+        # the next poll starts at most a period later and takes at most POLL_FRAMES frames, each within its stated cost
+        bound = poll_us + POLL_FRAMES * step_us
+        if rise is not None:
+            report.append(f'PHY the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f} ms '
+                          f'after it, against {bound / 1000:.3f} ms')
+            if (rise - events['back']) / per_us > bound:
+                findings.append(f'PHY: the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f}'
+                                f' ms after it, past one poll period and its frames')
+    timing = lines(log, 'PHYT')
+    if timing:
+        high, low, period = (int(x) / spec['sys_hz'] * 1e9 for x in timing[0])
+        report.append(f'PHY MDC: the shortest high {high:.0f} ns, low {low:.0f} ns, period {period:.0f} ns, against '
+                      f'IEEE 802.3 22.2.2.13\'s {MDC_HIGH_NS}, {MDC_HIGH_NS} and {MDC_PERIOD_NS} ns')
+        if high < MDC_HIGH_NS or low < MDC_HIGH_NS or period < MDC_PERIOD_NS:
+            findings.append(f'PHY: MDC high {high:.0f} ns, low {low:.0f} ns, period {period:.0f} ns, under '
+                            'IEEE 802.3 22.2.2.13')
+    else:
+        findings.append('PHY: the model reported no MDC timing')
+    return findings, report
+
+
 def grade(log: str, transcript: str, spec: dict, work: Path, status: int | None) -> tuple[list[str], list[str]]:
     """The findings and the report lines; `status` is the model's saved exit status, None when there is none."""
     sys.path.insert(0, str(ROOT / 'scripts'))
@@ -367,6 +502,9 @@ def grade(log: str, transcript: str, spec: dict, work: Path, status: int | None)
                       f'against {TICK_RULE_MS:.0f} ms and T_svc {T_SVC_MS:.0f} ms')
         if span > TICK_RULE_MS or gap > T_SVC_MS or first > T_SVC_MS:
             findings.append(f'UART: {name} holds the loop past its bound ({span:.3f} / {gap:.3f} / {first:.3f} ms)')
+    phy_findings, phy_report = grade_phy(log, spec, ready_at)
+    findings += phy_findings
+    report += phy_report
     if len(answers) != 3:
         findings.append(f'UART: {len(answers)} commands answered of 3')
         return findings, report
@@ -411,11 +549,36 @@ def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = N
                  saved_status(out))
 
 
+def phy_rows(sys_hz: int) -> list[str]:
+    """A valid run's PHY lines (#919), as sim_main.cpp prints them: the boot's poll probing one miss, two steady
+    polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart."""
+    period = int(phy_constants()[0] * sys_hz / 1e6)
+    steady = [(PHY_ADDRESS, 1), (PHY_ADDRESS, 0), (PHY_ADDRESS, 15), (PHY_ADDRESS, 9), (PHY_ADDRESS, 10)]
+    second = [(PHY_ADDRESS, 1)] + steady
+    #: each poll: its frames, and the frame after which each word is published
+    plan = [([(a, 2) for a in range(PHY_ADDRESS + 1)] + second, {0: 0, PHY_ADDRESS + len(second): GIG_FULL}),
+            (steady, {len(steady) - 1: GIG_FULL}), (steady, {len(steady) - 1: GIG_FULL}),
+            (second, {0: 0, len(second) - 1: GIG_FULL}), (second[:2], {0: 0, 1: 0}),
+            (second[:2], {1: 0}), (second, {len(second) - 1: GIG_FULL})]
+    events = {2: 'latched', 3: 'down', 5: 'back'}
+    rows = []
+    for k, (frames, words) in enumerate(plan):
+        start = 1_000_000 + k * period
+        for j, (address, reg) in enumerate(frames):
+            first = start + j * 20_000
+            rows.append(f'PHYF {first} {first + 10_000} {address} {reg}')
+            if j in words:
+                rows.append(f'PHYP {first + 10_100} {words[j]}')
+        if k in events:
+            rows.append(f'PHYS {start + period // 2} {events[k]}')
+    return rows
+
+
 def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, dict]:
     """A native control's model, and the spec its export would give: a program that writes a boot's transcript and
     prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
-    one-owner report, the ready line, and the three commands answered as the grader passes them), then ends its log
-    and exits as the control says."""
+    one-owner report, the ready line, the three commands answered as the grader passes them, and the PHY's polls),
+    then ends its log and exits as the control says."""
     spec = {'sys_hz': 100_000_000, 'cpu_hz': 100_000_000, 'shape': shape, 'interfaces': n_if}
     rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
     rows.append('READY 10000')
@@ -423,6 +586,7 @@ def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, 
         start = 20000 + 100000 * k
         rows += [f'IN {start} {command}', *(f'UART {start + 100 * (j + 1)} {b:02x}'
                                              for j, b in enumerate(answer.encode()))]
+    rows += phy_rows(spec['sys_hz']) + ['PHYT 50 60 120']
     log = '\n'.join(rows) + '\n' + control.ending
     transcript = BANNER + ''.join(answer for _, answer in ANSWERS)
     (out / 'soc/gateware').mkdir(parents=True, exist_ok=True)

@@ -22,10 +22,11 @@ flash.
 from __future__ import annotations
 
 #: The test files whose every test a defect here must name.
-SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp")
+SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp", "test_plat_phy.cpp")
 CSR = "plat/ctrl_plat_csr.c"
 CONSOLE = "plat/ctrl_plat_console.c"
 PLAT = "plat/ctrl_plat.c"
+PHY = "plat/ctrl_plat_phy.c"
 C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
 
@@ -36,7 +37,7 @@ EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
 #: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
 SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
 TICK = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);\n"
-STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);\n"
+STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);\n"
 SERVICE = TICK + STEP
 OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
         "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
@@ -45,7 +46,7 @@ OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
 
 def mutants(mutant: type) -> tuple:
     """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
-    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant)
+    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant) + phy_mutants(mutant)
 
 
 def csr_mutants(mutant: type) -> tuple:
@@ -189,3 +190,96 @@ def boot_mutants(mutant: type) -> tuple:
         m("plat-source-vid", PLAT, "\t\t\tv->vlan_id = (uint16_t)p->env->policy->sr_vid;\n", "",
           "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
     )
+
+
+#: The latched loss's publication and the second BMSR read, as ctrl_plat_phy.c's status() holds them (#919).
+LATCHED = "\t\t\t\tctrl_plat_io_write32(phy->bus.link_status, 0u);\n\t\t\t\tphy->published = 0u;\n"
+CURRENT = "\t\t\tif ((phy->published & CTRL_PLAT_PHY_LINK_UP) == 0u) {\n\t\t\t\tbreak;\n\t\t\t}\n"
+#: The sample before MDC's rise, as ctrl_plat_phy.c's bit() holds it, and the release's late-sample defect.
+SAMPLE = ("\tconst uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;\n"
+          "\tctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);\n\tspin(phy->spin);\n")
+LATE = ("\tctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);\n\tspin(phy->spin);\n"
+        "\tconst uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;\n")
+ARM = "\tctrl_plat_phy_arm(&p->phy, &env->phy, env->flash->now_us, env->flash->ctx);\n"
+IDENTITY = "\tif (!ctrl_plat_csr_identity(env->csr, &p->version)) {\n"
+L2 = "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each"
+P3 = "P3 a loss that recovered between two polls publishes link down, then link up"
+
+
+def phy_mutants(mutant: type) -> tuple:
+    """The PHY poll's (#919): the four the issue names (no poll, the loss not latched, an edge not counted, the
+    cease not ended on link-up), each reproducing the bench's symptom, then the poll's own rules."""
+    m = mutant
+    return (
+        # no poll: the PHY never armed, so milan_mac_link_status keeps its reset value
+        m("plat-phy-never-armed", PLAT, ARM, "", "platboot1", "Phy.L1ReadyLoopPublishesTheLink",
+          "L1 the ready loop publishes the PHY's link"),
+        # the loss BMSR latched between two polls never published
+        m("plat-phy-loss-not-latched", PHY, LATCHED, "\t\t\t\tphy->published = 0u;\n", "platboot1",
+          "PlatPhy.P3LatchedLossPublishesBothEdges", P3, also=(("platboot1", "Phy.L2EveryEdgeIsCounted", L2),)),
+        # an edge not counted: the whole poll in one call, so the loss's word and the current state's land in
+        # the same turn and the datapath's synchronised level never sees the loss
+        m("plat-phy-edge-not-counted", PHY, "\t\ttake(phy);\n\t}\n",
+          "\t\tdo {\n\t\t\ttake(phy);\n\t\t} while (phy->stage != CTRL_PLAT_PHY_IDLE);\n\t}\n",
+          "platboot1", "Phy.L2EveryEdgeIsCounted", L2,
+          also=(("platboot1", "PlatPhy.P7OneFrameACallWithItsRoom", "P7 one frame a call"),)),
+        # the cease not ended on link-up: the second BMSR read dropped, so the poll after the link's return
+        # resolves the latched loss and publishes it down, a period late for the gPTP plane's toggle
+        m("plat-phy-cease-not-ended", PHY, CURRENT, "", "platboot1", "Phy.L4ReturnEndsTheCeaseWithinAPoll",
+          "L4 the first poll after the link's return publishes it up",
+          also=(("platboot1", "PlatPhy.P3LatchedLossPublishesBothEdges",
+                 "P3 the first poll after the loss ends publishes the link up"),)),
+        # the counter change of a link edge dropped before AECP: no notification
+        m("plat-link-counter-change-dropped", "app/ctrl_app_aecp.c",
+          "\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n", "\t\t(void)c;\n", "platboot1",
+          "Phy.L3EachEdgeNotifiesTheCounters", "L3 each link edge sends one unsolicited GET_COUNTERS"),
+        # the guard and the paths
+        # the poll armed before the identity check: a foreign window's pins bit-banged
+        m("plat-phy-unguarded", PLAT, IDENTITY, ARM + IDENTITY, "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
+          "B11 a foreign window's MDIO pins are never touched"),
+        m("plat-phy-refused-stage-unpolled", PLAT, "\t\t(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);\n", "", "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
+          "B11 a stage refused past the identity check keeps publishing the link"),
+        m("plat-phy-beside-a-save-step", PHY, "saving && s->steps != steps ? 0 :", "false ? 0 :",
+          "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 a call whose store takes a step of its save carries no PHY frame"),
+        m("plat-phy-after-an-idle-step-refused", PHY, "saving && s->steps != steps ? 0 :",
+          "s->steps != steps ? 0 :", "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 a call whose store step is an idle one carries one PHY frame"),
+        # the poll's rules
+        m("plat-phy-probe-scans", PHY, "\t\tphy->polled = false;\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
+          "\t\tphy->polled = false;\n\t\tif (phy->address != 0u) {\n\t\t\tphy->stage = CTRL_PLAT_PHY_PROBE;\n"
+          "\t\t\ttake(phy);\n\t\t\treturn;\n\t\t}\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
+          "platboot1", "PlatPhy.P1OneAddressIsProbedACall", "P1 one address an opportunity, no scan in one call"),
+        m("plat-phy-late-sample", PHY, SAMPLE, LATE, "platboot1", "PlatPhy.P1OneAddressIsProbedACall",
+          "P1 the PHY found at its address publishes its link"),
+        m("plat-phy-unpaced", PHY, "now - phy->started >= CTRL_PLAT_PHY_POLL_US", "true", "platboot1",
+          "PlatPhy.P2PollsArePaced", "P2 no poll before CTRL_PLAT_PHY_POLL_US",
+          also=(("platboot1", "Phy.L1ReadyLoopPublishesTheLink", "L1 a poll a period"),)),
+        m("plat-phy-wrap-unsafe", PHY, "now - phy->started >= CTRL_PLAT_PHY_POLL_US",
+          "now >= phy->started + CTRL_PLAT_PHY_POLL_US", "platboot1", "PlatPhy.P10TheClockWraps",
+          "P10 a clock that went back makes a poll due at once"),
+        m("plat-phy-common-mode-misread", PHY, "\tif ((common & CTRL_PLAT_PHY_AN_100_FULL) != 0u) {",
+          "\tif ((common & CTRL_PLAT_PHY_AN_100_HALF) != 0u && false) {", "platboot1",
+          "PlatPhy.P4ResolvedModesAreTheReleases", "P4 the highest common mode of 4 and 5"),
+        m("plat-phy-fault-ignored", PHY, " && (u & CTRL_PLAT_PHY_GSTAT_FAULT) == 0u", "", "platboot1",
+          "PlatPhy.P4ResolvedModesAreTheReleases", "P4 a master-slave configuration fault is link down"),
+        m("plat-phy-ack-ignored", PHY, "return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);",
+          "return (int32_t)(value & 0xffffu);",
+          "platboot1", "PlatPhy.P5ErrorsAreLinkDown", "P5 a NAKed register is link down"),
+        m("plat-phy-turnaround-driven", PHY, "k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS, hi",
+          "k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS + 1u, hi", "platboot1", "PlatPhy.P6FramesAreClause22Reads",
+          "P6 every frame a Clause-22 read, driven then released"),
+        m("plat-phy-no-deadline", PHY, "room >= (int32_t)CTRL_PLAT_PHY_STEP_US", "true",
+          "platboot1", "PlatPhy.P7OneFrameACallWithItsRoom", "P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left"),
+        m("plat-phy-not-owed", PHY, "\treturn phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, now);",
+          "\treturn false;", "platboot1", "PlatPhy.P8OwedWhileAFrameIsDue",
+          "P8 a probe that missed owes the next"),
+        m("plat-phy-half-period-short", PHY, "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)",
+          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ / 2u)", "platboot1", "PlatPhy.P9NoMdioArmsNothing",
+          "P9 the half period at 100 MHz: 200 ns, 20 turns"),
+        m("plat-phy-timed-run-ignored", PHY, "\t\tphy->spin = 1u;\n", "", "platboot1", "PlatPhy.P9NoMdioArmsNothing",
+          "P9 a run of 277 us: one turn holds 200 ns"),
+        m("plat-phy-timed-resolution-ignored", PHY, "- before > TIMED_ONE) {", "- before >= TIMED_ONE) {", "platboot1",
+          "PlatPhy.P9NoMdioArmsNothing", "P9 a run of 205 us bounds a turn under 200 ns"),
+    )
+
