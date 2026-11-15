@@ -1,0 +1,18 @@
+PASS published SHA256 inventory: 1166 files; 18 redacted by publisher
+Archive commit: f2e8fa9f05d00f3963ee299277506a3a3eeeccce
+Archive signature status: N
+Signature status N means unsigned; this verifies published hashes, not an independent signer.
+Changes since 57daf4ff : sw/firmware/ctrl/test/aecp_owed_mutants.py, tb/verilator/ctrl_reboot/README.md, tb/verilator/ctrl_reboot/run.py
+Changes since 20e08ceb : sw/firmware/ctrl/test/aecp_owed_mutants.py, tb/verilator/ctrl_reboot/README.md, tb/verilator/ctrl_reboot/run.py
+Changes since cb0fc679 : sw/firmware/ctrl/test/aecp_owed_mutants.py
+Measured cycle maxima keys: 1x1/1if, _most_cycles, _where
+PASS SRP record: 26865 cycles -> 285 us
+PASS AECP ordinary: 22531 cycles -> 240 us
+PASS paced record: 28750 cycles -> 305 us
+PASS idle events: 3627 cycles -> 40 us
+PASS accepted REBOOT: 11467 cycles -> 125 us
+PASS locked REBOOT: 10511 cycles -> 115 us
+PASS CSR receipt comparison: only ctrl_reboot bank/register added at 0xf000e000
+receipts/model/verify-wf.md : 88 steps ran, 167 not run with a reason, 0 bad
+receipts/model/verify-docs.md : 64 steps ran, 31 not run with a reason, 0 bad
+PASS archive receipt audit

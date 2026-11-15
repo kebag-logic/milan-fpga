@@ -1,0 +1,28 @@
+[
+  {
+    "name": "reboot-retries-after-its-success",
+    "path": "aecp/aecp.c",
+    "old": " || a->owed_count != 0u || a->reboot != 0u;",
+    "new": " || a->owed_count != 0u;",
+    "checks": [
+      [
+        "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+        "THE RETRY's round starts no notification after a REBOOT's SUCCESS"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "owed-round-beside-the-queue",
+    "path": "aecp/aecp.c",
+    "old": "return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u || a->reboot != 0u;",
+    "new": "return a->response_owed || a->notify || a->waiting || a->start_pending || a->reboot != 0u;",
+    "checks": [
+      [
+        "Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse",
+        "the round waits while the owed-notice queue holds a notice"
+      ]
+    ],
+    "caught": true
+  }
+]

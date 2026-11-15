@@ -1,0 +1,33 @@
+Note: Google Test filter = Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+$REVIEWS/r822-5-665s11/sw/firmware/ctrl/test/test_aecp.cpp:2125: Failure
+Value of: aecp_retry(&a,1u,0u)
+  Actual: false
+Expected: true
+
+  [FAIL] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse: Expected: true
+$REVIEWS/r822-5-665s11/sw/firmware/ctrl/test/test_aecp.cpp:2125: Failure
+Expected equality of these values:
+  reads
+    Which is: 2
+  first
+    Which is: 1
+the round waits while the owed-notice queue holds a notice
+
+  [FAIL] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse: the round waits while the owed-notice queue holds a notice
+[  FAILED  ] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
