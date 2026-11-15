@@ -274,6 +274,8 @@ In the split every channel's take is behind the platform's gate on `aecp_reboot_
 So no ADP, ACMP, AECP, MAAP or SRP frame is taken: each stays in its ring, and the mailbox drops whole one that then finds no room (`RX_DROP`).
 
 **The order.** The [platform](../../sw/firmware/ctrl/plat/README.md) waits until the SUCCESS and its notifications have left the mailbox (`aecp_reboot_due`).
+A notification the owed-notice queue holds (#894) leaves from AECP's poll, after every notice owed before it, and the REBOOT is due only once that queue is empty and each of its frames has completed.
+From the SUCCESS THE RETRY's round, like the poll, starts no probe or notification.
 From then it no longer services the loop, so no channel starts another transmission.
 Once every other channel's ring has drained, ADP shuts down, so each advertising interface sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3).
 Nothing follows it until the reset, as the processor's transmit gate closes every lane but ADP's from its last ENTITY_DEPARTING.
@@ -282,7 +284,7 @@ Once ADP's ring has drained too, the platform writes 1 to the reset port.
 From the mailbox to the MAC port the path is cut-through (`KL_mbx_cdc`'s 16-byte FIFO, `KL_ctrl_split`'s packer, `ctl_tx_mux`).
 So a frame that has left the mailbox is already half taken at the MAC port when the request arrives, and the egress wait holds the PHY until it has left.
 
-**The port.** `milan_soc.CtrlReboot` is one CSR bit, `ctrl_reboot_req`, in its own bank below the mailbox's.
+**The port.** `milan_soc.CtrlReboot` is one CSR bit, `ctrl_reboot_req`, in its own bank below the mailbox's record mover's (`n_locs - 4`; the mover's bank, #894's, is `n_locs - 3`).
 A `MultiReg` crosses it into the datapath's clock, onto `milan_datapath`'s `i_reboot_req`.
 The split branch drives `reboot_ctrl.reboot_req_i` from that input alone, which the split census holds (`G_CARRIED`).
 A later write of 0 cancels nothing. No mailbox register changes; the split adds this one CSR bit and one datapath input.
@@ -297,11 +299,11 @@ It waits for the SUCCESS, its notifications and every ring to drain, so a datapa
 The processor documents the same of its MAC: "A MAC that never takes a frame holds the request back" (section 6.11).
 Section 3's bound to the IPROG word starts at the port.
 
-**One measurement.** In the CPU simulation's REBOOT scenario (the shipping shape, no ring held), the reset port rose 424,271 bus cycles after the REBOOT command's last byte reached the mailbox.
-That is 212,135 CPU cycles, 4.243 ms at 50 MHz.
-The SUCCESS left at 2.157 ms, its notification at 2.300 ms and ENTITY_DEPARTING at 4.199 ms.
+**One measurement.** In the CPU simulation's REBOOT scenario (the shipping shape, no ring held), the reset port rose 54,327 bus cycles after the REBOOT command's last byte reached the mailbox.
+That is 54,327 CPU cycles, 0.543 ms with the split CPU at 100 MHz on the bus clock, since the merge of #894's tiers (424,271 bus cycles, 4.243 ms, with the CPU at 50 MHz before it).
+The SUCCESS left at 0.129 ms, its notification at 0.219 ms and ENTITY_DEPARTING at 0.528 ms.
 These are that scenario's figures, not a bound.
-A write in progress at the REBOOT then kept the drain 581.1 ms.
+A write in progress at the REBOOT, the KLJ3 journal's (#823), then kept the drain 851.0 ms (581.1 ms before the merge, with KLJ2's).
 
 | Evidence | What it proves |
 |---|---|

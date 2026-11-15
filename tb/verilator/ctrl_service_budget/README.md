@@ -614,6 +614,23 @@ Only the first SET of a value notifies, so the sampling rate (the image has one)
 - The 16 recipients at 1x1 take 7.77 to 14.80 ms (7.77 to 11.33 in arm A), and the 32 at 8x8 take 12.39 to 32.78 ms (12.39 to 22.98 in arm A).
   A SET_CONTROL cell is the worse of its two fan-outs, identify on and identify off; the better ones, 7.77 ms at 1x1 and 12.39 ms on 8x8 interface 0, set the low ends.
 
+### REBOOT
+
+The `aecp-reboot` group ([`reboot_group.py`](reboot_group.py), #871) runs in the answering-ports arm alone, whose image gives AECP a reset port as the platform's does (`build.VARIANTS`); the unmodified fixture has none, so its REBOOT is NOT_IMPLEMENTED.
+It registers 16 controllers on every interface, then sends on each interface a REBOOT short of Figure 7-68's four bytes, one of a STREAM_INPUT, one of ENTITY 1, and one of ENTITY 0 under another controller's lock, then on interface 0 the accepted REBOOT, answered and notified to every registration.
+That is the group's last command: no command is taken after its SUCCESS.
+`record_classes.py` holds every REBOOT record as an ordinary AECP record, `record.aecp`, and refuses a pass whose answering-ports leg at 1x1/1if ran no accepted REBOOT or no refused one.
+
+| REBOOT record, by the rule (CPU cycles) | 1x1/1if, held at 235 us | 8x8/2if, held at 265 us |
+|---|---:|---:|
+| SUCCESS (accepted, its notice owed) | 125 (11,467) | 95 (8,664) |
+| ENTITY_LOCKED | 115 (10,511) | 115 (10,742), 115 (10,658) |
+| BAD_ARGUMENTS (short) | 105 (9,870) | 115 (10,727), 110 (10,033) |
+| NO_SUCH_DESCRIPTOR (ENTITY 1) | 100 (9,407) | 110 (10,007), 105 (9,724) |
+| NOT_SUPPORTED (STREAM_INPUT) | 100 (9,291) | 105 (9,876), 105 (9,973) |
+
+At 8x8/2if the figures are interface 0's, then interface 1's.
+
 ### SRP and MAAP
 
 | SRP and MAAP path | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses, 1x1 / 8x8 |

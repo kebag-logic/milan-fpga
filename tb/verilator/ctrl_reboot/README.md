@@ -108,16 +108,16 @@ Each grader control plants one edit into a clean run's log and must give a findi
 
 ## Results
 
-At the shipping shape, one interface, the split CPU at 50 MHz and its bus at 100 MHz; simulated time throughout:
+At the shipping shape, one interface, the split CPU and its bus at 100 MHz (since the merge of #894's tiers; round 2's figures, with the CPU at 50 MHz, are in the git history); simulated time throughout:
 
 | Grade | Result |
 |---|---|
 | REFUSE | BAD_ARGUMENTS, NOT_SUPPORTED, NOT_SUPPORTED, NO_SUCH_DESCRIPTOR, each at cdl 16; no notification, no reset, GET_CONFIGURATION answered |
-| ORDER | from the REBOOT command's last byte: SUCCESS at 2.157 ms, its notification at 2.300 ms, ENTITY_DEPARTING at 4.199 ms, the reset port at 4.243 ms; the window's AEM command and BIND_RX reached the mailbox at 2.157 ms and 2.158 ms and neither was answered; no frame but ADP's after ENTITY_DEPARTING, none after the port, and nothing given after the port taken |
-| BOUND | this scenario's measurement, not a bound: 424,271 bus cycles, 212,135 CPU cycles, from the command to the port; then 581.124 ms to the PHY hold, the drain ended durable and the egress wait quiet. The firmware stage has no bound while a ring is held ([REBOOT_RESET.md section 8](../../../docs/design/REBOOT_RESET.md#8-the-split-placement)) |
+| ORDER | from the REBOOT command's last byte: SUCCESS at 0.129 ms, its notification at 0.219 ms, ENTITY_DEPARTING at 0.528 ms, the reset port at 0.543 ms; the window's AEM command and BIND_RX reached the mailbox at 0.130 ms and 0.131 ms and neither was answered; no frame but ADP's after ENTITY_DEPARTING, none after the port, and nothing given after the port taken |
+| BOUND | this scenario's measurement, not a bound: 54,327 bus cycles, 54,327 CPU cycles, from the command to the port; then 851.040 ms to the PHY hold, the drain ended durable and the egress wait quiet. The firmware stage has no bound while a ring is held ([REBOOT_RESET.md section 8](../../../docs/design/REBOOT_RESET.md#8-the-split-placement)) |
 | JOURNAL | the write's erase 62 bus cycles before the REBOOT arrived, its 14 page programs after it; the drain durable; every item back after the reset; the cut's replay reads the saved snapshot whole |
 | RESTORE | PASS over the stream format, the presentation time offset, the channel mappings, the clock source, the entity names, the object name and the binding; the configuration (0) and the rate (48,000) read the same and are not graded |
-| ADP | 585.367 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 502.312 ms from the reset to the first ENTITY_AVAILABLE (159.297 ms to ready): 4,590.679 ms of 20,000 ms, 15,409.321 ms left for the configuration load |
+| ADP | 851.583 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 454.192 ms from the reset to the first ENTITY_AVAILABLE (84.255 ms to ready): 4,808.775 ms of 20,000 ms, 15,191.225 ms left for the configuration load |
 
 The five plants and the seven controls are each caught by their own finding's words.
 

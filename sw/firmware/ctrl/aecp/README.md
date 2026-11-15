@@ -189,10 +189,11 @@ another ENTITY index NO_SUCH_DESCRIPTOR. Another controller's lock is
 ENTITY_LOCKED (7.4.43.2), and a change the platform has not applied
 ENTITY_MISBEHAVING. A SUCCESS is notified to every other registered
 controller (7.5.2; Milan v1.2 5.4.5.2). From it no command is taken and no
-probe or notification is started, and `aecp_reboot_accepted` is true: the
-platform then takes no received frame of any channel, as the processor's top
-discards every frame from its SUCCESS (REQ-FWX-001). `aecp_reboot_due` turns
-true once every frame owed has completed, the REBOOT's last; the platform
+probe or notification is started, by the poll or by THE RETRY's round, and
+`aecp_reboot_accepted` is true: the platform then takes no received frame of
+any channel, as the processor's top discards every frame from its SUCCESS
+(REQ-FWX-001). `aecp_reboot_due` turns true once the owed-notice queue is
+empty and every frame owed has completed, the REBOOT's last; the platform
 then sends ENTITY_DEPARTING and nothing else, and resets
 ([plat](../plat/README.md#the-ports)).
 
