@@ -356,7 +356,7 @@ The firmware drains the whole receive buffer once per pass.
 | Character time | 86.806 µs | Derived | 10 / 115,200 s |
 | Console loss, LiteX UART with a 16-byte receive FIFO, polled, interrupts off, no BIOS | A 22-character line lost characters on 17 of 300 sends; a 14-character line lost none of 300 | Measured | [Stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) |
 | What that loss shows | 16 characters fill that FIFO in 1.389 ms. A 14-character line never fills it, so the losses need the polled loop away for longer | Derived | 16 x 86.806 µs |
-| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound, if the share holds | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); both are #665's S2b work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), not merged |
+| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound, if the share holds | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); both are #665's S2b work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), merged into dev-soft-core on 2026-11-13, not into dev |
 | Characters that complete within that gap | 24 | Derived | 23 character times are 1.997 ms; 24 are 2.083 ms |
 | Receive buffer | 32 bytes, the next power of two | Chosen, under the share | At least 24 |
 | What 32 bytes hold | No gap shorter than 2.778 ms loses a character; a line of up to 32 characters fits whole at any gap | Derived | 32 x 86.806 µs |
@@ -365,9 +365,11 @@ The firmware drains the whole receive buffer once per pass.
 | Beyond that bound | A pass over the share already breaks a service bound; console characters lost then are accepted | Rule | D20; console input ranks below the protocol work |
 
 The share and the 20 ms budget come from S2b.
-That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), is not merged.
+That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), merged into dev-soft-core on 2026-11-13.
+Dev does not carry it.
 
-Dev's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) still proposes T_svc = 10 ms.
+Dev's FR_NFR.md 3.4.1 still proposes T_svc = 10 ms.
+This line's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) states the approved 20 ms.
 Taking 10 ms as the gap gives 128 bytes.
 
 So 32 bytes holds only while passes fit the share.
