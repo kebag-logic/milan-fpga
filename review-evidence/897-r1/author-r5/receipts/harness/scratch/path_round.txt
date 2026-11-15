@@ -1,0 +1,6 @@
+# pN1 at 3079bb1e + cl-path5's build.py scratch (never committed); entry-read call site 0000ef2c
+# the excerpts keep every CALL aecp_command / aecp:finish and SPAN mbx_win_read line of each group log, and the ctrl_loop:round_of SPAN that holds the entry reads; path_round.py 0000ef2c over them reprints this file
+notice-every-0.log: 8 entry reads (3103 cycles, at most 457), 23 count reads (at most 809)
+  round 28098 CPU cycles: 8 entry reads (3103 cycles), 1 notices, 0 refused attempts; admitted at 34000; margin 5902
+notice-burst-0.log: 8 entry reads (3103 cycles, at most 457), 23 count reads (at most 779)
+  round 65576 CPU cycles: 8 entry reads (3103 cycles), 3 notices, 0 refused attempts; admitted at 85000; margin 19424
