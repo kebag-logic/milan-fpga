@@ -1,0 +1,4 @@
+# aecp.c at 98c0b62b and two planted include orders, gcc -std=c11 -fsyntax-only (the first #error line, or none)
+head: rc 0; no #error
+without: rc 1; aecp/aecp.h:68:2: error: #error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+before: rc 1; aecp/aecp.h:68:2: error: #error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
