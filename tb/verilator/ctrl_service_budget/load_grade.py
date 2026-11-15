@@ -257,6 +257,30 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
     return {n: value(n) for n in names}
 
 
+#: The points whose SRP drain ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US bounds: the slice starts an SRP record only while it
+#: has that left (ctrl_loop.c), so it is the load gate's record.srp there, the dearer of the two columns' (#894).
+SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if')
+SRP_UNIT_HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+
+
+def srp_unit(root: Path, texts: dict[str, str] | None = None) -> list[str]:
+    """Each point whose SRP drain limit (CTRL_LOOP_SRP_UNIT_US, from the header or its planted copy) is not the load
+    gate's record.srp there: a limit below it starts a record the slice has no room for."""
+    text = (texts or {}).get(SRP_UNIT_HEADER) or (root / SRP_UNIT_HEADER).read_text()
+    body = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US (.+)$', text, re.M)[1].split('//')[0].strip()
+    pick = re.fullmatch(r'\(MBX_N_IF == (\d+)u \? (\d+)u : (\d+)u\)', body)
+    plain = re.fullmatch(r'\(?(\d+)u?\)?', body)
+    out = []
+    for point in SRP_UNIT_POINTS:
+        n_if = POINTS[point]['n_if']
+        got = int(plain[1]) if plain else int(pick[2] if n_if == int(pick[1]) else pick[3]) if pick else None
+        want = max(column[point]['record.srp'] for _, column in COLUMNS)
+        if got != want:
+            out.append(f"{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US {got} us, not the load gate's record.srp "
+                       f'{want} us')
+    return out
+
+
 def probe_retry_ms(root: Path) -> int:
     """A registration's probe retry (aecp.c: its deadline now + this, Milan v1.2 5.4.5.3)."""
     return int(re.search(r'\.deadline = now\(a\) \+ (\d+)u;', (root / 'sw/firmware/ctrl/aecp/aecp.c').read_text())[1])
@@ -388,7 +412,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound()
+    out = unbound() + srp_unit(root, texts)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -533,6 +557,15 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
+    # the SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, at each point: refused by name
+    header = (root / SRP_UNIT_HEADER).read_text()
+    real = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US .+$', header, re.M)[0]
+    one = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)')
+    two = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 300u)')
+    if srp_unit(root) or not all(any(f'{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US' in f
+                                     for f in findings(root, base, fit, {SRP_UNIT_HEADER: planted}))
+                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two))):
+        escaped.append("the SRP drain's record cost not the load gate's")
     return escaped + binding_controls(root)
 
 
@@ -611,7 +644,7 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
-            "a column's name bound to the other's table")
+            "the SRP drain's record cost not the load gate's", "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:

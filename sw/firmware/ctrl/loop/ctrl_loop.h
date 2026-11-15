@@ -275,9 +275,11 @@ extern "C" {
 // measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
 // which states 1x1/1if's (#894).
 #define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)
-// An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
-// slice starts a record only while it has this left.
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
+// An SRP record's stated cost, the load gate's record.srp at each point, the
+// dearer of its two columns' (load_grade.py, which refuses any other figure):
+// the slice starts a record only while it has this left, so a record that
+// starts fits (#894).
+#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
