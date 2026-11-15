@@ -164,6 +164,8 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_hot.py": "compares the split link script's hot list with its recorded order and "
+                                         "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
@@ -182,8 +184,20 @@ OUTSIDE = {
                                        "checkout, and the runtime to runtime_ssp.py; its own compiles build the "
                                        "REBOOT SoC's Verilator model, whose testbench reads the mailbox's register "
                                        "offsets from mbx_contract.h and compiles no firmware or stack source",
+    "tb/verilator/ctrl_split_boot/plat_ledger.py": "the platform image's ledger gate (#665), which no hosted job can "
+                                                   "run (the CPU budget harness's prerequisites): build.flash_map "
+                                                   "delegates map images to ctrl_srp_image.py; it delegates every "
+                                                   "platform compile of the firmware to ctrl_plat_image.py, unchanged, "
+                                                   "and the runtime to runtime_ssp.py; it compiles nothing itself",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
+    "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
+                              "it compiles nothing",
+    "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
+                           "suite compares; it compiles nothing",
+    "scripts/check_nvm_klj3.py": "grades the KLJ3 reference codec against its rules (#823); it compiles nothing",
+    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the file:line anchors it cites in the "
+                                          "F1 store (#823); it compiles nothing",
     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
                                                    "SoC's csr.csv (#665); its self-test compiles a probe of the "
                                                    "headers it writes with the host compiler, no firmware or stack "
@@ -223,14 +237,57 @@ OUTSIDE = {
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
+    "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
+                                                         "AECP_QUEUED_MS, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
+                                                         "and AECP_NOTICES_MOST from the headers; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
+                                                       "costs from ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
+                                                       "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
+                                                      "CTRL_LOOP_SLICE_US, CTRL_LOOP_JOIN_CS, CTRL_LOOP_TX_BOUND_MS, "
+                                                      "CTRL_LOOP_T_EGRESS_MS and CTRL_LOOP_TX_MS "
+                                                      "from ctrl_loop.h, AECP_MBX_OWED_SLOTS and AECP_PACE_MS from "
+                                                      "aecp_mbx.h, AECP_RETRY_MAX_MS and AECP_OWED_BYTES from "
+                                                      "aecp.h, the loop's channel bindings from the firmware's "
+                                                      "sources and the "
+                                                      "polls' stated costs from poll_grade.py; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model: it reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_INGRESS_MS and CTRL_LOOP_T_EGRESS_MS, and its "
+                                                      "controls plant aecp_mbx.h's AECP_PACE_MS in memory; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/join_grade.py": "grades a run's join intervals and reads ctrl_loop.h's "
+                                                      "CTRL_LOOP_T_EGRESS_MS; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/mrpdu_grade.py": "grades a run's MRP timers' builds and reads ctrl_loop.h's "
+                                                       "CTRL_LOOP_TX_BOUND_MS derivation; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
+                                                        "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
+                                                        "memory; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
+                                                      "controls plant ctrl_loop.h's and aecp.h's text in memory; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/poll_grade.py": "grades a run's log and reads AECP_FAN_BYTES from aecp.h; it "
+                                                      "compiles nothing",
+    "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
+                                                       "ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
+                                                      "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
+                                                      "and the TSN stack's headers; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/selftest_round.py": "the round gate's self-test; it reads a round's stated costs "
+                                                          "from aecp.h and aecp_mbx.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
+                                                       "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/share.py": "the per-pass share from scenario.py's bounds and ctrl_loop.h's "
+                                                 "derivation, which it names; it compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
-                                                     "compiles off, and reads the image's placeholder mailbox address "
-                                                     "from ctrl_build.RV32_FLAGS and the flash port's generated map; "
-                                                     "it compiles no firmware or stack source",
+                                                     "compiles off, and reads the image's placeholder mailbox and "
+                                                     "record mover addresses from ctrl_build.RV32_FLAGS and "
+                                                     "SPLIT_RV32_FLAGS and the flash port's generated map; it "
+                                                     "compiles no firmware or stack source",
     "tb/verilator/nvm_split_target/target_cases.py": "the saved-state cases' arms and planted defects on the split "
                                                      "CPU (#665), which the CPU budget harness's build.py builds; it "
                                                      "compiles nothing",
@@ -239,6 +296,11 @@ OUTSIDE = {
     "tb/verilator/milan_dp/twin_compare.py": "compares the two-placement simulation's captures (#665), through "
                                              "twin_decode.py; it compiles nothing",
     "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
+                                            "srp_wire_compare.py; it compiles nothing",
+    "tests/steps/aecp_owed_notice_steps.py": "the owed-notice feature's steps (#894): pins its model's rules to the "
+                                             "text of aecp.c, aecp.h and aecp_mbx.h; it compiles nothing",
+    # the split build's SRP transmit path (#867, make -C tb/verilator/milan_dp srptx): its grader
+    "tb/verilator/milan_dp/srptx_grade.py": "grades the split half's SRP transmit captures (#867), MSRP through "
                                             "srp_wire_compare.py; it compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
@@ -267,6 +329,11 @@ SUITES = {
     "tb/verilator/milan_dp/twin_fw.py": "the two-placement simulation's split firmware (#665, make -C "
                                         "tb/verilator/milan_dp twin): the platform composition plat_arms.arm_platboot "
                                         "lists, and lwSRP, compiled for the host with CTRL_PLAT_MAAP_PREFERRED defined",
+    "tb/verilator/milan_dp/srptx_mutants.py": "the SRP transmit path's planted defects (#867, make -C "
+                                              "tb/verilator/milan_dp srptx-mutants): twin_fw.py's composition with "
+                                              "one copy of srp_mbx.c or lwSRP's mrp_mad.c planted (--replace), or "
+                                              "the split half with milan_datapath.sv planted, in a scratch "
+                                              "directory it removes",
 }
 
 

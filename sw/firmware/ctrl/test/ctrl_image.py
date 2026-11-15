@@ -346,7 +346,7 @@ def shape_build(config: Path, work: Path) -> tuple[Path, list[str]]:
     except nvm_bench.Refusal as exc:
         raise Refusal(str(exc)) from exc
     gen = work / "gen"
-    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs), inputs.clock_hz)
     return gen, [f"-DIMAGE_SINKS={view['listener_stream_sinks']}u", f"-DIMAGE_SOURCES={view['talker_stream_sources']}u"]
 
 

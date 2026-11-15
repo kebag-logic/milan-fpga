@@ -105,12 +105,41 @@ Initialization checks before touching potentially uninitialized destination stor
 Its refusal increments the active caller's counter; others increment the destination's.
 The diagnostic build defines `CTRL_REENTRY_ASSERT`.
 
-Unavailable notification snapshots retain their event and retry after 1 ms.
+Unavailable notification snapshots retain their event and retry after 1, 2, 4, then every 8 ms (`AECP_RETRY_MAX_MS`, #665).
+The first failure of a round schedules the next round; a delivered notice resets the wait.
+Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
-Backpressure retains the completed snapshot and its remaining recipients.
+A notice is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), #665): with `aecp.retry_hold` set, as the adapter sets it, `aecp_poll` and the timer's sink build no notice, hold a due retry, arm no timer for it and report it owed, and only `aecp_retry` builds or tries one, never beside a backlog's records or a centisecond.
+The event loop calls it in a pass that took no input and dispatched no centisecond, or once `aecp_retry_aged` reports a notice waiting and the pace the round before it set has passed in a tier-2 slice of a pass given whole, after an aged step or a build, only once tier 1's and SRP's records are served (THE TIERS in [`ctrl_loop.h`](../loop/ctrl_loop.h), #894); beside held work a round is a queue's first notice alone, tier 1's (`retry_first`, set again only once that round's notice is sent).
+A round spends what its pass has left of THE SHARE at `AECP_ROUND_COLD_US` once, `AECP_NOTICE_US` a notice and `AECP_ATTEMPT_US` a refused attempt, and starts no attempt with less than a notice's time left (`aecp.c`, `scan`), so it puts no pass over the share.
+The first two are the line over every round the CPU budget harness measured, plus 5 %, and the harness fails any round dearer than its notices and refused attempts at those costs ([`round_grade.py`](../../../../tb/verilator/ctrl_service_budget/round_grade.py)).
+A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
+While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
+So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
+A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 130 ms at 1x1/1if (decision D's 125 ms, rounded up to the next 5 ms from the last queued notice's row by every source after #908's cuts, by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2; `queued_bound.py`) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+`aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, the owed-notice queue holds one, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
 
-[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
+**The owed-notice queue** (#894; IEEE 1722.1-2021 7.5.2 and 9.3.5.4, Milan v1.2 5.4.5.1 and 5.4.5.2).
+With `cfg.owed` and `cfg.owed_slots` set, a command whose notice fits a slot (`AECP_OWED_BYTES`) commits its response in the record's turn and queues the notice with its requester (`owe`), so `aecp_ready` takes the next record while the notice is owed; it is false while every slot holds one.
+`aecp_poll` sends the queue's oldest notice, one a poll and after any response, before the response buffer's own; a notice longer than a slot stays in the response buffer behind the queue, as every notice stood before the queue.
+A slot holds the largest legal AECPDU, 550 octets (a control_data_length of 524, IEEE 1722.1-2021 9.2.2.6), rounded up to 552, so every legal command's notice is queued (#894, the [owner's decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6843318273), option A); `Queued.ABurstOfTheLargestLegalNoticesIsQueued` takes the AECP burst of 16 such commands with no poll between them.
+A longer notice is a command past that length that the core still answers (up to `AECP_MAP_PAGE` mappings).
+So the notices go out in the order their commands were taken, each recipient's sequence_id one on per notice, and each after the response of the command that caused it (Milan v1.2 5.4.5.2). The queue changes only when the next record is taken: what each notice holds and whom it goes to are as before, and a command that waits on its apply (`AECP_WAITS`) or a START/STOP keeps its notice in the response buffer.
+`AECP_MBX_OWED_SLOTS` is the AECP burst at 1x1/1if; 8x8/2if's sram has no room for the slots, so AECP holds its next record behind an owed notice there, as before.
+An integrator gives the queue its operations (`cfg.queue`, `aecp_owed_queue`) with its slots, and `aecp_init` refuses slots without them; where `AECP_MBX_OWED_SLOTS` is 0 it names neither, so the image links none of the queue's code (`--gc-sections`).
+`Queued.*` in [`test_aecp.cpp`](../test/test_aecp.cpp) and [`aecp_owed_notices.feature`](../../../../tests/features/aecp_owed_notices.feature) cover two controllers' back-to-back state-changing commands; [`aecp_owed_mutants.py`](../test/aecp_owed_mutants.py) plants a defect against each condition.
+A notice goes to every recipient through the fan port, whose record mover is still reading one frame as the next recipient's is written, and one completion stands for the whole fan-out.
+The notice is built once; each recipient's frame is only addressed, its destination MAC, its interface's source MAC, its controller_entity_id and its own sequence_id written in place, and the walk steps through each interface's used registrations by their mask (`aecp.c`, `fan_out` and `address`; #665, IEEE 1722.1-2021 7.5.2, Milan v1.2 5.4.5.1).
+Backpressure retains the completed snapshot and its remaining recipients.
+A frame the fan port reports lost, its record mover's move having failed (`AECP_FAN_LOST`, from the fan after it or from `fan_end` for the last; `mbx.h`), is owed the same way: the notice resumes at that frame's recipient, at the sequence_id it did not have, and no completion is kept for a lost last frame (#665).
+A refusal is not a loss: `AECP_FAN_REFUSED` means the frame before it was delivered, so a ring with no room for a frame resumes the notice at that frame's recipient, not the one before, and a queue with no room for the completion leaves the notice owed past its last recipient, with no frame sent again.
+`fan_end` keeps the completion only for a walk that reached its last recipient (its `whole`): a walk left owed at a recipient, lost or refused there, keeps none, and the resumed walk's end keeps the notice's one completion, so a counter notice's holdoff starts when its last frame leaves (#665; Milan v1.2 5.4.5.2).
+The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
+`aecp_open` relinks every row, so what was set before the open is seen.
+`aecp_find` answers from an index of the model's keys that `aecp_init` builds (`aecp.runs`, `aecp_index`): a configuration's descriptors of one type, held as one run from index 0, are found at their position, and a key outside the indexed configurations and types of IEEE 1722.1-2021 Table 7-1, or placed otherwise, is scanned for as before (#665). The firmware never changes a key after `aecp_init`; the self-test's cases that do rebuild the index with the change, and its fixture fails any case that leaves `aecp_find` answering differently from a scan.
+
+[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel, one timer slot and THE RETRY's client with its pace, and is refused when the loop already has one. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
 adapter retains completion cookies until the final frame words retire and reads
 the clock then. A stale clock observation cannot move the completion time back.
@@ -179,7 +208,90 @@ and a non-default one each come back across the store's power cycle
 ([#763](https://github.com/kebag-logic/milan-fpga/issues/763); Milan v1.2
 5.3.9.1, 5.3.10.1). Live format changes cannot orphan
 existing mappings. Map partitioning follows advertised geometry and output
-stream/channel ownership is global across output ports. An accepted default-valued
+stream/channel ownership is global across output ports. An ADD or
+REMOVE_AUDIO_MAPPINGS decodes each mapping once and holds it in a table by its
+key, a slot a key, so its mappings, its port's map and every other output
+port's map are each one pass of lookups
+([#904](https://github.com/kebag-logic/milan-fpga/issues/904)). Its work is
+linear in its mappings and the rows it reads, refused or not ([#894's egress
+ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126),
+item 3): a mapping its port's geometry refuses ends the table, as an ADD's
+earlier conflict does, since its own turn refuses the edit; a REMOVE's other
+values of a key are linked from the key's first, so no lookup walks a run of
+one key's values; and a key's slot is its position in the port's key domain
+([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042),
+item 1): its stream or cluster times the most channels a key's stream or
+cluster has, plus its channel, so no two keys share one at any geometry the
+builder accepts. The domain is the build's shape, which
+[`aecp_shape.py`](aecp_shape.py) reads from the image's descriptors
+(`key_domain`, `AECP_ENTITY_KEY_*` in `aecp_entity_gen.h`): at an output port
+every STREAM_OUTPUT and the channels of each format it advertises, at an input
+port each of its clusters and its channels. A static assertion holds the
+table's declared slots to every position the index forms, the most streams or
+clusters times the most channels, so a table that would overflow is refused at
+compile time (the AECP campaign's `map-table-each-direction-alone` plants one).
+Apart from that bound, the table keeps at least the 256 slots it held before, a
+layout choice ([#909](https://github.com/kebag-logic/milan-fpga/issues/909)):
+the edit's stack frame stays where every measured cost was taken (the domain's
+64 slots at 1x1/1if move it 192 B and the largest legal command's record from
+91,625 CPU cycles to 98,720, by the data cache). A mapping its port's geometry refuses is refused at its
+turn as before, and so is one whose key lies outside the domain, which no
+format or cluster of the build lets a legal mapping do, so no such key forms
+an index; a map row outside it holds no mapping's key. Each mapping's checks
+still run in its turn, an output mapping's port read first, so an edit
+answers, changes its map and reads the port as its pairwise definition does:
+`Core.MapEditsAreTheirDefinitionRowForRow` holds it to that definition over
+seeded edits; `Core.EveryAcceptedMapKeyIsItsOwn` adds and removes every key a
+port accepts, in commands of 63 mappings, and `Core.EveryKeyOfTheDomainIsItsOwn`
+every position of the domain, each key held as its own;
+`Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn` holds the domain's edge;
+and `Core.MapEditWorkIsLinearInItsMappings`, in a work arm that counts each
+slot and held mapping a lookup visits (`AECP_MAP_WORK`), holds the collision
+and conflict cases of 8, 16, 32 and 63 mappings to twice their mappings and
+rows, under n(n+1)/2. The work arm also runs `Core.EveryAcceptedMapKeyIsItsOwn`
+at every checked-in configuration and at two wider geometries the builder
+accepts, 16 talkers of 4 channels and 16 of up to 32
+([`aecp_arms.py`](../test/aecp_arms.py), `KEY_GEOMETRIES`), each edit within
+twice its mappings and rows. [`aecp_map_mutants.py`](../test/aecp_map_mutants.py)
+plants a defect in each pass, indices that collide, a domain one channel
+wide and a table smaller than the domain, which the build refuses, and a walk
+of a key's values and a scan of the table, which change no
+outcome and only the count refuses. A one-row edit's record is cut to what its
+mappings read ([#894's round 11](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878230332)):
+the edit clears only the domain's slots, and each mapping's link, marks and
+occurrences at its turn in the table; a REMOVE looks up only the rows of its
+port's map from the first equal to a held mapping to one past the last, which
+its FOUND pass holds, keeping the rows before in place and moving those after
+down; and a mapping is copied a coordinate at a time, never by a call of
+`memcpy`. `Core.MapEditWorkReadsOnlyWhatItCleared` starts each of the work
+arm's edits from the table an earlier one left (`stale`, in that arm alone),
+`Core.MapCommandsEchoTheirDescriptorAndPage` holds the commands' echo of their
+descriptor and page, and the plant table plants each. An edit that is checked paces AECP's next record
+(THE PACE, `aecp_mbx.h`): the core stamps the edit's time, and the adapter's
+rx-ready gate holds the channel's next record in its ring, never dropped,
+until `AECP_PACE_MS` after it, by the core's clock, which each pass's poll
+moves on. `Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone` holds the
+pace, and the same plant table plants a defect in it. SET_CONFIGURATION's
+record is cut to what it uses ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236)):
+its running check still observes every stream of the configuration in force,
+first, but briefly (`aecp_stream_info.brief`): bound and running are all it
+uses, so the face reads one GSI word a stream, selector 0, the proof that its
+window answers, where it read six. An input bound or an output streaming still
+answers STREAM_IS_RUNNING, a SET naming the index in force included, and an
+observation the window does not answer still ENTITY_MISBEHAVING (Milan v1.2
+5.4.2.5; IEEE 1722.1-2021 7.4.7). Its change names whether the index moved
+(`changed`'s index, 1 or 0), and the face writes the configuration's stream
+entries only then: a SET naming the index in force, the first of which sets
+its override, commits the settings alone. Statuses, their order and the notify
+rule are unchanged. An accepted SET_CONFIGURATION costs a paced record's, so
+it is paced as a checked edit is: the core stamps its time.
+`Core.TheRunningCheckObservesEveryStreamBriefly`,
+`Core.AConfigurationChangeNamesWhetherItsIndexMoved`,
+`Face.TheRunningCheckReadsOneWindowWordAStream`,
+`Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries` and
+`Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace` hold each, and
+[`aecp_configuration_mutants.py`](../test/aecp_configuration_mutants.py)
+plants a defect in each. An accepted default-valued
 SET still establishes a persistent override. Store dirty marks are queued for
 later polling. The reserved system-ID/media-clock-reference saved spans remain
 erased; system unique ID is volatile until a record-format decision is made.
@@ -204,7 +316,10 @@ No reserved message type is interpreted as an AEM command.
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
-each source defect to fail its named assertion in a completed run. It plants into
+each source defect to fail its named assertion in a completed run; it appends the
+descriptor index's and the event and registration lists' defects from
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), and THE RETRY's from
+[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
@@ -316,7 +431,7 @@ The service tests count mailbox accesses from one original arrival/due time,
 including fanout, stalls and deferred failure, then add fixed CPU/observation
 allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
-and the 10 ms local service target. The HDCP refusal path also checks the
+and the 20 ms local service bound. The HDCP refusal path also checks the
 15 ms response deadline from IEEE 9.7.2.7. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit
 100 ns access/observation and 1 ms CPU allowances. Target calibration, complete

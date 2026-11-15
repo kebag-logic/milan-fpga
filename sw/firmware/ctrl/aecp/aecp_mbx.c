@@ -8,17 +8,41 @@ static uint16_t tx_count(uint32_t reg)
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
 }
 
+// A completion is kept for a notice's last frame alone, of a walk that reached its last recipient (fan_end): only a
+// counter notice waits on one.
 static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len, uint32_t cookie)
 {
+	(void)ctx;
+	(void)cookie;
+	return mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) == MBX_STATUS_OK;
+}
+
+// A record the mover failed to move is reported for itself (mbx_tx_begin, #665): the frame before this one lost.
+static enum aecp_fan fan(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
+{
+	(void)ctx;
+	const enum mbx_status status = mbx_tx_begin(MBX_CH_AECP, interface, frame, (uint16_t)len);
+	return status == MBX_STATUS_OK ? AECP_FAN_TAKEN : status == MBX_STATUS_LOST ? AECP_FAN_LOST : AECP_FAN_REFUSED;
+}
+
+// What the last fan call started, and the completion of the notice it ended: none for a last frame not committed,
+// and none for a walk left owed at a recipient, whose notice is not yet delivered (#665; Milan v1.2 5.4.5.2).
+static enum aecp_fan fan_end(void *ctx, uint32_t cookie, bool whole)
+{
 	struct aecp_mbx *m = ctx;
-	if (m->completion_count == AECP_MBX_COMPLETIONS ||
-	    mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) != MBX_STATUS_OK) {
-		return false;
+	if (!mbx_tx_commit(MBX_CH_AECP)) {
+		return AECP_FAN_LOST;
+	}
+	if (!whole) {
+		return AECP_FAN_TAKEN;
+	}
+	if (m->completion_count == AECP_MBX_COMPLETIONS) {
+		return AECP_FAN_REFUSED;
 	}
 	unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;
 	m->completions[n] = (struct aecp_mbx_completion){cookie, tx_count(MBX_CH_REG_TX_HEAD)};
 	++m->completion_count;
-	return true;
+	return AECP_FAN_TAKEN;
 }
 
 static uint32_t now(void *ctx)
@@ -113,8 +137,10 @@ bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 	m->slot = timer_slot;
 	m->environment = environment;
 	m->ports = (struct aecp_ports){m, send, now, random_value, timer,
-		stream, avb, path, counters, changed, start, format, available_index, applied};
-	return aecp_init(&m->core, cfg, &m->ports);
+		stream, avb, path, counters, changed, start, format, available_index, applied, fan, fan_end};
+	bool ok = aecp_init(&m->core, cfg, &m->ports);
+	m->core.edited_ms = 0u - AECP_PACE_MS; // no edit yet: the pace is open from the first millisecond
+	return ok;
 }
 
 static void frame(void *ctx, const struct mbx_frame *f)
@@ -123,10 +149,12 @@ static void frame(void *ctx, const struct mbx_frame *f)
 	aecp_rx(&m->core, f->interface, f->bytes, f->len);
 }
 
+// THE PACE (aecp_mbx.h): the channel's next record waits in its ring until AECP_PACE_MS after an edit was taken, by
+// the core's clock, which each pass's poll moves on.
 static bool ready(void *ctx)
 {
 	struct aecp_mbx *m = ctx;
-	return aecp_ready(&m->core);
+	return aecp_ready(&m->core) && (uint32_t)(m->core.now - m->core.edited_ms) >= AECP_PACE_MS;
 }
 
 static void event(void *ctx, const struct mbx_event *e)
@@ -162,11 +190,46 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
+// THE RETRY's client (ctrl_loop.h, #665): what the pass has left holds the round, and fewer notices while records wait.
+static bool retry(void *ctx, unsigned left_us)
+{
+	struct aecp_mbx *m = ctx;
+	struct ctrl_loop *l = m->loop;
+	const uint32_t sent = m->core.tx_cookie;
+	const unsigned yield = l->retry_firm ? AECP_ROUND_FIRM_NOTICES : AECP_ROUND_YIELD_NOTICES;
+	// beside tier-1 records or THE DRAIN's, the round is a queue's first notice alone, tier 1's (THE TIERS, #894)
+	const unsigned most = l->round_one ? 1u : l->backlog ? yield : AECP_NOTICES_MOST;
+	bool owed = aecp_retry(&m->core, most, (int32_t)left_us - (int32_t)AECP_ROUND_COLD_US);
+	// a round that built beside records spends a yield, and a queue served to its end starts the next with them all
+	m->yields = owed ? m->yields + (l->backlog && m->core.tx_cookie != sent ? 1u : 0u) : 0u;
+	l->retry_firm = m->yields + 1u > AECP_ROUND_YIELDS;
+	l->retry_queued = owed;
+	// the next notice is a queue's first once the queue is served to its end, until a round sends one
+	l->retry_first = !owed || (l->retry_first && m->core.tx_cookie == sent);
+	return owed;
+}
+
+// THE RETRY's pace, which the loop reads as each pass given whole starts.
+static bool retry_aged(void *ctx)
+{
+	struct aecp_mbx *m = ctx;
+	struct ctrl_loop *l = m->loop;
+	return aecp_retry_aged(&m->core, l->backlog && !l->retry_firm ? AECP_ROUND_YIELD_PACE_MS : AECP_ROUND_PACE_MS);
+}
+
 bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 {
-	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS) {
+	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS ||
+	    !ctrl_loop_set_retry(l, retry, retry_aged, m)) {
 		return false;
 	}
+	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it
+	m->core.retry_hold = true;
+	m->core.notice_us = AECP_NOTICE_US;
+	l->retry_firm = AECP_ROUND_YIELDS == 0u;
+	l->retry_first = true;
+	// AECP's records are tier 1's first (THE TIERS, #894)
+	l->first_ch = MBX_CH_AECP + 1u;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_AECP, frame, m);

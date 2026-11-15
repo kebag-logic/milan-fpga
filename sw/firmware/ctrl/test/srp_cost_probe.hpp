@@ -23,8 +23,11 @@ int observed_send(void* ctx,uint8_t port,const uint8_t* pdu,size_t len) {
     const int result=probe.send(probe.ctx,port,padded.data(),padded.size());
     const auto accesses=srp_probe.model->reads+srp_probe.model->writes-before;
     EXPECT_EQ(result,0);
-    EXPECT_EQ(accesses,2u+MBX_TX_HDR_WORDS+(padded.size()+14u+3u)/4u)
-        << "real send callback has only the TX record accesses";
+    // the TX_HEAD write, and a TX_TAIL read only when the room the last one showed runs short (mbx_tx_begin)
+    EXPECT_GE(accesses,1u+MBX_TX_HDR_WORDS+(padded.size()+14u+3u)/4u)
+        << "real send callback has the TX record's accesses";
+    EXPECT_LE(accesses,2u+MBX_TX_HDR_WORDS+(padded.size()+14u+3u)/4u)
+        << "real send callback has only the TX record's accesses";
     EXPECT_LE(accesses,SRP_MBX_TX_MAX) << "real send callback maximum";
     srp_probe.accesses+=accesses;
     ++srp_probe.sends;

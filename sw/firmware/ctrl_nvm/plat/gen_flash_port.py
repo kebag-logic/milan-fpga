@@ -33,20 +33,23 @@ THE RULES, each a named refusal (RULES below):
                  bit each and distinct;
   flash window   the window is mapped once, at the size of the part and of
                  the device milan_soc.py describes (FLASH_SIZE);
-  journal        the SoC publishes the journal milan_soc.py reserves
-                 (FLASHBOOT_RESERVED), and the store is built with that
-                 journal (nvm_bench.py reads the same literal). It is two
-                 slots, each one erase block, the A/B geometry
-                 scripts/check_nvm_record_space.py sizes every container
-                 against (check 5), aligned and inside the device;
-  slots          the journal overlaps no image slot (FLASHBOOT_LAYOUT: the
-                 bitstream and the AEM), no other reserved slot, and no image
-                 the SoC publishes (milan_flashboot_*_offset/_size);
+  journal        the SoC publishes the split placement's journal milan_soc.py
+                 reserves (FLASHBOOT_RESERVED journal_klj3, #823), and the
+                 store is built with that journal (nvm_bench.py reads the
+                 same literal). It is two slots of whole erase blocks, the A/B
+                 geometry of a KLJ3 container, aligned and inside the device.
+                 The SoC also publishes today's journal as milan_soc.py
+                 reserves it (journal, the all-fabric placement's KLJ2), whose
+                 two headers the store reads at boot and never writes;
+  slots          the store's journal overlaps no image slot
+                 (FLASHBOOT_LAYOUT: the bitstream and the AEM), no other
+                 reserved slot (today's journal included), and no image the
+                 SoC publishes (milan_flashboot_*_offset/_size);
   clock          the SoC publishes the clock timer0 counts.
 
 The port's own guard (ls_in_journal) refuses a program or an erase outside
-MILAN_FLASH_JOURNAL_OFFSET/SIZE; these rules are why those constants, in the
-image that links the port, are the journal of the SoC the image runs on.
+MILAN_FLASH_JOURNAL_KLJ3_OFFSET/SIZE; these rules are why those constants, in
+the image that links the port, are the journal of the SoC the image runs on.
 
 Usage:
     python3 sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv EXPORT/csr.csv \\
@@ -249,22 +252,28 @@ def rule_window(export: Export) -> list[str]:
 
 
 def journal(export: Export) -> tuple[int | None, int | None]:
-    """The journal the SoC publishes: its offset and size, None where absent."""
-    return number(export, "milan_flash_journal_offset"), number(export, "milan_flash_journal_size")
+    """The store's journal the SoC publishes: its offset and size, None where absent."""
+    return number(export, "milan_flash_journal_klj3_offset"), number(export, "milan_flash_journal_klj3_size")
 
 
 def rule_journal(export: Export) -> list[str]:
-    """The SoC's journal is milan_soc.py's, two one-erase-block slots, aligned and inside the device."""
+    """The SoC's journal is milan_soc.py's journal_klj3, two slots of whole erase blocks, aligned and inside the
+    device; and the SoC's today's journal is milan_soc.py's, the one the store reads and never writes."""
     offset, size = journal(export)
-    reserved = literal("FLASHBOOT_RESERVED")["journal"]
+    reserved = literal("FLASHBOOT_RESERVED")
     if offset is None or size is None:
-        return ["csr.csv publishes no milan_flash_journal_offset and _size"]
+        return ["csr.csv publishes no milan_flash_journal_klj3_offset and _size"]
     found = []
-    if (offset, size) != (reserved["offset"], reserved["size"]):
-        found.append(f"the SoC's journal {offset:#x}+{size:#x} is not milan_soc.py's "
-                     f"{reserved['offset']:#x}+{reserved['size']:#x}, which the store is built with")
-    if size != 2 * FIXED.ERASE_BLOCK:
-        found.append(f"the journal is {size:#x} bytes, not two {FIXED.ERASE_BLOCK:#x}-byte slots")
+    mine, todays = reserved["journal_klj3"], reserved["journal"]
+    if (offset, size) != (mine["offset"], mine["size"]):
+        found.append(f"the SoC's journal {offset:#x}+{size:#x} is not milan_soc.py's journal_klj3 "
+                     f"{mine['offset']:#x}+{mine['size']:#x}, which the store is built with")
+    legacy = (number(export, "milan_flash_journal_offset"), number(export, "milan_flash_journal_size"))
+    if legacy != (todays["offset"], todays["size"]):
+        found.append(f"the SoC publishes today's journal as {legacy}, not milan_soc.py's "
+                     f"{todays['offset']:#x}+{todays['size']:#x}, whose headers the store reads")
+    if size <= 0 or size % (2 * FIXED.ERASE_BLOCK):
+        found.append(f"the journal is {size:#x} bytes, not two slots of whole {FIXED.ERASE_BLOCK:#x}-byte blocks")
     if offset % literal("FLASH_ERASE_BLOCK"):
         found.append(f"the journal at {offset:#x} is not erase-block aligned")
     if offset + size > literal("FLASH_SIZE"):
@@ -290,7 +299,7 @@ def rule_slots(export: Export) -> list[str]:
         return []
     others = {name: (e["offset"], e["size"]) for name, e in literal("FLASHBOOT_LAYOUT").items()}
     others.update((name, (e["offset"], e["size"])) for name, e in literal("FLASHBOOT_RESERVED").items()
-                  if name != "journal")
+                  if name != "journal_klj3")
     others.update(published_images(export))
     return [f"the journal {offset:#x}+{size:#x} overlaps {name} {start:#x}+{length:#x}"
             for name, (start, length) in sorted(others.items())
@@ -389,7 +398,8 @@ GOOD_CSV = {
                   "timer0_value": (0xF000_3010, 1, "ro")},
     "constants": {"config_clock_frequency": "100000000", "config_csr_data_width": "32",
                   "spiflash_module_total_size": "16777216", "milan_flash_journal_offset": "15597568",
-                  "milan_flash_journal_size": "131072", "milan_flashboot_aem_offset": "4194304",
+                  "milan_flash_journal_size": "131072", "milan_flash_journal_klj3_offset": "14942208",
+                  "milan_flash_journal_klj3_size": "655360", "milan_flashboot_aem_offset": "4194304",
                   "milan_flashboot_aem_size": "65536"},
     "regions": {"spiflash": [(0x0100_0000, 16_777_216)], "csr": [(0xF000_0000, 65_536)]},
     "fields": {"PHYCONFIG_LEN": (0, 8), "PHYCONFIG_WIDTH": (8, 4), "PHYCONFIG_MASK": (16, 8),
@@ -474,8 +484,11 @@ PLANTS: tuple[tuple[str, str, Callable[[dict], None]], ...] = (
     ("no flash window", "flash window", _drop(("regions", "spiflash"))),
     ("an 8 MiB flash window", "flash window", _set(("regions", "spiflash"), [(0x0100_0000, 8_388_608)])),
     ("a window off its alignment", "flash window", _set(("regions", "spiflash"), [(0x0180_0000, 16_777_216)])),
-    ("no journal published", "journal", _drop(("constants", "milan_flash_journal_size"))),
+    ("no journal published", "journal", _drop(("constants", "milan_flash_journal_klj3_size"))),
     ("the journal one block lower than milan_soc.py's", "journal",
+     _set(("constants", "milan_flash_journal_klj3_offset"), str(0xE3_0000))),
+    ("today's journal not published", "journal", _drop(("constants", "milan_flash_journal_size"))),
+    ("today's journal one block lower than milan_soc.py's", "journal",
      _set(("constants", "milan_flash_journal_offset"), str(0xED_0000))),
     ("no clock published", "clock", _drop(("constants", "config_clock_frequency"))),
 )
@@ -511,21 +524,24 @@ class Tally:
 #: journal, so only the geometry and the overlaps can refuse it. The user slot runs to the end of the device, so
 #: a journal past the device overlaps it too.
 RESERVED_PLANTS = (
-    ("a one-slot journal", 0xEE_0000, 0x1_0000, {"journal"}),
-    ("a journal off its erase block", 0xED_8000, 0x2_0000, {"journal"}),
-    ("a journal past the device", 0xFF_0000, 0x2_0000, {"journal", "slots"}),
-    ("a journal over the AEM slot", 0x40_0000, 0x2_0000, {"slots"}),
-    ("a journal over the bitstream", 0x3F_0000, 0x2_0000, {"slots"}),
-    ("a journal over the user slot", 0xF0_0000, 0x2_0000, {"slots"}),
+    ("a one-block journal", 0xE4_0000, 0x1_0000, {"journal"}),
+    ("a journal of three blocks", 0xE4_0000, 0x3_0000, {"journal"}),
+    ("a journal off its erase block", 0xE3_8000, 0xA_0000, {"journal"}),
+    ("a journal past the device", 0xFF_0000, 0xA_0000, {"journal", "slots"}),
+    ("a journal over the AEM slot", 0x40_0000, 0xA_0000, {"slots"}),
+    ("a journal over the bitstream", 0x3F_0000, 0xA_0000, {"slots"}),
+    ("a journal over today's journal", 0xE8_0000, 0xA_0000, {"slots"}),
+    ("a journal over the user slot", 0xF0_0000, 0xA_0000, {"slots"}),
 )
 
 
 def doctored_literal(real: Callable[[str], object], offset: int, size: int) -> Callable[[str], object]:
-    """milan_soc.py's literals as `real` reads them, with FLASHBOOT_RESERVED's journal moved."""
+    """milan_soc.py's literals as `real` reads them, with FLASHBOOT_RESERVED's journal_klj3 moved."""
     def read(name: str) -> object:
-        """One literal; FLASHBOOT_RESERVED with the journal at offset, size."""
+        """One literal; FLASHBOOT_RESERVED with journal_klj3 at offset, size."""
         value = real(name)
-        return {**value, "journal": {"offset": offset, "size": size}} if name == "FLASHBOOT_RESERVED" else value
+        return ({**value, "journal_klj3": {"offset": offset, "size": size}} if name == "FLASHBOOT_RESERVED"
+                else value)
     return read
 
 
@@ -534,7 +550,7 @@ def reserved_plants(tally: Tally, work: Path) -> None:
     unchanged; and an image the SoC publishes over the journal."""
     real = literal
     for label, offset, size, expected in RESERVED_PLANTS:
-        constants = {"milan_flash_journal_offset": str(offset), "milan_flash_journal_size": str(size)}
+        constants = {"milan_flash_journal_klj3_offset": str(offset), "milan_flash_journal_klj3_size": str(size)}
         export = export_of(planted(lambda spec, c=constants: spec["constants"].update(c)), work, label)
         globals()["literal"] = doctored_literal(real, offset, size)
         try:
@@ -544,7 +560,7 @@ def reserved_plants(tally: Tally, work: Path) -> None:
             globals()["literal"] = real
         tally.check(rules == expected and not without,
                     f"{label} is refused by {sorted(expected)} and by no other rule ({sorted(rules)})")
-    spec = planted(_set(("constants", "milan_flashboot_spare_offset"), str(0xEF_0000)))
+    spec = planted(_set(("constants", "milan_flashboot_spare_offset"), str(0xE5_0000)))
     spec["constants"]["milan_flashboot_spare_size"] = str(0x1_0000)
     rules = {name for name, _text in findings(export_of(spec, work, "published"))}
     tally.check(rules == {"slots"}, f"a published image over the journal is refused by rule 'slots' ({sorted(rules)})")

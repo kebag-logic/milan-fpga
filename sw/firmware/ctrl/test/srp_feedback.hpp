@@ -360,7 +360,7 @@ TEST_F(SrpFeedback, EarlierSinkTransientRefusalKeepsDeliveryAwake) {
     ASSERT_TRUE(app.srp_requests[0].pending);
     ASSERT_FALSE(app.srp_requests[1].pending);
     EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "earlier refusal keeps delivery awake";
-    calloc_before_failure=-1; settle(); expect_stream(0);
+    recover(); settle(); expect_stream(0);
 }
 
 TEST_F(SrpFeedback, DiscoveredWithdrawalMeasuresTheFundedPath) {

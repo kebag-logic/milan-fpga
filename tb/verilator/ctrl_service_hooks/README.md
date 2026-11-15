@@ -14,6 +14,7 @@ Its contract is the [S5 assignment](https://github.com/kebag-logic/milan-fpga/is
 
 - **The bound.** T_svc = 20 ms (owner, 2026-10-29). [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) at this base still reads the proposed 10 ms; its approved text arrives with #810. Each path is graded against min(T_svc, its family's ceiling), per [the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075): 18 ms for SRP, 20 ms for every other hook. A path with a normative wait W is bounded by W plus that.
 - **The bounds at this base.** Those are the bounds in the tree at this PR's base, and every verdict below is theirs. [The maintainer's decisions of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), [answered for this lane](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6682851386), amend two of them, and those amendments arrive with #810: SRP/MRP becomes T_svc = 20 ms, and a notice queued behind others gets a bound derived at its point's recipients, 16 per AVB interface (Milan v1.2 5.3.4.2), at most 20 ms at 1x1 and 60 ms at 8x8. So this PR changes no numerical grading rule. The tables add one column of the amended bounds, for information, and this harness re-grades when #810 merges.
+- **With #810's bounds in the tree.** Merged into lane S2b's branch (#810), this harness reads that lane's bounds: SRP's ceiling in `scenario.CEILING_MS` is T_svc, so H-SRP is graded at 20 ms plus its W, and the self-test pins that. The verdicts and figures below are this harness's at its own base and were not re-graded at the merged head. The H-NOTIFY plants take their anchors in `aecp.c`'s `fan_out`, where #810 moved the notification loop.
 - **The clock.** The split CPU's product clock is 100 MHz, the SoC's `sys` clock, which is also its bus clock ([the owner's decision of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)). That decision supersedes the 50 MHz Milan clock that [the correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508196970) named as the product's. Every hook is graded at 100 MHz. This base's `MilanSoC` still drives the CPU from the Milan clock; lane S2b (#810) moves it to `sys`. The 50 MHz figures are history: the clock stays selectable, labelled so, and is never graded as the product's.
 - **The firmware.** `dev-soft-core` as it is: S2b's firmware cuts are not merged.
 
@@ -51,7 +52,7 @@ python3 -B tb/verilator/ctrl_service_hooks/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one interface, the shipping shape.
 `8x8` is `endstation_ax7101_8x8` with two, the largest.
-At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, owed to lane S14.
+At `8x8`, and only there, the image and the SoC's memory plan name the ledgered point `platform-8x8-two-interfaces`, which plans 59.0 RAMB36 by [the ruling of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821) on #665, and 59.5 since the control loop's tiers (#894, [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6839847820)), owed to lane S14.
 
 `--cpu-clock` names the CPU clock: `sys`, the product's 100 MHz, by default, or `milan`, the 50 MHz history clock. The bus stays at 100 MHz.
 `--arm answering` runs the labelled answering-face arm ([The SoC and the testbench](#the-soc-and-the-testbench)), the only arm with H-COUNTERS.
@@ -149,7 +150,7 @@ A late plant spins 120,000 turns in the hook's service path, each a load and a s
 | `acmp-order` | `acmp_mbx.c` `on_frame`: a command is held and taken after the next | `hooks-order-acmp` | `ORDER H-ACMP` |
 | `aecp-late` | `aecp_mbx.c` `frame`: spins before `aecp_rx` | `hooks-late-aecp` | `LATE H-AECP` on `hooks-late-aecp.read_descriptor.if0` |
 | `aecp-order` | `aecp_face.c` `changed` defers the publication to the face's poll, and `aecp.c` no longer waits for it | `aecp` | `ORDER H-AECP` |
-| `notify-late` | `aecp.c` `transmit`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` on `hooks-late-notify.set_name.if0` |
+| `notify-late` | `aecp.c` `fan_out`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` on `hooks-late-notify.set_name.if0` |
 | `notify-order` | `aecp.c` `transmit`: the notifications are sent before the owed response | `aecp-fanout` | `ORDER H-NOTIFY` |
 | `counters-late` | `ctrl_app_aecp.c` `face_event`: spins on COUNTERS_CHANGED | `hooks-counters` | `LATE H-COUNTERS` on `counters.first.if0` |
 | `counters-order` | `aecp.c` `asynchronous`: the 1 s spacing after a counter push's departure is dropped | `hooks-counters` | `ORDER H-COUNTERS` |
@@ -209,7 +210,7 @@ Then it replaces each rule in turn, and a named check must fail:
 | Mutant | Caught by |
 |---|---|
 | bound: a stale T_svc of 10 ms | bounds pinned |
-| bound: SRP graded against T_svc alone | an 18 to 20 ms SRP path misses |
+| bound: SRP graded against its earlier 18 ms ceiling | an SRP path is held to T_svc |
 | bound: the ceiling alone | bounds pinned |
 | bound: the normative wait is not added | the exact bound fits and W adds |
 | bound: the margin is taken from a timeout of zero | the exact bound fits and W adds |

@@ -7,15 +7,21 @@
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
-#                    six planted RTL defects (one per leaf, one in the
-#                    filter's tuple and one in the publication block), each
-#                    of which must redden the check it names (mutants.py --quick)
+#                    twelve planted RTL defects (one per leaf, one in the
+#                    skeleton, one in the filter's tuple, one in the
+#                    publication block, one in the face block and one per
+#                    timing cut of #870), each of which must redden the check
+#                    it names (mutants.py --quick)
 #   make census    - the publication census over milan_datapath as the pinned
 #                    sv2v and Yosys elaborate it (both on PATH, or named by
 #                    $SV2V and $YOSYS) in every shape the builder builds, its
 #                    planted defects and each rule removed; CI runs it in
 #                    rtl-fast's publication-census job, so it is not in `make`
 #   make mutants   - every planted RTL defect, after both positive controls
+#   make run-dma   - the split placement's record mover (KL_mbx_dma) on its
+#                    own bench (dma_main.cpp)
+#   make dma-mutants - run-dma, then the mover's planted defects
+#                    (dma_mutants.py); part of `make`
 #   make clean     - remove build artifacts
 #
 # The RTL list is the mailbox's own, package first. RTL_DIR is overridable so
@@ -38,7 +44,9 @@ CONTRACT_INC := $(abspath $(ROOT))/sw/firmware/ctrl/mbx
 
 # -Werror-USERERROR: an elaboration $error is a failed build, never a warning.
 # -Werror-PINMISSING / -Werror-UNDRIVEN: a dropped binding is refused by name.
-VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
+# -GBENCH_P=1: tb_mbx_top's noise on the host port between requests and its
+# receive-side probes (#870); the out-of-context area recipe builds it without
+VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) -GBENCH_P=1 \
          -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
          -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CONTRACT_INC)"
@@ -68,8 +76,9 @@ FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
 CC     ?= cc
 AR     ?= ar
 
-.PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
-all: run-wb run-axil run-cosim run-if2 mutants-quick
+.PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean \
+        run-dma dma-mutants print-dma-vflags
+all: run-wb run-axil run-cosim run-if2 mutants-quick dma-mutants
 
 # The publication census (#665, comments 6092086337, 6094461419, 6097292237
 # and 6100024293): the block must carry every value the split datapath
@@ -144,6 +153,24 @@ run-if2: if2-gen | stack-pin
 	./$(IF2)/obj_axil/Vmbx_axil 1
 	./$(IF2)/Vmbx_model
 
+# The record mover (#665, owner decision 2026-10-29) is its own top: the bench
+# answers its host port and its DMA port with models, so no mailbox is built,
+# and tb_mbx_top's BENCH_P is no parameter of its.
+DMA_RTL    = $(RTL_DIR)/KL_mbx_pkg.sv $(RTL_DIR)/KL_mbx_dma.sv
+DMA_VFLAGS = $(subst -GBENCH_P=1,,$(subst --top-module $(TOP),--top-module KL_mbx_dma,$(VFLAGS)))
+
+run-dma:
+	$(VERILATOR) $(DMA_VFLAGS) --Mdir obj_dma $(DMA_RTL) dma_main.cpp -o Vmbx_dma
+	@echo "======================================================================"
+	./obj_dma/Vmbx_dma
+
+# run-dma is the positive control of the mover's planted defects
+dma-mutants: run-dma
+	python3 -B dma_mutants.py
+
+print-dma-vflags:
+	@printf '%s\n' $(VERILATOR) $(DMA_VFLAGS)
+
 # run-wb and run-axil are this arm's positive controls, hence the prerequisites
 mutants-quick: run-wb run-axil
 	python3 -B mutants.py --quick
@@ -156,4 +183,4 @@ print-vflags:
 	@printf '%s\n' $(VERILATOR) $(VFLAGS)
 
 clean:
-	rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2
+	rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2 obj_dma

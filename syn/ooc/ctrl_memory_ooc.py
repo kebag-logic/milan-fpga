@@ -10,7 +10,13 @@ writes a Vivado script that synthesises every top out of context at the
 shipping part and directive and records its block RAM, LUT and flip-flop
 counts. A missing ROM image is an error, never an empty memory.
 
-    python3 syn/ooc/ctrl_memory_ooc.py <directory> TAG=ELF [TAG=ELF ...]
+An image past the 56-RAMB36 budget is refused, as every SoC build refuses
+it. `--ledgered TAG=POINT` plans TAG's image at a ledgered point's tiles
+(`ctrl_memory.LEDGERED`, as `ctrl_plat_image.py --ledgered-point` links it),
+so the ledger can map that point; the override is refused on any other image
+(#665 S9, the firmware and block RAM ledger of MARK_II_AREA_PLAN.md).
+
+    python3 syn/ooc/ctrl_memory_ooc.py <directory> TAG=ELF [TAG=ELF ...] [--ledgered TAG=POINT]
     cd <directory> && vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
 
 Run it with the LiteX interpreter; the Vivado step writes ctrl_memory_ooc.tsv.
@@ -89,18 +95,32 @@ def image(text: str) -> tuple[str, Path]:
     return tag, Path(path)
 
 
+def ledgered(text: str) -> tuple[str, str]:
+    """TAG=POINT, POINT a ctrl_memory.LEDGERED name."""
+    tag, sep, point = text.partition("=")
+    if not sep or not tag.isidentifier() or point not in ctrl_memory.LEDGERED:
+        raise argparse.ArgumentTypeError(f"{text!r} is not TAG=POINT with POINT in {sorted(ctrl_memory.LEDGERED)}")
+    return tag, point
+
+
 def main(argv: list[str] | None = None) -> int:
     """Emit both regions of every image, their plans and the Vivado script."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("directory", type=Path)
     ap.add_argument("images", type=image, nargs="+", metavar="TAG=ELF")
+    ap.add_argument("--ledgered", type=ledgered, action="append", default=[], metavar="TAG=POINT",
+                    help="plan TAG's image at the ledgered point's tiles; refused on any other image")
     args = ap.parse_args(argv)
+    points = dict(args.ledgered)
+    stray = sorted(set(points) - {tag for tag, _ in args.images})
+    if stray:
+        ap.error(f"--ledgered names no image: {stray}")
     args.directory.mkdir(parents=True, exist_ok=True)
     plans, tops = {}, []
     try:
         for tag, elf in args.images:
             linked = ctrl_memory.read_elf(elf)
-            plan = ctrl_memory.plan(linked)
+            plan = ctrl_memory.plan(linked, ledgered=points.get(tag))
             plans[tag] = plan.summary()
             for region, banks, words in ((ctrl_memory.ROM, plan.rom_banks, ctrl_memory.rom_words(linked)),
                                          (ctrl_memory.RAM, plan.ram_banks, None)):

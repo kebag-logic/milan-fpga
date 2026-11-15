@@ -122,8 +122,9 @@ class Plant:
 SPIN = '\tfor (volatile uint32_t n = 0; n < 120000u; ++n) {\n\t}\n'
 
 
-#: The notification loop of aecp.c's transmit; the late plant spins once before a fan-out's first recipient.
-NOTIFY_LOOP = '\twhile (a->notify && a->recipient < a->cfg.interfaces * AECP_REGISTRATIONS) {'
+#: The notification loop of aecp.c's fan_out, which transmit calls while a notice is owed, its cursor `at` (the
+#: owed-notice queue's or the response buffer's, #894); the late plant spins once before a fan-out's first recipient.
+NOTIFY_LOOP = '\tunsigned k = *at;\n\twhile (!owed && k < total) {'
 
 
 def late(path: str, anchor: str, group: str, hook: str, probe: str) -> Plant:
@@ -182,14 +183,15 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'the commands of one controller are answered in their arrival order, the owed responses first in first out '
          '(MAILBOX_SPLIT.md, ACMP service latency)',
          'acmp_order',
-         late('acmp/acmp_mbx.c', '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}', 'hooks-late-acmp',
+         late('acmp/acmp_mbx.c', '\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n', 'hooks-late-acmp',
               'H-ACMP', 'hooks-late-acmp.get_rx_state.if0'),
          Plant((('acmp/acmp_mbx.c',
-                 '\tstruct acmp_mbx *m = ctx;\n\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}',
+                 '\tstruct acmp_mbx *m = ctx;\n\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n'
+                 '\t\treturn;\n\t}\n',
                  '\tstruct acmp_mbx *m = ctx;\n\tstatic struct mbx_frame held;\n\tstatic bool holding;\n'
                  '\tif (!holding) {\n\t\theld = *f;\n\t\tholding = true;\n\t\treturn;\n\t}\n'
-                 '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n\tholding = false;\n'
-                 '\tacmp_rx(&m->acmp, held.interface, held.bytes, held.len);\n}'),),
+                 '\tholding = false;\n\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n'
+                 '\t\t(void)acmp_rx(&m->acmp, held.interface, held.bytes, held.len);\n\t\treturn;\n\t}\n'),),
                'hooks-order-acmp', 'ORDER H-ACMP')),
     Hook('H-AECP', ('aecp',), 'IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4',
          'every face value a response promises is committed before that response (ARCHITECTURE_HW_SW_SPLIT.md '
@@ -199,8 +201,8 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          late('aecp/aecp_mbx.c', '\taecp_rx(&m->core, f->interface, f->bytes, f->len);\n}', 'hooks-late-aecp',
               'H-AECP', 'hooks-late-aecp.read_descriptor.if0'),
          Plant((('aecp/aecp_face.c',
-                 '\t\t\tpublish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);',
-                 '\t\t\tf->owed[i] = true;'),
+                 '\t\t\tpublish(f, i, settings, i == home ? stream : NULL, every);',
+                 '\t\t\tf->owed[i] = true; (void)every;'),
                 ('aecp/aecp.c', '((AECP_WAITS >> cmd) & 1u) != 0u && !applied(a)) {',
                  '((AECP_WAITS >> cmd) & 1u) != 0u && false) {')),
                'aecp', 'ORDER H-AECP')),
@@ -208,21 +210,11 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'the successful command\'s response is committed before any of its notifications (Milan v1.2 5.4.5.2; '
          'IEEE 1722.1-2021 7.5.2; FR_NFR.md 3.4.1)',
          'response_before_notice',
-         Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (a->notify && a->recipient == 0u) {\n' + SPIN.replace('\t', '\t\t')
+         Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (*at == 0u) {\n' + SPIN.replace('\t', '\t\t')
                  + '\t}\n' + NOTIFY_LOOP),), 'hooks-late-notify', 'LATE H-NOTIFY',
                probe='hooks-late-notify.set_name.if0'),
-         Plant((('aecp/aecp.c', 'static bool transmit(struct aecp *a)\n{\n\tif (a->response_owed) {\n',
-                 'static bool transmit(struct aecp *a)\n{\n\tstatic uint8_t solicited[AECP_FRAME_BYTES];\n'
-                 '\tstatic size_t solicited_bytes;\n\tstatic unsigned solicited_interface;\n\tstatic bool reorder;\n'
-                 '\tif (a->response_owed && a->notify && !reorder) {\n'
-                 '\t\tmemcpy(solicited, a->response, a->response_bytes);\n'
-                 '\t\tsolicited_bytes = a->response_bytes;\n\t\tsolicited_interface = a->response_interface;\n'
-                 '\t\treorder = true;\n\t}\n\tif (a->response_owed && !reorder) {\n'),
-                ('aecp/aecp.c', '\t\t++a->recipient;\n\t}\n\ta->notify = false;\n\treturn false;\n}',
-                 '\t\t++a->recipient;\n\t}\n\ta->notify = false;\n\tif (reorder) {\n'
-                 '\t\tmemcpy(a->response, solicited, solicited_bytes);\n\t\ta->response_bytes = solicited_bytes;\n'
-                 '\t\ta->response_interface = solicited_interface;\n\t\tif (!send(a)) {\n\t\t\treturn true;\n\t\t}\n'
-                 '\t\treorder = false;\n\t\ta->response_owed = false;\n\t}\n\treturn false;\n}')),
+         Plant((('aecp/aecp.c', 'return respond(a) || notices(a, drains);',
+                 'return notices(a, drains) || respond(a);'),),
                'aecp-fanout', 'ORDER H-NOTIFY')),
     Hook('H-COUNTERS', ('notify',), 'Milan v1.2 5.4.5.2, Table 5.22; 5.3.7.7, 5.3.8.10',
          'a descriptor\'s counter pushes to one recipient leave at least 1 s apart at the wire, and a change '

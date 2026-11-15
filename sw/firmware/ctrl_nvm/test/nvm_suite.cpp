@@ -8,7 +8,7 @@
 //     num NAME VALUE
 //     list NAME VALUE...
 //     blob NAME FILE            the file's bytes
-//     payloads NAME FILE        records of [id u8][length u16 LE][payload]
+//     payloads NAME FILE        records of [id u16 LE][length u16 LE][payload]
 //     text NAME WORDS...        a label, the rest of the line
 //
 // written by nvm_fixture.py. A missing directory or entry fails every test
@@ -41,10 +41,10 @@ Bytes read_file(const std::string& path, std::string* error) {
 Payloads decode_payloads(const Bytes& raw) {
     Payloads out;
     std::size_t at = 0;
-    while (at + 3u <= raw.size()) {
-        const unsigned rid = raw[at];
-        const std::size_t n = raw[at + 1u] | (static_cast<std::size_t>(raw[at + 2u]) << 8);
-        at += 3u;
+    while (at + 4u <= raw.size()) {
+        const unsigned rid = raw[at] | (static_cast<unsigned>(raw[at + 1u]) << 8);
+        const std::size_t n = raw[at + 2u] | (static_cast<std::size_t>(raw[at + 3u]) << 8);
+        at += 4u;
         out[rid] = Bytes(raw.begin() + static_cast<std::ptrdiff_t>(at),
                          raw.begin() + static_cast<std::ptrdiff_t>(at + n));
         at += n;

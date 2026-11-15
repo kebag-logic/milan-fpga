@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -541,13 +541,18 @@ The pin checker reads Git index entries.
 
 It does not trust checked-out heads.
 
-Issue #665 adopts stack pin `70936b77`.
+Issue #665 adopts stack pin `715589c1`.
 
 | Stack PR | Parent-visible result |
 |---|---|
 | [19](https://github.com/kebag-logic/tsn-c-stack/pull/19) | ADP discovery rejects frames shorter than 82 bytes, unsupported versions and control-data lengths other than 56 |
 | [20](https://github.com/kebag-logic/tsn-c-stack/pull/20) | Standalone entity generation; the parent retains its existing descriptor generator |
 | [25](https://github.com/kebag-logic/tsn-c-stack/pull/25) | Valid talker destinations declare after a fresh probe or with a registered Listener |
+| [29](https://github.com/kebag-logic/tsn-c-stack/pull/29) (issue 27) | `wire_put_be` packs its value in two 32-bit halves, so the split platform calls no `__lshrdi3` |
+| [30](https://github.com/kebag-logic/tsn-c-stack/pull/30) | The stack's one-line message rule exempts the merge of 29; no source change |
+| [28](https://github.com/kebag-logic/tsn-c-stack/pull/28) (issue 26) | A command behind the full owed set is declined, not dropped; the ACMP adapter keeps it and offers it again after an accepting poll |
+| [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
+| [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 
@@ -579,9 +584,9 @@ Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 tsn-c-stack uses HTTPS and needs no credentials.
 
-The pin is the merge of tsn-c-stack PR 25 on `main`.
+The pin is the merge of tsn-c-stack PR 34 on `main`.
 
-The previous pin remains reachable through its publication tag.
+The previous pin, `70936b77`, is its ancestor on `main`.
 
 The current pin includes #19's `src/adp.c` discovery refusals.
 
@@ -589,7 +594,7 @@ It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/LICENSE).
 
 The unused external import uses SSH.
 
@@ -634,7 +639,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

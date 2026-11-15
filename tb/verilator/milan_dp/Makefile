@@ -38,6 +38,9 @@
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
 #   make twin-plants - its twenty plants, each refused by its own words
+#   make srptx  - #867: the split build's SRP transmit path at the wire, three
+#                 scenarios and two off-grid controls graded by srptx_grade.py;
+#                 srptx-plants and srptx-mutants plant each check's defect
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -903,8 +906,9 @@ TWIN_GFLAGS = -GRXFILT_P=0 -GGPTP_PLANE_EN_P=0
 .PHONY: twin-fw build-twin-af exec-twin-af build-twin-sp exec-twin-sp build-twin twin twin-plants
 TWIN_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_AX1_F))ULL $$(cat $(TWIN_FW)/cflags)
 
+TWIN_FW_ARGS ?=
 twin-fw: stack-pin
-	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED) $(TWIN_FW_ARGS)
 
 $(TWIN_AF_MDIR)/aemi.bin: $(TWIN_CFG)
 	python3 ../../../sw/builder/endstation_builder.py $(TWIN_CFG) -o $(TWIN_AF_MDIR)/aem-build
@@ -920,9 +924,15 @@ exec-twin-af:
 	@mkdir -p $(TWIN_OUT)
 	./$(TWIN_AF_MDIR)/Vmilan_dp_twin_af $(TWIN_AF_MDIR)/aemi.bin $(TWIN_OUT)/fabric.json
 
+# #867: the split half's binary also runs the SRP transmit path (srptx.hpp,
+# --srptx). The linker wraps lwSRP's boundary calls and the adapter's init, so
+# the bench sees lwSRP's own output, its timers and its participants without an
+# edit to the adapter; each wrapper passes straight through outside --srptx.
+SRPTX_WRAPS = -Wl,--wrap=mrp_transmit,--wrap=mrp_rx,--wrap=mrp_port_configure,--wrap=shlan_timer_arm,--wrap=shlan_timer_tick,--wrap=srp_mbx_init
 build-twin-sp: twin-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
-	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" \
+	  -LDFLAGS "$(SRPTX_WRAPS) $(abspath $(TWIN_FW))/libtwinfw.a" \
 	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin_sp
 
 exec-twin-sp:
@@ -977,6 +987,42 @@ twin-plants: build-twin
 	  python3 -B twin_compare.py $(TWIN_OUT)/fabric-$$p.json $(TWIN_OUT)/split.json --plant $$p \
 	    --baseline $(TWIN_OUT)/report.json; \
 	done
+
+# #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
+# (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP transmit ring, KL_mbx_tx,
+# the crossing, ctl_tx_mux and the MAC. Three scenarios, each graded by
+# srptx_grade.py, exit 1 on any finding: wire (the twin's stimulus to 600 s),
+# hold (the MAC refusing every beat until the SRP ring is full) and licence (the
+# #608 case, under the fixture srptx.hpp names). srptx-plants plants each check's
+# defect into a copy of a capture; srptx-mutants plants it in the code.
+# The off-grid controls run the licence scenario with the peer's LeaveAll at each
+# ms of SRPTX_OFF_GRID, off lwSRP's 100 ms periodic grid. lwSRP answers it after a
+# Join expiry that found nothing to send: a requested transmit opportunity, not
+# the Join timer's, and each must grade clean.
+SRPTX_OUT ?= obj_srptx
+SRPTX_SCENARIOS = wire hold licence
+SRPTX_OFF_GRID = 16280 16240
+.PHONY: srptx srptx-plants srptx-mutants $(addprefix exec-srptx-,$(SRPTX_SCENARIOS)) \
+	$(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID))
+srptx: build-twin-sp
+	$(MAKE) --no-print-directory $(addprefix exec-srptx-,$(SRPTX_SCENARIOS)) \
+	  $(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID))
+
+$(addprefix exec-srptx-,$(SRPTX_SCENARIOS)): exec-srptx-%:
+	@mkdir -p $(SRPTX_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --srptx $* $(SRPTX_OUT)/$*.json
+	python3 -B srptx_grade.py $(SRPTX_OUT)/$*.json --report $(SRPTX_OUT)/$*-report.json
+
+$(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID)): exec-srptx-off-grid-%:
+	@mkdir -p $(SRPTX_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --srptx licence $(SRPTX_OUT)/licence-$*.json --peer-leave-all-ms $*
+	python3 -B srptx_grade.py $(SRPTX_OUT)/licence-$*.json --report $(SRPTX_OUT)/licence-$*-report.json
+
+srptx-plants: srptx
+	python3 -B srptx_plants.py $(SRPTX_OUT)
+
+srptx-mutants:
+	python3 -B srptx_mutants.py
 
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk
@@ -1108,4 +1154,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT)
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)

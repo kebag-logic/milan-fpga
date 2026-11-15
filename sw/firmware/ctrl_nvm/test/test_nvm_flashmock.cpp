@@ -116,12 +116,12 @@ Bytes with_word(Bytes image, std::size_t at, std::uint32_t v) {
 
 TEST(NvmFlashMock, reads_differ_in_verdict) {
     const Bytes& golden = fx().blob("golden@5");
-    ASSERT_GT(golden.size(), static_cast<std::size_t>(NVM_KLJ2_HDR));
+    ASSERT_GT(golden.size(), static_cast<std::size_t>(NVM_KLJ_HDR));
     MockNvmFlash flash;
     Medium m;
-    // a refusal VD_MAGIC, then one VD_VER, then the slot clean: header and
-    // container, then the re-stage of the slot chosen
-    m.slot_a = {with_word(golden, 0, 0x314A4C4Bu), with_word(golden, 4, 3u << 16), golden, golden, golden};
+    // a refusal VD_MAGIC, then one VD_VER (the next major), then the slot
+    // clean: header and container, then the re-stage of the slot chosen
+    m.slot_a = {with_word(golden, 0, 0x314A4C4Bu), with_word(golden, 4, 4u << 16), golden, golden, golden};
     m.serve(flash);
     nvm_smodel_reset();
     nvm_store_boot(flash.port(), &nvm_smodel_port);
@@ -136,20 +136,20 @@ TEST(NvmFlashMock, reads_differ_in_verdict) {
 TEST(NvmFlashMock, reads_agree_in_digest_not_length) {
     const Bytes& golden = fx().blob("golden@5");
     const std::uint32_t len = static_cast<std::uint32_t>(golden.size());
-    ASSERT_GT(len, NVM_KLJ2_MIN + 8u);
+    ASSERT_GT(len, NVM_KLJ_MIN + 8u);
     MockNvmFlash flash;
     Medium m;
     // read one: the container with its trailer broken (VD_CRC); its digest is
     // the register over the header read and the container read
     Bytes broken = golden;
     broken.back() ^= 0x01u;
-    const Bytes head_one(broken.begin(), broken.begin() + NVM_KLJ2_HDR);
+    const Bytes head_one(broken.begin(), broken.begin() + NVM_KLJ_HDR);
     const std::uint32_t digest = crc_run(crc_run(0xFFFFFFFFu, head_one), broken);
     // read two: IMG_LEN four bytes shorter, the last four bytes forged so the
     // register over its 40 + len - 4 bytes is the same digest
     Bytes shorter = with_word(golden, 16, len - 4u);
     shorter.resize(len - 4u);
-    const Bytes head_two(shorter.begin(), shorter.begin() + NVM_KLJ2_HDR);
+    const Bytes head_two(shorter.begin(), shorter.begin() + NVM_KLJ_HDR);
     const Bytes body(shorter.begin(), shorter.end() - 4);
     const Bytes tail = forge(crc_run(crc_run(0xFFFFFFFFu, head_two), body), digest);
     std::copy(tail.begin(), tail.end(), shorter.end() - 4);

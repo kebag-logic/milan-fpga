@@ -24,11 +24,14 @@ from pathlib import Path
 import acmp_mutants
 import ctrl_arms
 import fw_gtest
+import maap_gate_mutants
+import mbx_dma_mutants
 import plat_arms
+import loop_step_mutants
 import plat_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
-from ctrl_mutant import ACMP_C, ADP_C, Mutant
+from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -72,8 +75,12 @@ LOOP_OPEN = ("\tmbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_EN
              "\t\t       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));\n"
              "\tmbx_tick_enable(l->n_ticks > 0u);\n\tmbx_filter_open(open);\n")
 
+#: ctrl_loop_service's polls and THE STEP after them.
 #: The model arm's test of one suite group.
 MODEL_GROUP = "Suite/MbxModelGroup.PassesOnTheModel/"
+#: The room the driver reads TX_TAIL for, once the room the last read showed runs short.
+TX_ROOM = ("\t\tt->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));\n\t\tused = (uint16_t)(head - t->tail);\n"
+           "\t\tif (used > words || record > words - used) {\n")
 #: The same with the pool bound only once the mailbox is open.
 APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
     "\tshlan_port_bind_pool(&app->pool);\n"
@@ -211,20 +218,36 @@ MUTANTS = (
            "\t(void)mbx_link_up(0);\n\tmbx_timer_arm(i->slot, i->tag, mbx_now_ms() + delay_ms);",
            "adp", "AdpLatency.C0toC6EveryResponsePath",
            "C0 LINK_UP -> TMR_DELAY armed"),
+    # portable C11 (#665: the firmware ports to a hard core): a compiler extension back in the SRP adapter, and the
+    # platform header's fallback for the pool's link
+    Mutant("portable-attribute-in-the-srp-adapter", "srp/srp_mbx.c", "static CTRL_CC_NOINLINE bool same(",
+           "static __attribute__((noinline)) bool same(", "portable", ctrl_arms.PORTABLE_CHECK,
+           "srp/srp_mbx.c:"),
+    Mutant("portable-fallback-link-unwritten", "plat/ctrl_cc.h", "\tmemcpy(at, &value, sizeof value);\n",
+           "\t(void)at;\n\t(void)value;\n", "portable", "Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes",
+           "P10 then the one freed before it"),
+    Mutant("pool-link-unwritten", "port/ctrl_pool.c", "\t\tctrl_cc_ptr_store(ptr, bin->free_head);\n", "",
+           "port", "Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes", "P10 then the one freed before it"),
     Mutant("pool-free-leaks", "port/ctrl_pool.c", "\t\tbin->free_head = ptr;\n\t\tbin->free_count++;",
            "\t\tbin->free_count++;", "port", "Pool.P2ReleaseAndBadFrees", "P2 a released block"),
     Mutant("calloc-overflow-unchecked", "port/ctrl_pool.c", "if (nmemb != 0u && bytes > SIZE_MAX / nmemb) {",
            "if (nmemb == 0u) {", "port", "Pool.P3CallocZeroesAndRefusesAWrap", "P3 calloc refuses"),
     Mutant("pool-double-free-accepted", "port/ctrl_pool.c",
-           "if (offset % bin->stride != 0u || bin->used[index] == 0u) {",
-           "if (offset % bin->stride != 0u) {", "port", "Pool.P2ReleaseAndBadFrees", "P2 a double free"),
+           "if (within != 0u || bin->used[index] == 0u) {",
+           "if (within != 0u) {", "port", "Pool.P2ReleaseAndBadFrees", "P2 a double free"),
     Mutant("debug-truncation-uncounted", "port/ctrl_debug.c", "\t\ttruncated++;\n", "",
            "port", "DebugSink.S2TruncatedToTheLine", "S2 the truncation"),
     Mutant("tick-count-ignored", "loop/ctrl_loop.c", "for (uint32_t k = 0; k < count; ++k) {",
            "for (uint32_t k = 0; k < (count != 0u ? 1u : 0u); ++k) {",
            "port", "Loop.L4TickFanOut", "L4 every centisecond"),
-    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c", "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {",
-           "for (unsigned k = 0; k < 64u; ++k) {", "port", "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
+    # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
+    # CTRL_LOOP_RX_PER_PASS records (#665)
+    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
+           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL || l->rx_held || "
+           "(int32_t)(stop - l->clock(l->clock_ctx)) < 0)) {\n"
+           "\t\t\tbreak;\n\t\t}\n",
+           "(void)most;\n\t(void)stop;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound",
+           "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",
            "E1 the loop does not sleep while a frame is owed"),
@@ -234,10 +257,9 @@ MUTANTS = (
            "F2 all 16 event records are taken by pass",
            (("acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F1 every event is taken by pass 2"),)),
     Mutant("rx-before-events", "loop/ctrl_loop.c",
-           "\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n",
-           "\tunsigned work = 0;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n"
+           "\tunsigned work = service_events(l);\n\tl->backlog = false;\n",
+           "\tunsigned work = 0;\n\tl->backlog = false;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline);\n\t\t}\n\t}\n"
            "\twork += service_events(l);\n", "adp", "AdpBacklog.F0toF7FullBacklogs", "F1 events first"),
     Mutant("carried-ticks-overwritten", "loop/ctrl_loop.c", "l->ticks_owed += ev.tick_count;",
            "l->ticks_owed = ev.tick_count;",
@@ -253,12 +275,13 @@ MUTANTS = (
            "\tmbx_filter_open(open);\n\tmbx_filter_set_own_eid(entity_id);\n",
            "port", "LoopBring.L1OpenOrder", "L1 OWN_EID is written before"),
     Mutant("rx-no-resync", "mbx/mbx.c",
-           "\trx_tail[ch] = head;\n\tmbx_hal_write32(ch_reg(ch, MBX_CH_REG_RX_TAIL), head);",
+           "\trx_tail[ch] = head;\n\tmbx_bus_write32(ch_reg(ch, MBX_CH_REG_RX_TAIL), head);",
            "\t(void)ch;\n\t(void)head;", "port", "Driver.D1MalformedRecordResynchronises",
            "D1 and the ring is resynchronised",
            (("unit", "Records/DriverMalformed.D7RefusedAndResynchronised/",
              "and the ring is resynchronised to RX_HEAD"),)),
-    Mutant("tx-overfills", "mbx/mbx.c", "record > tx_words[ch] - used", "record > tx_words[ch] - used + 23u",
+    Mutant("tx-overfills", "mbx/mbx.c", TX_ROOM,
+           TX_ROOM.replace("record > words - used", "record > words - used + 23u"),
            "port", "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
            "D3 a held merge fills the ring"),
     Mutant("lanes-big-endian", "mbx/mbx_wire.h", "\t\tword |= (uint32_t)p[i] << (8u * i);",
@@ -273,6 +296,14 @@ MUTANTS = (
            "\treturn __builtin_malloc(size);", "port", "Pool.P4ShlanFunctionsDrawOnTheBoundPool",
            "P4 shlan_malloc and shlan_calloc draw on the bound pool",
            (("rv32", "", "symbols outside the C library"),)),
+    # tsn-c-stack#27: the per-byte form, a variable 64-bit shift for every byte
+    Mutant("wire-put-be-shifts-64-bits", WIRE_H,
+           ("\tuint32_t high = (uint32_t)(value >> 32);\n\tuint32_t low = (uint32_t)value;\n"
+            "\tfor (unsigned i = bytes; i > 0u; --i) {\n\t\tp[i - 1u] = (uint8_t)low;\n"
+            "\t\tlow = (low >> 8) | (high << 24);\n\t\thigh >>= 8;\n\t}\n"),
+           ("\tfor (unsigned i = 0; i < bytes; ++i) {\n"
+            "\t\tp[i] = (uint8_t)(value >> (8u * (bytes - 1u - i)));\n\t}\n"),
+           "platrv32", "", "the 64-bit shift helper (tsn-c-stack#27)"),
     Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
            "\tif (ch->tokens == 0u && false) {",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 the frames past it count in RATE_DROP"),
@@ -342,11 +373,10 @@ MUTANTS = (
     Mutant("step-waits-twice", "loop/ctrl_loop.c", "\t\tmbx_hal_wait();\n",
            "\t\tmbx_hal_wait();\n\t\tmbx_hal_wait();\n",
            "unit", "LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed", "U3 every turn is one pass"),
-    Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
-           "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
+    Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
+           "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
            "unit", "DriverUnit.D6MaapRangeWritten", "D6 MAAP_BASE_LO holds the base's low word"),
-    Mutant("tx-negative-fill", "mbx/mbx.c", "if (used > tx_words[ch] || record > tx_words[ch] - used) {",
-           "if (record > tx_words[ch] - used) {",
+    Mutant("tx-negative-fill", "mbx/mbx.c", TX_ROOM, TX_ROOM.replace("used > words || ", ""),
            "unit", "DriverUnit.D8TransmitRefusals", "D8 a TX_TAIL more than a ring behind TX_HEAD is no room"),
     Mutant("unknown-event-decoded-as-tick", "mbx/mbx.c", "\t} else if (ev->type == MBX_EV_TYPE_TICK) {",
            "\t} else if (ev->type == MBX_EV_TYPE_TICK || ev->type > MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
@@ -370,11 +400,91 @@ MUTANTS = (
     Mutant("attach-ignores-poll-room", "adp/adp_mbx.c", "&&\n\t       ctrl_loop_add_poll(l, on_poll, m);",
            "&&\n\t       (ctrl_loop_add_poll(l, on_poll, m) || true);",
            "unit", "AdpAdapterUnit.B4LoopWithNoRoomRefused", "B4 a loop with no room for the poll is refused"),
-    Mutant("mmio-offset-as-index", "plat/mbx_plat_mmio.c", "(uintptr_t)(CTRL_MBX_BASE) + byte_offset)",
+    Mutant("mmio-offset-as-index", "plat/mbx_mmio.h", "(uintptr_t)(CTRL_MBX_BASE) + byte_offset)",
            "(uintptr_t)(CTRL_MBX_BASE) + byte_offset / 4u)",
            "unit", "MmioPlatform.M1OneWordAtBasePlusOffset", "M1 a write lands in the word at base + offset"),
     Mutant("wait-without-wfi", "plat/mbx_plat_mmio.c", "\tCTRL_MBX_WFI();\n", "",
            "unit", "MmioPlatform.M2WaitIsThePlatformWfi", "M2 each mbx_hal_wait() waits once"),
+    # ---- #665: the driver's whole ring words, and its accesses made in place on the window ----
+    Mutant("mbx-rx-word-to-frame-start", "mbx/mbx.c",
+           "ring_lanes_store4(mbx_bus_read32(base + 4u * (at & mask)), p);",
+           "ring_lanes_store4(mbx_bus_read32(base + 4u * (at & mask)), f->bytes);",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 RX"),
+    Mutant("mbx-tx-aligned-word-from-frame-start", "mbx/mbx.c",
+           "mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(p));",
+           "mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(frame));",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("ring-load-word-lanes-rotated", "mbx/mbx_wire.h",
+           "\treturn *(const uint32_t *)(const void *)p;\n",
+           "\tuint32_t word = *(const uint32_t *)(const void *)p;\n\treturn word << 8 | word >> 24;\n",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("ring-pack-word-lanes-swapped", "mbx/mbx_wire.h",
+           "return (uint32_t)p[0] | ((uint32_t)p[1] << 8)",
+           "return (uint32_t)p[1] | ((uint32_t)p[0] << 8)",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("mbx-window-read-elsewhere", "mbx/mbx.c", "\treturn mbx_mmio_read32(byte_offset);\n",
+           "\treturn mbx_mmio_read32(byte_offset ^ 4u);\n",
+           "unit", "MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset",
+           "M3 the driver opens on the window's ID and CAPS"),
+    Mutant("mbx-window-write-elsewhere", "mbx/mbx.c", "\tmbx_mmio_write32(byte_offset, value);\n",
+           "\tmbx_mmio_write32(byte_offset ^ 4u, value);\n",
+           "unit", "MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset", "M3 and released at RX_TAIL"),
+    # ---- #665: the pool's block index by a shift, or a divide for any other stride ----
+    Mutant("pool-shift-one-off", "port/ctrl_pool.c", "\t\treturn offset >> bin->shift;\n",
+           "\t\treturn offset >> (bin->shift + 1u);\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 every taken block's flag is set, stride 64"),
+    Mutant("pool-shift-within-dropped", "port/ctrl_pool.c", "\t\t*within = offset & (bin->stride - 1u);\n",
+           "\t\t*within = 0u;\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 a free into the middle of a block is refused, stride 64"),
+    Mutant("pool-divide-within-dropped", "port/ctrl_pool.c", "\t*within = offset - index * bin->stride;\n",
+           "\t*within = 0u;\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 a free into the middle of a block is refused, stride 48"),
+    Mutant("pool-calloc-members-dropped", "port/ctrl_pool.c", "\tif (nmemb != 1u) {\n", "\tif (nmemb == 0u) {\n",
+           "port", "Pool.P3CallocZeroesAndRefusesAWrap", "P3 calloc hands out a zeroed block, even a reused one"),
+    # ---- #665: the platform's word-wide memcpy, memmove and memset (plat/ctrl_mem.c) ----
+    Mutant("mem-merge-lanes-swapped", "plat/ctrl_mem.c", "store(d, (prev >> lo) | (w0 << hi));",
+           "store(d, (prev << lo) | (w0 >> hi));",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-move-direction-swapped", "plat/ctrl_mem.c", "if ((uintptr_t)dst - (uintptr_t)src >= n) {",
+           "if ((uintptr_t)src - (uintptr_t)dst >= n) {",
+           "unit", "CtrlMem.W2MemmoveEveryOverlap", "W2 memmove byte"),
+    Mutant("mem-move-merge-lanes-swapped", "plat/ctrl_mem.c", "store(d, (w >> lo) | (prev << hi));",
+           "store(d, (w << hi) | (prev >> lo));",
+           "unit", "CtrlMem.W2MemmoveEveryOverlap", "W2 memmove byte"),
+    Mutant("mem-move-reads-below-source", "plat/ctrl_mem.c",
+           "static void *backward(void *dst, const void *src, size_t n)\n{\n",
+           "static void *backward(void *dst, const void *src, size_t n)\n{\n"
+           "\t(void)*((const volatile unsigned char *)src - 1);\n",
+           "unit", "CtrlMem.W4NoAccessOutsideEitherRange", "crashed on signal"),
+    Mutant("mem-set-half-fill", "plat/ctrl_mem.c", "\tfill |= fill << 16;\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-copy-reads-past-source", "plat/ctrl_mem.c",
+           "static void *forward(void *dst, const void *src, size_t n)\n{\n",
+           "static void *forward(void *dst, const void *src, size_t n)\n{\n"
+           "\t(void)*((const volatile unsigned char *)src + n);\n",
+           "unit", "CtrlMem.W4NoAccessOutsideEitherRange", "crashed on signal"),
+    Mutant("mem-compare-words-unequal", "plat/ctrl_mem.c", "misalignment(x) == 0u && load(x) == load(y)) {",
+           "misalignment(x) == 0u && load(x) != load(y)) {",
+           "unit", "CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition", "W6 memcmp"),
+    Mutant("mem-compare-sign-reversed", "plat/ctrl_mem.c", "\t\t\treturn *x - *y;\n", "\t\t\treturn *y - *x;\n",
+           "unit", "CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition", "W6 memcmp"),
+    Mutant("mem-copy-returns-source", "plat/ctrl_mem.c", "\treturn forward(dst, src, n);\n}\n\nvoid *memmove",
+           "\t(void)forward(dst, src, n);\n\treturn (void *)(uintptr_t)src;\n}\n\nvoid *memmove",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W5 memcpy returns dst"),
+    # the bulk turns and the bit steps after them (#665, 2026-10-29)
+    Mutant("mem-copy-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\t\tstore(d + 28, w7);\n", "\t\t\tstore(d + 24, w7);\n",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-halfword-dropped", "plat/ctrl_mem.c", "store_half(d, load_half(s));",
+           "(void)load_half(s);",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-byte-dropped", "plat/ctrl_mem.c", "\t\t\t*d = *s;\n", "",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-set-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\tstore(d + 28, fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-steps-overlap", "plat/ctrl_mem.c", "\t\td += 16;\n\t}\n", "\t}\n",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-halfword-dropped", "plat/ctrl_mem.c", "\t\tstore_half(d, (uint16_t)fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
     # ---- #665 lane FC: the full-tuple filter on the model, one defect per rule, the RTL arms' twins ----
     # 1. tagged frames never reach a mailbox: a front end that strips a C-tag
     #    before the filter, and the RTL arm's twin, a TPID taken for any EtherType
@@ -454,16 +564,16 @@ MUTANTS = (
            "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
     # the firmware's side: the own MAC per interface, the counter, the bring-up order
     Mutant("own-mac-unguarded", "mbx/mbx.c",
-           "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_hal_write32(iff_reg",
-           "\tmbx_hal_write32(iff_reg", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+           "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_bus_write32(iff_reg",
+           "\tmbx_bus_write32(iff_reg", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
            "D11 an interface past the contract's is refused"),
     Mutant("own-mac-halves-swapped", "mbx/mbx.c",
            "mbx_place((uint32_t)mac, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
            "mbx_place((uint32_t)(mac >> 32), MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
            "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount", "D11 OWN_MAC_LO holds MAC[31:0]",
            (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 an AEM_COMMAND to it on interface 0 passes"),)),
-    Mutant("mismatch-read-from-bus-err", "mbx/mbx.c", "mbx_hal_read32(MBX_REG_FILTER_MISMATCH)",
-           "mbx_hal_read32(MBX_REG_BUS_ERR)", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+    Mutant("mismatch-read-from-bus-err", "mbx/mbx.c", "mbx_bus_read32(MBX_REG_FILTER_MISMATCH)",
+           "mbx_bus_read32(MBX_REG_BUS_ERR)", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
            "D11 FILTER_MISMATCH is read as its COUNT field",
            (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 FILTER_MISMATCH reads the one tuple failure"),)),
     Mutant("own-mac-after-the-channels-open", "loop/ctrl_loop.c", LOOP_OWN_MAC + LOOP_OPEN, LOOP_OPEN + LOOP_OWN_MAC,
@@ -508,61 +618,10 @@ def unnamed_tests() -> list[str]:
 
 
 MUTANTS += maap_mutants(Mutant)
+MUTANTS += mbx_dma_mutants.MUTANTS
 MUTANTS += plat_mutants.mutants(Mutant)
-
-MUTANTS += (
-    Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",
-           "m->published_gate[interface] = declaring(m, interface, count, valid);",
-           "refresh_demand(m); m->published_gate[interface] = declaring(m, interface, count, valid);",
-           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
-           "declaration query stays outside MAAP callbacks"),
-    Mutant("f3b-composition-owner", "app/ctrl_app.c",
-           "cfg->acmp != NULL ? &app->acmp.acmp : NULL", "NULL",
-           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
-           "composed mailbox publishes the accepted probe demand"),
-    Mutant("f3b-idle-tick", "app/ctrl_app.c",
-           "mbx_tick_enable(true);", "mbx_tick_enable(false);",
-           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
-           "service tick wakes an idle platform for freshness expiry"),
-    Mutant("f3b-config-interval", "acmp/acmp_mbx.c",
-           "config.da_fresh_ms = 15000u;", "config.da_fresh_ms = 0u;",
-           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
-           "mailbox composition supplies the Milan freshness interval"),
-    Mutant("f3b-fresh-probe-arm", ACMP_C,
-           "s->answered || s->listener_registered", "false || s->listener_registered",
-           "maap", "MaapHost.DaGateFreshProbeDeclaresOnlyItsSource",
-           "fresh probe opens only its configured source"),
-    Mutant("f3b-listener-arm", ACMP_C,
-           "s->answered || s->listener_registered", "s->answered || false",
-           "maap", "MaapHost.DaGateListenerDeclaresWithoutProbe",
-           "registered Listener opens the gate without a probe"),
-    Mutant("f3b-no-demand-arm", ACMP_C,
-           "s->answered || s->listener_registered", "s->answered || s->listener_registered || true",
-           "maap", "MaapHost.DaGateWithoutDemandStaysClosed",
-           "neither probe nor Listener keeps the gate closed"),
-    Mutant("f3b-source-validity", "maap/maap_mbx.c",
-           "if (acmp_declaring(m->acmp, s)) {",
-           "(void)acmp_declaring(m->acmp, s);\n"
-           "\t\t\tif (m->acmp->sources[s].answered || m->acmp->sources[s].listener_registered) {",
-           "acmp", "AcmpMailbox.F3bListenerRequiresSourceDestination",
-           "published source predicate includes destination validity and interface",
-           (("acmp", "AcmpMailbox.F3bProbeRequiresSourceDestination",
-             "published source predicate includes destination validity and interface"),
-            ("acmpif2", "AcmpMailbox.F3bListenerRequiresSourceDestination",
-             "published source predicate includes destination validity and interface"),
-            ("acmpif2", "AcmpMailbox.F3bProbeRequiresSourceDestination",
-             "published source predicate includes destination validity and interface"),
-            ("maap", "MaapHost.DaGateWaitsForSourceOwnerAfterAllocation",
-             "allocation report cannot replace source destination validity"))),
-    Mutant("f3b-expiry-arm", ACMP_C,
-           ">= a->cfg.da_fresh_ms", "> a->cfg.da_fresh_ms",
-           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
-           "probe expires at 15000 milliseconds without a Listener"),
-    Mutant("f3b-expiry-refresh", "maap/maap_mbx.c",
-           "if (gate != m->published_gate[k])", "if (gate != m->published_gate[k] && gate != 0u)",
-           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
-           "probe expires at 15000 milliseconds without a Listener"),
-)
+MUTANTS += loop_step_mutants.mutants(Mutant)
+MUTANTS += maap_gate_mutants.MUTANTS
 
 MUTANTS += (
     Mutant("pin-adp-short-discovery", ADP_C,
@@ -588,7 +647,7 @@ MUTANTS += (
 #: has a publish moved after what promises the value, a wrong field and a
 #: skipped publish; the driver's encoding and the model's twin of the RTL's
 #: rules are planted too. Each is killed by a test that names it.
-PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
+PUB_SINK_FIRST_WRITE = ("\tmbx_bus_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
                         "\tif (stream_id != 0u) {")
 PUB_SINK_ENTRY = ("bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, "
                   "uint64_t stream_id)\n{\n")
@@ -597,12 +656,15 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
 ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
+               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
                "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
                "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
                "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
                "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
                "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
-               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n}")
+               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
+#: The walk's marks are cleared last (tsn-c-stack#32), so a publication moved behind the report still sees them.
+ACMP_FINISH_CLEAR = "\tmemset(a->dirty, 0, sizeof a->dirty);\n\ta->dirty_if = 0u;\n}"
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
@@ -628,8 +690,8 @@ MUTANTS += (
            "mbx_place(priority, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
            "\t\t\tmbx_place(vid, MBX_SR_DOMAIN_PRIORITY_LSB",
            "unit", "DriverUnit.D14PublicationBlock", "D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields"),
-    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
+    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
            "unit", "DriverUnit.D14PublicationBlock", "D14 LICENCE.ACTIVE holds the licences"),
     Mutant("pub-sink-past-the-block", "mbx/mbx.c", PUB_SINK_ENTRY + PUB_SINK_REFUSAL,
            PUB_SINK_ENTRY + "\tif (interface >= MBX_N_IF) {",
@@ -646,8 +708,8 @@ MUTANTS += (
            "mbx_place(sid_valid ? 0u : 0u,",
            "unit", "DriverUnit.D14PublicationBlock", "D14 a stop with the stream unchanged: BINDING alone"),
     Mutant("pub-talker-decl-in-the-licence", "mbx/mbx.c",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
            "unit", "DriverUnit.D14PublicationBlock", "D14 TALKER_DECL.DECLARED holds the declarations"),
     # the host model's twins of the RTL's rules (tb/verilator/mbx/mutants.py)
     Mutant("model-pub-sid-not-gated", "host/mbx_model.c",
@@ -752,8 +814,8 @@ MUTANTS += (
     Mutant("pub-acmp-started-after-the-response", ACMP_C, ACMP_REBIND,
            "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
            "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
-    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH,
-           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
+    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH + ACMP_FINISH_CLEAR,
+           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);") + "\tpublish(a);\n" + ACMP_FINISH_CLEAR,
            "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
     Mutant("pub-acmp-started-from-bound", ACMP_C,
            "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",
@@ -887,7 +949,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
     default); True when one escaped. One build serves every copy, so a test
     object is compiled again only where a planted header changes what it
     sees."""
-    arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+    arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "portable": ctrl_arms.arm_portable,
+            "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
             "entity": ctrl_arms.arm_entity,
@@ -895,7 +958,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
-            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2)}
+            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
+            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True)}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()

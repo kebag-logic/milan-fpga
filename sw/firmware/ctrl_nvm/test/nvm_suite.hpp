@@ -6,7 +6,7 @@
 // contract, and the state comparison.
 //
 // THE FIXTURE is the oracle. nvm_fixture.py writes it for the shape this
-// binary is built for, from scripts/nvm_klj2.py (the reference encoder and
+// binary is built for, from scripts/nvm_klj3.py (the reference encoder and
 // decoder), the builder's inventory and the recorded vectors of
 // tb/verilator/nvm_backend: every container a test loads or compares with,
 // every payload set a restore must leave, and the shape's facts. The binary

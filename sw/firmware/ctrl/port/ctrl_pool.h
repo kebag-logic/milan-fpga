@@ -51,6 +51,8 @@ struct ctrl_pool_bin {
 	uint8_t *used;          // one flag per block: 1 while allocated
 	void *free_head;        // first free block; each free block holds the next
 	uint32_t stride;        // bytes from one block to the next
+	uint32_t span;          // blocks * stride: the bytes of every block
+	uint8_t shift;          // log2(stride) when stride is a power of two, else 0
 	uint16_t blocks;
 	uint16_t free_count;
 	uint16_t high_water;    // the most blocks ever allocated at once
@@ -62,6 +64,11 @@ struct ctrl_pool {
 	uint32_t refused;       // allocations no class could serve
 	uint32_t bad_frees;     // frees of a pointer this pool did not hand out, or freed twice
 };
+
+// Blocks returned to any pool, counting up. Only a return frees a block, and an allocation every fitting class
+// refused can succeed only once one is, so equal counts bracket no change that could turn a refusal (SRP's retained
+// receive, srp_mbx.c; #665).
+extern uint32_t ctrl_pool_returned;
 
 // The arena bytes a set of classes needs, alignment and flags included.
 size_t ctrl_pool_arena_bytes(const struct ctrl_pool_class *classes, unsigned n_classes);

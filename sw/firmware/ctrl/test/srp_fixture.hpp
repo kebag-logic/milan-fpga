@@ -12,10 +12,22 @@
 #include "wire.h"
 // The host's allocation-port fault injector forwards to the real static pool.
 // Only the library call site is renamed by the host arm; firmware stays intact.
-static int calloc_before_failure = -1;
+// It stands for the pool, so setting it is a change of what the pool can
+// serve: it moves the count of returned blocks as a return does
+// (ctrl_pool.h), which SRP's retained receive waits for (srp_mbx.c, #665).
+struct CallocFault {
+    int left = -1;
+    CallocFault &operator=(int n) {
+        left = n;
+        ++ctrl_pool_returned;
+        return *this;
+    }
+    operator int() const { return left; }
+};
+static CallocFault calloc_before_failure;
 extern "C" void *srp_test_calloc(size_t count, size_t size) {
-    if(calloc_before_failure==0) return nullptr;
-    if(calloc_before_failure>0) --calloc_before_failure;
+    if(calloc_before_failure.left==0) return nullptr;
+    if(calloc_before_failure.left>0) --calloc_before_failure.left;
     return shlan_calloc(count,size);
 }
 namespace {

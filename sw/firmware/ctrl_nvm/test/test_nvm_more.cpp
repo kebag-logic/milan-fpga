@@ -16,6 +16,8 @@
 //                              leaves the staged bytes as they were;
 //   change_unknown_record      a change to a record the shape does not have
 //                              marks nothing;
+//   change_by_record_id        a change named by its record id marks that
+//                              record;
 //   capture_window_edges       a change the running capture has passed, or
 //                              one after its last latch, opens a window of
 //                              its own (DR2a).
@@ -90,9 +92,22 @@ TEST_F(NvmModel, change_unknown_record) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f,
                         {"--slot-b", "g.bin", "--boot", "--change", num(NVM_G_COUNT) + ":0", "--change",
-                         num(NVM_G_CFG) + ":1", "--run-ms", "3000"});
+                         num(NVM_G_CFG) + ":1", "--change-id", num(NVM_ID_SPACE - 1u), "--run-ms", "3000"});
     EXPECT_TRUE(r.at("dirty") == 0 && r.at("erases") == 0 && r.at("ok") == 0 && r.at("skipped") == 0)
         << "changes to records the shape does not have: " << r.text();
+}
+
+// A change named by its record id marks that record as a change by its group
+// and index does (#665: AECP marks by id, with no walk of the records).
+TEST_F(NvmModel, change_by_record_id) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const Result by_id =
+        go(port(), f, {"--slot-b", "g.bin", "--boot", "--change-id", num(rids().back()), "--run-ms", "10"});
+    const Result unknown =
+        go(port(), f, {"--slot-b", "g.bin", "--boot", "--change-id", num(NVM_ID_SPACE - 1u), "--run-ms", "10"});
+    EXPECT_TRUE(by_id.at("dirty") == 1 && unknown.at("dirty") == 0)
+        << "a change by a record's id marks it, and one by an id the shape has not marks nothing: " << by_id.text()
+        << " / " << unknown.text();
 }
 
 // DR2a at the capture's edges: a change to a record the running capture has

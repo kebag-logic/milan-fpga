@@ -401,7 +401,10 @@ std::uint32_t Suite<Bench, Check>::face_words_mask(std::uint32_t off) {
 
 // window w's request holds from its GO until the answer carrying its
 // tag; an answer under another tag, or with no request open, is discarded; the
-// wait bound closes it unanswered; nothing it does moves another window.
+// wait bound closes it unanswered; nothing it does moves another window. The
+// refusals are graded in the second request, the one the wait bound closes, so
+// the first request's answers come well inside its bound through either
+// adapter, a register read taking two mailbox clocks (#870).
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_window(unsigned w) {
     static const char* const names[kWindows] = {"CTR", "AMAP", "EDIT", "GSI"};
@@ -427,19 +430,6 @@ void Suite<Bench, Check>::check_face_window(unsigned w) {
     }
     ck_.that(label("GO opens the request: BUSY with tag 1, req and tag on its ports, no other window's").c_str(),
              status() == win_status(1, 0, 0, 1) && open.tag[w] == 1u && alone);
-    std::uint32_t refused = 0;
-    for (const FaceWord& fw : face_words()) {
-        if (face_window_of(fw.off) == w) {
-            wr(face_reg(i, fw.off), ~face_value(i, fw.off, 0x60u + w));
-            ++refused;
-        }
-    }
-    wr(face_reg(i, r.go), 1u << MBX_CTR_CMD_GO_LSB);
-    ++refused;
-    ck_.dec(label("a request write and a second GO while BUSY are refused and counted").c_str(), rd(MBX_REG_BUS_ERR),
-            err0 + refused);
-    ck_.that(label("and the request's fields hold on their ports and in their read-back").c_str(),
-             b_.face(i).fields[w] == before.fields[w] && status() == win_status(1, 0, 0, 1));
     const std::uint64_t answer = 0x8765432100000000ull | (0x1000u * w + 0x2A5u);
     b_.win_answer(w, i, 2u, answer);
     ck_.that(label("an answer under another tag is discarded: still BUSY, no DATA").c_str(),
@@ -457,6 +447,19 @@ void Suite<Bench, Check>::check_face_window(unsigned w) {
     wr(face_reg(i, r.go), 1u << MBX_CTR_CMD_GO_LSB);
     ck_.that(label("the next GO takes tag 2 and clears DONE").c_str(),
              status() == win_status(1, 0, 0, 2) && b_.face(i).tag[w] == 2u);
+    std::uint32_t refused = 0;
+    for (const FaceWord& fw : face_words()) {
+        if (face_window_of(fw.off) == w) {
+            wr(face_reg(i, fw.off), ~face_value(i, fw.off, 0x60u + w));
+            ++refused;
+        }
+    }
+    wr(face_reg(i, r.go), 1u << MBX_CTR_CMD_GO_LSB);
+    ++refused;
+    ck_.dec(label("a request write and a second GO while BUSY are refused and counted").c_str(), rd(MBX_REG_BUS_ERR),
+            err0 + refused);
+    ck_.that(label("and the request's fields hold on their ports and in their read-back").c_str(),
+             b_.face(i).fields[w] == before.fields[w] && status() == win_status(1, 0, 0, 2));
     b_.win_expire(w, i);
     ck_.that(label("unanswered past its wait bound it closes with TIMEOUT, the last answer kept").c_str(),
              status() == win_status(0, 0, 1, 2) && data() == got && b_.face(i).req[w] == 0u);

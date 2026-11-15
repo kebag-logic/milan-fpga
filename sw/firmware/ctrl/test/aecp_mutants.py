@@ -10,6 +10,12 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 import aecp_arms
+import aecp_configuration_mutants
+import aecp_index_mutants
+import aecp_map_mutants
+import aecp_fan_mutants
+import aecp_owed_mutants
+import aecp_retry_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
 
@@ -58,8 +64,8 @@ DEFECTS = (
            ('Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal',
             'ignored flags and no subcommand preserve latency')),
     defect('nosub-reports-request-latency', 'aecp_commands.c',
-           '\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4);\n',
-           '\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4); memcpy(out + 24, in + 24, 4u);\n',
+           '\t\t\taecp_put32(out + 4, flags & ~0x20000000u);\n',
+           '\t\t\taecp_put32(out + 4, flags & ~0x20000000u); memcpy(out + 24, in + 24, 4u);\n',
            ('Core.SetStreamInfoWithoutSubcommandPreservesState',
             'no subcommand reports current latency, not requested latency'),
            ('Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal',
@@ -73,20 +79,20 @@ DEFECTS = (
            ('Core.SetStreamInfoWithoutSubcommandPreservesState',
             'called more times than expected')),
     defect('retry-timer-lost', 'aecp.c',
-           'e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))',
-           'e->retry_pending == 0u && (!armed || due(deadline, e->retry_at))',
+           '\t\tif (e->retry_pending != 0u) {\n\t\t\tif (!a->retry_hold ||',
+           '\t\tif (e->retry_pending == 0u) {\n\t\t\tif (!a->retry_hold ||',
            ('Core.CounterTimerArmsOnlyEligibleCompletedSnapshots',
             'Unexpected mock function call')),
     defect('entity-available-index-static', 'aecp_commands.c',
-           'wire_put_be(out + 40, available, 4u);',
+           'aecp_put32(out + 40, available);',
            '(void)available;',
            ('Core.EntityAvailableIndexUsesTheIngressObservation',
             'ENTITY reads current ADP available index'),
            ('App.EntityReadSeesTheLastAdvertisedIndex',
             "ENTITY reads the last ENTITY_AVAILABLE's available_index")),
     defect('hdcp-data-length-echo', 'aecp.c',
-           'wire_put_be(a->response + 36, 0u, 2);',
-           'wire_put_be(a->response + 36, wire_be16(p + 22), 2);',
+           'aecp_put16(a->response + 36, 0u);',
+           'aecp_put16(a->response + 36, wire_be16(p + 22));',
            ('Core.NonAemMessageTypesFollowTheirOwnContracts',
             'HDCP refusal clears data length')),
     defect('cross-instance-guard-removed', 'aecp.c',
@@ -95,15 +101,101 @@ DEFECTS = (
            ('Core.CrossInstanceInputsAreRefusedInsideRealCallbacks',
             'every cross-instance public input counts its refusal')),
     defect('unavailable-head-blocks-notices', 'aecp.c',
-           'e->retry_at = a->now + 1u;',
-           'e->retry_at = a->now + 1u; return true;',
+           'e->retry_pending |= (uint8_t)(1u << bit);',
+           'e->retry_pending |= (uint8_t)(1u << bit); return true;',
            ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
             'backpressure retains the built independent snapshot')),
     defect('unavailable-retry-spins', 'aecp.c',
-           'e->retry_at = a->now + 1u;',
+           'e->retry_at = a->now + wait;',
            'e->retry_at = a->now;',
            ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
             'failed snapshots wait for a timed retry')),
+    # #665: a response clears and writes only the bytes it sends.
+    defect('command-body-not-cleared', 'aecp_commands.c',
+           '\t*bytes = length;\n\tmemset(out, 0, length);\n',
+           '\t*bytes = length;\n\t(void)out;\n',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('hdcp-body-not-cleared', 'aecp.c',
+           '\t\tmemset(a->response + AECP_HEADER_BYTES, 0, 4u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('unlock-notice-body-not-cleared', 'aecp.c',
+           '\t\tmemset(a->response + AECP_HEADER_BYTES, 0, 16u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('dynamic-entry-header-not-cleared', 'aecp_commands.c',
+           '\t\t\tmemset(out + *bytes, 0, 8u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('map-body-not-cleared', 'aecp_maps.c',
+           '\tmemset(out, 0, *bytes); // the fixed body; the map rows are written whole (#665)\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    # #665: the bounded retry backoff and the event-scan flag.
+    defect('retry-backoff-unbounded', 'aecp.c',
+           'e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);',
+           'e->retry_ms = (uint8_t)(wait << 1);',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('retry-backoff-constant', 'aecp.c',
+           'e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);',
+           'e->retry_ms = (uint8_t)wait;',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms'),
+           ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
+            'the second retry waits 2 ms')),
+    defect('retry-backoff-kept-after-delivery', 'aecp.c',
+           '\t\t\t\tif (e->pending == 0u) {\n\t\t\t\t\te->retry_ms = 0u;\n\t\t\t\t}\n',
+           '',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'a delivered notice starts the next backoff at 1 ms')),
+    defect('notice-scan-not-raised', 'aecp.c',
+           '.pending |= (uint8_t)(events & supported);\n\t\ta->notices = true;',
+           '.pending |= (uint8_t)(events & supported);',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('notice-scan-dropped-with-retries-left', 'aecp.c',
+           '\ta->notices = left;\n\treturn false;\n}',
+           '\t(void)left;\n\ta->notices = false;\n\treturn false;\n}',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('notice-scan-not-raised-at-open', 'aecp.c',
+           '\ta->notices = true; // rescan the events, whatever set them before the open\n',
+           '',
+           ('Core.CounterTimerArmsOnlyEligibleCompletedSnapshots', 'EXPECT_CALL(mock, Timer(true,1000))')),
+    defect('completion-scan-never-counted', 'aecp.c',
+           '\t\t\ta->awaited = (uint16_t)(a->counter_event + 1u);\n',
+           '',
+           ('Core.CounterNoticesCoalesceAndWaitForEligibility', 'sent.size()')),
+    # #665: the queue wrap without a divide, the saved-state word scan, and the
+    # driver's whole-word ring copy under the mailbox arm.
+    defect('completion-wrap-loses-a-slot', 'aecp_mbx.c',
+           'unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;',
+           'unsigned n = (m->completion_head + m->completion_count) % (AECP_MBX_COMPLETIONS - 1u);',
+           ('Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse',
+            'a full queue holds every completion in its order across the wrap')),
+    defect('nvm-scan-stops-at-clear-word', 'aecp_nvm.c',
+           '\t\tif (word == 0u) {\n\t\t\tcontinue;\n\t\t}\n',
+           '\t\tif (word == 0u) {\n\t\t\treturn false;\n\t\t}\n',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty set is a framed record, not an erased one')),
+    defect('nvm-scan-word-index-dropped', 'aecp_nvm.c',
+           'nvm_store_changed_id(32u * w + bit)',
+           'nvm_store_changed_id(bit + 0u * w)',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty set is a framed record, not an erased one')),
+    # A received frame's bytes always start on a word, so on a little-endian
+    # core every frame AECP receives takes the whole-word store (#665). The
+    # whole-word load is the unit arm's (ctrl_mutants.py, D15).
+    defect('ring-store-word-lanes-rotated', 'mbx/mbx_wire.h',
+           '\t*(uint32_t *)(void *)p = word;\n',
+           '\t*(uint32_t *)(void *)p = word << 8 | word >> 24;\n',
+           ('Mailbox.EveryInterfaceAndObservationPort', 'fabric.tx_sent')),
     defect('stream-info-request-echo', 'aecp_commands.c',
            'memcpy(out + 8, d->value + 74, 8u);',
            'memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);',
@@ -304,8 +396,8 @@ DEFECTS = (
            ('Core.ProbeIdentityAndSequenceMustBothMatch',
             'probing')),
     defect('counter-timer-during-output', 'aecp.c',
-           'e->counter_sent && !e->awaiting_output &&',
-           'e->counter_sent &&',
+           '(e->retry_pending & 8u) == 0u && !e->awaiting_output) {',
+           '(e->retry_pending & 8u) == 0u) {',
            ('Core.CounterTimerArmsOnlyEligibleCompletedSnapshots',
             'Unexpected mock function call')),
     defect('descriptor-configuration-ignored', 'aecp_commands.c',
@@ -313,9 +405,11 @@ DEFECTS = (
            '(void)cfg, d->type == type',
            ('Core.MetadataConfigurationKeysAndRepeatedOverrides',
             'status for command')),
+    # #904: an edit compares mappings by its table's key, so the input key's cluster channel is the key's; a restore
+    # still compares rows whole.
     defect('map-cluster-channel-ignored', 'aecp_maps.c',
-           'a->cluster_channel == b->cluster_channel;',
-           '((void)a->cluster_channel, true);',
+           'return h->w[input];',
+           'return input ? h->r.cluster : h->w[0];',
            ('Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore',
             'a distinct cluster channel is a distinct input key')),
     defect('no-interface-accepted', 'aecp.c',
@@ -444,10 +538,10 @@ DEFECTS = (
            ('Mailbox.TimerIdentityAndAttachRefusals',
             'adapter.stale_expiries')),
     defect('mailbox-full-completions-overwritten', 'aecp_mbx.c',
-           'm->completion_count == AECP_MBX_COMPLETIONS ||',
-           'm->completion_count > AECP_MBX_COMPLETIONS ||',
+           'if (m->completion_count == AECP_MBX_COMPLETIONS) {',
+           'if (m->completion_count > AECP_MBX_COMPLETIONS) {',
            ('Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse',
-            'adapter.ports.send')),
+            'notice(100)')),
     defect('latency-response-missing', 'aecp_commands.c',
            'case 4: return descriptor(a, interface, in, len, out, bytes);',
            'case 4: a->start_pending = true; return descriptor(a, interface, in, len, out, bytes);',
@@ -482,8 +576,8 @@ DEFECTS = (
     # response, in their own field, never skipped; every window read and commit
     # bounded; a counter change event never missed
     defect('face-write-after-response', 'aecp_face.c',
-           'publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);',
-           'f->owed[i] = true;',
+           'publish(f, i, settings, i == home ? stream : NULL, every);',
+           'f->owed[i] = true; (void)every;',
            ('Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt',
             'one response, its commit taken inside the port')),
     defect('face-identify-in-the-configuration-field', 'aecp_face.c',
@@ -503,9 +597,9 @@ DEFECTS = (
            ('Face.CountersAreReadThroughTheWindowEachWithinItsBound',
             'wait_cycles + 1 status reads, no more')),
     defect('face-commit-not-waited', 'mbx/mbx.c',
-           'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+           'mbx_bus_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
            'mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));',
-           'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+           'mbx_bus_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
            'mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));\n\treturn MBX_STATUS_OK;',
            ('Face.ALateCommitIsOwedAndPublishedAgainWhole',
             'no acknowledgement within MBX_FACE_ACK_CYCLES')),
@@ -542,7 +636,7 @@ DEFECTS = (
     defect('face-window-read-slow', 'mbx/mbx.c',
            '\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n',
            '\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n'
-           '\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_hal_read32(face_reg(interface, w->status));\n',
+           '\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_bus_read32(face_reg(interface, w->status));\n',
            ('FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget',
             'the original event service budget, the face included')),
     defect('face-store-status-after-open', 'app/ctrl_app_aecp.c',
@@ -693,7 +787,7 @@ DEFECTS = (
     # identifier is refused as every change is; a waiting change is answered
     # on its own interface, within the IN_PROGRESS cadence
     defect('expired-lock-read-released', 'aecp_commands.c',
-           'wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);', 'wire_put_be(out, a->locked ? 2u : 0u, 4);',
+           'aecp_put32(out, a->locked || a->unlocked ? 2u : 0u);', 'aecp_put32(out, a->locked ? 2u : 0u);',
            ('Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease',
             'ENTITY_AVAILABLE reports the lock in force: locked')),
     defect('expired-lock-owner-dropped', 'aecp.c',
@@ -834,14 +928,18 @@ DEFECTS = (
            ' && (uint32_t)(a->tx_done - a->reboot_end) < 0x80000000u;', ';',
            ('Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete',
             'not due before the response has left')),
-    defect('reboot-serves-after-its-success', 'aecp.c', ' && !a->notify && a->reboot == 0u;', ' && !a->notify;',
+    defect('reboot-serves-after-its-success', 'aecp.c', ' < a->cfg.owed_slots) && a->reboot == 0u;',
+           ' < a->cfg.owed_slots);',
            ('Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete',
             "no command is taken after a REBOOT's SUCCESS")),
     defect('reboot-probes-after-its-success', 'aecp.c',
            '\t\t\ta->reboot = 2u;\n\t\t}\n\t\treturn false;\n\t}\n', '\t\t\ta->reboot = 2u;\n\t\t}\n\t}\n',
            ('Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete',
             "no probe or notification is started after a REBOOT's SUCCESS")),
-)
+) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:
@@ -853,13 +951,20 @@ def caught(test: str, words: str, result: Outcome) -> bool:
     return match is not None and words in match[1]
 
 
+def refused(d: Defect, refusal: str) -> bool:
+    """A build row (aecp_map_mutants.BUILD) is caught only by its own file's compile refusal, on each of its words."""
+    return (all(test == aecp_map_mutants.BUILD for test, _ in d.checks) and
+            refusal.startswith(Path(d.path).name + " does not compile:\n") and
+            all(words in refusal for _, words in d.checks))
+
+
 def controls() -> None:
     """Refuse unowned checks and prove the diagnostic reader cannot grade a crash."""
     expected = set()
     for name in ("test_aecp.cpp", "test_aecp_image.cpp", "test_aecp_debug.cpp"):
         expected.update(a + "." + b for a, b in
                         re.findall(r"TEST(?:_F)?\((\w+),\s*(\w+)\)", (HERE / name).read_text()))
-    claimed = {test for d in DEFECTS for test, _ in d.checks}
+    claimed = {test for d in DEFECTS for test, _ in d.checks} - {aecp_map_mutants.BUILD}
     if claimed != expected or len({d.name for d in DEFECTS}) != len(DEFECTS):
         raise Refusal(f"AECP plant table drift: missing={expected-claimed}, extra={claimed-expected}")
     log = ("[ RUN      ] Fixture.Check\nnamed failure\n[  FAILED  ] Fixture.Check (0 ms)\n"
@@ -870,11 +975,17 @@ def controls() -> None:
     assert not caught("Fixture.Check", "other failure", result)
     assert not caught("Fixture.Check", "named failure", Outcome("reader", 0, log))
     assert not caught("Fixture.Check", "named failure", Outcome("reader", 1, log.split("verdict:")[0]))
+    row = Defect("reader", "aecp/aecp_maps.c", "", "", ((aecp_map_mutants.BUILD, "named words"),))
+    assert refused(row, "aecp_maps.c does not compile:\nnamed words")
+    assert not refused(row, "aecp_maps.c does not compile:\nother words")
+    assert not refused(row, "aecp.c does not compile:\nnamed words")
+    assert not refused(Defect("reader", row.path, "", "", (("Fixture.Check", "named words"),)),
+                       "aecp_maps.c does not compile:\nnamed words")
 
 
 def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: Path = STACK) -> bool:
-    """Reuse one isolated copy; compile failures and missing diagnoses are escapes. The stack is the
-    caller's, already pinned."""
+    """Reuse one isolated copy; compile failures, but a build row's own (refused), and missing diagnoses are
+    escapes. The stack is the caller's, already pinned."""
     controls()
     root.mkdir(parents=True, exist_ok=True)
     src = root / "work/ctrl"
@@ -897,11 +1008,13 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
                 result = aecp_arms.image_arm(tree, config)
             else:
                 debug = d.checks[0][0].startswith("AecpDebug.")
-                result = aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected)
+                work = d.checks[0][0].startswith(aecp_arms.WORK.rstrip("*"))
+                result = (aecp_arms.core_arm(tree, config, 1, "work", selected) if work else
+                          aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected))
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:
-            ok = False
+            ok = refused(d, str(error))
             (root / (d.name + ".log")).write_text(str(error))
         finally:
             target.write_text(original)

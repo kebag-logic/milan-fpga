@@ -124,6 +124,18 @@ def image_record(path: Path, words: int | None, width: int | None) -> dict:
                 sha256=hashlib.sha256(data).hexdigest())
 
 
+def bank_record(path: Path, words: int, width: int) -> dict:
+    """One rom bank of the split's control firmware memory (milan_soc.CtrlMemory, #665).
+
+    The banks hold the linked image word for word, so the last one ends where
+    the image ends: a bank is complete up to its depth, never empty and never
+    longer, and each word has the bank's width."""
+    record = image_record(path, None, width)
+    if not 0 < record["words"] <= words:
+        raise ValueError(f"wrong image depth: {path}: {record['words']} words in a {words}-word bank")
+    return record
+
+
 def wrapper_parameters(log: str, wrapper: str) -> dict[str, int | str]:
     """Include literal defaults omitted from Vivado's override-only log."""
     values = parameters(log)
@@ -164,6 +176,8 @@ def inventory(gateware: Path, source: str, placement: str = "all-fabric") -> lis
         # Its existence is mandatory; emptiness is not accepted for a ROM.
         if name == "sram":
             inputs.append(image_record(path, 0, None))
+        elif placement == "full-split" and re.fullmatch(r"rom_bank\d+", name):
+            inputs.append(bank_record(path, int(words), int(width)))
         else:
             inputs.append(image_record(path, int(words), int(width)))
     expected = set(re.findall(r'\$readmemh\("([^"\n]+)"', verilog))
@@ -321,6 +335,30 @@ def selftest() -> None:
             refused += 1
         else:
             raise AssertionError("missing image accepted")
+        path.write_text("12345678\n")
+        if bank_record(path, 2, 32)["words"] != 1:
+            raise AssertionError("the split's last rom bank refused")
+        for contents in ("", "12345678\nabcdef01\n12345678\n", "1234\n"):
+            path.write_text(contents)
+            with expect_refusal("wrong image"):
+                bank_record(path, 2, 32)
+            refused += 1
+        # the split's banks are read as banks under full-split only
+        gateware = Path(tmp) / "split"
+        gateware.mkdir()
+        package, ucode = gateware / "gptp_ucpu_pkg.sv", gateware / "gptp.hex"
+        package.write_text("localparam int unsigned UPC_W_C = 1;\nlocalparam int unsigned UCODE_W_C = 32;\n")
+        ucode.write_text("12345678\nabcdef01\n")
+        (gateware / "alinx_ax7101_rom_bank0.init").write_text("12345678\n")
+        (gateware / "alinx_ax7101.v").write_text(
+            '// Memory rom_bank0: 2-words x 32-bit\n$readmemh("alinx_ax7101_rom_bank0.init", rom_bank0);\n'
+            f'.GPTP_UCODE_HEX_P("{ucode}")\n')
+        source = f"read_verilog {{{package}}}\n"
+        if [row["words"] for row in inventory(gateware, source, "full-split")] != [1, 2]:
+            raise AssertionError("the split's rom bank refused under full-split")
+        with expect_refusal("wrong image depth"):
+            inventory(gateware, source)
+        refused += 1
     for changed in (log.replace("'KL_pp_shadow'", "'another_top'"), log + log):
         try:
             parameters(changed)
@@ -334,7 +372,7 @@ def selftest() -> None:
         refused += 1
     else:
         raise AssertionError("unreported expression guessed")
-    print(f"baseline selftest: complete image and exact block PASS; {refused} refusals PASS")
+    print(f"baseline selftest: complete image, the split's last rom bank and exact block PASS; {refused} refusals PASS")
     binding = "\tParameter N_STREAM_IN_P bound to: 32'b10\n"
     for changed, message in (
             (log.replace(binding, binding + binding), "duplicate parameter"),

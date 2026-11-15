@@ -16,7 +16,7 @@ defines H-MAAP; host evidence does not establish target or wire timing.
 
 ## Core
 
-The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/src/maap.c)
+The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/src/maap.c)
 (the [submodule](../../../../third_party/tsn-c-stack), #697) implements B.3.2/Table B.7 in static storage.
 Each interface owns an INITIAL, PROBE or DEFEND state and one timer.
 ReserveAddress sends an initial PROBE, then three retransmissions.
@@ -162,7 +162,7 @@ A standalone MAAP loop pass costs at most
 8*(6+65) + 2*(20+64) + interfaces*65 accesses: 801 for one interface, 866 for two.
 The receive bound includes the channel's maximum 64-byte record.
 Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
-1,783 accesses for one interface, 1,879 for two.
+3,507 accesses for one interface, 3,603 for two.
 
 Tests include event and receive backlog, timer wrap, stale tags, link loss,
 short TX stalls and an 11 ms stall that must fail the original bound after recovery.

@@ -13,6 +13,7 @@
 
 #include "nvm_rig.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -45,10 +46,13 @@ struct Rig {
     const nvm_flash* port = &nvm_fmodel_port;
     Knobs knobs;
     std::uint64_t max_call_us = 0;
+    unsigned max_read = 0;
     unsigned max_polls_call = 0;
     unsigned service_calls = 0;
     unsigned commit_tries = 0;
     unsigned commit_refused = 0;
+    long long step_left = -1;  // a pass's time left before its deadline, or -1: the step called directly
+    unsigned step_owing = 0;   // passes after which the step was still owed
     unsigned bad = 0;
     Result run;
     Bytes snapshot;
@@ -77,6 +81,7 @@ void note(std::vector<std::uint64_t>& times) {
 void power_on() {
     nvm_fmodel_power_on();
     nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_A + kJournal);
+    nvm_fmodel_slots(NVM_SLOT_A, NVM_SLOT_BYTES);
     litespi_model_reset();
     nvm_flash_litespi_power_on();
     nvm_smodel_reset();
@@ -106,12 +111,28 @@ void boot() {
     nvm_store_boot(rig->port, &nvm_smodel_port);
 }
 
+// THE STEP at the end of a pass whose deadline is step_left away.
+void pass() {
+    const auto deadline = nvm_store_clock(nullptr) + static_cast<std::uint32_t>(rig->step_left);
+    if (nvm_store_step(nullptr, deadline)) {
+        rig->step_owing++;
+    }
+}
+
 void service() {
     const std::uint64_t before = nvm_fmodel_now_us();
     const unsigned polls = nvm_fmodel_count()->busy_polls;
     const unsigned failed = nvm_store_status()->commits_failed;
     const unsigned ok = nvm_store_status()->commits_ok;
-    nvm_store_service();
+    nvm_fmodel_read_max_clear();
+    if (rig->step_left < 0) {
+        nvm_store_service();
+    } else {
+        // the loop's centisecond, then THE STEP of a pass step_left from its deadline (ctrl_loop.h)
+        nvm_store_tick();
+        pass();
+    }
+    rig->max_read = std::max(rig->max_read, nvm_fmodel_count()->read_max);
     if (nvm_store_status()->commits_failed != failed) {
         note(rig->run.fail_at);
     }
@@ -204,7 +225,7 @@ void restore_snapshot() { std::memcpy(nvm_fmodel_mem + NVM_SLOT_A, rig->snapshot
 
 void protect_auth() {
     const int auth = nvm_store_status()->auth;
-    nvm_fmodel_protect(auth < 0 ? 0u : (auth != 0 ? NVM_SLOT_B : NVM_SLOT_A));
+    nvm_fmodel_protect(auth < 0 ? 0u : (auth != 0 ? NVM_SLOT_B : NVM_SLOT_A), NVM_SLOT_BYTES);
 }
 
 // The reference commit: the old state (0), the new one (1), and how many
@@ -302,14 +323,14 @@ void powercut() {
 
 // ---- files and the guard --------------------------------------------------------
 
-void load(Files& files, const std::string& name, std::uint32_t slot) {
+void load(Files& files, const std::string& name, std::uint32_t slot, std::uint32_t span = NVM_SLOT_BYTES) {
     const auto it = files.blobs.find(name);
     if (it == files.blobs.end()) {
         fail(("no file " + name).c_str(), 0, 0);
         return;
     }
-    std::memset(nvm_fmodel_mem + slot, 0xff, NVM_SLOT_BYTES);
-    const std::size_t n = it->second.size() < NVM_SLOT_BYTES ? it->second.size() : NVM_SLOT_BYTES;
+    std::memset(nvm_fmodel_mem + slot, 0xff, span);
+    const std::size_t n = it->second.size() < span ? it->second.size() : span;
     std::memcpy(nvm_fmodel_mem + slot, it->second.data(), n);
 }
 
@@ -318,7 +339,8 @@ void dump(Files& files, const std::string& name, const std::uint8_t* src, std::s
 }
 
 // The port refuses to program or erase outside the journal: the first block
-// of the device holds the bitstream.
+// of the device holds the bitstream, and today's journal, directly above this
+// store's, is the all-fabric placement's KLJ2 (#823 decision 2).
 void port_guard() {
     static constexpr std::uint8_t kPage[4] = {0u, 0u, 0u, 0u};
     long long took = 0;
@@ -327,6 +349,8 @@ void port_guard() {
     took += rig->port->program(rig->port->ctx, 0u, kPage, sizeof kPage) == 0;
     took += rig->port->erase(rig->port->ctx, NVM_SLOT_A - 1u) == 0;
     took += rig->port->program(rig->port->ctx, NVM_SLOT_A + 2u * NVM_SLOT_BYTES, kPage, sizeof kPage) == 0;
+    took += rig->port->erase(rig->port->ctx, NVM_LEGACY_A) == 0;
+    took += rig->port->program(rig->port->ctx, NVM_LEGACY_B, kPage, sizeof kPage) == 0;
     nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_A + kJournal);
     rig->run.guard = took;
 }
@@ -460,6 +484,21 @@ void change_arg(const std::string& arg) {
     nvm_store_changed(static_cast<unsigned>(group), static_cast<unsigned>(index));
 }
 
+// ADDR:NAME, a file loaded at an address the script names rather than one
+// of the store's own macros: a test then reads the flash map from the fixture.
+void load_at(Files& files, const std::string& arg) {
+    char* end = nullptr;
+    const unsigned long addr = number(arg.c_str(), &end);
+    if (end == nullptr || *end != ':' || addr >= NVM_FMODEL_BYTES) {
+        fail(("--load-at wants ADDR:NAME inside the flash, not " + arg).c_str(), 0, 0);
+        return;
+    }
+    const auto it = files.blobs.find(end + 1);
+    const std::uint32_t room = NVM_FMODEL_BYTES - static_cast<std::uint32_t>(addr);
+    const std::uint32_t n = it == files.blobs.end() ? 0u : static_cast<std::uint32_t>(it->second.size());
+    load(files, end + 1, static_cast<std::uint32_t>(addr), n < room ? n : room);
+}
+
 // A change that leaves the value as it was (DR2b).
 void touch_arg(const std::string& arg) {
     const nvm_rec r = nvm_rec_by_id(static_cast<unsigned>(number(arg.c_str(), nullptr)));
@@ -510,6 +549,14 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         load(files, v, NVM_SLOT_A);
     } else if (a == "--slot-b") {
         load(files, v, NVM_SLOT_B);
+    } else if (a == "--legacy-a") {
+        load(files, v, NVM_LEGACY_A, NVM_LEGACY_B - NVM_LEGACY_A);
+    } else if (a == "--legacy-b") {
+        load(files, v, NVM_LEGACY_B, NVM_LEGACY_B - NVM_LEGACY_A);
+    } else if (a == "--load-at") {
+        load_at(files, v);
+    } else if (a == "--dump-legacy") {
+        dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
     } else if (a == "--times") {
         times_arg(v);
     } else if (a == "--refuse") {
@@ -529,8 +576,18 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         set_pattern(static_cast<unsigned>(number(v.c_str(), nullptr)), true);
     } else if (a == "--touch") {
         touch_arg(v);
+    } else if (a == "--step-left") {
+        rig->step_left = std::strtoll(v.c_str(), nullptr, 0);
+    } else if (a == "--pass") {
+        // passes that carry no centisecond: the step alone
+        for (unsigned long k = number(v.c_str(), nullptr); k > 0u; --k) {
+            pass();
+        }
     } else if (a == "--change") {
         change_arg(v);
+    } else if (a == "--change-id") {
+        // ID, nvm_store_changed_id() as a caller may call it: for an id the shape has no record of too
+        nvm_store_changed_id(static_cast<unsigned>(number(v.c_str(), nullptr)));
     } else if (a == "--service") {
         for (unsigned long k = number(v.c_str(), nullptr); k > 0u; --k) {
             service();
@@ -570,6 +627,7 @@ void summarise() {
         {"blank", s->blank}, {"releases", s->releases}, {"ok", s->commits_ok}, {"failed", s->commits_failed},
         {"skipped", s->commits_skipped}, {"attempts", s->attempts}, {"exhausted", s->exhausted},
         {"stale", s->stale}, {"dirty", s->dirty}, {"pending", s->pending}, {"phase", s->phase},
+        {"n_dirty", s->n_dirty}, {"n_inflight", s->n_inflight}, {"legacy", s->legacy},
         {"step_max", s->step_bytes_max}, {"step_bound", NVM_STEP_BOUND}, {"steps", s->steps},
         {"bind_terminal", s->bind_terminal}, {"bind_cause", s->bind_cause}, {"withheld", s->withheld},
         {"abandoned", s->abandoned}, {"abandoned_vd", s->abandoned_vd}, {"unread", s->unread},
@@ -582,13 +640,16 @@ void summarise() {
         {"ls_se", lc->se}, {"ls_no_wel", lc->no_wel}, {"ls_short", lc->short_cmd}, {"ls_refused", lc->refused},
         {"ls_unknown", lc->unknown}, {"ls_stalled", lc->stalled}, {"ls_max_withheld", lc->max_withheld},
         {"ls_hung", lc->hung}, {"max_call_us", static_cast<long long>(rig->max_call_us)},
+        {"max_read", rig->max_read},
         {"max_polls_call", rig->max_polls_call}, {"calls", rig->service_calls},
+        {"deferred", s->deferred}, {"step_owing", rig->step_owing},
         {"now_ms", static_cast<long long>(nvm_fmodel_now_us() / 1000u)}, {"commit_tries", rig->commit_tries},
         {"commit_refused", rig->commit_refused}, {"img_len", NVM_IMG_LEN}, {"n_rec", NVM_N_REC},
         {"clock_hz", CONFIG_CLOCK_FREQUENCY}, {"ls_call_ticks", nvm_flash_litespi_call_ticks}, {"bad", rig->bad},
     };
     for (unsigned i = 0; i < fc->erases && i < 16u; ++i) {
         rig->run.erases.push_back(fc->erase_start_us[i]);
+        rig->run.erase_at.push_back(fc->erase_addr[i]);
     }
 }
 

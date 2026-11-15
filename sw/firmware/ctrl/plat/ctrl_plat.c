@@ -28,6 +28,9 @@ static struct aecp_descriptor descriptors[AECP_ENTITY_DESCRIPTORS];
 static uint8_t values[AECP_ENTITY_VALUE_BYTES];
 static struct aecp_event events[AECP_ENTITY_DESCRIPTORS];
 static uint32_t latency[AECP_ENTITY_OUTPUTS];
+#if AECP_MBX_OWED_SLOTS != 0u
+static struct aecp_owed owed[AECP_MBX_OWED_SLOTS];
+#endif
 static struct aecp_mapping map_rows[AECP_ENTITY_MAP_ROWS];
 static struct aecp_mapping map_scratch[AECP_ENTITY_MAP_MAX];
 static struct aecp_map maps[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(map_rows);
@@ -263,6 +266,11 @@ static bool compose(struct ctrl_plat *p)
 	p->aecp_config.events = events;
 	p->aecp_config.latency = latency;
 	p->aecp_config.reboot = p->env->reboot != 0u;
+#if AECP_MBX_OWED_SLOTS != 0u
+	p->aecp_config.owed = owed;
+	p->aecp_config.owed_slots = AECP_MBX_OWED_SLOTS;
+	p->aecp_config.queue = &aecp_owed_queue;
+#endif
 	p->aecp_platform = (struct aecp_ports){.random = random_value, .path = path};
 	aecp_face_init(&p->face, &p->aecp_platform);
 	return ctrl_app_compose(&p->app, &p->config) &&
@@ -297,12 +305,15 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// a composition that leaves the console no slot stops at SRP, by name
 	(void)ctrl_loop_add_poll(&p->app.loop, ctrl_plat_console_poll, &p->console);
 	// Steps 6-7: the saved state, bindings first, before anything opens. The
-	// store's service is the loop's first centisecond consumer, bound before
-	// the open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room
+	// store's tick is the loop's first centisecond consumer, bound before the
+	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
+	// step it owes is THE STEP, taken in a pass that took no input and has
+	// room (ctrl_loop.h)
 	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAMES, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
-	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);
+	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);
+	(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);
 	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}

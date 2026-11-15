@@ -68,6 +68,10 @@ DUT_READER_DISPOSITIONS = {
         "boundary step double counting, retained guard streak, streak increment "
         "on slew discard and slew discard counted as a guard trip; "
         "no expectations read from RTL",
+    "tb/verilator/mbx/dma_mutants.py":
+        "mutation campaign; it plants one of the record mover's named defects (#665) into a copy of "
+        "KL_mbx_dma and requires its named check of dma_main.cpp to fail; the bench's expectations "
+        "are a driver's word loop written from the mailbox contract, never read from RTL",
     "tb/verilator/aaf_clock_meter/mutants.py":
         "mutation campaign; it plants one of the #629 design's named AAF clock meter "
         "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
@@ -250,4 +254,9 @@ DUT_READER_DISPOSITIONS = {
         "structural CDC check; it elaborates KL_mbx_cdc and its window, judges each sink's clock "
         "domain from the netlist, and plants raw crossings into isolated copies, each refused by its "
         "own words; no expected value is read from the text",
+    "tb/verilator/milan_dp/srptx_mutants.py":
+        "mutation campaign (#867); it plants one defect of the split build's SRP transmit path from its "
+        "own table into an isolated copy of lwSRP, the SRP adapter or the datapath, and requires "
+        "srptx_grade.py to report the arm's words in a completed run after a clean control; no "
+        "expected value is read from the text",
 }

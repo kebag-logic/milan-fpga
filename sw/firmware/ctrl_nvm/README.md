@@ -15,6 +15,13 @@ split CPU the store boots and commits through the fixture's own owners, its
 flash port on the split SoC's generated map
 ([`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md)).
 
+The format is the split placement's (#823): the KLJ3 container in the 640 KiB
+`journal_klj3`, its records framed by F07.8 layout 3, a ten-byte header with a
+16-bit `record_id`, over the record space [`nvm_layout3.h`](nvm_layout3.h)
+declares ([the format page](../../../docs/design/SAVED_STATE_FORMAT_32X32.md)).
+The all-fabric placement keeps KLJ2 in today's journal, which this store reads
+at boot and never writes; a KLJ2 container is refused `VD_VER`.
+
 `python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test`
 is the gate. Exit 0 means every check passed on every shipped shape, each
 built at its own system clock, on both flash ports, and every planted defect
@@ -35,15 +42,16 @@ is an integration obligation, not a target-time result established here.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, the capture's time by the owner's decision, what the split CPU measures, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Forty-two checks per shape at its own clock, 29 of them on both ports, the power-cut sweep and the planted defects.
+- **[The host suite](#the-host-suite)** -- Sixty checks per shape at its own clock, 38 of them on both ports, the NAME capacity, the power-cut sweep and the planted defects.
 - **[What this does not prove](#what-this-does-not-prove)** -- The board, the host suite's maps, a shipping image, the owners on the host, and a read fault that repeats itself exactly.
 
 ## Layout
 
 | Path | What it holds |
 |---|---|
-| [`nvm_shape.h`](nvm_shape.h) | the record set and the container sizes, derived from the generated `MILAN_NVM_*` constants |
-| [`nvm_klj2.c`](nvm_klj2.c) | the KLJ2 container and F07.8 record codec, and the section 6.2 acceptance order |
+| [`nvm_layout3.h`](nvm_layout3.h) | the layout 3 record space: each block's capacity, the one declaration the builder's split output also reads |
+| [`nvm_shape.h`](nvm_shape.h) | the record set and the container sizes, derived from the generated `MILAN_NVM3_*` constants, and the compile-time refusal of a shape over its blocks |
+| [`nvm_klj2.c`](nvm_klj2.c) | the KLJ3 container and F07.8 layout 3 record codec, and the section 6.2 acceptance order (the file keeps the name of the format it was written for) |
 | [`nvm_flash.h`](nvm_flash.h) | the flash port |
 | [`nvm_state.h`](nvm_state.h) | the state port: where a saved value is applied and a changed one latched |
 | [`nvm_store.c`](nvm_store.c) | the boot restore and the write-back |
@@ -63,7 +71,8 @@ a media fault, never a verdict on the bytes.
   implementation, ported from the shipping writer's access code: reads
   through the memory-mapped QSPI window; write enable, page program, sector
   erase and status through the LiteSPI command master. It refuses a program
-  or erase outside the reserved journal. In the split image its command
+  or erase outside the store's reserved journal, `journal_klj3`: today's
+  journal, directly above it, is never written. In the split image its command
   master, `timer0` and flash window are the split SoC's own, generated from
   that SoC's `csr.csv` by [`plat/gen_flash_port.py`](plat/gen_flash_port.py),
   which also refuses a SoC whose journal is not the one the store is built
@@ -74,7 +83,7 @@ a media fault, never a verdict on the bytes.
   programmed bit, fail a read (any read, or the reads covering one chosen
   address), flip a bit a read returns (anywhere, or in one chosen byte),
   return one chosen byte wrong in a different way on each read (XOR 8, then
-  16, then 32), answer a read from the neighbouring block, or flip a bit at
+  16, then 32), answer a read from the same place in the other slot, or flip a bit at
   rest. It refuses and counts a program that crosses a page or arrives while
   the device is busy, a write outside the journal, and a write into the
   authoritative slot.
@@ -96,10 +105,11 @@ microsecond. Two obligations follow for the image that links it:
   `nvm_store_boot()`, and nothing else reprograms `timer0`;
 - the counter wraps every 2^32 clocks, so it must be read at least that
   often: every 42.9 s at 100 MHz and every 51.5 s at 83.333 MHz. The store
-  reads it on every `nvm_store_service()` call. An event loop that calls the
-  service at least once per wrap of its shape's clock therefore keeps every
-  elapsed time exact. A longer stall loses whole wraps and delays a
-  deadline; it never brings one forward.
+  reads it on every `nvm_store_service()` call, and the event loop on every
+  pass through `nvm_store_clock()` (THE STEP, `ctrl_loop.h`). An event loop
+  that calls either at least once per wrap of its shape's clock therefore
+  keeps every elapsed time exact. A longer stall loses whole wraps and delays
+  a deadline; it never brings one forward.
 
 **Every wait on the command master is bounded, and so is every call.**
 `ls_open` drains the receive side, and `ls_xfer` waits for TX and then RX
@@ -131,8 +141,13 @@ that slot first.
 **The seam with F0.** F0's merged HAL (`sw/firmware/ctrl/mbx/mbx_hal.h`) carries the mailbox's bus port; this port carries the media.
 The two meet in time, which both need. Whichever time call the split image
 settles on must keep this port's contract: a local counter that only counts
-up, never the PHC. The event loop F0 owns calls `nvm_store_service()` once
-per pass and `nvm_store_changed()` from the protocol adapters.
+up, never the PHC. The event loop F0 owns owes the store one step for each
+centisecond it dispatches (`nvm_store_tick()`, at most one owed at a time)
+and takes it with `nvm_store_step()` at the end of a pass that took no input
+and has room for it, or as the whole of a pass once it has waited past the
+loop's age limit (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the
+protocol adapters
+call `nvm_store_changed()` or `nvm_store_changed_id()`.
 
 ## Boot
 
@@ -145,11 +160,13 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    it there by the section 6.2 order, including the erased-record rule. Its
    CRC, its records
    and the sequence the pick uses all come from the same bytes. The verdicts
-   equal `scripts/nvm_klj2.py`'s `klj2_decode` for the same bytes. A
+   equal `scripts/nvm_klj3.py`'s `klj3_decode` for the same bytes. A KLJ2
+   header is the previous format: `VD_VER`, never read further (#823
+   decision 2). A
    container longer than the stage can never be this shape's; its CRC is
    streamed only to name the refusal in the 6.2 order. One difference from
    the shipping writer: a framed record whose length runs past the record
-   area is `VD_LEN` here, as in `klj2_decode`, where the shipping writer says
+   area is `VD_LEN` here, as in `klj3_decode`, where the shipping writer says
    `VD_REC`.
 3. **A slot's verdict stands on at most `NVM_READ_TRIES` = 3 reads.** An OK
    verdict stands on one read, because its CRC-32 covers every byte, the
@@ -207,7 +224,14 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    listener. A roll-back that fails is **CLOSED**.
 8. AECP is released once, at the D3 walk's **COMPLETE** or **DEFAULTS**, or
    at **BLANK** (no slot accepted).
-9. **An UNREAD slot holds the writer**
+9. **Today's journal** (#823 decision 2). After the slots are judged, the
+   store reads the header of each of today's two KLJ2 slots, once each, and
+   sets bit 0 or 1 of the status field `legacy` for a KLJ2 header. When its
+   own slots are blank the boot's verdict is then `VD_VER`, not `VD_BLANK`:
+   the entity boots on its defaults, and the reason is recorded. A read the
+   port fails there records nothing, and holds nothing: that journal is the
+   all-fabric placement's, never this store's authority.
+10. **An UNREAD slot holds the writer**
    ([#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153)).
    A slot refused by a media read fault, unlike a cleanly read invalid one,
    leaves the authority unknown: it may hold a newer container than any slot
@@ -224,7 +248,9 @@ per pass and `nvm_store_changed()` from the protocol adapters.
 ## Write-back
 
 An accepted command that changes a persisted value calls
-`nvm_store_changed()`, which only marks the record. Each
+`nvm_store_changed()` with its group and index, or `nvm_store_changed_id()`
+with its record id, which only marks the record: neither walks the records,
+so a mark costs the same in any pass. Each
 `nvm_store_service()` call then does one bounded step:
 
 | Phase | One step |
@@ -232,14 +258,74 @@ An accepted command that changes a persisted value calls
 | idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set |
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
 | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
-| erase | start the erase of the slot that is NOT authoritative |
-| erase wait, blank check | poll once; then read back 256 bytes per step, all `0xFF` |
+| erase | start the erase of the next block the container spans, in the slot that is NOT authoritative |
+| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
 | program, program wait | one page, in ascending order: the header page first, the trailer last |
-| verify | read back 256 bytes per step and compare with the stage |
+| verify | read back 128 bytes per step and compare with the stage |
 | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
+
+**One step a centisecond, in a pass that has room for it (THE STEP).** The
+event loop owes the store a step for each centisecond it dispatches
+(`nvm_store_tick()`), and calls `nvm_store_step()` at the end of a pass that
+took no event and no record, with the clock's value at which the pass has
+spent its 2.0 ms share. The step is taken only while `NVM_STEP_US`, 1.0 ms, is
+left; otherwise it stays owed, and the passes it waits through owe it once.
+Once more than two centiseconds have been dispatched since the step last ran
+or owed nothing (`CTRL_LOOP_STEP_AGE`), the next pass is the step's alone,
+before any input, so input that never leaves a pass empty still lets the store
+step once every three ticks.
+On the split CPU, through the product's uncached flash window and its command
+master, a step costs at most (CPU cycles at 100 MHz, the store's and its flash
+port's own in the step's pass, one save with no other load, arm A;
+[split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)):
+
+| Step | 1x1/1if | 8x8/2if |
+|---|---:|---:|
+| Capture or seal, or idle in the first-dirty window | 35,645 | 34,700 |
+| Erase issue | 4,741 | 5,451 |
+| Busy poll | 3,775 | 5,013 |
+| Blank-check read-back, 128 bytes | 76,495 | 75,869 |
+| Page program issue | 95,184 | 95,525 |
+| Verify read-back, 128 bytes | 76,048 | 76,917 |
+
+Over every pass of every group the budget harness runs, at both points and in
+both arms, with and without the drafts, the longest step is 96,579 cycles,
+0.97 ms, a page program's issue: within the 1.0 ms of `NVM_STEP_US`.
+
+A save at 8x8 takes 4,697 ms from the change to durable on a flash with
+no busy time, 2,018 ms at 1x1: the 1,000 ms first-dirty window, the
+seal, then 128-byte read-backs a tick for the blank check and the verify and a
+page every other tick. A real part's erase and program waits add to it. No
+deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
+the append-only design.
+
+**A change's worst case.** Under input that leaves no pass empty a step comes
+at most three ticks after the one before. With no save in flight a change is
+durable at most 1,000 ms after it plus 30 ms for each step of its save after
+that window (the step that starts the capture, one for each changed record and
+one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
+of the blank check and of the verify, each page's issue and its wait), and
+10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
+change marked once a capture in flight has passed its record is the next
+save's, which only an idle step starts, so it waits first for the rest of the
+save in flight, at worst all its steps but two, or for its own 1,000 ms where
+that is longer. A SET_NAME of the entity, which marks both its names, is 370
+steps: 12,110 ms alone and 22,150 ms beside another's save in flight at 8x8,
+4,070 and 6,070 ms at 1x1, with no flash busy time. A part's busy time adds at
+most its erase time and its page programs': 3,260 ms a save at 8x8 and
+3,070 ms at 1x1 on the part of
+[section 9.4 of the fast-connect design](../../../docs/design/SAVED_STATE_FASTCONNECT.md#94-the-deadlines).
+The budget harness holds a change to it with every receive channel at its
+refill rate and a grandmaster change every pass, and a second change just after
+a save in flight's capture took its first record
+([split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)).
 
 The atomicity rules, from section 7 and the D3 register:
 
+- **The open bits carry their count** (#823 decision 6). A changed record's
+  bit and a captured one's are two word arrays, 36 words at layout 3, each
+  with the count of its bits set. Whether any record is open is the count,
+  not a scan of the words, on every service step.
 - **The authoritative slot is never erased or programmed.** At every instant
   of a commit one slot holds a complete container whose CRC closes.
 - **The trailer is the commit mark.** A container is accepted only once its
@@ -279,10 +365,12 @@ Five statements, each with what it rests on. MODEL time is what the host
 models charge: each byte on the 1x 12.5 MHz link costs 0.64 us, each CSR
 access to the command master costs 40 ns, and CPU work costs none of it.
 
-- **Bytes, asserted.** No step touches more than `max(256, 2 x P + 6)` bytes,
+- **Bytes, asserted.** No step touches more than `max(256, 2 x P + 8)` bytes,
   where P is the shape's largest payload: one 256-byte stretch, or one
-  latched record's copy and its crc16. That is 278 bytes at 1x1 and 1,158 at
-  8x8. `service_bound` asserts the figure exactly per shape. It counts
+  latched record's copy and its crc16. The crc16 covers the layout 3 header's
+  first 8 bytes and the payload. That is 280 bytes at 1x1 and 1,160 at 8x8.
+  `service_bound` asserts the figure exactly per shape, from the reference's
+  header size. It counts
   payload and CRC bytes only. It leaves out the owner's own `latch()` work,
   the walk to the next dirty record (at most one pass over the shape's
   records), and the CPU cost of a byte, which differs between a copy, a
@@ -381,11 +469,15 @@ only while the slot is judged.
 
 | Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,116 |
-| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,132 |
-| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,124 |
-| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,124 |
-| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,136 |
+| `endstation_arty_current` | 83,333,000 | 42 | 2,600 | 2,610 | 66 | 256 | 536 | 20 | 3,494 | 13,116 |
+| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,444 | 3,454 | 136 | 256 | 536 | 20 | 4,406 | 13,128 |
+| `endstation_arty_4x4` | 83,333,000 | 88 | 4,984 | 4,994 | 66 | 256 | 536 | 20 | 5,878 | 13,128 |
+| `endstation_arty_8ch` | 83,333,000 | 120 | 7,608 | 7,618 | 66 | 256 | 536 | 20 | 8,502 | 13,128 |
+| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,584 | 13,594 | 576 | 256 | 536 | 20 | 14,986 | 13,128 |
+
+In KLJ3 a record's header is ten bytes, two more than KLJ2's, and the store
+state holds two open-bit arrays of 36 words with their counts: 248 bytes more
+than KLJ2's eight words each.
 
 #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
 64 KiB slot. The shipping writer keeps a live window and a private stage in
@@ -408,21 +500,40 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj2.py`, the reference codec. Per shape, 53 checks in 85
-tests: 32 on both ports, ten on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 60 checks in 98
+tests: 38 on both ports, eleven on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
 there), four that ask the codec directly and two on GoogleMock's flash
 port. The recorded vector's round trip runs on both ports at the two shapes
-that have one. At the shipping 1x1 shape three more binaries run: two
-builds against a doctored shape header, and the LiteSPI port alone on
-GoogleMock's command master and `timer0`.
+that have one. At the shipping 1x1 shape four more binaries run: two
+builds against a doctored shape header, one with its names at the layout 3
+NAME block's capacity ([`test/test_nvm_capacity.cpp`](test/test_nvm_capacity.cpp):
+the block's first and last id, a commit over two erase blocks, a commit over
+an older container in every block it spans with each erase's address checked,
+and a record one past the block refused), and the LiteSPI port alone on
+GoogleMock's command master and `timer0`. One name past the capacity must not
+compile: the gate builds the codec so and requires `nvm_shape.h`'s refusal.
+Nor must a map entry count past its table (256 on an input port, 65,536 on an
+output port), each refused in its words. An input port at its table's limit,
+255 entries, must compile. The doctored input-width build must not compile
+under any shape header but the host suite's own, which alone defines
+`NVM_HOST_TEST`.
 
 - **Boot** ([`test/test_nvm_boot.cpp`](test/test_nvm_boot.cpp)):
   - blank, golden and erased-record slots;
   - newer wins, across the sequence wrap, and on a tie, at the wrap too;
   - a torn newer slot, two torn slots, a wrong major version;
-  - verdict parity over the shipping suite's refusal table plus three more;
+  - verdict parity over the shipping suite's refusal table in KLJ3, the
+    rules layout 3 adds (a KLJ2 container, the reserved header byte, an id
+    past the space) and three more;
+  - a KLJ2 journal (#823 decision 2): in today's journal, either slot, with
+    the boot blank, `VD_VER` recorded and that journal unwritten by the
+    commit after it; in the store's own slot; and its header unreadable;
+  - that reason's limits: a KLJ3 container in today's journal is not
+    recorded; a refused own slot keeps its own verdict; and today's two
+    slots are read at the addresses the flash map gives, which the fixture
+    reads from the SoC source;
   - read faults: a flipped bit on one re-stage and on every one; a flipped
     sequence bit on every boot read of either slot, across the wrap; an
     aliased re-stage, once and every time; failed reads at the bound and
@@ -434,6 +545,8 @@ GoogleMock's command master and `timer0`.
     values.
 - **Write-back** ([`test/test_nvm_write.cpp`](test/test_nvm_write.cpp)):
   - the first commit and a change commit, byte for byte;
+  - the open records' counts through two changes to one record, the capture
+    and the commit (#823 decision 6);
   - the debounce, with changes before, during and after a capture, the one
     to the record the capture examines next included;
   - DR2b both ways;
@@ -498,15 +611,16 @@ GoogleMock's command master and `timer0`.
 - **The round trip** ([`test/test_nvm_vector.cpp`](test/test_nvm_vector.cpp)).
   Given the records of the recorded vectors
   [`records_endstation_ax7101_1x1_tdm8.txt`](../../../tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt)
-  and its 8x8 twin, the store commits the container `tb/verilator/nvm_backend`
-  grades the RTL against: its length, its CRC-32 and every record's offset. It
-  then boots the same values back.
+  and its 8x8 twin, the store commits the same records the RTL's KLJ2
+  container holds, each under its layout 3 id with the same payload length,
+  byte for byte as the reference's KLJ3 container. It then boots the same
+  values back.
 - **The RV32 arm** cross-compiles freestanding and fails on any undefined
   symbol other than a C-library memory function or a libgcc helper.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (109 defects). They are graded at the 1x1 shape, except a defect that only
+by at least one (127 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

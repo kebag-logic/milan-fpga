@@ -166,57 +166,64 @@ def ports(contract: Contract) -> list[str]:
     return out
 
 
-def decode(contract: Contract) -> list[str]:
+def decode(contract: Contract, off: str = "off_w", pre: str = "") -> list[str]:
     """The face register an offset names: interface, region (the interface's
     registers, a source entry or a sink entry), entry and offset inside it,
-    by the offset's bit fields, the strides being powers of two."""
-    regs = " || ".join(f"face_reg_w == {AW}'(MBX_FACE_REG_{r.name}_C)" for r in contract.face_registers)
-    srcs = " || ".join(f"face_reg_w == {AW}'(MBX_FACE_SRC_REG_{r.name}_C)" for r in contract.face_source_registers)
-    snks = " || ".join(f"face_reg_w == {AW}'(MBX_FACE_SNK_REG_{r.name}_C)" for r in contract.face_sink_registers)
-    return ["  // ---- the face block: decoded and held here, read by the datapath -------------------",
-            "  // The strides are powers of two, so an offset's interface and entry are",
-            "  // its bit fields; a hole between the registers names none.",
-            "  localparam int unsigned FACE_SW_C = (MBX_N_PUB_SOURCES_C > 1) ? $clog2(MBX_N_PUB_SOURCES_C) : 1;"
-            "   //! source index bits",
-            "  localparam int unsigned FACE_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;"
-            "   //! sink index bits",
-            "  logic                  face_at_w;     //! the offset names a face register",
-            "  logic [1:0]            face_area_w;   //! 0 the interface's registers, 1 a source entry, 2 a sink entry",
-            "  logic [MBX_IF_W_C-1:0] face_if_w;     //! its interface",
-            "  logic [FACE_SW_C-1:0]  face_s_w;      //! its source entry",
-            "  logic [FACE_KW_C-1:0]  face_k_w;      //! its sink entry",
-            f"  logic [{AW}-1:0]      face_reg_w;    //! its offset inside the interface's registers or the entry",
-            "  always_comb begin : face_decode",
+    by the offset's bit fields, the strides being powers of two. The read side
+    decodes the registered read offset, its signals under ``pre`` (#870, the
+    register read's timing cut)."""
+    reg, area = f"{pre}face_reg_w", f"{pre}face_area_w"
+    regs = " || ".join(f"{reg} == {AW}'(MBX_FACE_REG_{r.name}_C)" for r in contract.face_registers)
+    srcs = " || ".join(f"{reg} == {AW}'(MBX_FACE_SRC_REG_{r.name}_C)" for r in contract.face_source_registers)
+    snks = " || ".join(f"{reg} == {AW}'(MBX_FACE_SNK_REG_{r.name}_C)" for r in contract.face_sink_registers)
+    whose = "the registered read offset" if pre else "the offset"
+    out = ["  // ---- the face block: decoded and held here, read by the datapath -------------------",
+           "  // The strides are powers of two, so an offset's interface and entry are",
+           "  // its bit fields; a hole between the registers names none.",
+           "  localparam int unsigned FACE_SW_C = (MBX_N_PUB_SOURCES_C > 1) ? $clog2(MBX_N_PUB_SOURCES_C) : 1;"
+           "   //! source index bits",
+           "  localparam int unsigned FACE_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;"
+           "   //! sink index bits"] if not pre else [
+           "  // ---- the face register the registered read offset names -------------------------"]
+    return out + [
+            f"  logic                  {pre}face_at_w;     //! {whose} names a face register",
+            f"  logic [1:0]            {area};   //! 0 the interface's registers, 1 a source entry, 2 a sink entry",
+            f"  logic [MBX_IF_W_C-1:0] {pre}face_if_w;     //! its interface",
+            f"  logic [FACE_SW_C-1:0]  {pre}face_s_w;      //! its source entry",
+            f"  logic [FACE_KW_C-1:0]  {pre}face_k_w;      //! its sink entry",
+            f"  logic [{AW}-1:0]      {reg};    //! its offset inside the interface's registers or the entry",
+            f"  always_comb begin : {pre}face_decode",
             f"    logic [{AW}-1:0] rel;",
             f"    logic [{AW}-1:0] in_if;",
             f"    logic [{AW}-1:0] entry;",
-            f"    rel         = off_w - {AW}'(MBX_FACE_BASE_C);",
+            f"    rel         = {off} - {AW}'(MBX_FACE_BASE_C);",
             f"    in_if       = rel & {AW}'(MBX_FACE_STRIDE_C - 1);",
-            "    face_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_FACE_STRIDE_C));",
-            f"    face_area_w = (in_if >= {AW}'(MBX_FACE_SINK_BASE_C)) ? 2'd2",
+            f"    {pre}face_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_FACE_STRIDE_C));",
+            f"    {area} = (in_if >= {AW}'(MBX_FACE_SINK_BASE_C)) ? 2'd2",
             f"                : (in_if >= {AW}'(MBX_FACE_SOURCE_BASE_C)) ? 2'd1 : 2'd0;",
-            f"    entry       = (face_area_w == 2'd2)",
+            f"    entry       = ({area} == 2'd2)",
             f"                  ? ((in_if - {AW}'(MBX_FACE_SINK_BASE_C)) >> $clog2(MBX_FACE_SINK_STRIDE_C))",
             f"                  : ((in_if - {AW}'(MBX_FACE_SOURCE_BASE_C)) >> $clog2(MBX_FACE_SOURCE_STRIDE_C));",
-            "    face_s_w    = FACE_SW_C'(entry);",
-            "    face_k_w    = FACE_KW_C'(entry);",
-            f"    face_reg_w  = (face_area_w == 2'd2) ? ((in_if - {AW}'(MBX_FACE_SINK_BASE_C))"
+            f"    {pre}face_s_w    = FACE_SW_C'(entry);",
+            f"    {pre}face_k_w    = FACE_KW_C'(entry);",
+            f"    {reg}  = ({area} == 2'd2) ? ((in_if - {AW}'(MBX_FACE_SINK_BASE_C))"
             f" & {AW}'(MBX_FACE_SINK_STRIDE_C - 1))",
-            f"                : (face_area_w == 2'd1) ? ((in_if - {AW}'(MBX_FACE_SOURCE_BASE_C))"
+            f"                : ({area} == 2'd1) ? ((in_if - {AW}'(MBX_FACE_SOURCE_BASE_C))"
             f" & {AW}'(MBX_FACE_SOURCE_STRIDE_C - 1))",
             "                : in_if;",
-            f"    face_at_w   = off_w >= {AW}'(MBX_FACE_BASE_C)",
+            f"    {pre}face_at_w   = {off} >= {AW}'(MBX_FACE_BASE_C)",
             f"                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < {AW}'(MBX_N_IF_C)",
-            "                  && ((face_area_w == 2'd0 && (" + regs + "))",
-            f"                      || (face_area_w == 2'd1 && entry < {AW}'(MBX_N_PUB_SOURCES_C) && ({srcs}))",
-            f"                      || (face_area_w == 2'd2 && entry < {AW}'(MBX_N_PUB_SINKS_C) && ({snks})));",
-            "  end : face_decode",
+            f"                  && (({area} == 2'd0 && (" + regs + "))",
+            f"                      || ({area} == 2'd1 && entry < {AW}'(MBX_N_PUB_SOURCES_C) && ({srcs}))",
+            f"                      || ({area} == 2'd2 && entry < {AW}'(MBX_N_PUB_SINKS_C) && ({snks})));",
+            f"  end : {pre}face_decode",
             ""]
 
 
-def _hit(area: int, reg: str, kind: str = "REG") -> str:
-    """The decode term of one face register."""
-    return f"face_at_w && face_area_w == 2'd{area} && face_reg_w == {AW}'(MBX_FACE_{kind}_{reg}_C)"
+def _hit(area: int, reg: str, kind: str = "REG", pre: str = "") -> str:
+    """The decode term of one face register, on the write side's decode or (``pre``) the read side's."""
+    return (f"{pre}face_at_w && {pre}face_area_w == 2'd{area} && {pre}face_reg_w == "
+            f"{AW}'(MBX_FACE_{kind}_{reg}_C)")
 
 
 def block(contract: Contract) -> list[str]:
@@ -384,30 +391,48 @@ def _outputs(contract: Contract) -> list[str]:
     return out
 
 
-def read(contract: Contract) -> list[str]:
-    """The face block's read-back: the stored settings and requests, each status, each answer."""
+def read(contract: Contract, pre: str = "") -> list[tuple[str, str, str, frozenset[int]]]:
+    """The face block's read-back terms: the stored settings and requests, each status, each
+    answer, each as (register, select on the decode whose signals carry ``pre``, the word it
+    answers, every byte offset the contract gives the register, one per interface and entry),
+    for the skeleton's AND-OR read multiplexer (#870)."""
+    regs = {r.name: r for r in contract.face_registers}
+    ifs = [contract.face_base + i * contract.face_stride for i in range(contract.interfaces)]
+
+    def at(name: str) -> frozenset[int]:
+        """The named interface register's offset in every interface's block."""
+        return frozenset(b + regs[name].offset for b in ifs)
+
+    def entries(r: Register, base: int, stride: int, count: int) -> frozenset[int]:
+        """The entry register's offset in each of `count` entries of every interface's block."""
+        return frozenset(b + base + e * stride + r.offset for b in ifs for e in range(count))
+
     out = []
+    fi = f"{pre}face_if_w"
     for r in settings(contract):
-        out.append(f"    if ({_hit(0, r.name)}) reg_rdata_w = 32'(face_{r.name.lower()}_r[face_if_w]);")
-    out.append(f"    if ({_hit(0, FACE_STATUS)}) reg_rdata_w = "
-               f"mbx_place_f(32'(fw_busy_r[face_if_w]), MBX_{FACE_STATUS}_BUSY_LSB_C, MBX_{FACE_STATUS}_BUSY_WIDTH_C);")
+        out.append((r.name, _hit(0, r.name, pre=pre), f"32'(face_{r.name.lower()}_r[{fi}])", at(r.name)))
+    out.append((FACE_STATUS, _hit(0, FACE_STATUS, pre=pre),
+                f"mbx_place_f(32'(fw_busy_r[{fi}]), MBX_{FACE_STATUS}_BUSY_LSB_C, MBX_{FACE_STATUS}_BUSY_WIDTH_C)",
+                at(FACE_STATUS)))
     for w in contract.face_windows:
         lw = w.name.lower()
         for n in w.request:
-            out.append(f"    if ({_hit(0, n)}) reg_rdata_w = 32'(face_{n.lower()}_r[face_if_w]);")
+            out.append((n, _hit(0, n, pre=pre), f"32'(face_{n.lower()}_r[{fi}])", at(n)))
         st = w.status
         status = " | ".join(f"mbx_place_f(32'({src}), MBX_{st}_{fld}_LSB_C, MBX_{st}_{fld}_WIDTH_C)"
-                            for fld, src in (("BUSY", f"{lw}_busy_r[face_if_w]"), ("DONE", f"{lw}_done_r[face_if_w]"),
-                                             ("TIMEOUT", f"{lw}_tmo_r[face_if_w]"), ("TAG", f"{lw}_tag_r[face_if_w]")))
-        out.append(f"    if ({_hit(0, st)}) reg_rdata_w = {status};")
+                            for fld, src in (("BUSY", f"{lw}_busy_r[{fi}]"), ("DONE", f"{lw}_done_r[{fi}]"),
+                                             ("TIMEOUT", f"{lw}_tmo_r[{fi}]"), ("TAG", f"{lw}_tag_r[{fi}]")))
+        out.append((st, _hit(0, st, pre=pre), status, at(st)))
         for k, n in enumerate(w.data):
-            out.append(f"    if ({_hit(0, n)}) reg_rdata_w = {lw}_data_r[face_if_w][32*{k} +: 32];")
+            out.append((n, _hit(0, n, pre=pre), f"{lw}_data_r[{fi}][32*{k} +: 32]", at(n)))
     for r in contract.face_source_registers:
-        out.append(f"    if ({_hit(1, r.name, 'SRC_REG')}) "
-                   f"reg_rdata_w = 32'(face_{r.name.lower()}_r[face_if_w][face_s_w]);")
+        out.append((r.name, _hit(1, r.name, 'SRC_REG', pre),
+                    f"32'(face_{r.name.lower()}_r[{fi}][{pre}face_s_w])",
+                    entries(r, contract.face_source_base, contract.face_source_stride, contract.pub_sources)))
     for r in contract.face_sink_registers:
-        out.append(f"    if ({_hit(2, r.name, 'SNK_REG')}) "
-                   f"reg_rdata_w = 32'(face_{r.name.lower()}_r[face_if_w][face_k_w]);")
+        out.append((r.name, _hit(2, r.name, 'SNK_REG', pre),
+                    f"32'(face_{r.name.lower()}_r[{fi}][{pre}face_k_w])",
+                    entries(r, contract.face_sink_base, contract.face_sink_stride, contract.pub_sinks)))
     return out
 
 

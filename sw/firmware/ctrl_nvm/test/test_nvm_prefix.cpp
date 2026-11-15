@@ -29,7 +29,7 @@ TEST(NvmCodec, codec_erased_loaded_prefix) {
     // An interior record would hit the next header guard even if this guard failed.
     std::uint32_t end = 0;
     for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
-        end = NVM_KLJ2_HDR + r.off + NVM_REC_HDR + r.plen;
+        end = NVM_KLJ_HDR + r.off + NVM_REC_HDR + r.plen;
     }
     for (const std::uint32_t loaded : {end - 1u, end}) {
         auto prefix = std::make_unique<std::uint8_t[]>(loaded);

@@ -11,7 +11,7 @@
 // allocation output on the datapath CSR window) and runs the boot order of
 // ctrl/README.md: ctrl_app_compose() with ADP, ACMP and MAAP, the binding
 // owner on lane F1's store over the LiteSPI port (acmp_nvm.h),
-// nvm_store_boot(), the store's centisecond service, ctrl_app_open(), then
+// nvm_store_boot(), the store's centisecond tick and its step, ctrl_app_open(), then
 // the loop. The owners the integrator supplies (the lock, the sources, SRP,
 // the notifier, every saved-state group but the bindings, and the CSR
 // window's two accesses) are stubs that do nothing, so the measure is the
@@ -204,7 +204,8 @@ int main(void)
 	}
 	acmp_nvm_init(&binding_owner, &app.acmp.acmp, NVM_G_BIND, &others);
 	nvm_store_boot(&nvm_flash_litespi, &binding_owner.port);
-	if (!ctrl_loop_add_tick(&app.loop, nvm_store_service) || !ctrl_app_open(&app, &cfg)) {
+	if (!ctrl_loop_add_tick(&app.loop, nvm_store_tick) ||
+	    !ctrl_loop_set_step(&app.loop, nvm_store_step, NULL, nvm_store_clock, NULL) || !ctrl_app_open(&app, &cfg)) {
 		halt();
 	}
 #else
@@ -215,7 +216,8 @@ int main(void)
 #else
 	if (!ctrl_app_start(&app, &cfg) ||
 #endif
-	    !ctrl_loop_add_tick(&app.loop, nvm_store_service)) {
+	    !ctrl_loop_add_tick(&app.loop, nvm_store_tick) ||
+	    !ctrl_loop_set_step(&app.loop, nvm_store_step, NULL, nvm_store_clock, NULL)) {
 		halt();
 	}
 #endif

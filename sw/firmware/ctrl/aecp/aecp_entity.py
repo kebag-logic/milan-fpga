@@ -41,7 +41,7 @@ def emit(config: Path) -> str:
     ]
     lines.extend("\t" + ",".join(f"0x{b:02x}" for b in blob[n:n + 16]) + ","
                  for n in range(0, len(blob), 16))
-    return "\n".join([*lines, "};", "#endif", ""])
+    return "\n".join([*lines, "};", "#endif", "#endif", ""])
 
 
 def main() -> int:

@@ -20,6 +20,8 @@ REVOCATIONS_PUBLISHED = ('    publish_licence(i);\n    for (unsigned k = 0; k < 
                          '            m->config.licence(m->config.ctx,i->index,k,false);\n        }\n    }\n')
 DECLARE_SOURCES = 'static bool declare_sources(struct srp_interface *i)\n{'
 SEND_COMMITTED = '    m->owed_len = 0;\n    ++m->transmitted;\n    return 0;\n}'
+#: The close of the branch of poll in which a reset's new participants are refused.
+REOPEN_REFUSED = '                    expire_receive(m);\n                }\n                continue;\n            }\n'
 
 #: What a held-back publish keeps until it is let go: the slope or the set of
 #: declared sources declare_sources computed, by the name of its storage.
@@ -112,8 +114,12 @@ def _licence_domain_slope(Defect: Callable[..., T], held_back: Callable[..., T])
                "the poll's publication term funds a reset, an adoption and two changes per source",
                path='srp/srp_bounds.h', suite='srp_app.cpp'),
         Defect('pub-term-reset-understated','PollPublicationTermIsMeasuredThroughRealCallbacks',
-               '#define SRP_MBX_PUB_RESET 5u', '#define SRP_MBX_PUB_RESET 4u',
-               'a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each',
+               '#define SRP_MBX_PUB_WITHDRAW 2u', '#define SRP_MBX_PUB_WITHDRAW 1u',
+               'a reset publishes LICENCE and TALKER_DECL, once each',
+               path='srp/srp_bounds.h', suite='srp_app.cpp'),
+        Defect('pub-term-reopen-understated','PollPublicationTermIsMeasuredThroughRealCallbacks',
+               '#define SRP_MBX_PUB_REOPEN 3u', '#define SRP_MBX_PUB_REOPEN 2u',
+               'the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each',
                path='srp/srp_bounds.h', suite='srp_app.cpp'),
     )
 
@@ -147,9 +153,7 @@ def _declarations(Defect: Callable[..., T], held_back: Callable[..., T]) -> tupl
                'PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
                '    withdraw_declared(i->index);\n', '',
                'PUB a link restart withdraws TALKER_DECL before the new participants declare',
-               also=(('    if (!open_interface(i)) {\n        ++m->refused;\n    }\n}\n\nstatic void on_event(',
-                      '    if (!open_interface(i)) {\n        ++m->refused;\n    }\n    withdraw_declared(i->index);\n}'
-                      '\n\nstatic void on_event('),)),
+               also=((REOPEN_REFUSED, REOPEN_REFUSED + '            withdraw_declared(n);\n'),)),
         Defect('pub-declared-kept-at-destroy','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
                '        withdraw_declared(n);\n', '',
                'PUB destroy withdraws every declaration from the datapath'),

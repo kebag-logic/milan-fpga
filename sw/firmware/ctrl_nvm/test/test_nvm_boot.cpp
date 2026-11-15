@@ -8,7 +8,8 @@
 // One test per check of the hand-rolled suite this replaces
 // (nvm_checks.py until #665 FT), under the check's own name, so
 // nvm_mutants.py names the test that must fail on each planted defect. Every
-// image is the fixture's (nvm_fixture.py, from scripts/nvm_klj2.py).
+// image is the fixture's (nvm_fixture.py, from scripts/nvm_klj3.py), the
+// all-fabric placement's KLJ2 container from scripts/nvm_klj2.py.
 
 #include <gtest/gtest.h>
 
@@ -42,12 +43,12 @@ TEST_P(NvmBoth, blank_boot) {
                 r.at("phase") == 1)
         << "blank boot state: " << r.text();
     EXPECT_TRUE(f.blobs["stage.bin"] == fx().blob("erased@0"))
-        << "the staged blank container differs from nvm_klj2.py's";
+        << "the staged blank container differs from nvm_klj3.py's";
 }
 
 // A golden slot is chosen, every record is applied in the D3 order (the
 // settle step once, between the maps and the names) and the state equals
-// what klj2_decode reads out of the same bytes.
+// what klj3_decode reads out of the same bytes.
 TEST_P(NvmBoth, golden_restore) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--dump-state", "st"});
@@ -114,27 +115,123 @@ TEST_P(NvmBoth, both_torn_blank) {
 }
 
 // For every section 6.2 refusal, both faces of the erased-record rule and a
-// blank slot, the store's verdict equals klj2_decode's for the same bytes
-// (the shipping writer suite's table, plus three refusals it does not carry).
+// blank slot, the store's verdict equals klj3_decode's for the same bytes
+// (the shipping writer suite's table in KLJ3, the rules layout 3 adds, and
+// three refusals it does not carry).
 TEST_P(NvmBoth, verdict_parity) {
     const std::vector<long long>& verdicts = fx().list("parity_verdicts");
     for (std::size_t n = 0; n < verdicts.size(); ++n) {
         Files f = fx().files({{"p.bin", "parity/" + std::to_string(n)}});
         const Result r = go(port(), f, {"--slot-a", "p.bin", "--boot"});
         EXPECT_EQ(r.at("vd_a"), verdicts[n]) << "parity: " << fx().text("parity_label/" + std::to_string(n))
-                                             << ": store " << r.at("vd_a") << ", klj2_decode " << verdicts[n];
+                                             << ": store " << r.at("vd_a") << ", klj3_decode " << verdicts[n];
     }
 }
 
 // A newer slot of another major version is refused VD_VER, never
 // reinterpreted, and the older slot is offered.
 TEST_P(NvmBoth, wrong_version_falls_back) {
-    for (const int major : {1, 3}) {
+    for (const int major : {2, 4}) {
         Files f = fx().files({{"a.bin", "golden@3"}, {"b.bin", "golden@4/major" + std::to_string(major)}});
         const Result r = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot"});
         EXPECT_TRUE(r.at("vd_b") == NVM_VD_VER && r.at("auth") == 0 && r.at("seq") == 3)
             << "major " << major << ": " << r.text();
     }
+}
+
+// #823 decision 2: today's journal holding the all-fabric placement's KLJ2
+// container, and this store's journal blank. The KLJ2 journal is refused for
+// its version: nothing of it is applied, the boot is BLANK and its verdict is
+// VD_VER, and the slot it was found in is recorded. A commit then lands in
+// this store's journal, and today's journal is left as it was, byte for byte.
+TEST_P(NvmBoth, klj2_journal_refused) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"k.bin", "klj2@5"}});
+        const Result r = go(port(), f, {"--blank", slot == 0 ? "--legacy-a" : "--legacy-b", "k.bin",
+                                        "--dump-legacy", "before", "--boot", "--dump-state", "st", "--commit",
+                                        "--dump-legacy", "after", "--dump-slot-a", "a.bin"});
+        EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("vd_a") == NVM_VD_BLANK &&
+                    r.at("vd_b") == NVM_VD_BLANK && r.at("sm_applies") == 0 && r.at("releases") == 1 &&
+                    r.at("legacy") == (1 << slot) && r.at("ok") == 1 && r.at("auth") == 0 &&
+                    r.at("last") == NVM_VD_OK)
+            << "KLJ2 journal in today's slot " << slot << ", then a commit: " << r.text();
+        expect_state(f, "st", {});
+        EXPECT_TRUE(f.blobs["before"] == f.blobs["after"]) << "today's journal was written";
+        EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the commit is not in journal_klj3";
+    }
+    Files f = fx().files({{"k.bin", "klj2@5"}});
+    const Result r = go(port(), f, {"--blank", "--legacy-a", "k.bin", "--boot"});
+    EXPECT_TRUE(r.at("last") == NVM_VD_VER && r.at("legacy") == 1)
+        << "the blank boot's verdict names the KLJ2 journal: " << r.text();
+    EXPECT_EQ(fx().num("klj2_verdict"), NVM_VD_VER) << "klj3_decode on the KLJ2 container";
+}
+
+// #823 decision 2, the reason's negative side: only a KLJ2 header in today's
+// journal is the previous format. A container of another format there (the
+// split's own KLJ3) is not recorded, and the blank boot's verdict stays
+// VD_BLANK.
+TEST_P(NvmBoth, legacy_other_format_not_recorded) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"g.bin", "golden@5"}});
+        const Result r = go(port(), f, {"--blank", slot == 0 ? "--legacy-a" : "--legacy-b", "g.bin", "--boot"});
+        EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("legacy") == 0 && r.at("last") == NVM_VD_BLANK &&
+                    r.at("sm_applies") == 0)
+            << "a KLJ3 container in today's slot " << slot << ": " << r.text();
+    }
+}
+
+// The reason replaces a blank verdict only: a slot of this store's that was
+// refused keeps its own verdict as the boot's, with a KLJ2 journal beside it
+// still recorded.
+TEST_P(NvmBoth, own_refusal_kept_over_legacy) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"x.bin", "golden@5/foreign"}, {"k.bin", "klj2@5"}});
+        const Result r = go(port(), f, {"--blank", slot == 0 ? "--slot-a" : "--slot-b", "x.bin", "--legacy-a", "k.bin",
+                                        "--boot"});
+        EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at(slot == 0 ? "vd_a" : "vd_b") == NVM_VD_SHAPE &&
+                    r.at("last") == NVM_VD_SHAPE && r.at("legacy") == 1)
+            << "slot " << slot << " refused, KLJ2 in today's journal: " << r.text();
+    }
+}
+
+// Today's two slots where the flash map puts them: the halves of
+// FLASHBOOT_RESERVED["journal"], read by the fixture from the SoC source and
+// not from the store's macros, so a store reading the wrong place for either
+// slot misses the KLJ2 container placed there.
+TEST_P(NvmBoth, klj2_journal_at_its_flash_map_address) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"k.bin", "klj2@5"}});
+        const long long at = fx().num(slot == 0 ? "legacy_a" : "legacy_b");
+        const std::string load = "0x" + hex(static_cast<unsigned long long>(at)) + ":k.bin";
+        const Result r = go(port(), f, {"--blank", "--load-at", load, "--boot"});
+        EXPECT_TRUE(r.at("legacy") == (1 << slot) && r.at("last") == NVM_VD_VER)
+            << "KLJ2 at 0x" << hex(static_cast<unsigned long long>(at)) << ", today's slot " << slot
+            << " in the flash map: " << r.text();
+    }
+}
+
+// A KLJ2 container in this store's own slot is the previous format too:
+// VD_VER, never reinterpreted, and the boot is BLANK naming it.
+TEST_P(NvmBoth, klj2_in_slot_refused) {
+    Files f = fx().files({{"k.bin", "klj2@5"}});
+    const Result r = go(port(), f, {"--blank", "--slot-a", "k.bin", "--boot", "--dump-state", "st"});
+    EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("vd_a") == NVM_VD_VER && r.at("last") == NVM_VD_VER &&
+                r.at("sm_applies") == 0 && r.at("legacy") == 0)
+        << "KLJ2 in slot A: " << r.text();
+    expect_state(f, "st", {});
+}
+
+// Today's journal is the other placement's, never this store's authority: a
+// read of its header that fails records nothing and holds nothing, and the
+// store's own valid slot is applied as before (the model port: a read fault
+// does not reach memory-mapped LiteSPI reads).
+TEST_F(NvmModel, klj2_journal_unreadable) {
+    Files f = fx().files({{"g.bin", "golden@5"}, {"k.bin", "klj2@5"}});
+    const std::string at = "read-fail-at:1:0:0x" + hex(NVM_LEGACY_A + 4u);
+    const Result r = go(Port::Model, f, {"--slot-a", "g.bin", "--legacy-a", "k.bin", "--boot-fault", at, "--boot"});
+    EXPECT_TRUE(r.at("terminal") == NVM_T_COMPLETE && r.at("auth") == 0 && r.at("legacy") == 0 &&
+                r.at("unread") == 0 && r.at("read_faults") == 0 && r.at("phase") == 1 && r.at("last") == NVM_VD_OK)
+        << "an unreadable KLJ2 header: " << r.text();
 }
 
 // The chosen slot is read again and judged again in RAM: a bit the read

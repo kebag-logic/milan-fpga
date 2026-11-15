@@ -41,6 +41,7 @@ import runpy
 from pathlib import Path
 
 from boot_policy import fabric_constants
+import check_image_identity
 import ctrl_memory
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
@@ -91,6 +92,7 @@ import board_audio_routing
 # the firmware host test use, so the three cannot read the overlay apart.
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from nvm_shape import binding_base, firmware_constants, layout_version
+from nvm_klj3 import split_constants
 from nvm_contract import Donor as NvmDonor, Shape as NvmShape
 
 # The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
@@ -158,6 +160,10 @@ FLASHBOOT_AEM = FLASHBOOT_LAYOUT["aem"]
 #            "a torn write cannot damage the other slot" is then a property of
 #            the flash geometry, not a promise from a log-structured fs, and the
 #            slot is readable before any mount.
+#   journal_klj3  2 x 320 KiB = slot A / slot B of five erase blocks, RAW: the
+#            split placement's KLJ3 saved state (#823), written only by its
+#            store (sw/firmware/ctrl_nvm), which reads journal's two headers
+#            and never writes them; the all-fabric writer never touches it.
 #   user     raw bare-metal records: entity/group names, channel maps, mixer
 #            state, and the rotating compressed CTF fault log. There is no
 #            filesystem or target-OS mount associated with this region.
@@ -171,6 +177,11 @@ FLASHBOOT_RESERVED = {
     # Keep these stable across product revisions: moving them intentionally
     # starts with empty persistence and requires an explicit migration plan.
     "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+    # The split placement's KLJ3 journal (#823 decisions 2 and 3): two slots of
+    # five erase blocks, directly below the KLJ2 journal above, which the
+    # all-fabric writer keeps and the split store reads but never writes, so a
+    # rollback to an all-fabric image still finds its saved state.
+    "journal_klj3": {"offset": 0xE4_0000, "size": 0x0A_0000},   # 640 KiB, raw A/B
     "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB raw records
 }
 
@@ -2885,6 +2896,7 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_evt.sv",
     "hdl/milan/mailbox/KL_mbx.sv",
     "hdl/milan/mailbox/KL_mbx_wb.sv",
+    "hdl/milan/mailbox/KL_mbx_dma.sv",
 ]
 
 # ---- #665: the split placement's datapath face ---------------------------------------------------
@@ -2998,11 +3010,114 @@ _CTRL_CDC_NVM = ("fw_nvm_backed_o", "fw_nvm_alarm_o", "fw_nvm_dirty_o", "fw_nvm_
                  "fw_nvm_img_valid_o")
 
 
+def soc_ident(cpu_human: str, xlen: int, cpu_count: int, software_profile: str, split: bool) -> str:
+    """The SoC ident string. Until the flip (#665 S13) VERSION does not tell the placements apart, so
+    a split image's ident names its placement in its last word (decision D2); the all-fabric ident is
+    the one it always was, so its image is unchanged."""
+    ident = f"Milan TSN SoC - {cpu_human} RV{xlen} {cpu_count}-core {software_profile}"
+    return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident
+
+
+def write_image_manifest(soc: SoCCore, out_dir: Path, elf: Path, bitstream: Path | None) -> Path:
+    """A split image's manifest (#665 S9, decision D2), then the identity gate on the image just written.
+
+    The manifest records the placement, the ident, VERSION, the mailbox contract the ID register
+    gives, the control firmware ELF's sha256 and, after a Vivado build, the bitstream's binding.
+    The build fails when the image it wrote disagrees with any of them."""
+    contract = ctrl_mailbox_contract()
+    major, minor = check_image_identity.rtl_version()
+    doc = check_image_identity.manifest(soc._ident, (major << 16) | minor, (contract.major, contract.minor),
+                                        elf, bitstream)
+    path = out_dir / check_image_identity.MANIFEST
+    path.write_text(json.dumps(doc, indent=2) + "\n")
+    found = check_image_identity.findings(out_dir)
+    if found:
+        raise RuntimeError("the split image's identity gate refuses it:\n  "
+                           + "\n  ".join(f"{kind}: {words}" for kind, words in found))
+    return path
+
+
 def ctrl_mailbox_contract() -> object:
     """The mailbox contract (sw/mailbox/mailbox.yaml), validated; its sizes are never restated here."""
     sys.path.insert(0, str(REPO_ROOT / "sw" / "mailbox"))
     from mailbox_model import load as load_mailbox_contract
     return load_mailbox_contract()
+
+
+#: The record mover's control registers (#665, owner decision 2026-10-29), in
+#: this order, one 32-bit word each from its CSR bank's base: CFG ([15:0] the
+#: ring's word 0 as a word address in the mailbox window, [31:16] the ring's
+#: words less one), MEM (the memory side's first byte, on a word), CMD ([15:0]
+#: the ring index of the first word, [27:16] the bytes to move, [31] 1 for
+#: memory to the ring; a write starts the transfer) and STATUS ([0] BUSY,
+#: [1] ERR). sw/firmware/ctrl/plat/mbx_dma.h restates them for the firmware.
+CTRL_MBX_DMA_REGISTERS = ("cfg", "mem", "cmd", "status")
+
+
+class CtrlMailboxDma(LiteXModule):
+    """The split placement's record mover (KL_mbx_dma, #665): its CSR bank and its DMA master.
+
+    KL_mbx_dma sits on KL_mbx's host port between KL_mbx_wb and KL_mbx and
+    moves a record's payload between a ring and the CPU's memory over `bus`,
+    an AXI4 master the SoC adds to its DMA bus, so through the CPU's coherent
+    DMA port. `cpu` is the host port KL_mbx_wb drives, `host` the one KL_mbx
+    takes; the mailbox hookups (CtrlMailbox, the CPU budget harness's own)
+    connect each to their adapter and their mailbox.
+    """
+
+    def __init__(self, addr_w: int) -> None:
+        """`addr_w` is the mailbox window's word-address width (KL_mbx_pkg's MBX_ADDR_W_C)."""
+        def port() -> dict[str, Signal]:
+            """One host port's signals, as KL_mbx names them."""
+            return dict(req=Signal(), we=Signal(), addr=Signal(addr_w), wdata=Signal(32), be=Signal(4),
+                        ack=Signal(), rdata=Signal(32))
+        self.cpu, self.host = port(), port()
+        self.cfg = CSRStorage(32, description="[15:0] the ring's word 0, a word address in the window; "
+                                               "[31:16] the ring's words less one")
+        self.mem = CSRStorage(32, description="The memory side's first byte, on a word")
+        self.cmd = CSRStorage(32, description="[15:0] the first word's ring index; [27:16] the bytes to move; "
+                                              "[31] 1: memory to the ring. A write starts the transfer")
+        self.status = CSRStatus(32, description="[0] BUSY; [1] ERR")
+        self.bus = bus = axi.AXIInterface(data_width=32, address_width=32, id_width=4)
+        busy, err, start = Signal(), Signal(), Signal()
+        # CSRStorage takes the written word at the end of its write cycle: start the cycle after.
+        self.sync += start.eq(self.cmd.re)
+        self.comb += self.status.status.eq(Cat(busy, err))
+        c, h = self.cpu, self.host
+        self.specials += Instance("KL_mbx_dma",
+            i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
+            i_ring_base_i=self.cfg.storage[:addr_w], i_ring_mask_i=self.cfg.storage[16:32],
+            i_ring_index_i=self.cmd.storage[0:16], i_mem_addr_i=self.mem.storage,
+            i_len_bytes_i=self.cmd.storage[16:28], i_to_ring_i=self.cmd.storage[31],
+            i_start_p_i=start, o_busy_o=busy, o_err_o=err,
+            i_cpu_req_i=c["req"], i_cpu_we_i=c["we"], i_cpu_addr_i=c["addr"], i_cpu_wdata_i=c["wdata"],
+            i_cpu_be_i=c["be"], o_cpu_ack_o=c["ack"], o_cpu_rdata_o=c["rdata"],
+            o_host_req_o=h["req"], o_host_we_o=h["we"], o_host_addr_o=h["addr"], o_host_wdata_o=h["wdata"],
+            o_host_be_o=h["be"], i_host_ack_i=h["ack"], i_host_rdata_i=h["rdata"],
+            o_axi_awvalid_o=bus.aw.valid, i_axi_awready_i=bus.aw.ready, o_axi_awid_o=bus.aw.id,
+            o_axi_awaddr_o=bus.aw.addr, o_axi_awlen_o=bus.aw.len, o_axi_awsize_o=bus.aw.size,
+            o_axi_awburst_o=bus.aw.burst, o_axi_awlock_o=bus.aw.lock, o_axi_awcache_o=bus.aw.cache,
+            o_axi_awprot_o=bus.aw.prot, o_axi_awqos_o=bus.aw.qos,
+            o_axi_wvalid_o=bus.w.valid, i_axi_wready_i=bus.w.ready, o_axi_wdata_o=bus.w.data,
+            o_axi_wstrb_o=bus.w.strb, o_axi_wlast_o=bus.w.last,
+            i_axi_bvalid_i=bus.b.valid, o_axi_bready_o=bus.b.ready, i_axi_bid_i=bus.b.id, i_axi_bresp_i=bus.b.resp,
+            o_axi_arvalid_o=bus.ar.valid, i_axi_arready_i=bus.ar.ready, o_axi_arid_o=bus.ar.id,
+            o_axi_araddr_o=bus.ar.addr, o_axi_arlen_o=bus.ar.len, o_axi_arsize_o=bus.ar.size,
+            o_axi_arburst_o=bus.ar.burst, o_axi_arlock_o=bus.ar.lock, o_axi_arcache_o=bus.ar.cache,
+            o_axi_arprot_o=bus.ar.prot, o_axi_arqos_o=bus.ar.qos,
+            i_axi_rvalid_i=bus.r.valid, o_axi_rready_o=bus.r.ready, i_axi_rid_i=bus.r.id,
+            i_axi_rdata_i=bus.r.data, i_axi_rresp_i=bus.r.resp, i_axi_rlast_i=bus.r.last)
+
+
+def add_ctrl_mailbox_dma(soc: SoCCore, addr_w: int, loc: int) -> CtrlMailboxDma:
+    """The record mover in its own CSR bank at `loc`, its master on the CPU's DMA bus (#665)."""
+    if not hasattr(soc, "dma_bus"):
+        raise ValueError("--ctrl-mailbox: the record mover needs the CPU's coherent DMA port, "
+                         "and this SoC has no DMA bus")
+    soc.csr.add("ctrl_mbx_dma", n=loc)
+    soc.ctrl_mbx_dma = CtrlMailboxDma(addr_w)
+    soc.dma_bus.add_master("ctrl_mbx_dma", master=soc.ctrl_mbx_dma.bus)
+    return soc.ctrl_mbx_dma
 
 
 def ctrl_mailbox_face_ports(contract: object) -> dict:
@@ -3037,7 +3152,8 @@ class CtrlMailbox(LiteXModule):
 
     Only the hookup lives here; KL_mbx and KL_mbx_wb are the generated and
     hand-written SystemVerilog sw/mailbox/gen_mailbox.py checks against the
-    contract, and KL_mbx_cdc is the crossing.
+    contract, and KL_mbx_cdc is the crossing. KL_mbx_wb reaches KL_mbx
+    through the record mover (`dma`, CtrlMailboxDma).
 
     WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665)
     the mailbox's datapath side is connected: the control frames both
@@ -3053,14 +3169,15 @@ class CtrlMailbox(LiteXModule):
     and a commit waits, as the contract defines.
     """
 
-    def __init__(self, sys_clk_freq: int, contract: object, dp: object = None) -> None:
+    def __init__(self, sys_clk_freq: int, contract: object, dma: CtrlMailboxDma, dp: object = None) -> None:
         from litex.soc.interconnect import wishbone
         from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
         self.ev = EventManager()
         self.ev.mbx = EventSourceLevel()
         self.ev.finalize()
-        # NOW_MS's one-cycle pulse per millisecond of the CPU clock.
+        # NOW_MS's one-cycle pulse per millisecond of the mailbox's own clock, sys, the bus
+        # clock, which the split CPU runs on too (#665, CTRL_CPU_CD).
         ms_div = int(sys_clk_freq) // 1000
         ms_cnt = Signal(max=ms_div)
         ms_tick = Signal()
@@ -3075,15 +3192,15 @@ class CtrlMailbox(LiteXModule):
         # sink's stream_id
         n_if = contract.interfaces
         pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
-        req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
-        addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
+        irq = Signal()
+        c, h = dma.cpu, dma.host
         self.specials += Instance("KL_mbx_wb",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
             i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
             i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
-            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
-            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+            o_host_req_o=c["req"], o_host_we_o=c["we"], o_host_addr_o=c["addr"], o_host_wdata_o=c["wdata"],
+            o_host_be_o=c["be"], i_host_ack_i=c["ack"], i_host_rdata_i=c["rdata"])
         pub = dict(
             o_pub_da_gate_o=Signal(n_if * contract.pub_sources, name="mbx_pub_da_gate"),
             o_pub_licence_o=Signal(n_if * contract.pub_sources, name="mbx_pub_licence"),
@@ -3106,8 +3223,8 @@ class CtrlMailbox(LiteXModule):
             self._split(contract, dp, pub, face, side)
         self.specials += Instance("KL_mbx",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
-            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
-            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=irq,
+            i_host_req_i=h["req"], i_host_we_i=h["we"], i_host_addr_i=h["addr"], i_host_wdata_i=h["wdata"],
+            i_host_be_i=h["be"], o_host_ack_o=h["ack"], o_host_rdata_o=h["rdata"], o_irq_o=irq,
             i_ms_tick_p_i=ms_tick, **side, **pub, **face)
         self.comb += self.ev.mbx.trigger.eq(irq)
 
@@ -3187,9 +3304,9 @@ class CtrlReboot(LiteXModule):
 
 
 def add_ctrl_reboot(soc: SoCCore) -> Signal:
-    """Add the REBOOT reset port's CSR bank, pinned below the mailbox's (a new bank must not move
-    an old one); return its level, in `sys`."""
-    soc.csr.add("ctrl_reboot", n=soc.csr.n_locs - 3)
+    """Add the REBOOT reset port's CSR bank, pinned below the mailbox's record mover's (n_locs - 4; a
+    new bank must not move an old one); return its level, in `sys`."""
+    soc.csr.add("ctrl_reboot", n=soc.csr.n_locs - 4)
     soc.ctrl_reboot = CtrlReboot()
     return soc.ctrl_reboot.req.storage
 
@@ -3203,7 +3320,8 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: obje
     # below the observer's page, where automatic allocation reaches last.
     contract = ctrl_mailbox_contract()
     soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
-    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract, dp=dp)
+    dma = add_ctrl_mailbox_dma(soc, (contract.window_bytes // 4 - 1).bit_length(), soc.csr.n_locs - 3)
+    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract, dma, dp=dp)
     soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
                       region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
     if soc.irq.enabled:
@@ -3266,7 +3384,76 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
                           region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
     # LiteX's own flag for "rom already holds its contents": the Builder builds no BIOS.
     soc.integrated_rom_initialized = True
+    exact_cpu_decode(soc.cpu)
     print(f"[milan] --ctrl-firmware {firmware}: {json.dumps(soc.ctrl_plan.summary())}")
+
+
+def exact_cpu_decode(cpu: object) -> None:
+    """Hand the split CPU's generator each region as ctrl_memory.cpu_regions splits it (#791).
+
+    LiteX's VexiiRiscv collects its region list from the SoC bus as it
+    finalizes, names its netlist from that list (generate_netlist_name), then
+    generates the netlist from it. Here this CPU's naming step first replaces
+    the list by its aligned power-of-two pieces, so the netlist's name and its
+    fetch and load decode both follow the pieces. The SoC bus, its decoder and
+    csr.csv keep the whole regions. Only VexiiRiscv is split, the one CPU the
+    product profile accepts.
+
+    After LiteX's finalize, two re-pinned LiteX shapes are refused instead of
+    building a decode other than the pieces: a finalize that never calls the
+    naming step, and one where a region list other than the aligned
+    power-of-two list the naming step hashed is left for the generator to
+    read, on the instance or on its classes (`cpu_region_lists`), such as a
+    list collected again after naming, kept on the instance, or changed in
+    place after naming: the step keeps a copy of the list as it hashed it, so
+    a change in place differs from it too. The refusal comes after the
+    finalize in which the pinned LiteX runs the generator: in the second shape
+    a netlist generated by that build is cached under the pieces' name with a
+    decode other than theirs, so the refusal names it for removal.
+    """
+    from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
+    if not isinstance(cpu, VexiiRiscv):
+        return
+    finalize, named = cpu.do_finalize, []
+
+    def generate_netlist_name() -> None:
+        """This CPU's naming step: the pieces first, then LiteX's own naming from them. The refusal compares
+        against a copy of the list as named, which no later change in place to the class's list alters."""
+        VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)
+        named.append(list(VexiiRiscv.memory_regions))
+        VexiiRiscv.generate_netlist_name()
+
+    def do_finalize() -> None:
+        """LiteX's finalize, then the refusal of a CPU whose generator may not read the naming step's pieces."""
+        finalize()
+        if not named:
+            raise RuntimeError("the split CPU named its netlist without its exact region pieces: LiteX's "
+                               "VexiiRiscv no longer names it through generate_netlist_name (#791)")
+        pieces = list(named[-1]) if named else []
+        stray = sorted(where for where, rows in cpu_region_lists(cpu).items() if rows != pieces)
+        if stray or not all(size > 0 and size & (size - 1) == 0 and origin % size == 0
+                            for origin, size, *_ in pieces):
+            name = getattr(VexiiRiscv, "netlist_name", None) or "(unnamed)"
+            why = (f"a region list other than the pieces is held at {stray}, so a netlist {name} this build "
+                   f"generated decodes other than its name says: remove it from the generator's cache" if stray
+                   else "the naming step's list is not aligned powers of two")
+            raise RuntimeError(f"the split CPU's generator may not read its exact region pieces {pieces}: {why} (#791)")
+
+    cpu.generate_netlist_name = generate_netlist_name
+    cpu.do_finalize = do_finalize
+
+
+def cpu_region_lists(cpu: object) -> dict[str, list[tuple]]:
+    """Every non-empty list of (origin, size, mode, bus) rows that `cpu` holds, on itself or on any class of
+    it, by where it is held: the region lists a VexiiRiscv generator could be handed (#791)."""
+    def rows(value: object) -> bool:
+        """Whether `value` is a non-empty list of (origin, size, mode, bus) rows."""
+        return isinstance(value, (list, tuple)) and bool(value) and all(
+            isinstance(row, tuple) and len(row) == 4 and isinstance(row[0], int) and isinstance(row[1], int)
+            and isinstance(row[2], str) and isinstance(row[3], str) for row in value)
+    owners = [*((owner.__name__, owner) for owner in type(cpu).__mro__), ("the instance", cpu)]
+    return {f"{label}.{attr}": list(value) for label, owner in owners
+            for attr, value in vars(owner).items() if rows(value)}
 
 
 def _parse_l2_bytes(token: str) -> Decimal:
@@ -3298,25 +3485,90 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
                          "omit the option or request a positive size")
 
 
-#: The split placement's instruction cache (#665, owner decision 2026-10-26: the CPU budget's
-#: first approach): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
-#: (FetchL1Plugin at the pinned revision). docs/design/SPLIT_CONTROL_MEMORY.md section 7 gives
-#: the measured sweep this is chosen from.
-CTRL_FETCH_L1 = (64, 1)
+#: The split placement's instruction cache (#665, owner decisions 2026-10-26 and 2026-10-29;
+#: NFR-SCOUT-01): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
+#: (FetchL1Plugin at the pinned revision), 16 KiB two-way. The generator replaces by its PLRU,
+#: which at two ways is LRU, and keeps its default of one refill at a time.
+#: docs/design/SPLIT_CONTROL_MEMORY.md sections 7, 12 and 13 give the measurements.
+CTRL_FETCH_L1 = (128, 2)
+
+#: The split placement's data cache (#665, owner decision 2026-10-28; NFR-SCOUT-01): VexiiRiscv's
+#: LSU L1 as (sets, ways) of the generator's 64-byte line, 8 KiB direct-mapped, the smallest size
+#: measured to drain the composed bursts within T_svc at a burst of 2 a channel, kept by the owner
+#: with the mailbox contract's own bursts (#665, 2026-10-28). With the DMA port the generator makes
+#: it coherent through its hub (patch 0005: lsuL1Coherency), so a write the protocol memory bridges
+#: carry reaches the CPU's copy. The mailbox, CSR and flash windows stay uncached by region
+#: (ctrl_uncached_flash). docs/design/SPLIT_CONTROL_MEMORY.md section 9 gives the measurement.
+CTRL_LSU_L1 = (128, 1)
+
+#: The split placement's multiply and divide (#665, owner decision 2026-10-27; NFR-SCOUT-01):
+#: the pinned VexiiRiscv's RV32M, its MulPlugin and its DivPlugin at the generator's defaults
+#: (radix 2, built for area). The split firmware is built rv32im, so its 32-bit multiplies and
+#: divides are instructions instead of the runtime's software loops.
+CTRL_MULDIV = "--with-mul --with-div"
+
+#: The split placement's CPU clock domain (#665, owner decision 2026-10-30): the SoC's sys clock,
+#: the 100 MHz bus clock the mailbox, its record mover and the firmware memory run on. The CPU is
+#: built without the generator's separate CPU clock (VexiiRiscv's with_cpu_clk), so no crossing
+#: sits between it and the bus. The Milan datapath clock is unchanged; only the all-fabric
+#: placement still runs its CPU from it, the bare-metal build contract's clock
+#: (docs/integration/BAREMETAL_FIRMWARE.md).
+CTRL_CPU_CD = "sys"
+
+
+def ctrl_cpu_domain(ctrl_cpu_cd: str) -> str:
+    """The split placement's CPU clock domain, refused unless it is CTRL_CPU_CD (#665).
+
+    The Milan clock is the datapath's, the bare-metal build contract's 50 MHz.
+    A split CPU left on it runs at half the bus clock behind the generator's
+    crossing and cross_cpu_memory_ports', which the owner's decision of
+    2026-10-30 retired.
+    """
+    if ctrl_cpu_cd != CTRL_CPU_CD:
+        raise ValueError(f"the split placement's CPU runs in the {CTRL_CPU_CD} clock domain, the bus clock "
+                         f"(#665, owner decision 2026-10-30): {ctrl_cpu_cd!r} is refused, and the Milan "
+                         "clock is the datapath's")
+    return ctrl_cpu_cd
 
 
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
-    """The generator options the split placement adds to its CPU; None adds nothing.
+    """The generator options the split placement adds to its CPU: RV32M, and its instruction
+    and data caches unless fetch_l1 is None.
 
-    Only the fetch side is cached. An LSU L1 with the DMA port makes the
-    generator build its coherent interconnect and hub instead of patch 0005's
-    non-coherent fabric; the data-side cost measured with the instruction
-    cache is mostly byte-loop stores, which firmware removes first (#665).
+    The data cache (CTRL_LSU_L1) comes with the instruction cache: with the
+    DMA port an LSU L1 makes the generator build its coherent interconnect and
+    hub instead of patch 0005's non-coherent fabric (#665). None is the
+    cacheless CPU on both sides. The ISA does not depend on the caches: the
+    split image is RV32IM, so every cache geometry runs it, None included.
     """
     if fetch_l1 is None:
-        return ""
+        return CTRL_MULDIV
     sets, ways = fetch_l1
-    return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+    lsu_sets, lsu_ways = CTRL_LSU_L1
+    return (f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+            f" --lsu-l1 --lsu-l1-sets={lsu_sets} --lsu-l1-ways={lsu_ways}")
+
+
+def ctrl_uncached_flash(soc: SoCCore) -> None:
+    """Keep the split CPU's flash window out of its data cache (#665, NFR-SCOUT-01).
+
+    The saved-state store reads the flash through the window and erases and
+    programs it through the LiteSPI command master, which no cache sees
+    (sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c), then blank-checks and
+    verifies through the window. A line the data cache held before the erase
+    would read stale after it. VexiiRiscv takes each region's cacheability
+    from the region list it is generated from, and an uncached peripheral
+    region is an IO access on its data bus; the generator refuses an uncached
+    region only on its memory bus. LiteX's own rule that a region outside the
+    IO region is cached is a rule for CPUs whose caches follow the IO region
+    alone, so the region is marked after it is added. The split image runs
+    from rom (ctrl_split.ld), so the window also stops being executable: a
+    fetch from it faults instead of running uncached, and every executable
+    region stays cacheable for the instruction cache.
+    """
+    region = soc.bus.regions["spiflash"]
+    region.cached = False
+    region.mode = region.mode.replace("x", "")
 
 
 class MilanSoC(SoCCore):
@@ -3337,11 +3589,22 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, **kwargs):
+                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
+                 **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
         _validate_cpu_options(cpu, with_fpu, l2_bytes)
+        # The CPU's clock domain and its clock (#665). ctrl_cpu_cd is the split CPU's,
+        # CTRL_CPU_CD under --ctrl-mailbox unless named, and refused unless sys
+        # (ctrl_cpu_domain); the CPU budget harness's test split SoC, which builds its own
+        # mailbox, names it too. Otherwise the all-fabric CPU keeps the Milan domain when the
+        # SoC has one. Every CPU-clock constant comes from cpu_clk_freq, never milan_clk_freq.
+        if ctrl_mailbox and ctrl_cpu_cd is None:
+            ctrl_cpu_cd = CTRL_CPU_CD
+        self.cpu_cd = (ctrl_cpu_domain(ctrl_cpu_cd) if ctrl_cpu_cd is not None
+                       else "milan" if milan_clk_freq else "sys")
+        self.cpu_clk_freq = int(milan_clk_freq if self.cpu_cd == "milan" else sys_clk_freq)
         # Resolve the one PHC owner once, before it fans out into RTL, firmware
         # constants and the flash artifact contract.  `none` is a real state
         # for the documented --no-milan bare-SoC path; a missing value is not
@@ -3361,8 +3624,8 @@ class MilanSoC(SoCCore):
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
                 "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are understood by the integration, although
-        #      the product gate below accepts only RV32 VexiiRiscv, cacheless except
-        #      for the split placement's instruction cache (ctrl_cpu_args). The
+        #      the product gate below accepts only RV32 VexiiRiscv, RV32I and cacheless
+        #      except for the split placement's RV32M and caches (ctrl_cpu_args). The
         #      processor descriptor/response bridges need the core's dedicated
         #      fabric-memory attachment whenever the Milan endpoint is present;
         #      it is a structural part of those two protocol faces.
@@ -3376,16 +3639,18 @@ class MilanSoC(SoCCore):
             _vex_args.cpu_count   = cpu_count
             _vex_args.with_dma    = bool(with_milan)
             # The cacheless core trades latency for gates: its direct fetch/data
-            # TileLink paths trade latency for gates. Clock the CPU side with the
-            # already-present 50 MHz Milan domain; Vexii inserts its supported
-            # CPU/LiteX CDC when --with-cpu-clk is selected.  The sys fabric and
-            # audio reference stay at their silicon-proven 100 MHz recipe.
-            _vex_args.with_cpu_clk = bool(milan_clk_freq)
+            # TileLink paths trade latency for gates. Clock the all-fabric CPU
+            # side with the already-present 50 MHz Milan domain; Vexii inserts its
+            # supported CPU/LiteX CDC when --with-cpu-clk is selected.  The sys
+            # fabric and audio reference stay at their silicon-proven 100 MHz
+            # recipe. The split CPU runs on sys itself (#665, CTRL_CPU_CD), so it
+            # has no CPU clock of its own and no crossing.
+            _vex_args.with_cpu_clk = self.cpu_cd != "sys"
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             if ctrl_mailbox:
-                # #665: the split placement's CPU fetches through its instruction
-                # cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
+                # #665: the split placement's CPU has RV32M and its instruction and data
+                # caches. The all-fabric CPU's arguments, so its netlist, are unchanged.
                 vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
@@ -3450,6 +3715,12 @@ class MilanSoC(SoCCore):
                 raise ValueError("--ctrl-mailbox needs --ctrl-firmware: the split placement "
                                  "runs no BIOS, so its block RAM is sized from the firmware")
             kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
+            # #665 S9, decision D4: the split's memory is on chip. No processor master
+            # remains to reach a main memory, so the split builds neither DDR3 nor main RAM.
+            if with_dram:
+                raise ValueError("--ctrl-mailbox builds no DDR3 (#665, decision D4): the split "
+                                 "placement's memory is the control firmware's block RAM")
+            kwargs.update(integrated_main_ram_size=0)
         kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
         if not with_dram:
             kwargs.setdefault("integrated_main_ram_size", main_ram_size)
@@ -3472,10 +3743,9 @@ class MilanSoC(SoCCore):
         # "NaxRiscv" unconditionally, so every --cpu vexiiriscv build advertised the
         # wrong core over the BIOS banner and the ident CSR that bench operators read.
         _cpu_human = {"vexiiriscv": "VexiiRiscv", "naxriscv": "NaxRiscv"}[cpu]
-        SoCCore.__init__(self, platform, sys_clk_freq,
-                         ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
-                                f"{cpu_count}-core {software_profile}"),
-                         **kwargs)
+        #: the ident names the split placement (#665, decision D2; soc_ident)
+        self._ident = soc_ident(_cpu_human, xlen, cpu_count, software_profile, bool(ctrl_mailbox))
+        SoCCore.__init__(self, platform, sys_clk_freq, ident=self._ident, **kwargs)
         if ctrl_mailbox:
             add_ctrl_memory(self, Path(ctrl_firmware))
         # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
@@ -3528,9 +3798,10 @@ class MilanSoC(SoCCore):
             # the generated Vexii wrapper retains litex_clk/reset on cd_sys.
             # Vexii crosses its peripheral and DMA buses back into sys itself;
             # its MEMORY master stays on cpu_clk, and this SoC crosses it
-            # (#359, see cross_cpu_memory_ports).
-            self.comb += self.cpu.cpu_clk.eq(ClockSignal("milan"))
-            cross_cpu_memory_ports(self.cpu, cd_from="milan", cd_to="sys")
+            # (#359, see cross_cpu_memory_ports). Only a CPU off sys has one:
+            # the all-fabric CPU on the Milan clock, never the split CPU (#665).
+            self.comb += self.cpu.cpu_clk.eq(ClockSignal(self.cpu_cd))
+            cross_cpu_memory_ports(self.cpu, cd_from=self.cpu_cd, cd_to="sys")
 
         # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
         # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
@@ -3576,6 +3847,9 @@ class MilanSoC(SoCCore):
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
             self.add_spi_flash(mode="1x", module=flash_module,
                                clk_freq=int(12.5e6), with_master=True)
+            if ctrl_mailbox:
+                # #665: no flash line may sit in the split CPU's data cache.
+                ctrl_uncached_flash(self)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on
             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale
@@ -3724,13 +3998,17 @@ class MilanSoC(SoCCore):
             # The platform shape reserves the processor window and this binding
             # checks that the whole reservation lies inside main memory. A base
             # derived independently here could silently diverge from the loader.
-            _ram = self.bus.regions["main_ram"]
             _shape = _platform_shape(entity_gen_dir)
             _desc_base  = int(_shape["pp_mem"]["phys"], 16)
             _PP_WINDOW  = int(_shape["pp_mem"]["bytes"], 16)
             # Refuse rather than build a bitstream that writes outside memory.
-            if _desc_base < _ram.origin or (
-                    _desc_base + _PP_WINDOW) > (_ram.origin + _ram.size):
+            # The split builds no main memory and no master that reads the
+            # window (#665, decision D4): its datapath binds the window's
+            # parameters, which nothing there reads, and the window holds only
+            # the build's descriptor image and staging constants.
+            _ram = None if ctrl_mailbox else self.bus.regions["main_ram"]
+            if _ram is not None and (_desc_base < _ram.origin or (
+                    _desc_base + _PP_WINDOW) > (_ram.origin + _ram.size)):
                 raise RuntimeError(
                     f"the protocol processor's window "
                     f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} is not inside "
@@ -3819,242 +4097,246 @@ class MilanSoC(SoCCore):
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   entity_gen_dir=entity_gen_dir)
-            # ===============================================================
-            #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
-            # ===============================================================
-            # The processor fetches its entity image through a read-only,
-            # 64-bit Wishbone master on the CPU core dedicated memory port.
-            # The response-buffer bridge below is the only peer on that port.
-            # Both faces propagate bus errors, bound no-progress with a
-            # watchdog, and keep a timed-out transaction poisoned until the
-            # answer still owed by AXI is collected.
-            #
-            # The processor contract is one outstanding request, in-order
-            # responses, a 9-bit 64-bit-beat count, and big-endian byte lanes.
-            # LiteX reports an error with ack, so every ack arm checks err before
-            # accepting data. The DFI handover gate prevents either master from
-            # issuing while the BIOS owns DDR3 training.
-            from litex.soc.interconnect import wishbone as _wb
-            import math as _math
-            _pp_dw   = 64                      # the processor's memory lane
-            _pp_selm = 2**(_pp_dw // 8) - 1
-            _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
-            _pp_sh   = int(_math.log2(_pp_dw // 8))
-            # Derive a watchdog below the processor per-beat ceiling and above
-            # one complete arbitration lap of the PP_MEM_MASTERS. The
-            # three-master floor is 137 sys cycles (two peer accesses of 46
-            # plus the requester's own 45).
-            _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
-                                            milan_clk_freq or sys_clk_freq)
-            # Hold all three masters off while the BIOS owns the LiteDRAM DFI.
-            if with_dram:
-                _mem_rdy = pp_mem_gate(self,
-                                       self.sdram.dfii._control.fields.sel)
-            else:
-                _mem_rdy = C(1)
-            _dq = self.milan.descmem_req_sys
-            _ds = self.milan.descmem_rsp_sys
-            self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
-                                                   adr_width=_pp_adrw,
-                                                   addressing="word")
-            _mem_bus = getattr(self, "dma_bus", self.bus)
-            _mem_bus.add_master("milan_desc_mem", master=_dwb)
+            # #665 S9, decision D4: the split datapath has no processor, so it
+            # has no memory master. The split builds none of the three bridges,
+            # nor their observer, and no main memory for them to reach.
+            if not ctrl_mailbox:
+                # ===============================================================
+                #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
+                # ===============================================================
+                # The processor fetches its entity image through a read-only,
+                # 64-bit Wishbone master on the CPU core dedicated memory port.
+                # The response-buffer bridge below is the only peer on that port.
+                # Both faces propagate bus errors, bound no-progress with a
+                # watchdog, and keep a timed-out transaction poisoned until the
+                # answer still owed by AXI is collected.
+                #
+                # The processor contract is one outstanding request, in-order
+                # responses, a 9-bit 64-bit-beat count, and big-endian byte lanes.
+                # LiteX reports an error with ack, so every ack arm checks err before
+                # accepting data. The DFI handover gate prevents either master from
+                # issuing while the BIOS owns DDR3 training.
+                from litex.soc.interconnect import wishbone as _wb
+                import math as _math
+                _pp_dw   = 64                      # the processor's memory lane
+                _pp_selm = 2**(_pp_dw // 8) - 1
+                _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
+                _pp_sh   = int(_math.log2(_pp_dw // 8))
+                # Derive a watchdog below the processor per-beat ceiling and above
+                # one complete arbitration lap of the PP_MEM_MASTERS. The
+                # three-master floor is 137 sys cycles (two peer accesses of 46
+                # plus the requester's own 45).
+                _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
+                                                milan_clk_freq or sys_clk_freq)
+                # Hold all three masters off while the BIOS owns the LiteDRAM DFI.
+                if with_dram:
+                    _mem_rdy = pp_mem_gate(self,
+                                           self.sdram.dfii._control.fields.sel)
+                else:
+                    _mem_rdy = C(1)
+                _dq = self.milan.descmem_req_sys
+                _ds = self.milan.descmem_rsp_sys
+                self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
+                                                       adr_width=_pp_adrw,
+                                                       addressing="word")
+                _mem_bus = getattr(self, "dma_bus", self.bus)
+                _mem_bus.add_master("milan_desc_mem", master=_dwb)
 
-            # The arms live in `pp_desc_bridge` above, not here, for one
-            # reason: this SoC cannot be elaborated in a migen simulation, so
-            # arms written inline can only ever be graded by a replica or by
-            # parsing this file for an identifier. Both pass against a gate
-            # wired to a constant. The export is diffed netlist-identical
-            # across the move.
-            self.descmem_fsm, _dpsn, _dpsn_set = pp_desc_bridge(
-                self, _dq, _ds, _dwb, _mem_rdy, _pp_tmo, _pp_selm, _pp_sh)
+                # The arms live in `pp_desc_bridge` above, not here, for one
+                # reason: this SoC cannot be elaborated in a migen simulation, so
+                # arms written inline can only ever be graded by a replica or by
+                # parsing this file for an identifier. Both pass against a gate
+                # wired to a constant. The export is diffed netlist-identical
+                # across the move.
+                self.descmem_fsm, _dpsn, _dpsn_set = pp_desc_bridge(
+                    self, _dq, _ds, _dwb, _mem_rdy, _pp_tmo, _pp_selm, _pp_sh)
 
-            # ===============================================================
-            #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE (protocol-processor 03 §7)
-            # ===============================================================
-            # The bus side of the SECOND master. MilanNIC published four
-            # sys-domain endpoints (read request / read response / write /
-            # write-done); this is the one wishbone master and the one FSM that
-            # serve all four - which is also what gives the contract's ordering
-            # rule ("a read accepted after a write reported done observes that
-            # write") for free, since nothing here can reorder.
-            #
-            # THE STROBES ARE THE POINT. `wr_strb` bit n enables byte n of the
-            # big-endian lane and A ZERO-STROBE BYTE MUST NOT BE MODIFIED, so
-            # the whole strobe rides ONE 64-bit wishbone cycle as `sel` (LiteX
-            # forwards `sel` to AXI `wstrb` verbatim). The first lane of every
-            # response has an empty low half - the uCPU's 12-byte header record
-            # is dropped and the payload starts at byte 12 - which is now just
-            # sel = 0xF0 rather than a skipped half-cycle; an ENTIRELY empty
-            # strobe is still skipped rather than issued as a sel=0 cycle.
-            #
-            # THE WATCHDOG: see the descriptor bridge above for what one
-            # unanswered access did to this bus. The write face is where it was
-            # measured - two lanes committed (dbg_lane_wr = 2), then the
-            # response's read-back went out on the frozen read half and parked
-            # this FSM in its read state forever, so every later write reported
-            # fault 1 = FAULT_WTMO and 35 responses were voided.
-            #
-            # BYTE ORDER, and it is the exact inverse of the read path above: a
-            # beat carries byte `addr+n` in bits [63-8n -: 8] (1722.1 wire
-            # order, big-endian), while the bus words are little-endian.
-            #
-            # THE ERROR ARM, for the third time on this bus: LiteX's
-            # wishbone2axi asserts `err` TOGETHER WITH `ack`, so a bare
-            # `If(ack, ...)` would treat a FAILED write as committed. It is
-            # propagated instead - `wr_err` with the done pulse makes the buffer
-            # void the response, and KL_aecp_engine answers a well-formed
-            # ENTITY_MISBEHAVING rather than putting a half-written response on
-            # the wire.
-            _rq = self.milan.respmem_req_sys      # read request  (from datapath)
-            _rs = self.milan.respmem_rsp_sys      # read response (to datapath)
-            _rw = self.milan.respmem_wr_sys       # write         (from datapath)
-            _rd = self.milan.respmem_wd_sys       # write done    (to datapath)
-            self.respmem_wb = _rwb = _wb.Interface(data_width=_pp_dw,
-                                                   adr_width=_pp_adrw,
-                                                   addressing="word")
-            _mem_bus.add_master("milan_resp_mem", master=_rwb)
+                # ===============================================================
+                #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE (protocol-processor 03 §7)
+                # ===============================================================
+                # The bus side of the SECOND master. MilanNIC published four
+                # sys-domain endpoints (read request / read response / write /
+                # write-done); this is the one wishbone master and the one FSM that
+                # serve all four - which is also what gives the contract's ordering
+                # rule ("a read accepted after a write reported done observes that
+                # write") for free, since nothing here can reorder.
+                #
+                # THE STROBES ARE THE POINT. `wr_strb` bit n enables byte n of the
+                # big-endian lane and A ZERO-STROBE BYTE MUST NOT BE MODIFIED, so
+                # the whole strobe rides ONE 64-bit wishbone cycle as `sel` (LiteX
+                # forwards `sel` to AXI `wstrb` verbatim). The first lane of every
+                # response has an empty low half - the uCPU's 12-byte header record
+                # is dropped and the payload starts at byte 12 - which is now just
+                # sel = 0xF0 rather than a skipped half-cycle; an ENTIRELY empty
+                # strobe is still skipped rather than issued as a sel=0 cycle.
+                #
+                # THE WATCHDOG: see the descriptor bridge above for what one
+                # unanswered access did to this bus. The write face is where it was
+                # measured - two lanes committed (dbg_lane_wr = 2), then the
+                # response's read-back went out on the frozen read half and parked
+                # this FSM in its read state forever, so every later write reported
+                # fault 1 = FAULT_WTMO and 35 responses were voided.
+                #
+                # BYTE ORDER, and it is the exact inverse of the read path above: a
+                # beat carries byte `addr+n` in bits [63-8n -: 8] (1722.1 wire
+                # order, big-endian), while the bus words are little-endian.
+                #
+                # THE ERROR ARM, for the third time on this bus: LiteX's
+                # wishbone2axi asserts `err` TOGETHER WITH `ack`, so a bare
+                # `If(ack, ...)` would treat a FAILED write as committed. It is
+                # propagated instead - `wr_err` with the done pulse makes the buffer
+                # void the response, and KL_aecp_engine answers a well-formed
+                # ENTITY_MISBEHAVING rather than putting a half-written response on
+                # the wire.
+                _rq = self.milan.respmem_req_sys      # read request  (from datapath)
+                _rs = self.milan.respmem_rsp_sys      # read response (to datapath)
+                _rw = self.milan.respmem_wr_sys       # write         (from datapath)
+                _rd = self.milan.respmem_wd_sys       # write done    (to datapath)
+                self.respmem_wb = _rwb = _wb.Interface(data_width=_pp_dw,
+                                                       adr_width=_pp_adrw,
+                                                       addressing="word")
+                _mem_bus.add_master("milan_resp_mem", master=_rwb)
 
-            _ra = Signal(32); _rl = Signal(9)
-            _rdat = Signal(64); _re = Signal()
-            _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
-            _rto = Signal(max=_pp_tmo + 1)
-            # THE POISON FLAG: see the descriptor bridge above for why a
-            # poisoned bus state keeps driving cyc/stb rather than answering
-            # off the bus. On this master the poisoned access is a WRITE as
-            # often as a read, and it is still issued: whether the memory
-            # performs it or leaves it queued behind the answer it already
-            # owes, `wr_err` rides the done pulse and the buffer voids that
-            # response, so a write reported failed is never counted committed.
-            _rpsn = Signal(); _rpsn_set = Signal()
-            self.sync += If(_rpsn_set, _rpsn.eq(1)
-                         ).Elif(_rpsn & (_rwb.ack | _rwb.err), _rpsn.eq(0))
-            self.respmem_fsm = _rfsm = FSM(reset_state="IDLE")
-            # The write is offered first when both are pending. Neither face can
-            # be starved by that: both are single-transaction and held until
-            # ready, and the buffer never has a read and a write outstanding at
-            # the same time anyway (it flushes the last lane, THEN reads back).
-            # `_mem_rdy`: see `pp_mem_gate` and the block above the descriptor
-            # master. A write refused here rides `wr_err` with the done pulse
-            # and the buffer VOIDS that response, which is the right answer - a
-            # response the memory could not take must never reach the wire as
-            # though it had. This face does not transact out of reset
-            # (KL_aecp_resp_buf.sv:353 resets to R_FILL), so it is gated for
-            # symmetry and not because it was ever measured to freeze the bus.
-            _rfsm.act("IDLE",
-                _rw.ready.eq(1),
-                _rq.ready.eq(~_rw.valid),
-                NextValue(_rto, 0),
-                If(_rw.valid,
-                    NextValue(_wa, _rw.addr), NextValue(_wd, _rw.data),
-                    NextValue(_ws, _rw.strb),
-                    NextValue(_werr, _rpsn | ~_mem_rdy),
-                    If(_mem_rdy, NextState("WR")).Else(NextState("WDONE"))
-                ).Elif(_rq.valid,
-                    NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
-                    NextValue(_re, _rpsn | ~_mem_rdy),
-                    If(_mem_rdy, NextState("RD")).Else(NextState("REMIT"))))
-            _rfsm.act("WR",
-                If(_ws == 0,
-                    NextState("WDONE")     # no byte enabled: nothing to write
-                ).Else(
-                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
-                    _rwb.sel.eq(_ws), _rwb.adr.eq(_wa[_pp_sh:]),
-                    _rwb.dat_w.eq(Cat(_wd[56:64], _wd[48:56],
-                                      _wd[40:48], _wd[32:40],
-                                      _wd[24:32], _wd[16:24],
-                                      _wd[8:16],  _wd[0:8])),
+                _ra = Signal(32); _rl = Signal(9)
+                _rdat = Signal(64); _re = Signal()
+                _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
+                _rto = Signal(max=_pp_tmo + 1)
+                # THE POISON FLAG: see the descriptor bridge above for why a
+                # poisoned bus state keeps driving cyc/stb rather than answering
+                # off the bus. On this master the poisoned access is a WRITE as
+                # often as a read, and it is still issued: whether the memory
+                # performs it or leaves it queued behind the answer it already
+                # owes, `wr_err` rides the done pulse and the buffer voids that
+                # response, so a write reported failed is never counted committed.
+                _rpsn = Signal(); _rpsn_set = Signal()
+                self.sync += If(_rpsn_set, _rpsn.eq(1)
+                             ).Elif(_rpsn & (_rwb.ack | _rwb.err), _rpsn.eq(0))
+                self.respmem_fsm = _rfsm = FSM(reset_state="IDLE")
+                # The write is offered first when both are pending. Neither face can
+                # be starved by that: both are single-transaction and held until
+                # ready, and the buffer never has a read and a write outstanding at
+                # the same time anyway (it flushes the last lane, THEN reads back).
+                # `_mem_rdy`: see `pp_mem_gate` and the block above the descriptor
+                # master. A write refused here rides `wr_err` with the done pulse
+                # and the buffer VOIDS that response, which is the right answer - a
+                # response the memory could not take must never reach the wire as
+                # though it had. This face does not transact out of reset
+                # (KL_aecp_resp_buf.sv:353 resets to R_FILL), so it is gated for
+                # symmetry and not because it was ever measured to freeze the bus.
+                _rfsm.act("IDLE",
+                    _rw.ready.eq(1),
+                    _rq.ready.eq(~_rw.valid),
+                    NextValue(_rto, 0),
+                    If(_rw.valid,
+                        NextValue(_wa, _rw.addr), NextValue(_wd, _rw.data),
+                        NextValue(_ws, _rw.strb),
+                        NextValue(_werr, _rpsn | ~_mem_rdy),
+                        If(_mem_rdy, NextState("WR")).Else(NextState("WDONE"))
+                    ).Elif(_rq.valid,
+                        NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
+                        NextValue(_re, _rpsn | ~_mem_rdy),
+                        If(_mem_rdy, NextState("RD")).Else(NextState("REMIT"))))
+                _rfsm.act("WR",
+                    If(_ws == 0,
+                        NextState("WDONE")     # no byte enabled: nothing to write
+                    ).Else(
+                        _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
+                        _rwb.sel.eq(_ws), _rwb.adr.eq(_wa[_pp_sh:]),
+                        _rwb.dat_w.eq(Cat(_wd[56:64], _wd[48:56],
+                                          _wd[40:48], _wd[32:40],
+                                          _wd[24:32], _wd[16:24],
+                                          _wd[8:16],  _wd[0:8])),
+                        NextValue(_rto, _rto + 1),
+                        If(_rwb.ack,
+                            NextValue(_rto, 0),
+                            If(_rwb.err, NextValue(_werr, 1)),
+                            NextState("WDONE")
+                        ).Elif(_rto == _pp_tmo,
+                            NextValue(_rto, 0), NextValue(_werr, 1),
+                            _rpsn_set.eq(1), NextState("WDONE"))))
+                # ONE cycle in this state = the one-cycle commit pulse the buffer
+                # waits for, and it is STRICTLY LATER than the `wr_ready` that
+                # accepted the write - the acknowledged bridge, which is the shape
+                # KL_aecp_resp_buf's R_FLUSH arm requires (it sets `wbusy_r` on the
+                # ready and only THEN looks for the done).
+                _rfsm.act("WDONE",
+                    _rd.valid.eq(1), _rd.err.eq(_werr),
+                    If(_rd.ready, NextState("IDLE")))
+                _rfsm.act("RD",
+                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(_pp_selm),
+                    _rwb.adr.eq(_ra[_pp_sh:]),
                     NextValue(_rto, _rto + 1),
                     If(_rwb.ack,
                         NextValue(_rto, 0),
-                        If(_rwb.err, NextValue(_werr, 1)),
-                        NextState("WDONE")
+                        If(_rwb.err, NextValue(_re, 1)
+                        ).Else(NextValue(_rdat, _rwb.dat_r)),
+                        NextState("REMIT")
                     ).Elif(_rto == _pp_tmo,
-                        NextValue(_rto, 0), NextValue(_werr, 1),
-                        _rpsn_set.eq(1), NextState("WDONE"))))
-            # ONE cycle in this state = the one-cycle commit pulse the buffer
-            # waits for, and it is STRICTLY LATER than the `wr_ready` that
-            # accepted the write - the acknowledged bridge, which is the shape
-            # KL_aecp_resp_buf's R_FLUSH arm requires (it sets `wbusy_r` on the
-            # ready and only THEN looks for the done).
-            _rfsm.act("WDONE",
-                _rd.valid.eq(1), _rd.err.eq(_werr),
-                If(_rd.ready, NextState("IDLE")))
-            _rfsm.act("RD",
-                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(_pp_selm),
-                _rwb.adr.eq(_ra[_pp_sh:]),
-                NextValue(_rto, _rto + 1),
-                If(_rwb.ack,
-                    NextValue(_rto, 0),
-                    If(_rwb.err, NextValue(_re, 1)
-                    ).Else(NextValue(_rdat, _rwb.dat_r)),
-                    NextState("REMIT")
-                ).Elif(_rto == _pp_tmo,
-                    NextValue(_rto, 0), NextValue(_re, 1),
-                    _rpsn_set.eq(1), NextState("REMIT")))
-            # `_rs.ready` is REAL backpressure here (the descriptor face ties it
-            # 1): the beat is HELD until the buffer takes it.
-            _rfsm.act("REMIT",
-                _rs.valid.eq(1), _rs.err.eq(_re),
-                _rs.blast.eq((_rl == 1) | _re),
-                _rs.data.eq(Cat(_rdat[56:64], _rdat[48:56], _rdat[40:48],
-                                _rdat[32:40], _rdat[24:32], _rdat[16:24],
-                                _rdat[8:16],  _rdat[0:8])),
-                If(_rs.ready,
-                    If(_re | (_rl == 1), NextState("IDLE")
-                    ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
-                           NextValue(_rto, 0), NextState("RD"))))
+                        NextValue(_rto, 0), NextValue(_re, 1),
+                        _rpsn_set.eq(1), NextState("REMIT")))
+                # `_rs.ready` is REAL backpressure here (the descriptor face ties it
+                # 1): the beat is HELD until the buffer takes it.
+                _rfsm.act("REMIT",
+                    _rs.valid.eq(1), _rs.err.eq(_re),
+                    _rs.blast.eq((_rl == 1) | _re),
+                    _rs.data.eq(Cat(_rdat[56:64], _rdat[48:56], _rdat[40:48],
+                                    _rdat[32:40], _rdat[24:32], _rdat[16:24],
+                                    _rdat[8:16],  _rdat[0:8])),
+                    If(_rs.ready,
+                        If(_re | (_rl == 1), NextState("IDLE")
+                        ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
+                               NextValue(_rto, 0), NextState("RD"))))
 
-            # ===============================================================
-            #  SAVED-STATE RECORD IMAGE READ+WRITE BRIDGE (design page 8)
-            # ===============================================================
-            # The THIRD master: KL_nvm_backend's, through KL_pp_shadow. The
-            # record image sits in the reserved ppmem window between the
-            # descriptor image and the response buffer, and the firmware that
-            # owns the flash names it to the backend through PP_NVM_SEL/DATA
-            # (0x934/0x938); until it does, the backend issues NOTHING on this
-            # master and the processor's NVM port sees blank flash. The arms
-            # are the response bridge's, in `pp_rw_bridge`: same lane, same
-            # strobe rule, same watchdog and poison flag, same DFI gate.
-            # ITS EVIDENCE IS THE BACKEND'S OWN: a refused or failed access
-            # reaches the processor as `dev_err` and the firmware as
-            # PP_NVM_STAT, so this face is not added to the `ppmem` observer
-            # below, whose published bit layout is two faces wide.
-            self.nvmmem_wb = _nwb = _wb.Interface(data_width=_pp_dw,
-                                                  adr_width=_pp_adrw,
-                                                  addressing="word")
-            _mem_bus.add_master("milan_nvm_mem", master=_nwb)
-            self.nvmmem_fsm, _npsn, _npsn_set = pp_rw_bridge(
-                self, (self.milan.nvmmem_req_sys, self.milan.nvmmem_rsp_sys,
-                       self.milan.nvmmem_wr_sys, self.milan.nvmmem_wd_sys),
-                _nwb, _mem_rdy, _pp_tmo, (_pp_selm, _pp_sh))
+                # ===============================================================
+                #  SAVED-STATE RECORD IMAGE READ+WRITE BRIDGE (design page 8)
+                # ===============================================================
+                # The THIRD master: KL_nvm_backend's, through KL_pp_shadow. The
+                # record image sits in the reserved ppmem window between the
+                # descriptor image and the response buffer, and the firmware that
+                # owns the flash names it to the backend through PP_NVM_SEL/DATA
+                # (0x934/0x938); until it does, the backend issues NOTHING on this
+                # master and the processor's NVM port sees blank flash. The arms
+                # are the response bridge's, in `pp_rw_bridge`: same lane, same
+                # strobe rule, same watchdog and poison flag, same DFI gate.
+                # ITS EVIDENCE IS THE BACKEND'S OWN: a refused or failed access
+                # reaches the processor as `dev_err` and the firmware as
+                # PP_NVM_STAT, so this face is not added to the `ppmem` observer
+                # below, whose published bit layout is two faces wide.
+                self.nvmmem_wb = _nwb = _wb.Interface(data_width=_pp_dw,
+                                                      adr_width=_pp_adrw,
+                                                      addressing="word")
+                _mem_bus.add_master("milan_nvm_mem", master=_nwb)
+                self.nvmmem_fsm, _npsn, _npsn_set = pp_rw_bridge(
+                    self, (self.milan.nvmmem_req_sys, self.milan.nvmmem_rsp_sys,
+                           self.milan.nvmmem_wr_sys, self.milan.nvmmem_wd_sys),
+                    _nwb, _mem_rdy, _pp_tmo, (_pp_selm, _pp_sh))
 
-            # ===============================================================
-            #  THE INSTRUMENT THE 08-13 ROUND DID NOT HAVE
-            # ===============================================================
-            # Both bridges above now fail SAFELY (error arm, watchdog, poison
-            # flag), and a safe failure that nothing can see is still a week of
-            # board time. This is the observer: it separates "never issued"
-            # from "issued and never answered", which are the two causes that
-            # produce the SAME symptom (fault 8 / fault 1, image invalid,
-            # ENTITY_MISBEHAVING on every command) and have nothing else in
-            # common.
-            #
-            # A NEW CSR BANK MUST NOT MOVE AN OLD ONE, and left to itself this
-            # one does: LiteX hands out the LOWEST free location at the moment
-            # a module is added (SoCLocHandler.alloc), and `sdram`/`spiflash`
-            # are allocated later still, so the default landed on sdram's page
-            # and pushed both banks up 0x800 (measured, csr.csv diff).
-            # That silently invalidates firmware's fixed LiteSPI-bank address;
-            # its master port at bank+0x10 is a WRITE path to the boot flash.
-            # Pin this observer to the
-            # LAST page of the 64 KB CSR window instead, where automatic
-            # allocation (which grows upward from 0) reaches last; a future
-            # bank that does collide raises SoCError rather than moving anyone.
-            self.csr.add("ppmem", n=self.csr.n_locs - 1)
-            self.ppmem = _PPMemDiag([("desc", _dwb, _dpsn, _dpsn_set),
-                                     ("resp", _rwb, _rpsn, _rpsn_set)],
-                                    mem_rdy=_mem_rdy)
+                # ===============================================================
+                #  THE INSTRUMENT THE 08-13 ROUND DID NOT HAVE
+                # ===============================================================
+                # Both bridges above now fail SAFELY (error arm, watchdog, poison
+                # flag), and a safe failure that nothing can see is still a week of
+                # board time. This is the observer: it separates "never issued"
+                # from "issued and never answered", which are the two causes that
+                # produce the SAME symptom (fault 8 / fault 1, image invalid,
+                # ENTITY_MISBEHAVING on every command) and have nothing else in
+                # common.
+                #
+                # A NEW CSR BANK MUST NOT MOVE AN OLD ONE, and left to itself this
+                # one does: LiteX hands out the LOWEST free location at the moment
+                # a module is added (SoCLocHandler.alloc), and `sdram`/`spiflash`
+                # are allocated later still, so the default landed on sdram's page
+                # and pushed both banks up 0x800 (measured, csr.csv diff).
+                # That silently invalidates firmware's fixed LiteSPI-bank address;
+                # its master port at bank+0x10 is a WRITE path to the boot flash.
+                # Pin this observer to the
+                # LAST page of the 64 KB CSR window instead, where automatic
+                # allocation (which grows upward from 0) reaches last; a future
+                # bank that does collide raises SoCError rather than moving anyone.
+                self.csr.add("ppmem", n=self.csr.n_locs - 1)
+                self.ppmem = _PPMemDiag([("desc", _dwb, _dpsn, _dpsn_set),
+                                         ("resp", _rwb, _rpsn, _rpsn_set)],
+                                        mem_rdy=_mem_rdy)
 
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -4589,6 +4871,9 @@ def main() -> None:
     if args.ctrl_mailbox != (args.ctrl_firmware is not None):
         ap.error("--ctrl-mailbox and --ctrl-firmware go together: the split placement's "
                  "firmware owns the reset entry and sizes its own block RAM (#640 M8a)")
+    if args.ctrl_mailbox and args.with_dram:
+        ap.error("--ctrl-mailbox builds no DDR3 (#665, decision D4): --with-dram is the all-fabric "
+                 "placement's; under --ctrl-mailbox, --full builds the MAC and the flash only")
     if args.ctrl_firmware is not None and not args.ctrl_firmware.is_absolute():
         args.ctrl_firmware = REPO_ROOT / args.ctrl_firmware
     if args.fabric_gptp is None:
@@ -4704,7 +4989,8 @@ def main() -> None:
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
                    board=args.board, bus_standard=args.bus_standard,
                    with_mac=args.with_mac or args.full,
-                   with_dram=args.with_dram or args.full,
+                   # #665, decision D4: --full builds DDR3 in the all-fabric placement only
+                   with_dram=(args.with_dram or args.full) and not args.ctrl_mailbox,
                    with_spiflash=args.with_spiflash or args.full,
                    flashboot=args.flashboot,
                    gtx_tx_invert=args.gtx_tx_invert,
@@ -4888,9 +5174,20 @@ def main() -> None:
         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
             soc.add_constant(_name, _value)
         if args.ctrl_mailbox:
+            # #823: the split firmware's store keeps the split placement's
+            # format, KLJ3 over layout 3, in journal_klj3. Its record counts
+            # are the builder's split output for this config (nvm_split.json,
+            # refused there above the layout 3 blocks), published with every
+            # port's map entries; the store's codec bounds the same counts by
+            # the same declaration at compile time.
+            with open(_builder_out(args.entity_gen_dir, "nvm_split.json"),
+                      encoding="utf-8") as fh:
+                _nvm_split = json.load(fh)
+            for _name, _value in split_constants(_nvm_split, _nvm_shape).items():
+                soc.add_constant(_name, _value)
             # #640 M8a: the split firmware stages this shape's container.
             ctrl_memory.check_stage(soc.ctrl_image,
-                                    ctrl_memory.stage_bytes(_nvm_shape, _nvm_donor),
+                                    ctrl_memory.stage_bytes(_nvm_shape),
                                     Path(args.entity_gen_dir).name)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     if args.build:
@@ -4949,6 +5246,10 @@ def main() -> None:
         with open(layout_path, "w") as f:
             json.dump(soc._flashboot_layout, f, indent=2)
         print(f"[milan] flash-boot layout ({args.flashboot}) -> {layout_path}")
+    if args.ctrl_mailbox:
+        # #665 S9, decision D2: the split image's manifest, held by the identity gate
+        bit = Path(builder.get_bitstream_filename(mode="sram")) if args.build else None
+        print(f"[milan] split image manifest -> {write_image_manifest(soc, _out_dir, args.ctrl_firmware, bit)}")
     if args.load:
         prog = platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))

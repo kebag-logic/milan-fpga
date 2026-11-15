@@ -63,6 +63,40 @@ bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx)
 	return true;
 }
 
+bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_clock_fn clock, void *clock_ctx)
+{
+	if (l->step != NULL || fn == NULL || clock == NULL) {
+		return false;
+	}
+	l->step = fn;
+	l->step_ctx = ctx;
+	l->clock = clock;
+	l->clock_ctx = clock_ctx;
+	return true;
+}
+
+bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_fn aged, void *ctx)
+{
+	if (l->retry != NULL || fn == NULL || aged == NULL) {
+		return false;
+	}
+	l->retry = fn;
+	l->retry_aged = aged;
+	l->retry_ctx = ctx;
+	return true;
+}
+
+bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_transmit_aged_fn aged, void *ctx)
+{
+	if (l->transmit != NULL || fn == NULL || aged == NULL) {
+		return false;
+	}
+	l->transmit = fn;
+	l->transmit_aged = aged;
+	l->transmit_ctx = ctx;
+	return true;
+}
+
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF])
 {
 	if (!mbx_open()) {
@@ -96,6 +130,7 @@ static uint32_t dispatch_ticks(struct ctrl_loop *l, uint32_t budget)
 	}
 	l->ticks_owed -= count;
 	l->stats.ticks += count;
+	l->step_age += count;
 	return count;
 }
 
@@ -103,6 +138,8 @@ static unsigned service_events(struct ctrl_loop *l)
 {
 	struct mbx_event ev;
 	unsigned n = 0;
+	// THE DRAIN's order, read before the events: a record before RX_HEAD now follows only events posted by now
+	const uint16_t mark = l->drain_ch != 0u ? mbx_rx_mark(l->drain_ch - 1u) : 0u;
 	uint32_t ticked = dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS);
 	while (n < CTRL_LOOP_EVENTS_PER_PASS && mbx_event_take(&ev)) {
 		if (ev.type == MBX_EV_TYPE_TICK) {
@@ -115,18 +152,35 @@ static unsigned service_events(struct ctrl_loop *l)
 		n++;
 	}
 	l->stats.events += n;
+	// THE TICK's cap: a pass that dispatched a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel
+	l->rx_cap = ticked != 0u ? CTRL_LOOP_RX_PER_TICK_PASS : CTRL_LOOP_RX_PER_PASS;
+	// THE DRAIN's order: a pass that emptied the ring has taken every event posted before the mark
+	l->events_left = n == CTRL_LOOP_EVENTS_PER_PASS;
+	if (!l->events_left) {
+		l->rx_order = mark;
+	}
 	return n;
 }
 
-static unsigned service_rx(struct ctrl_loop *l, unsigned ch)
+// A channel's records, in this pass, at most l->rx_cap (THE TICK), and past it to `most` while the clock has not
+// passed `stop`: tier 1's first channel to CTRL_LOOP_DRAIN_RECORDS while the pass has spent at most CTRL_LOOP_DRAIN_US,
+// THE DRAIN's channel while its slice holds a record (THE TIERS); with no clock bound, the cap. Its bit of rx_left says
+// whether the take ended on a limit, records left, or on an empty ring or a module not ready, none it would take.
+static unsigned service_rx(struct ctrl_loop *l, unsigned ch, unsigned most, uint32_t stop)
 {
 	unsigned n = 0;
-	for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {
+	l->rx_left |= 1u << ch;
+	for (unsigned k = 0; k < most; ++k) {
+		if (k >= l->rx_cap && (l->clock == NULL || l->rx_held || (int32_t)(stop - l->clock(l->clock_ctx)) < 0)) {
+			break;
+		}
 		if (l->rx[ch].ready != NULL && !l->rx[ch].ready(l->rx[ch].ctx)) {
+			l->rx_left &= ~(1u << ch);
 			break;
 		}
 		enum mbx_status st = mbx_rx_take(ch, &l->frame);
 		if (st == MBX_STATUS_EMPTY) {
+			l->rx_left &= ~(1u << ch);
 			break;
 		}
 		if (st == MBX_STATUS_BAD) {
@@ -137,22 +191,156 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch)
 		n++;
 	}
 	l->stats.rx_records += n;
+	// a channel that took all it may may have left records: the next passes given whole stand back from them
+	l->backlog = l->backlog || (n != 0u && n >= l->rx_cap);
 	return n;
+}
+
+_Static_assert(CTRL_LOOP_SHARE_US == 2000u, "THE SHARE is not amended");
+_Static_assert(CTRL_LOOP_SLICE_US <= CTRL_LOOP_SHARE_US - CTRL_LOOP_SHARE_MARGIN_US, "a slice must fit THE SHARE");
+_Static_assert(CTRL_LOOP_BUILD_ONE_PASS_US <= CTRL_LOOP_SLICE_US && CTRL_LOOP_SRP_UNIT_US <= CTRL_LOOP_SLICE_US,
+	       "a slice must hold one of each tier-2 unit, or it never starts one");
+_Static_assert(MBX_N_IF != 1u || CTRL_LOOP_TX_MS <= CTRL_LOOP_TX_BOUND_MS,
+	       "an MRPDU a timer owes must keep the MRP timer budget");
+
+// Whether channel ch holds a record its module would take now: one waits, and its module is ready (THE TIERS).
+static bool holds(const struct ctrl_loop *l, unsigned ch)
+{
+	return l->rx[ch].fn != NULL && (l->rx[ch].ready == NULL || l->rx[ch].ready(l->rx[ch].ctx)) &&
+	       mbx_rx_waiting(ch, mbx_rx_mark(ch));
+}
+
+// Whether tier 1 holds a record: any bound channel but THE DRAIN's (THE TIERS).
+static bool tier1_holds(const struct ctrl_loop *l)
+{
+	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+		if (ch + 1u != l->drain_ch && holds(l, ch)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// THE RETRY's round, a slice of tier 2 ending at `end` (THE TIERS), told what it has left under the margin, in
+// microseconds: a whole slice with no clock bound.
+static bool round_of(struct ctrl_loop *l, uint32_t end)
+{
+	const int32_t left = (l->clock != NULL ? (int32_t)(end - l->clock(l->clock_ctx)) : (int32_t)CTRL_LOOP_SLICE_US) -
+			     (int32_t)CTRL_LOOP_SHARE_MARGIN_US;
+	l->stats.retry_passes++;
+	return l->retry(l->retry_ctx, left > 0 ? (unsigned)left : 0u);
+}
+
+// The end of a slice that starts now, or the pass's deadline if that comes first (THE TIERS).
+static uint32_t slice_end(const struct ctrl_loop *l, uint32_t deadline)
+{
+	const uint32_t end = l->clock != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SLICE_US : deadline;
+	return (int32_t)(deadline - end) < 0 ? deadline : end;
+}
+
+// Whether a pass given whole may follow another: input it would keep from a record or from its centisecond may not
+// wait on more than one (THE DRAIN and THE TRANSMIT's bounds).
+static bool whole_runs(const struct ctrl_loop *l)
+{
+	return l->whole < CTRL_LOOP_WHOLE_RUN && (!l->backlog || l->retry_firm) && !l->events_left &&
+	       (l->drain_ch == 0u || !mbx_rx_waiting(l->drain_ch - 1u, mbx_rx_mark(l->drain_ch - 1u)));
 }
 
 unsigned ctrl_loop_service(struct ctrl_loop *l)
 {
-	unsigned work = service_events(l);
-	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
-		if (l->rx[ch].fn != NULL) {
-			work += service_rx(l, ch);
+	// THE SHARE's deadline, read as the pass starts
+	uint32_t deadline = l->clock != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;
+	// A pass given whole stands after an ordinary one, and after another only as whole_runs says, and each is one
+	// input's wait: THE TRANSMIT's build first, then THE STEP, then THE RETRY, which fills what the other two leave of
+	// the slice when it is aged. The build and the round are tier 2, a slice from the pass's start: taken after an
+	// ordinary pass whose tier 1 left no record it would take, or after a pass given whole while tier 1 holds none, so
+	// tier 1 is served between two slices and a record waits for one at most; the round only once THE DRAIN's channel
+	// is served too (SRP first). A queue's first notice is tier 1's, a round of one whatever either holds (THE TIERS)
+	if (l->run != 0u || whole_runs(l)) {
+		const bool tier2 = l->run != 0u ? l->tier1_done :
+				   (l->retry == NULL && l->transmit == NULL) || !tier1_holds(l);
+		l->round_one = !(l->run != 0u ? l->drained : tier2);
+		const bool round = l->retry != NULL && (!l->round_one || l->retry_first) && l->retry_aged(l->retry_ctx);
+		const bool stepping = l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE;
+		uint32_t end = deadline - CTRL_LOOP_SHARE_US + CTRL_LOOP_SLICE_US;
+		bool given = true;
+		if (tier2 && l->transmit != NULL && l->transmit_aged(l->transmit_ctx)) {
+			l->transmit(l->transmit_ctx, CTRL_LOOP_BUILD_MOST);
+			l->stats.transmit_passes++;
+		} else if (stepping) {
+			l->step_age = 0u;
+			(void)l->step(l->step_ctx, deadline);
+			l->stats.aged_passes++;
+			end = slice_end(l, deadline);
+		} else {
+			given = round;
+		}
+		if (round) {
+			(void)round_of(l, end);
+		}
+		if (given) {
+			l->stats.passes++;
+			l->run = 0u;
+			l->whole++;
+			return 1u;
 		}
 	}
+	const uint32_t ticks = l->stats.ticks;
+	unsigned work = service_events(l);
+	l->backlog = false;
+	// THE TIERS, tier 1: its first channel's records (AECP's), past CTRL_LOOP_RX_PER_PASS to CTRL_LOOP_DRAIN_RECORDS
+	// while the pass has spent at most CTRL_LOOP_DRAIN_US
+	const uint32_t start = deadline - CTRL_LOOP_SHARE_US;
+	l->rx_left = 0u;
+	work += l->first_ch != 0u ? service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US) : 0u;
+	// Then, once the first channel's take left no record it would take, every other tier-1 channel's: each its due, then
+	// what the pass has left, a record of each channel in turn: passes given whole may stand between two, and a pass that
+	// takes few records would leave them waiting on the next. Each pass starts one channel on, so the channel the pass's
+	// time runs out at is each in turn, not the last every time
+	for (unsigned most = l->rx_cap, sweep = l->rx_left == 0u; sweep != 0u; most = 1u) {
+		sweep = 0u;
+		for (unsigned k = 0, ch = l->rx_from; k < MBX_N_CH; ++k, ch = ch + 1u < MBX_N_CH ? ch + 1u : 0u) {
+			if (l->rx[ch].fn != NULL && ch + 1u != l->drain_ch && ch + 1u != l->first_ch) {
+				sweep += service_rx(l, ch, most, start + CTRL_LOOP_DRAIN_US);
+			}
+		}
+		work += sweep;
+		if (l->rx_cap != 0u && !l->backlog) {
+			break;
+		}
+		l->rx_cap = 0u;
+	}
+	l->rx_from = (l->rx_from + 1u) % MBX_N_CH;
+	// Tier 2: THE DRAIN's channel (SRP's), only once tier 1's takes left no record they would take, in a slice ending
+	// CTRL_LOOP_SLICE_US after the pass started, each record started only while the slice holds its stated cost; with
+	// no clock bound, its cap. What each tier left decides the pass given whole that may follow: a record posted after
+	// its channel's take found the ring empty waits for that one slice
+	l->tier1_done = l->rx_left == 0u;
+	if (l->drain_ch != 0u && l->tier1_done) {
+		l->rx_cap = l->clock != NULL ? 0u : l->rx_cap;
+		work += service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,
+				   start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US);
+	}
+	l->drained = l->tier1_done && l->rx_left == 0u;
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
 	}
+	// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose
+	// deadline counts its time: a slice of its own, from its start (THE TIERS)
+	if (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {
+		l->round_one = false;
+		owed = round_of(l, slice_end(l, deadline)) || owed;
+	}
+	// THE STEP, only in a pass that took no input: no input's service waits on it
+	if (l->step != NULL && work == 0u) {
+		bool waits = l->step(l->step_ctx, deadline);
+		l->step_age = waits ? l->step_age : 0u;
+		owed = waits || owed;
+	}
 	l->stats.passes++;
+	l->run++;
+	l->whole = 0u;
 	if (owed) {
 		l->stats.owed_passes++;
 		work++;
