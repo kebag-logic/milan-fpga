@@ -1,0 +1,14 @@
+gen if2 rc=0
+none: rc=0 == mbx (host model, 2 interfaces): checks: 547   failures: 0 ==; 0 failed, 0 of them B7/B8/B9
+model-space-from-the-committed-head: rc=1 == mbx (host model, 2 interfaces): checks: 547   failures: 2 ==; 2 failed, 2 of them B7/B8/B9
+    [FAIL] B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP got=0 exp=1
+    [FAIL] B7 and not in RATE_DROP                  got=1 exp=0
+    caught by its own check (B7): True
+model-refused-behind-held-counted: rc=1 == mbx (host model, 2 interfaces): checks: 547   failures: 2 ==; 2 failed, 2 of them B7/B8/B9
+    [FAIL] B8 a frame the filter refuses behind a held one counts nowhere got=2 exp=0
+    [FAIL] B8 and sets no IRQ_STATUS.ERR            got=1 exp=0
+    caught by its own check (B8): True
+model-release-gated-on-open: rc=1 == mbx (host model, 2 interfaces): checks: 547   failures: 2 ==; 2 failed, 2 of them B7/B8/B9
+    [FAIL] B9 a frame held when its channel closes is still committed at the next refill got=16 exp=17
+    [FAIL] B9 and the closed channel takes nothing more got=16 exp=17
+    caught by its own check (B9): True

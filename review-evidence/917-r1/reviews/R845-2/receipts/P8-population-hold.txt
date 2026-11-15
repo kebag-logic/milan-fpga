@@ -1,0 +1,11 @@
+# population hold inference (the PR body's Known limitations, the 94-group bullet)
+observation at 84d8a214 and cec88385: build.py ACCESSORS rx_commit = KL_mbx_rx commit_w (HDR1 && tok_now_w); a held record's commit is rel_w, not commit_w:
+575:    ('rx_commit', 'bool', 'KL_mbx_rx', 'commit_w'),
+609:  assign commit_w    = (st_r == HDR1_S) && tok_now_w;
+742:      rel_w[c]    = refill_w[c] && held_r[c];
+so a hold in those recorded logs prints no line at all: not 'a commit following no frame'.
+round-1 author receipt compare-1x1.txt (base cec88385, which drops a no-token frame, against 84d8a214, which holds it):
+files 284: same 283, different 1, missing 0
+RESULT: NOT identical
+logs compared: 94
+inference: the 94 logs are byte-identical across a drop RTL and a hold RTL, so no population frame met an empty bucket; the conclusion 'none of them holds a record' stands, its stated reason does not.

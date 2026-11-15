@@ -1,0 +1,11 @@
+# IEEE 1722.1-2021 clauses cited by the delta, checked against the standard's text (short excerpts only)
+9.2.2 "Common PDU": "...the ATDECC Controller may pipeline requests to the same or other Entities and send them
+  before it receives the associated responses."  -> supports "a controller may pipeline commands (9.2.2)"
+  (KL_mbx_rx.sv:41-42, MAILBOX_SPLIT.md:281, suite.hpp:394-395, PR body references).
+9.2.2.4 "message_type field" -> cited at this head only for the filter's message_type rows (unchanged).
+9.3.2.6 "ATDECC Command Timeouts": a 250 ms transaction timeout; entities respond within 240 ms
+  -> supports the timeout citations and FR_NFR.md's 240/250 ms rows.
+9.3.6 "ATDECC Entity Model Controller State Machine": the inflight variable, "a dynamic list of
+  InflightCommands"; txCommand starts a timeout per command, a retry restarts it; timeout() reports the
+  command and its retry timed out -> supports "timeout and retry (9.3.2.6, 9.3.6)".
+Result: every clause attribution added in 3926c271..8f73ade5 matches the clause text.

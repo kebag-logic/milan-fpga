@@ -1,0 +1,23 @@
+# probe P1: aecp refill_ms 5 -> 10 in a disposable copy of 8f73ade5, regenerate, run the contract and doc gates
+wrote docs/reference/MAILBOX_CONTRACT.md
+gen_mailbox: 0 finding(s)
+write rc=0
+ M docs/reference/MAILBOX_CONTRACT.md
+ M hdl/milan/mailbox/KL_mbx_pkg.sv
+ M sw/firmware/ctrl/mbx/mbx_contract.h
+ M sw/mailbox/mailbox.yaml
+ docs/reference/MAILBOX_CONTRACT.md  | 4 ++--
+ hdl/milan/mailbox/KL_mbx_pkg.sv     | 2 +-
+ sw/firmware/ctrl/mbx/mbx_contract.h | 2 +-
+ sw/mailbox/mailbox.yaml             | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+-| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 5 ms | 6 ms: one refill period and `T_ingress` |
++| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 10 ms | 11 ms: one refill period and `T_ingress` |
+-| `MBX_CH_AECP_RATE_REFILL_MS` | `0x5` |
++| `MBX_CH_AECP_RATE_REFILL_MS` | `0xa` |
+gen_mailbox: 0 finding(s)
+gen_mailbox: 0 finding(s)
+docs_check: 0 finding(s) across 219 md files + 1584 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_check rc=0
+432:| AECP command to its response (IEEE 1722.1-2021 9.3.2.6) | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 6 ms | 213 ms | 223 ms |
+434:| AECP MVU command to its response (Milan v1.2 5.4.3.4) | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 6 ms | 213 ms | 223 ms |
