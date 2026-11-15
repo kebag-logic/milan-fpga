@@ -802,9 +802,9 @@ void Suite<Bench, Check>::check_rate_limit() {
     }
     b_.drain_rx(40000);
     const std::uint32_t arrived_ms = rd(MBX_REG_NOW_MS);
+    const std::uint32_t words = 2u + static_cast<std::uint32_t>(frames[0].size() + 3u) / 4u;   // one record
     ck_.dec("T0 a burst of the bucket's depth passes", rx_pass(kAdp), burst);
-    ck_.dec("T0 the frame past it is held: RX_HEAD covers the burst only", rx_head(kAdp),
-            burst * (2u + static_cast<std::uint32_t>(frames[0].size() + 3u) / 4u));
+    ck_.dec("T0 the frame past it is held: RX_HEAD covers the burst only", rx_head(kAdp), burst * words);
     ck_.dec("T0 only the frame behind the held one counts in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
     ck_.dec("T0 and nothing in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 0);
     bool in_order = true;
@@ -818,6 +818,7 @@ void Suite<Bench, Check>::check_rate_limit() {
     ck_.dec("T0 the held frame waits for the refill", rx_pass(kAdp), burst);
     b_.ms(1);
     ck_.dec("T0 the next refill commits the held frame", rx_pass(kAdp), burst + 1u);
+    ck_.dec("T0 and RX_HEAD then covers the held record", rx_head(kAdp), (burst + 1u) * words);
     const Record held = peek(kAdp);
     ck_.that("T0 the held record is the frame past the burst, byte for byte", same_bytes(held.bytes, frames[burst]));
     ck_.dec("T0 and keeps the NOW_MS its last byte arrived at", held.w1, arrived_ms);

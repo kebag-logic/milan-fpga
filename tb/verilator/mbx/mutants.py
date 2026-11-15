@@ -664,7 +664,7 @@ ARMS += (
     Arm("rx-held-record-never-committed", "KL_mbx_rx.sv",
         "        end else if (rel_w[c]) begin\n          head_r[c] <= wr_head_r[c];\n",
         "        end else if (rel_w[c]) begin\n          head_r[c] <= head_r[c];\n", 0,
-        "T0 the next refill commits the held frame"),
+        "T0 and RX_HEAD then covers the held record"),
     # the next frame based at RX_HEAD, not at the write head: its speculative
     # words land on the held record's
     Arm("rx-next-frame-over-the-held-record", "KL_mbx_rx.sv",
