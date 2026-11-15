@@ -1,0 +1,7 @@
+# the three round-2 arms and the corrected-row arm, one at a time (mbx_arms.py), on the lane tree with the content of 8f73ade5
+[unit milan-917-a784-r2arms cpus 72-79 cwd <lane>/tb/verilator/mbx]
+[ok] rx-space-from-the-committed-head: 5 check(s) failed; first: [FAIL] B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP got=0 exp=1
+[ok] rx-space-from-the-committed-head-axil: 5 check(s) failed; first: [FAIL] B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP got=0 exp=1
+[ok] rx-refused-behind-held-counted: 2 check(s) failed; first: [FAIL] B8 a frame the filter refuses behind a held one counts nowhere got=2 exp=0
+[ok] rx-release-gated-on-open: 3 check(s) failed; first: [FAIL] B9 a frame held when its channel closes is still committed at the next refill got=16 exp=17
+[ok] rx-tail-inside-the-held-record-frees-space: 2 check(s) failed; first: [FAIL] B4 a tail ahead of RX_HEAD, inside the held record, leaves no free word: the next frame counts in RX_DROP got=0 exp=1

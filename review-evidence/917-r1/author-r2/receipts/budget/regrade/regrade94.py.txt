@@ -1,0 +1,27 @@
+"""regrade94.py <checkout> <build-dir> <point> <out>: grade a recorded run's logs with the checkout's grader (run.py's
+own recorded(), graded() and table(), its build's spec read as recorded; the logs linked, never rewritten) and compare
+table.md and every group's grade with the run's own, byte for byte."""
+import json, sys
+from pathlib import Path
+root, build, point, out = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3], Path(sys.argv[4]).resolve()
+sys.path.insert(0, str(root / 'tb/verilator/ctrl_service_budget'))
+import build as builder, run, scenario  # noqa: E402
+spec = json.loads((build / 'build.json').read_text())
+recorded_dir = build / 'results'
+out.mkdir(parents=True)
+groups = [g for g in run.all_groups(scenario.point(point, spec), spec) if (recorded_dir / f'{g.name}.log').exists()]
+for g in groups:
+    for suffix in ('.txt', '.log'):
+        (out / f'{g.name}{suffix}').symlink_to(recorded_dir / f'{g.name}{suffix}')
+kept, logs, absent = run.recorded(groups, out)
+results, refusals, misses = run.graded(kept, logs, spec, out)
+(out / 'table.md').write_text(run.table(results, point, builder.clock_line(spec)))
+same = (out / 'table.md').read_bytes() == (recorded_dir / 'table.md').read_bytes()
+grades = [g.name for g in kept if (out / f'{g.name}.json').read_bytes() == (recorded_dir / f'{g.name}.json').read_bytes()]
+print(f'groups recorded {len(groups)}, regraded {len(kept)}, absent {len(absent)}, refusals {len(refusals)}, misses {len(misses)}')
+print(f'table.md byte-identical to the recorded run: {same}')
+print(f'group grades byte-identical: {len(grades)} of {len(kept)}')
+for g in kept:
+    if g.name not in grades:
+        print('  DIFF', g.name)
+sys.exit(0 if same and len(grades) == len(kept) and not absent else 1)

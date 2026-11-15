@@ -1,0 +1,27 @@
+"""held_evidence.py <checkout> <build-dir>: the aecp-held log's held records, refused frames and probe row under the
+grader at the checkout, then under the attribution before #917 (selftest_mutants.py's negative control)."""
+import json, sys
+from pathlib import Path
+from unittest.mock import patch
+root, build = Path(sys.argv[1]), Path(sys.argv[2])
+sys.path.insert(0, str(root / 'tb/verilator/ctrl_service_budget'))
+import grade, held, scenario  # noqa: E402
+spec = json.loads((build / 'build.json').read_text())
+log_text = (build / 'results/aecp-held.log').read_text()
+p = scenario.point('x', spec)
+group = held.groups(p)[0]
+log = grade.parse(log_text, spec['sys_hz'], spec['cpu_hz'])
+print('held records (last byte, hold, commit, channel, interface, tag, bytes):')
+for h in log.held:
+    print('  ', h, f'ingress {(h[2] - h[0]) * 1000 / spec["sys_hz"]:.3f} ms')
+print('refused after the mark:', [r for r in log.refused if r[0] > held.AT_MS * spec['sys_hz'] // 1000])
+aecp = scenario.CH['aecp']
+print('commits credited on aecp after the mark:', [c for c in log.rxc if c[1] == aecp and c[0] > held.AT_MS * spec['sys_hz'] // 1000][-3:])
+r = grade.grade(log_text, group, spec['sys_hz'], spec['cpu_hz'])['probes'][0]
+print('probe:', {k: r.get(k) for k in ('status', 'ms', 'budget_ms', 'within_budget', 'ingress_ms', 'ingress_allowance_ms')})
+with patch.object(held, 'release', lambda log, pending, ch, cycle: grade.owner(pending, cycle, log.refused)):
+    try:
+        r = grade.grade(log_text, group, spec['sys_hz'], spec['cpu_hz'])['probes'][0]
+        print('NEGATIVE CONTROL graded (not caught):', r.get('status'), r.get('reason'))
+    except grade.Refusal as error:
+        print('NEGATIVE CONTROL caught: refused:', error)

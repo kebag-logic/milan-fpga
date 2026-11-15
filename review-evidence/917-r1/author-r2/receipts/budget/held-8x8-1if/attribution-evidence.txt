@@ -1,0 +1,6 @@
+held records (last byte, hold, commit, channel, interface, tag, bytes):
+   (100001422, 100001427, 100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60) ingress 4.986 ms
+refused after the mark: [(100001503, 0, '-', 60), (100001584, 0, '-', 60)]
+commits credited on aecp after the mark: [(100001265, 2, 0, '-', 60), (100001346, 2, 0, '-', 60), (100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60)]
+probe: {'status': 'measured', 'ms': 5.11361, 'budget_ms': 20.0, 'within_budget': True, 'ingress_ms': 4.98643, 'ingress_allowance_ms': 6.0}
+NEGATIVE CONTROL caught: refused: the receive commit at 100500065 follows no frame

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# unit.sh <name> <cwd> <cmd...>: run <cmd> in its own transient user unit (MemoryMax 10G) on a CPU range booked through
+# cpu_ranges.py pick, waiting for it; prints the unit's output and exits with its status.
+set -u
+name=$1; cwd=$2; shift 2
+cpus=$(python3 <management>/2026-09-23/cpu_ranges.py pick 2>/dev/null) || cpus=$(sed -n "s/^Cpus_allowed_list:[[:space:]]*//p" /proc/self/status)
+TOOLS=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin
+echo "[unit milan-917-a784-$name cpus $cpus cwd $cwd]" >&2
+exec systemd-run --user --quiet --unit="milan-917-a784-$name" --collect --wait --pipe \
+  --property=MemoryMax=10G --working-directory="$cwd" \
+  --setenv=HOME=<scratch>/home \
+  --setenv=PATH="$TOOLS:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin" \
+  --setenv=VERILATOR=<tools>/pinned-verilator-5.050/verilator \
+  --setenv=TMPDIR=<scratch>/tmp --setenv=PYTHONHASHSEED=0 --setenv=PYTHONDONTWRITEBYTECODE=1 \
+  /usr/bin/taskset -c "$cpus" "$@"

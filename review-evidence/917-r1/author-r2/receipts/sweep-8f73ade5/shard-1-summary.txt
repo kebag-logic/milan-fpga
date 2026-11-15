@@ -1,0 +1,5 @@
+# shard 1/4 (holds mbx) of the native sweep at 8f73ade5, clean clone
+shard run: 17 suites selected, 16 PASS, 0 FAIL, 1 TIMEOUT (milan_dp_render, the 1800 s wall clock under CPU contention: result unknown, not a failure); 2,046,585 checks, 0 in-suite failures (spec/01.log)
+milan_dp_render rerun on a fresh clean clone of 8f73ade5 (porcelain 0), same make target and environment, no wall clock: rc 0; 2 RESULT: PASS line(s), 0 RESULT: FAIL; its mutant leg: 5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)
+mbx in the shard: == mbx record mover (KL_mbx_dma): checks: 520041 failures: 0 ==; == mbx (Wishbone host): checks: 622 failures: 0 ==; == mbx (AXI4-Lite host): checks: 667 failures: 0 ==; == mbx cosim (firmware on the RTL and on the model): checks: 32 failures: 0 ==; == mbx (Wishbone host, 2 interfaces): checks: 629 failures: 0 ==; == mbx (AXI4-Lite host, 2 interfaces): checks: 674 failures: 0 ==; == mbx (host model, 2 interfaces): checks: 547 failures: 0 ==
+together: 17 of 17 suites pass at 8f73ade5
