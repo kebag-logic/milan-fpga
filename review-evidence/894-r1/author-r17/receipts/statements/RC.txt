@@ -1,0 +1,9 @@
+# rc of each statement-check command, clean clone of b6f5c638 (round 16's; the record-classes line corrected in round 17, R837-10-R1)
+model-statements (scripts/statement_checks.py): rc 0
+flip-check-both (flip_grade.py --check): rc 1, by design: 8x8/2if's rows are reported
+flip-check-1x1 (flip_grade.py --check --point 1x1/1if): rc 0
+flip-check-8x8 (flip_grade.py --check --point 8x8/2if): rc 1, by design, rows alone (no statement line)
+load-check (load_grade.py --check): rc 0
+compare-1x1, compare-8x8 (round 11's compare_point.py over round 13's extracted costs, b6f5c638's statements): rc 0, each equal to round 13's output
+record-classes (record_classes.py over round 13's 15 result sets): rc 0, RESULT PASS, equal to round 13's output up to the order of two result-set listing lines (the two "results: 8x8/2if none" lines); every verdict line and the RESULT identical
+controls-probe (scripts/controls_probe.py): rc 0

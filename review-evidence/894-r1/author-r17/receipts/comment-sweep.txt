@@ -1,0 +1,22 @@
+# Round 16, item 4: every comment and docstring under sw/ and tb/ (and every Markdown line there) against
+# every figure the round 12 to 15 moves superseded, at any pace or slice (comment_sweep.py)
+# 144 decimal tokens (sweep-tokens.txt: round 15's rows-history and load tokens, R837-9's 115,
+#   and txL/R4L at every non-built pace), plus the cost figures in context: 725 on a build line, 900 us,
+#   65 with AECP's timer slot, 150 with LINK, 250 with the SRP drain, 50 with TICK, 98, 30 and 44 with
+#   CTRL_LOOP_TX_MS or THE TRANSMIT
+# another 8, beside 3, historical 4, total 15; current with a superseded figure: 0
+historical	49.69	sw/firmware/ctrl/aecp/aecp_mbx.h:50	'txL was 49.69 ms at 7 ms, and 8 ms did' (the direct index's; R837-9-F1)
+beside	29.78	sw/firmware/ctrl/srp/README.md:238	'33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it'
+beside	33.01	sw/firmware/ctrl/srp/README.md:238	'33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it'
+beside	900	sw/firmware/ctrl/srp/README.md:238	'33.38 ms there at the 950 us slice (33.01 at the 900 us slice under #894's one-row edit cut, 29.78 before it'
+another	12.26	tb/verilator/ctrl_service_budget/README.md:536	the harness's ACMP PROBE_TX latency table (4.11 (12.26) ms), not a row figure
+another	47.98	tb/verilator/ctrl_service_budget/README.md:540	the harness's first-TMR_NO_RESP latency table (5.48 (47.98) ms), not a row figure
+another	14.50	tb/verilator/ctrl_service_budget/README.md:580	the harness's AECP lock_entity latency table (8.32 (14.50) ms), not a row figure
+another	72.71	tb/verilator/ctrl_service_budget/README.md:681	the harness's measured load-service table, ADP's last record 72.71 ms in an arm's group, not the tier model's R5
+another	28.35	tb/verilator/ctrl_service_budget/README.md:827	the fetch-L1 geometry sweep table (at least 28.35 ms), not a row figure
+another	0.513	tb/verilator/ctrl_service_budget/README.md:1135	0.513 ms, slow-adp-rx's unplanted ADP record
+historical	50	tb/verilator/ctrl_service_budget/load_grade.py:126	restatement history, 'a TICK at 1x1/1if 45 to 50 us' under the edit cut
+historical	50	tb/verilator/ctrl_service_budget/load_grade.py:134	restatement history, 'a TICK at 1x1/1if 50 to 55'; the table holds 55
+historical	725	tb/verilator/ctrl_service_budget/load_grade.py:171	restatement history, 'at 1,010 and 725 us ... under #894's ... 735'; the table holds 735
+another	0.199	tb/verilator/ctrl_split_boot/README.md:87	0.199 ms, a boot-time figure
+another	14.56	tb/verilator/fw_service_budget/README.md:84	14.56 seconds, two flash slots' WIP bound
