@@ -112,6 +112,12 @@ PUBLICATION_MS = 250.0
 PHY_STEP_LIMIT_MS = 300
 #: IEEE 802.3 22.2.2.13: MDC high and low at least 160 ns each, its period at least 400 ns.
 MDC_HIGH_NS, MDC_PERIOD_NS = 160, 400
+#: #840's advertisement on the testbench's PHY (registers 0 0x1000, 4 0x01e1, 9 0x0300; ctrl_plat_phy.h THE
+#: ADVERTISEMENT): the boot writes register 9 with 1000BASE-T full duplex alone, 4 without 10/100, then restarts
+#: negotiation; after each loss it writes 9 and 4 again and, the PHY still holding them, restarts nothing. Each
+#: group is read back, 4 then 9.
+ADVERTISED_BOOT = [(9, 0x0200), (4, 0x0001), (0, 0x1200)]
+ADVERTISED_LOSS = [(9, 0x0200), (4, 0x0001)]
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
 #: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
 #: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 2,000,000 turns before
@@ -119,12 +125,13 @@ MDC_HIGH_NS, MDC_PERIOD_NS = 160, 400
 #: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
-    # the PHY's word never reaches milan_mac_link_status; and the loss a poll's first BMSR latched not published
-    'phy-unpublished': ('plat/ctrl_plat_phy.c', '\t\tctrl_plat_io_write32(phy->bus.link_status, status);\n',
-                        '\t\t(void)status;\n', 'PHY'),
-    'phy-loss-not-latched': ('plat/ctrl_plat_phy.c',
-                             '\t\t\t\tctrl_plat_io_write32(phy->bus.link_status, 0u);\n\t\t\t\tphy->published = 0u;\n',
-                             '\t\t\t\tphy->published = 0u;\n', 'PHY'),
+    # the PHY's word never reaches milan_mac_link_status; the loss a poll's first BMSR latched not published; and
+    # the boot's advertisement (#840) never owed
+    'phy-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(phy->bus.link_status, word);\n', '', 'PHY'),
+    'phy-loss-not-latched': ('plat/ctrl_plat_phy.c', '\t\t\t\tpublish(phy, 0u);\n', '\t\t\t\tphy->published = 0u;\n',
+                             'PHY'),
+    'phy-unadvertised': ('plat/ctrl_plat_phy.c', '\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_BOOT;\n',
+                         '\tphy->adv = 0u;\n', 'PHY'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
@@ -375,6 +382,37 @@ def polls(publications: list[tuple[int, int]], gap: int) -> list[list[tuple[int,
     return out
 
 
+def advertisement(frames: list[tuple], writes: list[tuple], pubs: list[tuple[int, int]], events: dict,
+                  report: list[str]) -> list[str]:
+    """#840's advertisement (ctrl_plat_phy.h THE ADVERTISEMENT): the boot's three writes, then two after each of the
+    script's losses (a publication from link up to down), each group read back; its findings, its report line
+    appended."""
+    findings = []
+    losses = [c for (c, w), (_, before) in zip(pubs[1:], pubs) if (before & 1) and not (w & 1)]
+    groups, k = [], 0
+    for n, start in enumerate([0] + losses):
+        group = [w for w in writes[k:] if w[0] > start and w[1] == PHY_ADDRESS][:3 if n == 0 else 2]
+        groups.append(group)
+        k += len(group)
+    values = [[(r, v) for _, _, r, v in g] for g in groups]
+    report.append(f'PHY advertisement: {len(writes)} writes; the boot\'s {[(r, hex(v)) for r, v in values[0]]}, '
+                  f'after each of {len(losses)} losses {[[(r, hex(v)) for r, v in g] for g in values[1:]]}')
+    if values[0] != ADVERTISED_BOOT:
+        findings.append(f'PHY: the boot\'s advertisement wrote {values[0]}, not register 9, 4, then 0 as '
+                        f'{ADVERTISED_BOOT} (#840)')
+    if len(losses) < 2 or any(g != ADVERTISED_LOSS for g in values[1:]):
+        findings.append(f'PHY: after the {len(losses)} losses the advertisement was written {values[1:]}, not '
+                        f'{ADVERTISED_LOSS} after each, with no restart')
+    if len(writes) != k:
+        findings.append(f'PHY: {len(writes)} writes, not the boot\'s three and two after each loss')
+    # each group read back: the two frames after its last write read registers 4 and 9
+    for n, group in enumerate(groups):
+        back = [f[3] for f in frames if group and f[1] > group[-1][0]][:2]
+        if group and back != [4, 9]:
+            findings.append(f'PHY: the advertisement\'s group {n} read back registers {back}, not 4 and 9')
+    return findings
+
+
 def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]]:
     """The published link word after ready (#919): its findings and report lines."""
     findings, report = [], []
@@ -441,6 +479,7 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
             if (rise - events['back']) / per_us / 1000 > PUBLICATION_MS:
                 findings.append(f'PHY: the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f}'
                                 f' ms after it, past the publication bound')
+    findings += advertisement(frames, [tuple(int(x) for x in w) for w in lines(log, 'PHYW')], pubs, events, report)
     timing = lines(log, 'PHYT')
     if timing:
         high, low, period = (int(x) / spec['sys_hz'] * 1e9 for x in timing[0])

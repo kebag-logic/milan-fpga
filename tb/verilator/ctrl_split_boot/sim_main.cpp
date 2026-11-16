@@ -16,7 +16,10 @@
 // It is the PHY too (#919): an IEEE 802.3 clause 22 peer on the MDIO pins at
 // address kPhyAddress, 1000BASE-T full duplex negotiated, which launches bit
 // k + 1 on MDC's rising edge k (22.3.4) and fails the run on a frame that is
-// not a read driven then released. After the commands it holds the link for
+// not a read driven then released or a write driven whole (22.2.4.5). A write
+// at its address sets the register (#840's advertisement), register 0's
+// restart and reset bits clearing themselves; it renegotiates at once, so its
+// link is the script's alone. After the commands it holds the link for
 // two polls, latches a loss that has already recovered (BMSR's latched-low
 // link status, 22.2.4.2.13), then drops the link until a poll publishes it
 // down and one more, and brings it back, latched, until a poll publishes it
@@ -30,6 +33,7 @@
 //   STOPPED <cycle>                 a stop line's last byte (the boot refused a stage)
 //   IN <cycle> <command>            a command's first byte taken by the UART
 //   PHYF <first> <last> <addr> <reg> an MDIO frame: the cycles its pins left and returned to 0
+//   PHYW <cycle> <addr> <reg> <value> a write frame's register and value, as the frame ends
 //   PHYP <cycle> <word>             a write to milan_mac_link_status
 //   PHYS <cycle> <event>            the script's link: latched, down, back
 //   PHYT <high> <low> <period>      MDC's shortest high and low times and period within a frame, in bus cycles
@@ -76,8 +80,10 @@ public:
         }
         if (!(pins & 1u) && bit_ == 64u && pins == 0u) {
             std::printf("PHYF %llu %llu %u %u\n", ull(start_), ull(cycle), (command_ >> 5) & 31u, command_ & 31u);
+            if ((command_ >> 10) == 5u) written(cycle);
             bit_ = 0;
             command_ = 0;
+            data_ = 0;
             reply_ = 1;
         }
         previous_ = pins;
@@ -102,9 +108,13 @@ private:
             if (bit_ < 32u && !(pins & 4u)) throw std::runtime_error("MDIO preamble bit not one");
             if (bit_ >= 32u) command_ = (command_ << 1) | ((pins >> 2) & 1u);
             reply_ = 1;
+        } else if ((command_ >> 10) == 5u) {
+            if (!(pins & 2u)) throw std::runtime_error("MDIO write's turnaround or data not driven");
+            data_ = ((data_ << 1) | ((pins >> 2) & 1u)) & 0x3ffffu;
+            reply_ = 1;
         } else {
             if (pins & 2u) throw std::runtime_error("MDIO turnaround or data driven by the STA");
-            if ((command_ >> 10) != 6u) throw std::runtime_error("MDIO frame not a clause 22 read");
+            if ((command_ >> 10) != 6u) throw std::runtime_error("MDIO frame not a clause 22 read or write");
             const bool addressed = ((command_ >> 5) & 31u) == kPhyAddress;
             if (bit_ == 46u) value_ = reg(command_ & 31u, addressed);
             reply_ = bit_ == 46u ? 0u : bit_ == 63u ? 1u : ((value_ >> (62u - bit_)) & 1u);
@@ -114,23 +124,32 @@ private:
         ++bit_;
     }
     unsigned reg(unsigned r, bool addressed) {
-        switch (r) {
-        case 0: return 0x1000u;
-        case 1: {
-            const bool latched = latched_ && addressed;
-            if (latched) latched_ = false;
-            return (up_ && !latched) ? 0x0124u : 0x0120u;
-        }
-        case 2: return 0x001cu;
-        case 4: return 0x01e1u;
-        case 5: return 0x01e1u;
-        case 9: return 0x0300u;
-        case 10: return 0x0c00u;
-        case 15: return 0x3000u;
-        default: return 0u;
-        }
+        if (r != 1u) return regs_[r];
+        const bool latched = latched_ && addressed;
+        if (latched) latched_ = false;
+        return (up_ && !latched) ? 0x0124u : 0x0120u;
     }
-    unsigned previous_ = 0, bit_ = 0, command_ = 0, reply_ = 1, value_ = 0, word_ = 13u, publications_ = 0;
+    // A whole write: its turnaround 10, then the register set at the PHY's address.
+    void written(std::uint64_t cycle) {
+        if ((data_ >> 16) != 2u) throw std::runtime_error("MDIO write's turnaround not 10");
+        const unsigned address = (command_ >> 5) & 31u, r = command_ & 31u, value = data_ & 0xffffu;
+        std::printf("PHYW %llu %u %u %u\n", ull(cycle), address, r, value);
+        if (address == kPhyAddress) regs_[r] = r == 0u ? value & ~0x8200u : value;
+    }
+    // 1000BASE-T full duplex negotiated: BMCR, PHYID1, the advertisement and the partner's, the 1000BASE-T pair and
+    // the extended status, as the release's host test's PHY holds them
+    std::array<unsigned, 32> regs_ = [] {
+        std::array<unsigned, 32> r{};
+        r[0] = 0x1000u;
+        r[2] = 0x001cu;
+        r[4] = 0x01e1u;
+        r[5] = 0x01e1u;
+        r[9] = 0x0300u;
+        r[10] = 0x0c00u;
+        r[15] = 0x3000u;
+        return r;
+    }();
+    unsigned previous_ = 0, bit_ = 0, command_ = 0, reply_ = 1, value_ = 0, word_ = 13u, publications_ = 0, data_ = 0;
     std::uint64_t start_ = 0, rose_ = 0, fall_ = 0;
     std::uint64_t high_ = ~0ull, low_ = ~0ull, period_ = ~0ull;
     bool latched_ = false;
