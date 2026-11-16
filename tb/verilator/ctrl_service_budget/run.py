@@ -713,7 +713,7 @@ def all_groups(point: object, spec: dict) -> list:
         return notice_window.every_groups(point, spec)
     if spec.get('variant') == 'valid-destinations':
         import talker_window
-        return talker_window.groups(point)
+        return talker_window.groups(point, spec)
     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 
