@@ -171,12 +171,12 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)'
     held = []
     # each interface count's leg planted under its row alone, refused at its own point (8x8/2if's rows are reported,
     # so its flip check exits 1 by design and only this control holds its statement)
-    for leg, point, said in (('33u : 99u', '1x1/1if', 33), ('34u : 98u', '8x8/2if', 98)):
-        under = {loop: text.replace(figure, figure.replace('34u : 99u', leg))}
+    for leg, point, said in (('33u : 105u', '1x1/1if', 33), ('34u : 104u', '8x8/2if', 104)):
+        under = {loop: text.replace(figure, figure.replace('34u : 105u', leg))}
         with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements,
                                u=under: f(r, p, u)):
             held.append(any(f'CTRL_LOOP_TX_MS states {said} ms' in f for f in row_findings(root, (point,))))

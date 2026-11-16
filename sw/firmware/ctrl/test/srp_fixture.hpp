@@ -61,6 +61,8 @@ protected:
         shlan_port_bind_pool(&pool);
         ctrl_loop_init(&loop);
         config.licence=Licence::call; config.ctx=&licence; config.link_rate_bps=1000000000;
+        // no MAAP DA gate here: every source's SRP parameters valid from init (#895)
+        config.sources_valid=true;
         for (unsigned i=0;i<MBX_N_IF;++i) {
             config.mac[i]=0x020304050600ull+i;
             config.sources[i]=sources[i];
@@ -86,9 +88,10 @@ protected:
         shlan_port_bind_pool(nullptr);
     }
     std::vector<Declaration> declarations;
-    void capture() {
+    // The SRP frames sent from frame `from` on (the model keeps the last MBX_MODEL_TX_CAPTURE).
+    void capture(uint32_t from=0) {
         declarations.clear();
-        for (unsigned k=0;k<model.tx_sent;++k) {
+        for (unsigned k=from;k<model.tx_sent;++k) {
             const auto *f=mbx_model_tx_frame(&model,k);
             ASSERT_NE(f,nullptr);
             ASSERT_EQ(f->channel,MBX_CH_SRP);
