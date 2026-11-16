@@ -1,0 +1,27 @@
+# exact-head integrity after probes
+d06ded5ad3d6eb26bfd79787260adcdcc7d3f80b
+c6c0397815848b804297d8fe001d88e722b35f49
+worktree/index clean: yes
+index sha256 (git ls-files -s): 362c348360d7f8d7ce3188959ccec4545b07d0260087f5fc0408e14e67366e70
+# gitlinks at HEAD
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+# submodule checkouts: path HEAD dirty-count
+protocol-processor a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 0
+gptp-processor 135afd043309369a87ddbc8d6550aff8ec52a157 0
+third_party/tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376 0
+third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0
+# gitlinks 70c100da vs HEAD: identical
+# delta 70c100da..HEAD
+ sw/firmware/ctrl/aecp/README.md           |  8 +++-
+ sw/firmware/ctrl/plat/README.md           |  2 +-
+ sw/firmware/ctrl/test/aecp_map_mutants.py | 14 ++++++
+ sw/firmware/ctrl/test/test_aecp.cpp       | 80 ++++++++++++++++++++++++++++---
+ sw/litex/ctrl_memory.py                   | 12 ++---
+ 5 files changed, 102 insertions(+), 14 deletions(-)
+# compiled-source check: hdl tb protocol-processor sw/firmware/ctrl/aecp(non-README) unchanged: yes
+# ctrl_memory.py delta lines all '#:' comments:
+0
