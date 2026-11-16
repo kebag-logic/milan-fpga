@@ -1,0 +1,28 @@
+# git trees and blobs at 3926c271, 8f73ade5 and 394612c5 (equal hashes are equal content)
+hdl                                    3926c271 5fe5b7d54721adf55ef46dcfda8ea95881a88d60  8f73ade5 363860ab728d35ff5700bba6e0d4dd909a65a2a0  394612c5 363860ab728d35ff5700bba6e0d4dd909a65a2a0
+hdl/milan/mailbox/KL_mbx_rx.sv         3926c271 ba7e6e668a92c202c4d55213b7e6e347c0d07444  8f73ade5 8e47e98ab541ca11ab751b24381e73ee8d4263d1  394612c5 8e47e98ab541ca11ab751b24381e73ee8d4263d1
+sw/firmware                            3926c271 85c0f27c01e9f7ca16dcc3b6477f50a2ee6cbbec  8f73ade5 85c0f27c01e9f7ca16dcc3b6477f50a2ee6cbbec  394612c5 85c0f27c01e9f7ca16dcc3b6477f50a2ee6cbbec
+configs                                3926c271 46399440800854473d3277e68feff3fd054eee06  8f73ade5 46399440800854473d3277e68feff3fd054eee06  394612c5 46399440800854473d3277e68feff3fd054eee06
+sw/mailbox/mailbox.yaml                3926c271 537cac8a1e5e59519924c09445eb8e04012e3ba6  8f73ade5 d28143c931ee39d78321f26b505f74a7d8be7409  394612c5 d28143c931ee39d78321f26b505f74a7d8be7409
+hdl/milan/mailbox/KL_mbx_pkg.sv        3926c271 97a664b1c7f399bb603439ff0eed23825418dd42  8f73ade5 97a664b1c7f399bb603439ff0eed23825418dd42  394612c5 97a664b1c7f399bb603439ff0eed23825418dd42
+hdl/milan/mailbox/KL_mbx.sv            3926c271 4a1644863912d3ff75f994be56432b27db614ded  8f73ade5 4a1644863912d3ff75f994be56432b27db614ded  394612c5 4a1644863912d3ff75f994be56432b27db614ded
+sw/firmware/ctrl/mbx/mbx_contract.h    3926c271 0e441a51ad95bafbcb31e6a794ef748988ef645d  8f73ade5 0e441a51ad95bafbcb31e6a794ef748988ef645d  394612c5 0e441a51ad95bafbcb31e6a794ef748988ef645d
+docs/reference/MAILBOX_CONTRACT.md     3926c271 767a46341bf150ee89e033ae40374fda77c128ce  8f73ade5 0437986095562e42f5c77d542c7b79f22fe72afb  394612c5 0437986095562e42f5c77d542c7b79f22fe72afb
+
+git diff --stat 8f73ade5..394612c5 -- hdl sw/firmware configs sw/mailbox/mailbox.yaml (empty is unchanged):
+(end)
+
+git diff --stat 8f73ade5..394612c5:
+ docs/design/MAILBOX_SPLIT.md                       |   4 +-
+ docs/reference/FR_NFR.md                           |  26 +++--
+ docs/testing/CI_WORKFLOWS.md                       |   6 +-
+ scripts/ci_scope.py                                |   6 +-
+ sw/mailbox/gen_mailbox.py                          |  92 ++++++++++++++++--
+ sw/mailbox/mailbox_margins.py                      | 105 +++++++++++++++++++++
+ tb/verilator/ctrl_service_budget/README.md         |   6 +-
+ tb/verilator/ctrl_service_budget/grade.py          |   3 +-
+ tb/verilator/ctrl_service_budget/held.py           |  29 +++++-
+ tb/verilator/ctrl_service_budget/selftest_held.py  |  29 +++++-
+ .../ctrl_service_budget/selftest_mutants.py        |   4 +
+ tb/verilator/mbx/suite.hpp                         |   4 +-
+ 12 files changed, 286 insertions(+), 28 deletions(-)

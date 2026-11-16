@@ -1,0 +1,42 @@
+# local gates on a clean clone at 394612c5 (porcelain 0)
+## python3 -B scripts/lint_rtl.py --check -> rc=0
+  hdl/milan/milan_datapath.sv:502:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+## python3 -B sw/mailbox/gen_mailbox.py --check -> rc=0
+gen_mailbox: 0 finding(s)
+## python3 -B sw/mailbox/gen_mailbox.py --crosscheck -> rc=0
+gen_mailbox: 0 finding(s)
+## python3 -B sw/mailbox/gen_mailbox.py --selftest -> rc=0
+[ok] positive control: generated outputs cross-check clean
+[ok] positive control: docs/reference/FR_NFR.md's margin table is the contract's
+[ok] margin arm a held allowance edited by hand: docs/reference/FR_NFR.md: 'AECP command to its response (IEEE 1722.1-2021 9.3.2.6)' reads 1 ms / 218 ms / 228 ms / 7 ms / 213 ms / 223 ms, the contract gives 1 ms / 218 ms / 228 ms / 6 ms / 213 ms / 223 ms; run gen_mailbox.py --write
+[ok] margin arm aecp refill_ms 5 ms longer, not regenerated: docs/reference/FR_NFR.md: 'AECP MVU command to its response (Milan v1.2 5.4.3.4)' reads 1 ms / 218 ms / 228 ms / 6 ms / 213 ms / 223 ms, the contract gives 1 ms / 218 ms / 228 ms / 11 ms / 208 ms / 218 ms; run gen_mailbox.py --write
+[ok] margin arm a margin that is not positive: docs/reference/FR_NFR.md: 'ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26)' leaves no margin: -2 ms
+[ok] margin arm a row naming no channel: docs/reference/FR_NFR.md: 'ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26)': '`acmq`' names no channel of the contract
+[ok] regenerated with aecp's refill_ms 10: aecp's held cells ['11 ms / 208 ms / 218 ms', '11 ms / 218 ms / 228 ms', '11 ms / 208 ms / 218 ms'], acmp's unchanged, and clean
+selftest: 0 arm(s) failed
+## python3 -B scripts/ci_scope.py --selftest -> rc=0
+  ok   ['docs/reference/FR_NFR.md']: rtl=True
+  ok   gate-read page docs/reference/FR_NFR.md (named at sw/mailbox/mailbox_margins.py:26) is relevant
+  ok   mutation: gate-read docs/reference/FR_NFR.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/FR_NFR.md once the table drops it
+selftest: PASS
+## python3 -B scripts/docs_check.py -> rc=0
+docs_check: 0 finding(s) across 219 md files + 1585 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+## python3 -B scripts/check_doc_paths.py -> rc=0
+doc path gate: OK (1156 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+## gates-venv python3 -B scripts/check_em_dash.py --base cec88385ad0a0ec0d61b91597640797766e45010 -> rc=0
+check_em_dash: 0 finding(s) over 177 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cec88385..HEAD]
+## gates-venv python3 -B scripts/check_em_dash.py --selftest -> rc=0
+check_em_dash selftest: PASS (339 arm(s))
+## python3 -B scripts/check_py_idiom.py -> rc=0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+## python3 -B scripts/check_cpp_idiom.py -> rc=0
+  long function: 0 <= 0
+## python3 -B scripts/check_sv_idiom.py -> rc=0
+SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+## python3 -B scripts/check_sh_idiom.py -> rc=0
+  top-heavy long script: 0 <= 0
+porcelain after 0

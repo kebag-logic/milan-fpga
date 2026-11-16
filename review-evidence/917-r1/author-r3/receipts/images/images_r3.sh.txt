@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# the fixture images and the ledgered 8x8/2if split on the round-3 clone
+set -u
+S=<scratch>
+$S/bin/images.sh $S/r3i $S/img/r3
+cd $S/r3i && MILAN_RV32_CC=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc PYTHONHASHSEED=0 python3 -B sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 2 --layout split --with-aecp --ledgered-point 8x8-two-interfaces --libc $S/runtime/libc.a --compiler-runtime $S/runtime/libcompiler_rt.a --output $S/img/r3/srp-endstation_ax7101_8x8-if2-split-ledgered > $S/img/r3/srp-ledgered.log 2>&1; echo "ledgered rc=$?" >> $S/img/r3/RUN.txt
+cd $S/img/r3 && find . -type f \( -name '*.elf' -o -name '*.bin' \) | LC_ALL=C sort | xargs -r sha256sum > IMAGES2.sha256

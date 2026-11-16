@@ -1,0 +1,19 @@
+HEAD 394612c55148b43354359daeab2aa88d4f019ec2 porcelain 0
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+REFUSED: service-bound header compilation failed: Traceback (most recent call last):
+  File "<scratch>/r3m/sw/mailbox/gen_mailbox.py", line 84, in <module>
+    import mailbox_margins  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/r3m/sw/mailbox/mailbox_margins.py", line 22, in <module>
+    from mailbox_emit import T_INGRESS_MS
+  File "<scratch>/r3m/sw/mailbox/mailbox_emit.py", line 14, in <module>
+    from mailbox_model import Channel, Constant, Contract, Field, Register, Word, constants
+  File "<scratch>/r3m/sw/mailbox/mailbox_model.py", line 24, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+<command-line>: fatal error: <scratch>/tmp/ctrl-fw-asmg3au3/checkout/service-bounds/if1/mbx_contract.h: No such file or directory
+compilation terminated.
+
+rc=2
+porcelain after 0

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# regrade_r3.sh: every recorded run #917 measured, regraded by the grader of the clean clone r3s (the round-3 head)
+set -u
+S=<scratch>; C=$S/r3s; R=$S/regrade
+echo "grader at $(git -C $C rev-parse HEAD) porcelain $(git -C $C status --porcelain --untracked-files=all | wc -l)"
+rc=0
+for spec in "r3-held-1x1 $S/budget/r2-held-1x1 1x1 results" "r3-held-8x8-1if $S/budget/r2-held-8x8-1if 8x8-1if results" \
+            "r3-aecp-8x8-1if $S/budget/r2-held-8x8-1if 8x8-1if results-aecp" "r3-base-1x1 $S/budget/base-1x1 1x1 results" \
+            "r3-head-1x1 $S/budget/head-1x1 1x1 results"; do
+  set -- $spec
+  echo "== $1 (recorded $(basename $2)/$4, point $3)"
+  python3 -B $S/bin/regrade.py $C $2 $3 $R/$1 $4; r=$?; echo "rc=$r"; [ $r = 0 ] || rc=1
+done
+exit $rc

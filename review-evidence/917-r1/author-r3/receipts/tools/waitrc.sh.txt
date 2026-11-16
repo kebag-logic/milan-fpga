@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# waitrc.sh <max-seconds> <rcfile...>: wait until every rc file exists or the time is up; print them.
+max=$1; shift; t=0
+while [ $t -lt "$max" ]; do
+  all=1; for f in "$@"; do [ -f "$f" ] || all=0; done
+  [ $all = 1 ] && break
+  sleep 15; t=$((t+15))
+done
+for f in "$@"; do printf '%s: %s\n' "$f" "$(cat "$f" 2>/dev/null || echo running)"; done
