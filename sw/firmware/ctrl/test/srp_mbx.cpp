@@ -278,6 +278,10 @@ TEST_F(Srp, PubTalkerDeclIsNotPublishedByACreationThatFails) {
         << "PUB the retried creation declares every source";
 }
 
+// Every source of the compiled entity declares at startup (#895: the fixture's sources are valid from init): source 0,
+// the one allocated, Talker Advertise, and each other one Talker Failed with code 2, unallocated (IEEE 802.1Q-2018
+// 35.2.2.8.7, Table 35-6). Each is held by its own StreamID, so the 8x8 entity's eight unallocated sources are each
+// held to New, New, JoinMt as the 1x1 entity's one is (#929).
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);
@@ -285,27 +289,37 @@ TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     advance(400);
     EXPECT_EQ(adapter.transmitted,5u*MBX_N_IF);
     capture();
+    const unsigned events[]={0,0,3};
     for(unsigned i=0;i<MBX_N_IF;++i) {
-        for(unsigned type=1;type<=4;++type) {
-            if(type==3) continue;
-            unsigned count=0;
-            for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==type) {
-                ASSERT_LT(count,3u); const unsigned events[]={0,0,3};
-                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count); ++count;
-                if(type==4) EXPECT_EQ(d.value,(std::vector<uint8_t>{6,3,0,2}));
-                else {
-                    const unsigned index=type==1 ? 0 : 1;
-                    EXPECT_TRUE(std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin()));
-                    EXPECT_EQ(wire_be16(d.value.data()+14),2u);
-                    EXPECT_EQ(wire_be16(d.value.data()+16),224u);
-                    EXPECT_EQ(wire_be16(d.value.data()+18),1u);
-                    EXPECT_EQ(d.value[20],0x60u);
-                    if(type==2) { EXPECT_EQ(d.value[33],2u); }
-                }
-            }
-            EXPECT_EQ(count,3u);
-        }
         unsigned count=0;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==4) {
+            ASSERT_LT(count,3u);
+            EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count); ++count;
+            EXPECT_EQ(d.value,(std::vector<uint8_t>{6,3,0,2}));
+        }
+        EXPECT_EQ(count,3u) << "the Domain on interface " << i;
+        unsigned talkers=0;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && (d.type==1 || d.type==2)) ++talkers;
+        EXPECT_EQ(talkers,3u*CTRL_SRP_SOURCES) << "each source's three Talker declarations and no other on interface "
+                                               << i;
+        for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) {
+            const unsigned type=sources[i][n].allocated ? 1u : 2u;
+            const auto id=identity(i,n);
+            count=0;
+            for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && (d.type==1 || d.type==2) &&
+                                                  std::equal(d.value.begin(),d.value.begin()+8,id.begin())) {
+                ASSERT_LT(count,3u) << "source " << n << " on interface " << i;
+                EXPECT_EQ(d.type,type) << "source " << n << " on interface " << i;
+                EXPECT_EQ(d.event,events[count]); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count); ++count;
+                EXPECT_EQ(wire_be16(d.value.data()+14),2u);
+                EXPECT_EQ(wire_be16(d.value.data()+16),224u);
+                EXPECT_EQ(wire_be16(d.value.data()+18),1u);
+                EXPECT_EQ(d.value[20],0x60u);
+                if(type==2) { EXPECT_EQ(d.value[33],2u) << "source " << n << "'s failure code"; }
+            }
+            EXPECT_EQ(count,3u) << "source " << n << " on interface " << i << " declares New, New, JoinMt";
+        }
+        count=0;
         for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x88f5) {
             EXPECT_EQ(d.type,1u); EXPECT_EQ(d.event,3u); EXPECT_EQ(d.time_ms,10u*CTRL_LOOP_JOIN_CS*count);
             EXPECT_EQ(d.value,(std::vector<uint8_t>{0,2})); ++count;
@@ -695,11 +709,18 @@ TEST_F(Srp, LinkLossCancelsItsOwedFrameOnly) {
     mbx_model_tx_pause(&model,false); settle();
 }
 
+// Two adapters share one pool, two of the compiled entity's SRP pools (srp_mbx.h, from its shape), so both are made at
+// every shape and the second's attachment is what the test holds (#929: a 1x1-sized pool refused the second
+// srp_mbx_init at the 8x8 entity with two interfaces).
 TEST_F(Srp, OneLoopOwnsTheGlobalCentisecondDispatch) {
     srp_mbx_destroy(&adapter);
-    alignas(std::max_align_t) uint8_t storage[30000];
-    ctrl_pool shared{}; ctrl_pool_class cls{512,50};
-    ASSERT_TRUE(ctrl_pool_init(&shared,storage,sizeof(storage),&cls,1)); shlan_port_bind_pool(&shared);
+    alignas(std::max_align_t) static uint8_t storage[2u*SRP_POOL_ARENA_BYTES];
+    ctrl_pool shared{};
+    ctrl_pool_class cls[SRP_POOL_N_CLASSES];
+    for(unsigned k=0;k<SRP_POOL_N_CLASSES;++k) {
+        cls[k]={srp_pool_classes[k].block_bytes,static_cast<uint16_t>(2u*srp_pool_classes[k].blocks)};
+    }
+    ASSERT_TRUE(ctrl_pool_init(&shared,storage,sizeof(storage),cls,SRP_POOL_N_CLASSES)); shlan_port_bind_pool(&shared);
     srp_mbx first{}; srp_mbx second{}; ctrl_loop first_loop{}; ctrl_loop second_loop{};
     ASSERT_TRUE(srp_mbx_init(&first,&config)); ASSERT_TRUE(srp_mbx_init(&second,&config));
     ASSERT_TRUE(srp_mbx_attach(&first,&first_loop)); EXPECT_FALSE(srp_mbx_attach(&second,&second_loop));
