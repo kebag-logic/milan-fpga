@@ -308,7 +308,10 @@ waits for it. On the host port it keeps `KL_mbx`'s rule: one request, none
 until its answer, which comes one cycle after the request or two for a
 register read (#870); the mover holds the port for a CPU request from its
 issue to its answer, however long that takes, and routes the answer to the
-CPU (`cpu_wait_r`). [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
+CPU (`cpu_wait_r`). Its ring address is a register that moves with the ring
+index, loaded at a move's start and at each answer, so `KL_mbx`'s write
+decode reads no add on the mover's address; it costs no cycle (#927).
+[Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
 gives its measurement.
 
 Every AXI4-Lite output is a register or a function of registers only: no
