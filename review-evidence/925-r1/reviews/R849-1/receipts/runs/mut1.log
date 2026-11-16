@@ -1,0 +1,46 @@
+author plants selected: 11; reviewer plants: 5
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-unknown-advertise: SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst / neither registration seen: Failed first
+[ok] feedback-latest-filter-failed-first: SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind / the latest kind precedes the withdrawal
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] r849-bind-copy-same-destination: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] r849-walk-kinds-swapped: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / a first registration declares within a JoinTime
+[ok] r849-unknown-withdraws: SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst / neither registration seen: Failed first
+[ESCAPED] r849-renew-not-recorded: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+Note: Google Test filter = SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[       OK ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime (0 ms)
+[----------] 1 test from SrpTalkerKinds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ESCAPED] r849-bind-copy-skipped-for-self: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+Note: Google Test filter = SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[       OK ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (0 ms)
+[----------] 1 test from SrpTalkerKinds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+campaign interfaces=1: ESCAPED
