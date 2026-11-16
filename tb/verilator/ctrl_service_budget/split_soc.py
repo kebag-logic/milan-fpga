@@ -497,12 +497,14 @@ class CpuPatches:
 
 def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     """add_ctrl_memory's plan held to the named ledgered point's tiles (ctrl_memory.LEDGERED), which
-    refuses any image that is not that point; None keeps the SoC build's plan, which names none.
-    build.build holds build() under it, named by build.ledgered_point."""
+    refuses any image that is not that point, in place of the entry the SoC build names by the image's
+    symbols (ctrl_memory.own_point, #923); None keeps the SoC build's plan. build.build holds build()
+    under it, named by build.ledgered_point."""
     if name is None:
         return contextlib.nullcontext()
     plan = milan_soc.ctrl_memory.plan
-    return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
+    return patch.object(milan_soc.ctrl_memory, 'plan',
+                        lambda image, ledgered=None, **kw: plan(image, ledgered=name, **kw))
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:

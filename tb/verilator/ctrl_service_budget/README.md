@@ -47,7 +47,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
 `8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 59.5 RAMB36 (`ctrl_memory.LEDGERED`, its measured tiles since the map edits' commit, by [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024); 59.0, its cap, since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
-So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
+So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`), in place of the entry the product build names by the image's symbols (`ctrl_memory.own_point`, #923).
 The planner refuses the override on any other image, and the product SoC build names none.
 
 **The commit acknowledgement is at the contract's bound.**
