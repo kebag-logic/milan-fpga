@@ -1,0 +1,201 @@
+[
+  {
+    "name": "stream-info-short-bodies-taken",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (set ? len != 48u && len < 84u : len < 4u) {",
+    "new": "if (set ? len < 48u : len < 4u) {",
+    "checks": [
+      [
+        "Core.SetStreamInfoTakesTheEarlierBodyOf48Octets",
+        "a body between 48 and 84 octets, or short of 48, is refused"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-every-record",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tif (e.rep[n] == n && (!adding || (e.flags[n] & FOUND) == 0u)) {",
+    "new": "\t\tif (true) {",
+    "checks": [
+      [
+        "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+        "an ADD's additions alone, each once, in command order"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-repeats-sent",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tif (e.rep[n] == n && (!adding",
+    "new": "\t\tif ((!adding || e.rep[n] == n) && (!adding",
+    "checks": [
+      [
+        "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+        "a REMOVE's every distinct mapping, each once, in command order"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-before-the-checks",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t// Each mapping's checks in its turn, so the port is read as each was before.\n",
+    "new": "\tif (a->ports->edit != NULL) {\n\t\t(void)a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, NULL, count);\n\t}\n",
+    "checks": [
+      [
+        "Core.ARefusedEditNeverReachesTheStore",
+        "a command the core refuses never reaches the store"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-removes-what-it-adds",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tstatus = a->ports->edit(a->ports->ctx, remove, m->type, m->index, a->response, NULL, count);",
+    "new": "\t\tstatus = a->ports->edit(a->ports->ctx, !remove, m->type, m->index, a->response, NULL, count);",
+    "checks": [
+      [
+        "Core.RestoredMapsReachTheStoreRemovalsFirst",
+        "the input port's reset set removed"
+      ],
+      [
+        "Face.RestoredMapsReachTheStoreThroughTheEditWindow",
+        "the reset set removed first"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-refused-reset-unclipped",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tif (kept(a, m, &m->defaults[n])) {\n\t\t\tm->rows[m->count++] = m->defaults[n];\n\t\t}\n",
+    "new": "\t\tif (a != NULL) {\n\t\t\tm->rows[m->count++] = m->defaults[n];\n\t\t}\n",
+    "checks": [
+      [
+        "Core.TheStoresResetSetIsTheClippedOne",
+        "a refused removal keeps the clipped reset set the store holds"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-not-put-back",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\t\treset(a, m, commit(a, m, false, true) == AECP_SUCCESS);",
+    "new": "\t\t\treset(a, m, true);",
+    "checks": [
+      [
+        "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+        "a refused put-back leaves the store's empty port empty"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-commits-an-open-core",
+    "path": "aecp/aecp_maps.c",
+    "old": "\tif (!aecp_enter(a) || a->open || a->ports->edit == NULL) return;\n\tstruct aecp_map *end",
+    "new": "\tif (!aecp_enter(a) || a->ports->edit == NULL) return;\n\tstruct aecp_map *end",
+    "checks": [
+      [
+        "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+        "an open core commits no restored map"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-every-configuration",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tif (m->configuration == a->configuration && !unmoved(a, m) && commit(a, m, true, true)",
+    "new": "\t\tif (!unmoved(a, m) && commit(a, m, true, true)",
+    "checks": [
+      [
+        "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+        "a map of another configuration is not committed"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-never-aborts",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\t(void)beat(f, request, ABORT, 0u, 1u, 2u, &ok);\n",
+    "new": "",
+    "checks": [
+      [
+        "Face.ARefusedBeatAbortsAndNothingMoves",
+        "a refused record aborts"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-commit-begin-trusted",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\tstatus = !beat(f, request, COMMIT, 0u, 1u, 2u, &ok) ? AECP_ENTITY_MISBEHAVING\n\t\t\t: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;",
+    "new": "\t\tstatus = !beat(f, request, COMMIT, 0u, 1u, 2u, &ok) ? AECP_ENTITY_MISBEHAVING\n\t\t\t: AECP_SUCCESS;",
+    "checks": [
+      [
+        "Face.ARefusedBeatAbortsAndNothingMoves",
+        "a refused commit-begin aborts"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-record-halves-swapped",
+    "path": "aecp/aecp_face.c",
+    "old": "\trequest[3] = (uint32_t)wire_be32(r);\n\trequest[2] = (uint32_t)wire_be32(r + 4);",
+    "new": "\trequest[2] = (uint32_t)wire_be32(r);\n\trequest[3] = (uint32_t)wire_be32(r + 4);",
+    "checks": [
+      [
+        "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+        "the record as its two wire quadlets"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-request-words-from-the-first",
+    "path": "mbx/mbx.c",
+    "old": "\tfor (unsigned k = from; k < to && k < w->words; ++k) {",
+    "new": "\tfor (unsigned k = from & 0u; k < to && k < w->words; ++k) {",
+    "checks": [
+      [
+        "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+        "EDIT_REQ written once a transaction"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-reserved-commit-refuses",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\t(void)record(f, request, APPLY, records, pick, k, &ok);",
+    "new": "\t\tif (!record(f, request, APPLY, records, pick, k, &ok)) {\n\t\t\treturn AECP_ENTITY_MISBEHAVING;\n\t\t}",
+    "checks": [
+      [
+        "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+        "after the reserved commit, the edit stands"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "configuration-past-the-count-bad-arguments",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\t\tstatus = AECP_NO_SUCH_DESCRIPTOR;\n\t\t} else {",
+    "new": "\t\t\tstatus = AECP_BAD_ARGUMENTS;\n\t\t} else {",
+    "checks": [
+      [
+        "Core.SetConfigurationOutOfRangeIsNoSuchDescriptor",
+        "an index past configurations_count names no CONFIGURATION descriptor"
+      ]
+    ],
+    "caught": true
+  }
+]

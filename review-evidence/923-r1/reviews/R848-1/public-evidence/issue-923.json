@@ -1,0 +1,30 @@
+{
+  "issue": {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/923",
+    "title": "Split firmware never applies audio map edits to the fabric's render map",
+    "issue_number": 923,
+    "body": "Part of #665 (Mark II split flip). Found by the in-house replica on the test machine (#665 issuecomment-6904803181, finding 15).\n\n**Defect.** In the split, the firmware's AECP owner holds the audio maps, but no firmware writes the mailbox's EDIT window (`sw/firmware/ctrl/mbx/mbx.c:370`, the datapath's `i_ctl_edit_*`). AECP reads only the GSI and CTR windows (`sw/firmware/ctrl/aecp/aecp_face.c`), so the fabric's render map keeps its boot image whatever a controller sets.\n\n**Effects** (the release passed both on Oct 31, its processor editing the same store directly):\n- **Audio routing ignores every controller mapping change.** The DUT answers ADD/REMOVE_AUDIO_MAPPINGS with SUCCESS, and GET_AUDIO_MAP shows the change, but the render map does not move (Milan v1.2 5.4.2.27, 5.4.2.28).\n- **SET_STREAM_FORMAT is judged against the stale map.** With every mapping of STREAM_PORT_INPUT 0 removed (GET_AUDIO_MAP reports none), the DUT still accepts only the current 8-channel format and refuses 7, 4 and 1 channels. The datapath's \"survives\" check scans the stale store (`hdl/milan/milan_datapath.sv`, the format verdict). Milan v1.2 5.4.2.7 requires SUCCESS once no mapping references a dropped channel.\n\n**Scope.**\n1. ADD/REMOVE_AUDIO_MAPPINGS commit each accepted edit through the EDIT window to the fabric's store; the saved-map restore at boot does likewise.\n2. Stated cost of the edit path measured and every service-budget row within its bound at 1x1/1if and 8x8/1if.\n3. Tests: firmware unit tests and a split co-simulation check that an edited map reaches the render store, each with a planted defect caught by name.\n\n**Acceptance.** All gates rc 0 on the final head. On the bench: with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS; with them removed, 1, 2, 4 and 6 channels answer SUCCESS. The persistence scenario passes, and a render check shows an edited map moves the audio.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 6,
+    "created_at": "2026-11-16T01:30:33Z",
+    "updated_at": "2026-11-16T20:27:13Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/923",
+    "display_title": "Split firmware never applies audio map edits to the fabric's render map"
+  },
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/923",
+  "title": "Split firmware never applies audio map edits to the fabric's render map",
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/923",
+  "display_title": "Split firmware never applies audio map edits to the fabric's render map"
+}

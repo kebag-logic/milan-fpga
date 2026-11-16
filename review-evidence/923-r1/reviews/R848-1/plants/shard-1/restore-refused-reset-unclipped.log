@@ -1,0 +1,34 @@
+Note: Google Test filter = Core.TheStoresResetSetIsTheClippedOne
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.TheStoresResetSetIsTheClippedOne
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  calls
+    Which is: { (true, { {0,0,0,0}, {0,1,1,0} }), (false, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0}, {65280,0,4,0} }) }
+  (std::vector<Call>{{true,{defaults[0],defaults[1]}}})
+    Which is: { (true, { {0,0,0,0}, {0,1,1,0} }) }
+a refused removal adds nothing
+
+  [FAIL] Core.TheStoresResetSetIsTheClippedOne: a refused removal adds nothing
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3103: Failure
+Value of: same_rows(maps[0],{defaults[0],defaults[1]})
+  Actual: false
+Expected: true
+a refused removal keeps the clipped reset set the store holds
+
+  [FAIL] Core.TheStoresResetSetIsTheClippedOne: a refused removal keeps the clipped reset set the store holds
+[  FAILED  ] Core.TheStoresResetSetIsTheClippedOne (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.TheStoresResetSetIsTheClippedOne
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

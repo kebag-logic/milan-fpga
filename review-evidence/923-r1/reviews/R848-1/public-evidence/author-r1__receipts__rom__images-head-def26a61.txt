@@ -1,0 +1,8 @@
+fixture-1x1-1if: rc 0 rom 114600 in 114688, sram 55200 in 55296, tiles 41.5, ledgered None None, elf 600cc8cf5c9d5588 bin bbd3a15ba4860e5d
+fixture-1x1-2if: rc 0 rom 116160 in 116736, sram 57376 in 59392, tiles 43.0, ledgered None None, elf 272be0e251e3e4ac bin 1d86fadffeddb1c3
+fixture-8x8-1if: rc 0 rom 127264 in 129024, sram 96304 in 98304, tiles 55.5, ledgered None None, elf 5068eada4b12190f bin 9353547c2399d3a0
+fixture-8x8-2if: rc 2 ['REFUSED: allocation over budget: 59.5 RAMB36 (rom 128784 bytes in 129024, sram 113248 bytes in 114688) exceeds the 59-RAMB36 budget ledgered for 8x8, two interfaces'] elf bde4a82008413225fbb44e7d023c7660b9674c0226448c0e159937fae88ef6dd
+platform-1x1-1if: rc 0 rom 119648 in 120832, sram 56224 in 57344, tiles 43.5, ledgered None None, elf 42d20188310a3ff3 bin 9d411724b6a57ea0
+platform-1x1-2if: rc 0 rom 121232 in 122880, sram 58400 in 59392, tiles 44.5, ledgered None None, elf e071c9a262a099ac bin d493fb2e1cb38290
+platform-8x8-1if: rc 2 ['REFUSED: allocation over budget: 56.5 RAMB36 (rom 132352 bytes in 133120, sram 97328 bytes in 98304) exceeds the 56-RAMB36 budget'] elf 9b675d225cb1959241462995ad8ca336297025d2929c432655e4cd00d223c165
+platform-8x8-2if: rc 2 ["REFUSED: allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 20352}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 20416}"] elf 3296156ba819b8de6934fbc2fb5ff5e9c615b5f8941c5af29454a4b498184639

@@ -1,0 +1,81 @@
+Note: Google Test filter = Face.ARefusedBeatAbortsAndNothingMoves
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.ARefusedBeatAbortsAndNothingMoves
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4094: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 11
+status for command 44
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: status for command 44
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4325: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  c.status
+    Which is: 11
+a refused begin aborts: the store's verdict is the command's
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: a refused begin aborts: the store's verdict is the command's
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4326: Failure
+Expected equality of these values:
+  phases()
+    Which is: { 0, 4, 4, 1, 5, 5, 2 }
+  c.beats
+    Which is: { 0, 3 }
+a refused begin aborts
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: a refused begin aborts
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4327: Failure
+Expected equality of these values:
+  (far.live[{14u,0u}])
+    Which is: { {0,1,1,0}, {0,2,2,0}, {0,3,3,0} }
+  (std::vector<aecp_mapping>{{0,1,1,0}})
+    Which is: { {0,1,1,0} }
+a refused begin aborts: the store keeps its mappings
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: a refused begin aborts: the store keeps its mappings
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4328: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 3
+  1u
+    Which is: 1
+a refused begin aborts: the map keeps its mappings
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: a refused begin aborts: the map keeps its mappings
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4094: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 11
+status for command 45
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: status for command 45
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4332: Failure
+Expected equality of these values:
+  phases()
+    Which is: { 0, 4, 3 }
+  (std::vector<unsigned>{0,3})
+    Which is: { 0, 3 }
+a port with no dynamic map in the store
+
+  [FAIL] Face.ARefusedBeatAbortsAndNothingMoves: a port with no dynamic map in the store
+[  FAILED  ] Face.ARefusedBeatAbortsAndNothingMoves (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.ARefusedBeatAbortsAndNothingMoves
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,79 @@
+Note: Google Test filter = Core.SetStreamInfoTakesTheEarlierBodyOf48Octets
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3194: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Changed(2, 6, 0)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets:            Actual: called twice - over-saturated and active
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:178: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 14
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: status for command 14
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3210: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  7u
+    Which is: 7
+a body between 48 and 84 octets, or short of 48, is refused
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: a body between 48 and 84 octets, or short of 48, is refused
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:178: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 14
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: status for command 14
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3210: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  7u
+    Which is: 7
+a body between 48 and 84 octets, or short of 48, is refused
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: a body between 48 and 84 octets, or short of 48, is refused
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:178: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 14
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: status for command 14
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3210: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  7u
+    Which is: 7
+a body between 48 and 84 octets, or short of 48, is refused
+
+  [FAIL] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets: a body between 48 and 84 octets, or short of 48, is refused
+[  FAILED  ] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.SetStreamInfoTakesTheEarlierBodyOf48Octets
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

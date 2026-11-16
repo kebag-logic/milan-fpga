@@ -1,0 +1,205 @@
+[
+  {
+    "name": "stream-info-earlier-body-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (set ? len != 48u && len < 84u : len < 4u) {",
+    "new": "if (len < (set ? 84u : 4u)) {",
+    "checks": [
+      [
+        "Core.SetStreamInfoTakesTheEarlierBodyOf48Octets",
+        "the 48-octet body is taken"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-store-skipped",
+    "path": "aecp/aecp_maps.c",
+    "old": "\tif (changes != 0u && a->ports->edit != NULL) {",
+    "new": "\tif (changes != 0u && a->ports->edit != NULL && false) {",
+    "checks": [
+      [
+        "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+        "one store edit for the command"
+      ],
+      [
+        "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+        "begin, validate each record, begin the commit, commit each, finish"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-held-mappings-added",
+    "path": "aecp/aecp_maps.c",
+    "old": "(!adding || (e.flags[n] & FOUND) == 0u)",
+    "new": "(!adding || true)",
+    "checks": [
+      [
+        "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+        "an ADD's additions alone, each once, in command order"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "edit-refusal-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\tif (status != AECP_SUCCESS) {\n\t\t\treturn status;\n\t\t}\n\t}\n\tsize_t was = m->count;",
+    "new": "\t\t(void)status;\n\t}\n\tsize_t was = m->count;",
+    "checks": [
+      [
+        "Core.AStoreRefusalIsTheAnswerAndChangesNothing",
+        "the store's refusal is the command's status"
+      ],
+      [
+        "Face.ARefusedBeatAbortsAndNothingMoves",
+        "the map keeps its mappings"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-adds-beside-its-removal",
+    "path": "aecp/aecp_maps.c",
+    "old": "!unmoved(a, m) && commit(a, m, true, true) != AECP_SUCCESS) {",
+    "new": "!unmoved(a, m) && (commit(a, m, true, true) != AECP_SUCCESS || commit(a, m, false, false) != AECP_SUCCESS)) {",
+    "checks": [
+      [
+        "Core.RestoredMapsReachTheStoreRemovalsFirst",
+        "two removals and two additions"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-reset-set-unclipped",
+    "path": "aecp/aecp_maps.c",
+    "old": "\treturn d != NULL && d->length >= 82u && r->channel < channels(wire_be64(d->value + 74));\n}\n\n// Whether",
+    "new": "\treturn d != NULL && d->length >= 82u;\n}\n\n// Whether",
+    "checks": [
+      [
+        "Core.TheStoresResetSetIsTheClippedOne",
+        "a map that is the clipped reset set has not moved"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-removal-refusal-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\t\treset(a, m, true);\n\t\t}\n\t}\n\tfor (struct aecp_map *m",
+    "new": "\t\t}\n\t}\n\tfor (struct aecp_map *m",
+    "checks": [
+      [
+        "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+        "a refused removal keeps the reset set the store holds"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-put-back-trusted",
+    "path": "aecp/aecp_maps.c",
+    "old": "\t\t\treset(a, m, commit(a, m, false, true) == AECP_SUCCESS);",
+    "new": "\t\t\treset(a, m, ((void)commit(a, m, false, true), true));",
+    "checks": [
+      [
+        "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+        "a refused put-back leaves the store's empty port empty"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-past-a-page",
+    "path": "aecp/aecp_maps.c",
+    "old": "\tif (m->capacity > AECP_MAP_PAGE) {\n\t\treturn AECP_ENTITY_MISBEHAVING;\n\t}\n",
+    "new": "",
+    "checks": [
+      [
+        "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+        "a port past a page reaches no store"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-not-committed-at-open",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\taecp_restore_commit(&c->aecp->core);\n",
+    "new": "",
+    "checks": [
+      [
+        "AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens",
+        "AECP's open commits the restored maps"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-validation-trusted",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\tstatus = !record(f, request, VALIDATE, records, pick, k, &ok) ? AECP_ENTITY_MISBEHAVING\n\t\t\t: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;",
+    "new": "\t\tstatus = !record(f, request, VALIDATE, records, pick, k, &ok) ? AECP_ENTITY_MISBEHAVING\n\t\t\t: AECP_SUCCESS;",
+    "checks": [
+      [
+        "Face.ARefusedBeatAbortsAndNothingMoves",
+        "a refused record aborts"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-begin-trusted",
+    "path": "aecp/aecp_face.c",
+    "old": "? (ok ? AECP_SUCCESS : AECP_NOT_SUPPORTED) : AECP_ENTITY_MISBEHAVING;",
+    "new": "? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;",
+    "checks": [
+      [
+        "Face.ARefusedBeatAbortsAndNothingMoves",
+        "a refused begin aborts"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-port-every-beat",
+    "path": "aecp/aecp_face.c",
+    "old": "\treturn beat(f, request, phase, k, 1u, 4u, accepted);",
+    "new": "\treturn beat(f, request, phase, k, 0u, 4u, accepted);",
+    "checks": [
+      [
+        "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+        "EDIT_REQ written once a transaction"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-begin-asked-once",
+    "path": "aecp/aecp_face.c",
+    "old": "beat(f, request, BEGIN, 0u, 0u, 2u, &ok) || beat(f, request, BEGIN, 0u, 0u, 2u, &ok)",
+    "new": "beat(f, request, BEGIN, 0u, 0u, 2u, &ok)",
+    "checks": [
+      [
+        "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+        "a begin the boot sweep holds is asked once more"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "window-silence-uncounted",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\t++f->unanswered;\n\t\treturn false;\n\t}\n\t*accepted",
+    "new": "\t\t(void)f;\n\t\treturn false;\n\t}\n\t*accepted",
+    "checks": [
+      [
+        "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+        "each unanswered beat is counted"
+      ]
+    ],
+    "caught": true
+  }
+]

@@ -1,0 +1,20 @@
+# head 1e94b301 (H8A: ac716674, arm A, no edit reaches the store there), 8x8 (two interfaces)
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 33,481 cycles, 355 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 31,357 cycles, 330 us by the rule
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 32,993 cycles, 350 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 30,260 cycles, 320 us by the rule
+
+results: 8x8/2if answering-ports, 1 groups, 52 AECP records
+8x8/2if reported other: the dearest 17,112 CPU cycles, 180 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x0010)
+8x8/2if held other: the dearest 17,891 CPU cycles, 190 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/2if held paced: the dearest 55,928 CPU cycles, 590 us by the rule, stated 595 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+RESULT: FAIL
+HEAD 1e94b301 DIRTY 0 point 8x8 jobs 4 args --variant answering-ports --groups aecp-fanout start 09:11:24
+STEPS 102 passes carry the store's step; the longest 38,688 CPU cycles (0.387 ms), aecp-fanout; the longest step 3,109 (0.031 ms), aecp-fanout
+SLICES 3412 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 28,686, THE RETRY's round 36,202 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-fanout: 6 join interval(s), the shortest 187.389 ms and the longest 189.949 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 22 probe instances, 0 of 20 paths), 0 of 174 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=1072s rc=0 end 09:29:16 DIRTY-after 0

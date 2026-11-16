@@ -1,0 +1,48 @@
+wrote $REVIEWS/923-r848-1-packet/scratch/late-timeout/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/923-r848-1-packet/scratch/late-timeout/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/923-r848-1-packet/scratch/late-timeout/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Face.ReviewLateTimeout*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Face
+[ RUN      ] Face.ReviewLateTimeoutControlCommand
+[       OK ] Face.ReviewLateTimeoutControlCommand (0 ms)
+[ RUN      ] Face.ReviewLateTimeoutControlRestore
+[       OK ] Face.ReviewLateTimeoutControlRestore (0 ms)
+[ RUN      ] Face.ReviewLateTimeoutLeavesPartialStore
+REVIEW command status=0 core rows=2 store rows=1 unanswered=1
+$REVIEWS/923-r848-1-packet/scratch/late-timeout/test_aecp.cpp:4123: Failure
+Expected equality of these values:
+  got
+    Which is: { {0,1,1,0}, {0,2,2,0} }
+  want
+    Which is: { {0,1,1,0} }
+GET_AUDIO_MAP and the datapath's store hold the same mappings
+
+  [FAIL] Face.ReviewLateTimeoutLeavesPartialStore: GET_AUDIO_MAP and the datapath's store hold the same mappings
+[  FAILED  ] Face.ReviewLateTimeoutLeavesPartialStore (0 ms)
+[ RUN      ] Face.ReviewLateTimeoutDuringBootRestore
+REVIEW boot core rows=0 store rows=1 unanswered=1
+$REVIEWS/923-r848-1-packet/scratch/late-timeout/test_aecp.cpp:4123: Failure
+Expected equality of these values:
+  got
+    Which is: {}
+  want
+    Which is: { {0,1,1,0} }
+GET_AUDIO_MAP and the datapath's store hold the same mappings
+
+  [FAIL] Face.ReviewLateTimeoutDuringBootRestore: GET_AUDIO_MAP and the datapath's store hold the same mappings
+[  FAILED  ] Face.ReviewLateTimeoutDuringBootRestore (0 ms)
+[----------] 4 tests from Face (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Face.ReviewLateTimeoutLeavesPartialStore
+[  FAILED  ] Face.ReviewLateTimeoutDuringBootRestore
+
+ 2 FAILED TESTS
+== AECP core: checks: 4   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 4 checks, exit 1)
