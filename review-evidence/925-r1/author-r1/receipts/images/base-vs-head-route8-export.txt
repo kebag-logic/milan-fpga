@@ -1,0 +1,17 @@
+base 16ba667d vs head a9f0dbc0 split export (route8 = 8x8/1if): alinx_ax7101.v diff (paths normalised), then the ROM init files
+118,119d117
+< │    ├── [BB:MMCME2_ADV]
+< │    ├── [BB:BUFG]
+121c119,121
+< │    └── [BB:BUFG]
+---
+> │    ├── [BB:BUFG]
+> │    ├── [BB:BUFG]
+> │    └── [BB:MMCME2_ADV]
+345d344
+< │    ├── [BB:KL_mbx_cdc]
+346a346
+> │    ├── [BB:KL_mbx_cdc]
+alinx_ax7101_mem.init head 55 words, base 55 words, same
+alinx_ax7101_rom_bank0.init head 32558 words, base 32550 words, contents differ
+integrated script: not generated for the base at 8x8/1if (that base image was compared, not routed)

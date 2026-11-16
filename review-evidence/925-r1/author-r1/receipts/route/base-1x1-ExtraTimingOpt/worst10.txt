@@ -1,0 +1,88 @@
+## 10 worst setup, route report (alinx_ax7101_timing.rpt)
+ 1 +0.260 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg/D
+     delay 9.623ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 2 +0.261 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D
+     delay 9.622ns, levels 21  (LUT2=3 LUT3=2 LUT4=7 LUT5=3 LUT6=6)
+ 3 +0.264 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+     delay 9.618ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 4 +0.296 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg/D
+     delay 9.623ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 5 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[0]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+ 6 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[1]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+ 7 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[5]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+ 8 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[6]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+ 9 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[7]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+10 +0.342 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[12]/C
+  -> KL_mbx/reg_rdata_r_reg[4]/D
+     delay 9.514ns, levels 16  (CARRY4=1 LUT2=1 LUT3=1 LUT4=2 LUT5=3 LUT6=8)
+## 5 worst setup, Slow_85C signoff
+ 1 +0.260 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg/D
+     delay 9.623ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 2 +0.261 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D
+     delay 9.622ns, levels 21  (LUT2=3 LUT3=2 LUT4=7 LUT5=3 LUT6=6)
+ 3 +0.264 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+     delay 9.618ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 4 +0.296 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg/D
+     delay 9.623ns, levels 21  (LUT2=3 LUT3=2 LUT4=8 LUT5=2 LUT6=6)
+ 5 +0.313 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_tx/tail_r_reg[0][8]/C
+  -> KL_mbx/u_tx/widx_r_reg[0]/CE
+     delay 9.399ns, levels 13  (CARRY4=3 LUT2=3 LUT3=2 LUT4=1 LUT5=2 LUT6=2)
+## 3 worst hold, Fast_85C signoff
+ 1 +0.014 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+     delay 0.312ns, levels 0
+ 2 +0.030 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 0.000ns)
+     KL_mbx/face_gsi_prop_lo_r_reg[0][26]/C
+  -> KL_mbx_cdc/u_gsi/u_in/data_hold_reg[26]/D
+     delay 0.318ns, levels 0
+ 3 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/rxts_commit_r_reg[24]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_24_29/RAMA/I
+     delay 0.196ns, levels 0
+## utilisation (alinx_ax7101_utilization_place.rpt)
+Slice LUTs: 31318 / 63400 (49.40 %)
+LUT as Memory: 1119 / 19000 (5.89 %)
+Slice Registers: 42119 / 126800 (33.22 %)
+Slice: 14002 / 15850 (88.34 %)
+Block RAM Tile: 81 / 135 (60.00 %)
+RAMB36/FIFO: 63 / 135 (46.67 %)
+RAMB18: 36 / 270 (13.33 %)
+DSPs: 9 / 240 (3.75 %)
+CARRY4: 2399
+# of routable nets..................... :       71970 :
+# of fully routed nets............. :       71970 :
+# of nets with routing errors.......... :           0 :

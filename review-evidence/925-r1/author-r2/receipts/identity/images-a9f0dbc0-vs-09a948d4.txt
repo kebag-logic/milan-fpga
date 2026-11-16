@@ -1,0 +1,16 @@
+Each image the round-1 budget legs and routes used, relinked at the merge head 09a948d4 (clean clone) with the same
+inputs (the legs' runtime archives, flash map and CSR map), against the a9f0dbc0 build's image, sha256 of ctrl_app.elf:
+budget-1x1: a9f0dbc0 311430e7cd93bdc47702b11d84e0718bf80c3e56bfec472ec1d7a7fc80e30169, 09a948d4 311430e7cd93bdc47702b11d84e0718bf80c3e56bfec472ec1d7a7fc80e30169: identical
+budget-8x8-1if: a9f0dbc0 6d2a5d0e59dd569bf27615f38c2757af40cf85c1bd31157eff15bbc861881331, 09a948d4 6d2a5d0e59dd569bf27615f38c2757af40cf85c1bd31157eff15bbc861881331: identical
+route-1x1: a9f0dbc0 e85cd3a58129acc2dfa3f12d2eb2ef1b086e72452ad4abda1b5547561d1a1ad0, 09a948d4 e85cd3a58129acc2dfa3f12d2eb2ef1b086e72452ad4abda1b5547561d1a1ad0: identical
+route-8x8: a9f0dbc0 b648575d41dbf1f436b0b0c5dd4f192e2aa7213ff62f856a5cb442d58ee8abca, 09a948d4 b648575d41dbf1f436b0b0c5dd4f192e2aa7213ff62f856a5cb442d58ee8abca: identical
+
+git diff --stat a9f0dbc0 09a948d4:
+ sw/firmware/ctrl/test/srp_kind_mutants.py | 3 ++-
+ sw/firmware/gtest/coverage.ratchet        | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+git diff --stat 1be0a6c4 09a948d4: (empty: the merge's tree is 1be0a6c4's)
+
+run.py --regrade from a merge-head clone against the a9f0dbc0 builds: REFUSED reused build is stale: tree:firmware changed (the
+harness's firmware digest spans sw/firmware/ctrl, ctrl_nvm and gtest whole, test files and coverage.ratchet included)

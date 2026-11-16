@@ -1,0 +1,29 @@
+git merge --no-ff 70f4056f onto 1be0a6c4 (no conflict):
+09a948d464 1be0a6c4cb 70f4056f38 | Merge dev-soft-core 70f4056f (#901's merge of #895) into #925; its tree is 16ba667d's, so the merge changes no file
+
+trees: 70f4056f ed63495c5332415db216457abec37809737e0a0b, 16ba667d ed63495c5332415db216457abec37809737e0a0b
+       09a948d4 a7ff40db6afec61b93243ede79af62dd9efd8cb7, 1be0a6c4 a7ff40db6afec61b93243ede79af62dd9efd8cb7
+
+git diff --stat 1be0a6c4 09a948d4: (empty)
+
+git diff --stat origin/dev-soft-core (70f4056f) 09a948d4:
+ docs/design/SPLIT_CONTROL_MEMORY.md       |   3 +-
+ sw/firmware/ctrl/srp/README.md            |  17 +++-
+ sw/firmware/ctrl/srp/srp_mbx.c            |  31 ++++--
+ sw/firmware/ctrl/srp/srp_mbx.h            |   3 +
+ sw/firmware/ctrl/test/srp_feedback.hpp    |  35 +++++++
+ sw/firmware/ctrl/test/srp_kind_mutants.py |  69 +++++++++++++
+ sw/firmware/ctrl/test/srp_mbx.cpp         | 162 +++++++++++++++++++++++++++++-
+ sw/firmware/ctrl/test/srp_mutants.py      |   7 +-
+ sw/firmware/gtest/coverage.ratchet        |   2 +-
+ sw/litex/ctrl_memory.py                   |   6 +-
+ sw/litex/ctrl_memory_ledger.py            |   2 +-
+ 11 files changed, 317 insertions(+), 20 deletions(-)
+
+commits on the PR (origin/dev-soft-core..09a948d4), subject | body | trailers:
+09a948d464 | Merge dev-soft-core 70f4056f (#901's merge of #895) into #925; its tree is 16ba667d's, so the merge changes no file | body=[] | trailers=[]
+1be0a6c4cb | Record srp_mbx.c's coverage as measured, 741 of 741 lines and 671 of 671 branches, and wrap a plant's line to the 120 columns the Python idiom gate allows (#925) | body=[] | trailers=[]
+a9f0dbc0e3 | Record ctrl_plat at 8x8 with two interfaces as 20,416 B, the 64 B each binding's latest Talker kind adds there within the same 60.5 RAMB36 (#925) | body=[] | trailers=[]
+95426618c7 | Let the latest registered of a stream's Talker Advertise and Talker Failed decide its Listener declaration, so an Advertise New over a registered Failed is Ready within a JoinTime, with tests and planted defects for both replacements, either leave, coincident registrations and a later binding (#925) | body=[] | trailers=[]
+
+git diff --check 70f4056f 09a948d4: rc 0

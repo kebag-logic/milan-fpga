@@ -1,0 +1,11 @@
+base 16ba667d vs head a9f0dbc0 split export (route = 1x1/1if): alinx_ax7101.v diff (paths normalised), then the ROM init files
+113d112
+< │    │    ├── [BB:PLLE2_ADV]
+114a114
+> │    │    ├── [BB:PLLE2_ADV]
+alinx_ax7101_mem.init head 55 words, base 55 words, same
+alinx_ax7101_rom_bank0.init head 16384 words, base 16384 words, contents differ
+alinx_ax7101_rom_bank1.init head 8192 words, base 8192 words, contents differ
+alinx_ax7101_rom_bank2.init head 4096 words, base 4096 words, contents differ
+alinx_ax7101_rom_bank3.init head 722 words, base 700 words, contents differ
+integrated script: identical

@@ -1,0 +1,119 @@
+head a9f0dbc0e3de361afcb098bf11c95087ec68a599
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 72 clusters (role-pools), model_id 0x001BC5572467AF35 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote sw/builder/out/endstation_ax7101_8x8/soc_params.json
+  wrote sw/builder/out/endstation_ax7101_8x8/aem_overlay.json
+  wrote sw/builder/out/endstation_ax7101_8x8/build_plan.md
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.json
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/endstation_ax7101_8x8/nvm_split.json
+  wrote sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote sw/builder/out/endstation_ax7101_8x8/aecp_aem_rom.svh
+recipe argv names --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+WROTE <scratch>/rt/route8/flash-map/generated/csr.h, <scratch>/rt/route8/flash-map/generated/mem.h, <scratch>/rt/route8/flash-map/flash_port.json
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 104276,
+    ".rodata": 25446,
+    ".data": 504,
+    ".bss": 88616,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 24032
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 13594
+    },
+    {
+      "symbol": "values",
+      "bytes": 11753
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3520,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 140,
+    "config": 56,
+    "console": 588,
+    "face": 96,
+    "maap_csr": 32,
+    "sources": 288,
+    "srp": 3832,
+    "srp_config": 32,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 130232,
+      "banks": [
+        131072
+      ],
+      "RAMB36": 32,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 97328,
+      "banks": [
+        65536,
+        32768
+      ],
+      "RAMB36": 24,
+      "RAMB18": 0
+    },
+    "tiles": 56.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "f82469a1cf7f7fdde520103005fff06ca568e082c4d3094fc1c7ba701cbd28db"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "3981b4f4e074d00f70a982c54710b8349e619cafc5ec3747d764d87a853cf21e"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 162580,
+      "sha256": "b648575d41dbf1f436b0b0c5dd4f192e2aa7213ff62f856a5cb442d58ee8abca"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 128547,
+      "sha256": "b595623f78093710c1e0e15c62a79b9bdefc0c6cc69fb399f9505d2b0c46d702"
+    }
+  ]
+}
+b648575d41dbf1f436b0b0c5dd4f192e2aa7213ff62f856a5cb442d58ee8abca  <scratch>/rt/route8/image/ctrl_app.elf
+b648575d41dbf1f436b0b0c5dd4f192e2aa7213ff62f856a5cb442d58ee8abca  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+[milan] flash-boot layout (baremetal) -> <scratch>/rt/route8/split/flashboot_layout.json
+[milan] split image manifest -> <scratch>/rt/route8/split/image_manifest.json
+csr map: the image's equals the stand-in's
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+<scratch>/rt/route8/split/gateware/baseline_integrated.tcl
+done

@@ -1,0 +1,7 @@
+Each on its own fresh clean clone of a9f0dbc0 (git status empty), in its own unit, the lane's env (LiteX venv, pinned
+RV32 SDK, pinned Verilator 5.050, PYTHONHASHSEED=0):
+fw0: python3 -B sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4   (suites)
+fw1: ... --shard 1/4   (control mutants)
+fw2: ... --shard 2/4   (AECP mutants)
+fw3: ... --shard 3/4   (SRP mutants, both interface counts, and the lwSRP pin controls)
+cov: python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 4

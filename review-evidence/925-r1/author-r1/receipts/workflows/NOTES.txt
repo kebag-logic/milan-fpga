@@ -1,0 +1,7 @@
+verify-a9f0dbc0.md's 9 MISSING rows: rtl-fast's firmware-control-mutants, firmware-aecp-mutants and firmware-srp-mutants were
+not replayed step by step. Their campaign step ran directly on fresh clean clones, the same command as the job's
+(test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4, 2/4, 3/4): ../firmware/ (fw1, fw2, fw3 at a9f0dbc0;
+fw3b, the SRP shard, again at 1be0a6c4). Its 1 BAD row (docs-gates-0 gate_39, the Python idiom gate: srp_kind_mutants.py:50
+at 121 columns) is fixed in 1be0a6c4, whose docs.yml table (verify-1be0a6c4-docs.md) has 0 bad.
+docs-check-no-git: its steps rc 0; the driver's after-run git status fails because the job removes .git (as the #901 lane recorded).
+elaborate-gates-0 was re-run once: its first run's gate_15_0 failed for want of the replay HOME's SDK link (an environment fault), the re-run on a fresh clone with it: failed 0.
