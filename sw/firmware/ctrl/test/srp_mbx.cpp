@@ -1897,12 +1897,15 @@ TEST_F(SrpTalkerKinds, AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime) {
     EXPECT_EQ(sink(0).registered_kinds,3u)<<"the Failed is still registered beside the New";
 }
 
-// The reverse: a Talker Failed New over a registered Talker Advertise asks Failed at once.
+// The reverse: a Talker Failed New over a registered Talker Advertise asks Failed at once, and again after an
+// Advertise New beside it, both kinds still registered.
 TEST_F(SrpTalkerKinds, AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime) {
     settle(); advance(400); bind(0);
     expect_declared(record(kAdvertise,kJoinIn),0,kAdvertise,"a first registration declares within a JoinTime");
     expect_declared(record(kFailed,kNew),0,kFailed,"a Failed New replaces the registered Advertise");
     EXPECT_EQ(sink(0).registered_kinds,3u)<<"the Advertise is still registered beside the New";
+    expect_declared(record(kAdvertise,kNew),0,kAdvertise,"an Advertise New beside the Failed");
+    expect_declared(record(kFailed,kNew),0,kFailed,"a Failed New replaces the registered Advertise, both registered");
 }
 
 // Leave of either, in both orders: the latest leaving hands the declaration to the other, which then withdraws it;
@@ -2032,8 +2035,8 @@ TEST_F(SrpTalkerKinds, AHeldStreamEndsWithEitherRegistrationOrAReset) {
 
 // A StreamID is held for its own interface: one held on the last interface is taken by no binding of another and
 // survives another's reset, and its own interface's binding takes it.
+#if MBX_N_IF > 1
 TEST_F(SrpTalkerKinds, AStreamIsHeldForItsOwnInterface) {
-    if (MBX_N_IF < 2u) GTEST_SKIP() << "one interface";
     const unsigned last=MBX_N_IF-1u;
     settle(); advance(400);
     ASSERT_TRUE(srp_mbx_bind(&adapter,last,0,&sid[0],da[0],2)); settle();
@@ -2050,6 +2053,7 @@ TEST_F(SrpTalkerKinds, AStreamIsHeldForItsOwnInterface) {
     EXPECT_EQ(adapter.ifs[last].sinks[0].desired,kAdvertise)<<"its own interface's binding takes it";
     EXPECT_EQ(adapter.held_count,0u);
 }
+#endif
 
 // Half the pool's medium and large blocks bound the StreamIDs held (srp_held), so the table does not fill. Were it
 // full, a final unbinding would hold nothing, and a later binding of both kinds with no latest known take Failed.
