@@ -1615,6 +1615,19 @@ CDC census draws each instance.
 A newer window request wins over one the mailbox already timed out. Its
 stale answer carries the older tag, which `KL_mbx` discards.
 
+Each window's requester (`KL_mbx_cdc_window`) changes its fields only on a
+datapath clock edge that leaves req low, and raises req no earlier than the
+next edge. So in every cycle req is high, the fields are the previous
+clock's. The split datapath relies on this for the `EDIT` window alone
+(#927). It registers the record's capture-source word, the port-and-cluster
+search of `amap_edit_out_encode`, which is a function of the record's
+`cluster_offset` and the descriptor index. That search was most of the 40
+logic levels from the window's request register to the claim registers'
+clock enable at 8x8. The answer leaves on the cycle it did before, so no
+window bound or latency of the contract moves. The all-fabric build keeps
+the word combinational, since the processor may raise req in the cycle its
+fields change.
+
 ### The proofs
 
 - [`placement_identity.py`](../../sw/mailbox/placement_identity.py)
@@ -1626,7 +1639,7 @@ stale answer carries the older tag, which `KL_mbx` discards.
   control path end to end, and `KL_ctrl_split`'s tap alone: every tuple class
   it accepts or refuses, and its drop count, which it also reads on the
   datapath's own tap after a burst at the MAC. `split_mutants.py` plants
-  twenty-four defects, each caught by the check it names.
+  twenty-nine defects, each caught by the check it names.
 - `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist. Every
   flop, output and primitive input, the primitives' resets among them, must
   read only its own clock's domain, and every clock pin one of the two clocks.
