@@ -140,13 +140,147 @@ TEST_P(NvmBoth, debounce) {
             << "a change after a commit that took one mid-capture (record 0x" << std::hex << taken << std::dec
             << "): erase " << after_mark(r, 1) << " us after it, want 1,000 to 1,050 ms: " << r.text();
     }
-    // the capture is over: a change now waits for a window of its own
+    // the capture is over: a change now is the next save's, which starts at the
+    // first idle step after the save in flight, not after a window (#920)
     const Result r = go(port(), f,
                      {"--slot-b", "g.bin", "--boot", "--set", set_word(rid, one_change(1).second), "--until-phase",
                       num(NVM_P_SEAL), "--mark", "--set", set_word(first, value(first, 9)), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
-        << "a change after the capture: erase " << after_mark(r, 1) << " us after it, want 1,000 to 1,050 ms: "
+    EXPECT_TRUE(r.at("ok") == 2 && r.ok_at.size() == 2u && r.erases.size() == 2u && r.erases[1] > r.ok_at[0] &&
+                r.erases[1] - r.ok_at[0] < 100 * kMs && after_mark(r, 1) < 1000 * kMs)
+        << "a change after the capture: erase " << after_mark(r, 1) << " us after it and "
+        << (r.erases.size() == 2u && !r.ok_at.empty() ? static_cast<long long>(r.erases[1] - r.ok_at[0]) : -1)
+        << " us after the first commit, want under 100 ms, no window: " << r.text();
+}
+
+// #920 (#665, the ruling of issuecomment-6899740728, item 1): a change marked
+// during a running capture joins it. One to a record no capture holds, marked
+// once the capture has passed it, has the capture walk again for it, so one
+// save holds every change; in that walk a record no capture holds still joins.
+// A change to a record the capture has taken is the next save's, on the first
+// walk once the cursor has passed it or reached the end and on any later walk,
+// and so is one after a failed attempt's capture took it; the next save starts
+// at the first idle step after the save in flight. On a failed attempt's
+// retry, a record in flight the capture has yet to reach joins.
+TEST_P(NvmBoth, capture_joins) {
+    const std::vector<unsigned> ids = rids();
+    const unsigned behind = ids[0], a = ids[1], ahead = ids[2], b = ids.back();
+    const std::vector<std::string> start = {"--slot-b", "g.bin", "--boot", "--set", set_word(a, value(a, 1)), "--set",
+                                            set_word(b, value(b, 1)), "--until-phase", num(NVM_P_CAPTURE)};
+    const std::vector<std::string> keep = {"--until-idle", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"};
+    const auto restored = [this](Files& f, const Payloads& want, const std::string& what) {
+        const Result boot = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
+        EXPECT_TRUE(boot.at("auth") >= 0) << what << ": " << boot.text();
+        expect_state(f, "st", with(fx().payloads("golden"), want), what);
+    };
+    struct Case {
+        const char* what;
+        std::vector<std::string> words;
+        long long ok;
+        Payloads want;
+    };
+    const Case cases[] = {
+        {"a record before the cursor no capture holds joins: the capture walks again for it",
+         concat(start, {"--service", "1", "--set", set_word(behind, value(behind, 1))}), 1,
+         {{a, value(a, 1)}, {b, value(b, 1)}, {behind, value(behind, 1)}}},
+        {"a record the capture took, behind the cursor, is the next save's",
+         concat(start, {"--service", "1", "--set", set_word(a, value(a, 2))}), 2,
+         {{a, value(a, 2)}, {b, value(b, 1)}}},
+        {"a record the capture took, the cursor at the end, is the next save's",
+         concat(start, {"--service", "2", "--set", set_word(b, value(b, 2))}), 2,
+         {{a, value(a, 1)}, {b, value(b, 2)}}},
+        {"on the walk again a record no capture holds joins, one the capture took is the next save's",
+         concat(start, {"--service", "1", "--set", set_word(behind, value(behind, 1)), "--service", "3", "--set",
+                        set_word(ahead, value(ahead, 1)), "--set", set_word(a, value(a, 3)), "--set",
+                        set_word(b, value(b, 3))}),
+         2, {{a, value(a, 3)}, {b, value(b, 3)}, {behind, value(behind, 1)}, {ahead, value(ahead, 1)}}},
+    };
+    for (const Case& c : cases) {
+        Files f = fx().files({{"g.bin", "golden@5"}});
+        const Result r = go(port(), f, concat(c.words, keep));
+        EXPECT_TRUE(r.at("ok") == c.ok && r.erases.size() == static_cast<std::size_t>(c.ok) && r.at("dirty") == 0 &&
+                    r.at("pending") == 0 && r.at("failed") == 0)
+            << c.what << ": " << r.text();
+        if (c.ok == 2) {
+            EXPECT_TRUE(r.ok_at.size() == 2u && r.erases.size() == 2u && r.erases[1] > r.ok_at[0] &&
+                        r.erases[1] - r.ok_at[0] < 100 * kMs)
+                << c.what << ": the next save waited for a window: " << r.text();
+        }
+        restored(f, c.want, c.what);
+    }
+    // a failed attempt: its retry's capture walks from the first record, and a
+    // record in flight it has yet to reach joins it, a new work set: one ahead
+    // of the cursor, and the very one it examines next, once it took `behind`
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const Result r = go(port(), f,
+                        {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set",
+                         set_word(a, value(a, 1)), "--set", set_word(b, value(b, 1)), "--until-phase",
+                         num(NVM_P_ERASE_WAIT), "--until-phase", num(NVM_P_IDLE), "--until-phase", num(NVM_P_CAPTURE),
+                         "--set", set_word(behind, value(behind, 4)), "--service", "1", "--set",
+                         set_word(a, value(a, 4)), "--set", set_word(b, value(b, 4)), "--until-idle", "--dump-slot-a",
+                         "a.bin", "--dump-slot-b", "b.bin", "--run-ms", "5000", "--mark", "--set",
+                         set_word(ahead, value(ahead, 4)), "--until-idle"});
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 1 && r.at("attempts") == 0 && r.at("dirty") == 0 &&
+                r.at("pending") == 0)
+        << "records in flight a retry's cursor has yet to reach, the next one included: " << r.text();
+    // the changes the retry took leave nothing behind it: the next change is a first change, with its window
+    EXPECT_TRUE(r.erases.size() == 3u && in(after_mark(r, 2), 1000 * kMs, 1050 * kMs))
+        << "a first change after the retry: erase " << after_mark(r, 2) << " us after it, want 1,000 to 1,050 ms: "
         << r.text();
+    restored(f, {{a, value(a, 4)}, {b, value(b, 4)}, {behind, value(behind, 4)}},
+             "records in flight a retry's cursor has yet to reach");
+}
+
+// #920: while a save is in flight, every pass THE STEP is called in takes a
+// step, not only the one a centisecond owes, so a save runs with no
+// centisecond at all; and so does the next save a change in flight left. A
+// pass of a save with less than NVM_STEP_US left takes none and owes none. A
+// pass with no centisecond takes nothing in the first-dirty window, nor in a
+// failed attempt's backoff, whose retry the centisecond brings.
+TEST_P(NvmBoth, busy_steps) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const std::string room = num(NVM_STEP_US + 100);
+    const std::string short_left = num(NVM_STEP_US - 1);
+    const auto [rid, new1] = one_change(1);
+    const std::vector<std::string> change = {"--slot-b", "g.bin", "--boot", "--step-left", room, "--set",
+                                             set_word(rid, new1)};
+    Result r = go(port(), f, concat(change, {"--pass", "500"}));
+    EXPECT_TRUE(r.at("steps") == 0 && r.at("step_owing") == 0 && r.at("phase") == NVM_P_IDLE)
+        << "in the first-dirty window a pass with no centisecond takes nothing: " << r.text();
+    // a writer held while a slot's authority is unknown (#665 decision 2) is busy with nothing; the read faults
+    // that hold it reach the store through the model's port only
+    if (port() == Port::Model) {
+        r = go(port(), f, {"--slot-b", "g.bin", "--boot-fault", "read-fail:" + num(kReadTries) + ":0", "--boot",
+                           "--step-left", room, "--set", set_word(rid, new1), "--pass", "500"});
+        EXPECT_TRUE(r.at("steps") == 0 && r.at("step_owing") == 0 && r.at("phase") == NVM_P_HELD &&
+                    r.at("dirty") == 1)
+            << "a held writer's passes with no centisecond take nothing: " << r.text();
+    }
+    r = go(port(), f, concat(change, {"--until-phase", num(NVM_P_CAPTURE), "--step-left", short_left, "--pass", "50"}));
+    const long long started = r.at("steps");
+    EXPECT_TRUE(r.at("phase") == NVM_P_CAPTURE && r.at("deferred") == 0 && r.at("step_owing") == 0)
+        << "a pass of a save with less than NVM_STEP_US left takes no step and owes none: " << r.text();
+    r = go(port(), f, concat(change, {"--until-phase", num(NVM_P_CAPTURE), "--pass", "400000"}));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("steps") > started && r.at("step_owing") == 0 && r.at("phase") == NVM_P_IDLE &&
+                r.at("dirty") == 0 && r.at("pending") == 0)
+        << "the save ran a step a pass with no centisecond: " << r.text();
+    r = go(port(), f, concat(change, {"--until-phase", num(NVM_P_SEAL), "--set", set_word(rids().front(), value(rids().front(), 2)),
+                                      "--pass", "400000"}));
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("dirty") == 0 && r.at("pending") == 0)
+        << "the next save a change in flight left ran with no centisecond: " << r.text();
+    const std::vector<std::string> failed = concat(
+        change, {"--fault", "program-drop:1", "--until-phase", num(NVM_P_ERASE_WAIT), "--set",
+                 set_word(rids().front(), value(rids().front(), 3)), "--until-phase", num(NVM_P_IDLE)});
+    r = go(port(), f, failed);
+    const long long at_failure = r.at("steps");
+    EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("dirty") == 1) << "the failed attempt: " << r.text();
+    r = go(port(), f, concat(failed, {"--pass", "400000"}));
+    EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("phase") == NVM_P_IDLE && r.at("dirty") == 1 &&
+                r.at("steps") == at_failure && r.at("step_owing") == 0)
+        << "a failed attempt's backoff waits for the centisecond, its passes take no step: " << r.text();
+    r = go(port(), f, concat(failed, {"--pass", "400000", "--until-idle"}));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 1 && r.at("dirty") == 0 && r.at("pending") == 0 &&
+                r.erases.size() == 2u && r.erases[1] - r.erases[0] >= 1000 * kMs)
+        << "the retry after the backoff takes the change: " << r.text();
 }
 
 // #823 decision 6: the open bits carry their count. Two changes to one record

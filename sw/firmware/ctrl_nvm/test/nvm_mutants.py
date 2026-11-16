@@ -352,20 +352,46 @@ MUTANTS = (
        "\t\tif (nvm.state->rollback(nvm.state->ctx, NVM_W_BIND) != 0)\n\t\t\treturn NVM_T_CLOSED;\n",
        "", "binding_walk"),
     # ---- DR2a ----
-    _m("quiet_period", STORE, "\tif (!taken && !nvm.dirty_armed) {", "\tif (!taken) {", "debounce"),
-    _m("no_debounce", STORE, "\t      nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS);",
-       "\t      1;", "debounce"),
+    _m("quiet_period", STORE, "\tif (!nvm.dirty_armed) {\n\t\tnvm.dirty_armed = 1;",
+       "\tif (1) {\n\t\tnvm.dirty_armed = 1;", "debounce"),
+    _m("no_debounce", STORE, "nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS)", "1", "debounce"),
     # a change the running capture takes still arms the window
-    _m("capture_leaves_window_armed", STORE, "\tif (!taken && !nvm.dirty_armed) {",
-       "\tif (!nvm.dirty_armed) {", "debounce"),
+    _m("capture_leaves_window_armed", STORE, "\tif (joins) {\n\t\tnvm_publish();\n\t\treturn;\n\t}\n", "",
+       "debounce"),
     # the record the capture examines next counted as passed
-    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "debounce"),
-    # every change during the capture counted as taken: one it has passed,
-    # and one after its last latch, open no window and are never written
-    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;",
-       "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges"),
-    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && id >= nvm.cursor.id;", "id >= nvm.cursor.id;",
-       "capture_window_edges"),
+    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "capture_joins"),
+    # every change during the capture counted as joining it: one to a record
+    # it has taken is never written
+    _m("taken_while_capturing", STORE,
+       "nvm.st.phase == NVM_P_CAPTURE &&\n\t\t(!nvm_bit(&nvm.inflight, id) || "
+       "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id));",
+       "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges", "capture_joins"),
+    _m("taken_after_last_latch", STORE, "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id)",
+       "(!nvm.rewound && id >= nvm.cursor.id)", "capture_joins"),
+    # ---- #920: the capture's join, the next save, a step a pass ----
+    # a change behind the cursor to a record no capture holds left out of the capture, with no window
+    _m("join_never_walks_again", STORE, "\t\tif (nvm_joined_behind()) {", "\t\tif (0) {",
+       "capture_joins", "capture_window_edges"),
+    # the walk again takes the records the capture took, so a change to one of them is lost to the next save
+    _m("join_walk_takes_inflight", STORE,
+       "return nvm_bit(&nvm.dirty, id) && !(nvm.rewound && nvm_bit(&nvm.inflight, id));",
+       "return nvm_bit(&nvm.dirty, id);", "capture_joins"),
+    # a change to a record the capture took joins its walk again, and is never written
+    _m("join_walk_joins_inflight", STORE, "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id)",
+       "(nvm.cursor.ok && id >= nvm.cursor.id)", "capture_joins"),
+    # the next save waits for its own window after the save in flight
+    _m("next_save_waits_a_window", STORE, "\t\tnvm.next_now = 1;", "\t\tnvm.next_now = 0;",
+       "debounce", "capture_joins", "capture_window_edges", "busy_steps"),
+    # a change marked from idle counted as one the save in flight left: no first-dirty window
+    _m("idle_counted_in_flight", STORE, "return nvm.st.phase >= NVM_P_CAPTURE && nvm.st.phase <= NVM_P_VERIFY;",
+       "return nvm.st.phase >= NVM_P_IDLE && nvm.st.phase <= NVM_P_VERIFY;", "debounce", "busy_steps"),
+    # the step taken a pass only when a centisecond owes it
+    _m("busy_never_steps", STORE, "\tif (nvm_in_flight())\n\t\treturn 1;\n\treturn nvm.st.phase == NVM_P_IDLE",
+       "\tif (0)\n\t\treturn 1;\n\treturn 0 && nvm.st.phase == NVM_P_IDLE", "busy_steps"),
+    # a pass in a failed attempt's backoff steps for the next save
+    _m("busy_in_backoff", STORE, " && nvm.next_now && !nvm.retry_armed;", " && nvm.next_now;", "busy_steps"),
+    # a step not owed that found no room counted as owed, so the loop's age runs on it
+    _m("busy_without_room_owes", STORE, "\t\tif (!nvm.owed)\n\t\t\treturn false;\n", "", "busy_steps"),
     # a change to a record the shape does not have marks one it does
     _m("change_of_no_record", STORE, "\tif (id >= 0)\n\t\tnvm_mark((unsigned int)id);",
        "\tnvm_mark(id >= 0 ? (unsigned int)id : 0u);", "change_unknown_record"),
@@ -393,9 +419,9 @@ MUTANTS = (
        "\tif (0) {", "media_failures"),
     # every change call opens a new budget, changed or not
     _m("budget_rearmed_by_change", STORE,
-       "\tnvm_open_set(&nvm.dirty, id);\n\tif (!taken",
+       "\tnvm_open_set(&nvm.dirty, id);\n\tif (joins",
        "\tnvm_open_set(&nvm.dirty, id);\n\tnvm.st.attempts = 0;\n"
-       "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
+       "\tnvm.st.exhausted = 0;\n\tif (joins", "dr2c_unchanged_set"),
     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
        "dr2c_unchanged_set"),
     # the console bypasses the budget, or the backoff
@@ -444,7 +470,7 @@ MUTANTS = (
        "\t\tnvm.st.deferred++;\n\t\tnvm.owed = 0;\n\t\treturn true;", "step_room"),
     _m("step_not_owed_after_a_short_pass", STORE, "\t\tnvm.st.deferred++;\n\t\treturn true;",
        "\t\tnvm.st.deferred++;\n\t\treturn false;", "step_room"),
-    _m("step_untaken_when_not_owed", STORE, "\tif (!nvm.owed)\n\t\treturn false;",
+    _m("step_untaken_when_not_owed", STORE, "\tif (!nvm.owed && !nvm_busy())\n\t\treturn false;",
        "\tif (0)\n\t\treturn false;", "step_room"),
     _m("blankcheck_read_fail_ignored", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {",
        "\tif (!n)\n" + FAILED_READ_PASSES + "\telse if (!nvm_all_erased(nvm_chunk, n)) {",

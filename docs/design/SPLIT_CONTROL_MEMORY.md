@@ -23,7 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if, and a burst of names and a change in flight under the held load, every acknowledged change durable within 5 s of its response at 1x1/1if and 8x8/1if (#920).
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
 ## 1. Memory map
@@ -135,7 +135,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,480 B | 60.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -144,6 +144,7 @@ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallba
 The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
 The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
 SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
+Within that cap, the saved-state store's name marks over layout 3's id space and its step a pass (#920) add 296 to 304 B of `rom` to every image over those, and to `ctrl_plat` 128 B at 1x1 with one interface or two and at 8x8 with two, and 64 B at 8x8 with one, where the 36 words take padding the other changes left: 17,664, 19,200, 18,304 and 20,480 B; the platform's 8x8 image with two interfaces holds 132,040 B of `rom` in its 60.5 RAMB36 ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -1901,10 +1902,11 @@ Three would add a tick to every step of a save under such input, 4 ticks a step 
 On the verify's eight aged windows at the limit, 8x8, arm A, every window's last SRP record is over 18 ms, 18.386 to 18.743 ms, with no pass over the share, and the run prints `CONTROL store-step-aged-heavier caught`.
 
 **A change while a save is in flight.**
-A change marked once the running capture has passed its record is not that capture's (`nvm_mark`): its record is dirty again and opens a first-dirty window of its own, and only an idle step starts a capture, so it waits for the rest of the save in flight before its own save starts.
-The worst is a change marked just after the capture took the first record it names, two steps into that save: it waits for the save's other S<sub>f</sub> - 2 steps, or its own first-dirty window where that is longer, then its own S steps, so
+A change marked once the running capture has passed its record is not that capture's (`nvm_mark`): its record is dirty again, and only an idle step starts a capture, so it waits for the rest of the save in flight before its own save starts.
+Since #920 that save opens no first-dirty window: it starts at the first idle step after the save in flight ([below](#a-burst-of-names-and-a-change-in-flight-920)); until then it waited for its own window where that was longer, `max(1,000 ms, ...)`, which at these containers it never was.
+The worst is a change marked just after the capture took the first record it names, two steps into that save: it waits for the save's other S<sub>f</sub> - 2 steps, then its own S steps, so
 
-> T ≤ max(1,000 ms, (S<sub>f</sub> - 2) × 3 × 10 ms) + S × 3 × 10 ms + 10 ms
+> T ≤ (S<sub>f</sub> - 2) × 3 × 10 ms + S × 3 × 10 ms + 10 ms
 
 after it. For a SET_NAME of the entity beside another's save in flight, S<sub>f</sub> = S = 382 at 8x8/2if and T ≤ 22,870 ms; 102 at 1x1 and T ≤ 6,070 ms; each further record of either save adds 30 ms (`nvm_store.h`, `save_window.bound_ms`).
 `save-second` stages it: under a grandmaster change as every pass starts, a SET_NAME just after a step, then 1,035 ms later and one step on, once the capture has started and taken the entity's first name, a SET_NAME of the entity to another value.
@@ -1922,8 +1924,9 @@ The review's 1x1 probe, its own plant on a clean clone of `a3f23bba` (a second S
 The harness's flash model has no busy time.
 The part of [section 9.4 of the fast-connect design](SAVED_STATE_FASTCONNECT.md#94-the-deadlines), the N25Q128 at its datasheet maximum, erases a 64 KiB sector in up to 3 s (tSE) and programs a page in up to 5 ms (tPP).
 A wait's polls come one a step: the poll that finds the erase done is at most one step period after it ends, so the erase adds at most tSE to a save, and a page's wait at most tPP, since its first poll comes at the next tick or later and a second one more than a tick after its issue.
-A save so adds at most tSE + pages × tPP: 3,260 ms at 8x8/2if (52 pages) and 3,070 ms at 1x1 (14).
-A SET_NAME of the entity is then durable at most 15,370 ms after it alone and 28,670 ms beside another's save in flight at 8x8/2if, 7,140 and 12,210 ms at 1x1.
+A save so adds at most tSE + pages × tPP: 3,270 ms at 8x8 (54 pages of KLJ3's 13,584 bytes, one interface or two) and 3,070 ms at 1x1 (14).
+A SET_NAME of the entity is then durable at most 15,740 ms after it alone and 29,410 ms beside another's save in flight at 8x8, 7,140 and 12,210 ms at 1x1.
+At KLJ2's 13,256 bytes and 52 pages this paragraph gave 3,260, 15,370 and 28,670 ms at 8x8/2if; #920 restates them at KLJ3's container ([below](#a-burst-of-names-and-a-change-in-flight-920)).
 
 The owner's 0.5 s ([#823](https://github.com/kebag-logic/milan-fpga/issues/823)) applies to the firmware writer of the append-only design through this same step; this image states its own worst case and does not meet 0.5 s.
 
@@ -2720,6 +2723,106 @@ So at this head every 1x1/1if row holds by every source at the built slice, the 
 - **The survey corrected** reads the paced class under its key, gives `held` the record's command and counts `record.aecp` like every other statement. At each point it holds 63 statements: 57 measured, each within by the rule, and 6 derived and not staged (the probe's item; the polls' owed MRPDU, and in the donor column the owed MRPDU and a build of both MRPDUs; and the pass given whole's build). The rows also read `aecp_mbx.h`'s round costs, which each leg's round check holds, and `CTRL_LOOP_TICK_US`, a floor under the centisecond the survey holds.
 - **Planted on the same path.** An accepted SET_CONFIGURATION raised over the paced record (40,000 cycles at 1x1/1if, 60,000 at 8x8/2if), and a SET_STREAM_INFO raised over the ordinary record (30,000 at each point), each in a copy of arm B's leg. The class grader over every leg refuses each, naming the record, and the corrected survey refuses each (UNDER 1). Round 8's survey passed all four: the two defects, each now caught.
 
+### A burst of names and a change in flight (#920)
+
+The rehearsal of the flip's bench gate on the test machine found that after a burst of about 35 SET_NAMEs, every one answered SUCCESS, a 10 s wait and a cold power cut, the last five names came back as their defaults ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6899519003)).
+Milan v1.2 5.3.13 requires the names saved in non-volatile memory and restored after a power cycle.
+The [ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6899740728), item 1, set the target: at 1x1/1if and 8x8/1if, under the contract's held load, every acknowledged change durable within 5 s of its response, a burst marking every name and a change marked during a save in flight included.
+
+**The cause: a lost mark, not the step rate.**
+The AECP owner queued its saved-state marks in `uint32_t pending[8]` (`aecp_nvm.h`), 256 ids, a size from layout 2's 8-bit record_id.
+Layout 3 ([#823](https://github.com/kebag-logic/milan-fpga/issues/823), `nvm_layout3.h`) puts the NAME block after every other block, at id 222, so name ordinal k is id 222 + k, and every name from ordinal 34 on has an id of 256 or more.
+`mark()` then set a bit past the array and `aecp_nvm_poll()`, which scans its 8 words, never delivered it: the store never saw the change, so it opened no window and wrote nothing, however long the wait.
+At 1x1/1if the names table holds 39 names, and ordinals 34 to 38 are AUDIO_CLUSTER 22, 23 and 24, CONTROL 0 and CLOCK_DOMAIN 0, the five the rehearsal lost.
+At 8x8 it is 73 of 107 names, and their bits land in the word after the array and in `struct ctrl_plat`'s next member, the ACMP persistence wrapper's pointer and group.
+Three receipts show it before any change:
+
+- `Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle`, at the base: 34 of the 39 marks reach the store, and names 34 to 38 come back as their defaults after the real store's save and a power cycle, with nothing in flight and no time limit involved;
+- the budget harness's `save-burst` at the base, 1x1/1if, the burst paced as the rehearsal's controller sent it (below): one save, the other 34 names durable 1,489 to 2,338 ms after their responses, names 34 to 38 never durable and missing from the authoritative container at the cut;
+- the board, on the rehearsal's image, running the same scenario: the store's bits read over the console (PP_STAT, which the split drives from the store) went dirty, then pending, and from about 2 s after the burst to the cut 10 s later read backed, nothing dirty, nothing pending, no stale claim, no alarm and verdict OK; the same five names came back as their defaults.
+
+The step rate does not explain it: in the rehearsal's own capture AUDIO_CLUSTER 24 and 23 were answered 574 and 577 ms into an 878 ms burst and lost, while the clusters answered after them were saved.
+A failed attempt would leave the claim stale or the alarm set, and the flash part's erase and program time cannot pick names by id.
+
+**The mark, fixed as that defect.**
+`pending` holds one bit per id of layout 3's space, `AECP_NVM_WORDS`, 36 words, and `pending_count` the bits set, so a poll with nothing pending tests no word; a static assert holds every id of the shape inside the array.
+
+**The ruling's three mechanisms** (`nvm_store.c`), and nothing else:
+
+- **A change marked during a running capture joins it.**
+  On its first walk the capture takes a record it has yet to reach, as before, and at any walk a record no capture holds: at the end of a walk, a changed record no capture holds (`nvm_joined_behind`) has it walk again from the first record, taking only such records, so it takes each record once and ends.
+  A change to a record the capture has taken is the next save's.
+- **The next save starts at the first idle step after the save in flight.**
+  A change the save in flight cannot take sets `next_now`, and the idle step after that save starts the capture without a window; a first change keeps DR2a's 1,000 ms window, and a failed attempt DR2c's 1,000 ms back-off.
+- **More than one step a centisecond, only in passes that took no input and have the step's time left, one step a pass.**
+  While a save is in flight, or a change it left waits, `nvm_store_step` takes a step in every pass the loop calls it in when `NVM_STEP_US` is left, owed by a centisecond or not.
+  The loop calls it once a pass and only in a pass that took no input (THE STEP, `ctrl_loop.h`), and on the split image `mbx_hal_wait()` returns at once, so the loop passes again at once and a save advances a step in each such pass.
+  A step not owed that finds no room owes nothing, so the age does not run on it; the age limit, the tiers and the pace are as they were.
+
+The step's length, the two-slot sequence, the blank check, the verify and the format are unchanged.
+
+**The harness's two groups** ([the harness README](../../tb/verilator/ctrl_service_budget/README.md)).
+`save-burst` sets every name the image's table holds and reads each back, the entity's two names first and the rest from the last ordinal down, its frames 1.3 ms apart while the AECP channel's bucket holds a token and 250 ms later where it would not, the rehearsal controller's pace and timeout, with every other receive channel at its refill rate with its bursts until the cut 10 s after the last frame; its journal at the cut must hold every name in its authoritative slot.
+`save-flight` sets the entity's name under the same load and at the first save's erase sets it again.
+Each save's container is read off the log, and each name is timed from its SET_NAME's response to the verify of the first save that holds it.
+
+| Group | 1x1/1if, the base | 1x1/1if | 8x8/1if, the base | 8x8/1if |
+|---|---|---|---|---|
+| `save-burst`: names, frames, the burst | 39, 78, 850 ms | 39, 78, 850 ms | 107, 214, 2,777 ms | 107, 214, 2,777 ms |
+| `save-burst`: the latest name from its response to durable | never (names 34 to 38) | 1,107.8 ms (258.9 to 1,107.8) | none timed: the CPU traps | 1,370.3 ms (342.7 to 1,370.3) |
+| `save-burst`: saves, the cut | 1; names 34 to 38 missing | 1; every name at the cut (sequence 1) | none graded: 8 load faults in `deliver` | 6; every name at the cut (sequence 6) |
+| `save-flight`: from its response to durable | 2,020.4 ms | 165.0 ms | 7,049.8 ms | 663.1 ms |
+| `save-flight`: steps from the first save's verify to the next erase (its capture and seal's) | 36 (19) | 19 (19) | 59 (59) | 59 (59) |
+
+The fix's columns are measured on `d66b4045`, this branch merged with `dev-soft-core` `70f4056f` (#901, SRP's Talker declarations, #895); on this branch before that merge they were 1,101.7, 158.5, 1,367.5 and 657.7 ms, with the same saves and steps.
+At the base, 8x8/1if's burst made the CPU trap: in the harness's fixture image `pending[9]` and `pending[10]` are the AECP bridge's `app` and `aecp` pointers, and the names of ordinals 66 to 106, which the descending burst marks first, set bits in them; `deliver` took a load access fault 0.28 s after the first SET_NAME, eight times.
+With the fix at 1x1/1if the burst's 850 ms ends inside its first change's 1,000 ms window, so one save takes every name, 73.1 ms from its erase to durable, and the change in flight's save erases 19 steps after the first's verify, its capture and seal's.
+At 8x8/1if every name of the burst is durable within 1.4 s of its response, the saves chained a capture and seal apart, each 307.8 to 322.0 ms from its erase to durable, and the change in flight within 0.7 s; at the base the change in flight took 7.0 s there, at a step a centisecond.
+Each group's every pass is within the share and each channel's longest record within its bound: no budget miss, and none of `save-burst`'s and `save-flight`'s 2,916 and 3,131 work passes at 1x1/1if, or 3,316 and 3,006 at 8x8/1if, over the share.
+At 8x8/1if these groups print stated-cost lines, as every group there does on this base: one interface takes 1x1/1if's statements at every shape, and 8x8/1if's own are [#914](https://github.com/kebag-logic/milan-fpga/issues/914)'s per-shape statements, so these lines are recorded as such ([the ruling on this branch's timing STOP](https://github.com/kebag-logic/milan-fpga/issues/920#issuecomment-6910219988)).
+Over every group at 8x8/1if on the merge they are the polls base, 90 lines in 78 groups, the most 25,015 cycles (`save-starved`) against the 22,500 one interface states, in the pass that delivers a name, of which this change's mark takes 731 cycles (measured in `save-flight` before the merge); an ACMP item, 7,277 against 5,500; and a declined ACMP offer, 2,338 against 2,000, both in `backlog-owed`.
+Before the merge the build of one MRPDU and its slice were over one interface's statements there too (`ctrl_loop.h` records the build at 1,019 us); on the merge the longest build is 44,249 cycles, within the 900 us slice.
+
+**A save's windows, staged again.**
+A save in flight now takes a step in every pass that takes nothing, so its phases are short: at 1x1/1if a save alone is durable 1,081.8 ms after its change, where it took 2,018.6 ms at the base, its window's 1,000 ms included, and 1,308.8 ms at 8x8/1if.
+`save_window.py` opens each phase's windows 2 ms into the phase, eight phases 0.125 ms apart across a read-back's pass in the blank check and the verify and 0.25 ms apart across a page's issue and its wait in the program phase, the SET_NAME 1.5 s into the window's wait for MAAP so the save's erase follows the window's set-up, and the verify 2 ms after the last page (`IDLE_MS`); `grade.save_phase` refuses a window outside its phase.
+The aged windows are staged as before: their flood holds every step to the age limit.
+
+Every window opened inside its phase at 1x1/1if and at 8x8/1if (`grade.save_phase` refused none), and in each every row the CPU decides is within its budget.
+The 48 aged windows at each point, opened with the step's age at its limit or one short of it, hold 15 and 17 aged steps among their records, the least margin 8.826 ms at 1x1/1if (`backlog-adp@blank-aged2-5`, SRP's last record at 11.174 ms) and 9.506 ms at 8x8/1if (`backlog-adp@program-aged2-5`, at 10.494 ms).
+Over every group a pass that carries the store's step is at most 1.016 ms at 1x1/1if and 1.156 ms at 8x8/1if, within the 2.0 ms share, and a step at most 0.788 ms at both, within `NVM_STEP_US`.
+
+**A change's worst case, restated.**
+Under input that leaves no pass empty the store still steps once every three ticks, so the stated worst cases are the starved ones, at KLJ3's containers: 3,444 B at 1x1/1if, 102 steps for a SET_NAME of the entity, and 13,584 B at 8x8 with one interface or two, 382 steps.
+
+| Worst case, ms, on a flash with no busy time | 1x1/1if | 8x8 |
+|---|---:|---:|
+| A SET_NAME of the entity, no save in flight | 4,070 | 12,470 |
+| The same marked just after another's save in flight took its record | 6,070 | 22,870 |
+| A burst marking every name, no save in flight (39 and 107 records) | 5,180 | 15,620 |
+| On the product part at its datasheet maximum, the first two (tSE 3 s, tPP 5 ms; 14 and 54 pages) | 7,140; 12,210 | 15,740; 29,410 |
+
+The in-flight figure no longer takes the change's own window where that is longer, since its save waits for none; at these containers that window was never the longer.
+This page's records before KLJ3 give 12,110 and 22,150 ms at 8x8/2if, at KLJ2's 13,256-byte container and 370 steps, and 15,370 and 28,670 ms on the product part at its 52 pages; at KLJ3's 13,584 bytes they are the figures above.
+The starved worst cases and the product part's stay above 10 s at 8x8, stated and not gated (the ruling, item 1); the append-only design (#823) closes them.
+
+Ms from the change to durable against its stated worst case, measured at both points on the merge `d66b4045` (steps; longest gap between flash steps, ms):
+
+| Group | 1x1/1if | 8x8/1if |
+|---|---:|---:|
+| `save` | 1,081.8 of 4,070 (102; 26.002) | 1,308.8 of 12,470 (382; 104.302) |
+| `save-held` | 1,097.2 of 4,070 (102; 17.213) | 1,356.1 of 12,470 (382; 33.735) |
+| `save-starved` | 4,049.1 of 4,070 (102; 31.292) | 12,448.1 of 12,470 (382; 33.736) |
+| `save-second` | 6,030.3 of 6,070 (102; 30.865) | 22,829.6 of 22,870 (382; 31.383) |
+
+Under input that leaves no pass empty, `save-starved` and `save-second`, a save still takes a step every three ticks and stays just inside its stated worst case; where a pass is empty it takes a step a pass.
+A save alone's longest gap between flash steps is its blank check, whose read-backs the grade merges into one read: 27 steps at 1x1/1if and 107 at 8x8/1if, a step a pass.
+
+**The images.**
+On this branch's own base the marks over layout 3's space and the store's join and step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
+Merged with `dev-soft-core` `70f4056f` they add 296 to 304 B of `rom` to every image over that tree's, and `ctrl_plat` is 17,664, 19,200, 18,304 and 20,480 B ([section 3](#3-named-refusals)).
+On this branch alone the target platform's 8x8 image with two interfaces held 131,224 B of `rom`, past the 131,072 B its 60.0 RAMB36 held; merged with SRP's Talker declarations (#895), which took the entry to 60.5, the owner's cap, it holds 132,040 B there, debt owed to S14 ([section 3](#3-named-refusals)).
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
@@ -2727,7 +2830,7 @@ So at this head every 1x1/1if row holds by every source at the built slice, the 
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's at `715589c` is merged here (PR #892), its hot-list runtime entry removed from both lists; lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
-- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,470 ms after it at 8x8/2if (382 steps of KLJ3's container) and 4,070 ms at 1x1 with no save in flight, and 22,870 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time (`save_window.bound_ms`, the harness README; 12,110 and 22,150 ms at 8x8/2if under KLJ2); on the product's flash part at its datasheet maximum, 15,370 and 28,670 ms at 8x8/2if and 7,140 and 12,210 ms at 1x1 by the 2026-11-04 record, derived at KLJ2's step counts and not derived again at KLJ3's ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.559 ms by the 2026-11-05 record (`65a56d02`, [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
+- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,470 ms after it at 8x8/2if (382 steps of KLJ3's container) and 4,070 ms at 1x1 with no save in flight, and 22,870 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time (`save_window.bound_ms`, the harness README; 12,110 and 22,150 ms at 8x8/2if under KLJ2); on the product's flash part at its datasheet maximum, 15,740 and 29,410 ms at 8x8 and 7,140 and 12,210 ms at 1x1, at KLJ3's 54 and 14 pages ([#920](#a-burst-of-names-and-a-change-in-flight-920); 15,370 and 28,670 ms at 8x8/2if by the 2026-11-04 record, at KLJ2's 52 pages, [above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). Since #920 a save in flight also takes a step in every pass that takes nothing, so wherever the input leaves passes empty it is far faster than its worst case, and a change marked during a capture joins it. The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.559 ms by the 2026-11-05 record (`65a56d02`, [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
 - **THE TIERS** ([above](#the-tiers)) replace the three bounds the loop held by construction before them, a change-notice retry's, THE TRANSMIT's (`CTRL_LOOP_TX_MS`) and SRP's (`CTRL_LOOP_SRP_MS`), each now a row by every source (THE TRANSMIT's at 240 ms less the armed join time and `T_egress`, 49 ms at 19 cs: #894's contingent ruling and [the egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1). The three bullets below record the loop before them.
 - **A change-notice retry** was taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst held one. Before THE TIERS a notice whose port answered was committed within 18 ms of the answer under any input, inside its 20 ms (`aecp.h`): 12.30 to 13.51 ms at both points under input that left no pass empty ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). Under them the first queued notice is a tier row: 14.72 ms within 20 at 1x1/1if, and 21.11 ms at 8x8/2if, stated 22 and reported, at this head (14.66 and 20.93 at #894's; [the table above](#the-queued-notices-at-stated-costs-and-the-first-notice)). Each notice owed ahead of it costs it its own round and the pass that sends it.
 - **SRP's MRPDU build was a pass class of its own** (THE TRANSMIT in `ctrl_loop.h`), taken only in a pass that took no record, at most one event and no centisecond, or once held past its age in a pass of its own, within `CTRL_LOOP_TX_MS`, 44 ms before THE TIERS, so every participant's MRPDU was sent within the 200 ms JoinTime (under THE TIERS the tx row, 34.00 ms within 49 at 1x1/1if and 104.25 at two interfaces at this head, which `CTRL_LOOP_TX_MS` states as 34 and 105 ms; 33.38 ms, 34 and 99 at #894's head). A pass that dispatches a centisecond takes one record of a channel (THE TICK's cap).

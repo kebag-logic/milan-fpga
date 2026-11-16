@@ -168,7 +168,7 @@ preserves complete-old-or-new recovery across power loss.
 F1's capture timing is the [owner's decision of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000), option (c).
 F1 is not held to D5's 24.5 ms capture bound.
 F1 holds no owner while it captures.
-A change behind its cursor opens its own window (DR2a).
+A change behind its cursor joins the capture or is the next save's (DR2a, #920).
 So the hold that bound protects does not exist in the split.
 Each F1 step stays bounded by T_svc, under [FR_NFR 3.4.1](reference/FR_NFR.md#341-control-service-budget-and-normative-timing) as amended (20 ms, graded per family).
 The total capture time has no bound of its own; it is measured and recorded.
