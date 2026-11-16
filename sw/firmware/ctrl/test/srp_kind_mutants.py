@@ -47,7 +47,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "the latest leaves: the other decides"),
         # the earliest registered decides: a New beside a registered other kind is not recorded
         kind("feedback-latest-earliest-decides", KINDS + "CoincidentRegistrationsInOneMrpduFollowTheirOrder",
-             RECORD, "s->latest_kind = registered && (s->registered_kinds & (3u ^ kind)) == 0u ? kind : s->latest_kind;",
+             RECORD, "s->latest_kind = registered && (s->registered_kinds & (3u ^ kind)) == 0u ? kind : "
+             "s->latest_kind;",
              "Failed then Advertise in one MRPDU"),
         kind("feedback-latest-not-carried", KINDS + "ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream",
              "                replacement.latest_kind = r->latest_kind;\n", "",
