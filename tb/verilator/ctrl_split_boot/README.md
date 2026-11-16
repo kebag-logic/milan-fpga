@@ -140,7 +140,7 @@ At this branch's head each boot reaches ready, at 26.370 ms (1x1, one interface)
 
 [`plat_ledger.py`](plat_ledger.py) links the platform image at the ledger's four points, 1x1 and 8x8 each with one and two interfaces, and grades each against `ctrl_memory.LEDGERED` ([SPLIT_CONTROL_MEMORY.md section 5](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 Each shape's `csr.csv` and flash map are its split SoC export's, from the CPU budget harness's `build.flash_map`, and the runtime archives are this simulation's.
-The 8x8 image with two interfaces is linked with `--ledgered-point platform-8x8-two-interfaces`, and every other image with no override.
+Each 8x8 image is linked with its own override, `--ledgered-point platform-8x8-two-interfaces` and `--ledgered-point platform-8x8-one-interface` (#923), and every 1x1 image with no override.
 Each image is graded on four checks, each apart, so that one finding does not hide another:
 
 - `LINK`: `ctrl_plat_image.py` exits 0, and the image's plan with its point's override is accepted;

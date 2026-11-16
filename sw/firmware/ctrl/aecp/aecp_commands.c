@@ -190,7 +190,8 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 		} else if (aecp_foreign_lock(a)) {
 			status = AECP_ENTITY_LOCKED;
 		} else if (wire_be16(in + 2) >= a->cfg.model->configurations) {
-			status = AECP_BAD_ARGUMENTS;
+			// the index names no CONFIGURATION descriptor (IEEE 1722.1-2021 7.4.7.1, Table 7-141; #924)
+			status = AECP_NO_SUCH_DESCRIPTOR;
 		} else {
 			// accepted, it costs a paced record's, so it is paced as an edit is (THE PACE, aecp_mbx.h)
 			a->edited_ms = a->now;
@@ -359,7 +360,10 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			    uint8_t *out, size_t *bytes)
 {
 	body(out, bytes, set ? 84u : 56u);
-	if (len < (set ? 84u : 4u)) {
+	// A SET carries the IEEE 1722.1-2021 body or the 48-octet IEEE 1722.1-2013 one, whose fields end at
+	// stream_vlan_id, as the fabric processor accepts it; both are answered in the 2021 form, and a SET reads its
+	// flags and msrp_accumulated_latency alone, which both carry (#924)
+	if (set ? len != 48u && len < 84u : len < 4u) {
 		return AECP_BAD_ARGUMENTS;
 	}
 	memcpy(out, in, 4u);

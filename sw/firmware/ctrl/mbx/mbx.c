@@ -391,6 +391,12 @@ static const struct window windows[MBX_WINDOWS] = {
 
 enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t *request, uint64_t *data)
 {
+	return mbx_win_ask(interface, window, request, 0u, MBX_WIN_REQUEST_WORDS, data);
+}
+
+enum mbx_status mbx_win_ask(unsigned interface, unsigned window, const uint32_t *request, unsigned from, unsigned to,
+			    uint64_t *data)
+{
 	if (interface >= MBX_N_IF || window >= MBX_WINDOWS) {
 		return MBX_STATUS_BAD;
 	}
@@ -398,7 +404,7 @@ enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t
 	if (WIN_BUSY(mbx_bus_read32(face_reg(interface, w->status)))) {
 		return MBX_STATUS_FULL;
 	}
-	for (unsigned k = 0; k < w->words; ++k) {
+	for (unsigned k = from; k < to && k < w->words; ++k) {
 		mbx_bus_write32(face_reg(interface, w->request[k]), request[k]);
 	}
 	mbx_bus_write32(face_reg(interface, w->go), mbx_place(1u, MBX_CTR_CMD_GO_LSB, MBX_CTR_CMD_GO_WIDTH));

@@ -4,7 +4,9 @@
 the table each edit holds its mappings in, its passes over the command, its port's map and the other output ports'
 maps, and its turns, each against the edit's definition mapping by mapping; and in a restore, which still compares
 rows whole and checks the output owner itself. aecp_mutants.py plants each row; every named check must fail on its
-own words. THE PACE (aecp_mbx.h) holds the record after an edit; its rows are planted here too."""
+own words. THE PACE (aecp_mbx.h) holds the record after an edit; its rows are planted here too. So are the edit's
+commit to the datapath's map store (#923): the core's edit port, the face's transaction on the EDIT window and the
+restored maps' commit at AECP's open."""
 
 EDIT = 'Core.MapEditsAreTheirDefinitionRowForRow'
 RESTORE = 'Core.RestoredOutputMapsHaveOneGlobalOwner'
@@ -12,6 +14,21 @@ OWNER = 'Core.OutputMappingsHaveOneGlobalOwner'
 PACE = 'Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone'
 WORK = 'Core.MapEditWorkIsLinearInItsMappings'
 KEYS = 'Core.EveryAcceptedMapKeyIsItsOwn'
+STORE = 'Core.AnAcceptedEditReachesTheStoreBeforeTheMap'
+STORE_REFUSES = 'Core.AStoreRefusalIsTheAnswerAndChangesNothing'
+STORE_UNREACHED = 'Core.ARefusedEditNeverReachesTheStore'
+RESTORE_ORDER = 'Core.RestoredMapsReachTheStoreRemovalsFirst'
+RESTORE_CLIP = 'Core.TheStoresResetSetIsTheClippedOne'
+RESTORE_REFUSED = 'Core.ARefusedRestoreKeepsWhatTheStoreHolds'
+RESTORE_SCOPE = 'Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce'
+RESTORE_OPEN = 'AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens'
+WINDOW = 'Face.AnEditIsTheReleasesTransactionOnTheEditWindow'
+WINDOW_REFUSES = 'Face.ARefusedBeatAbortsAndNothingMoves'
+WINDOW_SILENT = 'Face.AnUnansweredEditFailsUntilItsCommitIsReserved'
+WINDOW_RESTORE = 'Face.RestoredMapsReachTheStoreThroughTheEditWindow'
+WINDOW_LATE = 'Face.ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing'
+RESTORE_LATE = 'Face.ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing'
+WINDOW_PICK = 'Face.AnEditCommitsTheMappingsTheCorePicksAndNoOthers'
 DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
 OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
 CLEARED = 'Core.MapEditWorkReadsOnlyWhatItCleared'
@@ -192,4 +209,135 @@ ROWS = (
      '\tif (aecp_foreign_lock(a)) {\n\t\treturn AECP_ENTITY_LOCKED;',
      '\tif (aecp_foreign_lock(a)) {\n\t\ta->edited_ms = a->now;\n\t\treturn AECP_ENTITY_LOCKED;',
      (PACE, 'an edit refused before its checks holds nothing')),
+    # the edit's commit to the datapath's map store (#923): the mappings that change the map, each once, before the
+    # map moves, all or none
+    ('edit-store-skipped', 'aecp_maps.c',
+     '\tif (changes != 0u && a->ports->edit != NULL) {',
+     '\tif (changes != 0u && a->ports->edit != NULL && false) {',
+     (STORE, 'one store edit for the command'),
+     (WINDOW, 'begin, validate each record, begin the commit, commit each, finish')),
+    ('edit-every-record', 'aecp_maps.c',
+     '\t\tif (e.rep[n] == n && (!adding || (e.flags[n] & FOUND) == 0u)) {',
+     '\t\tif (true) {',
+     (STORE, "an ADD's additions alone, each once, in command order")),
+    ('edit-held-mappings-added', 'aecp_maps.c',
+     '(!adding || (e.flags[n] & FOUND) == 0u)',
+     '(!adding || true)',
+     (STORE, "an ADD's additions alone, each once, in command order")),
+    ('edit-repeats-sent', 'aecp_maps.c',
+     '\t\tif (e.rep[n] == n && (!adding',
+     '\t\tif ((!adding || e.rep[n] == n) && (!adding',
+     (STORE, "a REMOVE's every distinct mapping, each once, in command order")),
+    ('edit-refusal-ignored', 'aecp_maps.c',
+     '\t\tif (status != AECP_SUCCESS) {\n\t\t\treturn status;\n\t\t}\n\t}\n\tsize_t was = m->count;',
+     '\t\t(void)status;\n\t}\n\tsize_t was = m->count;',
+     (STORE_REFUSES, "the store's refusal is the command's status"),
+     (WINDOW_REFUSES, 'the map keeps its mappings')),
+    ('edit-before-the-checks', 'aecp_maps.c',
+     '\t// Each mapping\'s checks in its turn, so the port is read as each was before.\n',
+     '\tif (a->ports->edit != NULL) {\n'
+     '\t\t(void)a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, NULL, count);\n\t}\n',
+     (STORE_UNREACHED, 'a command the core refuses never reaches the store')),
+    # the restored maps' commit: every removal before any addition, the clipped reset set, the store's refusals
+    ('restore-adds-beside-its-removal', 'aecp_maps.c',
+     '!unmoved(a, m) && commit(a, m, true, true) != AECP_SUCCESS) {',
+     '!unmoved(a, m) && (commit(a, m, true, true) != AECP_SUCCESS || commit(a, m, false, false) != AECP_SUCCESS)) {',
+     (RESTORE_ORDER, 'two removals and two additions')),
+    ('restore-removes-what-it-adds', 'aecp_maps.c',
+     '\t\tstatus = a->ports->edit(a->ports->ctx, remove, m->type, m->index, a->response, NULL, count);',
+     '\t\tstatus = a->ports->edit(a->ports->ctx, !remove, m->type, m->index, a->response, NULL, count);',
+     (RESTORE_ORDER, "the input port's reset set removed"),
+     (WINDOW_RESTORE, 'the reset set removed first')),
+    ('restore-reset-set-unclipped', 'aecp_maps.c',
+     '\treturn d != NULL && d->length >= 82u && r->channel < channels(wire_be64(d->value + 74));\n}\n\n// Whether',
+     '\treturn d != NULL && d->length >= 82u;\n}\n\n// Whether',
+     (RESTORE_CLIP, 'a map that is the clipped reset set has not moved')),
+    ('restore-refused-reset-unclipped', 'aecp_maps.c',
+     '\t\tif (kept(a, m, &m->defaults[n])) {\n\t\t\tm->rows[m->count++] = m->defaults[n];\n\t\t}\n',
+     '\t\tif (a != NULL) {\n\t\t\tm->rows[m->count++] = m->defaults[n];\n\t\t}\n',
+     (RESTORE_CLIP, 'a refused removal keeps the clipped reset set the store holds')),
+    ('restore-removal-refusal-ignored', 'aecp_maps.c',
+     '\t\t\treset(a, m, true);\n\t\t}\n\t}\n\tfor (struct aecp_map *m',
+     '\t\t}\n\t}\n\tfor (struct aecp_map *m',
+     (RESTORE_REFUSED, 'a refused removal keeps the reset set the store holds')),
+    ('restore-not-put-back', 'aecp_maps.c',
+     '\t\t\treset(a, m, commit(a, m, false, true) == AECP_SUCCESS);',
+     '\t\t\treset(a, m, true);',
+     (RESTORE_REFUSED, "a refused put-back leaves the store's empty port empty")),
+    ('restore-put-back-trusted', 'aecp_maps.c',
+     '\t\t\treset(a, m, commit(a, m, false, true) == AECP_SUCCESS);',
+     '\t\t\treset(a, m, ((void)commit(a, m, false, true), true));',
+     (RESTORE_REFUSED, "a refused put-back leaves the store's empty port empty")),
+    ('restore-commits-an-open-core', 'aecp_maps.c',
+     '\tif (!aecp_enter(a) || a->open || a->ports->edit == NULL) return;\n\tstruct aecp_map *end',
+     '\tif (!aecp_enter(a) || a->ports->edit == NULL) return;\n\tstruct aecp_map *end',
+     (RESTORE_SCOPE, 'an open core commits no restored map')),
+    ('restore-past-a-page', 'aecp_maps.c',
+     '\tif (m->capacity > AECP_MAP_PAGE) {\n\t\treturn AECP_ENTITY_MISBEHAVING;\n\t}\n',
+     '',
+     (RESTORE_SCOPE, 'a port past a page reaches no store')),
+    ('restore-every-configuration', 'aecp_maps.c',
+     '\t\tif (m->configuration == a->configuration && !unmoved(a, m) && commit(a, m, true, true)',
+     '\t\tif (!unmoved(a, m) && commit(a, m, true, true)',
+     (RESTORE_SCOPE, 'a map of another configuration is not committed')),
+    ('restore-not-committed-at-open', 'app/ctrl_app_aecp.c',
+     '\taecp_restore_commit(&c->aecp->core);\n',
+     '',
+     (RESTORE_OPEN, "AECP's open commits the restored maps")),
+    # the face's transaction on the EDIT window, the release processor's walk
+    ('window-never-aborts', 'aecp_face.c',
+     '\t\t(void)beat(f, request, ABORT, 0u, 1u, 2u, &ok);\n',
+     '',
+     (WINDOW_REFUSES, 'a refused record aborts')),
+    ('window-validation-trusted', 'aecp_face.c',
+     '\t\tstatus = !record(f, request, VALIDATE, records, pick, k, &ok) ? AECP_ENTITY_MISBEHAVING\n'
+     '\t\t\t: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;',
+     '\t\tstatus = !record(f, request, VALIDATE, records, pick, k, &ok) ? AECP_ENTITY_MISBEHAVING\n'
+     '\t\t\t: AECP_SUCCESS;',
+     (WINDOW_REFUSES, 'a refused record aborts')),
+    ('window-commit-begin-trusted', 'aecp_face.c',
+     '\t\tstatus = !beat(f, request, COMMIT, 0u, 1u, 2u, &ok) ? AECP_ENTITY_MISBEHAVING\n'
+     '\t\t\t: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;',
+     '\t\tstatus = !beat(f, request, COMMIT, 0u, 1u, 2u, &ok) ? AECP_ENTITY_MISBEHAVING\n'
+     '\t\t\t: AECP_SUCCESS;',
+     (WINDOW_REFUSES, 'a refused commit-begin aborts')),
+    ('window-begin-trusted', 'aecp_face.c',
+     '? (ok ? AECP_SUCCESS : AECP_NOT_SUPPORTED) : AECP_ENTITY_MISBEHAVING;',
+     '? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;',
+     (WINDOW_REFUSES, 'a refused begin aborts')),
+    ('window-record-halves-swapped', 'aecp_face.c',
+     '\trequest[3] = (uint32_t)wire_be32(r);\n\trequest[2] = (uint32_t)wire_be32(r + 4);',
+     '\trequest[2] = (uint32_t)wire_be32(r);\n\trequest[3] = (uint32_t)wire_be32(r + 4);',
+     (WINDOW, 'the record as its two wire quadlets')),
+    ('window-port-every-beat', 'aecp_face.c',
+     '\treturn beat(f, request, phase, k, 1u, 4u, accepted);',
+     '\treturn beat(f, request, phase, k, 0u, 4u, accepted);',
+     (WINDOW, 'EDIT_REQ written once a transaction')),
+    ('window-request-words-from-the-first', 'mbx/mbx.c',
+     '\tfor (unsigned k = from; k < to && k < w->words; ++k) {',
+     '\tfor (unsigned k = from & 0u; k < to && k < w->words; ++k) {',
+     (WINDOW, 'EDIT_REQ written once a transaction')),
+    ('window-begin-asked-once', 'aecp_face.c',
+     'beat(f, request, BEGIN, 0u, 0u, 2u, &ok) || beat(f, request, BEGIN, 0u, 0u, 2u, &ok)',
+     'beat(f, request, BEGIN, 0u, 0u, 2u, &ok)',
+     (WINDOW_SILENT, 'a begin the boot sweep holds is asked once more')),
+    ('window-reserved-commit-refuses', 'aecp_face.c',
+     '\t\t(void)record(f, request, APPLY, records, pick, k, &ok);',
+     '\t\tif (!record(f, request, APPLY, records, pick, k, &ok)) {\n\t\t\treturn AECP_ENTITY_MISBEHAVING;\n\t\t}',
+     (WINDOW_SILENT, 'after the reserved commit, the edit stands')),
+    ('window-silence-uncounted', 'aecp_face.c',
+     '\t\t++f->unanswered;\n\t\treturn false;\n\t}\n\t*accepted',
+     '\t\t(void)f;\n\t\treturn false;\n\t}\n\t*accepted',
+     (WINDOW_SILENT, 'each unanswered beat is counted')),
+    # a lost reply stops the commit: the store's application of the records after it is missing, the edit answered
+    ('window-lost-reply-stops-the-commit', 'aecp_face.c',
+     '\tfor (size_t k = 0; k < count; ++k) {\n\t\t(void)record(f, request, APPLY, records, pick, k, &ok);\n\t}\n',
+     '\tfor (size_t k = 0; k < count && record(f, request, APPLY, records, pick, k, &ok); ++k) {\n\t}\n',
+     (WINDOW_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings"),
+     (RESTORE_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings")),
+    # the face reads the command's first records in place of the ones the core picked: a held one for the new one
+    ('window-pick-ignored', 'aecp_face.c',
+     '\tconst uint8_t *r = records + 8u * (pick != NULL ? pick[k] : k);',
+     '\tconst uint8_t *r = records + 8u * (pick != NULL ? k : k);',
+     (WINDOW_PICK, 'the records the core picked are committed')),
 )

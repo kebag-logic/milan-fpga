@@ -123,6 +123,13 @@ static bool applied(void *ctx)
 	return c->environment->applied(c->environment->ctx);
 }
 
+static unsigned edit(void *ctx, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+		     size_t count)
+{
+	struct ctrl_app_aecp *c = ctx;
+	return c->environment->edit(c->environment->ctx, remove, type, index, records, pick, count);
+}
+
 void ctrl_app_aecp_store_words(const struct nvm_status *s, uint32_t *restore, uint32_t *nvm, bool *dirty)
 {
 	bool done = s->terminal != NVM_T_NONE;
@@ -225,7 +232,7 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	c->app = app; c->aecp = m; c->state = state; c->environment = env;
 	c->ports = (struct aecp_ports){.ctx = c, .random = random_value, .stream = stream,
 		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index,
-		.applied = applied};
+		.applied = applied, .edit = env->edit != NULL ? edit : NULL};
 	if (!aecp_mbx_init(m, cfg, &c->ports, CTRL_APP_AECP_SLOT) || !aecp_mbx_attach(m, &app->loop)) return false;
 	c->acmp_owner = app->acmp.acmp.env;
 	c->acmp_ports = (struct acmp_env){c, locked, source, srp, persist, acmp_changed};
@@ -251,6 +258,8 @@ bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 		publish_store(c);
 		if (!aecp_face_open(c->face)) return false;
 	}
+	// the restored maps into the datapath's store, which the acknowledged terminal released (#923)
+	aecp_restore_commit(&c->aecp->core);
 	uint32_t channels = 0;
 	for (unsigned n = 0; n < MBX_N_CH; ++n) {
 		if (c->app->loop.rx[n].fn != NULL) channels |= 1u << n;

@@ -38,6 +38,9 @@
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
 #   make twin-plants - its twenty plants, each refused by its own words
+#   make twin-maps - #923: the split image's audio maps reach the render
+#                 store, the format verdict follows them, a saved map is
+#                 restored to it; twin-maps-plants plants the defect
 #   make srptx  - #867: the split build's SRP transmit path at the wire, three
 #                 scenarios and two off-grid controls graded by srptx_grade.py;
 #                 srptx-plants and srptx-mutants plant each check's defect
@@ -930,7 +933,7 @@ exec-twin-af:
 # edit to the adapter; each wrapper passes straight through outside --srptx.
 SRPTX_WRAPS = -Wl,--wrap=mrp_transmit,--wrap=mrp_rx,--wrap=mrp_port_configure,--wrap=shlan_timer_arm,--wrap=shlan_timer_tick,--wrap=srp_mbx_init
 build-twin-sp: twin-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+	$(VERILATOR) twin_probes.vlt $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
 	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" \
 	  -LDFLAGS "$(SRPTX_WRAPS) $(abspath $(TWIN_FW))/libtwinfw.a" \
 	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin_sp
@@ -987,6 +990,33 @@ twin-plants: build-twin
 	  python3 -B twin_compare.py $(TWIN_OUT)/fabric-$$p.json $(TWIN_OUT)/split.json --plant $$p \
 	    --baseline $(TWIN_OUT)/report.json; \
 	done
+
+# #923: THE SPLIT IMAGE'S AUDIO MAPS ON THE RENDER STORE, on the split half's
+# binary (twin_split.cpp --maps): the platform firmware's ADD and
+# REMOVE_AUDIO_MAPPINGS reach the datapath's render map store
+# (amap_in_store_r, twin_probes.vlt) through the EDIT window, GET_AUDIO_MAP and
+# the store agree after every command, a narrowing SET_STREAM_FORMAT answers
+# BAD_ARGUMENTS with the mappings in place and SUCCESS once they are removed
+# (Milan v1.2 5.4.2.7, 5.4.2.27, 5.4.2.28), and the saved map, restored at the
+# boot after a power cycle, reaches the store. twin-maps-plants plants the
+# defect #923 found, no edit reaching the store (--plant no-edit), and requires
+# each of its checks to fail on its own words.
+TWIN_MAPS_OUT ?= obj_twin_maps
+TWIN_MAPS_PLANT_WORDS = "FAIL [MAPS-STORE] the removal reached the render store" \
+  "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" \
+  "FAIL [MAPS-EDIT] an edited map reached the render store"
+.PHONY: twin-maps twin-maps-plants
+twin-maps: build-twin-sp
+	@mkdir -p $(TWIN_MAPS_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --maps > $(TWIN_MAPS_OUT)/maps.log; rc=$$?; cat $(TWIN_MAPS_OUT)/maps.log; exit $$rc
+
+twin-maps-plants: build-twin-sp
+	@mkdir -p $(TWIN_MAPS_OUT)
+	if ./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --maps --plant no-edit > $(TWIN_MAPS_OUT)/no-edit.log; then \
+	  echo "FAIL the no-edit plant passed"; exit 1; fi
+	set -e; for w in $(TWIN_MAPS_PLANT_WORDS); do \
+	  grep -qF -- "$$w" $(TWIN_MAPS_OUT)/no-edit.log || { echo "FAIL the no-edit plant escaped: $$w"; exit 1; }; \
+	  echo "caught: $$w"; done
 
 # #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
 # (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP transmit ring, KL_mbx_tx,

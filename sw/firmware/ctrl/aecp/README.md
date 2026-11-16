@@ -171,6 +171,43 @@ its notification. `counters`, `stream`, `avb` and `format` read through the
 windows, each read bounded; one with no answer fails its port. `random` and
 `path` stay the platform's.
 
+`edit` is the datapath's map store
+([#923](https://github.com/kebag-logic/milan-fpga/issues/923)). An ADD or
+REMOVE_AUDIO_MAPPINGS the core accepts reaches it before the core's map
+moves: one transaction of the mappings that change the map, each once, in
+command order. The face runs the release processor's walk on interface 0's
+`EDIT` window, the one store the render reads: begin, validate each record,
+begin the commit, commit each record, finish. A refused begin answers
+NOT_SUPPORTED, a refused record or commit-begin BAD_ARGUMENTS, and a beat with
+no answer before the commit is reserved ENTITY_MISBEHAVING; each aborts, and
+the core then changes nothing and answers that status (Milan v1.2 5.4.2.27,
+5.4.2.28). An accepted commit-begin reserves the commit, so the beats after it
+never refuse: the release's engine has each record's commit and the finish
+complete without back-pressure (`KL_aecp_engine.sv`, the transaction face). A
+commit or finish with no answer within the window's bound has therefore been
+taken and only its reply is lost: the face counts it (`unanswered`), goes on
+with the next record, and the edit stands in the store as in the core's map.
+Delivery loss after the commit-begin is outside that contract and has no
+recovery here. `EDIT_REQ` is written once a transaction and each beat writes
+only what moves (`mbx_win_ask`). The store's edit face waits from reset until
+the restore's terminal and its boot sweep, so a begin with no answer is asked
+once more. So GET_AUDIO_MAP, the format verdict's survival check and the
+render all read the same mappings after every command. The port is optional:
+an integrator with no store of its own names none, and the core's map is then
+the only one.
+
+`ctrl_app_open_aecp()` commits the restored maps the same way, after the
+acknowledged publication that carries the restore's terminal and the restored
+formats and before AECP opens (`aecp_restore_commit`). The store then holds
+each dynamic port's reset set as the restored formats clip it, so each port of
+the configuration in force whose map differs has that set removed, and, every
+removal done, its own set added: a stream channel one output port gave up and
+another took is free when the taker's set is added (Milan v1.2 5.3.10.1). A
+port the store refuses keeps what the store holds: its reset set where the
+removal is refused, else its reset set added back, or none where that is
+refused too. SET_CONFIGURATION moves no map: maps are a configuration's, and
+every shipped model has one.
+
 `ctrl_app_aecp_attach_face()` hands the face the saved-state store's status
 before AECP opens and on every change, and turns the face block's events into
 the core's notifications. `ctrl_app_open_aecp()` publishes every setting with

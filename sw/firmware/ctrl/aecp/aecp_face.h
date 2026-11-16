@@ -29,8 +29,15 @@
 //             observation, a running check's, reads word 0 alone (#894)
 //   avb       GET_AVB_INFO's words through the GSI window (kind 1)
 //   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
-// Every window read is bounded (mbx_win_read); a read that finds no answer
-// fails its port. random and path are the platform's, forwarded.
+//   edit      an accepted ADD or REMOVE_AUDIO_MAPPINGS, and the restored maps,
+//             into the datapath's map store through interface 0's EDIT window,
+//             the transaction the release's processor ran: begin, validate
+//             each record, begin the commit, commit each record, finish, or
+//             abort; a refusal answers NOT_SUPPORTED (no dynamic map there) or
+//             BAD_ARGUMENTS, no answer ENTITY_MISBEHAVING, the store unchanged
+//             (#923; Milan v1.2 5.4.2.27, 5.4.2.28)
+// Every window read is bounded (mbx_win_read, mbx_win_ask); a read that finds
+// no answer fails its port. random and path are the platform's, forwarded.
 #ifndef CTRL_AECP_FACE_H
 #define CTRL_AECP_FACE_H
 #include "aecp.h"
