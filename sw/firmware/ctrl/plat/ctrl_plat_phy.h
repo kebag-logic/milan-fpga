@@ -50,6 +50,22 @@
 // restarts again; a PHY that never takes a write is restarted at each try.
 // An unacknowledged read writes nothing; the next poll retries.
 //
+// THE OUTCOME. The restart's own write is never read back: its bit clears
+// itself (22.2.4.1.7), so a restart the PHY dropped leaves the negotiation
+// before it in force while 4 and 9 read back. So the restart is verified by
+// what it negotiates: a negotiation complete (BMSR's autonegotiation complete)
+// on a link up that shares no 1000BASE-T mode in 9 and 10 (40.5.1.1), while the
+// advertisement is verified, is that earlier negotiation. Its link is resolved
+// as the release resolves it, from 4 and 5, which share no mode below 1000
+// Mb/s, so it is published down, and the advertisement is owed again with its
+// restart taken whatever the PHY holds, by the next poll, counted
+// (renegotiations). A restart that took drops the link until the negotiation
+// completes, and the check waits for both: a poll that restarted negotiation
+// reads BMSR again after the restart and resolves from that, never from the
+// read before it. So it restarts at most once a poll and never during a
+// negotiation. A forced mode (BMCR's autonegotiation enable clear) is
+// published as the release publishes it.
+//
 // THE PACE. A poll starts CTRL_PLAT_PHY_POLL_US after the last one started,
 // the release's PHY_POLL_NS by its own derivation: half the writer's 250 ms
 // heartbeat (MILAN_NVM_HEARTBEAT_MS, scripts/nvm_shape.py), the service
@@ -173,10 +189,12 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_COMMAND_BITS 14u
 #define CTRL_PLAT_PHY_DATA_BITS 16u
 #define CTRL_PLAT_PHY_FRAME_BITS 64u
-// THE ADVERTISEMENT owed (struct ctrl_plat_phy's adv): owed, and owed by the boot, whose first restart is taken
-// whatever the PHY holds.
+// THE ADVERTISEMENT's state (struct ctrl_plat_phy's adv), 0 once verified: owed; owed with its restart taken
+// whatever the PHY holds (the boot's, as the release's init, and THE OUTCOME's); not the PHY's, a 10/100 PHY never
+// written.
 #define CTRL_PLAT_PHY_ADV_OWED 0x1u
-#define CTRL_PLAT_PHY_ADV_BOOT 0x2u
+#define CTRL_PLAT_PHY_ADV_RENEGOTIATE 0x2u
+#define CTRL_PLAT_PHY_ADV_NONE 0x4u
 #define CTRL_PLAT_PHY_ADDRESSES 32u
 // A half period's least length, as the reciprocal of a time: 1 / 200 ns (the file's head, THE BIT).
 #define CTRL_PLAT_PHY_HALF_HZ 5000000u
@@ -227,8 +245,9 @@ struct ctrl_plat_phy {
 	bool polled;            // a poll has started since the last probe that missed (the release's phy_last_poll)
 	uint8_t stage;          // enum ctrl_plat_phy_stage
 	uint8_t address;
-	uint8_t adv;            // THE ADVERTISEMENT owed: CTRL_PLAT_PHY_ADV_*, 0 when verified or not the PHY's
+	uint8_t adv;            // THE ADVERTISEMENT: 0 verified, else CTRL_PLAT_PHY_ADV_* (owed, or not the PHY's)
 	uint8_t resume;         // the stage the poll takes after the advertisement
+	uint16_t renegotiations;   // THE OUTCOME's restarts owed, saturating
 	uint32_t spin;          // the turns of a half period
 	uint32_t started;       // the clock as the last poll took its first frame, in microseconds
 	uint32_t published;     // the word last published by a poll

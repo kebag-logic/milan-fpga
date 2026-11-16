@@ -130,8 +130,9 @@ PLANTS = {
     'phy-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(phy->bus.link_status, word);\n', '', 'PHY'),
     'phy-loss-not-latched': ('plat/ctrl_plat_phy.c', '\t\t\t\tpublish(phy, 0u);\n', '\t\t\t\tphy->published = 0u;\n',
                              'PHY'),
-    'phy-unadvertised': ('plat/ctrl_plat_phy.c', '\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_BOOT;\n',
-                         '\tphy->adv = 0u;\n', 'PHY'),
+    'phy-unadvertised': ('plat/ctrl_plat_phy.c',
+                         '\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n',
+                         '\tphy->ctx = ctx;\n\tphy->adv = 0u;\n', 'PHY'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),

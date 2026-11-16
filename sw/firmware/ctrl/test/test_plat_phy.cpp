@@ -49,6 +49,13 @@
 //       register 4's writes dropped through a try, at boot and after a loss,
 //       the repair restarts negotiation, so a 100BASE-TX-only partner has no
 //       link once it reads back, and no restart follows
+//   P18 THE OUTCOME: a restart write the PHY lost leaves the earlier
+//       negotiation in force while 4 and 9 read back; a completed negotiation
+//       sharing no 1000BASE-T mode is published down and restarted by the next
+//       poll, counted, one restart a poll until one takes, so a
+//       100BASE-TX-only partner has no link at 100 Mb/s; none while the
+//       negotiation is incomplete, none at 1000BASE-T, none on a PHY the
+//       advertisement is not for
 
 #include <gtest/gtest.h>
 
@@ -653,8 +660,8 @@ TEST_F(PlatPhy, P16AnUnacknowledgedReadWritesNothing) {
 }
 
 // P17's oracle: after a repair, the registers, the verification and the abilities in force (phy_peer.hpp
-// `negotiates`) are the gigabit-only advertisement, a partner of 100BASE-TX full duplex alone has no link, and no
-// restart follows.
+// `negotiates`) are the gigabit-only advertisement, a partner of 100BASE-TX full duplex alone has no link, the
+// repair's own restart did it (THE OUTCOME, P18, never had to), and no restart follows.
 void expect_in_force(PlatPhy& f, const char* arm) {
     EXPECT_EQ(f.peer.regs[4], 0x0001u) << "P17 the repaired advertisement reads back, " << arm;
     EXPECT_EQ(f.phy.adv, 0u) << "P17 the repaired advertisement is verified, " << arm;
@@ -662,6 +669,8 @@ void expect_in_force(PlatPhy& f, const char* arm) {
     EXPECT_EQ(f.peer.active_gctrl & 0x0300u, 0x0200u) << "P17 the active advertisement is 1000BASE-T only, " << arm;
     EXPECT_EQ(f.peer.active_speed, 0u) << "P17 a 100BASE-TX-only partner has no link, " << arm;
     EXPECT_EQ(f.peer.word, 0u) << "P17 a 100BASE-TX-only partner has no link, " << arm;
+    EXPECT_EQ(f.phy.renegotiations, 0u)
+        << "P17 the repair restarts negotiation itself, THE OUTCOME owing none, " << arm;
     const unsigned restarts = f.peer.restarts;
     f.next();
     f.next();
@@ -703,6 +712,123 @@ TEST_F(PlatPhy, P17TheRepairedAdvertisementIsTheOneInForce) {
     peer.ignored = 32u;
     for (unsigned k = 0; k < 10u; ++k) next();
     expect_in_force(*this, "after a loss");
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+// P18's PHY, a fresh one: negotiated on its defaults (10/100 and 1000BASE-T advertised) with a partner of 100BASE-TX
+// full duplex alone, so a 100 Mb/s link is in force before the boot's advertisement.
+void hundred_in_force(PlatPhy& f) {
+    f.peer = phy_peer::Peer{};
+    f.peer.w = kBus.mdio_w;
+    f.peer.r = kBus.mdio_r;
+    f.peer.status = kBus.link_status;
+    f.peer.gigabit(7u);
+    f.peer.negotiates = true;
+    f.peer.regs[5] = 0x0101u;
+    f.peer.regs[10] = 0x0000u;
+    f.peer.negotiate();
+}
+
+// The words published from publication `k` on that are a link up below 1000 Mb/s.
+std::vector<std::uint32_t> below_gigabit(const PlatPhy& f, std::size_t k) {
+    std::vector<std::uint32_t> out;
+    for (const std::uint32_t w : f.words_since(k)) {
+        if ((w & CTRL_PLAT_PHY_LINK_UP) != 0u && (w >> CTRL_PLAT_PHY_SPEED_LSB & 3u) != CTRL_PLAT_PHY_SPEED_1000) {
+            out.push_back(w);
+        }
+    }
+    return out;
+}
+
+// The writes to register 0 from frame `k` on.
+unsigned restart_writes(const PlatPhy& f, std::size_t k) {
+    unsigned n = 0;
+    for (const auto& w : f.writes_since(k)) n += w.reg == 0u ? 1u : 0u;
+    return n;
+}
+
+TEST_F(PlatPhy, P18TheRestartIsVerifiedByItsOutcome) {
+    // the boot's restart write lost once: 4 and 9 read back, and the 100 Mb/s negotiation stays in force
+    hundred_in_force(*this);
+    peer.drop_restarts = 1u;
+    arm_again();
+    (void)poll(now);
+    ASSERT_EQ(peer.restarts, 0u) << "P18 the boot's restart write was lost";
+    ASSERT_TRUE(peer.regs[4] == 0x0001u && peer.regs[9] == 0x0200u) << "P18 4 and 9 read back";
+    ASSERT_EQ(peer.active_speed, 100u) << "P18 the earlier negotiation stays in force";
+    EXPECT_EQ(phy.renegotiations, 1u) << "P18 the outcome's restart is counted";
+    EXPECT_EQ(peer.word, 0u) << "P18 a link below 1000BASE-T is published down";
+    next();
+    EXPECT_EQ(peer.restarts, 1u) << "P18 one extra restart";
+    EXPECT_EQ(peer.active_speed, 0u) << "P18 no link at 100 after recovery";
+    EXPECT_EQ(peer.active_anar & 0x03e0u, 0u) << "P18 no link at 100 after recovery";
+    EXPECT_EQ(phy.adv, 0u) << "P18 the advertisement verified again";
+    for (unsigned k = 0; k < 10u; ++k) next();
+    EXPECT_EQ(peer.restarts, 1u) << "P18 one extra restart";
+    EXPECT_EQ(phy.renegotiations, 1u) << "P18 the outcome's restart is counted";
+    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P18 no link below 1000BASE-T is ever published";
+    // a link that comes up below 1000BASE-T: nothing owed while its negotiation is incomplete (BMSR bit 5), a
+    // restart once it completes
+    peer.link(true);
+    peer.regs[1] &= static_cast<std::uint16_t>(~0x0020u);
+    next();
+    EXPECT_EQ(phy.renegotiations, 1u) << "P18 an incomplete negotiation owes no restart";
+    peer.regs[1] |= 0x0020u;
+    next();
+    EXPECT_EQ(phy.renegotiations, 2u) << "P18 a negotiation completed below 1000BASE-T owes a restart";
+    next();
+    EXPECT_EQ(peer.restarts, 2u) << "P18 a negotiation completed below 1000BASE-T owes a restart";
+    EXPECT_EQ(peer.active_speed, 0u) << "P18 no link at 100 after recovery";
+    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P18 no link below 1000BASE-T is ever published";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(PlatPhy, P18OneRestartAPollUntilOneTakes) {
+    // the restart write lost three times: the outcome restarts once a poll, each counted, until one takes
+    hundred_in_force(*this);
+    peer.drop_restarts = 3u;
+    arm_again();
+    (void)poll(now);
+    EXPECT_EQ(phy.renegotiations, 1u) << "P18 the outcome's restart is counted";
+    for (unsigned k = 2; k <= 4u; ++k) {
+        const std::size_t from = peer.frames.size();
+        next();
+        EXPECT_EQ(restart_writes(*this, from), 1u) << "P18 one restart a poll, paced like the poll, poll " << k;
+        EXPECT_EQ(phy.renegotiations, k < 4u ? k : 3u) << "P18 the outcome's restart is counted, poll " << k;
+    }
+    EXPECT_EQ(peer.restarts, 1u) << "P18 the fourth restart write takes";
+    EXPECT_EQ(peer.active_speed, 0u) << "P18 no link at 100 after recovery";
+    const std::size_t from = peer.frames.size();
+    for (unsigned k = 0; k < 4u; ++k) next();
+    EXPECT_EQ(restart_writes(*this, from), 0u) << "P18 no restart once the negotiation in force is the verified one";
+    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P18 no link below 1000BASE-T is ever published";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(PlatPhy, P18OnlyAMissingGigabitLinkOwesARestart) {
+    // a lost restart write whose earlier negotiation is 1000BASE-T: the link is the advertisement's, nothing owed
+    hundred_in_force(*this);
+    peer.regs[5] = 0x01e1u;
+    peer.regs[10] = 0x0c00u;
+    peer.negotiate();
+    peer.drop_restarts = 1u;
+    arm_again();
+    (void)poll(now);
+    next();
+    EXPECT_EQ(peer.word, kGigFull) << "P18 a negotiation at 1000BASE-T is published";
+    EXPECT_EQ(phy.renegotiations, 0u) << "P18 a negotiation at 1000BASE-T owes no restart";
+    // a PHY the advertisement is not for (1000BASE-T half duplex alone: never written): its 100 Mb/s link is the
+    // release's, and the outcome owes nothing
+    hundred_in_force(*this);
+    peer.regs[15] = 0x1000u;
+    peer.regs[9] = 0x0100u;
+    arm_again();
+    (void)poll(now);
+    next();
+    next();
+    EXPECT_TRUE(writes_since(0).empty()) << "P18 a PHY the advertisement is not for is never written";
+    EXPECT_EQ(peer.word, kFull100) << "P18 a PHY the advertisement is not for keeps the release's link";
+    EXPECT_EQ(phy.renegotiations, 0u) << "P18 a PHY the advertisement is not for owes no restart";
     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
 }
 

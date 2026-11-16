@@ -309,13 +309,20 @@ def phy_mutants(mutant: type) -> tuple:
 ANAR_MASK = "(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)"
 GCTRL_SET = "((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :"
 RESTART_BITS = "| CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &"
-HELD = "(phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)"
+HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n"
+        "\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)")
 #: The repair's restart, as ctrl_plat_phy.c's take() decides it and takes it, and the defect of a restart marked
 #: taken before the read-back verifies, so the repair of a dropped write restarts nothing (#919).
 REPAIR = ("\t\tif (" + HELD + ") {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n\t\t}\n\t\tbreak;\n"
-          "\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_BOOT;\n")
-RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x4u) != 0u || (" + HELD + ")) {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n"
-                   "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x4u;\n")
+          "\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n")
+RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x8u) != 0u || (" + HELD + ")) {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n"
+                   "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x8u;\n")
+#: THE OUTCOME's judgement (#919): a completed negotiation sharing no 1000BASE-T mode, the advertisement verified.
+OUTCOME = "if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {"
+OUTCOME_OWED = ("\t\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
+                "\t\t\t\tif (phy->renegotiations")
+P18 = "PlatPhy.P18TheRestartIsVerifiedByItsOutcome"
+P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one restart a poll, paced like the poll")
 READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
 P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
 P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
@@ -323,7 +330,8 @@ P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
 
 def advertisement_mutants(mutant: type) -> tuple:
     """THE ADVERTISEMENT's: the release's PHY init's writes, each property its own defect, and the split's rules,
-    written and verified at boot and after every link loss, its restart once a time it is owed."""
+    written and verified at boot and after every link loss, restarted after every repair, and its restart verified by
+    the negotiation's outcome."""
     m = mutant
     return (
         # #840's named defect: 100BASE-TX left advertised
@@ -347,15 +355,18 @@ def advertisement_mutants(mutant: type) -> tuple:
           "platboot1", P11, "P11 autonegotiation restarted"),
         m("plat-phy-reset-kept", PHY, "~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)",
           "~CTRL_PLAT_PHY_BMCR_ISOLATE", "platboot1", P11, "P11 reset cleared"),
-        m("plat-phy-boot-restart-dropped", PHY, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_BOOT;\n",
-          "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
+        m("plat-phy-boot-restart-dropped", PHY,
+          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n",
+          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
           "P11 the boot restarts negotiation whatever the PHY holds"),
         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
           "PlatPhy.P6FramesAreClause22Reads", P6),
         # a 10/100 PHY written
-        m("plat-phy-mii-written", PHY, "\t\tif ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {\n\t\t\tphy->adv = 0u;\n",
-          "\t\tif (false) {\n\t\t\tphy->adv = 0u;\n", "platboot1", "PlatPhy.P12A10100PhyIsNeverWritten",
+        m("plat-phy-mii-written", PHY,
+          "\t\tif ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {\n\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_NONE;\n",
+          "\t\tif (false) {\n\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_NONE;\n", "platboot1",
+          "PlatPhy.P12A10100PhyIsNeverWritten",
           "P12 a PHY without BMSR's extended capability is never written"),
         m("plat-phy-10-100-written", PHY, "if (v >= 0 && (u & CTRL_PLAT_PHY_ESTAT_1000T_FULL) == 0u) {",
           "if (v >= 0 && false) {", "platboot1", "PlatPhy.P12A10100PhyIsNeverWritten",
@@ -365,7 +376,8 @@ def advertisement_mutants(mutant: type) -> tuple:
           "PlatPhy.P13ALossWritesAndVerifiesItAgain", "P13 after a link loss the advertisement is written again"),
         m("plat-phy-restart-every-loss", PHY, HELD, "false", "platboot1", "PlatPhy.P13ALossWritesAndVerifiesItAgain",
           "P13 a loss with the advertisement held restarts nothing"),
-        m("plat-phy-reset-phy-not-restarted", PHY, HELD, "(phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u", "platboot1",
+        m("plat-phy-reset-phy-not-restarted", PHY, HELD, "(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u",
+          "platboot1",
           "PlatPhy.P14AResetPhyIsAdvertisedAgain", "P14 a PHY that lost the advertisement is written and restarted"),
         # a PHY that lost one register alone behind a loss, its decision reading that register as held
         m("plat-phy-lost-local-not-restarted", PHY, HELD, HELD.replace("(uint32_t)phy->local,", "0u,"), "platboot1",
@@ -377,7 +389,7 @@ def advertisement_mutants(mutant: type) -> tuple:
           "P14 a PHY that lost the advertisement is written and restarted once, register 9 alone"),
         # the restart marked taken before verification, so a repair is never negotiated
         m("plat-phy-restarted-before-verified", PHY, REPAIR, RESTARTED_EARLY, "platboot1",
-          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the active advertisement is 1000BASE-T only",
+          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the repair restarts negotiation itself",
           also=(("platboot1", "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
                  "P15 and negotiation restarts after every repaired write"),)),
         m("plat-phy-advertisement-unverified", PHY,
@@ -386,5 +398,20 @@ def advertisement_mutants(mutant: type) -> tuple:
           "P15 an advertisement that does not read back is written again each poll"),
         m("plat-phy-written-before-read", PHY, "if (phy->local < 0 || phy->gig < 0 || v < 0) {", "if (false) {",
           "platboot1", "PlatPhy.P16AnUnacknowledgedReadWritesNothing", "P16 no write before its read"),
+        # THE OUTCOME: a restart the PHY lost, seen by what it negotiates
+        m("plat-phy-outcome-unchecked", PHY, OUTCOME, "if (false) {", "platboot1", P18,
+          "P18 no link at 100 after recovery", also=(P18_PACED,)),
+        m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
+          OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
+          also=(P18_PACED,)),
+        m("plat-phy-outcome-uncounted", PHY, "\t\t\t\t\t++phy->renegotiations;\n", "", "platboot1", P18,
+          "P18 the outcome's restart is counted"),
+        m("plat-phy-outcome-at-gigabit", PHY, OUTCOME, "if (phy->adv == 0u) {", "platboot1",
+          "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a negotiation at 1000BASE-T owes no restart"),
+        m("plat-phy-resolved-before-restart", PHY, "\t\tphy->resume = CTRL_PLAT_PHY_CURRENT;\n", "", "platboot1",
+          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the repair restarts negotiation itself"),
+        m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
+          OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
+          "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
     )
 

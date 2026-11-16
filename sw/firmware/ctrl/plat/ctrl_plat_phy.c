@@ -35,7 +35,7 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 	phy->bus = *bus;
 	phy->clock = clock;
 	phy->ctx = ctx;
-	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_BOOT;
+	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
 	// THE BIT: CYCLES_HALF turns, or one where a timed run of more than TIMED_ONE us (at least TIMED_ONE, less the
 	// clock's resolution) shows a turn alone holds 200 ns
 	phy->spin = CYCLES_HALF;
@@ -202,9 +202,9 @@ static void take(struct ctrl_plat_phy *phy)
 	case CTRL_PLAT_PHY_ADV_ABILITY:
 		// no 1000BASE-T full duplex ability: a 10/100 PHY, never written; unacknowledged: the next poll retries
 		if (v >= 0 && (u & CTRL_PLAT_PHY_ESTAT_1000T_FULL) == 0u) {
-			phy->adv = 0u;
+			phy->adv = CTRL_PLAT_PHY_ADV_NONE;
 		}
-		if (v < 0 || phy->adv == 0u) {
+		if (v < 0 || phy->adv == CTRL_PLAT_PHY_ADV_NONE) {
 			next = phy->resume;
 		}
 		break;
@@ -222,14 +222,19 @@ static void take(struct ctrl_plat_phy *phy)
 		break;
 	case CTRL_PLAT_PHY_ADV_SET_LOCAL:
 		// negotiation restarts after every write that repaired the advertisement, so the abilities in force are the
-		// ones written (28.2.4.1.3), and at boot whatever the PHY held (the release's init); a PHY that still held it
-		// is written and not restarted, so a restart's own latched loss never restarts again
-		if ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)) {
+		// ones written (28.2.4.1.3), and whatever the PHY held at boot (the release's init) and after THE OUTCOME
+		// found the negotiation in force not the verified one; a PHY that still held it is written and not
+		// restarted, so a restart's own latched loss never restarts again
+		if ((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&
+		    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)) {
 			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
 		}
 		break;
 	case CTRL_PLAT_PHY_ADV_RESTART:
-		phy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_BOOT;
+		phy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+		// the poll resolves from a BMSR read after the restart, which drops the link it renegotiates, never from the
+		// one before it (THE OUTCOME judges what the restart negotiated)
+		phy->resume = CTRL_PLAT_PHY_CURRENT;
 		break;
 	case CTRL_PLAT_PHY_ADV_CHECK_GIG:
 		// verified: the read-back holds the advertisement; else it stays owed
@@ -247,6 +252,14 @@ static void take(struct ctrl_plat_phy *phy)
 			       CTRL_PLAT_PHY_LOCAL;
 			status = next != CTRL_PLAT_PHY_IDLE ? 0u :
 				 up(CTRL_PLAT_PHY_SPEED_1000, common & CTRL_PLAT_PHY_G_1000_FULL);
+			// THE OUTCOME: no 1000BASE-T mode negotiated, the advertisement verified, is the negotiation before
+			// a restart the PHY dropped: negotiated again by the next poll, counted
+			if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {
+				phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+				if (phy->renegotiations != 0xffffu) {
+					++phy->renegotiations;
+				}
+			}
 		}
 		break;
 	}
@@ -257,9 +270,9 @@ static void take(struct ctrl_plat_phy *phy)
 	}
 	// THE ADVERTISEMENT where it is owed, after the poll's first BMSR read (a PHY without BMSR's extended capability
 	// is a 10/100 PHY, never written), then the stage that read chose
-	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u) {
+	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u) {
 		if ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {
-			phy->adv = 0u;
+			phy->adv = CTRL_PLAT_PHY_ADV_NONE;
 		} else {
 			phy->resume = (uint8_t)next;
 			next = CTRL_PLAT_PHY_ADV_ABILITY;

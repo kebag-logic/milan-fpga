@@ -19,7 +19,11 @@
 // restart latches registers 4 and 9 as the abilities in force (28.2.4.1.3),
 // apart from the registers a later write changes, and the link is the highest
 // mode they share with the partner's (registers 5 and 10): `active_speed`,
-// 0 when none, its link status following. BMSR's link status
+// 0 when none, its link status following, negotiation complete. The next
+// `drop_restarts` writes that restart negotiation are lost whole, as a write
+// lost on the wire: register 0, the restart count, the abilities in force and
+// the link stay the last negotiation's (22.2.4.1.7: the restart bit clears
+// itself, so no read-back tells the two apart). BMSR's link status
 // latches low (22.2.4.2.13): a loss the test latches reads as link down once,
 // at the PHY's own address. Every frame and every publication is recorded with
 // the bus access it ended at, and the first violation of the frame is kept as
@@ -57,6 +61,7 @@ struct Peer {
     bool acknowledge = true;
     unsigned nak = 32;
     unsigned ignored = 32;                     // a register whose writes it drops (32: none)
+    unsigned drop_restarts = 0;                // the restart writes it loses next, whole
     bool restart_drops = false;
     unsigned restarts = 0;
     bool negotiates = false;                   // a restart latches the abilities in force and sets the link
@@ -151,6 +156,10 @@ private:
         const unsigned reg = command & 31u;
         if (((command >> 5) & 31u) != address || reg == ignored) return;
         std::uint16_t value = static_cast<std::uint16_t>(data);
+        if (reg == 0u && (value & 0x0200u) != 0u && drop_restarts != 0u) {
+            --drop_restarts;
+            return;
+        }
         if (reg == 0u) regs[0] = static_cast<std::uint16_t>(value & ~0x8200u);
         else regs[reg] = value;
         if (reg == 0u && (value & 0x0200u) != 0u) {
@@ -161,8 +170,8 @@ private:
     }
 
 public:
-    // A negotiation on the registers as they are now: registers 4 and 9 latched as the abilities in force, and the
-    // link the highest mode they share with the partner's, or none.
+    // A negotiation on the registers as they are now: registers 4 and 9 latched as the abilities in force, the link
+    // the highest mode they share with the partner's, or none, and BMSR's autonegotiation complete.
     void negotiate() {
         active_anar = regs[4];
         active_gctrl = regs[9];
@@ -170,6 +179,7 @@ public:
         const unsigned common = active_anar & regs[5] & 0x03e0u;
         active_speed = gig != 0u ? 1000u : (common & 0x0380u) != 0u ? 100u : common != 0u ? 10u : 0u;
         link(active_speed != 0u);
+        regs[1] |= 0x0020u;
     }
 };
 
