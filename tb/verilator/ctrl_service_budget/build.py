@@ -113,17 +113,16 @@ MUTATIONS = {
     # flight's next save takes idle steps before its capture starts.
     'store-next-save-waits': ('ctrl_nvm/nvm_store.c', '\t\tnvm.next_now = 1;', '\t\tnvm.next_now = 0;',
                               'save-flight', 'none'),
-    # #920's planted join: a change behind the running capture's cursor is left out of it with no window, so the
-    # burst's names marked during its capture are never durable.
-    'store-join-dropped': ('ctrl_nvm/nvm_store.c', '\t\tif (nvm_joined_behind()) {',
-                           '\t\tif (0 && nvm_joined_behind()) {', 'save-burst', 'none'),
+    # #920's join, a change behind the running capture's cursor that no capture holds walking it again, has no plant
+    # here: left out, that change is the next save's, which starts at the first idle step, and the burst is still
+    # durable within 5 s at both points (7 saves where the join makes 6 at 8x8/1if). The store's units hold the join
+    # (test_nvm_write.cpp, capture_joins).
     **poll_items.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
 #: The controls whose finding is a save not durable within its stated worst case, by its group's name.
-SAVE_CONTROLS = ('store-step-ageless', 'store-names-past-256-lost', 'store-step-only-owed', 'store-next-save-waits',
-                 'store-join-dropped')
+SAVE_CONTROLS = ('store-step-ageless', 'store-names-past-256-lost', 'store-step-only-owed', 'store-next-save-waits')
 #: The controls whose finding is a row of an aged window over its budget, with no refusal.
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
