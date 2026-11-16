@@ -244,9 +244,10 @@ class Ledgered:
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
 #: 59.5, its entry at 59.0, the cap #894's ruling of 2026-11-13 raises the owner's 58.5 to for the composed image,
-#: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
-#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
-#: ledgered the size fixture's at its cap. The
+#: and the platform's at 61.5, its entry at 61.0: 60.5, the owner's decision's cap of 2026-11-12 (#665), which #895's
+#: ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of
+#: 2026-11-12 ledgered the size fixture's at its cap, then 61.0 by the owner's decision of 2026-11-15 (#665: an image
+#: past its entry raises it to its measured size, at the next half tile, as debt owed to S14). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
@@ -263,7 +264,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
                                          "declarations plan within it (#895)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_248)), 61.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -274,7 +275,9 @@ LEDGERED: dict[str, Ledgered] = {
                                             "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
                                             "owed to the hybrid XIP work, the cap fully used; ctrl_plat 64 B more "
                                             "with each binding's latest Talker kind (#925), "
-                                            "within the same 60.5"),
+                                            "within the same 60.5; 61.0, ctrl_plat 832 B more with the StreamIDs "
+                                            "held with their latest Talker kind (#925), its sram a 57th granule, by "
+                                            "the owner's decision of 2026-11-15: debt owed to S14"),
 }
 
 

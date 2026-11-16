@@ -135,7 +135,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,248 B | 61.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -145,6 +145,7 @@ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tie
 The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
 SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
 Each binding's latest Talker kind (#925, `srp_mbx.h`'s `latest_kind`) adds 64 B at 8x8 with two interfaces, 20,416 B, its `sram` 114,288 B and its plan still 60.5 RAMB36, and none at the other three, where it takes the padding (`plat_ledger.py` at #925's head: 17,536, 19,072, 18,240 and 20,416 B; `rom` 88 B more at 1x1 and 32 B more at 8x8, the 8x8 one-interface image's plan still 56.0).
+The StreamIDs held with their latest Talker kind (#925, `srp_mbx.h`'s `srp_held`: half the SRP pool's medium and large blocks, 16, 32, 40 and 81 entries of 10 B) add 192, 320, 384 and 832 B: 17,728, 19,392, 18,624 and 21,248 B. At 8x8 with two interfaces the image's `sram` is then 115,120 B, 432 B past 56 granules, so it plans 61.0 RAMB36, and its entry is 61.0 by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745): an image past its entry raises it to its measured size, at the next half tile, as debt owed to S14. With the receive filter's hold of a changed declaration, `rom` is 552 B more at 1x1 and 520 B more at 8x8 (`plat_ledger.py` at #925's round-3 head: 118,128, 119,712, 130,752 and 132,304 B); the other three points plan 43.0, 44.0 and 56.0 as before, the 8x8 one-interface image with 320 B of `rom` before its next granule.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -268,12 +269,12 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
 **The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
 The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
 
-- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: a debt of 4.5 RAMB36, the cap fully used;
+- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: a debt of 4.5 RAMB36, the cap fully used; and since the StreamIDs #925 holds, 61.0, the half tile past its entry that the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) raises it to, its `sram` a 57th granule: a debt of 5.0 RAMB36;
 - the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
 - every other point, including every 1x1/1if point, stays at or under 56.
 
 S14 is the first lane after the flip.
-`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+`ctrl_memory.LEDGERED` holds the platform's entry at 61.0 since the StreamIDs #925 holds (the owner's decision of 2026-11-15), 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), before it, 60.0 before that, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
