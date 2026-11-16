@@ -27,7 +27,10 @@
 
 module cdc_pair_fifo #(
   parameter int WIDTH = 48,   //! payload width (a stereo 24-bit pair)
-  parameter int LOG2D = 4     //! depth = 2^LOG2D entries
+  parameter int LOG2D = 4,    //! depth = 2^LOG2D entries
+  //! 1: the storage is distributed RAM, whatever its width; 0: the tool's
+  //! choice (the storage block below says why a FIFO takes it, #927)
+  parameter int DIST_RAM_P = 0
 )(
   input  wire              wclk_i,    //! write clock (producer domain)
   input  wire              wrst_n,    //! write-side sync reset (active low)
@@ -43,8 +46,6 @@ module cdc_pair_fifo #(
 );
 
   localparam int PW = LOG2D + 1;      //! pointer width (wrap bit)
-
-  logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];
 
   //! binary + gray pointers, each owned by its side
   logic [PW-1:0] wptr_bin_r, wptr_gray_r;
@@ -70,8 +71,6 @@ module cdc_pair_fifo #(
       wfull_o     <= 1'b0;
     end
     else begin
-      if (wen_i && !wfull_o)
-        mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;
       wptr_bin_r  <= wptr_bin_n;
       wptr_gray_r <= wptr_gray_n;
       {rgray_w2_r, rgray_w1_r} <= {rgray_w1_r, rptr_gray_r};
@@ -92,17 +91,43 @@ module cdc_pair_fifo #(
       wgray_r1_r  <= '0;
       wgray_r2_r  <= '0;
       rempty_o    <= 1'b1;
-      rdata_o     <= '0;
     end
     else begin
-      if (ren_i && !rempty_o)
-        rdata_o <= mem_r[rptr_bin_r[LOG2D-1:0]];
       rptr_bin_r  <= rptr_bin_n;
       rptr_gray_r <= rptr_gray_n;
       {wgray_r2_r, wgray_r1_r} <= {wgray_r1_r, wptr_gray_r};
       rempty_o <= (rptr_gray_n == wgray_r2_r);
     end
   end : rd_side
+
+  // ---- the storage: written on the write side, read into rdata_o --------
+  // The two branches differ only in the mapping attribute. A block RAM's
+  // write-data hold requirement leaves a register written straight into it
+  // about +0.014 ns of hold at the fast corner, so a wide, shallow FIFO fed
+  // from registers takes distributed RAM (DIST_RAM_P = 1, #927).
+  if (DIST_RAM_P != 0) begin : g_mem
+    (* ram_style = "distributed" *) logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];
+    always_ff @(posedge wclk_i) begin : mem_wr
+      if (wrst_n && wen_i && !wfull_o)
+        mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;
+    end : mem_wr
+    always_ff @(posedge rclk_i) begin : mem_rd
+      if (!rrst_n) rdata_o <= '0;
+      else if (ren_i && !rempty_o)
+        rdata_o <= mem_r[rptr_bin_r[LOG2D-1:0]];
+    end : mem_rd
+  end else begin : g_mem
+    logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];
+    always_ff @(posedge wclk_i) begin : mem_wr
+      if (wrst_n && wen_i && !wfull_o)
+        mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;
+    end : mem_wr
+    always_ff @(posedge rclk_i) begin : mem_rd
+      if (!rrst_n) rdata_o <= '0;
+      else if (ren_i && !rempty_o)
+        rdata_o <= mem_r[rptr_bin_r[LOG2D-1:0]];
+    end : mem_rd
+  end
 
 endmodule
 

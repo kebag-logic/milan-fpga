@@ -95,6 +95,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RENDER_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv"
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+FIFO_RTL = HERE / "../../../hdl/common/cdc_pair_fifo.sv"
 SHAPE_SVH = (HERE / "../../../configs/generated/endstation_ax7101_1x1_tdm8"
              / "gen/adp_shape_defaults.svh")
 sys.path.insert(0, str(HERE / "../../../scripts"))
@@ -113,12 +114,13 @@ LEGS = {
               HERE / "obj_tdm8rm/Vmilan_dp_tdm8rm"),
 }
 
-#: the three things a mutant may plant into: (path, the Makefile override).
+#: the four things a mutant may plant into: (path, the Makefile override).
 #: `shape` is a whole DIRECTORY the recipe points +incdir at, because a
 #: generated projection table is selected by include path and not by file.
 SOURCES = {
     "render": (RENDER_RTL, "TDMRM_SRC"),
     "datapath": (DP_RTL, "DP_SRC"),
+    "fifo": (FIFO_RTL, "PAIRFIFO_SRC"),
     "shape": (SHAPE_SVH, "TDM8R_SHAPE"),
 }
 
@@ -138,6 +140,16 @@ LAW_PRESENTED = tuple(f"T30 INTERNAL LAW +{p} PRESENTATION: every event's slot-M
                       "inside +/-5 % of Ps" for p in LAW_PHASES)
 #: the render out-lead, as milan_datapath derives it
 LEAD_LINE = "      64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P));"
+#: cdc_pair_fifo's distributed storage, the branch only the render takes (#927)
+FIFO_DIST_READ = ("    (* ram_style = \"distributed\" *) logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];\n"
+                  "    always_ff @(posedge wclk_i) begin : mem_wr\n"
+                  "      if (wrst_n && wen_i && !wfull_o)\n"
+                  "        mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;\n"
+                  "    end : mem_wr\n"
+                  "    always_ff @(posedge rclk_i) begin : mem_rd\n"
+                  "      if (!rrst_n) rdata_o <= '0;\n"
+                  "      else if (ren_i && !rempty_o)\n"
+                  "        rdata_o <= mem_r[rptr_bin_r[LOG2D-1:0]];")
 
 #: (name, source, [(pattern, replacement), ...], leg, mode, the check it must
 #: break). A mutation is a list of edits because some defects are not
@@ -282,6 +294,18 @@ MUTATIONS = [
      "ship", "--epoch-only",
      "T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media "
      "event's identity"),
+    # #927: the render's crossing keeps its frames in distributed RAM
+    # (cdc_pair_fifo DIST_RAM_P). The prefetch drains it before the next frame
+    # is written, so the two pointers are equal at every write and a write
+    # placed at the read pointer changes nothing; that branch's storage READ at
+    # the write pointer hands the serializer the whole frame written three
+    # ticks before, so every event reaches the pins three frames late
+    ("the render FIFO's distributed storage read at the write pointer", "fifo",
+     [(FIFO_DIST_READ, FIFO_DIST_READ.replace("rdata_o <= mem_r[rptr_bin_r", "rdata_o <= mem_r[wptr_bin_r"))],
+     "ship", "--serial-only",
+     ("T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps",
+      "T6 PRESENTATION: every event's slot-MSB pin instant, less its slot "
+      "offset, is its presentation time inside +/-5 % of Ps")),
     # #632: the render out-lead one frame long: every read takes the frame
     # after the one its interface presents, so the feed's first event and
     # every later one reach the pins a frame early

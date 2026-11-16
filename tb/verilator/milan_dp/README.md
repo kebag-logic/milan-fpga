@@ -1133,6 +1133,7 @@ contract's registers or a datapath net its consumers read:
 | `[PUB]` | each publication field reaches its class-D consumer, the Talker declaration as ADVERTISE (the encoding GET_STREAM_INFO tells from FAILED); a sink's stream_id only once `SID_VALID` is set; `STARTED` moves alone |
 | `[FACE]` | a setting reaches the datapath only at its commit; the commit is acknowledged within `MBX_FACE_ACK_CYCLES` |
 | `[WIN]` | `CTR`, `AMAP` and `GSI` close `DONE` under their own tag; one request answered twice gives one non-empty word |
+| `[EDIT]` | the `EDIT` window on STREAM_PORT_OUTPUT 0 (#927), every beat closing `DONE` under its own tag. Phase 4 beat after beat, its records' cluster offsets alternating between one past the port's clusters (refused) and a mapping the live map holds (accepted): each verdict is its own record's. A REMOVE and an ADD through phases 0, 4, 1, 5 and 2 move channel 1 from cluster 1 to cluster 2, the live map then holding cluster 2's capture-source word, and two more put it back |
 | `[RX]` | an ADP frame reaches the adp ring whole; an AAF frame never reaches the mailbox; the datapath's drop count (`pp_rx_drops_w`, `PP_DIAG[15:8]`) reads 0, and a burst at the MAC past its tap's FIFO is counted there, each frame handed out or counted lost |
 | `[TX]` | a frame committed to the adp ring leaves the MAC byte for byte |
 | `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
@@ -1158,14 +1159,17 @@ starts long before the link.
 python3 tb/verilator/milan_dp/split_parallel.py --selftest
 ```
 
-`make split-mutants` runs `split_mutants.py`. It plants twenty-six defects
+`make split-mutants` runs `split_mutants.py`. It plants twenty-nine defects
 into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
 `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
 check it names, after a clean control passes. Eleven of them hold the Talker
 declaration's encoding, the tap's tuples and its drop count, and the
 datapath's own count wired to `PP_DIAG[15:8]`. Two hold the licence's path to
 the stream gate: the licence on the next source's ACTIVE term, and the CRF
-source's licence term on source 0's gate (#867).
+source's licence term on source 0's gate (#867). Three hold the `EDIT`
+record's capture-source word, which the split registers (#927): the window
+raising req in the clock its fields load, the word registered a clock late,
+and the word encoded from the record's stream channel.
 
 `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
 the primitives as blackboxes. Every flop's inputs, every output and every
@@ -1182,8 +1186,8 @@ acknowledgement is its own behaviour, held by the `[FACE]` checks. It needs
 the pinned sv2v and Yosys, so it is not a default case.
 `rtl-fast`'s `split-cdc` job runs it, in a job of its own.
 
-Not held here: the `EDIT` window, the counter-change and face events, the GM
-event, and the firmware itself. The two-placement simulation below runs the
+Not held here: the counter-change and face events, the GM event, and the
+firmware itself. The two-placement simulation below runs the
 firmware.
 
 `tb_split_top` brings the datapath's CSR window (its AXI4-Lite port) out for

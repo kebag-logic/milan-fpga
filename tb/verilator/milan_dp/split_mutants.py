@@ -80,6 +80,22 @@ ARMS = (
      "          end else if (!d_wait_i) begin",
      "          end else begin",
      "[WIN] ...and that word is not the empty one"),
+    # #927: the split registers the EDIT record's capture-source word, which is
+    # sound only while the window holds the fields a clock before req rises
+    ("a request raised in the clock its fields load", CDCW,
+     "        IDLE_S: if (in_p_w) st_r <= PRE_S;",
+     "        IDLE_S: if (in_p_w) st_r <= REQ_S;",
+     "[EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted"),
+    ("the record's word registered a clock late", DP,
+     "    assign amap_edit_out_enc_w = enc_r;",
+     "    logic [13:0] enc_q_r;\n"
+     "    always_ff @(posedge axis_clk) enc_q_r <= enc_r;\n"
+     "    assign amap_edit_out_enc_w = enc_q_r;",
+     "[EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted"),
+    ("the record's word encoded from its stream channel", DP,
+     "      else              enc_r <= amap_edit_out_encode(amap_edit_co_w,",
+     "      else              enc_r <= amap_edit_out_encode(amap_edit_sc_w,",
+     "[EDIT] the ADD writes cluster 2's word into channel 1"),
     ("a tap that hands out the media subtypes", CTLS,
      "  assign accept_w = ((etype_w == ET_1722_C)\n"
      "                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
