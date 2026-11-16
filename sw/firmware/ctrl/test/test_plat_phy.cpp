@@ -38,8 +38,9 @@
 //   P13 after every link loss the advertisement is written and read back
 //       again, with no restart where the PHY still held it, so a restart's
 //       own latched loss restarts nothing
-//   P14 a PHY that lost the advertisement (reset to its defaults) is written
-//       and restarted once after the loss
+//   P14 a PHY that lost the advertisement behind a loss, both registers
+//       reset to their defaults, register 4 alone or register 9 alone, is
+//       written and restarted once
 //   P15 an advertisement that does not read back stays owed, written again
 //       and negotiation restarted each poll, until it reads back
 //   P16 a read the advertisement needs unacknowledged writes nothing; the
@@ -548,21 +549,38 @@ TEST_F(PlatPhy, P13ALossWritesAndVerifiesItAgain) {
 
 TEST_F(PlatPhy, P14AResetPhyIsAdvertisedAgain) {
     found();
-    // the PHY reset to its defaults behind a loss: 10/100 and 1000BASE-T half duplex advertised again
-    peer.regs[4] = 0x01e1u;
-    peer.regs[9] = 0x0300u;
-    peer.latched_down = true;
-    const std::size_t from = peer.frames.size();
-    next();
-    const auto w = writes_since(from);
-    ASSERT_EQ(w.size(), 3u) << "P14 a PHY that lost the advertisement is written and restarted once";
-    EXPECT_EQ(w[2].reg, 0u) << "P14 a PHY that lost the advertisement is written and restarted once";
-    EXPECT_EQ(peer.restarts, 2u) << "P14 a PHY that lost the advertisement is written and restarted once";
-    EXPECT_EQ(peer.regs[4], 0x0001u) << "P14 the advertisement written again";
-    EXPECT_EQ(peer.regs[9], 0x0200u) << "P14 the advertisement written again";
-    const std::size_t later = peer.frames.size();
-    next();
-    EXPECT_TRUE(writes_since(later).empty()) << "P14 verified, the next poll writes nothing";
+    EXPECT_EQ(peer.restarts, 1u) << "P14 the boot restarts negotiation once";
+    // behind a loss, the PHY reset to its defaults (10/100 and 1000BASE-T half duplex advertised again), then one
+    // that lost register 4 alone, then one that lost register 9 alone: each is written and restarted once
+    struct Lost {
+        const char* what;
+        bool local;
+        bool gig;
+    };
+    for (const Lost lost : {Lost{"both registers", true, true}, Lost{"register 4 alone", true, false},
+                            Lost{"register 9 alone", false, true}}) {
+        if (lost.local) peer.regs[4] = 0x01e1u;
+        if (lost.gig) peer.regs[9] = 0x0300u;
+        peer.latched_down = true;
+        const std::size_t from = peer.frames.size();
+        const unsigned restarts = peer.restarts;
+        next();
+        const auto w = writes_since(from);
+        ASSERT_EQ(w.size(), 3u) << "P14 a PHY that lost the advertisement is written and restarted once, "
+                                << lost.what;
+        EXPECT_EQ(w[2].reg, 0u) << "P14 a PHY that lost the advertisement is written and restarted once, "
+                                << lost.what;
+        EXPECT_EQ(peer.restarts, restarts + 1u)
+            << "P14 a PHY that lost the advertisement is written and restarted once, " << lost.what;
+        EXPECT_EQ(peer.regs[4], 0x0001u) << "P14 the advertisement written again, " << lost.what;
+        EXPECT_EQ(peer.regs[9], 0x0200u) << "P14 the advertisement written again, " << lost.what;
+        EXPECT_EQ(peer.word, kGigFull) << "P14 the link's return is published in the same poll, " << lost.what;
+        const std::size_t later = peer.frames.size();
+        next();
+        EXPECT_TRUE(writes_since(later).empty()) << "P14 verified, the next poll writes nothing, " << lost.what;
+        EXPECT_EQ(peer.restarts, restarts + 1u) << "P14 verified, the next poll restarts nothing, " << lost.what;
+    }
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
 }
 
 TEST_F(PlatPhy, P15AnUnverifiedAdvertisementStaysOwed) {

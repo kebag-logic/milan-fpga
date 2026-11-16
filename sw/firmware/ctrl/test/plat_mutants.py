@@ -367,6 +367,14 @@ def advertisement_mutants(mutant: type) -> tuple:
           "P13 a loss with the advertisement held restarts nothing"),
         m("plat-phy-reset-phy-not-restarted", PHY, HELD, "(phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u", "platboot1",
           "PlatPhy.P14AResetPhyIsAdvertisedAgain", "P14 a PHY that lost the advertisement is written and restarted"),
+        # a PHY that lost one register alone behind a loss, its decision reading that register as held
+        m("plat-phy-lost-local-not-restarted", PHY, HELD, HELD.replace("(uint32_t)phy->local,", "0u,"), "platboot1",
+          "PlatPhy.P14AResetPhyIsAdvertisedAgain",
+          "P14 a PHY that lost the advertisement is written and restarted once, register 4 alone"),
+        m("plat-phy-lost-gig-not-restarted", PHY, HELD,
+          HELD.replace("(uint32_t)phy->gig)", "CTRL_PLAT_PHY_GCTRL_1000_FULL)"), "platboot1",
+          "PlatPhy.P14AResetPhyIsAdvertisedAgain",
+          "P14 a PHY that lost the advertisement is written and restarted once, register 9 alone"),
         # the restart marked taken before verification, so a repair is never negotiated
         m("plat-phy-restarted-before-verified", PHY, REPAIR, RESTARTED_EARLY, "platboot1",
           "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the active advertisement is 1000BASE-T only",
