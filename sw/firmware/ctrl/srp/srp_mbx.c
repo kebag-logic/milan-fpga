@@ -189,6 +189,17 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
     }
 }
 
+// The Listener declaration a binding's registered Talkers ask for: Ready (2) for an Advertise, AskingFailed (1) for a
+// Failed (IEEE 802.1Q-2018 35.2.2.7.2), each the bit of its kind. A talker declares one of the two for a stream
+// (35.2.4), and a registration of the other kind replaces the one held (35.2.6). lwSRP withdraws the old one for a
+// received JoinIn or JoinMt but registers a New beside it, so while both are registered the latest decides, and the
+// other once the latest leaves (#925). A binding that saw neither one's indication, bound after both, takes Failed.
+static uint8_t listener_kind(const struct srp_sink *s)
+{
+    const uint8_t kinds = (s->registered_kinds & s->latest_kind) != 0u ? s->latest_kind : s->registered_kinds;
+    return (kinds & 1u) != 0u ? 1u : kinds;
+}
+
 // Indications copy registration changes only. The filter below closes the
 // preceding complete wire event, after both halves of an atomic replacement.
 static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv *v,
@@ -199,6 +210,9 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
         struct srp_sink *s = &i->sinks[k];
         if (s->bound && same(s->stream_id.bytes,v->stream_id.bytes,8)) {
             s->registered_kinds &= (uint8_t)~kind;
+            // every binding of the StreamID holds its latest registration, whatever its destination and VID, so a
+            // binding made later can take it from any of them (#925, srp_mbx_bind)
+            s->latest_kind = registered ? kind : s->latest_kind;
             if (registered && same(s->dest_mac,v->dest_mac,6) && s->vid == v->vlan_id) {
                 s->registered_kinds |= kind;
             }
@@ -350,7 +364,7 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         struct srp_sink *s = &i->sinks[k];
         uint8_t previous = s->desired;
-        s->desired = (s->registered_kinds & 1u) ? 1u : (s->registered_kinds & 2u);
+        s->desired = listener_kind(s);
         capture(s,previous);
     }
     if (type == MSRP_ATTR_TYPE_DOMAIN) {
@@ -606,6 +620,8 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
             }
             if (memcmp(r->stream_id.bytes,identity->bytes,8) == 0) {
                 replacement.declared |= r->declared;
+                // the StreamID's latest Talker registration, which every binding of it holds (#925, talker_changed)
+                replacement.latest_kind = r->latest_kind;
             }
             if (r->vid == vid) {
                 replacement.vlan_requested |= r->vlan_requested;
@@ -848,15 +864,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
             struct srp_sink *sink = &i->sinks[n];
             if (sink->bound && same(sink->stream_id.bytes,v->stream_id.bytes,8) &&
                 same(sink->dest_mac,v->dest_mac,6) && sink->vid == v->vlan_id) {
-                if (status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
-                    sink->desired = 1;
-                    sink->registered_kinds |= 1u;
-                } else {
-                    sink->registered_kinds |= 2u;
-                    if (sink->desired != 1) {
-                        sink->desired = 2;
-                    }
-                }
+                // the declaration follows from both kinds once the walk ends (snapshot, listener_kind)
+                sink->registered_kinds |= status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u;
             }
         }
     }
@@ -889,11 +898,11 @@ static void snapshot(struct srp_interface *i)
     memset(i->listener_present,0,sizeof(i->listener_present));
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         previous[k] = i->sinks[k].desired;
-        i->sinks[k].desired = 0;
         i->sinks[k].registered_kinds = 0;
     }
     (void)mrp_attr_visit(i->msrp,0,registrations,i);
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        i->sinks[k].desired = listener_kind(&i->sinks[k]);
         capture(&i->sinks[k],previous[k]);
         // a binding's declaration changed: THE TRANSMIT's call declares and sends it
         if (i->sinks[k].desired != previous[k]) {
