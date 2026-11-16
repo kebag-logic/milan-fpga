@@ -106,16 +106,17 @@ MUTATIONS = {
                                   '\tif (id < 0 || id >= 256) return;\n', 'save-burst', 'none'),
     # #920's planted pace: the store steps only in a pass a centisecond owes it, as before a save in flight took a step
     # in every pass that took no input, so at 8x8/1if the burst's names are not durable within 5 s of their response.
-    'store-step-only-owed': ('ctrl_nvm/nvm_store.c', '\tif (!nvm.owed && !nvm_busy())\n\t\treturn false;',
-                             '\tif (!nvm.owed)\n\t\treturn false;', 'save-burst', 'none'),
+    'store-step-only-owed': ('ctrl_nvm/nvm_store.c', '\tif (nvm_in_flight())\n\t\treturn 1;\n\treturn nvm.st.phase',
+                             '\tif (0 && nvm_in_flight())\n\t\treturn 1;\n\treturn 0 && nvm.st.phase', 'save-burst',
+                             'none'),
     # #920's planted window: the next save waits for its change's window after the save in flight, so the change in
     # flight's next save takes idle steps before its capture starts.
     'store-next-save-waits': ('ctrl_nvm/nvm_store.c', '\t\tnvm.next_now = 1;', '\t\tnvm.next_now = 0;',
                               'save-flight', 'none'),
     # #920's planted join: a change behind the running capture's cursor is left out of it with no window, so the
     # burst's names marked during its capture are never durable.
-    'store-join-dropped': ('ctrl_nvm/nvm_store.c', '\t\tif (nvm_joined_behind()) {', '\t\tif (0) {',
-                           'save-burst', 'none'),
+    'store-join-dropped': ('ctrl_nvm/nvm_store.c', '\t\tif (nvm_joined_behind()) {',
+                           '\t\tif (0 && nvm_joined_behind()) {', 'save-burst', 'none'),
     **poll_items.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
