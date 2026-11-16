@@ -487,12 +487,29 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	if (additions > m->capacity - m->count) {
 		return AECP_NO_RESOURCES;
 	}
+	// The mappings that change the map, each once, in command order: an ADD's additions, a REMOVE's every distinct
+	// mapping, each held (else it was refused). Nothing reads e.rep after this but the additions, so it takes their
+	// positions (#923).
+	size_t changes = 0;
+	for (size_t n = 0; n < count; ++n) {
+		if (e.rep[n] == n && (!adding || (e.flags[n] & FOUND) == 0u)) {
+			e.rep[changes++] = (uint8_t)n;
+		}
+	}
+	// The integrator's store takes the edit before the map does, all or none: a refusal there changes nothing here
+	// (#923; Milan v1.2 5.4.2.27, 5.4.2.28)
+	if (changes != 0u && a->ports->edit != NULL) {
+		aecp_port_begin(a);
+		unsigned status = a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, e.rep, changes);
+		aecp_port_end(a);
+		if (status != AECP_SUCCESS) {
+			return status;
+		}
+	}
 	size_t was = m->count;
 	if (adding) {
-		for (size_t n = 0; n < count; ++n) {
-			if (e.rep[n] == n && (e.flags[n] & FOUND) == 0u) {
-				assign(&m->rows[m->count++], &e.rows[n].r);
-			}
+		for (size_t k = 0; k < changes; ++k) {
+			assign(&m->rows[m->count++], &e.rows[e.rep[k]].r);
 		}
 	} else {
 		mark(&e, m, 0u, 0u);
@@ -563,6 +580,80 @@ unsigned aecp_restore_settle(struct aecp *a)
 		}
 	}
 	return AECP_SUCCESS;
+}
+
+// A reset-set row the restored formats keep, as aecp_restore_settle and the datapath's boot clip keep it.
+static bool kept(struct aecp *a, const struct aecp_map *m, const struct aecp_mapping *r)
+{
+	struct aecp_descriptor *d = aecp_find(a, a->configuration, m->type == 14u ? 5u : 6u, r->stream);
+	return d != NULL && d->length >= 82u && r->channel < channels(wire_be64(d->value + 74));
+}
+
+// Whether a port's map is its reset set as the store holds it, row for row.
+static bool unmoved(struct aecp *a, const struct aecp_map *m)
+{
+	size_t k = 0;
+	for (size_t n = 0; n < m->default_count; ++n) {
+		if (!kept(a, m, &m->defaults[n])) {
+			continue;
+		}
+		if (k == m->count || !equal(&m->rows[k], &m->defaults[n])) {
+			return false;
+		}
+		++k;
+	}
+	return k == m->count;
+}
+
+// A port's reset set the store holds (held), or none, as its map.
+static void reset(struct aecp *a, struct aecp_map *m, bool held)
+{
+	m->count = 0;
+	for (size_t n = 0; held && n < m->default_count; ++n) {
+		if (kept(a, m, &m->defaults[n])) {
+			m->rows[m->count++] = m->defaults[n];
+		}
+	}
+}
+
+// One port's reset set as the store holds it (defaults) or its map through the edit port, its records in the
+// response buffer, which nothing holds before AECP opens: a set of at most a page's mappings fits it.
+_Static_assert(AECP_MAP_PAGE * 8u <= AECP_FRAME_BYTES, "a page of mappings fits the response buffer");
+static unsigned commit(struct aecp *a, const struct aecp_map *m, bool remove, bool defaults)
+{
+	if (m->capacity > AECP_MAP_PAGE) {
+		return AECP_ENTITY_MISBEHAVING;
+	}
+	size_t count = 0;
+	for (size_t n = 0; n < (defaults ? m->default_count : m->count); ++n) {
+		const struct aecp_mapping *r = defaults ? &m->defaults[n] : &m->rows[n];
+		if (!defaults || kept(a, m, r)) {
+			encode(a->response + 8u * count++, r);
+		}
+	}
+	unsigned status = AECP_SUCCESS;
+	if (count != 0u) {
+		aecp_port_begin(a);
+		status = a->ports->edit(a->ports->ctx, remove, m->type, m->index, a->response, NULL, count);
+		aecp_port_end(a);
+	}
+	return status;
+}
+
+void aecp_restore_commit(struct aecp *a)
+{
+	if (!aecp_enter(a) || a->open || a->ports->edit == NULL) return;
+	struct aecp_map *end = a->cfg.maps + a->cfg.map_count;
+	for (struct aecp_map *m = a->cfg.maps; m < end; ++m) {
+		if (m->configuration == a->configuration && !unmoved(a, m) && commit(a, m, true, true) != AECP_SUCCESS) {
+			reset(a, m, true);
+		}
+	}
+	for (struct aecp_map *m = a->cfg.maps; m < end; ++m) {
+		if (m->configuration == a->configuration && !unmoved(a, m) && commit(a, m, false, false) != AECP_SUCCESS) {
+			reset(a, m, commit(a, m, false, true) == AECP_SUCCESS);
+		}
+	}
 }
 
 void aecp_map_refused(struct aecp *a, const struct aecp_map *m)

@@ -200,6 +200,14 @@ struct aecp_ports {
 	// has not had.
 	enum aecp_fan (*fan)(void *, unsigned, const uint8_t *, size_t);
 	enum aecp_fan (*fan_end)(void *, uint32_t cookie, bool whole);
+	// The integrator's own map store, or NULL where it keeps none (#923): an ADD (remove false) or REMOVE of the
+	// mappings of a dynamic port the core has accepted, before the core changes its map, all or none (Milan v1.2
+	// 5.4.2.27, 5.4.2.28; IEEE 1722.1-2021 7.4.45, 7.4.46). count mappings, the k-th the 8-octet wire record at
+	// records + 8 * pick[k], or at records + 8 * k with pick NULL; each changes the map, and none repeats. Returns
+	// AECP_SUCCESS once the store holds the edit, else the command's status and the store unchanged: the core then
+	// changes nothing and answers it. The saved maps reach it the same way (aecp_restore_commit).
+	unsigned (*edit)(void *, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+			 size_t count);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
 // SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
@@ -386,6 +394,14 @@ void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
 // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
 void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);
 bool aecp_locked(struct aecp *, uint64_t *owner);
+// The restored maps into the edit port's store (#923): once the restore's terminal and the restored formats reach
+// it, before AECP opens. The store then holds each dynamic port's reset set as the restored formats clip it
+// (aecp_restore_settle), so each port of the configuration in force whose map differs has that set removed and,
+// every removal done, its own added, so a stream channel one output port gave up and another took is free when the
+// taker's is added (Milan v1.2 5.3.10.1). A port the store refuses keeps what the store holds: its reset set where
+// the removal is refused; else its reset set added back, or none where that is refused too. Nothing with no edit
+// port.
+void aecp_restore_commit(struct aecp *);
 
 #ifdef CTRL_REENTRY_ASSERT
 void ctrl_reentry_assert(const char *module);
