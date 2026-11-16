@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""la_check.py HARNESS RESULTS GROUP...: the harness's leave_alls and mrpdu rows on a group's log (an experiment's
+read-out of a changed grader on an existing log)."""
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import grade, mrpdu_grade, scenario  # noqa: E401,E402
+for g in sys.argv[3:]:
+    text = (Path(sys.argv[2]) / f'{g}.log').read_text(errors='replace')
+    log = grade.parse(text[:text.rfind('\n') + 1], 100_000_000, 100_000_000)
+    for r in mrpdu_grade.leave_alls(log):
+        f = lambda c: f'{c / 1e5:.3f}' if c is not None else '-'
+        print(g, 'leaveall', f(r['at']), r['outcome'], r.get('who'), 'opp', f(r.get('opportunity')),
+              'first', f(r.get('first')), 'sent', f(r.get('sent')),
+              'after opp %.3f ms' % ((r['sent'] - r['opportunity']) / 1e5) if r.get('sent') else '')
+    counts = {}
+    for e, kind, o in mrpdu_grade.outcomes(log):
+        counts[o] = counts.get(o, 0) + 1
+    print(g, 'run-outs', counts)
+    grp = scenario.Group(g, save=dict(loaded=True, origin='save.change'))
+    try:
+        for row in mrpdu_grade.rows(grade.Grader(log), grp):
+            print(g, 'ROW', row['probe'], row['ms'], 'from', row['start_sys'] / 1e5)
+    except StopIteration:
+        print(g, 'no save.change mark')

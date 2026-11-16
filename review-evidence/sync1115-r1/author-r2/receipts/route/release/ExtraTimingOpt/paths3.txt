@@ -1,0 +1,28 @@
+head 10b2fe213d4c2bf5ccd32e61fc466129c934e31e (release ExtraTimingOpt)
+command: paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.071 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]/C
+    Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_split_spliter_blockCounter_reg[5]/CE
+    Data Path Delay:        9.511ns  (logic 2.164ns (22.754%)  route 7.347ns (77.246%))
+    Logic Levels:           17  (LUT2=4 LUT3=3 LUT4=2 LUT5=2 LUT6=6)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.071 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]/C
+    Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_split_spliter_blockCounter_reg[5]/CE
+    Data Path Delay:        9.511ns  (logic 2.164ns (22.754%)  route 7.347ns (77.246%))
+    Logic Levels:           17  (LUT2=4 LUT3=3 LUT4=2 LUT5=2 LUT6=6)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.577 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/amap_stage_r_reg/CLKARDCLK
+    Destination:            milan_datapath/g_af_amr.amr_k_r_reg[5]/CE
+    Data Path Delay:        18.962ns  (logic 7.116ns (37.527%)  route 11.846ns (62.473%))
+    Logic Levels:           26  (CARRY4=5 LUT3=5 LUT4=4 LUT5=6 LUT6=5 MUXF7=1)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.596 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[13]/CE
+    Data Path Delay:        7.026ns  (logic 1.826ns (25.988%)  route 5.200ns (74.012%))
+    Logic Levels:           7  (LUT2=3 LUT3=1 LUT4=2 LUT5=1)
+design worst hold, Fast_85C: slack +0.014 ns, group milansoc_crg_clkout1
+    Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[30]/C
+    Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/decode_ctrls_1_up_PC_0_reg[30]/D
+    Data Path Delay:        0.349ns  (logic 0.141ns (40.448%)  route 0.208ns (59.552%))
+    Logic Levels:           0

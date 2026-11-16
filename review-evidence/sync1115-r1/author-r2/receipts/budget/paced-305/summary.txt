@@ -1,0 +1,23 @@
+experiment: the final head 4cb7d7ab with edit_rows.py PACED['1x1/1if']['an accepted SET_CONFIGURATION'] 300 -> 305 (scratch clone; never committed); git diff:
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+index 08a2c83015..3016a92fc5 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -35,7 +35,7 @@ if TYPE_CHECKING:
+ #: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
+ #: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
+ #: rule (33,724 at 9606b3a9, 355); at 8x8/2if 56,474, 595 (78,332, 825).
+-PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 300},
++PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
+          '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
+ #: The paced class's record at each point: the dearest of its members'.
+ EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
+
+head 4cb7d7ab8f808dbf3b6b9dd59c17f2536b2bb34e porcelain 1
+flip_grade.py --check --point 1x1/1if rc=1
+flip_grade.py --selftest rc=0
+load_grade.py --check rc=0
+load_grade.py --selftest rc=0
+record_classes.py --selftest rc=0
+rows_tiers.py --selftest rc=1
+tier_grid.py --point 1x1/1if rc=0

@@ -1,0 +1,10 @@
+head d2da3159ea1e46196505e1cba39272ef2230cc24 (split1 ExtraTimingOpt)
+command: signoff.py <route dir>
+---
+Slow_85C: WNS +0.067 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.067 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.553 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.553 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0

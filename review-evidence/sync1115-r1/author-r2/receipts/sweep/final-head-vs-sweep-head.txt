@@ -1,0 +1,8 @@
+# What the final head 9715a30a changes against the sweep's head 4cb7d7ab, and which suites read it
+$ git diff --stat 4cb7d7ab 9715a30a
+ tb/verilator/milan_dp/sim_boot_sa.cpp | 2 +-
+ tb/verilator/pp_shadow/sim_main.cpp   | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+$ grep -rln 'sim_boot_sa|pp_shadow/sim_main|../pp_shadow/' tb/verilator/*/Makefile tb/verilator/*/*.mk
+tb/verilator/milan_dp/Makefile
+(tb/verilator/pp_shadow/Makefile builds its own sim_main.cpp.) So the pp_shadow and milan_dp suites read the change: both re-run at 9715a30a (pp_shadow-milan_dp-at-final-9715a30a.txt). The other 63 suites read neither file; their results at 4cb7d7ab stand, but for milan_dp_gm_steps, whose 1800 s wall clock ran out (UNKNOWN), re-run at 9715a30a.

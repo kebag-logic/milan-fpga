@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# boot.sh <repo> <shape> <build-dir>: the split boot at the repo's head; its image-provisional and runtime archives are
+# route_image.sh's stand-in inputs. Writes <build-dir>.rc.
+. <scratch>/rt/tools/env_rt.sh
+export LITEX_ENV_CC_TRIPLE=riscv32-linux
+cd "$1" || exit 3
+echo "head $(git rev-parse HEAD) tree: $(git status --porcelain | tr '\n' ' ')"; date -Iseconds
+$PY -B tb/verilator/ctrl_split_boot/run.py --build-dir "$3" --shape "$2"
+rc=$?; date -Iseconds; echo $rc > "$3.rc"; exit $rc

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# chain.sh <head> [images...]: the three images through their recipes, one Vivado at a time through vivado-slot.sh:
+# split1 (1x1/1if split), split8 (8x8/1if split), release (AX7101 1x1 all-fabric). Each: a clean clone of <head>,
+# the export, the integrated run (ExtraPostPlacementOpt, with synthesis), then ExtraTimingOpt and AltSpreadLogic_high
+# from its synthesis checkpoint; collect.sh after each run.
+set -u
+H=$1; shift; IMAGES=${*:-split1 split8 release}
+S=<scratch>; T=$S/rt/tools; SLOT=<management>/2026-09-23/vivado-slot.sh
+O=$S/rt/receipts; mkdir -p $O
+log() { echo "$(date -Iseconds) $*"; }
+for img in $IMAGES; do
+  repo=$S/rt/repo-$img; work=$S/rt/work-$img
+  [ -e "$repo" ] || $S/bin/clone.sh "$H" "$repo" > $S/rt/clone-$img.log 2>&1 || { log "$img clone failed"; continue; }
+  case $img in
+    split1|split8)
+      stem=endstation_ax7101_1x1_tdm8; [ $img = split8 ] && stem=endstation_ax7101_8x8
+      boot=$S/rt/tmp/boot-$img; mkdir -p $S/rt/tmp
+      log "$img boot start"; bash $T/boot.sh "$repo" "$stem" "$boot" > $S/rt/boot-$img.log 2>&1; log "$img boot rc=$?"
+      log "$img export start"; bash $T/route_image.sh "$repo" "$work" "$boot" "$stem" > $S/rt/export-$img.log 2>&1; r=$?; log "$img export rc=$r"
+      [ $r = 0 ] || continue
+      g=$work/split/gateware
+      log "$img integrated start"; $SLOT bash $T/vivado_run.sh "$g" baseline_integrated.tcl > $S/rt/slot-$img-int.log 2>&1; log "$img integrated rc=$(cat $g/route.rc 2>/dev/null)"
+      bash $T/collect.sh "$g" $O/$img/ExtraPostPlacementOpt "$img ExtraPostPlacementOpt (integrated)" "$repo" > /dev/null
+      [ -f $g/alinx_ax7101_synth.dcp ] || { log "$img no synthesis checkpoint"; continue; }
+      python3 -I $T/prep_directives3.py "$work" > $S/rt/prep-$img.log 2>&1
+      for d in ExtraTimingOpt AltSpreadLogic_high; do
+        log "$img $d start"; $SLOT bash $T/vivado_run.sh "$work/split-$d" baseline_implementation.tcl > $S/rt/slot-$img-$d.log 2>&1; log "$img $d rc=$(cat $work/split-$d/route.rc 2>/dev/null)"
+        bash $T/collect.sh "$work/split-$d" $O/$img/$d "$img $d" "$repo" > /dev/null
+      done ;;
+    release)
+      log "$img export start"; bash $T/release_image.sh "$repo" "$work" > $S/rt/export-$img.log 2>&1; r=$?; log "$img export rc=$r"
+      [ $r = 0 ] || continue
+      g=$work/ax7101/gateware
+      log "$img integrated start"; $SLOT bash $T/vivado_run.sh "$g" baseline_integrated.tcl > $S/rt/slot-$img-int.log 2>&1; log "$img integrated rc=$(cat $g/route.rc 2>/dev/null)"
+      bash $T/collect.sh "$g" $O/$img/ExtraPostPlacementOpt "$img ExtraPostPlacementOpt (integrated)" "$repo" > /dev/null
+      [ -f $g/alinx_ax7101_synth.dcp ] || { log "$img no synthesis checkpoint"; continue; }
+      <home>/litex-milan/venv/bin/python3 -I $T/prep_release.py "$repo" "$work" > $S/rt/prep-$img.log 2>&1
+      for d in ExtraTimingOpt AltSpreadLogic_high; do
+        log "$img $d start"; $SLOT bash $T/vivado_run.sh "$work/ax7101-$d" baseline_implementation.tcl > $S/rt/slot-$img-$d.log 2>&1; log "$img $d rc=$(cat $work/ax7101-$d/route.rc 2>/dev/null)"
+        bash $T/collect.sh "$work/ax7101-$d" $O/$img/$d "$img $d" "$repo" > /dev/null
+      done ;;
+  esac
+done
+log "CHAIN DONE"

@@ -1,0 +1,13 @@
+#!/bin/bash
+# models2.sh OUTDIR: the harness's model gates and self-tests on the clean final-head clone (c-final), each output
+# to its own file, with its rc.
+S=<scratch>; C=$S/c-final; O=$1; mkdir -p $O; . $S/bin/env.sh
+cd $C
+echo "head $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l)"
+for spec in "flip_grade.py --check --point 1x1/1if" "flip_grade.py --selftest" "load_grade.py --check" "load_grade.py --selftest" \
+            "record_classes.py --selftest" "rows_tiers.py --selftest" "tier_grid.py --point 1x1/1if"; do
+  f=$O/model-$(echo "$spec" | tr ' /' '_-').txt
+  timeout 1800 python3 -B tb/verilator/ctrl_service_budget/$spec > $f 2>&1; echo "$spec rc=$?" | tee -a $f
+done
+timeout 3000 python3 -B tb/verilator/ctrl_service_budget/run.py --self-test > $O/harness-selftest.txt 2>&1; echo "run.py --self-test rc=$?" | tee -a $O/harness-selftest.txt
+echo DONE

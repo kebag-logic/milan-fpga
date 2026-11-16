@@ -1,0 +1,16 @@
+"""qimg_summary.py OUT: one line an image of a qimg.sh output directory (rc, rom, sram, tiles, ledger, sha256s)."""
+import json, re, sys
+from pathlib import Path
+out = Path(sys.argv[1])
+for d in sorted(p for p in out.iterdir() if p.is_dir()):
+    text = (d / 'image.log').read_text()
+    m = re.search(r'^\{\n.*?^\}', text, re.M | re.S)
+    rc = (d / 'rc').read_text().strip()
+    sha = lambda n: (d / n).read_text().strip() if (d / n).exists() else '-'
+    if not m:
+        print(f'{d.name}: rc {rc} no size report, elf {sha("elf.sha256")}')
+        continue
+    s = json.loads(m[0])['split']
+    print(f"{d.name}: rc {rc} rom {s['rom']['bytes']} in {sum(s['rom']['banks'])}, sram {s['sram']['bytes']} in "
+          f"{sum(s['sram']['banks'])}, tiles {s['tiles']}, ledgered {s.get('ledgered')} {s.get('ledgered_tiles')}, "
+          f"{sha('elf.name')} sha256 {sha('elf.sha256')}, loadable sha256 {sha('bin.sha256')}")

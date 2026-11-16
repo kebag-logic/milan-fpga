@@ -1,0 +1,28 @@
+head 10b2fe213d4c2bf5ccd32e61fc466129c934e31e (release AltSpreadLogic_high)
+command: paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.209 ns, group milansoc_crg_clkout0
+    Source:                 milansoc_ws0_reg[5]/C
+    Destination:            milansoc_converter2_count_reg/R
+    Data Path Delay:        9.329ns  (logic 2.028ns (21.740%)  route 7.301ns (78.261%))
+    Logic Levels:           14  (LUT2=2 LUT3=3 LUT4=3 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.209 ns, group milansoc_crg_clkout0
+    Source:                 milansoc_ws0_reg[5]/C
+    Destination:            milansoc_converter2_count_reg/R
+    Data Path Delay:        9.329ns  (logic 2.028ns (21.740%)  route 7.301ns (78.261%))
+    Logic Levels:           14  (LUT2=2 LUT3=3 LUT4=3 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.619 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][5]/C
+    Destination:            milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]/R
+    Data Path Delay:        18.775ns  (logic 6.383ns (33.997%)  route 12.392ns (66.003%))
+    Logic Levels:           34  (CARRY4=11 LUT2=5 LUT3=2 LUT4=3 LUT5=6 LUT6=7)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.564 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[13]/CE
+    Data Path Delay:        7.052ns  (logic 2.056ns (29.154%)  route 4.996ns (70.846%))
+    Logic Levels:           7  (LUT2=3 LUT3=1 LUT4=2 LUT5=1)
+design worst hold, Fast_85C: slack +0.016 ns, group milansoc_crg_clkout1
+    Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[30]/C
+    Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/decode_ctrls_1_up_PC_0_reg[30]/D
+    Data Path Delay:        0.351ns  (logic 0.141ns (40.211%)  route 0.210ns (59.789%))
+    Logic Levels:           0

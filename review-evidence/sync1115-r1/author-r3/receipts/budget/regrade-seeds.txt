@@ -1,0 +1,13 @@
+seeds/r3-harness.patch: git diff 9715a30a 6ceed753 -- tb/verilator/ctrl_service_budget, applied to each sync seed clone (10b2fe21 with its 8x8 config's MAC; the harness is identical between 10b2fe21 and 9715a30a); sha256 18493769fbef5f6be2a199bd84c0438f41f5548e8e84235a8f3b111c6646af34, 43716 B
+command, each seed: run.py --point 8x8-1if --build-dir <its build> --reuse-build --regrade --groups save-held,save-starved --record-budget-findings --record-share-findings
+sync-10092 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61472 work passes over the per-pass share 2.000 m
+sync-10592 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61326 work passes over the per-pass share 2.000 m
+sync-11102 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61519 work passes over the per-pass share 2.000 m
+sync-11602 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61518 work passes over the per-pass share 2.000 m
+sync-12102 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61518 work passes over the per-pass share 2.000 m
+sync-12602 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61512 work passes over the per-pass share 2.000 m
+sync-13102 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61516 work passes over the per-pass share 2.000 m
+sync-13602 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61367 work passes over the per-pass share 2.000 m
+sync-14602 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61515 work passes over the per-pass share 2.000 m
+sync-15032 rc=1 7 files differ from 10b2fe21; 2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61509 work passes over the per-pass share 2.000 m
+DONE

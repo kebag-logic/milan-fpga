@@ -1,0 +1,8 @@
+#!/bin/bash
+# wait_event.sh <seconds>: wait until a workflow step fails, a harness leg ends, the chain log grows, or a unit
+# of this lane leaves the active state; then print status.sh.
+S=<scratch>; max=$1; t=0
+sig() { echo "$(cat $S/runs/F/logs/*.rc 2>/dev/null | grep -vc '^0$') $(grep -l '^END' $S/budget/logs/*.log 2>/dev/null | wc -l) $(wc -l < $S/rt/chain.log 2>/dev/null) $(systemctl --user list-units --plain --no-legend 'milan-sync1115-a787-*' | grep -c running)"; }
+s0=$(sig)
+while [ $t -lt $max ]; do sleep 20; t=$((t+20)); [ "$(sig)" != "$s0" ] && break; done
+echo "waited ${t}s; signature $s0 -> $(sig)"; $S/bin/status.sh

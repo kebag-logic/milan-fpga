@@ -1,0 +1,12 @@
+experiment: the merge 10b2fe21 with configs/endstation_ax7101_1x1_tdm8.yaml's mac_address set to the pre-#840 02:00:00:00:00:01 (scratch clone; never committed)
+command: run.py --point 1x1 --variant valid-destinations --record-budget-findings --record-share-findings --jobs 2
+HEAD 10b2fe213d4c2bf5ccd32e61fc466129c934e31e DIRTY 1 point 1x1 jobs 2 args --variant valid-destinations start 2026-11-16T11:35:38
+STEPS 2557 passes carry the store's step; the longest 24,954 CPU cycles (0.250 ms), srp-talker; the longest step 2,424 (0.024 ms), srp-talker
+SLICES 151939 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 46,713, THE RETRY's round 1,820 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp-talker: 11 join interval(s), the shortest 188.123 ms and the longest 190.122 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 41 empty
+JOINS srp-talker-loss: 5 join interval(s), the shortest 188.123 ms and the longest 190.074 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 12 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 3 paths), 0 of 2664 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T13:28:29
+--- la_join.py srp-talker
+srp-talker leaveall  10424.089 ms released  frame +  0.448 ms; previous build 209.749 ms before; next join timer +190.010 ms; CPU busy   0.32 ms of the wait (70.6 %)
+srp-talker leaveall  14584.079 ms released  frame +  0.514 ms; previous build 369.735 ms before; next join timer +189.968 ms; CPU busy   0.46 ms of the wait (89.6 %)

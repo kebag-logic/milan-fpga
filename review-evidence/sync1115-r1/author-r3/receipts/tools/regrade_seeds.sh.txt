@@ -1,0 +1,14 @@
+#!/bin/bash
+# regrade_seeds.sh: each sync seed clone (10b2fe21 with its 8x8 config MAC) given round 3's harness change
+# (seeds/r3-harness.patch, 9715a30a..6ceed753 under tb/verilator/ctrl_service_budget), its save-held and save-starved
+# regraded from their logs (--reuse-build --regrade); out to seeds/r3/<tag>/.
+S=<scratch>; . $S/bin/env.sh
+for c in $S/seeds/c-sync-*; do t=${c##*/c-sync-}; o=$S/seeds/r3/sync-$t; mkdir -p $o
+  git -C $c apply --check $S/seeds/r3-harness.patch 2>/dev/null && git -C $c apply $S/seeds/r3-harness.patch
+  cp $S/seeds/b-sync-$t/results/table.md $o/table-before.md 2>/dev/null
+  python3 -B $c/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir $S/seeds/b-sync-$t --reuse-build --regrade \
+    --groups save-held,save-starved --record-budget-findings --record-share-findings > $o/regrade.log 2>&1
+  echo "sync-$t rc=$? $(git -C $c status --porcelain --untracked-files=no | wc -l) files differ from 10b2fe21; $(grep -E 'groups graded' $o/regrade.log | head -1 | cut -c1-140)"
+  cp $S/seeds/b-sync-$t/results/table.md $o/table-after.md 2>/dev/null
+done
+echo DONE

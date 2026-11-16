@@ -1,0 +1,93 @@
+"""One-off edit of join_grade.py and run.py for round 3 (Q1): LeaveAll outcomes in join_grade.held, named findings."""
+from pathlib import Path
+
+H = Path('<lane>/tb/verilator/ctrl_service_budget')
+
+p = H / 'join_grade.py'
+t = p.read_text()
+old = t[t.index('def held(log: grade.Log) -> dict:'):]
+new = '''def held(log: grade.Log) -> dict:
+    """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
+    MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
+    with its timer, its time, its participant's transmit opportunity and how far its first frame or build, or the log's
+    end, lies past that; and every LeaveAll timer's run-out by its LeaveAll (mrpdu_grade.leave_alls), each skipped, late
+    or absent one named."""
+    every = intervals(log)
+    over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
+    builds, _, sent, last = mrpdu_grade.index(log)
+    ms = lambda cycle: round(cycle * 1000 / log.sys_hz, 3)
+    runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
+    for entry, kind, outcome in mrpdu_grade.outcomes(log):
+        runs[outcome] += 1
+        if outcome in mrpdu_grade.FAILING:
+            frames = mrpdu_grade.released(log, entry)
+            after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
+            whose = mrpdu_grade.sends(log)[1].get(frames[0], ()) if frames else ()
+            start = min([mrpdu_grade.opportunity(log, who, entry) for who in whose] or [entry])
+            failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
+                                after_ms=round((after - start) * 1000 / log.sys_hz, 3)))
+    alls = mrpdu_grade.leave_alls(log)
+    leave_all = dict(runs={o: sum(1 for r in alls if r['outcome'] == o) for o in mrpdu_grade.LEAVE_ALL_OUTCOMES},
+                     failing=[dict(outcome=r['outcome'], who=r.get('who'), at_ms=ms(r['at']),
+                                   **({} if 'sent' not in r else dict(
+                                       opportunity_ms=ms(r['opportunity']), first_ms=ms(r['first']),
+                                       sent_ms=ms(r['sent']))))
+                              for r in alls if r['outcome'] in mrpdu_grade.LEAVE_ALL_FAILING])
+    return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
+                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing,
+                leave_all=leave_all)
+'''
+p.write_text(t.replace(old, new))
+
+p = H / 'run.py'
+t = p.read_text()
+old = """            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
+             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
+              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
+              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
+             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])"""
+new = """            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
+             (f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity at "
+              f"{o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)"
+              if o['outcome'] == 'late' else
+              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
+             for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
+            [leave_all_miss(g['group'], o)
+             for g in results for o in g['passes'].get('joins', {}).get('leave_all', {}).get('failing', [])])
+
+
+def leave_all_miss(group: str, o: dict) -> str:
+    \"\"\"A LeaveAll timer's run-out whose LeaveAll went past its participant's first transmit opportunity, late after
+    it, or not at all (mrpdu_grade.leave_alls), as a finding names it.\"\"\"
+    import mrpdu_grade
+    if o['outcome'] == 'absent':
+        return (f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms, no LeaveAll after it though the log "
+                f"runs on past every participant's transmit opportunity and THE TRANSMIT's bound (LeaveAll absent)")
+    head = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms ({o['who']}): "
+    if o['outcome'] == 'skipped':
+        return (head + f"its first transmit opportunity at {o['opportunity_ms']:.3f} ms sent an MRPDU without the "
+                f"LeaveAll at {o['first_ms']:.3f} ms, and the LeaveAll went at {o['sent_ms']:.3f} ms (LeaveAll past "
+                f"its first transmit opportunity)")
+    return (head + f"its LeaveAll at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after its "
+            f"first transmit opportunity at {o['opportunity_ms']:.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+            f"ms (LeaveAll late)")"""
+assert old in t, 'stated_misses tail'
+t = t.replace(old, new)
+old2 = "        runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)\n"
+new2 = old2 + ("        alls = ', '.join(f'{n} {outcome}' for outcome, n in\n"
+               "                         ((j.get('leave_all') or {}).get('runs') or {}).items() if n)\n"
+               "        runs += f\"; LeaveAll timers' run-outs by their LeaveAll: {alls}\" if alls else ''\n")
+assert old2 in t, 'print_joins'
+t = t.replace(old2, new2)
+old3 = """    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
+    absent (join_grade.held, mrpdu_grade.resolve).\"\"\""""
+new3 = """    tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
+    participant's transmit opportunity, or absent (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
+    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
+    (mrpdu_grade.leave_alls).\"\"\""""
+assert old3 in t, 'docstring'
+t = t.replace(old3, new3)
+p.write_text(t)
+print('ok')

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# release_image.sh <repo> <work>: the AX7101 1x1 shipping (all-fabric) export by docs/testing/PP_SHADOW_BASELINE_RECIPE.md:
+# the launcher's preview, its printed milan_soc.py command without --build into <work>/ax7101, then pp_baseline.py.
+set -euo pipefail
+. <scratch>/rt/tools/env_rt.sh
+L=$1; W=$2; mkdir -p "$W"; cd "$L"; echo "head $(git rev-parse HEAD) porcelain $(git status --porcelain | wc -l)"
+export PATH=<home>/litex-milan/venv/bin:/usr/local/bin:/usr/bin:/bin:$PATH REPO=$L WORK=$W LITEX_PYTHON=$PY
+(cd sw/litex && bash ./build.sh ax7101 --dry-run) > "$W/ax7101-dry-run.log" 2>&1
+grep -q REFUSED "$W/ax7101-dry-run.log" && { echo "dry run previews a refusal"; exit 8; }
+"$PY" - <<'PYEOF'
+import json, os, shlex, subprocess
+from pathlib import Path
+root = Path(os.environ["REPO"]); work = Path(os.environ["WORK"]); python = os.environ["LITEX_PYTHON"]
+lines = [l for l in (work / "ax7101-dry-run.log").read_text().splitlines() if "exec python3 milan_soc.py " in l]
+assert len(lines) == 1, lines
+argv = shlex.split(lines[0].split("exec python3 ", 1)[1])
+argv.remove("--build")
+argv[argv.index("--output-dir") + 1] = str(work / "ax7101")
+(work / "ax7101-argv.json").write_text(json.dumps(argv, indent=2))
+with (work / "ax7101-elaboration.log").open("w") as log:
+    subprocess.run([python, *argv], cwd=root / "sw/litex", stdout=log, stderr=subprocess.STDOUT, check=True)
+PYEOF
+/usr/bin/python3 syn/ooc/pp_baseline.py "$W/ax7101/gateware" --single-thread-synthesis
+echo "porcelain after $(git status --porcelain | wc -l)"; git status --porcelain | head
+echo done

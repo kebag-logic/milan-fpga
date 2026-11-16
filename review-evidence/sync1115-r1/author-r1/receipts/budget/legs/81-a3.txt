@@ -1,0 +1,11 @@
+HEAD dfcd8eedca38a033bd78cbe1596040b61b26ea67 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --out <scratch>/budget/b81/results-a3 --groups acmp-notk,backlog-adp@blank-0,backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-7,backlog-adp@blank-aged2-3,backlog-adp@blank-aged2-7,backlog-adp@program-3,backlog-adp@program-7,backlog-adp@program-aged1-3,backlog-adp@program-aged1-7,backlog-adp@program-aged2-3,backlog-adp@program-aged2-7,backlog-adp@verify-3,backlog-adp@verify-7,backlog-adp@verify-aged1-3,backlog-adp@verify-aged1-7,backlog-adp@verify-aged2-3,backlog-adp@verify-aged2-7,srp,backlog-adp-refill,adp-discover,control,datapath-events start 2026-11-15T22:20:35
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+<scratch>/budget/b81/native/Vsim <scratch>/budget/b81/results-a3/backlog-adp@blank-3.txt -
+
+STEPS 10221 passes carry the store's step; the longest 104,785 CPU cycles (1.048 ms), acmp-notk; the longest step 78,536 (0.785 ms), acmp-notk
+SLICES 584145 tier-2 slices; the longest SRP's records 77,384, THE TRANSMIT's build 139,264, THE RETRY's round 8,848 CPU cycles, against the stated slice 95,000 (THE TIERS)
+AGED 12 windows opened with the step's age at its limit or one short of it, 5 aged steps among their records; the least margin 9.374 ms, backlog-adp@program-aged2-7.service.srp.last.if0 at 10.626 ms
+25 groups graded, 0 refusals, 0 budget misses (0 of 231 probe instances, 0 of 20 paths), 0 of 24202 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=1 2026-11-15T23:58:51
+STATED lines: 208

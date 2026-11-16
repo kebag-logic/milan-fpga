@@ -1,0 +1,16 @@
+# Earlier workflow attempts at 4cb7d7ab (superseded: every job ran again at the final head 9715a30a in runs/J, verify-wf-final.md). Each failed step, its root and the cause in its log.
+runs/H docs__docs-gates-2__gate_25_1 rc=1: timed out after 1200 seconds
+runs/H rtl-fast__publication-census__ci_step_12 rc=2: timed out after 900 seconds
+runs/H2 docs__docs-gates-2__gate_25_1 rc=1: timed out after 180 seconds
+runs/H2 rtl-fast__publication-census__ci_step_12 rc=1: timed out after 900 seconds
+runs/H4 rtl-fast__publication-census__ci_step_12 rc=2: timed out after 900 seconds
+runs/H5 rtl-fast__publication-census__ci_step_12 rc=2: timed out after 900 seconds
+runs/H6 rtl-fast__publication-census__ci_step_12 rc=2: timed out after 900 seconds
+runs/H7 rtl-fast__publication-census__ci_step_12 rc=2: timed out after 900 seconds
+runs/H-elab-loaded elaborate__elaborate-gates-1__gate_15_1 rc=1: timed out after 1200 seconds
+runs/H-elab-loaded elaborate__elaborate-gates-2__gate_19_0 rc=92: exit 92
+runs/H-elab-loaded elaborate__elaborate-gates-3__gate_19_1 rc=92: exit 92
+runs/H: docs-check-no-git's after-status could not read .git, which the job deletes by design; its three steps rc 0
+runs/H-elab-loaded: stopped by the executor after legs 1 to 3 timed out under load
+runs/H4 and runs/H7: each one's first attempt was cut by a host restart (15:40, 18:46; no rc), removed and run again (the rc above)
+runs/H8: its first attempt was cut by the 19:39 restart, removed and run again; that run was stopped by the executor once the head moved to 9715a30a, after its census of the six shapes passed (587 s) and one self-test arm's sv2v had timed out at 900 s

@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""mk_not_run.py <head> [--seed-rev REV --seed not_run.json]: write not_run.json beside this file for <head>, keyed
+by the step ids at <head>, with each reason chosen by the step's (workflow, job, name), never by its position.
+The seed maps a known head's position keys to names once (by_name.json); a step at <head> whose name has no
+reason runs. Prints every reason applied, and every name of the seed that no longer exists."""
+import json, subprocess, sys
+from pathlib import Path
+import yaml
+LANE = "<lane>"
+HERE = Path(__file__).parent
+WFS = ["docs.yml", "rtl-fast.yml", "elaborate.yml", "rtl.yml"]
+
+def steps(rev):
+    out = {}
+    for wf in WFS:
+        t = subprocess.run(["git", "-C", LANE, "show", f"{rev}:.github/workflows/{wf}"], check=True,
+                           capture_output=True, text=True).stdout
+        for job, body in yaml.safe_load(t)["jobs"].items():
+            for n, s in enumerate(body["steps"]):
+                if "run" in s:
+                    out[(wf, job, s.get("id") or f"step{n}")] = s.get("name") or ""
+    return out
+
+args = sys.argv[1:]
+head = args[0]
+if "--seed-rev" in args:
+    rev = args[args.index("--seed-rev") + 1]; seed = json.loads(Path(args[args.index("--seed") + 1]).read_text())
+    old = steps(rev); by_name = {}
+    for (wf, job, sid), name in old.items():
+        r = seed.get(f"{wf}/{job}/{sid}") or seed.get(f"{wf}/{job}") or seed.get(f"{wf}/{sid}") or seed.get(sid)
+        if r:
+            by_name[f"{wf}/{job}/{name}"] = r
+    (HERE / "by_name.json").write_text(json.dumps(by_name, indent=1, sort_keys=True) + "\n")
+by_name = json.loads((HERE / "by_name.json").read_text())
+new = steps(head); nr = {}; used = set()
+for (wf, job, sid), name in new.items():
+    r = by_name.get(f"{wf}/{job}/{name}")
+    if r:
+        nr[f"{wf}/{job}/{sid}"] = r; used.add(f"{wf}/{job}/{name}")
+        print(f"NOT RUN {wf}/{job}/{sid} [{name}]: {r[:90]}")
+for k in sorted(set(by_name) - used):
+    print("SEED NAME ABSENT AT HEAD:", k)
+(HERE / "not_run.json").write_text(json.dumps(nr, indent=1, sort_keys=True) + "\n")
+print(f"{len(nr)} not-run reasons for {head}; {len(new) - len(nr)} steps run")

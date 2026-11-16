@@ -1,0 +1,12 @@
+the merge 10b2fe21, the #840 MAC (the leg 1x1-V1)
+HEAD 10b2fe213d4c2bf5ccd32e61fc466129c934e31e DIRTY 0 point 1x1 jobs 2 args --variant valid-destinations start 2026-11-16T06:02:02
+STEPS 2557 passes carry the store's step; the longest 24,514 CPU cycles (0.245 ms), srp-talker; the longest step 2,407 (0.024 ms), srp-talker
+SLICES 152384 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 46,932, THE RETRY's round 1,734 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp-talker: 10 join interval(s), the shortest 188.262 ms and the longest 190.028 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 39 empty, 1 late
+JOINS srp-talker-loss: 5 join interval(s), the shortest 188.262 ms and the longest 189.973 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 12 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 3 paths), 0 of 2666 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED srp-talker: the leaveall timer's run-out at 14054.095 ms, its first frame or build 160.473 ms after it, past THE TRANSMIT's 49 ms (late)
+END rc=1 2026-11-16T11:34:37
+--- la_join.py srp-talker
+srp-talker leaveall  14054.095 ms late      frame +160.473 ms; previous build  29.228 ms before; next join timer +159.959 ms; CPU busy   3.70 ms of the wait ( 2.3 %)
+srp-talker leaveall  14884.081 ms released  frame +  0.452 ms; previous build  99.709 ms before; next join timer +190.093 ms; CPU busy   0.31 ms of the wait (69.0 %)

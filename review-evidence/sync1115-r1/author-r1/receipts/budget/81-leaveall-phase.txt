@@ -1,0 +1,19 @@
+# 8x8/1if: the LeaveAll timer's run-outs in save-held (on_la_timer CALL cycles / 100,000 = ms at 100 MHz) and the grade of each run
+## head d2da3159 (build dfcd8eed), #840 MAC
+LeaveAll run-outs: 14091.0 ms, 14921.2 ms, 
+BUDGET save-held.mrpdu.leaveall.if0: 161.123 ms over its budget 20 ms
+JOINS save-held: 6 join interval(s), the shortest 187.515 ms and the longest 190.056 ms, against 181.0 to 239.0; MRP timers' run-outs: 41 released, 30 empty, 1 late
+STATED save-held: the leaveall timer's run-out at 14091.027 ms, its first frame or build 161.097 ms after it, past THE TRANSMIT's 49 ms (late)
+
+## head code, the pre-#840 MAC in the 8x8 config only (experiment)
+LeaveAll run-outs: 10461.8 ms, 14621.8 ms, 
+JOINS save-held: 6 join interval(s), the shortest 187.539 ms and the longest 190.053 ms, against 181.0 to 239.0; MRP timers' run-outs: 39 released, 34 empty
+
+## base 659d7687
+LeaveAll run-outs: 10461.9 ms, 14621.9 ms, 
+JOINS save-held: 6 join interval(s), the shortest 187.469 ms and the longest 190.147 ms, against 181.0 to 239.0; MRP timers' run-outs: 39 released, 34 empty
+
+## head, save-starved (8x8/1if arm A part 2)
+BUDGET save-starved.mrpdu.leaveall.if0: 161.069 ms over its budget 20 ms
+JOINS save-starved: 6 join interval(s), the shortest 187.515 ms and the longest 190.030 ms, against 181.0 to 239.0; MRP timers' run-outs: 41 released, 30 empty, 1 late
+STATED save-starved: the leaveall timer's run-out at 14091.044 ms, its first frame or build 161.026 ms after it, past THE TRANSMIT's 49 ms (late)

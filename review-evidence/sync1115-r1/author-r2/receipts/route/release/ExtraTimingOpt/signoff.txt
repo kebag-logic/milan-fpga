@@ -1,0 +1,10 @@
+head 10b2fe213d4c2bf5ccd32e61fc466129c934e31e (release ExtraTimingOpt)
+command: signoff.py <route dir>
+---
+Slow_85C: WNS +0.071 ns (0 failing), WHS +0.088 ns (0 failing)
+Slow_0C: WNS +0.071 ns (0 failing), WHS +0.088 ns (0 failing)
+Fast_85C: WNS +1.638 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.638 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1

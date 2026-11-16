@@ -1,0 +1,28 @@
+head d2da3159ea1e46196505e1cba39272ef2230cc24 (split1 ExtraPostPlacementOpt (integrated))
+command: paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.128 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[10]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[2]/D
+    Data Path Delay:        9.935ns  (logic 2.008ns (20.212%)  route 7.927ns (79.788%))
+    Logic Levels:           15  (LUT2=1 LUT4=3 LUT5=4 LUT6=7)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.128 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[10]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[2]/D
+    Data Path Delay:        9.935ns  (logic 2.008ns (20.212%)  route 7.927ns (79.788%))
+    Logic Levels:           15  (LUT2=1 LUT4=3 LUT5=4 LUT6=7)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.359 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.577ns  (logic 0.433ns (75.008%)  route 0.144ns (24.992%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.560 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            storage_2_reg_0/ADDRARDADDR[10]
+    Data Path Delay:        6.745ns  (logic 1.032ns (15.300%)  route 5.713ns (84.701%))
+    Logic Levels:           6  (LUT3=2 LUT4=2 LUT5=2)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_audio_mclk_raw
+    Source:                 milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/cap_r_r_reg[0]/C
+    Destination:            milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc/mem_r_reg_0_7_0_5/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

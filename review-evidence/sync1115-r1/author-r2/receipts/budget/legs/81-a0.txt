@@ -1,0 +1,48 @@
+HEAD 10b2fe213d4c2bf5ccd32e61fc466129c934e31e DIRTY 0 point 8x8-1if jobs 8 args --out <scratch>/budget2/b81/results-a0 --groups save-second,backlog-adp@blank-6,backlog-adp@blank-aged1-2,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-2,backlog-adp@blank-aged2-6,backlog-adp@program-2,backlog-adp@program-6,backlog-adp@program-aged1-2,backlog-adp@program-aged1-6,backlog-adp@program-aged2-2,backlog-adp@program-aged2-6,backlog-adp@verify-2,backlog-adp@verify-6,backlog-adp@verify-aged1-2,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-2,backlog-adp@verify-aged2-6,save,backlog-owed,adp-gm,acmp-cmd start 2026-11-16T05:56:47
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 63.514 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.752 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.989 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.226 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.510 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.389 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.039 ms over its budget 20 ms
+STEPS 9785 passes carry the store's step; the longest 104,368 CPU cycles (1.044 ms), backlog-adp@verify-2; the longest step 78,390 (0.784 ms), backlog-adp@program-2
+SLICES 446926 tier-2 slices; the longest SRP's records 70,670, THE TRANSMIT's build 30,639, THE RETRY's round 9,421 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS save-second: 7 join interval(s), the shortest 188.663 ms and the longest 190.124 ms, against 181.0 to 239.0; MRP timers' run-outs: 68 released, 52 empty, 1 late
+JOINS backlog-adp@blank-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@verify-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@blank-aged2-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged2-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged2-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged1-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged1-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@verify-aged2-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged2-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-2: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-6: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS save: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS adp-gm: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 188.663 ms and the longest 189.948 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+SAVE save-second: durable 22829.537 ms after its change (stated worst case 22,870 ms, 382 steps, longest gap between flash steps 31.396 ms) within
+SAVE save: durable 4818.810 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 10.859 ms) within
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 141280 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED save-second: a pass's polls base of 22,898 CPU cycles, over its stated 22,500
+STATED save-second: a pass's polls base of 23,630 CPU cycles, over its stated 22,500
+STATED backlog-owed: a acmp item of 6,812 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,692 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,142 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,323 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED save-second: the leaveall timer's run-out at 14092.130 ms, its first frame or build 160.368 ms after it, past THE TRANSMIT's 49 ms (late)
+END rc=1 2026-11-16T13:06:56

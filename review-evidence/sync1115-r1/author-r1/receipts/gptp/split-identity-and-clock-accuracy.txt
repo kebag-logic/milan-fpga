@@ -1,0 +1,12 @@
+# The split firmware links builder._entity_model_image(cfg)["aem_desc.bin"] through sw/firmware/ctrl/aecp/aecp_entity.py;
+# the fabric gPTP engine ROM is generated with gptp_ucode_args(cfg). Offsets: aem_descriptors.py (AVB_INTERFACE).
+== configs/endstation_ax7101_1x1_tdm8.yaml
+gptp_ucode_args: --mac 0x024b4c4b4c01 --p1 248 --clk-hz 50000000 --clock-accuracy 0x22
+config gptp.clock_accuracy: 0x22
+ENTITY: entity_id 024b4cfffe4b4c01, entity_model_id 001bc5cd179523ab
+AVB_INTERFACE: mac_address 024b4c4b4c01, clock_identity 024b4cfffe4b4c01, priority1 0xf8, clock_class 0xf8, offset_scaled_log_variance 0x436a, clock_accuracy 0x22, priority2 0xf8, domain 0
+== configs/endstation_ax7101_8x8.yaml
+gptp_ucode_args: --mac 0x024b4c4b4c01 --p1 248 --clk-hz 50000000 --clock-accuracy 0x22
+config gptp.clock_accuracy: 0x22
+ENTITY: entity_id 024b4cfffe4b4c01, entity_model_id 001bc5f6cb4a37d1
+AVB_INTERFACE: mac_address 024b4c4b4c01, clock_identity 024b4cfffe4b4c01, priority1 0xf8, clock_class 0xf8, offset_scaled_log_variance 0x436a, clock_accuracy 0x22, priority2 0xf8, domain 0

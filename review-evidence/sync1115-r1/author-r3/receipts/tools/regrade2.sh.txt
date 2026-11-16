@@ -1,0 +1,28 @@
+#!/bin/bash
+# regrade2.sh: round 2's harness legs regraded from their checkout (c-b2) moved to the final head (--reuse-build
+# --regrade): each build must attest against the head's inputs, and each table.md is compared with the one its run
+# wrote. Run after every leg has ended.
+set -u
+T=<scratch>; B=$T/budget2; C=$T/c-b2
+. $T/bin/env.sh
+echo "checkout $(git -C $C rev-parse HEAD) porcelain $(git -C $C status --porcelain --untracked-files=no | wc -l)"
+leg() {  # name build out point groups-or-ALL [run.py args]
+  local n=$1 b=$2 o=$3 p=$4 g=$5; shift 5
+  [ -f $o/table.md ] || { echo "$n: no table.md (the leg wrote none)"; return; }
+  mkdir -p $B/orig/$n; cp $o/table.md $o/results.json $B/orig/$n/ 2>/dev/null
+  local ga=(); [ "$g" != ALL ] && ga=(--groups "$g")
+  python3 -B $C/tb/verilator/ctrl_service_budget/run.py --point $p --build-dir $b --reuse-build --regrade --out $o \
+    --record-budget-findings --record-share-findings "${ga[@]}" "$@" > $B/logs/regrade-$n.log 2>&1
+  local rc=$?
+  local same=no; cmp -s $B/orig/$n/table.md $o/table.md && same=yes
+  echo "$n: regrade rc=$rc; table.md identical: $same; $(grep -E 'groups graded' $B/logs/regrade-$n.log | head -1 | cut -c1-120); $(grep -m1 -o 'REFUSED.*' $B/logs/regrade-$n.log | cut -c1-120)"
+}
+G=$T/budget/groups
+for q in 1 2 3 4; do leg 1x1-q$q $B/b1x1 $B/b1x1/results-q$q 1x1 "$(cat $G/1x1-q$q.groups)"; done
+leg 1x1-E1 $B/b1x1-E $B/b1x1-E/results 1x1 ALL --variant answering-every-port
+leg 1x1-B1F $B/b1x1-B $B/b1x1-B/results 1x1 aecp-fanout,aecp,aecp-largest-notice --variant answering-ports
+leg 1x1-V1 $B/b1x1-V $B/b1x1-V/results 1x1 ALL --variant valid-destinations
+for a in 0 1 2 3; do leg 81-a$a $B/b81 $B/b81/results-a$a 8x8-1if "$(cat $G/81-a$a.groups)"; done
+leg 81-H81L $B/b81-B $B/b81-B/results 8x8-1if aecp-largest-notice --variant answering-ports
+leg 81-V81 $B/b81-V $B/b81-V/results 8x8-1if ALL --variant valid-destinations
+echo DONE

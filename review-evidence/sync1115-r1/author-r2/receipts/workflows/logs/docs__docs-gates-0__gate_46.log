@@ -1,0 +1,6 @@
+# head 9715a30ac4f43f58ca96fcc6d29314fad09bf8ae workflow docs.yml job docs-gates-0 step gate_46: Documentation inventory freshness gate
+# clone <scratch>/runs/J/docs__docs-gates-0/wt
+# venv <other-scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+documentation inventory selftest: OK (60 controls)

@@ -1,0 +1,17 @@
+python3 -B twin_compare.py obj_twin/fabric.json obj_twin/split.json --report obj_twin/report.json
+[TAIL] ADP: the split's last 1 frame(s), the fabric's next not yet due
+[DIFF] AECP ledger row root-configuration-index does not hold: the fabric sent [] (the row: one response, BAD_ARGUMENTS, the received configuration_index 1), the split [] (the row: one response, SUCCESS, the ENTITY descriptor at configuration_index 0)
+[DIFF] AECP ledger row set-stream-info-current-fields does not hold: the fabric sent [] (the row: one response, NOT_SUPPORTED, the command's fields echoed (all zero)), the split [] (the row: one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's))
+[DIFF] AECP ledger row system-unique-id does not hold: the fabric sent [] (the row: SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed), the split [] (the row: SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708)
+[DIFF] AECP ledger row default-format-override-notice does not hold: the fabric sent [] (the row: no SET_STREAM_FORMAT notice for the default-valued SET), the split [] (the row: one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller)
+[DIFF] AECP ledger row reserved-message-type does not hold: the fabric sent [] (the row: one frame, message_type 11, status 1), the split [] (the row: nothing)
+[DIFF] AECP ledger row hdcp-apm-data does not hold: the fabric sent [] (the row: HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length), the split [] (the row: HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept)
+[DIFF] owed row stream-output-0-notices: the difference has gone, both halves send []; the lane that fixed it (the SRP adapter entry that takes MAAP's allocation (#665)) deletes the row
+[DIFF] owed row split-talker-failed does not hold: the fabric sent [] (the row: Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws), the split [MSRP Talker Failed stream_id 024b4c4b4c010000: New x2, JoinMt x90; MSRP Talker Failed stream_id 024b4c4b4c010001: New x2, JoinMt x90] (the row: Talker Failed for both sources' streams from boot, never withdrawn)
+[DIFF] owed row entity-available-index: the difference has gone, both halves send []; the lane that fixed it (#858 (a release-image defect)) deletes the row
+[DIFF] owed row fabric-mvrp-leave-all: the defect has gone, the all-fabric half's grade finds none of it; the lane that fixed it (#857 (a release-image defect)) deletes the row
+[DIFF] owed row fabric-domain-one-new: the defect has gone, the all-fabric half's grade finds none of it; the lane that fixed it (#860 (a release-image defect)) deletes the row
+[DIFF] owed row fabric-vid2-join-in: the defect has gone, the all-fabric half's grade finds none of it; the lane that fixed it (#860 (a release-image defect)) deletes the row
+twin: 12 finding(s); counts {'all-fabric': {'ADP': 12, 'MAAP': 8, 'MSRP': 80, 'MVRP': 6}, 'split': {'ADP': 13, 'MAAP': 8, 'MSRP': 92, 'MVRP': 92}}
+make: *** [Makefile:1008: twin] Error 1
+twin rc=2

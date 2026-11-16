@@ -1,0 +1,204 @@
+diff --cc docs/design/MAILBOX_SPLIT.md
+index dddb676fc3,12b310862a..65601d00ff
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@@ -1,29 -1,34 +1,43 @@@
+  <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+  # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
+  
+- Status: **F0 implemented behind a default-off build switch.** The all-fabric
+- build is unchanged and remains the shipping image. This page is the design
+- of the contract between the fabric and the bare-metal control-plane firmware.
+- The split integrates before P3; milestone 13 retains the hard-core port.
+- Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
+- tests and the co-simulation build; no image links that firmware yet.
+- Lane F-INT adds the [publication block](#the-publication-block) (contract
+- 2.2), where the firmware owner writes the class-D state the split placement's
+- datapath reads; nothing reads it until the placement switch lands.
+- Lane S1 adds [the processor's other faces](#the-processors-other-faces)
+- (contract 2.3): every port of the processor wrapper in one class, and the face
+- block, windows and events that carry what the split datapath still reads.
+- Lane S6 adds [the placement switch](#the-placement-switch): `CTRL_SPLIT_P`
+- builds the datapath without the processor, and the `--ctrl-mailbox` SoC
+- connects the mailbox to it.
+- The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
++ Status: **F0 implemented behind a default-off build switch.**
++ The all-fabric build is unchanged and remains the shipping image.
++ 
++ This page designs the fabric's contract with the control-plane firmware.
++ The split integrates before P3.
++ 
++ Milestone 13 retains the hard-core port.
++ Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware.
++ 
++ The host tests and the co-simulation build compile it.
++ No image links that firmware yet.
++ 
++ Lane F-INT adds the [publication block](#the-publication-block), contract 2.2.
++ There the firmware owner writes the class-D state.
++ 
++ The split placement's datapath reads that state.
++ Nothing reads it until the placement switch lands.
++ 
+++Lane S1 adds [the processor's other faces](#the-processors-other-faces), contract 2.3.
+++Every port of the processor wrapper is in one class.
+++
+++The face block, windows and events carry what the split datapath still reads.
+++Lane S6 adds [the placement switch](#the-placement-switch).
+++
+++`CTRL_SPLIT_P` builds the datapath without the processor.
+++The `--ctrl-mailbox` SoC connects the mailbox to it.
+++
++ The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+  All-fabric stays the shipping default until F2 to F5 acceptance.
++ 
+  That acceptance covers all streams, counters and the audio soak.
+- The owner decisions of
+- 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
+- and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
+- define the interface. The numbers live in one place, the generated
+- [reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
++ 
++ The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
++ So does the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665).
++ 
++ The numbers live in one place, the generated [reference page](../reference/MAILBOX_CONTRACT.md).
++ This page explains them.
+  
+  ## Contents
+  
+diff --cc docs/design/MARK_II_AREA_PLAN.md
+index 1f9f8eb7f0,9e225fae8e..34baaf33ca
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@@ -24,27 -33,22 +33,25 @@@ This page changes documentation only
+  
+  ## Summary
+  
+- - **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
+-   The [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) record already includes the third processor adoption.
+-   Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
+- - **Default split:** ADP, ACMP, MAAP, SRP and AECP move to firmware.
+-   F1 supplies saved-state read, apply and write-back.
+-   Shipping defaults wait for F2-F5 suites and bench acceptance.
+- - **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
+-   This includes the measured 3,102-LUT mailbox cost.
+-   The [integrated split route](#m8a-2-the-integrated-split-route) measures 29,377 LUTs at the shipping shape after its third round of mailbox timing cuts, and meets the timing floor: +0.274 ns at the recipe's directive.
+- - **Estimated finish:** the [ledger](#ledger) reaches 31,667 LUTs centrally.
+-   Its conservative combined estimate is 35,867, below 38,040.
+-   These arithmetic scenarios are not fit or timing evidence.
+- - **No double counting:** M3/M10 receive zero default-image credit.
+-   Their AECP hardware leaves with F5.
+-   M4 is replaced by the split; diagnostics remain enabled.
+- - **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 54 at the largest shape, and M8a-2 maps the target platform's 57.5, owed to lane S14.
+-   The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
+-   Its reuse and packing assumptions require routed confirmation.
+- - **Qualification risk:** F5, target service timing and bench acceptance remain.
+-   M8's smaller core must pass capture, boot and split-load bounds.
+-   Every function lacking qualification retains its fabric placement.
++ - **Target:** under 20,000 LUTs at 32x32.
++   Below 20,000 is a ceiling, not the goal ([D10](#mark-ii-decisions)).
++ - **Measured basis:** 52,008 LUTs, 87.5 tiles, 13 DSP.
++   Placed and routed at the 1x1 shipping shape, 2026-10-31.
+++- **Measured split route:** 29,377 LUTs at the 1x1 shipping shape ([M8a-2](#m8a-2-the-integrated-split-route)).
+++  It meets the timing floor: +0.274 ns at the recipe's directive.
+++  Its firmware maps 57.5 tiles at the largest shape, owed to lane S14.
++ - **Start estimate:** about 31.0k LUTs once the processor leaves.
++   The owner's 34.2k counted the CPU twice ([lever 4](#lever-4-accounting)).
++ - **The six owner levers** then reach about 21.0k centrally.
++   Lever 4 saves nothing: it was that double count.
++ - **The 32x32 shape adds** a second port and shared engines.
++   That adds about 2.75k LUTs (estimate).
++ - **LiteX stages 2 and 3** and small trims recover some.
++   The central estimate lands near 21.75k, above the ceiling.
++ - **Block RAM binds first.** The 32x32 estimate is 144.5 tiles.
++   The usable ceiling is 121.5 tiles.
++ - **No fabric fallback.** The processor and fabric gPTP are deleted.
++   Each goes at its own switch-over ([split](../ARCHITECTURE_HW_SW_SPLIT.md#transition-and-deletion)).
+  
+  ## Target
+  
+diff --cc docs/diagrams/PNG_MANIFEST.json
+index 865f042ef6,2d636abd01..e490c2f8e7
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@@ -9,9 -9,9 +9,9 @@@
+      },
+      "docs/diagrams/submodule_boundaries.png": {
+        "height": 1936,
+-       "raster_sha256": "4caf73b4760ae3012b3d5c76b53719d495fa62c505db59582fbc071c98de2999",
+ -      "raster_sha256": "d5fda4ee2d08916e09c5e2a9dd56c5c9cfec4162393486201d2f2347480d6fed",
+++      "raster_sha256": "0e8b21e6551ff4a207bad5b3376fc4d23cc09e2a0d866053212ea5703e58c92f",
+        "source": "docs/diagrams/submodule_boundaries.drawio",
+-       "source_sha256": "6ee29bfbdcdffc0eb237761986aa0942725d71a1983170ba419529a6cf200156",
+ -      "source_sha256": "d8a9b1869cd5d6b2727130c979f7939b6a49c88a6d6f52bb5f3d505407a75128",
+++      "source_sha256": "348cd17defb1d5630aca39f7d5b86d42c645eb97c67c63f76d7ac4a9d2352a5f",
+        "width": 2400
+      },
+      "docs/diagrams/timesync_chain.png": {
+diff --cc docs/reference/FR_NFR.md
+index bb3dc4b1cb,88e6555bed..915be260fb
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@@ -319,11 -324,11 +325,11 @@@ conformant fallback, and the current au
+  ### 3.4 Fabric scale-out and future ports
+  | ID | Requirement | Pri | Ver |
+  |----|-------------|-----|-----|
+- | NFR-SCOUT-01 | The release architecture MUST use one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+- | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+- | NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 20 ms, approved by the owner on 2026-10-29, or its family's normative 10 % ceiling where that is tighter: its bound is min(T_svc, ceiling), under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
+ -| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement (firmware only after the switch-over). Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+++| NFR-SCOUT-01 | The release architecture MUST use one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement (firmware only after the switch-over). Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
++ | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the end state ([owner decision on #665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321), 2026-10-31). Until that firmware passes its suites and the bench qualification for all streams, counters and audio soak, a build switch keeps the all-fabric processor as the shipping default; at the switch-over the processor is deleted, with no dual maintenance. Each function MUST have one state owner. Framing, timestamps on both ports, ingress filtering and media MUST remain fabric-owned. Lever 5 of the [area plan](../design/MARK_II_AREA_PLAN.md#open-owner-decisions) (the MMCM servo in firmware) would move media-clock control to firmware; that conflicts with this row and with NFR-SCOUT-03's audio rule, and it is an open owner decision. gPTP moves to firmware under #665 F6 ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255)), as `flexptpd` ([17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658)); the fabric gPTP plane stays its owner until F6 passes the gPTP qualification, and then leaves. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+ -| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. gPTP deadlines MUST do so while the fabric plane owns gPTP; under #665 F6 each gPTP path MUST state and test its firmware service bound, with the hardware timestamps kept in fabric. | M | A,T |
+++| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 20 ms, approved by the owner on 2026-10-29, or its family's normative 10 % ceiling where that is tighter: its bound is min(T_svc, ceiling), under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. gPTP deadlines MUST do so while the fabric plane owns gPTP; under #665 F6 each gPTP path MUST state and test its firmware service bound, with the hardware timestamps kept in fabric. | M | A,T |
+  | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
+- | NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for v1.2 (#394, FR-MVU-03). | S | A,D |
++ | NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for the current release (#394, FR-MVU-03). Mark II adopts Section 8 redundancy at the 32x32 shape: one entity with a Primary and a Secondary AVB interface, each logical stream a redundant pair ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753), 2026-10-31). Its design is the [stream-engine page](../design/MARK_II_STREAM_ENGINES.md#redundancy-pairing-and-listener-merge), approved before any RTL lane opens; FR-MVU-03 holds until that implementation lands. | S | A,D |
+  | NFR-SCOUT-06 | Increasing stream or endpoint instance counts MUST NOT change the CSR register definitions or end-station configuration schema. | M | I |
+  | NFR-SCOUT-07 | Per-stream and per-port fabric resource costs MUST be documented so a target stream/channel/port shape can be checked against the device budget. | S | A |
+  | NFR-SCOUT-08 | The fabric mailbox ingress filter MUST enforce the exact tuples and identity terms in [product ownership](../../REQUIREMENTS.md#1-product-ownership), including tagged-frame exclusion, per-interface own unicast, MAAP_DEFEND to own unicast (IEEE 1722-2016 B.2.1), both AECP directions and FILTER_MISMATCH for untagged control tuple failures, while retaining per-channel token buckets. The single-source [mailbox contract](../../sw/mailbox/mailbox.yaml) MUST carry these rules. Verify with H-ADP, H-ACMP, H-AECP, H-MAAP and H-SRP in Section 3.4.2, including planted filter defects through both bus adapters and the host mailbox model. | M | A,I,T |
+diff --cc sw/builder/endstation_builder.py
+index dadfbdab91,957fd8ecbd..c14939c481
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@@ -6223,7 -6147,7 +6293,8 @@@ def build(config_path: str, outdir: st
+                  adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
+                  aem_rom_unsupported=art.aem_rom_why,
+                  interface_params=art.iparams, platform=art.shape,
+-                 nvm_split=art.nvm_split, paths=paths)
+++                nvm_split=art.nvm_split,
++                 warnings=identity_warnings(cfg), paths=paths)
+  
+  
+  def main() -> None:
+diff --cc tb/verilator/milan_dp/Makefile
+index 92ba6da508,158e6a687a..93c3887392
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@@ -696,7 -740,7 +754,7 @@@ ax1x1gptp-extended: ax1x1gpt
+  # One inventory owns default execution and CI selection.
+  COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+  PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+- ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split
+ -ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 bootsa
+++ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
+  SUFFIX_CASES = render-mutants
+  CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+  $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+@@@ -719,7 -763,7 +777,8 @@@ CASE_OPTIONS_nolpf = --banner "---- LPF
+  CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
+  CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
+  CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
+ +CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
++ CASE_OPTIONS_bootsa = --banner "---- \#839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----" ./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+  
+  # Keep the original ordered build and bounded simulation phases.
+  # Each selected CI invocation prepares shared inputs before building cases.
+@@@ -1154,4 -1021,4 +1218,4 @@@ counters-mutants: | stack-pi
+  	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
+  
+  clean:
+- 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+ -	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa
+++	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)

@@ -1,0 +1,29 @@
+harness checkout c-b2 at the final head 9715a30a
+command: python3 -I tb/verilator/ctrl_service_budget/record_classes.py <the 13 legs' results directories>
+---
+9715a30ac4f43f58ca96fcc6d29314fad09bf8ae
+results-q1: 1x1/1if none, 24 groups, 391 AECP records
+results-q2: 1x1/1if none, 24 groups, 1233 AECP records
+results-q3: 1x1/1if none, 24 groups, 393 AECP records
+results-q4: 1x1/1if none, 24 groups, 1206 AECP records
+results: 1x1/1if answering-every-port, 16 groups, 1040 AECP records
+results: 1x1/1if answering-ports, 3 groups, 75 AECP records
+results: 1x1/1if valid-destinations, 2 groups, 0 AECP records
+results-a0: 8x8/1if none, 22 groups, 308 AECP records
+results-a1: 8x8/1if none, 24 groups, 2957 AECP records
+results-a2: 8x8/1if none, 24 groups, 2956 AECP records
+results-a3: 8x8/1if none, 25 groups, 339 AECP records
+results: 8x8/1if answering-ports, 1 groups, 21 AECP records
+results: 8x8/1if valid-destinations, 2 groups, 0 AECP records
+1x1/1if held long: the dearest 86,825 CPU cycles, 915 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 20,033 CPU cycles, 215 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 21,526 CPU cycles, 230 us by the rule, stated 235 us (answering-every-port notice-burst-0: command 0x0010)
+1x1/1if held paced: the dearest 28,700 CPU cycles, 305 us by the rule, stated 300 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+8x8/1if reported long: the dearest 163,280 CPU cycles, 1715 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 19,475 CPU cycles, 205 us by the rule, stated 235 us (none save-second: command 0x0010)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 163,280 CPU cycles, 1715 us by the rule, over the long record's 975 us (the largest legal command's)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 160,489 CPU cycles, 1690 us by the rule, over the long record's 975 us (the largest legal command's)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 152,695 CPU cycles, 1605 us by the rule, over the long record's 975 us (the largest legal command's)
+REFUSED 1x1/1if answering-ports aecp-fanout: a record of 28,700 CPU cycles, 305 us by the rule, over the paced record's 300 us (SET_CONFIGURATION, paced)
+RESULT: FAIL
+rc=1

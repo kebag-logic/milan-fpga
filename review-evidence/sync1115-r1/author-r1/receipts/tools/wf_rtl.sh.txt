@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# wf_rtl.sh <head> <root>: rtl.yml's locally run jobs, one after another, each on its own fresh clone: full-ci-gate,
+# yosys-shards 0..3 of 4, yosys-portability, yosys-tool (the verilator-shards partition is the native sweep).
+set -u
+head=$1; root=$2; R=<scratch>/wf/run_wf.py
+run() { echo "$(date +%T) start $*"; python3 $R rtl.yml "$head" "$@" "$root"; echo "$(date +%T) end $* rc=$?"; }
+python3 $R rtl.yml "$head" full-ci-gate "$root"
+for k in 0 1 2 3; do echo "$(date +%T) start yosys-shards $k"; python3 $R rtl.yml "$head" yosys-shards "$root" shard=$k total=4; rm -rf "$root/rtl__yosys-shards-$k/wt"; done
+for j in yosys-portability yosys-tool; do python3 $R rtl.yml "$head" $j "$root"; rm -rf "$root/rtl__$j/wt"; done
+echo "$(date +%T) BATCH DONE"

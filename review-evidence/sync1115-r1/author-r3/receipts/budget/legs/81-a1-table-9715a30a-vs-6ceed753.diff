@@ -1,0 +1,12 @@
+5c5
+< 1 of 37 paths and 1 of 250 probe instances miss their budget.
+---
+> 0 of 37 paths and 0 of 250 probe instances miss their budget.
+34c34
+< | an MRPDU its join timer owes, the longest | 0 | `save-held.mrpdu.leaveall.if0` (save-held) | 160.557 | MISS ceiling | 0 srp | 3 | 1 |
+---
+> | an MRPDU its join timer owes, the longest | 0 | `save-held.mrpdu.periodic.if0` (save-held) | 1.790 | fits | 0 srp | 3 | 0 |
+168c168
+< | an MRPDU its leaveall timer owes, the longest | `save-held.mrpdu.leaveall.if0` | 16,055,717 | 160.557 | 20 | 20 | MISS ceiling | 0 | - | 0.000 |
+---
+> | an MRPDU its leaveall timer owes, the longest | `save-held.mrpdu.leaveall.if0` | 55,717 | 0.557 | 20 | 20 | fits | 0 | - | 0.000 |

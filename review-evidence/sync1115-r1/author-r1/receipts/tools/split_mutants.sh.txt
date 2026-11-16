@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# split_mutants.sh <clone>: plant each #839 gate mutant in the clone's milan_datapath.sv, run make split, restore.
+set -u
+C=$1; F=$C/hdl/milan/milan_datapath.sv; cp $F $F.orig
+plant() {  # name sed-expr
+  cp $F.orig $F; sed -i "$2" $F
+  if cmp -s $F $F.orig; then echo "MUTANT $1: NOT PLANTED"; return; fi
+  (cd $C/tb/verilator/milan_dp && make -j16 split > $C/../mut-$1.log 2>&1); echo "MUTANT $1: make rc=$?"
+  grep -E '^FAIL|checks:' $C/../mut-$1.log
+}
+plant gate-off-ctl 's/^  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;/  assign pp_tx_tvalid_w    = pp_txs_tvalid_w;/'
+plant gate-off-both 's/^  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;/  assign pp_tx_tvalid_w    = pp_txs_tvalid_w;/; s/^  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;/  assign pp_txs_tready_w   = pp_tx_tready_w;/'
+plant one-half 's/^  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;/  assign tx_sa_ok_w = mac_alo_wr_r | mac_ahi_wr_r;/'
+cp $F.orig $F; rm $F.orig
+git -C $C status --porcelain --untracked-files=no

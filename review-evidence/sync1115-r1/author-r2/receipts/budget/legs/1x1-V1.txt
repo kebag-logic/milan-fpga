@@ -1,0 +1,10 @@
+HEAD 10b2fe213d4c2bf5ccd32e61fc466129c934e31e DIRTY 0 point 1x1 jobs 2 args --variant valid-destinations start 2026-11-16T06:02:02
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2557 passes carry the store's step; the longest 24,514 CPU cycles (0.245 ms), srp-talker; the longest step 2,407 (0.024 ms), srp-talker
+SLICES 152384 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 46,932, THE RETRY's round 1,734 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS srp-talker: 10 join interval(s), the shortest 188.262 ms and the longest 190.028 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 39 empty, 1 late
+JOINS srp-talker-loss: 5 join interval(s), the shortest 188.262 ms and the longest 189.973 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 12 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 3 paths), 0 of 2666 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp-talker: the leaveall timer's run-out at 14054.095 ms, its first frame or build 160.473 ms after it, past THE TRANSMIT's 49 ms (late)
+END rc=1 2026-11-16T11:34:37

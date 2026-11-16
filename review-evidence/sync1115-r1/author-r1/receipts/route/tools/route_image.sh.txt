@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# route_image.sh <repo> <work> <boot-dir> <config-stem>: the split image of the config at one interface for the
+# integrated route, through the split recipe in <repo> (S9's recipe as lane 917 ran it): the builder at control.placement
+# split, a stand-in export for the CSR map, the flash port's map, the platform image linked against them, the split
+# export with the identity gate, and the M0s recipe's integrated script (full-split census).
+set -euo pipefail
+. <scratch>/rt/tools/env_rt.sh
+L=$1; W=$2; B=$3; STEM=$4; CFG=configs/$STEM.yaml
+FLOW=(--synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --vivado-max-threads 32)
+cd "$L"; echo "head $(git rev-parse HEAD)"
+/usr/bin/python3 sw/builder/endstation_builder.py "$CFG" --placement split
+mapfile -t ARGV < <(/usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))['argv']))" sw/builder/out/$STEM/soc_params.json)
+FW=$(printf '%s\n' "${ARGV[@]}" | grep -A1 -x -- --ctrl-firmware | tail -1)
+echo "recipe argv names --ctrl-firmware $FW"
+STANDIN=$B/image-provisional/ctrl_app.elf
+STAND_ARGV=("${ARGV[@]}"); for i in "${!STAND_ARGV[@]}"; do [ "${STAND_ARGV[$i]}" = "$FW" ] && STAND_ARGV[$i]=$STANDIN; done
+mkdir -p "$W"; rm -rf "$W/standin" "$W/flash-map" "$W/image" "$W/split"
+(cd sw/litex && "$PY" milan_soc.py "${STAND_ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/standin" > "$W/standin.log" 2>&1)
+"$PY" -B sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$W/standin/csr.csv" --csr-h "$W/standin/software/include/generated/csr.h" --out "$W/flash-map"
+"$PY" -B sw/firmware/ctrl/test/ctrl_plat_image.py --config "$CFG" --interfaces 1 --csr-csv "$W/standin/csr.csv" --flash-map "$W/flash-map" --output "$W/image" --libc "$B/runtime/libc.a" --compiler-runtime "$B/runtime/libcompiler_rt.a" > "$W/image.log" 2>&1
+cat "$W/image.log" | head -80
+cp "$W/image/ctrl_app.elf" "$FW"
+(cd sw/litex && "$PY" milan_soc.py "${ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/split" > "$W/split.log" 2>&1)
+tail -2 "$W/split.log"
+diff <(grep -E '^(csr_base|csr_register|constant|memory_region),' "$W/standin/csr.csv" | grep -v -E '^memory_region,(rom|sram),') \
+     <(grep -E '^(csr_base|csr_register|constant|memory_region),' "$W/split/csr.csv" | grep -v -E '^memory_region,(rom|sram),') && echo "csr map: the image's equals the stand-in's"
+"$PY" sw/litex/check_image_identity.py "$W/split"
+/usr/bin/python3 syn/ooc/pp_baseline.py "$W/split/gateware" --placement full-split --single-thread-synthesis
+echo done

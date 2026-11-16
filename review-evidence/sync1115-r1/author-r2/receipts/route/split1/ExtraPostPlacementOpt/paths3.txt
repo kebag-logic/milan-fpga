@@ -1,0 +1,28 @@
+head 10b2fe213d4c2bf5ccd32e61fc466129c934e31e (split1 ExtraPostPlacementOpt (integrated))
+command: paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.189 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[10]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[0]/D
+    Data Path Delay:        9.701ns  (logic 2.609ns (26.893%)  route 7.092ns (73.107%))
+    Logic Levels:           15  (CARRY4=1 LUT2=1 LUT4=1 LUT5=4 LUT6=8)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.189 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[10]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[0]/D
+    Data Path Delay:        9.701ns  (logic 2.609ns (26.893%)  route 7.092ns (73.107%))
+    Logic Levels:           15  (CARRY4=1 LUT2=1 LUT4=1 LUT5=4 LUT6=8)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.385 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+    Destination:            FDPE_19/D
+    Data Path Delay:        0.523ns  (logic 0.379ns (72.428%)  route 0.144ns (27.572%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +1.296 ns, group eth_clocks0_rx
+    Source:                 FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[36]/CE
+    Data Path Delay:        6.452ns  (logic 1.857ns (28.780%)  route 4.595ns (71.220%))
+    Logic Levels:           7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[40]/C
+    Destination:            milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_120_125/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

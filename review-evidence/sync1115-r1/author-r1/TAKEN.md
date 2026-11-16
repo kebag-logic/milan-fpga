@@ -1,0 +1,9 @@
+[A787] TAKEN
+
+Sync of dev `6b66f66d` into dev-soft-core, under item 3 of the ruling above (owner branch policy of 2026-10-26: dev stays the all-fabric line, dev-soft-core takes dev's merged work until the flip).
+
+Branch: `sync-dev-6b66f66d-into-dev-soft-core`, from dev-soft-core `659d7687`. Local until the manager pushes and opens the PR.
+Authoritative references: the ruling above, item 3; the S12b rehearsal report above, its gPTP group; the previous sync, PR #830 (its shape); dev's #846 (#843: IEEE 802.1AS-2011 8.6.2.3, 10.3.9.1, 11.4.1; Milan v1.2 4.2.6.2.6) and #842 (#840); the ledger PRs #847, #852 and #893.
+Interpreted scope: one `--no-ff` merge of dev `6b66f66d` (merge base `1f29f189`, the #830 sync) with every textual conflict resolved keeping both sides' intent and listed in a resolution table; then one commit per semantic conflict and per regeneration, generated files only through their generators. Submodule pins follow dev (gptp-processor `1616fc8f`, protocol-processor `801ef228`); the split-only tsn-c-stack pin stays. For each #843 item and #840, where the split image gets it, or why it does not apply. A ledger for #847, #852 and #893: each one's split counterpart, or "not applicable" with the reason; a missing counterpart is reported, not fixed. The split's CPU service-budget rows at 1x1/1if and 8x8/1if, ROM per image, and the two split platform images and the release AX7101 1x1 image through their recipes with timing met. No behaviour beyond what the merge brings.
+Validation plan: every hosted job step run locally on a clean clone of the final head, each skip with its reason; the ctrl firmware campaigns and `fw_coverage --check`; the native sweep of 65 suites in 4 shards; elaborate; Yosys; the docs workflow; the budget harness at both shapes; the three Vivado builds, one at a time.
+Blockers: none
