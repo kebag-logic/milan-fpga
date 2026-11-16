@@ -240,12 +240,12 @@ class Ledgered:
 #: size in that image, so a change to that struct refuses the override until the size is measured again here. Each
 #: is owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5; every other point
 #: stays within 56. Each entry is its image's measured tiles, under the owner's rule of 2026-11-15 that the control
-#: memory's ROM may overflow as debt owed to S14, which supersedes the 60.5 cap of 2026-11-12 until S14 (#923's
-#: ruling of 2026-11-16), and refuses its image half a tile past: the size fixture's at 60.0, its entry at 59.5, the
-#: target platform's 8x8 two-interface image at 61.5, its entry at 61.0, and its 8x8 one-interface image, a product
-#: image, at 57.0, its entry at 56.5. The platform's image is linked at every point with the override its point
-#: takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan
-#: past its tiles is refused where it happens.
+#: memory's ROM may overflow as debt owed to the cold-code-to-flash work, which supersedes the 60.5 cap of 2026-11-12
+#: until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past: the size fixture's at
+#: 60.0, its entry at 59.5, the target platform's 8x8 two-interface image at 61.5, its entry at 61.0, and its 8x8
+#: one-interface image, a product image, at 57.0, its entry at 56.5. The platform's image is linked at every point with
+#: the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale
+#: ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
                                    59.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
