@@ -234,8 +234,7 @@ class Ledgered:
 #: ctrl_plat_image.py). The product SoC build (milan_soc.add_ctrl_memory) and
 #: the platform image's link without --ledgered-point name a point only where
 #: an entry is a product entry and the image carries its symbols
-#: (`product_point`, the owner's standing rule of 2026-11-15 as #923's ruling
-#: of 2026-11-16 applies it, issuecomment-6906679024): the target platform's
+#: (`product_point`, #919 and #923): the target platform's
 #: 8x8 image with one interface, a shipping image; every unledgered image stays
 #: refused past 56 RAMB36. The measurement harness names the size
 #: fixture's for that point only (its image and SoC plan,
@@ -253,8 +252,9 @@ class Ledgered:
 #: the platform's two-interface image at 61.5, its entry at 61.0: 60.5, the owner's decision's cap (#665), which
 #: #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling
 #: of 2026-11-12 ledgered the size fixture's at its cap, then 61.0 with the PHY poll (#919) on that image, by the
-#: owner's rule of 2026-11-15, which supersedes the cap until S14; and the platform's one-interface image at 57.0,
-#: its entry at 56.5, by the same rule (#919: #895's declarations and the PHY poll). The
+#: owner's rule of 2026-11-15, which supersedes the cap until the hybrid XIP work (#665 decision D3); and the
+#: platform's one-interface image at 57.0, its entry at 56.5, by the same rule (#919: #895's declarations and the
+#: PHY poll). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
