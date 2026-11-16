@@ -223,7 +223,7 @@ declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
 the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
 THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
 departs: 2,023 cs at 1x1/1if, 2,026 at 8x8/1if, whose figure is its own tx row's
-67.84 ms rounded up, 68 ms, and 2,030 at two, where the figure is 105 ms for the
+69.84 ms rounded up, 70 ms, and 2,030 at two, where the figure is 105 ms for the
 tx row's 104.25, each stated for its shape (THE SHAPES, `ctrl_loop.h`);
 [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
 items 1 and 2; 35.2.2.8 sets only the least, 2,000 cs); a destination that

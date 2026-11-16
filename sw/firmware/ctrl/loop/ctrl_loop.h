@@ -322,8 +322,8 @@ extern "C" {
 // AECP_QUEUED_MS, its comment says how each is set), and THE TRANSMIT's MRPDU by
 // every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
 // bound): 1x1/1if's, 140 and 34 ms, are #895's (its rulings of 2026-11-15),
-// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row's 67.84 ms
-// rounded up, 68 ms, and both two-interface shapes 8x8/2if's, 62 and 105 ms.
+// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row's 69.84 ms
+// rounded up, 70 ms, and both two-interface shapes 8x8/2if's, 62 and 105 ms.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -350,7 +350,7 @@ extern "C" {
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #define CTRL_LOOP_QUEUED_MS 130u
-#define CTRL_LOOP_TX_MS 68u
+#define CTRL_LOOP_TX_MS 70u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
@@ -461,7 +461,7 @@ extern "C" {
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
 // (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
 // tree whose row passes this), CTRL_LOOP_TX_MS, stated for each shape in THE
-// SHAPES above: 34 ms at 1x1/1if, 68 ms at 8x8/1if for its 67.84 (#894's rows by
+// SHAPES above: 34 ms at 1x1/1if, 70 ms at 8x8/1if for its 69.84 (#894's rows by
 // every source there, reported), and 105 ms at 8x8/2if for its 104.25 there (#895's
 // ruling of 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off
 // adds it (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At

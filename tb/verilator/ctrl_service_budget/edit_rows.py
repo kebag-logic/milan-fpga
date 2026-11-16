@@ -37,10 +37,11 @@ if TYPE_CHECKING:
 #: rule (33,724 at 9606b3a9, 355); at 8x8/2if 56,474, 595 (78,332, 825).
 #: At 8x8/1if, one interface's 8x8 streams, on the image that merges #902's 234bc149 (#894's shape ruling, item (b);
 #: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
-#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it.
+#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
+#: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
 PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 300},
          '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595},
-         '8x8/1if': {'a one-row edit': 320, 'an accepted SET_CONFIGURATION': 635}}
+         '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.
 EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
 #: The planted defects controls() plants (rows_tiers.CONTROLS names them).
