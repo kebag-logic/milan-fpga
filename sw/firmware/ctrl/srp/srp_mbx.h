@@ -30,6 +30,9 @@ struct srp_sink {
     uint8_t desired;
     uint8_t declared;
     uint8_t registered_kinds; // copied indication state: bit 0 Failed, bit 1 Advertise
+    // The kind (that bit) of its StreamID's latest Talker registration indicated while bound, 0 none, which decides
+    // while both kinds are registered (#925, listener_kind).
+    uint8_t latest_kind;
     // Latest continuous kind before the first withdrawal of this binding.
     // A later receive cannot erase that withdrawal before ACMP consumes it.
     uint8_t feedback_kind;

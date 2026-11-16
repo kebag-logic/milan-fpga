@@ -109,6 +109,41 @@ TEST_F(SrpFeedback, FailedToAdvertiseUpdatesTheSettledWireView) {
     }
 }
 
+// #925: a Talker Advertise New over a registered Talker Failed is the latest registration, so ACMP and the wire see
+// Advertise at once (IEEE 802.1Q-2018 35.2.4, 35.2.6), Failed again when it leaves, and the Failed's Leave withdraws.
+TEST_F(SrpFeedback, AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView) {
+    for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); registration(k,true,1,k); current_kind(k,true); }
+    for (unsigned k=0;k<2u;++k) {
+        registration(k,false,0,k);
+        ASSERT_EQ(sink(k).registered_kinds,3u) << "the Failed is still registered beside the New";
+        current_kind(k,false);
+        registration(k,false,5,k);
+        current_kind(k,true);
+        registration(k,true,5,k);
+        reprobed(k);
+        if (k==0) { current_kind(1,true); }
+    }
+}
+
+// #925: the kind a withdrawal inside one MRPDU retains is the latest's. With Advertise latest beside Failed, a
+// Failed JoinIn of another destination replaces the Advertise and leaves the binding none: ACMP keeps Advertise up
+// to the withdrawal and never sees Failed.
+TEST_F(SrpFeedback, AWithdrawalInsideOneMrpduRetainsTheLatestKind) {
+    for (unsigned k=0;k<2u;++k) {
+        bind(k); response(k,k); registration(k,true,1,k); registration(k,false,0,k);
+        current_kind(k,false);
+        auto frame=talker(k,true,1);
+        frame[29]^=1u; // the same StreamID to another destination
+        bool saw_failed=false;
+        fk.hook_kind=Call::CHANGED;
+        fk.hook=[&] { saw_failed=saw_failed || core()->sinks[k].tk_failed; };
+        queue(k,frame); settle();
+        EXPECT_FALSE(saw_failed) << "the latest kind precedes the withdrawal";
+        reprobed(k);
+        fk.hook=nullptr;
+    }
+}
+
 TEST_F(SrpFeedback, WithdrawalThenRegistrationRetainsTheFirstEvent) {
     for (unsigned k=0;k<2u;++k) {
         bind(k); response(k,k); registration(k,false,0,k);

@@ -243,6 +243,20 @@ withdrawal is owed. THE TRANSMIT's next call meets no frame owed, so its first
 declarations take the Leave, and the hold-off starts at the Leave lwSRP took.
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
+A talker declares one of the two for a stream (IEEE 802.1Q-2018 35.2.4), and a
+registration of the other kind replaces the one held (35.2.6). lwSRP withdraws
+the old one for a received JoinIn or JoinMt but registers a New beside it, so
+while both are registered the one registered latest decides the declaration
+and the kind ACMP sees, and the other decides once the latest leaves (#925).
+A Talker Advertise's New over a registered Talker Failed is Ready within a
+JoinTime, as a first registration is, not at the talker's next MRPDU. Every
+binding of a StreamID holds which kind its latest registration was, whatever
+its destination, and a binding made later takes it from them; one that saw
+neither registration (bound after both, with no other binding of the
+StreamID) takes Failed until one kind leaves. `srp_mbx.cpp`'s `SrpTalkerKinds`
+and `test_acmp_mbx.cpp`'s `SrpFeedback` tests hold both replacements, either
+leave, coincident registrations in one MRPDU and a later binding, each with a
+`feedback-latest-` planted defect in `srp_mutants.py`. No SRP timer changes.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
 
 Startup declares Domain class 6, priority 3, VID 2 and MVRP membership in VID 2.
@@ -466,7 +480,8 @@ of every processor state. The complete original processor suites run separately.
 
 Milan v1.2 4.2.7.2.2 governs D1; IEEE 802.1Q-2018 35.2.2.7.2 governs D2.
 JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6;
-conflicting New registrations retain Failed precedence until replacement/expiry.
+of conflicting New registrations the latest decides while it stays registered
+(#925), as the processor's in-place type swap takes every registering event.
 
 ## Integration still owed
 
