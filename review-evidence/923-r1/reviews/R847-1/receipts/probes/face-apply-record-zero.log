@@ -1,0 +1,102 @@
+Note: Google Test filter = Face.*
+[==========] Running 20 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 20 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (5 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4291: Failure
+Expected equality of these values:
+  ordinals()
+    Which is: { 0, 0, 1, 0, 0, 0, 0 }
+  (P{0,0,1,0,0,1,0})
+    Which is: { 0, 0, 1, 0, 0, 1, 0 }
+each record's beat names its record
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: each record's beat names its record
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4298: Failure
+Expected equality of these values:
+  far.beats[5].r
+    Which is: {0,1,1,0}
+  (aecp_mapping{0,2,2,0})
+    Which is: {0,2,2,0}
+the record as its two wire quadlets
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: the record as its two wire quadlets
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4123: Failure
+Expected equality of these values:
+  got
+    Which is: { {0,1,1,0}, {0,2,2,0} }
+  want
+    Which is: { {0,1,1,0} }
+GET_AUDIO_MAP and the datapath's store hold the same mappings
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: GET_AUDIO_MAP and the datapath's store hold the same mappings
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4123: Failure
+Expected equality of these values:
+  got
+    Which is: { {0,2,2,0} }
+  want
+    Which is: {}
+GET_AUDIO_MAP and the datapath's store hold the same mappings
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: GET_AUDIO_MAP and the datapath's store hold the same mappings
+[  FAILED  ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow (0 ms)
+[ RUN      ] Face.ARefusedBeatAbortsAndNothingMoves
+[       OK ] Face.ARefusedBeatAbortsAndNothingMoves (0 ms)
+[ RUN      ] Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+[       OK ] Face.AnUnansweredEditFailsUntilItsCommitIsReserved (0 ms)
+[ RUN      ] Face.RestoredMapsReachTheStoreThroughTheEditWindow
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4378: Failure
+Expected equality of these values:
+  phases()
+    Which is: { 0, 4, 4, 1, 5, 5, 2, 0, 4, 3, 0, 4, 4, 1, 5, 5, 2 }
+  (std::vector<unsigned>{0,4,4,1,5,5,2,0,4,4,1,5,5,2})
+    Which is: { 0, 4, 4, 1, 5, 5, 2, 0, 4, 4, 1, 5, 5, 2 }
+the reset set removed, then the restored set added
+
+  [FAIL] Face.RestoredMapsReachTheStoreThroughTheEditWindow: the reset set removed, then the restored set added
+[  FAILED  ] Face.RestoredMapsReachTheStoreThroughTheEditWindow (0 ms)
+[ RUN      ] Face.TheRunningCheckReadsOneWindowWordAStream
+[       OK ] Face.TheRunningCheckReadsOneWindowWordAStream (0 ms)
+[ RUN      ] Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[       OK ] Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (5 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (5 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 20 tests from Face (20 ms total)
+
+[----------] Global test environment tear-down
+[==========] 20 tests from 1 test suite ran. (20 ms total)
+[  PASSED  ] 18 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+[  FAILED  ] Face.RestoredMapsReachTheStoreThroughTheEditWindow
+
+ 2 FAILED TESTS
+== AECP core: checks: 20   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 20 checks, exit 1)
