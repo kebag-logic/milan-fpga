@@ -21,6 +21,12 @@ build. The gate holds 1x1/1if in both: the pin's column is the image that merges
 move owes, which carries tsn-c-stack #28, #31 and #32. The donor's column may state below the pin's only a cost whose
 work runs the ACMP core's walk (WALK); any other such cost fails.
 
+The pin already carries tsn-c-stack#32 (#930): 715589c is the merge of tsn-c-stack PR #34, which closed #32, and its
+src/ and include/ are the donor's 9043b926, which the donor's column was measured on. So both columns state one
+image's costs. The pin's column holds as well what images built before the pin moved measured for the five costs the
+walk moves (WALK), the larger, since a statement never goes down; the donor's holds only what images carrying #32
+measured. A ceiling is read at the pin's column (flip_grade.py's REPORTED point, the merge gate's own reading).
+
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
                  and not per stream, so the same at every shape; the burst is a window's first records, not a rate.
