@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 #include "srp_fixture.hpp"
+#include <array>
 FW_TALLY_LABEL("ctrl SRP mailbox");
 namespace {
 std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6], uint16_t vid) {
@@ -1450,23 +1451,33 @@ TEST_F(Srp, HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep) {
     mbx_model_set_link(&model,0,true); settle(); expect_held(adapter,"link up");
 }
 
+// #930: a Listener's change is copied where lwSRP reports it, so its record walks no registrar; a Talker's
+// registration, which the walk copies to the sinks, is copied once, after its record.
 TEST_F(Srp, ARecordThatChangesNoRegistrationCostsNoWalk) {
     settle();
     // No poll runs between these records (receive_before_poll), so no licence changes.
     const uint32_t first=adapter.walks;
     receive_before_poll(frame(3,identity(),1,2));
-    EXPECT_EQ(adapter.walks,first+1u)<<"a new registration is copied once, after its record";
+    EXPECT_EQ(adapter.walks,first)<<"a new Listener registration is copied with no walk";
+    EXPECT_TRUE(adapter.ifs[0].registered[0]); EXPECT_TRUE(adapter.ifs[0].listener_present[0]);
     for(unsigned n=0;n<4;++n) {
         const uint32_t before=adapter.walks;
         receive_before_poll(frame(3,identity(),1,2));
         EXPECT_EQ(adapter.walks,before)<<"a record that changes nothing walks no registrar";
     }
     EXPECT_TRUE(adapter.ifs[0].registered[0]);
-    const uint32_t before=adapter.walks;
+    uint32_t before=adapter.walks;
     receive_before_poll(frame(3,identity(),1,1));
-    EXPECT_EQ(adapter.walks,before+1u)<<"a changed declaration is copied after its record";
-    EXPECT_FALSE(adapter.ifs[0].registered[0]);
+    EXPECT_EQ(adapter.walks,before)<<"a Listener's declaration changed in place is copied with no walk";
+    EXPECT_FALSE(adapter.ifs[0].registered[0]); EXPECT_TRUE(adapter.ifs[0].listener_present[0]);
     settle(); expect_held(adapter,"settled");
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const std::array<uint8_t,6> da{0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da.data(),2)); settle();
+    before=adapter.walks;
+    receive_before_poll(frame(1,talker_value(sid,da.data(),2),1));
+    EXPECT_EQ(adapter.walks,before+1u)<<"a new Talker registration is copied once, after its record";
+    settle(); expect_held(adapter,"a Talker registered");
 }
 
 // A sink bound to the entity's own stream shares each attribute with a source:

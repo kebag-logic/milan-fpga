@@ -59,8 +59,11 @@ struct srp_interface {
     bool link;
     bool vlan_sent;
     bool domain_owed;
-    // The registrar, an indication or a binding changed what snapshot copies
-    // since it last walked the registrar: it walks only then (#665).
+    // A Talker's indication, a declaration or a binding changed what snapshot
+    // copies since it last walked the registrar: it walks only then (#665). A
+    // Listener's change is copied where lwSRP reports it, with no walk, and a
+    // Registrar change owes none, each such change of what the walk copies
+    // coming with an indication (#930).
     bool stale;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665).

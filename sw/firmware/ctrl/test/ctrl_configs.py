@@ -170,6 +170,8 @@ OUTSIDE = {
                                              "campaign plants; it compiles nothing",
     "sw/firmware/ctrl/test/srp_talker_mutants.py": "SRP's Talker declarations' planted defects (#895), which the "
                                                    "SRP campaign (srp_mutants.py) plants; it compiles nothing",
+    "sw/firmware/ctrl/test/srp_listener_mutants.py": "SRP's Listener copies' planted defects (#930), which the "
+                                                     "SRP campaign (srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "

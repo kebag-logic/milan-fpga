@@ -77,7 +77,9 @@ This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/bl
 and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
-Such a change is a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+Such a change is a Talker's indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+A Registrar state change owes no walk (#930): each change of what the walk copies, whether a Talker or a Listener registers and what it registers, comes with an indication, since every Registrar change into or out of MT does (IEEE 802.1Q-2018 Table 10-4) and lwSRP indicates a value changed while it registers.
+A Listener's change is copied where lwSRP reports it, as the walk copies that Listener, so it owes no walk either: its indication copies its declaration, and lwSRP's transition observer its presence.
 Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
 The receive filter, the indications and the walk compare each StreamID and destination MAC with `same`, an equality test that stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2), so a record's comparisons no longer pay `memcmp`'s alignment checks and the byte loop that orders a difference (#665).
 The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.

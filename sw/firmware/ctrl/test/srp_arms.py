@@ -16,6 +16,11 @@ from ctrl_arms import lwsrp_pin, symbols, fabric_view
 LWSRP_SOURCES = ("core/mrp_mad.c", "core/mrp_pdu.c", "ports/timer.c", "modules/msrp.c", "modules/mvrp.c")
 SRP_SOURCES = PORTABLE + ("srp/srp_mbx.c", "app/ctrl_app_srp.c")
 DEFAULT_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+#: srp_listeners.cpp's seams (#930): the firmware's calls of lwSRP's msrp_app_create and mrp_set_observer, which only
+#: srp_mbx.c makes, renamed to the suite's, which restore the reference walk's schedule in its reference run.
+LISTENER_SEAMS = ("-Dmsrp_app_create=srp_test_msrp_app_create", "-Dmrp_set_observer=srp_test_set_observer")
+#: The 8x8 entity, whose one-interface shape srp_listeners.cpp runs at beside 1x1/1if (#930).
+ENTITY_8X8 = ROOT / "configs/endstation_ax7101_8x8.yaml"
 
 
 def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple[Path, list[str]]:
@@ -68,6 +73,8 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
                            address_sanitizer=tree.build.address_sanitizer,
                            jobs=tree.build.jobs,cache=tree.build.cache)
     flags = [*C_FLAGS, "-UNDEBUG" if debug else "-DNDEBUG"]
+    if test == "srp_listeners.cpp":
+        flags += LISTENER_SEAMS
     sources = [source(variant if p.startswith("mbx/") else tree.src, tree.stack, p) for p in SRP_SOURCES]
     try:
         ours = fw_gtest.compile_c(build,flags,inc,sources,out / "firmware")
@@ -95,6 +102,12 @@ def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
             arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml"),
             arm_srp(tree, lwsrp, 2, test=("test_acmp_mbx.cpp", "SrpGate.*"),
                     config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
+
+
+def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """SRP's Listener copies against the reference walk (#930): srp_listeners.cpp at 1x1/1if and 8x8/1if."""
+    return [arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp"),
+            arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
 
 
 def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,

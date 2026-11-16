@@ -12,6 +12,7 @@ import srp_compare_mutants
 import srp_retry_mutants
 import srp_transmit_mutants
 import srp_talker_mutants
+import srp_listener_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -62,9 +63,11 @@ DEFECTS = (
            'i->listener_present[n] = true;', 'i->listener_present[n] = v[8] == 2u || v[8] == 3u;',
            'registered Listener controls only its source interface gate',
            suite='test_acmp_mbx.cpp'),
+    # #930: a withdrawal's presence is copied where lwSRP reports its Registrar change, no longer by the walk.
     Defect('four-way-f3b-withdrawal-stale',
            'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
-           'memset(i->listener_present,0,sizeof(i->listener_present));', '',
+           'i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;',
+           'i->listener_present[n] = i->listener_present[n] || t->reg_to != MRP_REG_STATE_MT;',
            'registered Listener controls only its source interface gate',
            suite='test_acmp_mbx.cpp'),
     Defect(
@@ -931,9 +934,11 @@ DEFECTS += srp_transmit_mutants.defects(Defect)
 DEFECTS += srp_retry_mutants.defects(Defect)
 DEFECTS += srp_compare_mutants.defects(Defect)
 DEFECTS += srp_talker_mutants.defects(Defect)
+DEFECTS += srp_listener_mutants.defects(Defect)
 
-def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
-    """Run every mutation in a reusable isolated checkout; true means a failure."""
+def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+    """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
+    config, at either interface count (#930: 8x8/1if); otherwise the two-interface campaign plants each at its own."""
     build=fw_gtest.Build(jobs=jobs)
     failed=False
     root.mkdir(parents=True,exist_ok=True)
@@ -950,9 +955,10 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> boo
         target.write_text(source)
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
-            entity={"config": ROOT/"configs"/(d.entity+".yaml")} if d.entity and interfaces==2 else {}
+            config=entity or (d.entity if interfaces==2 else "")
+            at={"config": ROOT/"configs"/(config+".yaml")} if config else {}
             result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,
-                           debug=d.debug,test=(d.suite, selected),**entity)
+                           debug=d.debug,test=(d.suite, selected),**at)
             ok=caught(selected,d.needle,result)
             (root/(d.name+".log")).write_text(result.log)
             print(f"[{'ok' if ok else 'ESCAPED'}] {d.name}: {d.test} / {d.needle}",flush=True)
