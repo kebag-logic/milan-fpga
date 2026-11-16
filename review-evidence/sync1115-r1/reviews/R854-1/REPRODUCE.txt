@@ -1,0 +1,46 @@
+Run from an isolated checkout at 6ceed75374210935cff4f10d014b9a5ef137615e.
+Initialize the five tested submodules at the superproject gitlinks.
+PACKET is this receipt directory; REPO is the isolated checkout.
+Use PACKET/scratch for temporary and build trees.
+
+Core finding, no build required:
+  python3 -B "$PACKET/probe_leaveall.py" "$REPO"
+  The overlap must reproduce two sent, no failures and 1 ms rows despite
+  the independently specified skipped MSRP opportunity. The clean overlap
+  passes and the single-participant late control fails.
+
+Source and identity checks:
+  python3 -B "$PACKET/verify_source.py" "$REPO"
+  python3 -B "$PACKET/audit_composition.py" "$REPO"
+  python3 -B "$PACKET/check_identity.py" "$REPO"
+
+Focused RTL execution (VERILATOR names a verified 5.050 executable):
+  make -j16 -C "$REPO/tb/verilator/milan_dp" build-split \
+    VERILATOR="$VERILATOR" VERILATOR_JOBS=12 \
+    SPLIT_MDIR="$PACKET/scratch/split-clean"
+  (cd "$REPO/tb/verilator/milan_dp" && "$PACKET/scratch/split-clean/Vmilan_dp_split")
+  python3 -B "$PACKET/probe_split_gates.py" "$REPO" "$VERILATOR"
+  The latter runs two plants concurrently, six compiler jobs each.
+  Both builds must pass; both mutant simulations must return nonzero and
+  fail their specified checks; the campaign returns zero only then.
+
+Focused repository checks from REPO:
+  python3 -B tb/verilator/ctrl_service_budget/selftest.py
+  python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+  python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+  python3 -B scripts/docs_inventory.py --check
+  python3 -B docs/diagrams/submodule_boundaries.gen.py --check
+  rsvg-convert -w 1800 docs/diagrams/flash_layout.svg -o "$PACKET/scratch/flash_layout.png"
+  cmp docs/diagrams/flash_layout.png "$PACKET/scratch/flash_layout.png"
+  git diff --check 659d7687 HEAD
+
+Public evidence audit:
+  Fetch archive 2b4066cafdd14e0351f6d73d0f59608f93577ce1 from the public repository.
+  Extract only review-evidence/sync1115-r1/author-r1, author-r2 and author-r3
+  into PACKET/scratch with git archive. No reviewer reports are needed.
+  python3 -B "$PACKET/audit_evidence.py" "$PACKET/scratch/review-evidence/sync1115-r1"
+
+The raw logs in this packet are the completed executions, not commands
+scheduled for later. All commands ran in foreground process trees and all
+focused processes completed before finalization. No full validation bank is
+part of this reproducer. Do not publish scratch/.

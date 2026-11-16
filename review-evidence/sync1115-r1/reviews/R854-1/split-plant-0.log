@@ -1,0 +1,17 @@
+[PUB] SID_VALID to the listener: 9 mailbox cycles
+[POL] LICENCE 0x0001: active 0x0001 admitted 0x0001 gate 0x0001 crf 0
+[POL] LICENCE 0x0002: active 0x0002 admitted 0x0002 gate 0x0002 crf 1
+[FACE] commit to BUSY clear: 2 polls
+[WIN] CTR round 0: status 0x102 data 0x0 in 6 polls
+[WIN] CTR round 1: status 0x202 data 0x0 in 5 polls
+[WIN] AMAP: status 0x102 data 0x1 in 10 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 6 polls
+FAIL [TX] the gate holds the committed frame before the station MAC is written (#839)
+FAIL [TX] ...and with its low half alone
+FAIL [TX] ...byte for byte
+[TX] commit to the MAC's last byte: 0 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 2, up again after 2
+[TAP] burst: 109 frames offered, 65 handed out, 44 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+ran 133623 mailbox cycles
+checks: 84   failures: 3
