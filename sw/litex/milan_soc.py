@@ -3341,7 +3341,8 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
                                   f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
     soc.ctrl_image = ctrl_memory.read_elf(firmware)
-    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+    # a ledgered image at its own entry, by its symbols; every other image at the 56-RAMB36 budget (#923)
+    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.own_point(soc.ctrl_image))
     for region, banks, words, mode in (
             (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
             (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
