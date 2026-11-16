@@ -35,8 +35,8 @@ FACE_ACK_CYCLES bus cycles after fw_send_o rises, the slowest datapath the
 contract allows, so the measured CPU budget includes the longest commit wait.
 The EDIT window is answered at its bound, every beat accepted (StimulusMailbox.slowest_edit), since
 ADD and REMOVE_AUDIO_MAPPINGS commit each edit through it (#923); the other window answers and the face
-events stay idle, so their requests time out as the fabric-less split SoC sees them. KL_mbx_wb reaches KL_mbx through the
-split placement's record mover, milan_soc's own CtrlMailboxDma on the CPU's
+events stay idle, so their requests time out as the fabric-less split SoC sees them. KL_mbx_wb
+reaches KL_mbx through the split placement's record mover, milan_soc's own CtrlMailboxDma on the CPU's
 DMA bus, its CSR bank where the image addresses it
 (ctrl_build.SPLIT_MBX_DMA_BASE); the host-port pads are KL_mbx's side, so
 the testbench sees the mover's ring accesses and the CPU's alike. The flash keeps

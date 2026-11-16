@@ -58,6 +58,11 @@ So this SoC differs from `CtrlMailbox` in that input, which it acknowledges at t
 The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
 The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before contract 2.3.
 
+**The EDIT window is answered at the contract's bound** ([#923](https://github.com/kebag-logic/milan-fpga/issues/923)).
+An ADD or REMOVE_AUDIO_MAPPINGS the image's AECP owner accepts runs its transaction on the face block's `EDIT` window before its map moves (`aecp_face.c`, `edit`), and the restored maps reach it the same way when AECP opens.
+This SoC answers every `EDIT` request with the verdict 1 and its tag, `wait_cycles` - 1 bus cycles after it opened, the last cycle `KL_mbx`'s window takes an answer (`split_soc.StimulusMailbox.slowest_edit`), so each edit's record is measured with the longest wait the contract allows for each of its beats.
+The other windows stay idle.
+
 Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 

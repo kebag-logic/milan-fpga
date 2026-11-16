@@ -3949,7 +3949,8 @@ struct Far {
     std::map<std::pair<unsigned,unsigned>,std::vector<aecp_mapping>> live;  // port (type, index): its mappings
     std::vector<std::pair<unsigned,unsigned>> dynamic{{14,0},{15,0}};
     std::vector<aecp_mapping> claims;
-    bool open=false,moved=false;
+    bool open=false;   // a transaction begun on a dynamic port
+    bool moved=false;  // and a mapping changed
     std::function<unsigned(const Beat &)> mute;
     static bool keyed(bool input,const aecp_mapping &x,const aecp_mapping &y) {
         return input?x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel:x.stream==y.stream&&x.channel==y.channel;

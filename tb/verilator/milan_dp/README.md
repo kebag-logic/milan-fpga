@@ -109,6 +109,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+- **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1742,6 +1743,31 @@ make -C tb/verilator/milan_dp srptx
 make -C tb/verilator/milan_dp srptx-plants
 make -C tb/verilator/milan_dp srptx-mutants
 ```
+
+## The split image's audio maps on the render store (`obj_twin_maps`, #923)
+
+`make twin-maps` runs the split half's binary with `--maps`
+([`twin_split.cpp`](twin_split.cpp), `maps_main`): the platform firmware
+boots on `tb_split_top` as the twin's split half does, and the bench sends it
+AEM commands through the MAC and reads the datapath's render map store,
+`amap_in_store_r` ([`twin_probes.vlt`](twin_probes.vlt) makes it readable;
+the RTL is unchanged). Each check prints PASS or FAIL with its label and words,
+and the binary exits 1 on any FAIL:
+
+| Label | What it holds |
+|---|---|
+| `MAPS-BOOT` | the store holds the boot map, STREAM_PORT_INPUT 0's eight identity mappings, and GET_AUDIO_MAP agrees |
+| `MAPS-REFUSED` | with the mappings in place, SET_STREAM_FORMAT of STREAM_INPUT 0 to 4 channels answers BAD_ARGUMENTS (Milan v1.2 5.4.2.7); later, with a mapping of channel 2 in place, 2 channels does too |
+| `MAPS-REMOVE`, `MAPS-STORE` | REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS and the removal reaches the store; GET_AUDIO_MAP agrees |
+| `MAPS-FORMAT` | once the mappings are removed, 1, 2, 4 and 6 channels each answer SUCCESS, 7 (a format the input does not support) BAD_ARGUMENTS, and 8 SUCCESS |
+| `MAPS-ADD`, `MAPS-EDIT` | ADD_AUDIO_MAPPINGS of an edited map (stream channels 0 and 1 swapped onto clusters 1 and 0, channel 2 on cluster 2) answers SUCCESS and the edited map reaches the store; GET_AUDIO_MAP agrees |
+| `MAPS-SAVED` | once the saved-state store has made the edited map durable, a power cycle (SRP's participants released, the RTL reset, the flash powered on with what it holds) and the platform's boot from the start restore it, and the restored map reaches the store through the `EDIT` window; GET_AUDIO_MAP agrees |
+
+`make twin-maps-plants` plants the defect #923 found: `--plant no-edit` cuts
+the core's edit port after the boot, so no map edit reaches the store. The run
+must exit 1 and print the `MAPS-STORE`, `MAPS-FORMAT` (4 channels) and
+`MAPS-EDIT` failures by their words (`TWIN_MAPS_PLANT_WORDS`). Like the twin and
+`srptx`, these targets are this leg's own, outside the suite's `run` inventory.
 
 ## GM step re-base leg (#387)
 
