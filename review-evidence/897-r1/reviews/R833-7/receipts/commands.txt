@@ -1,0 +1,30 @@
+# Commands this round ran (reviewer-owned; paths relative). Clean copies were made from the review clone at
+# 59c934c6 (tree 479750b7); clone-a and clone-b are `git clone --shared` copies whose six submodules were
+# checked out from the review clone's own module repositories at the pinned gitlinks.
+
+## Merge recomputation (receipts/merge_recompute.txt)
+git merge-tree --write-tree --name-only b15da60a 70f4056f        # git's own merge: 8 conflicted files, tree 3fbff497
+git diff --name-only 3fbff497 d0355a45                          # the committed merge differs from it in those 8 alone
+python3 -I cells_rule.py <base 234bc149> <b15da60a> <70f4056f> <d0355a45>   # load_grade, edit_rows tables, per cell
+python3 -I conflict_lines.py 3fbff497 d0355a45 docs/design/SPLIT_CONTROL_MEMORY.md
+python3 -I new_lines.py b15da60a 70f4056f d0355a45 59c934c6     # lines in neither parent, for the comment rule
+
+## Graders and gates on a clean copy / clone (receipts/*.log, *.rc)
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest
+python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest
+python3 -B tb/verilator/ctrl_service_budget/tier_grid.py --point 1x1/1if
+python3 -B scripts/check_py_idiom.py ; python3 -B scripts/check_cpp_idiom.py              # clone-a
+python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 8                              # clone-a
+python3 -B sw/firmware/gtest/fw_coverage.py --write --jobs 8                              # clone-b, then hash-object
+
+## Probe (receipts/ledger_probe.txt): test_ctrl_memory.ledger_arms with litex/migen stubbed (the ledger code
+## uses neither), as committed and with the size fixture's 8x8/2if entry planted at 59.0 and at 60.0
+python3 -I ledger_probe.py <clone-a>
+
+## Evidence archive c8eb676d (receipts/evidence_manifest_check.txt)
+git fetch --depth 1 origin c8eb676d ; git archive ... review-evidence/897-r1/author-r7 MANIFEST.json
+# every author-r7 file against MANIFEST.json published_sha256; every INDEX.md row against its file
