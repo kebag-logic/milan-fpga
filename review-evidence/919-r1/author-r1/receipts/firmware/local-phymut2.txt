@@ -1,0 +1,11 @@
+[ok] mutant plat-phy-cease-not-ended (platboot1, platboot1): 18 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-after-an-idle-step-refused (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store step is an idle one carries one PHY frame
+[ok] mutant plat-phy-unpaced (platboot1, platboot1): 14 check(s) failed
+    first: [FAIL] Phy.L1ReadyLoopPublishesTheLink: L1 a poll a period, each publishing the link
+[ok] mutant plat-phy-no-deadline (platboot1): 5 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+mutants: 5 of 5 caught; 85 test(s) named by no defect

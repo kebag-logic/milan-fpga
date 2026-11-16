@@ -1,0 +1,38 @@
+HEAD c805f6999ee873240fcee63354a46022de1fd7bf DIRTY 0 point 8x8-1if jobs 3 tag partC6 args --reuse-build --groups backlog-adp@verify-6,backlog-adp@verify-aged1-7,backlog-adp@blank-aged2-6,backlog-owed,backlog-adp@blank-aged1-2,adp-discover,backlog-adp@blank-aged1-6,aecp --out <scratch>/h2-8x8-1if/results start 19:44:48
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-adp@verify-6.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-adp@blank-aged2-6.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-adp@blank-aged1-2.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-adp@blank-aged1-6.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-adp@verify-aged1-7.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/backlog-owed.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/adp-discover.txt -
+COMMAND <scratch>/h2-8x8-1if/native/Vsim <scratch>/h2-8x8-1if/results/aecp.txt -
+BUDGET backlog.owed.if0: 63.513 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.799 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.027 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.273 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.512 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.380 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.030 ms over its budget 20 ms
+STEPS 2558 passes carry the store's step; the longest 104,873 CPU cycles (1.049 ms), backlog-adp@verify-6; the longest step 78,338 (0.783 ms), backlog-adp@verify-6
+SLICES 126791 tier-2 slices; the longest SRP's records 69,628, THE TRANSMIT's build 26,802, THE RETRY's round 9,566 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@verify-6: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@blank-aged2-6: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-2: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-6: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS adp-discover: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 4 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 9.889 ms, backlog-adp@blank-aged2-6.service.srp.last.if0 at 10.111 ms
+8 groups graded, 0 refusals, 7 budget misses (7 of 98 probe instances, 4 of 41 paths), 0 of 5754 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-owed: a acmp item of 6,812 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,872 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,137 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,142 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+elapsed=5554s rc=1 end 21:17:22 DIRTY-after 0

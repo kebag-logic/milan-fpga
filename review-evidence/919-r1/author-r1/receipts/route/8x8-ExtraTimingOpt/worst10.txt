@@ -1,0 +1,91 @@
+head 895681e5362333b7dc427dde4e9a9897b54fcf46 (8x8/1if-ExtraTimingOpt, <scratch>/rt/route8/split-ExtraTimingOpt)
+command: tools/worst10.py <scratch>/rt/route8/split-ExtraTimingOpt
+---
+## 10 worst setup, route report (alinx_ax7101_timing.rpt)
+ 1 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][15]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 2 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][1]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 3 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][2]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 4 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][3]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 5 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][4]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 6 +0.216 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/dl_r_reg[15][19]/CE
+     delay 9.558ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 7 +0.216 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[15][15]/CE
+     delay 9.558ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 8 +0.234 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][5]/CE
+     delay 9.535ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 9 +0.234 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][9]/CE
+     delay 9.535ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+10 +0.243 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/dl_r_reg[13][0]/CE
+     delay 9.506ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+## 5 worst setup, Slow_85C signoff
+ 1 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][15]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 2 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][1]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 3 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][2]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 4 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][3]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+ 5 +0.171 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+  -> KL_mbx/u_evt/tag_r_reg[7][4]/CE
+     delay 9.570ns, levels 14  (LUT2=4 LUT3=4 LUT4=1 LUT5=5)
+## 3 worst hold, Fast_85C signoff
+ 1 +0.014 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_aaf_meter.aaf_clock_meter/s2_ts_r_reg[6]/C
+  -> milan_datapath/g_aaf_meter.aaf_clock_meter/grp_ts0_r_reg[6]/D
+     delay 0.304ns, levels 0
+ 2 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[28]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_108_113/RAMA/I
+     delay 0.196ns, levels 0
+ 3 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[58]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_138_143/RAMA/I
+     delay 0.196ns, levels 0
+## utilisation (alinx_ax7101_utilization_place.rpt)
+Slice LUTs: 42604 / 63400 (67.20 %)
+LUT as Memory: 1144 / 19000 (6.02 %)
+Slice Registers: 50724 / 126800 (40.00 %)
+Slice: 15082 / 15850 (95.15 %)
+Block RAM Tile: 92.5 / 135 (68.52 %)
+RAMB36/FIFO: 76 / 135 (56.30 %)
+RAMB18: 33 / 270 (12.22 %)
+DSPs: 9 / 240 (3.75 %)
+CARRY4: 2766
+# of routable nets..................... :       87993 :
+# of fully routed nets............. :       87993 :
+# of nets with routing errors.......... :           0 :

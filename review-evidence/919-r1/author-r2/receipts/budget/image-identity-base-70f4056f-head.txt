@@ -1,0 +1,16 @@
+The CPU service budget harness's firmware images at c805f699 (the harness's head) against the base's (dev-soft-core 70f4056f), each linked by the base's own ctrl_srp_image.py with the harness build's flash map and runtime archives
+command: ctrl_srp_image.py --config <shape> --interfaces 1 --with-aecp --layout split --flash-map <harness>/split-soc/flash-map --libc/--compiler-runtime <harness>/runtime/*; sha256 of ctrl_app.elf
+---
+1x1: base 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8, harness 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8, build.json records 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8
+8x8-1if: base 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae, harness 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae, build.json records 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae
+
+command: git diff --stat 70f4056f afa3ea19 -- tb/verilator/ctrl_service_budget tb/verilator/fw_service_budget hdl
+(empty: the harness's testbench and RTL are the base's)
+
+command: git diff --name-only c805f699 afa3ea19 (none is a source of the harness's image, testbench or RTL)
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+
+The harness's SoC export reads sw/litex/milan_soc.py, whose add_ctrl_memory now plans by ctrl_memory.product_point; the fixture image carries no ctrl_plat, so product_point names no point (test_ctrl_memory's product facts) and its plan, banks and export are the base's.
+So the harness at the head measures the base's image on the base's testbench: its verdict is the base's.

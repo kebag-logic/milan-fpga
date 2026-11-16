@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# split_image_r2.sh <src> <out> <config> <stem> <boot>: route_image.sh's steps 1 to 5 (the split recipe's platform
+# image and its split export, no route), into <out>, on <src>, a clean clone of the head; the image's hash is the point.
+set -euo pipefail
+L=$1; W=$2; CFG=$3; STEM=$4; B=$5
+PY=<tools>/litex/venv/bin/python3
+export PATH=<tools>/rv32/host/bin:/usr/local/bin:/usr/bin:/bin COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true PYTHONHASHSEED=0
+FLOW=(--synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --vivado-max-threads 32)
+cd "$L"
+echo "head $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=all | wc -l)"
+/usr/bin/python3 sw/builder/endstation_builder.py "$CFG" --placement split > "$W.builder.log" 2>&1
+mapfile -t ARGV < <(/usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))['argv']))" sw/builder/out/$STEM/soc_params.json)
+FW=$(printf '%s\n' "${ARGV[@]}" | grep -A1 -x -- --ctrl-firmware | tail -1)
+STANDIN=$B/image-provisional/ctrl_app.elf
+STAND_ARGV=("${ARGV[@]}"); for i in "${!STAND_ARGV[@]}"; do [ "${STAND_ARGV[$i]}" = "$FW" ] && STAND_ARGV[$i]=$STANDIN; done
+rm -rf "$W"; mkdir -p "$W"
+(cd sw/litex && "$PY" milan_soc.py "${STAND_ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/standin" > "$W/standin.log" 2>&1)
+"$PY" -B sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$W/standin/csr.csv" --csr-h "$W/standin/software/include/generated/csr.h" --out "$W/flash-map"
+"$PY" -B sw/firmware/ctrl/test/ctrl_plat_image.py --config "$CFG" --interfaces 1 --csr-csv "$W/standin/csr.csv" --flash-map "$W/flash-map" --output "$W/image" --libc "$B/runtime/libc.a" --compiler-runtime "$B/runtime/libcompiler_rt.a" > "$W/image.log" 2>&1
+cp "$W/image/ctrl_app.elf" "$FW"
+(cd sw/litex && "$PY" milan_soc.py "${ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/split" > "$W/split.log" 2>&1)
+tail -1 "$W/split.log"
+"$PY" sw/litex/check_image_identity.py "$W/split"
+echo "ctrl_app.elf $(sha256sum < "$W/image/ctrl_app.elf" | cut -d' ' -f1) $(stat -c %s "$W/image/ctrl_app.elf")"
+(cd "$W/split/gateware" && sha256sum *.init *.xdc 2>/dev/null | LC_ALL=C sort -k2)
+echo done

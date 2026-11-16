@@ -1,0 +1,28 @@
+head 895681e5362333b7dc427dde4e9a9897b54fcf46 (8x8/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt/route8/split/gateware)
+command: tools/paths3.py <scratch>/rt/route8/split/gateware
+---
+design worst setup, Slow_85C: slack +0.011 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+    Destination:            milan_datapath/amap_edit_oclaim_expect_r_reg[599]/CE
+    Data Path Delay:        19.691ns  (logic 5.475ns (27.805%)  route 14.216ns (72.195%))
+    Logic Levels:           40  (CARRY4=6 LUT2=3 LUT3=3 LUT4=6 LUT5=9 LUT6=13)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.133 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx_dma/base_r_reg[0]/C
+    Destination:            KL_mbx/face_f_fmt_out_hi_r_reg[0][5][0]/CE
+    Data Path Delay:        9.569ns  (logic 2.247ns (23.481%)  route 7.322ns (76.519%))
+    Logic Levels:           12  (CARRY4=2 LUT2=2 LUT3=3 LUT4=2 LUT5=1 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.011 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+    Destination:            milan_datapath/amap_edit_oclaim_expect_r_reg[599]/CE
+    Data Path Delay:        19.691ns  (logic 5.475ns (27.805%)  route 14.216ns (72.195%))
+    Logic Levels:           40  (CARRY4=6 LUT2=3 LUT3=3 LUT4=6 LUT5=9 LUT6=13)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.339 ns, group eth_clocks0_rx
+    Source:                 FDPE_17/C
+    Destination:            KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[35]/R
+    Data Path Delay:        6.857ns  (logic 0.348ns (5.075%)  route 6.509ns (94.925%))
+    Logic Levels:           0
+design worst hold, Fast_85C: slack +0.034 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_rx_converter_converter_source_payload_data_reg[11]/C
+    Destination:            storage_4_reg_0/DIADI[9]
+    Data Path Delay:        0.386ns  (logic 0.141ns (36.556%)  route 0.245ns (63.444%))
+    Logic Levels:           0

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# routes.sh: both split images through S9's recipe, one after the other: the image and its export, then the three
+# directives (each Vivado run through vivado-slot.sh, one at a time).
+S=<scratch>/rt2
+echo "$(date -Iseconds) route_image 1x1"; $S/tools/route_image.sh $S/repo > $S/route_image.log 2>&1; echo "rc=$?"
+$S/tools/chain_all.sh > $S/chain.log 2>&1; echo "$(date -Iseconds) chain 1x1 rc=$?"
+echo "$(date -Iseconds) route_image 8x8"; $S/tools/route_image8.sh $S/repo > $S/route_image8.log 2>&1; echo "rc=$?"
+$S/tools/chain8.sh > $S/chain8.log 2>&1; echo "$(date -Iseconds) chain 8x8 rc=$?"
+echo "$(date -Iseconds) ROUTES DONE"

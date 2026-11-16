@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""mapdiff.py <a.map> <b.map>: rom bytes (.text, .rodata, .srodata, .data load) per object file in two GNU ld maps,
+and each object's change, b minus a; objects that changed only."""
+import re
+import sys
+from collections import defaultdict
+
+
+def sizes(path):
+    out = defaultdict(int)
+    sec = None
+    for line in open(path, errors='replace'):
+        m = re.match(r'^ (\.(?:text|rodata|srodata|data|sdata)[^\s]*)\s*(?:(0x[0-9a-f]+)\s+(0x[0-9a-f]+)\s+(\S+))?', line)
+        if m:
+            sec = m.group(1)
+            if m.group(2):
+                out[re.sub(r'^[0-9]+-', '', m.group(4).split('/')[-1])] += int(m.group(3), 16)
+                sec = None
+            continue
+        m = re.match(r'^\s+(0x[0-9a-f]+)\s+(0x[0-9a-f]+)\s+(\S+\.o\)?)', line)
+        if m and sec:
+            out[re.sub(r'^[0-9]+-', '', m.group(3).split('/')[-1])] += int(m.group(2), 16)
+        sec = None
+    return out
+
+
+a, b = sizes(sys.argv[1]), sizes(sys.argv[2])
+total = 0
+for k in sorted(set(a) | set(b)):
+    d = b.get(k, 0) - a.get(k, 0)
+    if d:
+        total += d
+        print(f'{k:40s} {a.get(k, 0):8d} -> {b.get(k, 0):8d}  {d:+d}')
+print(f'{"total":40s} {sum(a.values()):8d} -> {sum(b.values()):8d}  {total:+d}')

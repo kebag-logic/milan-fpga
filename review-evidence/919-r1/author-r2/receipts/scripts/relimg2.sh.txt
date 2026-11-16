@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# relimg2.sh: the release image at the round-2 head and at its base dev-soft-core 70f4056f, both shipped configs
+set -u
+S=<scratch>
+bash $S/scripts/release_image.sh $S/c-relhead2 $S/r2-relimg-head endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8
+bash $S/scripts/release_image.sh $S/c-base2 $S/r2-relimg-base endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8
+echo RELIMG2 DONE

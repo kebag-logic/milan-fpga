@@ -1,0 +1,28 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-ExtraTimingOpt, <scratch>/rt2/route/split-ExtraTimingOpt)
+command: tools/paths3.py <scratch>/rt2/route/split-ExtraTimingOpt
+---
+design worst setup, Slow_85C: slack +0.176 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/tick_cnt_r_reg[0]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[1]/R
+    Data Path Delay:        9.389ns  (logic 2.323ns (24.741%)  route 7.066ns (75.259%))
+    Logic Levels:           18  (LUT2=5 LUT3=3 LUT4=4 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.176 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/tick_cnt_r_reg[0]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[1]/R
+    Data Path Delay:        9.389ns  (logic 2.323ns (24.741%)  route 7.066ns (75.259%))
+    Logic Levels:           18  (LUT2=5 LUT3=3 LUT4=4 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.265%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.914 ns, group eth_clocks0_rx
+    Source:                 FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[15]/CE
+    Data Path Delay:        6.680ns  (logic 1.570ns (23.502%)  route 5.110ns (76.498%))
+    Logic Levels:           6  (LUT2=2 LUT3=2 LUT4=1 LUT5=1)
+design worst hold, Fast_85C: slack +0.032 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/csr/r_data_reg[10]/C
+    Destination:            storage_16_reg/DIADI[12]
+    Data Path Delay:        0.380ns  (logic 0.141ns (37.131%)  route 0.239ns (62.869%))
+    Logic Levels:           0

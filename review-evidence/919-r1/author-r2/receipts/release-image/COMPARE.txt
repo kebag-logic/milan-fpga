@@ -1,0 +1,27 @@
+The release (all-fabric) firmware image at the round-2 head c805f699 against its base dev-soft-core 70f4056f, both shipped configs: the all-fabric recipe's SoC export (endstation_builder.py <config>, then milan_soc.py with its argv, software compiled, no gateware)
+command: scripts/release_image.sh <clone> <out> endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8, at each commit; then sha256 of bios.bin, the disassembly and the ELF with debug sections stripped
+---
+base RUN:
+head 70f4056f384e12520ccae254fe26f6286fd39db6 porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 6 porcelain-after 0
+head RUN:
+head c805f6999ee873240fcee63354a46022de1fd7bf porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 6 porcelain-after 0
+
+identical 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin 
+differ    bbb697658e8692581c173c2b5ee014f50d136c8336029370354b7c1b07555502 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf 
+differ    bdf62d82efc7fa5a27b40bd6ca8441a51765b6c2528c1faee798eb69a414c497 ./endstation_ax7101_1x1_tdm8/software/libmilan_baremetal/libmilan_baremetal.a 
+identical d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99 ./endstation_ax7101_8x8/software/bios/bios.bin 
+differ    52d93b775bb6aa7f3ac4a3cabc202ae7499aa1aff373f8adc6deaa5cee0ce285 ./endstation_ax7101_8x8/software/bios/bios.elf 
+differ    bc7da715dc9fa23a153de9e8f1be5625a995cb388ced7aa7f2518433befdcbad ./endstation_ax7101_8x8/software/libmilan_baremetal/libmilan_baremetal.a 
+identical 3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+identical 51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+
+endstation_ax7101_1x1_tdm8 bios.elf debug-stripped: base 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719 head 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719 identical
+endstation_ax7101_8x8 bios.elf debug-stripped: base 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb head 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb identical
+
+bios.elf and libmilan_baremetal.a whole files differ only by the build directory each embeds in its debug information (each clone's path, 2 strings each)

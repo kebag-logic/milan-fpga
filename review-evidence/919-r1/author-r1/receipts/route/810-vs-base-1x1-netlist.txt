@@ -1,0 +1,43 @@
+#810's route export (084cf7a8, sha256 32375f8de3e8...) vs the base export (659d7687), 1x1/1if: why #810's route is a reference, not the base
+command: diff 810/alinx_ax7101.v base/alinx_ax7101.v, the lines naming the CPU memories (ctrlmemory, rom_bank, sram) and the rest
+---
+differing lines: 211
+naming the CPU memories: 173
+dates, paths, LiteX comment tree: 18
+the rest (memory block bodies, listed):
+< always @(*) begin
+< end
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> initial begin
+> end
+> always @(posedge sys_clk) begin
+> end
+> 
+> 
+> //------------------------------------------------------------------------------
+< end
+< 
+< 
+< //------------------------------------------------------------------------------
+< //------------------------------------------------------------------------------
+< // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+< always @(posedge sys_clk) begin : mem_write_block_3
+< 	integer we_index_3;
+< 	for(we_index_3 = 0; we_index_3 < 4; we_index_3=we_index_3+1)
+
+memory declarations:
+810: 10086:// Memory rom_bank0: 16384-words x 32-bit
+810: 10101:// Memory rom_bank1: 8192-words x 32-bit
+810: 10116:// Memory rom_bank2: 4096-words x 32-bit
+810: 10131:// Memory sram_bank0: 8192-words x 32-bit
+810: 10147:// Memory sram_bank1: 2048-words x 32-bit
+810: 10163:// Memory sram_bank2: 1024-words x 32-bit
+810: 10179:// Memory sram_bank3: 512-words x 32-bit
+base: 10076:// Memory rom_bank0: 16384-words x 32-bit
+base: 10091:// Memory rom_bank1: 8192-words x 32-bit
+base: 10106:// Memory rom_bank2: 4096-words x 32-bit
+base: 10121:// Memory rom_bank3: 512-words x 32-bit
+base: 10136:// Memory sram_bank0: 8192-words x 32-bit
+base: 10152:// Memory sram_bank1: 4096-words x 32-bit
+base: 10168:// Memory sram_bank2: 2048-words x 32-bit

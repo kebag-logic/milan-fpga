@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# budget.sh <clone> <point> <build-dir> <jobs>: the CPU budget harness at one point on a clean clone (the S2 recipe's
+# environment); rc and elapsed at the end of its output, rc in <build-dir>.rc
+set -u
+C=$1; P=$2; D=$3; J=$4
+S=<scratch>
+V=<tools>/pinned-verilator-5.050
+export HOME=$S/home TMPDIR=$S/tmp/budget-$P VERILATOR=$V/verilator PYTHONHASHSEED=0 PYTHONUNBUFFERED=1
+export PATH=$V:<tools>/sv2v-v0.0.12:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:<tools>/rv32/host/bin
+export TSN_GEN_ROOT=<management>/tools/tsn-gen-deca300c GIT_ALLOW_PROTOCOL=file:https
+export COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true MAKEFLAGS="-j8 --no-print-directory"
+mkdir -p "$TMPDIR" "$HOME"
+cd "$C" || exit 3
+echo "HEAD $(git rev-parse HEAD) DIRTY $(git status --porcelain --untracked-files=all | wc -l) point $P jobs $J start $(date +%T)"
+start=$(date +%s)
+<tools>/litex/venv/bin/python3 -B tb/verilator/ctrl_service_budget/run.py --point "$P" --build-dir "$D" --jobs "$J" --record-budget-findings --record-share-findings
+rc=$?
+echo "elapsed=$(( $(date +%s) - start ))s rc=$rc end $(date +%T) DIRTY-after $(git status --porcelain --untracked-files=all | wc -l)"
+echo $rc > "$D.rc"
+exit $rc

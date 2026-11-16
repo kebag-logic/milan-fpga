@@ -1,0 +1,17 @@
+The release image's identity (COMPARE.txt, at 63fcf730) at the head 55769f09: what changed after 63fcf730, and whether the release build reads it
+command: git diff --name-only 63fcf730 55769f09
+---
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/plat/ctrl_plat_phy.c
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+
+command: git log --oneline 63fcf730..55769f09 -- the two firmware sources among them
+895681e536 D
+(895681e5: comments only, git diff -w shows no code line; the split's PHY poll)
+
+command: the release build's compiler dependency files (every *.d under the head's release export) naming any sw/firmware/ctrl/plat file
+188 dependency files, 0 naming sw/firmware/ctrl/plat
+
+So COMPARE.txt's 'no firmware change after it' reads: no change after it that the release image is built from.

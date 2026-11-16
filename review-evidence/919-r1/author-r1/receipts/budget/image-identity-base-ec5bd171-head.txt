@@ -1,0 +1,25 @@
+The CPU service budget harness's firmware images at ec5bd171 (the harness's head) against the base's (659d7687), each linked by the base's own ctrl_srp_image.py with the harness build's flash map and runtime archives
+command: ctrl_srp_image.py --config <shape> --interfaces 1 --with-aecp --layout split --flash-map <harness>/split-soc/flash-map --libc/--compiler-runtime <harness>/runtime/*; sha256 of ctrl_app.elf
+---
+1x1: base e6a821cb2b1d3ba28c7d99bc9b247956e6b34c23cdf9e986105a829063ec5103, harness (ec5bd171) e6a821cb2b1d3ba28c7d99bc9b247956e6b34c23cdf9e986105a829063ec5103, build.json records e6a821cb2b1d3ba28c7d99bc9b247956e6b34c23cdf9e986105a829063ec5103
+8x8-1if: base 607d2104f159b98159f0cbe0b6f78059b29c9fc34f4f4c5e38d325a390116038, harness (ec5bd171) 607d2104f159b98159f0cbe0b6f78059b29c9fc34f4f4c5e38d325a390116038, build.json records 607d2104f159b98159f0cbe0b6f78059b29c9fc34f4f4c5e38d325a390116038
+
+command: git diff --stat 659d7687 55769f09 -- tb/verilator/ctrl_service_budget tb/verilator/fw_service_budget hdl
+(empty: the harness's testbench and RTL are the base's)
+
+command: git diff --name-only ec5bd171 55769f09 (none is a source of the harness's image, testbench or RTL)
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/plat/ctrl_plat_phy.c
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+sw/firmware/ctrl/test/ctrl_mutants.py
+sw/firmware/ctrl/test/plat_arms.py
+sw/firmware/ctrl/test/plat_mutants.py
+sw/firmware/ctrl/test/test_plat_boot.cpp
+sw/firmware/ctrl/test/test_plat_phy.cpp
+sw/firmware/gtest/coverage.ratchet
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+tb/verilator/milan_dp/twin_fw.py
+
+So the harness at the head measures the base's image on the base's testbench: its verdict is the base's.

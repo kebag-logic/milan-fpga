@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# headsims2.sh: the split boot simulation at 1x1/1if and 8x8/1if, the platform ledger's self-test and the boot's
+# self-test, on the clean clone at the round-2 head, one after another; each rc in <build-dir>.rc
+set -u
+S=<scratch>
+C=$S/c-head2
+bash $S/scripts/boot.sh $C endstation_ax7101_1x1_tdm8 $S/r2-boot-1x1 > $S/r2-boot-1x1.log 2>&1
+bash $S/scripts/boot.sh $C endstation_ax7101_8x8 $S/r2-boot-8x8 > $S/r2-boot-8x8.log 2>&1
+bash $S/scripts/ledger.sh $C $S/r2-ledger --self-test > $S/r2-ledger.log 2>&1
+bash $S/scripts/boot.sh $C endstation_ax7101_1x1_tdm8 $S/r2-bootself --self-test > $S/r2-bootself.log 2>&1
+echo "HEADSIMS2 DONE $(cat $S/r2-boot-1x1.rc $S/r2-boot-8x8.rc $S/r2-ledger.rc $S/r2-bootself.rc | tr '\n' ' ')"

@@ -1,0 +1,28 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (8x8/1if-ExtraTimingOpt, <scratch>/rt2/route8/split-ExtraTimingOpt)
+command: tools/paths3.py <scratch>/rt2/route8/split-ExtraTimingOpt
+---
+design worst setup, Slow_85C: slack +0.005 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/amap_cnt_r_reg[0][10]_replica/C
+    Destination:            KL_mbx/u_evt/amap_cnt_r_reg[0][11]/R
+    Data Path Delay:        9.470ns  (logic 1.954ns (20.634%)  route 7.516ns (79.366%))
+    Logic Levels:           15  (LUT2=1 LUT3=2 LUT4=6 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.005 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/amap_cnt_r_reg[0][10]_replica/C
+    Destination:            KL_mbx/u_evt/amap_cnt_r_reg[0][11]/R
+    Data Path Delay:        9.470ns  (logic 1.954ns (20.634%)  route 7.516ns (79.366%))
+    Logic Levels:           15  (LUT2=1 LUT3=2 LUT4=6 LUT5=2 LUT6=4)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.022 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[85]/C
+    Destination:            milan_datapath/amap_edit_oclaim_expect_r_reg[20]/CE
+    Data Path Delay:        19.798ns  (logic 5.743ns (29.007%)  route 14.055ns (70.993%))
+    Logic Levels:           37  (CARRY4=4 LUT2=3 LUT3=1 LUT4=4 LUT5=7 LUT6=18)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.458 ns, group eth_clocks0_rx
+    Source:                 FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[24]/CE
+    Data Path Delay:        7.087ns  (logic 1.273ns (17.962%)  route 5.814ns (82.038%))
+    Logic Levels:           8  (LUT2=3 LUT3=2 LUT4=2 LUT5=1)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_audio_tdm_raw
+    Source:                 milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/cap_l_r_reg[18]/C
+    Destination:            milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc/mem_r_reg_0_7_42_47/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

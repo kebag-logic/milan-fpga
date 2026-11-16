@@ -1,0 +1,91 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (8x8/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt2/route8/split/gateware)
+command: tools/worst10.py <scratch>/rt2/route8/split/gateware
+---
+## 10 worst setup, route report (alinx_ax7101_timing.rpt)
+ 1 +0.189 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[9]/C
+  -> KL_mbx/reg_rdata_r_reg[5]/D
+     delay 9.687ns, levels 19  (LUT2=3 LUT3=2 LUT5=1 LUT6=13)
+ 2 +0.245 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+     delay 9.751ns, levels 21  (LUT2=2 LUT3=3 LUT4=6 LUT5=2 LUT6=8)
+ 3 +0.293 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_expect_r_reg[398]/CE
+     delay 19.443ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=4 LUT5=6 LUT6=16)
+ 4 +0.293 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_word_r_reg[398]/CE
+     delay 19.443ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=4 LUT5=6 LUT6=16)
+ 5 +0.338 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_word_r_reg[8]/CE
+     delay 19.309ns, levels 39  (CARRY4=4 LUT2=5 LUT3=3 LUT4=5 LUT5=7 LUT6=15)
+ 6 +0.352 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[9]/C
+  -> KL_mbx/reg_rdata_r_reg[7]/D
+     delay 9.517ns, levels 15  (LUT2=3 LUT3=2 LUT4=1 LUT5=5 LUT6=4)
+ 7 +0.370 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_expect_r_reg[641]/CE
+     delay 19.286ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=5 LUT5=6 LUT6=15)
+ 8 +0.370 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_word_r_reg[641]/CE
+     delay 19.286ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=5 LUT5=6 LUT6=15)
+ 9 +0.371 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg/D
+     delay 9.629ns, levels 21  (LUT2=2 LUT3=3 LUT4=6 LUT5=3 LUT6=7)
+10 +0.372 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg/D
+     delay 9.628ns, levels 21  (LUT2=2 LUT3=3 LUT4=7 LUT5=2 LUT6=7)
+## 5 worst setup, Slow_85C signoff
+ 1 +0.189 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[9]/C
+  -> KL_mbx/reg_rdata_r_reg[5]/D
+     delay 9.687ns, levels 19  (LUT2=3 LUT3=2 LUT5=1 LUT6=13)
+ 2 +0.245 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+  -> VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+     delay 9.751ns, levels 21  (LUT2=2 LUT3=3 LUT4=6 LUT5=2 LUT6=8)
+ 3 +0.293 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_expect_r_reg[398]/CE
+     delay 19.443ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=4 LUT5=6 LUT6=16)
+ 4 +0.293 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_word_r_reg[398]/CE
+     delay 19.443ns, levels 38  (CARRY4=4 LUT2=4 LUT3=4 LUT4=4 LUT5=6 LUT6=16)
+ 5 +0.338 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 20.000ns)
+     KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  -> milan_datapath/amap_edit_oclaim_word_r_reg[8]/CE
+     delay 19.309ns, levels 39  (CARRY4=4 LUT2=5 LUT3=3 LUT4=5 LUT5=7 LUT6=15)
+## 3 worst hold, Fast_85C signoff
+ 1 +0.031 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 0.000ns)
+     KL_mbx/pub_sid_hi_r_reg[0][8][9]/C
+  -> KL_mbx_cdc/u_pub/data_hold_reg[553]/D
+     delay 0.318ns, levels 0
+ 2 +0.033 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 0.000ns)
+     KL_mbx/u_rx/field_r_reg[0][15]/C
+  -> KL_mbx/u_rx/field_r_reg[0][23]/D
+     delay 0.290ns, levels 0
+ 3 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[34]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_114_119/RAMA/I
+     delay 0.196ns, levels 0
+## utilisation (alinx_ax7101_utilization_place.rpt)
+Slice LUTs: 42659 / 63400 (67.29 %)
+LUT as Memory: 1141 / 19000 (6.01 %)
+Slice Registers: 50755 / 126800 (40.03 %)
+Slice: 15667 / 15850 (98.85 %)
+Block RAM Tile: 92.5 / 135 (68.52 %)
+RAMB36/FIFO: 76 / 135 (56.30 %)
+RAMB18: 33 / 270 (12.22 %)
+DSPs: 9 / 240 (3.75 %)
+CARRY4: 2766
+# of routable nets..................... :       88002 :
+# of fully routed nets............. :       88002 :
+# of nets with routing errors.......... :           0 :

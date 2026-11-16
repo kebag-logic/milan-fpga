@@ -1,0 +1,43 @@
+[ok] mutant plat-store-step-unbound (platboot1): 11 check(s) failed
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+[ok] mutant plat-phy-never-armed (platboot1): 15 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-loss-not-latched (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 42 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ESCAPED] mutant plat-phy-cease-not-ended (platboot1, platboot1): 18 check(s) failed, none named platboot1: PlatPhy.P3LatchedLossPublishesBothEdges on 'P3 the first poll after the loss ends publishes the link up'
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-link-counter-change-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.L3EachEdgeNotifiesTheCounters: L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one
+[ok] mutant plat-phy-unguarded (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a foreign window's MDIO pins are never touched
+[ok] mutant plat-phy-refused-stage-unpolled (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ESCAPED] mutant plat-phy-beside-a-save-step (platboot1): 0 check(s) failed, none named platboot1: Phy.B12StepCarriesTheStoresSaveOrAPhyFrame on 'B12 a call whose store takes a step of its save carries no PHY frame'
+[ESCAPED] mutant plat-phy-after-an-idle-step-refused (platboot1): 0 check(s) failed, none named platboot1: Phy.B12StepCarriesTheStoresSaveOrAPhyFrame on 'B12 a call whose store step is an idle one carries one PHY frame'
+[ok] mutant plat-phy-probe-scans (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P1OneAddressIsProbedACall: P1 one address an opportunity, no scan in one call
+[ok] mutant plat-phy-late-sample (platboot1): 33 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ESCAPED] mutant plat-phy-unpaced (platboot1, platboot1): 0 check(s) failed, none named platboot1: PlatPhy.P2PollsArePaced on 'P2 no poll before CTRL_PLAT_PHY_POLL_US'; platboot1: Phy.L1ReadyLoopPublishesTheLink on 'L1 a poll a period'
+[ok] mutant plat-phy-wrap-unsafe (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P10TheClockWraps: P10 a poll is not due again before the clock wraps
+[ok] mutant plat-phy-common-mode-misread (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 the highest common mode of 4 and 5, case 0
+[ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+[ok] mutant plat-phy-ack-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 a NAKed register is link down: 0xffff would resolve 100 full
+[ok] mutant plat-phy-turnaround-driven (platboot1): 6 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: the turnaround or data driven by the STA
+[ESCAPED] mutant plat-phy-no-deadline (platboot1): 0 check(s) failed, none named platboot1: PlatPhy.P7OneFrameACallWithItsRoom on 'P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left'
+[ok] mutant plat-phy-not-owed (platboot1): 86 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-half-period-short (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 the half period at the SoC's clock: 200 ns, a turn a cycle
+[ok] mutant plat-phy-timed-run-ignored (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 277 us: one turn holds 200 ns
+[ok] mutant plat-phy-timed-resolution-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20
+mutants: 18 of 23 caught; 74 test(s) named by no defect

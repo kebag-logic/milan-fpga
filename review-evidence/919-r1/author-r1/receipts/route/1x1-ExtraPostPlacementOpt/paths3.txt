@@ -1,0 +1,28 @@
+head 895681e5362333b7dc427dde4e9a9897b54fcf46 (1x1/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt/route/split/gateware)
+command: tools/paths3.py <scratch>/rt/route/split/gateware
+---
+design worst setup, Slow_85C: slack +0.390 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/pend_r_reg[6]/C
+    Destination:            KL_mbx/u_evt/rec_r_reg[1][4]/D
+    Data Path Delay:        9.473ns  (logic 2.375ns (25.071%)  route 7.098ns (74.929%))
+    Logic Levels:           18  (LUT2=4 LUT3=3 LUT4=4 LUT5=1 LUT6=6)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.390 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/pend_r_reg[6]/C
+    Destination:            KL_mbx/u_evt/rec_r_reg[1][4]/D
+    Data Path Delay:        9.473ns  (logic 2.375ns (25.071%)  route 7.098ns (74.929%))
+    Logic Levels:           18  (LUT2=4 LUT3=3 LUT4=4 LUT5=1 LUT6=6)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.359 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+    Destination:            FDPE_19/D
+    Data Path Delay:        0.577ns  (logic 0.433ns (75.008%)  route 0.144ns (24.992%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +1.246 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            storage_2_reg_1/ADDRARDADDR[9]
+    Data Path Delay:        5.964ns  (logic 1.247ns (20.911%)  route 4.717ns (79.089%))
+    Logic Levels:           6  (LUT3=2 LUT4=2 LUT5=2)
+design worst hold, Fast_85C: slack +0.058 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_gptp_plane.u_gptp_shadow/st_data_r_reg[44]/C
+    Destination:            milan_datapath/g_gptp_plane.u_gptp_shadow/tx_fifo/mem_reg/DIBDI[12]
+    Data Path Delay:        0.267ns  (logic 0.164ns (61.345%)  route 0.103ns (38.655%))
+    Logic Levels:           0

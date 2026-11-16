@@ -1,0 +1,9 @@
+The release (all-fabric) firmware image, base 659d7687 against 63fcf730 (no firmware change after it at the head;
+the later commits touch the split boot simulation's runner and docs only): the all-fabric recipe's SoC export
+(endstation_builder.py <config>, then milan_soc.py with its argv, software compiled, no gateware), per config.
+
+bios.bin (the loadable image, CRC appended):     identical at both configs
+bios.elf disassembly (objdump -d):              identical at both configs
+bios.elf with debug sections stripped:          identical (8cebfd66a483655d.., 733c99388cda9a9c..)
+bios.elf and libmilan_baremetal.a whole files:  differ only by the build directory each embeds in its debug
+                                                information (the two clones' paths)

@@ -1,0 +1,28 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-AltSpreadLogic_high, <scratch>/rt2/route/split-AltSpreadLogic_high)
+command: tools/paths3.py <scratch>/rt2/route/split-AltSpreadLogic_high
+---
+design worst setup, Slow_85C: slack +0.090 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[1]_rep/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.899ns  (logic 4.003ns (40.438%)  route 5.896ns (59.562%))
+    Logic Levels:           22  (CARRY4=14 LUT2=1 LUT3=2 LUT4=1 LUT5=1 LUT6=3)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.090 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[1]_rep/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.899ns  (logic 4.003ns (40.438%)  route 5.896ns (59.562%))
+    Logic Levels:           22  (CARRY4=14 LUT2=1 LUT3=2 LUT4=1 LUT5=1 LUT6=3)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.265%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.900 ns, group eth_clocks0_rx
+    Source:                 FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[15]/CE
+    Data Path Delay:        6.694ns  (logic 1.570ns (23.454%)  route 5.124ns (76.546%))
+    Logic Levels:           6  (LUT2=2 LUT3=2 LUT4=1 LUT5=1)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/_zz_vexiis_0_priv_rdtime_reg[33]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/CsrAccessPlugin_logic_fsm_interface_aluInput_reg[1]/D
+    Data Path Delay:        0.313ns  (logic 0.186ns (59.490%)  route 0.127ns (40.510%))
+    Logic Levels:           1  (LUT6=1)

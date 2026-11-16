@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# clone.sh <head> <dir>: a clean clone of the lane at <head>, its submodules from the lane's checkouts
+set -eu
+H=$1; D=$2; L=<lane>
+git clone -q --shared --no-checkout "$L" "$D"
+cd "$D"
+git -c advice.detachedHead=false checkout -q --detach "$H"
+for dep in $(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}'); do
+  [ "$dep" = external ] && continue
+  git config "submodule.$dep.url" "$L/$dep"
+  git -c protocol.file.allow=always submodule update -q --init "$dep"
+done
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=all | wc -l)"

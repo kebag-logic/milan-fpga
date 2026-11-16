@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Run selected platform arms of the control firmware's host test on one tree."""
+import sys
+from pathlib import Path
+root = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root / 'sw/firmware/ctrl/test'))
+from ctrl_build import CTRL, Tree, stack_pin  # noqa: E402
+import fw_gtest  # noqa: E402
+import plat_arms  # noqa: E402
+out = Path(sys.argv[2]).resolve()
+tree = Tree(CTRL, out / 'checkout', out / 'reuse', fw_gtest.Build(jobs=4))
+stack_pin()
+rc = 0
+for arm in sys.argv[3:]:
+    o = {'plat': lambda: plat_arms.arm_plat(tree), 'platboot1': lambda: plat_arms.arm_platboot(tree, 1),
+         'platboot2': lambda: plat_arms.arm_platboot(tree, 2),
+         'platrv32': lambda: plat_arms.arm_platrv32(tree, True),
+         'plattrace': lambda: plat_arms.arm_plattrace(tree), 'platmap': lambda: plat_arms.arm_platmap(tree)}[arm]()
+    print(f'==== {arm} rc={o.rc}')
+    print(o.log if o.rc else o.log[-3000:])
+    rc = rc or o.rc
+sys.exit(rc)

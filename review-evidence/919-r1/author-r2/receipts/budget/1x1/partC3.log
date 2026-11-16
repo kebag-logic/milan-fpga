@@ -1,0 +1,30 @@
+HEAD c805f6999ee873240fcee63354a46022de1fd7bf DIRTY 0 point 1x1 jobs 4 tag partC3 args --reuse-build --groups backlog-adp@program-3,backlog-adp@blank-aged2-3,backlog-adp@program-aged2-3,backlog-adp@verify-aged2-3,acmp-noresp,datapath-events,backlog-adp@program-5,backlog-adp@blank-aged2-5,backlog-adp@program-aged2-5,backlog-adp@verify-aged2-5,srp --out <scratch>/h2-1x1/results start 19:44:48
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-5.txt -
+COMMAND COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-aged2-3.txt -
+<scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-aged2-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-aged2-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-aged2-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-aged2-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-aged2-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/acmp-noresp.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/srp.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/datapath-events.txt -
+STEPS 3569 passes carry the store's step; the longest 97,311 CPU cycles (0.973 ms), acmp-noresp; the longest step 78,944 (0.789 ms), backlog-adp@program-3
+SLICES 218988 tier-2 slices; the longest SRP's records 73,850, THE TRANSMIT's build 57,083, THE RETRY's round 8,707 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@program-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged2-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged2-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@program-aged2-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged2-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged2-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS acmp-noresp: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 11 empty
+JOINS srp: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS datapath-events: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 6 windows opened with the step's age at its limit or one short of it, 6 aged steps among their records; the least margin 9.024 ms, backlog-adp@verify-aged2-5.service.srp.last.if0 at 10.976 ms
+11 groups graded, 0 refusals, 0 budget misses (0 of 96 probe instances, 0 of 19 paths), 0 of 8422 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=5032s rc=0 end 21:08:40 DIRTY-after 0

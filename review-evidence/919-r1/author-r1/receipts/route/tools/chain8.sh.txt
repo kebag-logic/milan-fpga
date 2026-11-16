@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# chain_all.sh: the S9 recipe's three directive sets, one Vivado at a time, each through vivado-slot.sh: the integrated
+# run (synthesis, ExtraPostPlacementOpt place, route, signoff corners), then ExtraTimingOpt and AltSpreadLogic_high
+# from its synthesis checkpoint (prep_directives3.py: only the place_design directive differs).
+S=<scratch>/rt; SLOT=<management>/2026-09-23/vivado-slot.sh
+echo "$(date -Iseconds) integrated start"
+$SLOT $S/tools/route_one8.sh split > $S/route8/slot-split.log 2>&1
+echo "$(date -Iseconds) integrated rc=$(cat $S/route8/split/gateware/route.rc 2>/dev/null)"
+[ -f $S/route8/split/gateware/alinx_ax7101_synth.dcp ] || { echo "no synthesis checkpoint"; exit 1; }
+python3 -I $S/tools/prep_directives3.py $S/route8 || exit 1
+for d in ExtraTimingOpt AltSpreadLogic_high; do
+  $SLOT $S/tools/route_directive8.sh $d > $S/route8/slot-$d.log 2>&1
+  echo "$(date -Iseconds) $d rc=$(cat $S/route8/split-$d/route.rc 2>/dev/null)"
+done
+echo "$(date -Iseconds) CHAIN DONE"

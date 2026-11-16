@@ -1,0 +1,28 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt2/route/split/gateware)
+command: tools/paths3.py <scratch>/rt2/route/split/gateware
+---
+design worst setup, Slow_85C: slack +0.414 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+    Data Path Delay:        9.524ns  (logic 2.688ns (28.224%)  route 6.836ns (71.776%))
+    Logic Levels:           21  (LUT2=4 LUT3=4 LUT4=6 LUT5=1 LUT6=6)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.414 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+    Data Path Delay:        9.524ns  (logic 2.688ns (28.224%)  route 6.836ns (71.776%))
+    Logic Levels:           21  (LUT2=4 LUT3=4 LUT4=6 LUT5=1 LUT6=6)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.265%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +1.079 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[20]/CE
+    Data Path Delay:        6.590ns  (logic 1.533ns (23.261%)  route 5.057ns (76.739%))
+    Logic Levels:           6  (LUT2=2 LUT3=2 LUT4=1 LUT5=1)
+design worst hold, Fast_85C: slack +0.015 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+    Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+    Data Path Delay:        0.313ns  (logic 0.148ns (47.304%)  route 0.165ns (52.696%))
+    Logic Levels:           0

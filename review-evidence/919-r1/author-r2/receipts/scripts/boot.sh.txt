@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# boot.sh <repo> <shape> <build-dir> [extra run.py args]: the split boot simulation in the S9 environment; rc in <build-dir>.rc
+set -u
+R=$1; SHAPE=$2; D=$3; shift 3
+S=<scratch>
+export PATH=<tools>/rv32/host/bin:<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:/usr/local/bin:/usr/bin:/bin
+export VERILATOR=<tools>/pinned-verilator-5.050/verilator COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true
+export PYTHONHASHSEED=0 LITEX_ENV_CC_TRIPLE=riscv32-linux TMPDIR=$S/tmp MAKEFLAGS="-j8 --no-print-directory"
+mkdir -p "$TMPDIR"
+cd "$R" || exit 3
+echo "head $(git rev-parse HEAD) dirty $(git status --porcelain | wc -l)"
+date -Iseconds; start=$(date +%s)
+<tools>/litex/venv/bin/python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir "$D" --shape "$SHAPE" "$@"
+rc=$?; date -Iseconds; echo "elapsed=$(( $(date +%s) - start ))s rc=$rc"; echo $rc > "$D.rc"

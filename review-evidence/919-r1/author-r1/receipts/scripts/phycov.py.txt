@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""The platboot arm built for gcov (one interface), then gcov's branch report of ctrl_plat_phy.c."""
+import subprocess, sys
+from pathlib import Path
+root = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root / 'sw/firmware/ctrl/test'))
+from ctrl_build import CTRL, Tree, stack_pin  # noqa: E402
+import fw_gtest, plat_arms  # noqa: E402
+out = Path(sys.argv[2]).resolve()
+stack_pin()
+tree = Tree(CTRL, out / 'checkout', out / 'reuse', fw_gtest.Build(coverage=True, jobs=4))
+o = plat_arms.arm_platboot(tree, 1)
+print('platboot rc', o.rc)
+for gcda in out.rglob('*ctrl_plat_phy*.gcda'):
+    r = subprocess.run(['gcov', '-b', '-c', '-o', str(gcda.parent), str(root / 'sw/firmware/ctrl/plat/ctrl_plat_phy.c')],
+                       cwd=gcda.parent, capture_output=True, text=True)
+    print(r.stdout[-600:])
+    gcov = gcda.parent / 'ctrl_plat_phy.c.gcov'
+    if gcov.exists():
+        lines = gcov.read_text().splitlines()
+        for k, ln in enumerate(lines):
+            if ln.startswith('branch') and ('never executed' in ln or 'taken 0%' in ln):
+                j = k
+                while j > 0 and lines[j].startswith(('branch', 'call', 'unconditional')):
+                    j -= 1
+                print(lines[j][:150], '||', ln)

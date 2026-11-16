@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""clean_parts.py [--delete] <dir:part>...: the result files (.txt, .log, .json) of each harness part's groups, the
+part's started marker and log; listed, or deleted with --delete. Only paths under this lane's scratch are touched."""
+import sys
+from pathlib import Path
+
+S = Path('<scratch>')
+args = sys.argv[1:]
+delete = args[:1] == ['--delete']
+targets = []
+for spec in args[1:] if delete else args:
+    d, k = spec.split(':')
+    groups = (S / f'{d}.part{k}').read_text().strip().split(',')
+    for g in groups:
+        for ext in ('txt', 'log', 'json'):
+            targets.append(S / d / 'results' / f'{g}.{ext}')
+    targets += [S / f'{d}.part{k}.started', S / f'{d}.part{k}.log']
+present = [t for t in targets if t.exists()]
+assert all(str(t.resolve()).startswith(str(S) + '/') for t in present)
+for t in present:
+    if delete:
+        t.unlink()
+print(f'{"deleted" if delete else "would delete"} {len(present)} files')

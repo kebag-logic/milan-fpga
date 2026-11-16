@@ -1,0 +1,28 @@
+head 895681e5362333b7dc427dde4e9a9897b54fcf46 (1x1/1if-ExtraTimingOpt, <scratch>/rt/route/split-ExtraTimingOpt)
+command: tools/paths3.py <scratch>/rt/route/split-ExtraTimingOpt
+---
+design worst setup, Slow_85C: slack +0.177 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/pub_src_sid_lo_r_reg[0][4][20]/CE
+    Data Path Delay:        9.591ns  (logic 1.861ns (19.404%)  route 7.730ns (80.596%))
+    Logic Levels:           12  (LUT2=5 LUT3=3 LUT5=2 LUT6=2)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.177 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/pub_src_sid_lo_r_reg[0][4][20]/CE
+    Data Path Delay:        9.591ns  (logic 1.861ns (19.404%)  route 7.730ns (80.596%))
+    Logic Levels:           12  (LUT2=5 LUT3=3 LUT5=2 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.385 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+    Destination:            FDPE_19/D
+    Data Path Delay:        0.523ns  (logic 0.379ns (72.428%)  route 0.144ns (27.572%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.867 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[25]/CE
+    Data Path Delay:        6.795ns  (logic 1.775ns (26.123%)  route 5.020ns (73.877%))
+    Logic Levels:           6  (LUT2=3 LUT3=1 LUT4=1 LUT5=1)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_audio_mclk_raw
+    Source:                 milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/cap_l_r_reg[0]/C
+    Destination:            milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc/mem_r_reg_0_7_24_29/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

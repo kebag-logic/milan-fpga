@@ -1,0 +1,32 @@
+HEAD c805f6999ee873240fcee63354a46022de1fd7bf DIRTY 0 point 1x1 jobs 4 tag partC1 args --reuse-build --groups backlog-adp@blank-3,backlog-adp@verify-3,backlog-adp@blank-aged1-3,backlog-adp@program-aged1-3,backlog-adp@verify-aged1-3,maap,backlog-adp@blank-5,backlog-adp@verify-5,backlog-adp@blank-aged1-5,backlog-adp@program-aged1-5,backlog-adp@verify-aged1-5,adp-discover --out <scratch>/h2-1x1/results start 19:44:48
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-3.txt -
+COMMANDCOMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-5.txt -
+ <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-aged1-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@blank-aged1-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-aged1-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@program-aged1-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-aged1-3.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/backlog-adp@verify-aged1-5.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/maap.txt -
+COMMAND <scratch>/h2-1x1/native/Vsim <scratch>/h2-1x1/results/adp-discover.txt -
+STEPS 3512 passes carry the store's step; the longest 100,110 CPU cycles (1.001 ms), backlog-adp@verify-aged1-5; the longest step 78,944 (0.789 ms), backlog-adp@program-aged1-3
+SLICES 217240 tier-2 slices; the longest SRP's records 74,889, THE TRANSMIT's build 32,153, THE RETRY's round 8,795 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@blank-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@blank-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp@verify-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@blank-aged1-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS backlog-adp@program-aged1-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged1-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-3: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-5: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS maap: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 6 released, 3 empty
+JOINS adp-discover: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 6 windows opened with the step's age at its limit or one short of it, 0 aged steps among their records; the least margin 9.180 ms, backlog-adp@blank-aged1-3.service.srp.last.if0 at 10.820 ms
+12 groups graded, 0 refusals, 0 budget misses (0 of 119 probe instances, 0 of 19 paths), 0 of 6942 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=4440s rc=0 end 20:58:48 DIRTY-after 0

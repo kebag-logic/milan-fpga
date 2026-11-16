@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# launch_parts2.sh: after the 2026-11-16 power cycle, start each harness part B* not yet started on a CPU range
+# cpu_ranges.py picks now (8 wide), 8x8/1if's first; print what it started and what still waits.
+S=<scratch>
+for spec in h2-8x8-1if:8x8-1if:B0 h2-8x8-1if:8x8-1if:B1 h2-8x8-1if:8x8-1if:B2 h2-8x8-1if:8x8-1if:B3 \
+            h2-8x8-1if:8x8-1if:B4 h2-1x1:1x1:B0 h2-1x1:1x1:B1; do
+  IFS=: read -r d p k <<< "$spec"
+  [ -e "$S/$d.part$k.started" ] && continue
+  # 8x8/1if's parts first: a 1x1 part takes a range only once every 8x8/1if part B has one
+  if [ "$p" = 1x1 ] && [ "$(ls $S/h2-8x8-1if.partB*.started 2>/dev/null | wc -l)" -lt 5 ]; then
+    echo "waiting $d part$k: 8x8/1if first"; continue
+  fi
+  C=$(python3 <management>/2026-09-23/cpu_ranges.py pick 2>/dev/null | tr -d '[:space:]')
+  if [ -z "$C" ]; then echo "waiting $d part$k: no range free"; continue; fi
+  systemd-run --user --unit=milan-919-a785-h2-$p-part$k -p MemoryMax=8G -E HOME=<home> /usr/bin/taskset -c "$C" \
+    /bin/bash -c "$S/scripts/budget2.sh $S/c-budget2 $p $S/$d 6 part$k --reuse-build --groups $(cat $S/$d.part$k) --out $S/$d/results > $S/$d.part$k.log 2>&1" \
+    && echo "$C" > "$S/$d.part$k.started" && echo "started $d part$k on $C"
+  sleep 3
+done

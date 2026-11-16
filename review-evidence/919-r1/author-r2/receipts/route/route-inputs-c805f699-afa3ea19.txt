@@ -1,0 +1,35 @@
+The round-2 routes ran at c805f699; the final head afa3ea19 changes none of their inputs. The route images relinked at afa3ea19 with the routes' own inputs (the stand-in csr.csv, flash map and runtime archives) are identical.
+command: git diff --name-only c805f699 afa3ea19; ctrl_plat_image.py at afa3ea19; ctrl_memory.rom_words / segments / symbols compared
+---
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+
+1x1: rom words identical True ; load segments identical True ; symbols identical True ; plan 43.5 RAMB36 the 56-RAMB36 budget
+8x8: rom words identical True ; load segments identical True ; symbols identical True ; plan 56.5 RAMB36 platform-8x8-one-interface
+
+Why the routes ran again (manager: route again only if the gateware changes after the merge): the round-1 and round-2 exports' CPU memories
+== route
+round 1 (895681e5): // Memory rom_bank0: 16384-words x 32-bit
+round 1 (895681e5): // Memory rom_bank1: 8192-words x 32-bit
+round 1 (895681e5): // Memory rom_bank2: 4096-words x 32-bit
+round 1 (895681e5): // Memory rom_bank3: 1024-words x 32-bit
+round 1 (895681e5): // Memory sram_bank0: 8192-words x 32-bit
+round 1 (895681e5): // Memory sram_bank1: 4096-words x 32-bit
+round 1 (895681e5): // Memory sram_bank2: 2048-words x 32-bit
+round 2 (c805f699): // Memory rom_bank0: 16384-words x 32-bit
+round 2 (c805f699): // Memory rom_bank1: 8192-words x 32-bit
+round 2 (c805f699): // Memory rom_bank2: 4096-words x 32-bit
+round 2 (c805f699): // Memory rom_bank3: 1024-words x 32-bit
+round 2 (c805f699): // Memory rom_bank4: 512-words x 32-bit
+round 2 (c805f699): // Memory sram_bank0: 8192-words x 32-bit
+round 2 (c805f699): // Memory sram_bank1: 4096-words x 32-bit
+round 2 (c805f699): // Memory sram_bank2: 2048-words x 32-bit
+== route8
+round 1 (895681e5): // Memory rom_bank0: 32768-words x 32-bit
+round 1 (895681e5): // Memory sram_bank0: 16384-words x 32-bit
+round 1 (895681e5): // Memory sram_bank1: 8192-words x 32-bit
+round 2 (c805f699): // Memory rom_bank0: 32768-words x 32-bit
+round 2 (c805f699): // Memory rom_bank1: 512-words x 32-bit
+round 2 (c805f699): // Memory sram_bank0: 16384-words x 32-bit
+round 2 (c805f699): // Memory sram_bank1: 8192-words x 32-bit

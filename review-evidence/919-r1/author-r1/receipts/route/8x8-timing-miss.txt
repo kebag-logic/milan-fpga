@@ -1,0 +1,62 @@
+8x8/1if split image, head 895681e5 (= 55769f09 in every gateware and firmware input): the three S9 directives against the floor WNS and WHS >= +0.030 ns at every corner
+command: tools/signoff.py on each route; the marginal paths from each route's signoff timing reports (slack <= +0.029 ns)
+---
+== ExtraPostPlacementOpt
+Slow_85C: WNS +0.011 ns (0 failing), WHS +0.070 ns (0 failing)
+Slow_0C: WNS +0.011 ns (0 failing), WHS +0.070 ns (0 failing)
+Fast_85C: WNS +1.370 ns (0 failing), WHS +0.034 ns (0 failing)
+Fast_0C: WNS +1.370 ns (0 failing), WHS +0.034 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff.py rc=1
+  Slow_85C: Slack (MET) :             0.011ns  (required time - arrival time)
+  Slow_85C:   Source:                 KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  Slow_85C:   Destination:            milan_datapath/amap_edit_oclaim_expect_r_reg[599]/CE
+  Slow_85C:   Path Group:             milansoc_crg_clkout1
+  Slow_85C:   Path Type:              Setup (Max at Slow Process Corner)
+  Slow_85C:   Logic Levels:           40  (CARRY4=6 LUT2=3 LUT3=3 LUT4=6 LUT5=9 LUT6=13)
+  Slow_85C:   Clock Path Skew:        -0.103ns (DCD - SCD + CPR)
+  Slow_85C: Slack (MET) :             0.011ns  (required time - arrival time)
+  Slow_85C:   Source:                 KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+  Slow_85C:   Destination:            milan_datapath/amap_edit_oclaim_word_r_reg[599]/CE
+  Slow_85C:   Path Group:             milansoc_crg_clkout1
+  Slow_85C:   Path Type:              Setup (Max at Slow Process Corner)
+  Slow_85C:   Logic Levels:           40  (CARRY4=6 LUT2=3 LUT3=3 LUT4=6 LUT5=9 LUT6=13)
+  Slow_85C:   Clock Path Skew:        -0.103ns (DCD - SCD + CPR)
+  Slow_85C: Slack (MET) :             0.018ns  (required time - arrival time)
+  Slow_85C:   Source:                 KL_mbx_cdc/u_edit/rq_r_reg[80]/C
+
+== ExtraTimingOpt
+Slow_85C: WNS +0.171 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.171 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+  Fast_0C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_0C:   Source:                 milan_datapath/g_aaf_meter.aaf_clock_meter/s2_ts_r_reg[6]/C
+  Fast_0C:   Destination:            milan_datapath/g_aaf_meter.aaf_clock_meter/grp_ts0_r_reg[6]/D
+  Fast_0C:   Path Group:             milansoc_crg_clkout1
+  Fast_0C:   Path Type:              Hold (Min at Fast Process Corner)
+  Fast_0C:   Logic Levels:           0  
+  Fast_0C:   Clock Path Skew:        0.268ns (DCD - SCD - CPR)
+
+== AltSpreadLogic_high
+Slow_85C: WNS +0.215 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.215 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+  Fast_0C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_0C:   Source:                 milan_datapath/g_aaf_meter.aaf_clock_meter/s2_ts_r_reg[6]/C
+  Fast_0C:   Destination:            milan_datapath/g_aaf_meter.aaf_clock_meter/grp_ts0_r_reg[6]/D
+  Fast_0C:   Path Group:             milansoc_crg_clkout1
+  Fast_0C:   Path Type:              Hold (Min at Fast Process Corner)
+  Fast_0C:   Logic Levels:           0  
+  Fast_0C:   Clock Path Skew:        0.268ns (DCD - SCD - CPR)
+
+== #810's 8x8/1if route at 084cf7a8 (same RTL; its own report): EPPO +0.001 / +0.036, ETO +0.292 / +0.036, ASL +0.093 / +0.036
+== base vs head 8x8/1if export: base-vs-head-8x8-netlist.txt (identical but for the ROM's contents)

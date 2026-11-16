@@ -1,0 +1,10 @@
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-ExtraTimingOpt, <scratch>/rt2/route/split-ExtraTimingOpt)
+command: tools/signoff.py <scratch>/rt2/route/split-ExtraTimingOpt
+---
+Slow_85C: WNS +0.176 ns (0 failing), WHS +0.058 ns (0 failing)
+Slow_0C: WNS +0.176 ns (0 failing), WHS +0.058 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.032 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.032 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0
