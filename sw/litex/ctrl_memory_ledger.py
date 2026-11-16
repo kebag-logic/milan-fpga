@@ -5,10 +5,9 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 
 `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
 only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
-platform's at 60.5 (the owner's decision of 2026-11-12, its cap since the PHY poll, #919), each refused half a tile
-past. A `Case` here is what the
-ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
-here takes, and grades what these return.
+platform's at 60.5 (the owner's decision of 2026-11-12, its cap, with SRP's Talker declarations, #895, and the PHY
+poll, #919), each refused half a tile past. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
 syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
 (#665 S9); `mapper_arms` grades that override and plants three defects in it.
 """
@@ -33,7 +32,7 @@ STAGE_1X1, STAGE_8X8 = 3454, 13594
 FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_176, 20_352
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
 
 
 class Case(NamedTuple):

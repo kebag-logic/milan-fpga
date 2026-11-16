@@ -116,6 +116,8 @@ The probe window is 15 seconds (Milan v1.2 4.3.3.1).
 Its final millisecond is 14999; 15000 is expired.
 Listener Asking Failed counts as demand, separately from `LICENCE`.
 
+SRP's Talker declarations follow the same gate: the composition's delivery poll
+passes each interface's gate and range base to `srp_mbx_gate` (#895).
 The composition binds its ACMP instance through `maap_mbx_bind_acmp`.
 Without that owner, every declaration gate stays closed.
 Each configured source publishes only on its own interface.
@@ -124,6 +126,23 @@ The two-interface tests retain this ordering check.
 Queries also run after every service pass, including idle ticks.
 The composition enables those ticks to observe freshness expiry.
 Gate changes publish even when no transport frame is owed.
+
+The datapath stamps each source's `SRC_SID_HI:SRC_SID_LO` on its frames,
+and the gate's owner writes both while the source's `DA_GATE` bit is clear (#905).
+`maap_mbx_start` writes every source's, before any pass runs and any bit opens.
+The stream_id is the one the declaration owner's source port reports,
+which its Talker declares and ACMP answers with (Milan v1.2 5.3.7.5).
+A closed source opens only once its stream_id is written since it last opened:
+by the start for its first opening, and then by the poll, read from that port.
+The gate holds the source closed meanwhile, and the poll writes it one word a poll,
+the low word first, in a poll that writes no gate, one source's words at a time
+across the interfaces: the high word owed comes first, on its source's own interface.
+`struct maap_mbx` grows 8 bytes for it: a 16-bit mask of the sources written, one per
+interface of those held, and the one high word owed with its source.
+So a source's frames carry the stream_id its port reported just before its gate opened,
+except at its first opening, which carries the start's.
+A stream_id the port changes while the gate stays open is written before the gate next reopens;
+the platform's never changes, the entity's MAC and the output's unique ID (`ctrl_plat.c`).
 
 The dispatch path caches each `acmp_declaring` answer before entering MAAP.
 Each answer includes the source owner's destination validity and demand.
@@ -154,7 +173,9 @@ The final probe expiry costs at most 65 accesses: two sends, two arms,
 one cancel, allocation publication, and up to 16 freshness clock reads.
 Receive has a conservative 64-access bound.
 A per-interface poll allows 65 accesses: the existing 48, up to
-16 source queries before entering MAAP, and a changed gate write.
+16 source queries before entering MAAP, and one publication write,
+a changed gate or else one word of the `SRC_SID` of a source a gate holds closed for it (#905).
+Start writes two words a source before the first pass, outside every pass bound.
 A query without an answered probe needs no freshness clock read.
 This excludes the allocation callback's separate datapath CSR accesses;
 that callback must remain bounded and nonblocking.

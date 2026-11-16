@@ -33,7 +33,7 @@ static struct aecp_owed owed[AECP_MBX_OWED_SLOTS];
 static struct aecp_mapping map_rows[AECP_ENTITY_MAP_ROWS];
 static struct aecp_mapping map_scratch[AECP_ENTITY_MAP_MAX];
 static struct aecp_map maps[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(map_rows);
-static const struct aecp_value names[AECP_ENTITY_NAMES] = AECP_ENTITY_NAMES_INIT;
+static const struct aecp_name_run names[AECP_ENTITY_NAME_RUNS] = AECP_ENTITY_NAME_RUNS_INIT;
 
 _Static_assert(CTRL_SRP_SOURCES <= ACMP_MAX_SOURCES && CTRL_SRP_SINKS <= ACMP_MAX_SINKS,
 	       "the generated stream counts fit ACMP");
@@ -273,7 +273,7 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// step it owes is THE STEP, taken in a pass that took no input and has
 	// room (ctrl_loop.h); the PHY poll's frames are that step's too, in a call whose
 	// store takes no step of its save (ctrl_plat_phy.h)
-	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAMES, map_scratch, AECP_ENTITY_MAP_MAX);
+	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAME_RUNS, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
 	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);

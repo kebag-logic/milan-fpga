@@ -113,6 +113,11 @@ bool mbx_pub_licence(unsigned interface, uint32_t active);
 bool mbx_pub_idle_slope(unsigned interface, uint32_t bps);
 bool mbx_pub_domain(unsigned interface, bool adopted, uint8_t priority, uint16_t vid);
 bool mbx_pub_talker_decl(unsigned interface, uint32_t declared);
+// Source `source`'s entry (contract 2.4): one word of its stream_id, SRC_SID_HI
+// with high, else SRC_SID_LO, which the datapath stamps on the source's frames
+// as SRC_SID_HI:SRC_SID_LO. The DA gate's owner writes both while the source's
+// DA_GATE bit is clear (maap_mbx.c; #905). One write.
+bool mbx_pub_src_sid(unsigned interface, unsigned source, bool high, uint32_t word);
 // Sink `sink`'s entry, for a stream_id that moved: whether it is bound and
 // started, and the stream_id it settled on, 0 for none. BINDING is written
 // first, with SID_VALID clear; a nonzero stream_id is then written to SID_LO
