@@ -306,10 +306,11 @@ extern "C" {
 // and never on the interface count (#894's retry-cost ruling,
 // item 1). A shape not listed fails the build. Both two-interface shapes keep
 // the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
-// the load gate's record.srp there, its own 450 us since a Listener Ready that
-// licenses a declared Talker measured 42,663 CPU cycles (#930), over 8x8/2if's
-// 365, whose other records that point takes (load_grade.py, NEAREST); and at
-// 1x1/1if 290 us for 27,170 cycles in the same group (#930).
+// the load gate's record.srp there, 8x8/2if's 365 us, whose records that point
+// takes (load_grade.py, NEAREST), over 8x8/1if's heaviest, a Listener Ready
+// that licenses a declared Talker, 32,936 CPU cycles once a Listener's change
+// walks no registrar (#930; 42,663 before); and at 1x1/1if 280 us, over that
+// group's 23,503 cycles (#930; 27,170 before).
 // THE RETRY's costs there are the line over its rounds measured on that tree,
 // the dearest at each count of refused attempts with notices charged at
 // AECP_NOTICE_US, that holds a round of every port refused (AECP_ROUND_PORTS)
@@ -338,7 +339,7 @@ extern "C" {
 #define CTRL_LOOP_SLICE_US 900u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 735u
-#define CTRL_LOOP_SRP_UNIT_US 290u
+#define CTRL_LOOP_SRP_UNIT_US 280u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #define CTRL_LOOP_QUEUED_MS 140u
@@ -347,7 +348,7 @@ extern "C" {
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
-#define CTRL_LOOP_SRP_UNIT_US 450u
+#define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #define CTRL_LOOP_QUEUED_MS 130u

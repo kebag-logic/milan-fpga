@@ -130,12 +130,13 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240); and its MAAP
 #: record on the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), 16,323 cycles in the
 #: valid-destinations arm's range lost to a peer's ANNOUNCE, 175 us by the rule, over 8x8/2if's 155 in both columns;
-#: and its SRP record, 42,663 cycles where a Listener Ready licenses a declared Talker (srp-talker-held, #930), 450 us
-#: by the rule, over 8x8/2if's 365. 1x1/1if's record.srp, 290 in both columns, is that group's 27,170 cycles there.
-OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175, 'record.srp': 450}}
+#: its SRP record, where a Listener Ready licenses a declared Talker (srp-talker-held), measured 42,663 cycles, 450 us
+#: by the rule, over 8x8/2if's 365, until a Listener's change walked no registrar (#930): on that image it is 32,936,
+#: 350 us, within 365, so 8x8/2if's supplies it again, as the cut's own measurement states the cost it moves. So with
+#: 1x1/1if's record.srp, 290 us for that group's 27,170 cycles before the cut and 280 after it, over its 23,503.
+OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175}}
 OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
-                            'record.maap': (16_323, 'the valid-destinations arm, srp-talker-loss'),
-                            'record.srp': (42_663, 'the valid-destinations arm, srp-talker-held')}}
+                            'record.maap': (16_323, 'the valid-destinations arm, srp-talker-loss')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
@@ -190,7 +191,7 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
 #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
 #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 290, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
@@ -238,7 +239,7 @@ STATED_US = {
 #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
 #: polls' base 325 to 345 (poll_grade.py; #895, reported).
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 290, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,

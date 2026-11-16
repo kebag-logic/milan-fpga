@@ -101,7 +101,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
 #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
 #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=210,
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=55, aecp=210,
            aecp_long=365, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=700, acmp_declined=20)
@@ -117,8 +117,10 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: and ACMP's owed frame 7,450 (backlog-owed), 250 and 80 us by the rule, as #901 found the base grown at 1x1/1if.
 #: With every Talker declared beside a Listener Ready (srp-talker-held, #930): at 8x8/1if the base 26,255, the walk
 #: 11,179, the reclaim 3,292 and a retained record's retry, an SRP record's apply, 42,449, 280, 120, 35 and 450 us by
-#: the rule, and at 1x1/1if that apply 26,925, 285 us.
-EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=35, retained=450, mrpdu=0, acmp=80, aecp=145,
+#: the rule, and at 1x1/1if that apply 26,925, 285 us. Once a Listener's change walks no registrar (#930) the apply,
+#: the one of these the cut moves, is 32,618 and 23,144 cycles, 345 and 245 us, so its own measurement states it:
+#: 345 at 8x8/1if and 280 at 1x1/1if, an SRP record's there.
+EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=35, retained=345, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
