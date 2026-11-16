@@ -145,8 +145,10 @@ def stated_misses(results: list[dict]) -> list[str]:
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
-    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
-    absent (join_grade.held, mrpdu_grade.resolve)."""
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
+    participant's transmit opportunity, or absent (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
+    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
+    (mrpdu_grade.leave_alls)."""
     import join_grade
     import mrpdu_grade
     import poll_grade
@@ -172,10 +174,30 @@ def stated_misses(results: list[dict]) -> list[str]:
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
             [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
-             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
-              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
+             (f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity at "
+              f"{o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)"
+              if o['outcome'] == 'late' else
               f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
-             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])
+             for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
+            [leave_all_miss(g['group'], o)
+             for g in results for o in g['passes'].get('joins', {}).get('leave_all', {}).get('failing', [])])
+
+
+def leave_all_miss(group: str, o: dict) -> str:
+    """A LeaveAll timer's run-out whose LeaveAll went past its participant's first transmit opportunity, late after
+    it, or not at all (mrpdu_grade.leave_alls), as a finding names it."""
+    import mrpdu_grade
+    if o['outcome'] == 'absent':
+        return (f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms, no LeaveAll after it though the log "
+                f"runs on past every participant's transmit opportunity and THE TRANSMIT's bound (LeaveAll absent)")
+    head = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms ({o['who']}): "
+    if o['outcome'] == 'skipped':
+        return (head + f"its first transmit opportunity at {o['opportunity_ms']:.3f} ms sent an MRPDU without the "
+                f"LeaveAll at {o['first_ms']:.3f} ms, and the LeaveAll went at {o['sent_ms']:.3f} ms (LeaveAll past "
+                f"its first transmit opportunity)")
+    return (head + f"its LeaveAll at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after its "
+            f"first transmit opportunity at {o['opportunity_ms']:.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+            f"ms (LeaveAll late)")
 
 
 #: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
@@ -199,6 +221,9 @@ def print_joins(results: list[dict]) -> None:
     for g in results:
         j = g['passes'].get('joins') or {}
         runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
+        alls = ', '.join(f'{n} {outcome}' for outcome, n in
+                         ((j.get('leave_all') or {}).get('runs') or {}).items() if n)
+        runs += f"; LeaveAll timers' run-outs by their LeaveAll: {alls}" if alls else ''
         if j.get('count'):
             print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
                   f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}; MRP "

@@ -24,6 +24,7 @@ import poll_grade
 import poll_items
 import run
 import scenario
+import selftest_leaveall
 
 Check = tuple[str, bool, str]
 #: The labels the testbench prints for each span, read here apart from poll_grade.ITEMS: a pass's first and last
@@ -129,7 +130,8 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     out.append(("a pass at one interface is held to that point's costs",
                 [o['cycles'] for o in single['over']] == [limit('base', 1) + 1], str(single)))
     return out + named_checks(held, limit) + long_checks(held, limit) + offer_checks(synthetic, sys_hz, cpu_hz) + \
-        join_checks(synthetic, sys_hz, cpu_hz, tx_record) + reference_checks()
+        join_checks(synthetic, sys_hz, cpu_hz, tx_record) + reference_checks() + \
+        selftest_leaveall.leave_all_checks(synthetic, sys_hz, cpu_hz, tx_record)
 
 
 def named_checks(held: Callable[..., dict], limit: Callable[..., int]) -> list[Check]:

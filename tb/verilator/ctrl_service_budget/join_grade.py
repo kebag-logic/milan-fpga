@@ -65,18 +65,31 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
 
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
-    MOST_MS; and every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one
-    named with its timer, its time and how far its first frame or build, or the log's end, lies past it."""
+    MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
+    with its timer, its time, its participant's transmit opportunity and how far its first frame or build, or the log's
+    end, lies past that; and every LeaveAll timer's run-out by its LeaveAll (mrpdu_grade.leave_alls), each skipped, late
+    or absent one named."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
     builds, _, sent, last = mrpdu_grade.index(log)
+    ms = lambda cycle: round(cycle * 1000 / log.sys_hz, 3)
     runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
     for entry, kind, outcome in mrpdu_grade.outcomes(log):
         runs[outcome] += 1
         if outcome in mrpdu_grade.FAILING:
             frames = mrpdu_grade.released(log, entry)
             after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
-            failing.append(dict(kind=kind, outcome=outcome, at_ms=round(entry * 1000 / log.sys_hz, 3),
-                                after_ms=round((after - entry) * 1000 / log.sys_hz, 3)))
+            whose = mrpdu_grade.sends(log)[1].get(frames[0], ()) if frames else ()
+            start = min([mrpdu_grade.opportunity(log, who, entry) for who in whose] or [entry])
+            failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
+                                after_ms=round((after - start) * 1000 / log.sys_hz, 3)))
+    alls = mrpdu_grade.leave_alls(log)
+    leave_all = dict(runs={o: sum(1 for r in alls if r['outcome'] == o) for o in mrpdu_grade.LEAVE_ALL_OUTCOMES},
+                     failing=[dict(outcome=r['outcome'], who=r.get('who'), at_ms=ms(r['at']),
+                                   **({} if 'sent' not in r else dict(
+                                       opportunity_ms=ms(r['opportunity']), first_ms=ms(r['first']),
+                                       sent_ms=ms(r['sent']))))
+                              for r in alls if r['outcome'] in mrpdu_grade.LEAVE_ALL_FAILING])
     return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
-                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing)
+                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing,
+                leave_all=leave_all)

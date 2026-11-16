@@ -866,6 +866,21 @@ MUTANTS: dict[str, Patches] = {
         mrpdu_grade, 'index', lambda log, f=mrpdu_grade.index: (lambda builds, passes, sent, last: (
             builds, passes, [s for s in sent if any(q.start_sys <= s[0] < mrpdu_grade.end_of(log, q) and any(
                 q.start_sys <= c < mrpdu_grade.end_of(log, q) for c in builds) for q in passes)], last))(*f(log)))],
+    "transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier "
+    "rule)": lambda: [patch.object(mrpdu_grade, 'opportunity', lambda log, who, entry: entry)],
+    "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
+        mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
+    'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('late', 'absent'))],
+    "leaveall: a late LeaveAll not failing the run": lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('skipped', 'absent'))],
+    'leaveall: any MRPDU taken for the LeaveAll': lambda: [patch.object(mrpdu_grade, 'leave_all', lambda frame: True)],
+    "leaveall: the participants' applications not told apart": lambda: [patch.dict(
+        mrpdu_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
+    "leaveall: a Listener vector's FourPackedEvents not skipped": lambda: [patch.object(mrpdu_grade, 'LISTENER', 0)],
+    'leaveall: an absent LeaveAll taken for an unresolved one': lambda: [patch.object(
+        mrpdu_grade, 'leave_alls', lambda log, f=mrpdu_grade.leave_alls: [
+            dict(r, outcome='unresolved') if r['outcome'] == 'absent' else r for r in f(log)])],
     'polls: the declined offers held to three a send': lambda: [patch.object(
         poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(
