@@ -1,0 +1,101 @@
+Note: Google Test filter = Face.*
+[==========] Running 20 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 20 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (4 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+[       OK ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow (0 ms)
+[ RUN      ] Face.ARefusedBeatAbortsAndNothingMoves
+[       OK ] Face.ARefusedBeatAbortsAndNothingMoves (0 ms)
+[ RUN      ] Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4094: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 10
+status for command 44
+
+  [FAIL] Face.AnUnansweredEditFailsUntilItsCommitIsReserved: status for command 44
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4353: Failure
+Expected equality of these values:
+  phases()
+    Which is: { 0, 4, 5, 2 }
+  beats
+    Which is: { 0, 4, 3 }
+no answer before the commit is reserved aborts
+
+  [FAIL] Face.AnUnansweredEditFailsUntilItsCommitIsReserved: no answer before the commit is reserved aborts
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4355: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 2
+  1u
+    Which is: 1
+no answer before the commit is reserved moves nothing
+
+  [FAIL] Face.AnUnansweredEditFailsUntilItsCommitIsReserved: no answer before the commit is reserved moves nothing
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4363: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 3
+  phase==5u?2u:3u
+    Which is: 2
+after the reserved commit, the edit stands
+
+  [FAIL] Face.AnUnansweredEditFailsUntilItsCommitIsReserved: after the reserved commit, the edit stands
+<packet>/scratch/head/sw/firmware/ctrl/test/test_aecp.cpp:4362: Failure
+Expected equality of these values:
+  face.unanswered
+    Which is: 6
+  before+1u
+    Which is: 7
+an unanswered beat after the reserved commit is counted
+
+  [FAIL] Face.AnUnansweredEditFailsUntilItsCommitIsReserved: an unanswered beat after the reserved commit is counted
+[  FAILED  ] Face.AnUnansweredEditFailsUntilItsCommitIsReserved (0 ms)
+[ RUN      ] Face.RestoredMapsReachTheStoreThroughTheEditWindow
+[       OK ] Face.RestoredMapsReachTheStoreThroughTheEditWindow (0 ms)
+[ RUN      ] Face.TheRunningCheckReadsOneWindowWordAStream
+[       OK ] Face.TheRunningCheckReadsOneWindowWordAStream (0 ms)
+[ RUN      ] Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[       OK ] Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (4 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (4 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 20 tests from Face (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 20 tests from 1 test suite ran. (17 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+
+ 1 FAILED TEST
+== AECP core: checks: 20   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 20 checks, exit 1)

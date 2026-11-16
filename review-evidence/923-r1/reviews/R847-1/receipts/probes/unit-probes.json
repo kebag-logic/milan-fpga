@@ -1,0 +1,73 @@
+[
+  {
+    "probe": "control-unplanted",
+    "file": "",
+    "filter": "Core.*:Face.*:AppStore.*",
+    "rc": 0,
+    "failed": [],
+    "caught": null
+  },
+  {
+    "probe": "restore-loop2-unmoved-dropped",
+    "file": "aecp/aecp_maps.c",
+    "filter": "Core.*:Face.*:AppStore.*",
+    "rc": 1,
+    "failed": [
+      "AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens",
+      "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+      "Core.RestoredMapsReachTheStoreRemovalsFirst",
+      "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+      "Core.TheStoresResetSetIsTheClippedOne"
+    ],
+    "caught": true
+  },
+  {
+    "probe": "kept-length-boundary",
+    "file": "aecp/aecp_maps.c",
+    "filter": "Core.*:Face.*:AppStore.*",
+    "rc": 0,
+    "failed": [],
+    "caught": false
+  },
+  {
+    "probe": "face-finish-dropped",
+    "file": "aecp/aecp_face.c",
+    "filter": "Face.*",
+    "rc": 1,
+    "failed": [
+      "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+      "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+      "Face.RestoredMapsReachTheStoreThroughTheEditWindow"
+    ],
+    "caught": true
+  },
+  {
+    "probe": "face-unanswered-commit-begin-trusted",
+    "file": "aecp/aecp_face.c",
+    "filter": "Face.*",
+    "rc": 1,
+    "failed": [
+      "Face.AnUnansweredEditFailsUntilItsCommitIsReserved"
+    ],
+    "caught": true
+  },
+  {
+    "probe": "face-pick-ignored",
+    "file": "aecp/aecp_face.c",
+    "filter": "Core.*:Face.*:AppStore.*",
+    "rc": -1,
+    "failed": [],
+    "caught": false
+  },
+  {
+    "probe": "face-apply-record-zero",
+    "file": "aecp/aecp_face.c",
+    "filter": "Face.*",
+    "rc": 1,
+    "failed": [
+      "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+      "Face.RestoredMapsReachTheStoreThroughTheEditWindow"
+    ],
+    "caught": true
+  }
+]

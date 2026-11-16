@@ -1,0 +1,21 @@
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+FAIL [MAPS-STORE] the removal reached the render store
+FAIL [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+FAIL [MAPS-EDIT] an edited map reached the render store
+FAIL [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+maps planted no-edit: 8 failed, 0 host timeouts, 2061 ms, 0 EDIT and GSI beats with no answer since the boot
