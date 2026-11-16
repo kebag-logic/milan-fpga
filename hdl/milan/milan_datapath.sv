@@ -763,7 +763,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire        o_ctl_amap_wait,
   input  wire        i_ctl_edit_req,                         //! ADD/REMOVE_AUDIO_MAPPINGS, a beat
   //! the beat's phase, removal, descriptor, count, record and value, held
-  //! from req; the answer, taken while wait is low
+  //! from the clock before req rises until req falls (the record's
+  //! capture-source word is registered, #927); the answer, taken while wait
+  //! is low
   input  wire [2:0]  i_ctl_edit_phase,
   input  wire        i_ctl_edit_remove,
   input  wire [15:0] i_ctl_edit_type,
@@ -4623,6 +4625,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [15:0] amap_edit_out_cluster_w;
   logic [13:0] amap_edit_out_enc_w;
 
+  //! The output record's capture-source word, amap_edit_out_encode of the
+  //! record's cluster_offset and the descriptor index, is a function of the
+  //! request's fields alone. Its port-and-cluster search is the deepest term
+  //! of every phase-4 verdict, and so of the claim and live-write enables the
+  //! verdict gates (#927). All-fabric it is combinational: the processor may
+  //! raise req in the cycle its fields change. In the split it is registered,
+  //! and costs no cycle. KL_mbx_cdc_window changes a request's fields only on
+  //! a clock edge that leaves req low, and raises req no earlier than the
+  //! next edge (its PRE_S), so in every cycle req is high the fields are the
+  //! previous clock's and the register holds their word.
+  generate if (CTRL_SPLIT_P == 0) begin : g_af_amap_enc
+    assign amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
+                                                      pp_amap_edit_desc_index_w);
+  end else begin : g_sp_amap_enc
+    logic [13:0] enc_r;
+    always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_enc_reg
+      if (!axis_resetn) enc_r <= 14'd0;
+      else              enc_r <= amap_edit_out_encode(amap_edit_co_w,
+                                                      pp_amap_edit_desc_index_w);
+    end : amap_edit_enc_reg
+    assign amap_edit_out_enc_w = enc_r;
+  end endgenerate
+
   always_comb begin : amap_edit_validate
     int unsigned ikey_c, okey_c, ipbase_c, ipcls_c;
     logic [7:0] ibase_c, iexpect_c;
@@ -4656,8 +4681,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     amap_edit_out_key_w = '0;
     amap_edit_in_word_w = {1'b1, 1'b0, amap_edit_si_w[2:0],
                            amap_edit_sc_w[2:0]};
-    amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
-                                                pp_amap_edit_desc_index_w);
     amap_edit_out_word_w = amap_edit_out_enc_w[12:0];
     amap_edit_in_live_w = 8'd0;
     amap_edit_out_live_w = 13'd0;
