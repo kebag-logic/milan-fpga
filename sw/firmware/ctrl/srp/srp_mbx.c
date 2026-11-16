@@ -411,8 +411,9 @@ static void listener_moved(struct srp_interface *i, const struct mrp_transition 
 // change can leave an attribute mrp_reclaim frees (#665).
 // An Applicant that moves may request a transmit (Table 10-3 note 6), owed now when its participant's join timer is
 // idle: a build arms that timer, so this owes a participant one pass a JoinTime, and one that moves in the build that
-// sent it owes nothing past that pass, whose end clears its interface.
-static void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
+// sent it owes nothing past that pass, whose end clears its interface. A function of its own, both participants'
+// observers calling it, as the split link script's hot list places it (plat/ctrl_split_hot.txt).
+static CTRL_CC_NOINLINE void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
 {
     struct srp_mbx *m = i->owner;
     i->reclaim = true;
