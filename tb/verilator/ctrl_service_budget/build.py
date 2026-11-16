@@ -100,29 +100,12 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
-    # #920's planted lost mark: a record past the first 256 ids never reaches the store, as before the AECP owner's
-    # pending bits covered layout 3's space, so the burst's names from ordinal 34 on are never durable (save_burst.py).
-    'store-names-past-256-lost': ('aecp/aecp_nvm.c', '\tif (id < 0) return;\n',
-                                  '\tif (id < 0 || id >= 256) return;\n', 'save-burst', 'none'),
-    # #920's planted pace: the store steps only in a pass a centisecond owes it, as before a save in flight took a step
-    # in every pass that took no input, so at 8x8/1if the burst's names are not durable within 5 s of their response.
-    'store-step-only-owed': ('ctrl_nvm/nvm_store.c', '\tif (nvm_in_flight())\n\t\treturn 1;\n\treturn nvm.st.phase',
-                             '\tif (0 && nvm_in_flight())\n\t\treturn 1;\n\treturn 0 && nvm.st.phase', 'save-burst',
-                             'none'),
-    # #920's planted window: the next save waits for its change's window after the save in flight, so the change in
-    # flight's next save takes idle steps before its capture starts.
-    'store-next-save-waits': ('ctrl_nvm/nvm_store.c', '\t\tnvm.next_now = 1;', '\t\tnvm.next_now = 0;',
-                              'save-flight', 'none'),
-    # #920's join, a change behind the running capture's cursor that no capture holds walking it again, has no plant
-    # here: left out, that change is the next save's, which starts at the first idle step, and the burst is still
-    # durable within 5 s at both points (7 saves where the join makes 6 at 8x8/1if). The store's units hold the join
-    # (test_nvm_write.cpp, capture_joins).
-    **poll_items.PLANTS,
+    **poll_items.PLANTS, **save_window.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
 #: The controls whose finding is a save not durable within its stated worst case, by its group's name.
-SAVE_CONTROLS = ('store-step-ageless', 'store-names-past-256-lost', 'store-step-only-owed', 'store-next-save-waits')
+SAVE_CONTROLS = ('store-step-ageless', *save_window.PLANTS)
 #: The controls whose finding is a row of an aged window over its budget, with no refusal.
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
@@ -306,7 +289,6 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
     the tree: the control firmware for MUTATIONS, or the tree a Plant names."""
     if isinstance(mutation, str):
         path, anchor, replacement, _, _ = MUTATIONS[mutation]
-        # a plant in the saved-state store names its tree; every other is the control firmware's
         mutation = Plant(mutation, path if path.startswith('ctrl_nvm/') else f'ctrl/{path}', anchor, replacement)
     tree_name, _, path = mutation.path.partition('/')
     if tree_name not in PLANT_TREES:

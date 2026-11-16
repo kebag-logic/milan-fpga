@@ -244,15 +244,13 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.reads.append((int(rest[0]), int(rest[1]), int(rest[2], 16), int(rest[3])))
         elif kind == 'FLASHPOLL':
             log.polls.append(int(rest[0]))
-        elif kind == 'FLASHDATA':
-            log.programmed.append((int(rest[0]), int(rest[1], 16), bytes.fromhex(rest[2])))
         elif kind == 'FLOOD':
             log.floods.append((int(rest[0]), int(rest[2])))
         elif kind == 'STEPPASS':
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -915,10 +913,18 @@ def pass_share(log: Log) -> dict:
                 idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
+def programmed(text: str) -> list[tuple[int, int, bytes]]:
+    """Each page program's cycle, address and the bytes it left in the device, from the testbench's FLASHDATA lines
+    (sim_main.cpp; save_burst.py, #920), which parse passes over."""
+    return [(int(m[1]), int(m[2], 16), bytes.fromhex(m[3]))
+            for m in re.finditer(r'^FLASHDATA (\d+) ([0-9a-fA-F]+) ([0-9a-fA-F]*)$', text, re.M)]
+
+
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2,
           journal: Path | None = None) -> dict:
     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
     log = parse(text, sys_hz, cpu_hz)
+    log.programmed = programmed(text)
     refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
     grader = Grader(log)

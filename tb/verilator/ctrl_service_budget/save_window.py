@@ -51,6 +51,27 @@ IDLE_MS = 2
 #: The SET_NAME's time after ready, inside the wait for MAAP, so the save's capture, seal and erase, a step a pass,
 #: come after the window's set-up (#920).
 SET_MS = 1500
+#: #920's planted save defects, build.MUTATIONS' entries (path under the control firmware's tree, or the store's
+#: under ctrl_nvm/), each caught by its group's late save (build.SAVE_CONTROLS, save_burst.py).
+PLANTS = {
+    # the lost mark: a record past the first 256 ids never reaches the store, as before the AECP owner's
+    # pending bits covered layout 3's space, so the burst's names from ordinal 34 on are never durable (save_burst.py).
+    'store-names-past-256-lost': ('aecp/aecp_nvm.c', '\tif (id < 0) return;\n',
+                                  '\tif (id < 0 || id >= 256) return;\n', 'save-burst', 'none'),
+    # the pace: the store steps only in a pass a centisecond owes it, as before a save in flight took a step
+    # in every pass that took no input, so at 8x8/1if the burst's names are not durable within 5 s of their response.
+    'store-step-only-owed': ('ctrl_nvm/nvm_store.c', '\tif (nvm_in_flight())\n\t\treturn 1;\n\treturn nvm.st.phase',
+                             '\tif (0 && nvm_in_flight())\n\t\treturn 1;\n\treturn 0 && nvm.st.phase', 'save-burst',
+                             'none'),
+    # the window: the next save waits for its change's window after the save in flight, so the change in
+    # flight's next save takes idle steps before its capture starts.
+    'store-next-save-waits': ('ctrl_nvm/nvm_store.c', '\t\tnvm.next_now = 1;', '\t\tnvm.next_now = 0;',
+                              'save-flight', 'none'),
+    # the capture's join, a change behind its cursor that no capture holds walking it again, has no plant here:
+    # left out, that change is the next save's, which starts at the first idle step, and the burst is still
+    # durable within 5 s at both points (7 saves where the join makes 6 at 8x8/1if); the store's units hold it
+    # (test_nvm_write.cpp, capture_joins).
+}
 #: The tick phases staged in each flash phase.
 TICK_PHASES = 8
 #: The store's first-dirty window (DR2a, MILAN_NVM_DEBOUNCE_MS) and its tick, in ms (nvm_store.c).
@@ -312,10 +333,13 @@ def aged_windows(p: scenario.Point, ages: tuple[int, ...] | None = None) -> list
 def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
     """The windows, opened from idle and aged, the save alone, a save under every channel at its refill rate,
     without and with no pass that takes nothing, and a change while a save is in flight, each of the build's
-    image's container."""
+    image's container; at one interface, a burst of names and a change in flight, each timed from its response
+    (save_burst.py, #920)."""
+    import save_burst  # it reads this module's
     image = container(build)
     return [*windows(p), *aged_windows(p), alone(p, image), loaded(p, 'save-held', False, image),
-            loaded(p, 'save-starved', True, image), second(p, image)]
+            loaded(p, 'save-starved', True, image), second(p, image),
+            *(save_burst.groups(p, build) if p.interfaces == 1 else [])]
 
 
 def row_names() -> list[str]:

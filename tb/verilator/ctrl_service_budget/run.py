@@ -84,6 +84,12 @@ def burst_lines(results: list[dict]) -> list[str]:
     return out
 
 
+def print_bursts(results: list[dict]) -> None:
+    """Each burst's and change in flight's BURST line (burst_lines), as the run prints it."""
+    for line in burst_lines(results):
+        print(line)
+
+
 def save_misses_of(burst: dict, group: str) -> list[str]:
     """save_burst.misses of one group's burst."""
     import save_burst
@@ -364,11 +370,13 @@ def burst_table(results: list[dict]) -> list[str]:
     rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
     if not rows:
         return []
-    lines = ['', 'Names from their response to durable (save_burst.py; #920, the ruling of #665 issuecomment-6899740728, '
-             'item 1):', '', '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
+    lines = ['', 'Names from their response to durable (save_burst.py; #920, the ruling of #665 '
+             'issuecomment-6899740728, item 1):', '',
+             '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
              'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
     for group, b in rows:
-        worst = f"{b['worst_ms']:.3f} ({b['worst_ordinal']})" if b['worst_ms'] is not None else f"never ({b['worst_ordinal']})"
+        worst = (f"{b['worst_ms']:.3f} ({b['worst_ordinal']})" if b['worst_ms'] is not None else
+                 f"never ({b['worst_ordinal']})")
         end = (f"sequence {b['cut_seq']}, {len(b['cut_missing'])} missing" if b['kind'] == 'burst' else
                f"{b['next_steps']['steps']} steps (want {b['next_steps']['want']}), {b['next_steps']['gap_ms']} ms")
         lines.append(f"| {group} | {b['names']} | {worst} | {b['target_ms']:,} | {len(b['saves'])} | "
@@ -832,8 +840,7 @@ def main() -> int:
     for line in shares:
         print('SHARE', line)
     late = save_misses(results) + burst_misses(results)
-    for line in burst_lines(results):
-        print(line)
+    print_bursts(results)
     stepped = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
     if stepped:
         group, top = max(stepped, key=lambda r: r[1]['cycles'])

@@ -42,6 +42,7 @@ import struct
 import sys
 import zlib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import frames as f
 import save_window
@@ -49,6 +50,9 @@ import scenario
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
 import nvm_layout3  # noqa: E402
+
+if TYPE_CHECKING:
+    import grade as grader  # grade.py imports this module
 
 #: The ruling's target, the persistence scenario's cut, and the store's first-dirty window (DR2a), in ms.
 TARGET_MS, CUT_MS = 5000, 10000
@@ -261,7 +265,7 @@ def held_names(blob: bytes, image: int, base: int) -> dict[int, bytes]:
         at += 1
 
 
-def saves(log, image: int) -> list[dict]:
+def saves(log: grader.Log, image: int) -> list[dict]:
     """Every save the log shows: its erase, the container its pages left over an erased slot, its sequence when the
     container is accepted, and when it is durable (save_grade.first_save), or None."""
     import grade
@@ -284,7 +288,7 @@ def saves(log, image: int) -> list[dict]:
     return out
 
 
-def responses(log) -> dict[int, tuple[int, int]]:
+def responses(log: grader.Log) -> dict[int, tuple[int, int]]:
     """Each AEM_RESPONSE the AECP channel committed (IEEE 1722.1-2021 9.2.1.2): sequence_id -> (cycle, status)."""
     out = {}
     for cycle, ch, _, frame in log.tx:
@@ -308,7 +312,7 @@ def journal(path: Path, image: int, base: int) -> tuple[int | None, dict[int, by
     return seq, held_names(blob, image, base)
 
 
-def grade(log, group: scenario.Group, journal_path: Path | None) -> dict | None:
+def grade(log: grader.Log, group: scenario.Group, journal_path: Path | None) -> dict | None:
     """A burst's or a change in flight's names, each from its response to durable against TARGET_MS, the
     authoritative container at the cut, and the change in flight's next save from the first idle step."""
     import grade as grader
@@ -336,18 +340,20 @@ def grade(log, group: scenario.Group, journal_path: Path | None) -> dict | None:
                saves=[dict(erase=d['erase'], durable=d['durable'], seq=d['seq']) for d in done], rows=rows)
     timed_rows = [r for r in rows if r['ms'] is not None]
     worst = max(rows, key=lambda r: (r['ms'] is None, r['ms'] or 0))
-    out.update(worst_ms=worst['ms'], worst_ordinal=worst['ordinal'], never=[r['ordinal'] for r in rows if r['ms'] is None],
+    out.update(worst_ms=worst['ms'], worst_ordinal=worst['ordinal'],
+               never=[r['ordinal'] for r in rows if r['ms'] is None],
                over=[r['ordinal'] for r in timed_rows if not r['within']])
     if spec['kind'] == 'burst':
-        seq, held = journal(journal_path, image, base) if journal_path is not None and journal_path.exists() else (None, {})
+        left = journal_path is not None and journal_path.exists()
+        seq, held = journal(journal_path, image, base) if left else (None, {})
         missing = [s['ordinal'] for s in spec['sets'] if held.get(s['ordinal']) != bytes.fromhex(s['value'])]
-        out.update(cut_seq=seq, cut_missing=missing, journal=journal_path is not None and journal_path.exists())
+        out.update(cut_seq=seq, cut_missing=missing, journal=left)
     else:
         out.update(next_steps=next_steps(log, done, spec, image))
     return out
 
 
-def next_steps(log, done: list[dict], spec: dict, image: int) -> dict:
+def next_steps(log: grader.Log, done: list[dict], spec: dict, image: int) -> dict:
     """The steps between the first save's verify and the next save's erase, and those its capture and seal take: the
     step that starts the capture, one for each of its records and one that finds none left, and the seal's stretches
     (save_window.steps), and the erase's own."""

@@ -37,6 +37,7 @@ import save_window
 import scenario
 import share
 import whole_grade
+from selftest_burst import burst_checks  # noqa: F401 (selftest.py takes the save families from here)
 
 ROOT = Path(__file__).resolve().parents[3]
 #: The share and the product's split CPU clock, the bus clock, restated here on purpose (#665, owner

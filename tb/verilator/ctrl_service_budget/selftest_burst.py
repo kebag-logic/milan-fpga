@@ -8,8 +8,8 @@ from __future__ import annotations
 import struct
 import tempfile
 import zlib
-from collections.abc import Callable
 from pathlib import Path
+from types import ModuleType
 
 import grade
 import save_burst
@@ -58,20 +58,22 @@ def group(kind: str) -> scenario.Group:
     return scenario.Group(f'synthetic-{kind}', save=dict(named=spec))
 
 
-def graded(synthetic: Callable[[list[str]], str], tx_sequence: Callable, aem_response: Callable, sys_hz: int,
-           cpu_hz: int, kind: str, blob: bytes, durable_ms: float, journal: bytes | None = None,
-           status: int = 0, answered: bool = True, steps: int = 0) -> dict:
-    """The grade of a log whose SET_NAMEs are answered at cycle 1000 and whose one save is durable durable_ms
-    later, with that journal at the cut (written to a scratch file) and steps passes stepping after the save."""
-    ms = sys_hz // 1000
+def graded(m: ModuleType, kind: str, blob: bytes, durable_ms: float, journal: bytes | None = None,
+           **opts: int | bool) -> dict:
+    """The grade of a log, built with the self-test's own builders (m: its synthetic, tx_sequence and aem_response,
+    and its clocks), whose SET_NAMEs are answered at cycle 1000 with opts' status (0) unless opts' answered is False,
+    and whose one save is durable durable_ms later, with that journal at the cut (written to a scratch file) and opts'
+    steps (0) passes stepping after the save."""
+    ms = m.SYS_HZ // 1000
+    steps = int(opts.get('steps', 0))
     lines = []
-    if answered:
+    if opts.get('answered', True):
         records = []
         for k in NAMES:
-            frame_ = bytearray(aem_response(scenario.CTL2, 0x9000 + 2 * k))
-            frame_[16] = (frame_[16] & 0x07) | status << 3
+            frame_ = bytearray(m.aem_response(scenario.CTL2, 0x9000 + 2 * k))
+            frame_[16] = (frame_[16] & 0x07) | int(opts.get('status', 0)) << 3
             records.append((0, bytes(frame_), 1000 + k))
-        lines += tx_sequence(scenario.CH['aecp'], records)
+        lines += m.tx_sequence(scenario.CH['aecp'], records)
     end = 1000 + int(durable_ms * ms)
     lines += save_lines(blob, 2000, end)
     lines += [f'STEPPASS {n} {end + 10 + n} 1 100 store=50' for n in range(steps)]
@@ -82,22 +84,21 @@ def graded(synthetic: Callable[[list[str]], str], tx_sequence: Callable, aem_res
         if journal is not None:
             path = Path(tmp) / 'cut.journal'
             path.write_bytes(journal)
-        return grade.grade(synthetic(lines), group(kind), sys_hz, cpu_hz, journal=path)['burst']
+        return grade.grade(m.synthetic(lines), group(kind), m.SYS_HZ, m.CPU_HZ, journal=path)['burst']
 
 
-def burst_checks(synthetic: Callable[[list[str]], str], tx_sequence: Callable, aem_response: Callable, sys_hz: int,
-                 cpu_hz: int) -> list[Check]:
+def burst_checks(m: ModuleType) -> list[Check]:
     """A burst's names timed and found at the cut; a name missing, late, refused or unanswered, a container that does
-    not close, and a change in flight's next save that waited, each failing by its own words."""
+    not close, and a change in flight's next save that waited, each failing by its own words (m: the self-test)."""
     good = container(NAMES, 6)
     half = 640 * 1024 // 2
     journal = lambda blob: blob.ljust(half, b'\xff') + container({}, 5).ljust(half, b'\xff')
-    run = lambda *a, **k: graded(synthetic, tx_sequence, aem_response, sys_hz, cpu_hz, *a, **k)
+    run = lambda *a, **k: graded(m, *a, **k)
     out = []
     g = run('burst', good, 1500, journal(good))
     words = save_burst.misses(g, 'synthetic-burst')
-    out.append(('burst: names durable within the target and held at the cut pass', not words and g['worst_ms'] is not None
-                and abs(g['worst_ms'] - 1500) < 1, f'{words} {g["worst_ms"]}'))
+    out.append(('burst: names durable within the target and held at the cut pass',
+                not words and g['worst_ms'] is not None and abs(g['worst_ms'] - 1500) < 1, f'{words} {g["worst_ms"]}'))
     g = run('burst', container({0: NAMES[0]}, 6), 1500, journal(good))
     words = save_burst.misses(g, 'synthetic-burst')
     out.append(('burst: a name no durable save holds fails by its name',
@@ -133,7 +134,8 @@ def burst_checks(synthetic: Callable[[list[str]], str], tx_sequence: Callable, a
     want = 3 + 2 + -(-(IMAGE - 4) // 256)
     g = run('flight', good, 1500, steps=want)
     out.append(('flight: a next save whose capture and seal take every step after the verify passes',
-                not save_burst.misses(g, 'synthetic-flight') and g['next_steps']['steps'] == want, str(g['next_steps'])))
+                not save_burst.misses(g, 'synthetic-flight') and g['next_steps']['steps'] == want,
+                str(g['next_steps'])))
     g = run('flight', good, 1500, steps=want + 1)
     words = save_burst.misses(g, 'synthetic-flight')
     out.append(('flight: a next save that waited a step past its capture and seal fails',

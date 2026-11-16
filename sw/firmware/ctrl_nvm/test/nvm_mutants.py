@@ -363,7 +363,8 @@ MUTANTS = (
     # every change during the capture counted as joining it: one to a record
     # it has taken is never written
     _m("taken_while_capturing", STORE,
-       "nvm.st.phase == NVM_P_CAPTURE &&\n\t\t(!nvm_bit(&nvm.inflight, id) || (!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id));",
+       "nvm.st.phase == NVM_P_CAPTURE &&\n\t\t(!nvm_bit(&nvm.inflight, id) || "
+       "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id));",
        "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges", "capture_joins"),
     _m("taken_after_last_latch", STORE, "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id)",
        "(!nvm.rewound && id >= nvm.cursor.id)", "capture_joins"),
