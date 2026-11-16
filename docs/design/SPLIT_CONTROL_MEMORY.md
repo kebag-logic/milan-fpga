@@ -2769,27 +2769,28 @@ Each save's container is read off the log, and each name is timed from its SET_N
 | Group | 1x1/1if, the base | 1x1/1if | 8x8/1if, the base | 8x8/1if |
 |---|---|---|---|---|
 | `save-burst`: names, frames, the burst | 39, 78, 850 ms | 39, 78, 850 ms | 107, 214, 2,777 ms | 107, 214, 2,777 ms |
-| `save-burst`: the latest name from its response to durable | never (names 34 to 38) | 1,101.7 ms (253.0 to 1,101.7) | none timed: the CPU traps | 1,367.5 ms (332.7 to 1,367.5) |
+| `save-burst`: the latest name from its response to durable | never (names 34 to 38) | 1,107.8 ms (258.9 to 1,107.8) | none timed: the CPU traps | 1,370.3 ms (342.7 to 1,370.3) |
 | `save-burst`: saves, the cut | 1; names 34 to 38 missing | 1; every name at the cut (sequence 1) | none graded: 8 load faults in `deliver` | 6; every name at the cut (sequence 6) |
-| `save-flight`: from its response to durable | 2,020.4 ms | 158.5 ms | 7,049.8 ms | 657.7 ms |
+| `save-flight`: from its response to durable | 2,020.4 ms | 165.0 ms | 7,049.8 ms | 663.1 ms |
 | `save-flight`: steps from the first save's verify to the next erase (its capture and seal's) | 36 (19) | 19 (19) | 59 (59) | 59 (59) |
 
+The fix's columns are measured on `d66b4045`, this branch merged with `dev-soft-core` `70f4056f` (#901, SRP's Talker declarations, #895); on this branch before that merge they were 1,101.7, 158.5, 1,367.5 and 657.7 ms, with the same saves and steps.
 At the base, 8x8/1if's burst made the CPU trap: in the harness's fixture image `pending[9]` and `pending[10]` are the AECP bridge's `app` and `aecp` pointers, and the names of ordinals 66 to 106, which the descending burst marks first, set bits in them; `deliver` took a load access fault 0.28 s after the first SET_NAME, eight times.
-With the fix at 1x1/1if the burst's 850 ms ends inside its first change's 1,000 ms window, so one save takes every name, 70.6 ms from its erase to durable, and the change in flight's save erases 19 steps after the first's verify, its capture and seal's.
-At 8x8/1if every name of the burst is durable within 1.4 s of its response, the saves chained a capture and seal apart, each 306 to 318 ms from its erase to durable, and the change in flight within 0.7 s; at the base the change in flight took 7.0 s there, at a step a centisecond.
-Each group's every pass is within the share and each channel's longest record within its bound: no budget miss, and none of `save-burst`'s and `save-flight`'s 2,754 and 2,994 work passes at 1x1/1if, or 3,318 and 2,945 at 8x8/1if, over the share.
-At 8x8/1if these groups print stated-cost lines, as every group there does on this base: one interface takes 1x1/1if's statements, `ctrl_loop.h`'s build of one and slice and `poll_grade.py`'s polls base, and SRP's build of one MRPDU is over them (`ctrl_loop.h` records it at 1,019 us), as is the polls base in the pass that delivers a name.
-They stand in the base's `save-flight` too, at 94,668 and 21,774 cycles; with this change they are 96,241 and 23,251 there, and the burst's longest build is 109,408, 1.8 s after its last save.
-[#914](https://github.com/kebag-logic/milan-fpga/issues/914) gives 8x8/1if its own statements, and these are within them.
+With the fix at 1x1/1if the burst's 850 ms ends inside its first change's 1,000 ms window, so one save takes every name, 73.1 ms from its erase to durable, and the change in flight's save erases 19 steps after the first's verify, its capture and seal's.
+At 8x8/1if every name of the burst is durable within 1.4 s of its response, the saves chained a capture and seal apart, each 307.8 to 322.0 ms from its erase to durable, and the change in flight within 0.7 s; at the base the change in flight took 7.0 s there, at a step a centisecond.
+Each group's every pass is within the share and each channel's longest record within its bound: no budget miss, and none of `save-burst`'s and `save-flight`'s 2,916 and 3,131 work passes at 1x1/1if, or 3,316 and 3,006 at 8x8/1if, over the share.
+At 8x8/1if these groups print stated-cost lines, as every group there does on this base: one interface takes 1x1/1if's statements at every shape, and 8x8/1if's own are [#914](https://github.com/kebag-logic/milan-fpga/issues/914)'s per-shape statements, so these lines are recorded as such ([the ruling on this branch's timing STOP](https://github.com/kebag-logic/milan-fpga/issues/920#issuecomment-6910219988)).
+Over every group at 8x8/1if on the merge they are the polls base, 90 lines in 78 groups, the most 25,015 cycles (`save-starved`) against the 22,500 one interface states, in the pass that delivers a name, of which this change's mark takes 731 cycles (measured in `save-flight` before the merge); an ACMP item, 7,277 against 5,500; and a declined ACMP offer, 2,338 against 2,000, both in `backlog-owed`.
+Before the merge the build of one MRPDU and its slice were over one interface's statements there too (`ctrl_loop.h` records the build at 1,019 us); on the merge the longest build is 44,249 cycles, within the 900 us slice.
 
 **A save's windows, staged again.**
-A save in flight now takes a step in every pass that takes nothing, so its phases are short: at 1x1/1if a save alone is durable 1,078.7 ms after its change, where it took 2,018.6 ms at the base, its window's 1,000 ms included, and 1,302.0 ms at 8x8/1if.
+A save in flight now takes a step in every pass that takes nothing, so its phases are short: at 1x1/1if a save alone is durable 1,081.8 ms after its change, where it took 2,018.6 ms at the base, its window's 1,000 ms included, and 1,308.8 ms at 8x8/1if.
 `save_window.py` opens each phase's windows 2 ms into the phase, eight phases 0.125 ms apart across a read-back's pass in the blank check and the verify and 0.25 ms apart across a page's issue and its wait in the program phase, the SET_NAME 1.5 s into the window's wait for MAAP so the save's erase follows the window's set-up, and the verify 2 ms after the last page (`IDLE_MS`); `grade.save_phase` refuses a window outside its phase.
 The aged windows are staged as before: their flood holds every step to the age limit.
 
 Every window opened inside its phase at 1x1/1if and at 8x8/1if (`grade.save_phase` refused none), and in each every row the CPU decides is within its budget.
-The 48 aged windows at each point, opened with the step's age at its limit or one short of it, hold 16 and 21 aged steps among their records, the least margin 9.976 ms at 1x1/1if (`backlog-adp@verify-aged2-7`, SRP's last record at 10.024 ms) and 8.876 ms at 8x8/1if (`backlog-adp@blank-aged2-4`, at 11.124 ms).
-Over every group a pass that carries the store's step is at most 0.989 ms at 1x1/1if and 1.098 ms at 8x8/1if, within the 2.0 ms share, and a step at most 0.788 ms at both, within `NVM_STEP_US`.
+The 48 aged windows at each point, opened with the step's age at its limit or one short of it, hold 15 and 17 aged steps among their records, the least margin 8.826 ms at 1x1/1if (`backlog-adp@blank-aged2-5`, SRP's last record at 11.174 ms) and 9.506 ms at 8x8/1if (`backlog-adp@program-aged2-5`, at 10.494 ms).
+Over every group a pass that carries the store's step is at most 1.016 ms at 1x1/1if and 1.156 ms at 8x8/1if, within the 2.0 ms share, and a step at most 0.788 ms at both, within `NVM_STEP_US`.
 
 **A change's worst case, restated.**
 Under input that leaves no pass empty the store still steps once every three ticks, so the stated worst cases are the starved ones, at KLJ3's containers: 3,444 B at 1x1/1if, 102 steps for a SET_NAME of the entity, and 13,584 B at 8x8 with one interface or two, 382 steps.
@@ -2805,14 +2806,14 @@ The in-flight figure no longer takes the change's own window where that is longe
 This page's records before KLJ3 give 12,110 and 22,150 ms at 8x8/2if, at KLJ2's 13,256-byte container and 370 steps, and 15,370 and 28,670 ms on the product part at its 52 pages; at KLJ3's 13,584 bytes they are the figures above.
 The starved worst cases and the product part's stay above 10 s at 8x8, stated and not gated (the ruling, item 1); the append-only design (#823) closes them.
 
-Ms from the change to durable against its stated worst case, measured at both points (steps; longest gap between flash steps, ms):
+Ms from the change to durable against its stated worst case, measured at both points on the merge `d66b4045` (steps; longest gap between flash steps, ms):
 
 | Group | 1x1/1if | 8x8/1if |
 |---|---:|---:|
-| `save` | 1,078.7 of 4,070 (102; 25.138) | 1,302.0 of 12,470 (382; 102.161) |
-| `save-held` | 1,087.5 of 4,070 (102; 19.338) | 1,353.3 of 12,470 (382; 34.228) |
-| `save-starved` | 4,048.2 of 4,070 (102; 31.217) | 12,447.1 of 12,470 (382; 33.594) |
-| `save-second` | 6,030.5 of 6,070 (102; 30.835) | 22,829.7 of 22,870 (382; 32.227) |
+| `save` | 1,081.8 of 4,070 (102; 26.002) | 1,308.8 of 12,470 (382; 104.302) |
+| `save-held` | 1,097.2 of 4,070 (102; 17.213) | 1,356.1 of 12,470 (382; 33.735) |
+| `save-starved` | 4,049.1 of 4,070 (102; 31.292) | 12,448.1 of 12,470 (382; 33.736) |
+| `save-second` | 6,030.3 of 6,070 (102; 30.865) | 22,829.6 of 22,870 (382; 31.383) |
 
 Under input that leaves no pass empty, `save-starved` and `save-second`, a save still takes a step every three ticks and stays just inside its stated worst case; where a pass is empty it takes a step a pass.
 A save alone's longest gap between flash steps is its blank check, whose read-backs the grade merges into one read: 27 steps at 1x1/1if and 107 at 8x8/1if, a step a pass.
