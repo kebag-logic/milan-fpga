@@ -911,6 +911,12 @@ the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
 each defect in a copy of `milan_datapath.sv`, of `KL_pp_shadow.sv` for the
 device-face arbiter, or of the processor's `hdl/` tree for the volatile set,
 and builds the named leg through its own suite's recipe.
+That recipe keeps the leg's generated inputs (its ROMs, microcode and entity
+image) with `-o`, so before the clean builds the campaign makes each selected
+leg's inputs through that suite's own rules, and refuses a leg whose inputs
+are still absent (#929). Until then a fresh clone, which has built nothing
+in `milan_dp_render`, ran the listener leg without them and failed its
+control.
 Each mutant must fail its named check, every one of them where a row names
 several, and each leg's clean build must still pass. `DYNMAP_MUTANT_JOBS`
 runs that many at once, at most two of them building. Measured on 2026-10-20
