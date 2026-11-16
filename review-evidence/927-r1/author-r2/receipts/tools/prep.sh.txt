@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# prep.sh <repo> <1x1|8x8> <work>: the split boot at the shape (the stand-in inputs), then the image and its export
+# through S9's recipe (route_image.sh); no Vivado. rc in <work>/prep.rc
+set -u
+R=$1; SH=$2; W=$3; T=<scratch>/rt/tools
+case $SH in 1x1) STEM=endstation_ax7101_1x1_tdm8 ;; 8x8) STEM=endstation_ax7101_8x8 ;; *) exit 2 ;; esac
+mkdir -p "$W"
+echo "$(date -Iseconds) boot $STEM"
+$T/boot.sh "$R" "$STEM" "$W/boot" > "$W/boot.log" 2>&1
+[ "$(cat $W/boot.rc 2>/dev/null)" = 0 ] || { echo "boot rc $(cat $W/boot.rc 2>/dev/null)"; echo 1 > "$W/prep.rc"; exit 1; }
+echo "$(date -Iseconds) route_image"
+$T/route_image.sh "$R" "$SH" "$W" "$W/boot" > "$W/route_image.log" 2>&1 || { echo "route_image failed"; echo 1 > "$W/prep.rc"; exit 1; }
+echo "$(date -Iseconds) prep done"; echo 0 > "$W/prep.rc"

@@ -1,0 +1,12 @@
+HEAD 5d098172d4edadfb5144dd298d69768fc9958566 DIRTY 0 point 8x8-1if jobs 1 start 19:45:31
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-4/save-second.txt -
+STEPS 1080 passes carry the store's step; the longest 80,939 CPU cycles (0.809 ms), save-second; the longest step 77,810 (0.778 ms), save-second
+SLICES 13748 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 30,474, THE RETRY's round 2,196 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS save-second: 9 join interval(s), the shortest 187.835 ms and the longest 190.166 ms, against 181.0 to 239.0; MRP timers' run-outs: 68 released, 55 empty
+SAVE save-second: durable 22829.732 ms after its change (stated worst case 22,870 ms, 382 steps, longest gap between flash steps 31.373 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 121192 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED save-second: a pass's polls base of 22,653 CPU cycles, over its stated 22,500
+STATED save-second: a pass's polls base of 23,164 CPU cycles, over its stated 22,500
+elapsed=8414s rc=1 end 22:05:45 DIRTY-after 0

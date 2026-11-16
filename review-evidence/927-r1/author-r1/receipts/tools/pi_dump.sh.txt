@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# pi_dump.sh <tree> <out.json> <jobs>: placement_identity.py --dump of every shape of <tree>, with the pinned sv2v
+# and the Yosys rtl-fast pins; rc in <out.json>.rc
+set -u
+export SV2V=<tools>/sv2v-v0.0.12/sv2v YOSYS=/usr/bin/yosys PATH=<tools>/sv2v-v0.0.12:/usr/local/bin:/usr/bin:/bin
+export TMPDIR=<scratch>/tmp PYTHONHASHSEED=0
+mkdir -p "$TMPDIR"
+cd "$1" || exit 3
+echo "head $(git rev-parse HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l) start $(date -Iseconds)"
+python3 -B sw/mailbox/placement_identity.py --dump "$2" --jobs "$3"
+rc=$?; echo "rc=$rc end $(date -Iseconds)"; echo $rc > "$2.rc"

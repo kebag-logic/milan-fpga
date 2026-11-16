@@ -1,0 +1,34 @@
+"""budget_combine.py <clone> <build-dir> <point>: link every group's finished log (a SUMMARY line near its end), its
+script and its journal from the build's result directories (results, part-*, partq-*) into <build-dir>/combined, and
+print where each came from. Exit 1 if any group has no finished log (from 920's combine.py, this lane's layout)."""
+import json, os, sys
+from pathlib import Path
+clone, build, point = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
+sys.path.insert(0, str(clone / "tb/verilator/ctrl_service_budget"))
+import run, scenario  # noqa: E402
+spec = json.loads((build / "build.json").read_text())
+order = [g.name for g in run.all_groups(scenario.point(point, spec), spec)]
+dirs = [build / "results"] + sorted(build.glob("part-*")) + sorted(build.glob("partq-*"))
+out = build / "combined"
+out.mkdir(exist_ok=False)
+def finished(x: Path) -> bool:
+    with x.open("rb") as f:
+        f.seek(max(0, os.path.getsize(x) - 8000))
+        return b"\nSUMMARY " in f.read()
+source, missing = {}, []
+for name in order:
+    hit = next((d for d in dirs if (d / f"{name}.log").exists() and finished(d / f"{name}.log")), None)
+    if hit is None:
+        missing.append(name); continue
+    source[name] = hit.name
+    for ext in (".log", ".txt", ".journal"):
+        if (hit / f"{name}{ext}").exists():
+            (out / f"{name}{ext}").symlink_to(hit / f"{name}{ext}")
+counts = {}
+for v in source.values():
+    counts[v] = counts.get(v, 0) + 1
+print(f"{point}: {len(source)} of {len(order)} groups linked, by directory {counts}")
+(build / "combined-sources.json").write_text(json.dumps(source, indent=1) + "\n")
+for m in missing:
+    print("  MISSING", m)
+sys.exit(1 if missing else 0)

@@ -1,0 +1,10 @@
+head 5d098172d4edadfb5144dd298d69768fc9958566 (8x8/1if at the round-2 cut, ExtraTimingOpt)
+command: tools/signoff.py <route dir>
+---
+Slow_85C: WNS +0.073 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.073 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.359 ns (0 failing), WHS +0.029 ns (0 failing)
+Fast_0C: WNS +1.359 ns (0 failing), WHS +0.029 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1

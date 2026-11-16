@@ -1,0 +1,21 @@
+"""fill_patch.py <clone> <bytes>: the ROM-fill measurement's two edits to a scratch clone, never to the lane:
+the platform image gains <bytes> of read-only data its main reads once (so --gc-sections keeps it), and the
+control memory's budget is lifted from 56 to 57 RAMB36 so a fill past 56 plans (the composed train's 8x8/1if
+image plans 56.5, #923). Prints both edits. The product's firmware and budget are untouched."""
+import sys
+from pathlib import Path
+clone, n = Path(sys.argv[1]), int(sys.argv[2])
+main = clone / "sw/firmware/ctrl/plat/ctrl_plat_main.c"
+t = main.read_text()
+anchor = "int main(void)\n{\n"
+assert t.count(anchor) == 1
+fill = (f"/* ROM-fill measurement only (#927): {n} bytes of rom, read once at boot so the link keeps them */\n"
+        f"const unsigned char ctrl_rom_fill[{n}] = {{1}};\n")
+t = t.replace(anchor, fill + anchor + "\t(void)*(const volatile unsigned char *)&ctrl_rom_fill[0];\n")
+main.write_text(t)
+mem = clone / "sw/litex/ctrl_memory.py"
+s = mem.read_text()
+assert s.count("BUDGET_TILES = 56\n") == 1
+mem.write_text(s.replace("BUDGET_TILES = 56\n", "BUDGET_TILES = 57\n"))
+print(f"{main}: +{n} B ctrl_rom_fill read once in main")
+print(f"{mem}: BUDGET_TILES 56 -> 57")

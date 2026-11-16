@@ -1,0 +1,28 @@
+head 338ece891f66eb79edacdcb6b7b759dabcd5648d (1x1/1if at the round-2 cut, AltSpreadLogic_high)
+command: tools/paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.126 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/u_evt/tag_r_reg[9][10]/CE
+    Data Path Delay:        9.730ns  (logic 2.127ns (21.861%)  route 7.603ns (78.140%))
+    Logic Levels:           15  (LUT2=5 LUT3=3 LUT4=3 LUT5=2 LUT6=2)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.126 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/u_evt/tag_r_reg[9][10]/CE
+    Data Path Delay:        9.730ns  (logic 2.127ns (21.861%)  route 7.603ns (78.140%))
+    Logic Levels:           15  (LUT2=5 LUT3=3 LUT4=3 LUT5=2 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+    Destination:            FDPE_3/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.266%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.855 ns, group eth_clocks0_rx
+    Source:                 FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+    Destination:            KL_gptp_gmii_launch/src_in_r_reg[33]/CE
+    Data Path Delay:        6.818ns  (logic 1.537ns (22.542%)  route 5.281ns (77.458%))
+    Logic Levels:           6  (LUT2=3 LUT3=1 LUT4=1 LUT5=1)
+design worst hold, Fast_85C: slack +0.033 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_rx_converter_converter_source_payload_data_reg[19]/C
+    Destination:            storage_4_reg_1/DIADI[1]
+    Data Path Delay:        0.386ns  (logic 0.141ns (36.540%)  route 0.245ns (63.460%))
+    Logic Levels:           0

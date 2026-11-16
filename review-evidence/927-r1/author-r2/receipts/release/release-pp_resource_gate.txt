@@ -1,0 +1,34 @@
+command: python3 syn/ooc/pp_resource_gate.py check <rel2/head/ax7101/gateware> --endpoint route-1x1 --shipping-selection (in a clean clone of 338ece89)
+endpoint route-1x1: <scratch>/rt/rel2/head/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       52042        30  ok
+FF               53707       54238       531  ok
+SLICE            15780       15836        56  ok
+RAMB36              74          71        -3  ok, below the baseline
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.553     0.113  ok
+WHS_ns           0.036       0.023    -0.013  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.553  WHS_ns    0.054
+  Slow_85C  WNS_ns    0.553  WHS_ns    0.054
+  Fast_0C   WNS_ns     1.66  WHS_ns    0.023
+  Fast_85C  WNS_ns     1.66  WHS_ns    0.023
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: RAMB36 improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  u_pp: LUT -283, FF -15
+  wrapper: LUT -282, FF -15
+  u_pp/u_aecp: LUT -250, FF +1
+  u_pp/u_aecp/u_dyn: LUT -126, FF +0
+  u_pp/u_notify: LUT -108, FF +0
+  u_pp/u_originator: LUT -96, FF +0
+  u_pp/u_srp: LUT -55, FF -26
+  u_pp/u_aecp/u_d3: LUT -70, FF +0
+  u_pp/u_dispatch: LUT +69, FF +0
+  u_pp/u_ca_builder: LUT +67, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +64, FF +0
+  u_pp/u_srp/u_encoder: LUT -18, FF -24
+RESULT: PASS
+rc=0

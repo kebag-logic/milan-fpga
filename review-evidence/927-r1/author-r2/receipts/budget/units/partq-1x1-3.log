@@ -1,0 +1,27 @@
+HEAD 5d098172d4edadfb5144dd298d69768fc9958566 DIRTY 0 point 1x1 jobs 4 start 16:40:54
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/backlog-adp@verify-aged2-4.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/backlog-adp@verify-aged1-0.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/backlog-adp@verify-aged1-4.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/adp-advertise.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/save.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/backlog-adp-refill.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/adp-link.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/aecp-fanout.txt -
+COMMAND <scratch>/budget2/1x1/native/Vsim <scratch>/budget2/1x1/partq-3/datapath-events.txt -
+STEPS 2729 passes carry the store's step; the longest 96,998 CPU cycles (0.970 ms), backlog-adp@verify-aged2-4; the longest step 78,341 (0.783 ms), backlog-adp@verify-aged2-4
+SLICES 169734 tier-2 slices; the longest SRP's records 73,084, THE TRANSMIT's build 30,305, THE RETRY's round 8,600 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@verify-aged2-4: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-0: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-4: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS adp-advertise: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS save: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp-refill: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS adp-link: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS datapath-events: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 3 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 9.172 ms, backlog-adp@verify-aged2-4.service.srp.last.if0 at 10.828 ms
+SAVE save: durable 2019.618 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 10.875 ms) within
+9 groups graded, 0 refusals, 0 budget misses (0 of 59 probe instances, 0 of 24 paths), 0 of 4478 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=3663s rc=0 end 17:41:57 DIRTY-after 0

@@ -1,0 +1,28 @@
+head 338ece891f66eb79edacdcb6b7b759dabcd5648d (1x1/1if, ROM padded by 2,168 B (43.5 RAMB36), recipe directive)
+command: tools/paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.049 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[10]/R
+    Data Path Delay:        9.498ns  (logic 2.374ns (24.995%)  route 7.124ns (75.005%))
+    Logic Levels:           19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.049 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[10]/R
+    Data Path Delay:        9.498ns  (logic 2.374ns (24.995%)  route 7.124ns (75.005%))
+    Logic Levels:           19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+    Destination:            FDPE_19/D
+    Data Path Delay:        0.532ns  (logic 0.379ns (71.265%)  route 0.153ns (28.734%))
+    Logic Levels:           0
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.806 ns, group eth_clocks0_rx
+    Source:                 FDPE_15/C
+    Destination:            KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[17]/R
+    Data Path Delay:        6.363ns  (logic 0.348ns (5.469%)  route 6.015ns (94.531%))
+    Logic Levels:           0
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/frontendA_stages_1_spawn_CMD_size_reg[1]/C
+    Destination:            VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/probe_ctxMem_reg_0_3_36_41/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

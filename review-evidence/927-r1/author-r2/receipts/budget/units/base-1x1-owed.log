@@ -1,0 +1,16 @@
+HEAD 70f4056f384e12520ccae254fe26f6286fd39db6 DIRTY 0 point 1x1 jobs 1 start 19:45:31
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget2/base-1x1/native/Vsim <scratch>/budget2/base-1x1/partq-o/backlog-owed.txt -
+BUDGET backlog.owed.if0: 62.905 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.092 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.280 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.466 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.652 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.002 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.736 ms over its budget 20 ms
+STEPS 276 passes carry the store's step; the longest 22,507 CPU cycles (0.225 ms), backlog-owed; the longest step 2,414 (0.024 ms), backlog-owed
+SLICES 17407 tier-2 slices; the longest SRP's records 72,334, THE TRANSMIT's build 30,305, THE RETRY's round 1,717 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-owed: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+1 groups graded, 0 refusals, 7 budget misses (7 of 15 probe instances, 4 of 12 paths), 0 of 311 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1349s rc=0 end 20:08:00 DIRTY-after 0

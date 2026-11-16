@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# release_export.sh <repo> <out> [route]: the release (all-fabric) ax7101 image's export through its own recipe
+# (sw/litex/build.sh ax7101's milan_soc.py command, the shipping flow flags, without --build, output in <out>/ax7101),
+# its firmware compiled; the sha256 of the release firmware image in <out>/IMAGES.sha256. With "route", the M0s
+# recipe's integrated script for the export (pp_baseline.py --single-thread-synthesis), which route_one.sh runs.
+set -euo pipefail
+R=$1; O=$2; MODE=${3:-}
+PY=<tools>/litex/venv/bin/python3
+export PATH=<tools>/litex/venv/bin:/usr/local/bin:/usr/bin:/bin:<tools>/rv32/host/bin COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true
+export PYTHONHASHSEED=0 LITEX_ENV_CC_TRIPLE=riscv32-linux TMPDIR=<scratch>/tmp
+mkdir -p "$O"; cd "$R"
+echo "head $(git rev-parse HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l)" > "$O/RUN.txt"
+bash sw/litex/build.sh ax7101 --dry-run > "$O/ax7101-dry-run.log" 2>&1
+"$PY" - "$O" <<'PY'
+import json, shlex, sys
+from pathlib import Path
+out = Path(sys.argv[1])
+lines = [l for l in (out / "ax7101-dry-run.log").read_text().splitlines() if "exec python3 milan_soc.py " in l]
+assert len(lines) == 1, lines
+argv = shlex.split(lines[0].split("exec python3 ", 1)[1])
+argv.remove("--build")
+argv[argv.index("--output-dir") + 1] = str(out / "ax7101")
+(out / "ax7101-argv.json").write_text(json.dumps(argv, indent=1) + "\n")
+PY
+mapfile -t ARGV < <("$PY" -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))))" "$O/ax7101-argv.json")
+(cd sw/litex && "$PY" "${ARGV[@]}" > "$O/ax7101-elaboration.log" 2>&1)
+echo "export rc=0" >> "$O/RUN.txt"
+(cd "$O" && find . -path '*/software/bios/bios.bin' -o -path '*/software/bios/bios.elf' -o -name 'libmilan_baremetal.a' | LC_ALL=C sort | xargs -r sha256sum) > "$O/IMAGES.sha256"
+OD=$(ls <tools>/rv32/host/bin/*-objdump | head -1)
+for e in $(cd "$O" && find . -path '*/software/bios/bios.elf' | LC_ALL=C sort); do
+  "$OD" -d --no-show-raw-insn "$O/$e" | tail -n +3 | sha256sum | sed "s#-#$e (disassembly)#"
+done >> "$O/IMAGES.sha256"
+if [ "$MODE" = route ]; then
+  /usr/bin/python3 syn/ooc/pp_baseline.py "$O/ax7101/gateware" --single-thread-synthesis
+  echo "baseline script written" >> "$O/RUN.txt"
+fi
+git checkout -q -- configs sw/builder 2>/dev/null || true
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l)" >> "$O/RUN.txt"
+cat "$O/RUN.txt" "$O/IMAGES.sha256"

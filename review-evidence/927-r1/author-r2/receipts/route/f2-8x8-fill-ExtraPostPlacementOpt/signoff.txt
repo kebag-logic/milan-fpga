@@ -1,0 +1,10 @@
+head 338ece891f66eb79edacdcb6b7b759dabcd5648d (8x8/1if, ROM padded by 2,168 B (56.5 RAMB36), recipe directive)
+command: tools/signoff.py <route dir>
+---
+Slow_85C: WNS +0.213 ns (0 failing), WHS +0.064 ns (0 failing)
+Slow_0C: WNS +0.213 ns (0 failing), WHS +0.064 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.033 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.033 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0

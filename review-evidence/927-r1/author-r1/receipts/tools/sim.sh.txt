@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# sim.sh <repo> <dir under tb/verilator> <rc-file> <make args...>: one Verilator suite target in S9's environment
+# (the pinned Verilator 5.050), make -j16; rc in <rc-file>
+set -u
+R=$1; T=$2; RC=$3; shift 3
+export PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:/usr/local/bin:/usr/bin:/bin:<tools>/rv32/host/bin
+export VERILATOR=<tools>/pinned-verilator-5.050/verilator COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true
+export PYTHONHASHSEED=0 TMPDIR=<scratch>/tmp SV2V=<tools>/sv2v-v0.0.12/sv2v YOSYS=/usr/bin/yosys
+mkdir -p "$TMPDIR"
+cd "$R/tb/verilator/$T" || exit 3
+echo "head $(git -C "$R" rev-parse HEAD) dirty $(git -C "$R" status --porcelain --untracked-files=no | wc -l) target $T $* start $(date -Iseconds)"
+start=$(date +%s)
+make -j16 "$@"
+rc=$?; echo "elapsed=$(( $(date +%s) - start ))s rc=$rc end $(date -Iseconds)"; echo $rc > "$RC"

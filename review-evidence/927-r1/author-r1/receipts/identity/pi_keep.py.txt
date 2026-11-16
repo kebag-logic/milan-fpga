@@ -1,0 +1,8 @@
+"""pi_keep.py <tree> <keep-dir> <shape index>: placement_identity's canonical form of one shape of <tree>, kept."""
+import sys
+from pathlib import Path
+tree = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(tree / "sw/mailbox"))
+import placement_identity as pi  # noqa: E402
+r = pi.dump(tree, 1, Path(sys.argv[2]), None, only=int(sys.argv[3]))
+print(r["shapes"])

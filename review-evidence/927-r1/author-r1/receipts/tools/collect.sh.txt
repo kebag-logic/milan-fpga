@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# collect.sh <route dir> <receipt dir> <label> <repo>: signoff.py, worst10.py and paths3.py outputs and the sha256/size of
+# the routed checkpoint and timing reports (the reports and checkpoints stay in scratch); the route status and the
+# placed utilisation table.
+T=<scratch>/rt/tools; d=$1; o=$2; l=$3; r=$4; mkdir -p "$o"
+h="head $(git -C $r rev-parse HEAD) ($l)"
+{ echo "$h"; echo "command: tools/signoff.py <route dir>"; echo ---; python3 -I $T/signoff.py "$d"; echo "signoff.py rc=$?"; } > "$o/signoff.txt"
+{ echo "$h"; echo "command: tools/worst10.py <route dir> 20"; echo ---; python3 -I $T/worst10.py "$d" 20; } > "$o/worst10.txt"
+{ echo "$h"; echo "command: tools/paths3.py <route dir>"; echo ---; python3 -I $T/paths3.py "$d"; } > "$o/paths3.txt"
+{ echo "$h"; cd "$d"; for f in alinx_ax7101_route.dcp alinx_ax7101_timing.rpt alinx_ax7101_signoff_*_timing.rpt alinx_ax7101_signoff_*_negative.rpt alinx_ax7101_utilization_place.rpt; do [ -f "$f" ] && echo "$(sha256sum "$f" | cut -c1-64) $(stat -c %s "$f") $f"; done; for f in route.start route.end route.rc; do echo "$f: $(cat $f 2>/dev/null)"; done; grep -h "Memory (MB): peak" baseline.log | sed -E 's/.*peak = ([0-9.]+).*/\1/' | sort -n | tail -1 | sed 's/^/vivado peak MB: /'; } > "$o/artifacts.txt"
+cp "$d/alinx_ax7101_route_status.rpt" "$o/" 2>/dev/null
+grep -E "^\| " "$d/alinx_ax7101_utilization_place.rpt" | head -60 > "$o/utilization_place-table.txt"
+echo "$o"

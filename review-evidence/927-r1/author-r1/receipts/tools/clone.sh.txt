@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# clone.sh <dest> <commit>: a clean clone of the lane's repository at <commit>, its submodules at the commit's pins,
+# fetched from the lane's own module stores (offline); origin set back to the public URL.
+set -euo pipefail
+LANE=<lane>; D=$1; C=$2
+git clone -q --no-checkout "$LANE" "$D"
+git -C "$D" remote set-url origin https://github.com/kebag-logic/milan-fpga.git
+git -C "$D" checkout -q --detach "$C"
+for p in $(git -C "$D" config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}'); do
+  n=$(git -C "$D" config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk -v p="$p" '$2==p{print $1}' | sed 's/^submodule\.//; s/\.path$//')
+  git -C "$D" config "submodule.$n.url" "$LANE/.git/modules/$n"
+done
+git -C "$D" -c protocol.file.allow=always submodule update --init -q
+git -C "$D" rev-parse HEAD; git -C "$D" submodule status; git -C "$D" status --porcelain | wc -l

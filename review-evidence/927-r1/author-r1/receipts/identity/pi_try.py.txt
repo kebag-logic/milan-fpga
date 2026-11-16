@@ -1,0 +1,24 @@
+"""pi_try.py <tree> <out.json> [<datapath overlay file>] [shape index...]: placement_identity's dump of the named shapes
+(default all) of <tree>, with milan_datapath.sv replaced by the overlay file when one is given (no commit needed)."""
+import json, sys, time
+from pathlib import Path
+tree = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(tree / "sw/mailbox"))
+import placement_identity as pi  # noqa: E402
+ov = None
+idx = []
+for a in sys.argv[3:]:
+    if a.isdigit():
+        idx.append(int(a))
+    elif a != "-":
+        ov = {tree / "hdl/milan/milan_datapath.sv": Path(a).read_text()}
+ce = pi._ce(tree)
+names = [s.name for s in ce.shapes()]
+print("shapes:", names)
+out = {}
+for i in (idx or range(len(names))):
+    t = time.time()
+    r = pi.dump(tree, 1, None, ov, only=i)
+    out.update(r["shapes"])
+    print(i, r["shapes"], f"{time.time() - t:.0f}s", flush=True)
+Path(sys.argv[2]).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")

@@ -1,0 +1,131 @@
+head 338ece891f66eb79edacdcb6b7b759dabcd5648d (1x1/1if, ROM padded by 2,168 B (43.5 RAMB36), recipe directive)
+command: tools/worst10.py <route dir> 20
+---
+## 20 worst setup, route report (alinx_ax7101_timing.rpt)
+ 1 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[10]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 2 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[12]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 3 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[9]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 4 +0.080 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[14]/R
+     delay 9.248ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+ 5 +0.080 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[8]/R
+     delay 9.248ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+ 6 +0.164 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[13]/R
+     delay 9.382ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 7 +0.199 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[1]/R
+     delay 9.129ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+ 8 +0.199 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[3]_replica/R
+     delay 9.129ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+ 9 +0.199 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[5]/R
+     delay 9.129ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+10 +0.199 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[7]/R
+     delay 9.129ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+11 +0.806 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[17]/R
+     delay 6.363ns, levels 0
+12 +0.806 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[18]/R
+     delay 6.363ns, levels 0
+13 +0.806 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[20]/R
+     delay 6.363ns, levels 0
+14 +0.875 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[10]/R
+     delay 6.292ns, levels 0
+15 +0.875 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[11]/R
+     delay 6.292ns, levels 0
+16 +0.875 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[19]/R
+     delay 6.292ns, levels 0
+17 +0.875 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[23]/R
+     delay 6.292ns, levels 0
+18 +0.943 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/R
+     delay 6.225ns, levels 0
+19 +0.943 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[1]/R
+     delay 6.225ns, levels 0
+20 +0.956 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FDPE_15/C
+  -> KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[24]/R
+     delay 6.213ns, levels 0
+## 5 worst setup, Slow_85C signoff
+ 1 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[10]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 2 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[12]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 3 +0.049 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/tick_cnt_r_reg[7]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[9]/R
+     delay 9.498ns, levels 19  (LUT2=3 LUT3=5 LUT4=3 LUT5=5 LUT6=3)
+ 4 +0.080 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[14]/R
+     delay 9.248ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+ 5 +0.080 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/u_evt/ctr_seen_r_reg[0][2]/C
+  -> KL_mbx/u_evt/tick_cnt_r_reg[8]/R
+     delay 9.248ns, levels 17  (LUT2=3 LUT3=4 LUT4=5 LUT5=4 LUT6=1)
+## 3 worst hold, Fast_85C signoff
+ 1 +0.036 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 0.000ns)
+     VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/frontendA_stages_1_spawn_CMD_size_reg[1]/C
+  -> VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/probe_ctxMem_reg_0_3_36_41/RAMA/I
+     delay 0.196ns, levels 0
+ 2 +0.036 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 0.000ns)
+     VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/frontendA_stages_1_spawn_CMD_address_reg[3]/C
+  -> VexiiRiscvLitex_6e4194e488d8a070b1e98b2c17235f00/splited_wc_hub_hub_logic_hub/probe_ctxMem_reg_0_3_6_11/RAMA/I
+     delay 0.196ns, levels 0
+ 3 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/ts_arr_r_reg[0]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/tsf_r_reg_0_31_0_5/RAMA/I
+     delay 0.196ns, levels 0
+## utilisation (alinx_ax7101_utilization_place.rpt)
+Slice LUTs: 32085 / 63400 (50.61 %)
+LUT as Memory: 1247 / 19000 (6.56 %)
+Slice Registers: 42315 / 126800 (33.37 %)
+Slice: 13291 / 15850 (83.85 %)
+Block RAM Tile: 79 / 135 (58.52 %)
+RAMB36/FIFO: 61 / 135 (45.19 %)
+RAMB18: 36 / 270 (13.33 %)
+DSPs: 9 / 240 (3.75 %)
+CARRY4: 2409
+# of routable nets..................... :       72295 :
+# of fully routed nets............. :       72295 :
+# of nets with routing errors.......... :           0 :

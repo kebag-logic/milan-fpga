@@ -1,0 +1,52 @@
+HEAD 5d098172d4edadfb5144dd298d69768fc9958566 DIRTY 0 point 8x8-1if jobs 4 start 16:40:54
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@blank-aged2-5.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@blank-aged1-3.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@blank-aged1-7.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@program-aged2-3.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@program-aged2-7.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@program-aged1-3.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@program-aged1-7.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@verify-aged2-3.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@verify-aged2-7.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@verify-aged1-3.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-adp@verify-aged1-7.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/srp.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/backlog-owed.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/adp-gm.txt -
+COMMAND <scratch>/budget2/8x8-1if/native/Vsim <scratch>/budget2/8x8-1if/partq-1/acmp-cmd.txt -
+BUDGET backlog.owed.if0: 63.513 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.799 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.027 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.273 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.512 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.380 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.030 ms over its budget 20 ms
+STEPS 5709 passes carry the store's step; the longest 104,873 CPU cycles (1.049 ms), backlog-adp@verify-aged2-3; the longest step 78,776 (0.788 ms), backlog-adp@program-aged1-3
+SLICES 280460 tier-2 slices; the longest SRP's records 68,634, THE TRANSMIT's build 42,796, THE RETRY's round 9,510 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@blank-aged2-5: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-3: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-3: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged2-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged1-3: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged1-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@verify-aged2-3: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged2-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-3: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-7: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS srp: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS adp-gm: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 187.835 ms and the longest 189.887 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 11 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 9.863 ms, backlog-adp@blank-aged2-5.service.srp.last.if0 at 10.137 ms
+15 groups graded, 0 refusals, 7 budget misses (7 of 151 probe instances, 4 of 28 paths), 0 of 14131 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-owed: a acmp item of 6,812 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,872 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,137 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,142 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+elapsed=5902s rc=1 end 18:19:16 DIRTY-after 0

@@ -1,0 +1,60 @@
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Nov 16 20:50:06 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_utilization -file alinx_ax7101_utilization_place.rpt
+| Design       : alinx_ax7101
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Physopt postPlace
+|          Site Type         |  Used | Fixed | Prohibited | Available | Util% |
+| Slice LUTs                 | 52042 |     0 |          0 |     63400 | 82.09 |
+|   LUT as Logic             | 48088 |     0 |          0 |     63400 | 75.85 |
+|   LUT as Memory            |  3954 |     0 |          0 |     19000 | 20.81 |
+|     LUT as Distributed RAM |  3950 |     0 |            |           |       |
+|     LUT as Shift Register  |     4 |     0 |            |           |       |
+| Slice Registers            | 54238 |     0 |          0 |    126800 | 42.77 |
+|   Register as Flip Flop    | 54238 |     0 |          0 |    126800 | 42.77 |
+|   Register as Latch        |     0 |     0 |          0 |    126800 |  0.00 |
+| F7 Muxes                   |   884 |     0 |          0 |     31700 |  2.79 |
+| F8 Muxes                   |    59 |     0 |          0 |     15850 |  0.37 |
+| Unique Control Sets        |  2164 |       |          0 |     15850 | 13.65 |
+| Total | Clock Enable | Synchronous | Asynchronous |
+| 0     |            _ |           - |            - |
+| 0     |            _ |           - |          Set |
+| 0     |            _ |           - |        Reset |
+| 0     |            _ |         Set |            - |
+| 0     |            _ |       Reset |            - |
+| 0     |          Yes |           - |            - |
+| 119   |          Yes |           - |          Set |
+| 3357  |          Yes |           - |        Reset |
+| 719   |          Yes |         Set |            - |
+| 50064 |          Yes |       Reset |            - |
+|                  Site Type                 |  Used | Fixed | Prohibited | Available | Util% |
+| Slice                                      | 15836 |     0 |          0 |     15850 | 99.91 |
+|   SLICEL                                   | 11091 |     0 |            |           |       |
+|   SLICEM                                   |  4745 |     0 |            |           |       |
+| LUT as Logic                               | 48088 |     0 |          0 |     63400 | 75.85 |
+|   using O5 output only                     |    80 |       |            |           |       |
+|   using O6 output only                     | 36480 |       |            |           |       |
+|   using O5 and O6                          | 11528 |       |            |           |       |
+| LUT as Memory                              |  3954 |     0 |          0 |     19000 | 20.81 |
+|   LUT as Distributed RAM                   |  3950 |     0 |            |           |       |
+|     using O5 output only                   |     6 |       |            |           |       |
+|     using O6 output only                   |   894 |       |            |           |       |
+|     using O5 and O6                        |  3050 |       |            |           |       |
+|   LUT as Shift Register                    |     4 |     0 |            |           |       |
+|     using O5 output only                   |     2 |       |            |           |       |
+|     using O6 output only                   |     1 |       |            |           |       |
+|     using O5 and O6                        |     1 |       |            |           |       |
+| Slice Registers                            | 54238 |     0 |          0 |    126800 | 42.77 |
+|   Register driven from within the Slice    | 23246 |       |            |           |       |
+|   Register driven from outside the Slice   | 30992 |       |            |           |       |
+|     LUT in front of the register is unused | 10451 |       |            |           |       |
+|     LUT in front of the register is used   | 20541 |       |            |           |       |
+|     Site Type     | Used | Fixed | Prohibited | Available | Util% |
+| Block RAM Tile    | 84.5 |     0 |          0 |       135 | 62.59 |
+|   RAMB36/FIFO*    |   71 |     0 |          0 |       135 | 52.59 |
+|     RAMB36E1 only |   71 |       |            |           |       |
+|   RAMB18          |   27 |     0 |          0 |       270 | 10.00 |
+|     RAMB18E1 only |   27 |       |            |           |       |
+|    Site Type   | Used | Fixed | Prohibited | Available | Util% |

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# route_queue2.sh <head>: the rest of round 2's Vivado work after the 15:40 power cycle, one build at a time (each
+# through vivado-slot.sh): 8x8/1if's AltSpreadLogic_high from its synthesis checkpoint (the run the cut killed), then
+# 1x1/1if through S9's recipe on all three directives, the release image's integrated route, and each split shape
+# with the ROM padded by FILL bytes on the recipe's directive. Every stage's rc in <rt>/q3/<stage>.rc.
+set -u
+H=$1; RT=<scratch>/rt; T=$RT/tools; Q=$RT/q3; SLOT=<management>/2026-09-23/vivado-slot.sh
+FILL=2168
+mkdir -p $Q
+log() { echo "$(date -Iseconds) $*" | tee -a $Q/queue.log; }
+log "8x8 AltSpreadLogic_high"; $SLOT $T/route_directive.sh $RT/h2-8x8/split-AltSpreadLogic_high > $Q/asl-8x8.log 2>&1
+cp $RT/h2-8x8/split-AltSpreadLogic_high/route.rc $Q/asl-8x8.rc 2>/dev/null
+R=$RT/r2-1x1; W=$RT/h2-1x1
+[ -d $R ] || $T/clone.sh $R $H > $Q/clone-1x1.log 2>&1
+log "prep 1x1"; $T/prep.sh $R 1x1 $W > $Q/prep-1x1.log 2>&1; cp $W/prep.rc $Q/prep-1x1.rc 2>/dev/null
+if [ "$(cat $W/prep.rc 2>/dev/null)" = 0 ]; then log "chain 1x1"; $T/chain.sh $W > $Q/chain-1x1.log 2>&1; cp $W/chain.rc $Q/chain-1x1.rc 2>/dev/null; fi
+R=$RT/r2-rel; W=$RT/rel2/head
+[ -d $R ] || $T/clone.sh $R $H > $Q/clone-rel.log 2>&1
+log "release export"; $T/release_export.sh $R $W route > $Q/release-export.log 2>&1; echo $? > $Q/release-export.rc
+if [ "$(cat $Q/release-export.rc)" = 0 ]; then log "release route"; $SLOT $T/route_one.sh $W/ax7101/gateware > $Q/release-route.log 2>&1; cp $W/ax7101/gateware/route.rc $Q/release-route.rc 2>/dev/null; fi
+for SH in 8x8 1x1; do
+  R=$RT/r2-fill-$SH; W=$RT/f2-$SH
+  [ -d $R ] || { $T/clone.sh $R $H > $Q/clone-fill-$SH.log 2>&1; python3 -I $T/fill_patch.py $R $FILL > $Q/fill-patch-$SH.log 2>&1; }
+  log "fill prep $SH"; $T/prep.sh $R $SH $W > $Q/fill-prep-$SH.log 2>&1; cp $W/prep.rc $Q/fill-prep-$SH.rc 2>/dev/null
+  if [ "$(cat $W/prep.rc 2>/dev/null)" = 0 ]; then log "fill route $SH"; $SLOT $T/route_one.sh $W/split/gateware > $Q/fill-route-$SH.log 2>&1; cp $W/split/gateware/route.rc $Q/fill-route-$SH.rc 2>/dev/null; fi
+done
+log "QUEUE DONE"; echo 0 > $Q/queue.rc

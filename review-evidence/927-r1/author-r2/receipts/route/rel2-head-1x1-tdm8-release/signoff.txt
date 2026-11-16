@@ -1,0 +1,10 @@
+head 338ece891f66eb79edacdcb6b7b759dabcd5648d (release image endstation_ax7101_1x1_tdm8, integrated route)
+command: tools/signoff.py <route dir>
+---
+Slow_85C: WNS +0.553 ns (0 failing), WHS +0.054 ns (0 failing)
+Slow_0C: WNS +0.553 ns (0 failing), WHS +0.054 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.023 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.023 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1

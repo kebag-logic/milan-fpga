@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# route_image.sh <repo> <1x1|8x8> <work> <boot-dir>: S9's split image for the integrated route (the recipe of
+# 919's route_image.sh, shape and directories as arguments), built through the split recipe in <repo>, a clean clone
+# (the exported script reads the RTL from it, so it stays until the routes end). One interface.
+set -euo pipefail
+L=$1; SH=$2; W=$3; B=$4
+case $SH in
+  1x1) CFG=configs/endstation_ax7101_1x1_tdm8.yaml; STEM=endstation_ax7101_1x1_tdm8 ;;
+  8x8) CFG=configs/endstation_ax7101_8x8.yaml; STEM=endstation_ax7101_8x8 ;;
+  *) echo "shape $SH"; exit 2 ;;
+esac
+PY=<tools>/litex/venv/bin/python3
+export PATH=<tools>/rv32/host/bin:/usr/local/bin:/usr/bin:/bin COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true PYTHONHASHSEED=0
+export TMPDIR=<scratch>/rt/tmp
+FLOW=(--synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --vivado-max-threads 32)
+mkdir -p "$W"
+cd "$L"
+echo "head $(git rev-parse HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l)"
+/usr/bin/python3 sw/builder/endstation_builder.py "$CFG" --placement split
+mapfile -t ARGV < <(/usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))['argv']))" sw/builder/out/$STEM/soc_params.json)
+FW=$(printf '%s\n' "${ARGV[@]}" | grep -A1 -x -- --ctrl-firmware | tail -1)
+echo "recipe argv names --ctrl-firmware $FW"
+STANDIN=$B/image-provisional/ctrl_app.elf
+STAND_ARGV=("${ARGV[@]}"); for i in "${!STAND_ARGV[@]}"; do [ "${STAND_ARGV[$i]}" = "$FW" ] && STAND_ARGV[$i]=$STANDIN; done
+rm -rf "$W/standin" "$W/flash-map" "$W/image" "$W/split"
+(cd sw/litex && "$PY" milan_soc.py "${STAND_ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/standin" > "$W/standin.log" 2>&1)
+"$PY" -B sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$W/standin/csr.csv" --csr-h "$W/standin/software/include/generated/csr.h" --out "$W/flash-map"
+"$PY" -B sw/firmware/ctrl/test/ctrl_plat_image.py --config "$CFG" --interfaces 1 --csr-csv "$W/standin/csr.csv" --flash-map "$W/flash-map" --output "$W/image" --libc "$B/runtime/libc.a" --compiler-runtime "$B/runtime/libcompiler_rt.a"
+cp "$W/image/ctrl_app.elf" "$FW"
+(cd sw/litex && "$PY" milan_soc.py "${ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/split" > "$W/split.log" 2>&1)
+tail -2 "$W/split.log"
+diff <(grep -E '^(csr_base|csr_register|constant|memory_region),' "$W/standin/csr.csv" | grep -v -E '^memory_region,(rom|sram),') \
+     <(grep -E '^(csr_base|csr_register|constant|memory_region),' "$W/split/csr.csv" | grep -v -E '^memory_region,(rom|sram),') && echo "csr map: the image's equals the stand-in's"
+"$PY" sw/litex/check_image_identity.py "$W/split"
+/usr/bin/python3 syn/ooc/pp_baseline.py "$W/split/gateware" --placement full-split --single-thread-synthesis
+echo "route_image done $(date -Iseconds)"

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# launch_wf.sh: the five workflow batches at the head, each its own unit, launched as CPU ranges free up.
+H=1010aa6fa1d360786ecbf7ac43d90df6d0d70880; R=<scratch>/wf/run-$H; U=<scratch>/rt/tools/unit.sh
+B=<scratch>/wf/wf_batch.sh; CR=<management>/2026-09-23/cpu_ranges.py
+mkdir -p $R
+declare -A J
+J[wfdocs]="docs.yml:wire-accountability docs.yml:docs-check-no-git docs.yml:docs-gates-0 docs.yml:docs-gates-1 docs.yml:docs-gates-2 docs.yml:docs-check"
+J[wfrtl1]="rtl-fast.yml:changes rtl-fast.yml:verilator-lint rtl-fast.yml:bdd-conformance rtl-fast.yml:yosys-tool rtl-fast.yml:yosys-elaboration rtl-fast.yml:split-cdc rtl-fast.yml:publication-census"
+J[wfrtl2]="rtl-fast.yml:firmware-unit rtl-fast.yml:firmware-verilator rtl-fast.yml:rtl-fast rtl-fast.yml:firmware-aecp-mutants"
+J[wfrtl3]="rtl-fast.yml:firmware-srp-mutants rtl-fast.yml:firmware-control-mutants"
+J[wfelab]="elaborate.yml:elaborate-gates-0 elaborate.yml:elaborate-gates-1 elaborate.yml:elaborate rtl-fast.yml:firmware-boundary"
+for u in wfelab wfrtl2 wfrtl3 wfdocs wfrtl1; do
+  [ "$(systemctl --user is-active milan-927a791-${u}b)" = active ] && continue
+  [ -f "$R/launched-$u" ] && continue
+  python3 -I $CR pick >/dev/null 2>&1 || { echo "$u: no CPUs yet"; continue; }
+  if [ $u = wfelab ]; then
+    $U ${u}b 8 10G $R/batch-$u.log /usr/bin/env WF_VENV=<tools>/litex/venv/bin /usr/bin/bash $B $H $R ${J[$u]} && touch $R/launched-$u
+  else
+    $U ${u}b 8 10G $R/batch-$u.log /usr/bin/bash $B $H $R ${J[$u]} && touch $R/launched-$u
+  fi
+done
+ls $R/launched-* 2>/dev/null | wc -l

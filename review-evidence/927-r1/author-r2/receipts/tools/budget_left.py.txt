@@ -1,0 +1,32 @@
+"""budget_left.py <clone> <build-dir> <point> <parts> [--clean]: the point's groups whose log is finished (a SUMMARY
+line near its end) in any part directory of <build-dir>, and the rest dealt round-robin into <parts> comma lists on
+stdout. With --clean, every unfinished log (and its journal) is removed first: the power cycle cut them mid-write."""
+import json, os, sys
+from pathlib import Path
+clone, build, point, parts = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], int(sys.argv[4])
+clean = "--clean" in sys.argv
+sys.path.insert(0, str(clone / "tb/verilator/ctrl_service_budget"))
+import run, scenario  # noqa: E402
+spec = json.loads((build / "build.json").read_text())
+names = [g.name for g in run.all_groups(scenario.point(point, spec), spec)]
+dirs = [build / "results"] + sorted(build.glob("part-*"))
+def finished(x: Path) -> bool:
+    with x.open("rb") as f:
+        f.seek(max(0, os.path.getsize(x) - 8000))
+        return b"\nSUMMARY " in f.read()
+done, removed = set(), 0
+for d in dirs:
+    for log in d.glob("*.log"):
+        if finished(log):
+            done.add(log.stem)
+        elif clean:
+            for ext in (".log", ".journal"):
+                p = log.with_suffix(ext)
+                if p.exists():
+                    p.unlink(); removed += 1
+left = [n for n in names if n not in done]
+print(f"# {point}: {len(names)} groups, {len(done & set(names))} finished, {len(left)} left; removed {removed} unfinished files", file=sys.stderr)
+for k in range(parts):
+    chunk = left[k::parts]
+    if chunk:
+        print(",".join(chunk))

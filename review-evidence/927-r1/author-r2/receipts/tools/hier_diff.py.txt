@@ -1,0 +1,34 @@
+"""hier_diff.py <base hier rpt> <head hier rpt> [min]: per-instance Total LUTs / Logic LUTs / LUTRAMs / FFs / RAMB36 /
+RAMB18 of two Vivado hierarchical utilization reports, rows whose counts differ by at least <min> (default 20) LUTs
+or FFs, or in any RAM column."""
+import re, sys
+def rows(p):
+    out = {}
+    stack = []
+    for line in open(p):
+        if not line.startswith("|") or "Instance" in line:
+            continue
+        cells = [c for c in line.rstrip("\n").split("|")[1:-1]]
+        if len(cells) < 9:
+            continue
+        name = cells[0]
+        depth = (len(name) - len(name.lstrip(" ")) - 1) // 2
+        stack[depth:] = [name.strip()]
+        try:
+            nums = [int(c.strip()) for c in cells[2:9]]
+        except ValueError:
+            continue
+        out["/".join(stack)] = nums
+    return out
+b, h = rows(sys.argv[1]), rows(sys.argv[2])
+m = int(sys.argv[3]) if len(sys.argv) > 3 else 20
+print("instance | total LUT | logic LUT | LUTRAM | SRL | FF | RAMB36 | RAMB18 (head - base)")
+for k in h:
+    if k not in b:
+        continue
+    d = [x - y for x, y in zip(h[k], b[k])]
+    if k.count("/") <= 3 and (abs(d[0]) >= m or abs(d[4]) >= m or d[5] or d[6]):
+        print(k, d)
+for k in sorted(set(b) ^ set(h)):
+    if k.count("/") <= 2:
+        print("only in", "head" if k in h else "base", k, (h.get(k) or b.get(k)))

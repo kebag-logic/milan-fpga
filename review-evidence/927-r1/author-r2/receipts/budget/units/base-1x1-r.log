@@ -1,0 +1,12 @@
+HEAD 70f4056f384e12520ccae254fe26f6286fd39db6 DIRTY 0 point 1x1 jobs 2 start 19:45:31
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget2/base-1x1/native/Vsim <scratch>/budget2/base-1x1/partq-r/acmp-notk.txt -
+COMMAND <scratch>/budget2/base-1x1/native/Vsim <scratch>/budget2/base-1x1/partq-r/save-second.txt -
+STEPS 1585 passes carry the store's step; the longest 97,734 CPU cycles (0.977 ms), acmp-notk; the longest step 78,205 (0.782 ms), acmp-notk
+SLICES 77849 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 33,552, THE RETRY's round 8,387 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS acmp-notk: 4 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 26 released, 21 empty
+JOINS save-second: 3 join interval(s), the shortest 188.969 ms and the longest 189.965 ms, against 181.0 to 239.0; MRP timers' run-outs: 24 released, 21 empty
+SAVE save-second: durable 6030.359 ms after its change (stated worst case 6,070 ms, 102 steps, longest gap between flash steps 30.861 ms) within
+2 groups graded, 0 refusals, 0 budget misses (0 of 1 probe instances, 0 of 1 paths), 0 of 48010 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=4582s rc=0 end 21:01:53 DIRTY-after 0

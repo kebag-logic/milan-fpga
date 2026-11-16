@@ -1,0 +1,20 @@
+# the bus clock's setup paths at the routed checkpoint, by source family: the worst 40 not from the record mover,
+# and the worst 10 from it (Slow corner as the checkpoint's default analysis)
+open_checkpoint <scratch>/rt/head8/split/gateware/alinx_ax7101_route.dcp
+set all [get_timing_paths -group milansoc_crg_clkout0 -setup -max_paths 2000 -nworst 1]
+set out [open bus_paths.txt w]
+set n_dma 0; set n_other 0
+foreach p $all {
+  set s [get_property SLACK $p]
+  set src [get_property STARTPOINT_PIN $p]
+  set dst [get_property ENDPOINT_PIN $p]
+  set lv [get_property LOGIC_LEVELS $p]
+  if {[string match "KL_mbx_dma/*" $src]} {
+    if {$n_dma < 10} { puts $out "DMA\t$s\t$lv\t$src\t$dst"; incr n_dma }
+  } else {
+    if {$n_other < 40} { puts $out "OTHER\t$s\t$lv\t$src\t$dst"; incr n_other }
+  }
+}
+puts $out "paths read: [llength $all]"
+close $out
+quit

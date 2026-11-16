@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# route_directive.sh <dir>: implementation of the split route's synthesis checkpoint with another placement directive
+# (prep_directives3.py wrote <dir>/baseline_implementation.tcl); writes route.rc, route.start, route.end.
+set -u
+d=$1
+source <tools>/vivado/Vivado/settings64.sh
+cd "$d" || exit 3
+date -Iseconds > route.start
+vivado -mode batch -source baseline_implementation.tcl -nojournal -log baseline.log > vivado.out 2>&1
+echo $? > route.rc
+date -Iseconds > route.end
+echo "$d rc=$(cat route.rc)"

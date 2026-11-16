@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# launch_wf2.sh <head>: the five workflow batches at <head>, each its own unit on the shared session pool, each pinned
+# to 8 of the pool's CPUs (taskset inside the unit), so every job sizes its workers from 8 CPUs as round 1's did (the
+# census OOMs at 10 GB when its tools see 128). Run directory wf/run-<head>.
+set -u
+H=$1; R=<scratch>/wf/run-$H; UP=<scratch>/rt/tools/unitpool.sh
+B=<scratch>/wf/wf_batch.sh
+mkdir -p $R
+declare -A J C
+J[wfdocs]="docs.yml:wire-accountability docs.yml:docs-check-no-git docs.yml:docs-gates-0 docs.yml:docs-gates-1 docs.yml:docs-gates-2 docs.yml:docs-check"
+J[wfrtl1]="rtl-fast.yml:changes rtl-fast.yml:verilator-lint rtl-fast.yml:bdd-conformance rtl-fast.yml:yosys-tool rtl-fast.yml:yosys-elaboration rtl-fast.yml:split-cdc rtl-fast.yml:publication-census"
+J[wfrtl2]="rtl-fast.yml:firmware-unit rtl-fast.yml:firmware-verilator rtl-fast.yml:rtl-fast rtl-fast.yml:firmware-aecp-mutants"
+J[wfrtl3]="rtl-fast.yml:firmware-srp-mutants rtl-fast.yml:firmware-control-mutants"
+J[wfelab]="elaborate.yml:elaborate-gates-0 elaborate.yml:elaborate-gates-1 elaborate.yml:elaborate rtl-fast.yml:firmware-boundary"
+C[wfdocs]=96-103; C[wfrtl1]=104-111; C[wfrtl2]=112-119; C[wfrtl3]=120-127; C[wfelab]=96-103
+for u in wfdocs wfrtl1 wfrtl2 wfrtl3 wfelab; do
+  [ -f "$R/launched-$u" ] && continue
+  if [ $u = wfelab ]; then
+    $UP ${u}d 10G $R/batch-$u.log /usr/bin/taskset -c ${C[$u]} /usr/bin/env WF_VENV=<tools>/litex/venv/bin /usr/bin/bash $B $H $R ${J[$u]} && touch $R/launched-$u
+  else
+    $UP ${u}d 10G $R/batch-$u.log /usr/bin/taskset -c ${C[$u]} /usr/bin/bash $B $H $R ${J[$u]} && touch $R/launched-$u
+  fi
+done
+ls $R/launched-* | wc -l

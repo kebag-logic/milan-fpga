@@ -1,0 +1,17 @@
+The release firmware image, base 70f4056f (round 1's export) against the head 338ece89 (round 2's export), sha256
+--- base
+860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./ax7101/software/bios/bios.bin
+3be5be383a826b7ee886a25901bdf4d4567cb74619f4c0b5df4604fe8e990b43  ./ax7101/software/bios/bios.elf
+4ed7681510da7f306a9ee8792c4f71750a3c01ed6d0c5971a37ab69ca9424fbf  ./ax7101/software/libmilan_baremetal/libmilan_baremetal.a
+3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./ax7101/software/bios/bios.elf (disassembly)
+--- head
+860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./ax7101/software/bios/bios.bin
+e53cdbbe8d59febecf58f734b696547294b122dfd5df12dbe5fda375c0622442  ./ax7101/software/bios/bios.elf
+dfa76f51a409a4c1fddfe580f198b1b93cc1a4e356d1116c75cb4257792a3f6b  ./ax7101/software/libmilan_baremetal/libmilan_baremetal.a
+3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./ax7101/software/bios/bios.elf (disassembly)
+--- with debug sections stripped (riscv32 objcopy --strip-debug), base then head
+8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719  <scratch>/rt/rel2/cmp/bios-base.elf
+8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719  <scratch>/rt/rel2/cmp/bios-head.elf
+35fde535a50cebef56473841f7ce59ff991508c975343fd2a8943d193d622b41  <scratch>/rt/rel2/cmp/lib-base.a
+35fde535a50cebef56473841f7ce59ff991508c975343fd2a8943d193d622b41  <scratch>/rt/rel2/cmp/lib-head.a
+bios.bin and its disassembly are byte-identical; bios.elf and libmilan_baremetal.a are byte-identical once their debug sections (which hold build paths) are stripped

@@ -1,0 +1,13 @@
+# head 1010aa6fa1d360786ecbf7ac43d90df6d0d70880 workflow docs.yml job docs-gates-0 step gate_27: Capture measurement census and clock gate
+# clone <scratch>/wf/run-1010aa6fa1d360786ecbf7ac43d90df6d0d70880/docs__docs-gates-0/wt
+# venv <tmp>/895-a775/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+CONTROL receipt-opt-out: production bound applied despite a control field
+PASS: capture census, clocks, both timing arms and receipt agree

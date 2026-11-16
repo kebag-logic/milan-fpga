@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""r2_receipts.py <receipts-dir>: copy round 2's receipts from scratch, host paths sanitized (sanitize.clean); a file
+over 200 KB is not copied, its sha256 and size go in the section's large-logs.sha256. Sections it does not own
+(route/, written by collect.sh) are left alone. Re-runnable: each owned section is rewritten from scratch."""
+import glob
+import hashlib
+import os
+import shutil
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sanitize  # noqa: E402
+
+S = '<scratch>'
+LIMIT = sanitize.LIMIT
+out = sys.argv[1]
+large: dict = {}
+
+
+def put(src: str, dst: str) -> None:
+    if not os.path.isfile(src):
+        return
+    dst = os.path.join(out, dst)
+    section = os.path.relpath(dst, out).split(os.sep)[0]
+    data = open(src, 'rb').read()
+    text = sanitize.clean(data.decode('utf-8', errors='replace')).encode()
+    if len(text) > LIMIT:
+        large.setdefault(section, []).append(
+            f'{hashlib.sha256(data).hexdigest()} {len(data)} {sanitize.clean(src)}')
+        return
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    open(dst, 'wb').write(text)
+
+
+def put_glob(pattern: str, dst_dir: str, suffix: str = '') -> None:
+    for p in sorted(glob.glob(pattern)):
+        put(p, os.path.join(dst_dir, os.path.basename(p) + suffix))
+
+
+OWNED = ['editpath', 'budget', 'workflows', 'release', 'area', 'tools', 'sweep']
+for d in OWNED:
+    shutil.rmtree(os.path.join(out, d), ignore_errors=True)
+
+# editpath: clean-clone suites. editpath3 at 5d098172, editpath4/5 at 338ece89, editpath4-base at 70f4056f.
+put_glob(f'{S}/editpath3/*', 'editpath/at-5d098172')
+put_glob(f'{S}/editpath4/*', 'editpath/at-338ece89')
+put_glob(f'{S}/editpath5/g1/*', 'editpath/at-338ece89-g1')
+put_glob(f'{S}/editpath5/g2/*', 'editpath/at-338ece89-g2')
+put_glob(f'{S}/editpath6/h1/*', 'editpath/at-0297a19a-h1')
+put(f'{S}/onearm.log', 'editpath/one-render-arm-0297a19a-wip.log')
+put_glob(f'{S}/editpath4-base/*', 'editpath/base-70f4056f')
+put(f'{S}/r2rc/twin-verdict-head-5d098172.txt', 'editpath/twin-verdict-head-5d098172.txt')
+
+# budget: unit logs and rc files, each point's build record, combine sources, table and digest of results.json
+put_glob(f'{S}/budget2/*.log', 'budget/units')
+put_glob(f'{S}/budget2/*.rc', 'budget/units')
+put_glob(f'{S}/budget2/*.txt', 'budget/units')
+for pt in ('1x1', '8x8-1if', 'base-1x1', 'base-8x8-1if'):
+    d = f'{S}/budget2/{pt}'
+    for f in ('build.json', 'combined-sources.json', 'combined/table.md', 'results/table.md'):
+        put(f'{d}/{f}', f'budget/{pt}/{f.replace("/", "-")}')
+    for rj in glob.glob(f'{d}/combined/results.json') + glob.glob(f'{d}/part*/results.json') + \
+            glob.glob(f'{d}/results/results.json'):
+        data = open(rj, 'rb').read()
+        large.setdefault('budget', []).append(
+            f'{hashlib.sha256(data).hexdigest()} {len(data)} {sanitize.clean(rj)}')
+    for part in sorted(glob.glob(f'{d}/part*/table.md')):
+        put(part, f'budget/{pt}/{os.path.basename(os.path.dirname(part))}-table.md')
+
+# workflows: batch logs, the verification table, the runner's scripts, at both heads
+for h, short in (('338ece891f66eb79edacdcb6b7b759dabcd5648d', '338ece89'),
+                 ('0297a19a056ee3d5d705bc502c4ae7808689ede7', '0297a19a')):
+    R = f'{S}/wf/run-{h}'
+    put_glob(f'{R}/batch-*.log', f'workflows/at-{short}')
+    put(f'{S}/wf/verify-{short}.md', f'workflows/verify-{short}.md')
+    put_glob(f'{R}/logs/rtl-fast__publication-census__*', f'workflows/at-{short}/publication-census')
+for f in ('run_wf.py', 'wf_batch.sh', 'launch_wf.sh', 'launch_wf2.sh', 'verify_wf.py', 'not_run.json'):
+    put(f'{S}/wf/{f}', f'workflows/{f}.txt')
+
+# release: firmware digests, the export record, the resource gate
+put(f'{S}/rt/rel2/head/IMAGES.sha256', 'release/IMAGES-head-338ece89.sha256')
+put(f'{S}/rt/rel2/head/RUN.txt', 'release/RUN-head.txt')
+put(f'{S}/rt/q3/release-export.log', 'release/release-export.log')
+put_glob(f'{S}/r2rc/release-*', 'release')
+
+# area and tools
+put_glob(f'{S}/r2rc/area-*', 'area')
+for t in ('route_queue2.sh', 'route_queue4.sh', 'fill_patch.py', 'budget.sh', 'budget_left.py', 'budget_combine.py',
+          'editrun.sh', 'unitpool.sh', 'unit.sh', 'clone.sh', 'prep.sh', 'route_one.sh', 'collect.sh', 'signoff.py'):
+    put(f'{S}/rt/tools/{t}', f'tools/{t}.txt')
+for t in ('hier_diff.py', 'r2_receipts.py', 'sanitize.py', 'gen_index.py', 'one_render_arm.sh', 'pick4.py'):
+    put(f'{S}/scripts/{t}', f'tools/{t}.txt')
+
+for sec in OWNED + ['route']:
+    put(f'{S}/r2rc/readme-{sec}.md', f'{sec}/README.md')
+for sec in ('sweep',):
+    put_glob(f'{S}/r2rc/sweep-*', 'sweep')
+
+for section, rows in large.items():
+    p = os.path.join(out, section, 'large-logs.sha256')
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    open(p, 'w').write('# sha256 size path: files over 200 KB, kept in scratch\n' + '\n'.join(rows) + '\n')
+print('done; large:', {k: len(v) for k, v in large.items()})

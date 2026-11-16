@@ -1,0 +1,28 @@
+head 1010aa6fa1d360786ecbf7ac43d90df6d0d70880 (head 8x8/1if AltSpreadLogic_high)
+command: tools/paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack +0.078 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/face_f_fmt_out_hi_r_reg[0][3][13]/CE
+    Data Path Delay:        9.543ns  (logic 1.861ns (19.502%)  route 7.682ns (80.498%))
+    Logic Levels:           12  (LUT2=5 LUT3=2 LUT4=2 LUT5=1 LUT6=2)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.078 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/face_f_fmt_out_hi_r_reg[0][3][13]/CE
+    Data Path Delay:        9.543ns  (logic 1.861ns (19.502%)  route 7.682ns (80.498%))
+    Logic Levels:           12  (LUT2=5 LUT3=2 LUT4=2 LUT5=1 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.739 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[98]/C
+    Destination:            milan_datapath/amap_edit_oclaim_expect_r_reg[669]/CE
+    Data Path Delay:        18.917ns  (logic 5.322ns (28.133%)  route 13.595ns (71.867%))
+    Logic Levels:           23  (CARRY4=5 LUT2=4 LUT3=5 LUT4=2 LUT5=5 LUT6=1 MUXF7=1)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.776 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_liteethmaccore_tx_crc_pipe_valid_source_valid_reg/C
+    Destination:            storage_2_reg_0/ADDRARDADDR[10]
+    Data Path Delay:        6.547ns  (logic 1.581ns (24.149%)  route 4.966ns (75.851%))
+    Logic Levels:           6  (LUT3=3 LUT4=1 LUT5=2)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_audio_tdm_raw
+    Source:                 milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/cap_l_r_reg[0]/C
+    Destination:            milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc/mem_r_reg_0_7_24_29/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

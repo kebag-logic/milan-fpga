@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# pipeline.sh <repo> <1x1|8x8> <work>: the split boot at the shape (for the stand-in inputs), the image and its
+# export through S9's recipe, then the three directive routes (chain.sh); rc in <work>/pipeline.rc
+set -u
+R=$1; SH=$2; W=$3; T=<scratch>/rt/tools
+case $SH in 1x1) STEM=endstation_ax7101_1x1_tdm8 ;; 8x8) STEM=endstation_ax7101_8x8 ;; *) exit 2 ;; esac
+mkdir -p "$W"
+echo "$(date -Iseconds) boot $STEM"
+$T/boot.sh "$R" "$STEM" "$W/boot" > "$W/boot.log" 2>&1
+[ "$(cat $W/boot.rc 2>/dev/null)" = 0 ] || { echo "boot rc $(cat $W/boot.rc 2>/dev/null)"; echo 1 > "$W/pipeline.rc"; exit 1; }
+echo "$(date -Iseconds) route_image"
+$T/route_image.sh "$R" "$SH" "$W" "$W/boot" > "$W/route_image.log" 2>&1 || { echo "route_image rc $?"; echo 1 > "$W/pipeline.rc"; exit 1; }
+echo "$(date -Iseconds) chain"
+$T/chain.sh "$W" > "$W/chain.log" 2>&1
+echo "$(date -Iseconds) pipeline done chain rc $(cat $W/chain.rc 2>/dev/null)"; cat "$W/chain.rc" > "$W/pipeline.rc"

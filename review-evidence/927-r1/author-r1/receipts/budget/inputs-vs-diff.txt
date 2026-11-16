@@ -1,0 +1,83 @@
+The CPU service-budget harness's recorded build inputs (build.json 'inputs', both points) against the files this lane changes
+command: git diff --name-only 70f4056f 1010aa6f; build.json of each point's build at 1010aa6f
+---
+files changed 70f4056f..1010aa6f:
+  docs/design/MAILBOX_SPLIT.md
+  docs/design/MEDIA_CLOCK_FOLLOWING.md
+  hdl/ieee1722/crf/KL_aaf_clock_meter.sv
+  hdl/milan/mailbox/KL_mbx_cdc_window.sv
+  hdl/milan/milan_datapath.sv
+  tb/verilator/aaf_clock_meter/mutants.py
+  tb/verilator/milan_dp/README.md
+  tb/verilator/milan_dp/sim_split.cpp
+  tb/verilator/milan_dp/split_mutants.py
+  tb/verilator/milan_dp/tb_split_top.sv
+
+1x1: 30 recorded inputs, 11 of them checkout files:
+  build:budget_config.hpp
+  build:gateware/sim.v
+  build:gateware/sim_mem.init
+  build:gateware/sim_rom_bank0.init
+  build:gateware/sim_rom_bank1.init
+  build:gateware/sim_rom_bank2.init
+  build:gateware/sim_rom_bank3.init
+  build:gateware/sim_rom_bank4.init
+  build:image/ctrl_app.elf
+  build:runtime/libc.a
+  build:runtime/libcompiler_rt.a
+  build:split-soc/flash-map/flash_port.json
+  build:split-soc/flash-map/generated/csr.h
+  build:split-soc/flash-map/generated/mem.h
+  checkout:hdl/milan/mailbox/KL_mbx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_dma.sv
+  checkout:hdl/milan/mailbox/KL_mbx_evt.sv
+  checkout:hdl/milan/mailbox/KL_mbx_pkg.sv
+  checkout:hdl/milan/mailbox/KL_mbx_ring.sv
+  checkout:hdl/milan/mailbox/KL_mbx_rx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_tx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_wb.sv
+  checkout:tb/verilator/ctrl_service_budget/observe.vlt
+  checkout:tb/verilator/ctrl_service_budget/sim_main.cpp
+  checkout:tb/verilator/fw_service_budget/flash.hpp
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v
+  tree:config
+  tree:firmware
+1x1: checkout inputs this lane changes: none
+
+8x8-1if: 30 recorded inputs, 11 of them checkout files:
+  build:budget_config.hpp
+  build:gateware/sim.v
+  build:gateware/sim_mem.init
+  build:gateware/sim_rom_bank0.init
+  build:gateware/sim_rom_bank1.init
+  build:gateware/sim_rom_bank2.init
+  build:gateware/sim_rom_bank3.init
+  build:gateware/sim_rom_bank4.init
+  build:image/ctrl_app.elf
+  build:runtime/libc.a
+  build:runtime/libcompiler_rt.a
+  build:split-soc/flash-map/flash_port.json
+  build:split-soc/flash-map/generated/csr.h
+  build:split-soc/flash-map/generated/mem.h
+  checkout:hdl/milan/mailbox/KL_mbx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_dma.sv
+  checkout:hdl/milan/mailbox/KL_mbx_evt.sv
+  checkout:hdl/milan/mailbox/KL_mbx_pkg.sv
+  checkout:hdl/milan/mailbox/KL_mbx_ring.sv
+  checkout:hdl/milan/mailbox/KL_mbx_rx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_tx.sv
+  checkout:hdl/milan/mailbox/KL_mbx_wb.sv
+  checkout:tb/verilator/ctrl_service_budget/observe.vlt
+  checkout:tb/verilator/ctrl_service_budget/sim_main.cpp
+  checkout:tb/verilator/fw_service_budget/flash.hpp
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+  external:<tools>/litex/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v
+  tree:config
+  tree:firmware
+8x8-1if: checkout inputs this lane changes: none
+
+firmware sources changed (sw/): none, so each point's image is the base's firmware
+So the harness at 1010aa6f measures the base's image on the base's testbench and RTL: every row is the base's.

@@ -1,0 +1,55 @@
+head 1010aa6f (8x8/1if at the cut, ExtraPostPlacementOpt): the bus clock's setup paths at the routed checkpoint, by source family
+command: vivado -mode batch -source bus_paths.tcl (get_timing_paths -group milansoc_crg_clkout0 -setup -max_paths 2000 -nworst 1; the worst 10 from KL_mbx_dma/*, the worst 40 from any other source)
+columns: family, slack ns, logic levels, startpoint, endpoint
+---
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][22]/CE
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][27]/CE
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][28]/CE
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][2]/CE
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][30]/CE
+DMA	0.023	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][31]/CE
+DMA	0.026	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][19]/CE
+DMA	0.026	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][23]/CE
+DMA	0.026	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][29]/CE
+DMA	0.026	12	KL_mbx_dma/mask_r_reg[5]/C	KL_mbx/face_f_fmt_in_lo_r_reg[0][14][7]/CE
+OTHER	0.133	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/ctr_seen_r_reg[0][4]/D
+OTHER	0.177	18	KL_mbx/rd_off_r_reg[8]/C	KL_mbx/reg_rdata_r_reg[8]/D
+OTHER	0.273	0	FDPE_1/C	KL_mbx/u_tx/tail_r_reg[2][9]/R
+OTHER	0.274	0	FDPE_1/C	KL_mbx/rx_tail_r_reg[4][0]/R
+OTHER	0.274	0	FDPE_1/C	KL_mbx/rx_tail_r_reg[4][12]/R
+OTHER	0.274	0	FDPE_1/C	KL_mbx/rx_tail_r_reg[4][15]/R
+OTHER	0.274	0	FDPE_1/C	KL_mbx/rx_tail_r_reg[4][5]/R
+OTHER	0.277	0	FDPE_1/C	KL_mbx_cdc/u_ctr/u_in/data_hold_reg[32]/R
+OTHER	0.287	0	FDPE_1/C	KL_mbx/u_rx/head_pub_r_reg[0][2]/R
+OTHER	0.287	0	FDPE_1/C	KL_mbx/u_rx/head_pub_r_reg[4][11]/R
+OTHER	0.287	0	FDPE_1/C	KL_mbx/u_rx/head_pub_r_reg[4][12]/R
+OTHER	0.287	0	FDPE_1/C	KL_mbx/u_rx/head_pub_r_reg[4][7]/R
+OTHER	0.320	0	FDPE_1/C	KL_mbx/tx_head_r_reg[1][11]/R
+OTHER	0.320	0	FDPE_1/C	KL_mbx/tx_head_r_reg[1][12]/R
+OTHER	0.320	0	FDPE_1/C	KL_mbx/tx_head_r_reg[1][3]/R
+OTHER	0.320	0	FDPE_1/C	KL_mbx/tx_head_r_reg[1][7]/R
+OTHER	0.344	0	FDPE_1/C	KL_mbx/u_tx/tail_r_reg[3][10]/R
+OTHER	0.344	0	FDPE_1/C	KL_mbx/u_tx/tail_r_reg[3][13]/R
+OTHER	0.344	0	FDPE_1/C	KL_mbx/u_tx/tail_r_reg[3][15]/R
+OTHER	0.344	0	FDPE_1/C	KL_mbx/u_tx/tail_r_reg[3][9]/R
+OTHER	0.345	0	FDPE_1/C	KL_mbx/u_rx/head_r_reg[4][12]/R
+OTHER	0.345	0	FDPE_1/C	KL_mbx/u_rx/head_r_reg[4][13]/R
+OTHER	0.345	0	FDPE_1/C	KL_mbx/u_rx/head_r_reg[4][14]/R
+OTHER	0.345	0	FDPE_1/C	KL_mbx/u_rx/head_r_reg[4][15]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][10]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][11]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][12]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][2]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][3]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][4]/R
+OTHER	0.359	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/asp_cnt_r_reg[0][9]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1214]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1278]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1322]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1401]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1449]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1513]/R
+OTHER	0.361	0	FDPE_1/C	KL_mbx_cdc/u_pub/data_hold_reg[1529]/R
+OTHER	0.362	15	KL_mbx/rd_off_r_reg[11]/C	KL_mbx/reg_rdata_r_reg[0]/D
+OTHER	0.380	15	KL_mbx/u_evt/tick_cnt_r_reg[5]/C	KL_mbx/u_evt/ctr_seen_r_reg[0][3]/D
+paths read: 2000

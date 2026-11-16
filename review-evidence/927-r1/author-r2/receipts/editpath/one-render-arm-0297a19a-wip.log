@@ -1,0 +1,6 @@
+leg rc 1; 2 [FAIL] line(s):
+      [FAIL] T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps
+      [FAIL] T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps
+[PASS] mutant caught (ship --serial-only): the render FIFO's distributed storage read at the write pointer - breaks "T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps" and 1 more
+arms: 1 caught, 0 failed
+rc=0 restored 0
