@@ -356,13 +356,16 @@ module KL_tdm_render_master #(
   //  UNMODIFIED; only its reset ports are driven from the epoch, so both
   //  pointers are proven zero before the first admitted commit. The payload
   //  is one WHOLE frame, so a torn frame is structurally impossible rather
-  //  than timed against.
+  //  than timed against. The frame is the slot bank's registers, written
+  //  straight into the storage, which is distributed RAM: a block RAM's
+  //  write-data hold requirement left those writes about +0.014 ns of hold
+  //  at the fast corner (#927).
   // ======================================================================
   wire [FRAME_BITS_C-1:0] rdata_w;
   wire                    rempty_w;
   logic                   ren_r;
 
-  cdc_pair_fifo #(.WIDTH(FRAME_BITS_C), .LOG2D(FIFO_LOG2_P)) u_fcdc (
+  cdc_pair_fifo #(.WIDTH(FRAME_BITS_C), .LOG2D(FIFO_LOG2_P), .DIST_RAM_P(1)) u_fcdc (
     .wclk_i  (clk_i),
     .wrst_n  (rst_n && !epoch_req_r),
     .wen_i   (fifo_wen_w),
