@@ -95,6 +95,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RENDER_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv"
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+FIFO_RTL = HERE / "../../../hdl/common/cdc_pair_fifo.sv"
 SHAPE_SVH = (HERE / "../../../configs/generated/endstation_ax7101_1x1_tdm8"
              / "gen/adp_shape_defaults.svh")
 sys.path.insert(0, str(HERE / "../../../scripts"))
@@ -113,12 +114,13 @@ LEGS = {
               HERE / "obj_tdm8rm/Vmilan_dp_tdm8rm"),
 }
 
-#: the three things a mutant may plant into: (path, the Makefile override).
+#: the four things a mutant may plant into: (path, the Makefile override).
 #: `shape` is a whole DIRECTORY the recipe points +incdir at, because a
 #: generated projection table is selected by include path and not by file.
 SOURCES = {
     "render": (RENDER_RTL, "TDMRM_SRC"),
     "datapath": (DP_RTL, "DP_SRC"),
+    "fifo": (FIFO_RTL, "PAIRFIFO_SRC"),
     "shape": (SHAPE_SVH, "TDM8R_SHAPE"),
 }
 
@@ -285,6 +287,21 @@ MUTATIONS = [
     # #632: the render out-lead one frame long: every read takes the frame
     # after the one its interface presents, so the feed's first event and
     # every later one reach the pins a frame early
+    # #927: the render's crossing keeps its frames in distributed RAM
+    # (cdc_pair_fifo DIST_RAM_P); that branch's storage written at the read
+    # pointer hands the serializer frames out of their order
+    ("the render FIFO's distributed storage written at the read pointer", "fifo",
+     [("    (* ram_style = \"distributed\" *) logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];\n"
+       "    always_ff @(posedge wclk_i) begin : mem_wr\n"
+       "      if (wrst_n && wen_i && !wfull_o)\n"
+       "        mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;",
+       "    (* ram_style = \"distributed\" *) logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];\n"
+       "    always_ff @(posedge wclk_i) begin : mem_wr\n"
+       "      if (wrst_n && wen_i && !wfull_o)\n"
+       "        mem_r[rptr_bin_r[LOG2D-1:0]] <= wdata_i;")],
+     "ship", "--serial-only",
+     "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
+     "the injection record"),
     ("the render out-lead one frame long", "datapath",
      [(LEAD_LINE, LEAD_LINE.replace(";", " + 1;"))],
      "ship", "--serial-only",

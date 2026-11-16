@@ -71,15 +71,16 @@ DP         = ../milan_dp
 # relative paths inside both are relative to a tb/verilator/<suite>/
 # directory, which this is.
 #
-# TDMRM_SRC and DP_SRC are passed through EXPLICITLY rather than left to
+# TDMRM_SRC, DP_SRC and PAIRFIFO_SRC are passed through EXPLICITLY rather than left to
 # MAKEFLAGS: tdm8_render_mutants.py overrides them on the command line to
 # elaborate a mutated copy through this same recipe, and a mutant that
 # silently fell back to the tracked source would be a control that controls
 # nothing.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
 DP_SRC    ?= $(RTL_DIR)/milan/milan_datapath.sv
+PAIRFIFO_SRC ?= $(RTL_DIR)/common/cdc_pair_fifo.sv
 SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
-                TDMRM_SRC='$(TDMRM_SRC)' DP_SRC='$(DP_SRC)')
+                TDMRM_SRC='$(TDMRM_SRC)' DP_SRC='$(DP_SRC)' PAIRFIFO_SRC='$(PAIRFIFO_SRC)')
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-srcs failed; the datapath source list could not be derived)
 endif
