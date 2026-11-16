@@ -67,7 +67,7 @@ TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
 #: each plant's words, which its refusal against the all-fabric capture must carry
 PLANT_WORDS = {
     "byte-flip": "ADP frame 1 differs at byte 34",
-    "srp-plus-k": "MSRP Talker Failed stream_id 0200000000010001",
+    "srp-plus-k": "MSRP Talker Advertise stream_id 0200000000010001",
     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
                             "to the second controller",
     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
@@ -81,10 +81,15 @@ PLANT_WORDS = {
     "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
                      "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
                      "nothing",
-    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
-                             "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
+    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+                             "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+                             "split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, "
+                             "{Domain value 06030002} x1, {none} x3]",
     "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
+    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+                          "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+                          "split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1",
     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
     "vanished-available-index": "owed row entity-available-index: the difference has gone",
     "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table "
@@ -102,6 +107,7 @@ PLANT_WORDS = {
 SELF_WORDS = {
     "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
+    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ",
     "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
     "vanished-available-index": "AECP response 13 differs at byte 81",
     "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
@@ -116,6 +122,7 @@ PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notificat
                     "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
+                    "talker-failed-back": "MSRP",
                     "vanished-mvrp-leave-all": "MVRP",
                     "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
                     "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
@@ -329,11 +336,6 @@ def shown_aecp(frames: list) -> str:
                            f"{body(s).hex()}" for s in frames) + "]"
 
 
-def shown_msrp(attributes: list) -> str:
-    """MSRP attributes as a finding prints them."""
-    return "[" + "; ".join(f"MSRP {td.attribute_label(*k)}: {td.run_length(v)}" for k, v in attributes) + "]"
-
-
 FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
 MVU = td.MVU_PROTOCOL
 SYSTEM_UNIQUE_ID = bytes.fromhex("0102030405060708")
@@ -451,14 +453,11 @@ OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "0200000000010000" "
                               "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
 OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
-#: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
-#: Advertise for source 0, the split's Talker Failed for both sources
-FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
-SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d900017000000000000002000000000102"),
-                 (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
-SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
-               "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
-SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
+#: Since #895 the split's Talker declares after the PROBE_TX and withdraws, as the fabric's does (IEEE 802.1Q-2018
+#: 35.2.2.8), with no notice at either change; the step that owes the notices is not yet named (#929)
+SRP_NOTICE = ("the split's Talker Advertise for STREAM_OUTPUT 0's stream is declared after the PROBE_TX and withdrawn "
+              "(#895), and the split sends no GET_STREAM_INFO notice of STREAM_OUTPUT 0 at either change")
+SRP_NOTICE_OWED = "#665, its step not yet named (#929)"
 FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
                 "image's constant 0, and never reads ADP's")
 
@@ -471,16 +470,7 @@ OWED = (
         == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
         lambda h, sel: sel == [],
         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
-        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
-    Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
-        lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
-        == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
-        == [(SPLIT_TALKERS[0], "New x2, JoinMt x89"), (SPLIT_TALKERS[1], "New x2, JoinMt x89")],
-        "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
-        "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
-        SRP_ROUND),
+        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_NOTICE, SRP_NOTICE_OWED),
     Row("entity-available-index",
         "IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's",
         lambda h: responses(h, 25),

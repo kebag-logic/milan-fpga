@@ -95,6 +95,12 @@ def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
                     config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
 
 
+def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
+    source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""
+    return [arm_srp(tree, lwsrp, i, config=ROOT / "configs/endstation_ax7101_8x8.yaml") for i in (1, 2)]
+
+
 def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
                   config: Path = DEFAULT_ENTITY) -> Outcome:
     """Freestanding object identity, runtime closure and static frame check."""
