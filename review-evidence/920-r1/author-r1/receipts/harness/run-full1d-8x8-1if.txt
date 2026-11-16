@@ -1,0 +1,79 @@
+HEAD 11860de216d2c211b02c6ddcc33e99bdf20e8594 DIRTY 0 point 8x8-1if jobs 6 args --reuse-build --out <scratch>/build/full1d-8x8-1if/results --groups srp,backlog,backlog-adp,backlog-adp-refill,backlog-owed,acmp-disc start 02:45:13
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/srp.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/backlog.txt -COMMANDCOMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/backlog-adp-refill.txt -
+ <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/backlog-adp.txt -
+
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/backlog-owed.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1d-8x8-1if/results/acmp-disc.txt -
+BUDGET backlog.owed.if0: 63.415 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.650 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.901 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.146 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.391 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.198 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.843 ms over its budget 20 ms
+STEPS 2014 passes carry the store's step; the longest 109,678 CPU cycles (1.097 ms), acmp-disc; the longest step 78,029 (0.780 ms), acmp-disc
+SLICES 82818 tier-2 slices; the longest SRP's records 77,092, THE TRANSMIT's build 140,524, THE RETRY's round 8,791 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-adp-refill: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS acmp-disc: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+6 groups graded, 0 refusals, 7 budget misses (7 of 56 probe instances, 4 of 23 paths), 0 of 2408 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED srp: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED srp: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED srp: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED srp: a build-one pass of 93,062 CPU cycles, over its stated 73,500
+STATED srp: a build-one pass of 140,524 CPU cycles, over its stated 73,500
+STATED backlog: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED backlog: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED backlog: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED backlog: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED backlog: a build-one pass of 93,062 CPU cycles, over its stated 73,500
+STATED backlog-adp: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED backlog-adp: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED backlog-adp: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED backlog-adp: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED backlog-adp: a build-one pass of 93,062 CPU cycles, over its stated 73,500
+STATED backlog-adp-refill: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED backlog-adp-refill: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED backlog-adp-refill: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED backlog-adp-refill: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED backlog-adp-refill: a build-one pass of 93,062 CPU cycles, over its stated 73,500
+STATED backlog-owed: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED backlog-owed: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED backlog-owed: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED backlog-owed: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED backlog-owed: a build-one pass of 93,062 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 94,188 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 94,579 CPU cycles, over its stated 73,500
+STATED acmp-disc: a build-one pass of 93,316 CPU cycles, over its stated 73,500
+STATED srp: a walk item of 4,596 CPU cycles, over its stated 3,500
+STATED srp: an SRP record's apply of 29,163 CPU cycles, over its stated 28,000
+STATED backlog: a withdraw item of 10,201 CPU cycles, over its stated 9,000
+STATED backlog: a rebuild item of 54,545 CPU cycles, over its stated 29,000
+STATED backlog-adp: an SRP record's apply of 30,534 CPU cycles, over its stated 28,000
+STATED backlog-adp-refill: an SRP record's apply of 30,534 CPU cycles, over its stated 28,000
+STATED backlog-owed: a acmp item of 6,941 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 7,139 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,438 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,201 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,398 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,398 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,398 CPU cycles, over its stated 2,000
+STATED backlog-owed: an SRP record's apply of 30,889 CPU cycles, over its stated 28,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED srp: a tier-2 slice of THE TRANSMIT's build of 140,524 CPU cycles, over the stated slice 95,000
+STATED backlog: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED backlog-adp: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED backlog-adp-refill: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED backlog-owed: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED acmp-disc: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+elapsed=960s rc=1 end 03:01:13 DIRTY-after 0

@@ -1,0 +1,20 @@
+HEAD 11860de216d2c211b02c6ddcc33e99bdf20e8594 DIRTY 0 point 1x1 jobs 8 args --reuse-build --out <scratch>/build/full1c-1x1/results --groups control,aecp-fanout,acmp-cmd,aecp,aecp-largest-notice,datapath-events,fixture start 02:34:44
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/control.txt -
+COMMAND <scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/aecp-fanout.txt -
+COMMANDCOMMAND  COMMAND <scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/acmp-cmd.txt -
+<scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/aecp.txt -
+<scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/aecp-largest-notice.txt -
+COMMAND <scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/datapath-events.txt -
+COMMAND <scratch>/build/full1-1x1/native/Vsim <scratch>/build/full1c-1x1/results/fixture.txt -
+STEPS 506 passes carry the store's step; the longest 23,270 CPU cycles (0.233 ms), aecp-fanout; the longest step 4,440 (0.044 ms), aecp-fanout
+SLICES 33789 tier-2 slices; the longest SRP's records 66,651, THE TRANSMIT's build 42,064, THE RETRY's round 8,111 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS control: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS datapath-events: 3 join interval(s), the shortest 188.013 ms and the longest 190.010 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+7 groups graded, 0 refusals, 0 budget misses (0 of 67 probe instances, 0 of 64 paths), 0 of 784 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=295s rc=0 end 02:39:39 DIRTY-after 0

@@ -1,0 +1,70 @@
+HEAD 11860de216d2c211b02c6ddcc33e99bdf20e8594 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --out <scratch>/build/full1c-8x8-1if/results --groups maap,adp-link,adp-gm,adp-discover,control,aecp-fanout,acmp-cmd,aecp,datapath-events,fixture start 02:34:12
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/maap.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/adp-gm.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/adp-link.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/adp-discover.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/control.txt -
+COMMAND COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/acmp-cmd.txt -
+<scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/aecp-fanout.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/aecp.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/datapath-events.txt -
+COMMAND <scratch>/build/full1-8x8-1if/native/Vsim <scratch>/build/full1c-8x8-1if/results/fixture.txt -
+STEPS 832 passes carry the store's step; the longest 29,004 CPU cycles (0.290 ms), maap; the longest step 2,550 (0.025 ms), maap
+SLICES 42108 tier-2 slices; the longest SRP's records 75,755, THE TRANSMIT's build 95,880, THE RETRY's round 8,655 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS maap: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 6 released, 3 empty
+JOINS adp-link: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS adp-gm: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS adp-discover: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS control: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp-fanout: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS aecp: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+JOINS datapath-events: 3 join interval(s), the shortest 187.574 ms and the longest 189.869 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+10 groups graded, 0 refusals, 0 budget misses (0 of 75 probe instances, 0 of 63 paths), 0 of 1118 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED maap: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED maap: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED maap: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED maap: a build-one pass of 93,203 CPU cycles, over its stated 73,500
+STATED adp-link: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED adp-link: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED adp-link: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED adp-gm: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED adp-gm: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED adp-gm: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED adp-discover: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED adp-discover: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED adp-discover: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED control: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED control: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED control: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED aecp-fanout: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED aecp-fanout: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED aecp-fanout: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED acmp-cmd: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED acmp-cmd: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED acmp-cmd: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED aecp: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED aecp: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED aecp: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED datapath-events: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED datapath-events: a build-one pass of 92,628 CPU cycles, over its stated 73,500
+STATED datapath-events: a build-one pass of 92,850 CPU cycles, over its stated 73,500
+STATED fixture: a build-one pass of 95,880 CPU cycles, over its stated 73,500
+STATED adp-link: a rebuild item of 54,328 CPU cycles, over its stated 29,000
+STATED acmp-cmd: a walk item of 3,556 CPU cycles, over its stated 3,500
+STATED acmp-cmd: a pass's polls base of 22,125 CPU cycles, over its stated 20,500
+STATED fixture: a rebuild item of 54,993 CPU cycles, over its stated 29,000
+STATED fixture: an SRP record's apply of 29,895 CPU cycles, over its stated 28,000
+STATED maap: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED adp-link: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED adp-gm: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED adp-discover: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED control: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED aecp-fanout: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED acmp-cmd: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED aecp: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED datapath-events: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+STATED fixture: a tier-2 slice of THE TRANSMIT's build of 95,880 CPU cycles, over the stated slice 95,000
+elapsed=552s rc=1 end 02:43:24 DIRTY-after 0

@@ -1,0 +1,23 @@
+save-burst at 8x8/1if on the base firmware (659d7687 with only the harness): the CPU traps during the burst.
+
+save.change at cycle 271431552 (100 MHz)
+TRAP 299336204 0 5 00001c98
+TRAP 305796867 0 5 00001c98
+TRAP 312250507 0 5 00001c98
+TRAP 326670098 0 5 00001c98
+TRAP 333124269 0 5 00001c98
+traps in the log: 8
+
+PC 0x1c98: deliver (ctrl_app_aecp.c:?)
+
+The objects around the AECP saved-state owner in this image (nm -n -S): address size kind name
+10007c50 0000000c b image_model
+10007c5c 00000028 b image_binding
+10007c84 00000054 b image_state
+10007cd8 0000008c b image_aecp_bridge
+10007d80 00000dc0 b image_aecp
+
+struct aecp_nvm at the base: pending[8] at offset 0x30, so pending[8] (ids 256-287) is the word of 'released',
+pending[9] (ids 288-319) is image_aecp_bridge's first word and pending[10] (ids 320-351) its second: the
+bridge's app and aecp pointers, which deliver() dereferences (sw/firmware/ctrl/app/ctrl_app_aecp.h, struct ctrl_app_aecp).
+At 8x8 the names are ids 222 to 328: ordinals 66 to 106 set bits in those two pointers.

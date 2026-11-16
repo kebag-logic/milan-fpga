@@ -1,0 +1,32 @@
+The in-house persistence scenario on the board's current image (no reflash), 2026-11-15, under the bench lock: the runner's own lines, then the outcome in this lane's words. The harness's own log names its scenario's steps; it stays in scratch (sha256 below).
+
+WAIT-LOCK persist-1 2026-11-15T20:33:43.472Z
+GROUP persist-1 LOCK 2026-11-15T20:35:07.918Z HEAD ff474d4 dirty 1
+GADGET present
+PRE eth0             UP             <mac> <BROADCAST,MULTICAST,ALLMULTI,UP,LOWER_UP> 
+PRE PBB mac <mac> speed 1000 carrier 1
+PRE  Advertised link modes: 1000baseT/Full 
+PRE  Advertised pause frame use: No
+PRE Downshift disabled
+PRE PBB daemons: none
+CONSOLE hupcl before: -hupcl
+CONPOLL pid 2923916 started 2026-11-15T20:35:08.452Z
+POWER off at 2026-11-15T20:36:35.236Z
+POWER on at 2026-11-15T20:36:45.244Z
+CONSOLE boot line after 1.9 s: Milan split control firmware: ready
+POWER off at 2026-11-15T20:37:14.113Z
+POWER on at 2026-11-15T20:37:24.222Z
+CONSOLE boot line after 2.0 s: Milan split control firmware: ready
+GROUP persist-1 RC=1 END 2026-11-15T20:38:38.252Z
+POST eth0             UP             <mac> <BROADCAST,MULTICAST,ALLMULTI,UP,LOWER_UP> 
+POST PBB mac <mac> speed 1000 carrier 1
+POST  Advertised link modes: 1000baseT/Full 
+POST  Advertised pause frame use: No
+POST Downshift disabled
+POST PBB daemons: none
+UNLOCK persist-1 2026-11-15T20:38:39.156Z
+
+Outcome: every SET_NAME of the burst answered SUCCESS (persist-1.setname-pacing.txt); after the first cold cycle the post-cycle model check found five names at their defaults: AUDIO_CLUSTER 22, AUDIO_CLUSTER 23, AUDIO_CLUSTER 24, CLOCK_DOMAIN 0, CONTROL 0.
+Scenario result: 0 scenarios passed, 1 failed, 0 skipped
+
+raw harness log sha256 a2dd2c3b493c9bc0d87924ae333a56ebfcd40a36ffdc22d96ea84f38fd7cf95b 85365 bytes (scratch)

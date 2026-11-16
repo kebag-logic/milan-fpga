@@ -1,0 +1,75 @@
+shard: 0/1   selected suites: 65
+PASS     aaf
+PASS     aaf_audio_loop
+PASS     aaf_clock_meter
+PASS     aaf_latency_tap_bank
+PASS     aaf_latency_taps
+PASS     adp_tx
+PASS     aes3
+PASS     avtp_parser
+PASS     avtp_rxmon
+PASS     avtp_stream
+PASS     capture_coherence
+PASS     cbs
+PASS     cdc
+PASS     chmap_capture
+PASS     chmap_render
+PASS     classifier
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     crf_rx
+PASS     crf_tx
+PASS     csr
+PASS     datapath
+PASS     eth_tx_reset
+PASS     follow_ring
+PASS     fw_service_budget
+PASS     gptp_plane
+FAIL     gptp_shadow
+PASS     gptp_tables
+PASS     gptp_txts
+PASS     i2spb
+PASS     ifg
+PASS     lat_history_ring
+PASS     link_guard
+PASS     maap
+PASS     mac_rmon
+PASS     mbx
+PASS     media_grid_align
+PASS     media_nco
+TIMEOUT  media_phase   (1400s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  milan_dp   (4800s wall clock - result UNKNOWN, not a failure)
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo
+PASS     mmcm_servo_autorepair
+PASS     nvm_backend
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pcmlpf
+PASS     pp_shadow
+PASS     ptp
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     queues
+TIMEOUT  reboot_ctrl   (300s wall clock - result UNKNOWN, not a failure)
+PASS     render_queue
+PASS     rx_filter
+PASS     shaper_core
+PASS     tcam
+PASS     tcam_csr
+PASS     tdm
+PASS     tdm_render
+PASS     tkdiag
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 65   passed: 61   failed: 1   timed out: 3
+checks: 2712626   in-suite failures: 0
+failing suites: gptp_shadow
+TIMED OUT (result unknown, NOT a failure): media_phase milan_dp reboot_ctrl
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <scratch>/sweep/run-54280c94/logs

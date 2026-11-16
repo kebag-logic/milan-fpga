@@ -1,0 +1,45 @@
+# head 54280c9408ba06a16fa925f85e0398a16f33777d workflow elaborate.yml job elaborate-gates-1 step gate_19: Standalone LiteX simulation aggregate
+# clone <scratch>/wf/run-54280c9408ba06a16fa925f85e0398a16f33777d/elaborate__elaborate-gates-1/wt
+# venv <other-scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+  [ok]   green control: a sandbox where everything passes exits 0
+  [ok]   a planted failing simulation turns the aggregate red, named
+  [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+  [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+  [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+  [ok]   no usable interpreter: every member a declared skip, exit 90
+  [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+  [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+  [ok]   a member-declared skip is not counted as a pass
+  [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+
+run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+RESULT: PASS
+SKIP     test_cpu_memory_port_cdc   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_ctrl_memory   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_gmii_rx_capture   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_gptp_tx_timestamp   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_pp_boot_bus_freeze   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_pp_mem_bridge   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_retained_cdc_storage   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+SKIP     test_soc_timing_cuts   (declared: no interpreter here imports migen + litex;
+         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt
+         and run scripts/ci_litex_env.py)
+----------------------------------------------------------------
+simulations: 8   passed: 0   failed: 0   skipped: 8   timed out: 0
+INCOMPLETE: 8 declared skip(s) - this green is not the full aggregate.
+logs: <scratch>/wf/run-54280c9408ba06a16fa925f85e0398a16f33777d/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs

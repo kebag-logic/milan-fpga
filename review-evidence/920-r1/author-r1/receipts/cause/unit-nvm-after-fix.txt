@@ -1,0 +1,31 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+Note: Google Test filter = Nvm.*
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (14 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+[       OK ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[       OK ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[       OK ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (0 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[       OK ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 9 tests from Nvm (19 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (19 ms total)
+[  PASSED  ] 9 tests.
+== AECP core: checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
