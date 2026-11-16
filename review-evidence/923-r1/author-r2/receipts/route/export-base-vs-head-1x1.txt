@@ -1,0 +1,28 @@
+1x1/1if split image export (S9's recipe up to milan_soc.py's export, no Vivado): base 16ba667d against head 70c100da
+(firmware identical to the routed images' 6abb6cc6). Paths of the two clones normalised to C; the Date line dropped.
+
+== files that differ
+(alinx_ax7101.tcl: only the path of the export's own Verilog, its line 274)
+Files export-base-1x1/export/gateware/alinx_ax7101_rom_bank0.init and export-head-1x1/export/gateware/alinx_ax7101_rom_bank0.init differ
+Files export-base-1x1/export/gateware/alinx_ax7101_rom_bank1.init and export-head-1x1/export/gateware/alinx_ax7101_rom_bank1.init differ
+Files export-base-1x1/export/gateware/alinx_ax7101_rom_bank2.init and export-head-1x1/export/gateware/alinx_ax7101_rom_bank2.init differ
+Files export-base-1x1/export/gateware/alinx_ax7101_rom_bank3.init and export-head-1x1/export/gateware/alinx_ax7101_rom_bank3.init differ
+Only in export-head-1x1/export/gateware: alinx_ax7101_rom_bank4.init
+Files export-base-1x1/export/gateware/alinx_ax7101.tcl and export-head-1x1/export/gateware/alinx_ax7101.tcl differ
+Files export-base-1x1/export/gateware/alinx_ax7101.v and export-head-1x1/export/gateware/alinx_ax7101.v differ
+Files export-base-1x1/export/gateware/alinx_ax7101.xdc and export-head-1x1/export/gateware/alinx_ax7101.xdc differ
+
+== RTL inputs between the commits (git diff --stat -- hdl configs sw/builder protocol-processor gptp-processor syn sw/mailbox): none
+
+== alinx_ax7101.v, every differing line that is not the control memory's (ctrlmemory*, rom_bank4) or the hierarchy comment:
+> always @(posedge sys_clk) begin
+(the one line above opens rom_bank4's read block, the fifth rom bank's: the control memory alone differs)
+
+== alinx_ax7101.xdc, sorted:
+> set_clock_groups -group [get_clocks -of [get_nets audio_clk]] -group [get_clocks -of [get_nets sys_clk]] -asynchronous
+> set_clock_groups -group [get_clocks -of [get_nets milan_clk]] -group [get_clocks -of [get_nets sys_clk]] -asynchronous
+< set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets audio_clk]] -asynchronous
+< set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets milan_clk]] -asynchronous
+(the same asynchronous clock-group pairs: two of them name their two clocks in the other order)
+
+== control memory, head: rom banks 65536+32768+16384+4096+2048 B (29 RAMB36 + 1 RAMB18), sram 32768+16384+8192 (14); base: rom 4 banks (29 RAMB36), sram the same: 43.5 against 43.0 tiles

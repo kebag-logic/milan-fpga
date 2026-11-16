@@ -1,0 +1,14 @@
+# answering-ports, 8x8 (two interfaces), aecp-fanout, base 16ba667d
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 28,627 cycles, 305 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 26,480 cycles, 280 us by the rule
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 27,702 cycles, 295 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 26,157 cycles, 275 us by the rule
+
+results: 8x8/2if answering-ports, 1 groups, 52 AECP records
+8x8/2if reported other: the dearest 17,156 CPU cycles, 185 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x0010)
+8x8/2if held other: the dearest 17,511 CPU cycles, 185 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/2if held paced: the dearest 55,365 CPU cycles, 585 us by the rule, stated 595 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+RESULT: FAIL

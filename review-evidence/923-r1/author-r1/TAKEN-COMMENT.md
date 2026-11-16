@@ -1,0 +1,11 @@
+[A789] TAKEN (#923 and #924, one lane)
+
+Branch: `923-aecp-maps`, from #901's review head `16ba667d` (local; the manager pushes and opens the PR).
+
+Authoritative references: Milan v1.2 5.4.2.7, 5.4.2.27, 5.4.2.28, 5.3.10.1; IEEE 1722.1-2021 7.4.7.1, 7.4.15.1, 7.4.45, 7.4.46; IEEE 1722.1-2013 7.4.15 (the 48-byte body); `docs/reference/MAILBOX_CONTRACT.md` (the face block's EDIT window, unchanged); protocol-processor PR #183; #665 issuecomment-6904803181 (findings 15-17) and issuecomment-6904832963.
+
+Interpreted scope: (#923) after the AECP owner has accepted an ADD or REMOVE_AUDIO_MAPPINGS, the firmware runs the same transaction the release's processor runs on the datapath's map store through the EDIT window: begin, validate each record, begin the commit, commit each record, finish, or abort. It changes its own map only once the fabric has accepted the commit, so the command stays all-or-none and GET_AUDIO_MAP and the render store agree after every command. The saved-map restore at boot commits each restored port the same way. SET_CONFIGURATION reloads no map (every shipped model has one configuration), which the takeover report will show. (#924) SET_CONFIGURATION with a configuration_index at or past configurations_count answers NO_SUCH_DESCRIPTOR. SET_STREAM_INFO also accepts the 48-byte IEEE 1722.1-2013 body, whose fields end at stream_vlan_id, and answers it in the 84-byte 2021 form. No RTL, mailbox contract or budget bound changes.
+
+Validation plan: firmware unit tests for each change, with named planted defects (the AECP and control campaigns); a split co-simulation check that an edited map reaches the datapath's render store, and that a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS with the mappings in place and SUCCESS once they are removed; `fw_coverage.py --check` with every new branch covered; the touched workflows' jobs on a clean clone of the final head (firmware units and campaigns, the verilator-suites shards with the split firmware, elaborate, docs); the CPU service-budget harness at 1x1/1if and 8x8/1if, every row within its bound and the edit path's stated cost updated; both split platform images (1x1/1if, 8x8/1if) built with timing met, ROM per image and the area delta reported; the release image checked byte-identical by hash.
+
+Blockers: none.

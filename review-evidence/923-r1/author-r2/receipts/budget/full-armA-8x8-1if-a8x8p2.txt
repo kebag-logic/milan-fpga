@@ -1,0 +1,22 @@
+HEAD def26a61 DIRTY 0 point 8x8-1if jobs 4 args --reuse-build --out <scratch> --groups save-starved,backlog-adp@blank-1,backlog-adp
+BUDGET backlog.owed.if0: 63.476 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.712 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.947 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.232 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.455 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.353 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.001 ms over its budget 20 ms
+STEPS 12785 passes carry the store's step; the longest 107,985 CPU cycles (1.080 ms), acmp-noresp; the longest step 78,349 (0.783 ms), backlog-adp@program-2
+SLICES 622565 tier-2 slices; the longest SRP's records 71,231, THE TRANSMIT's build 31,390, THE RETRY's round 9,653 CPU cycles, against the stated slice 90,000 (THE TIERS)
+AGED 16 windows opened with the step's age at its limit or one short of it, 6 aged steps among their records; the least margin 9.822 ms, backlog-adp@verify-aged2-5.service.srp.last.if0 at 10.178 ms
+SAVE save-starved: durable 12447.727 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 32.756 ms) within
+31 groups graded, 0 refusals, 7 budget misses (7 of 326 probe instances, 4 of 33 paths), 0 of 87964 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED save-starved: a pass's polls base of 23,775 CPU cycles, over its stated 22,500
+STATED backlog-owed: a acmp item of 7,208 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,624 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,270 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,277 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+elapsed=31770s rc=1 end 13:20:47 DIRTY-after 0

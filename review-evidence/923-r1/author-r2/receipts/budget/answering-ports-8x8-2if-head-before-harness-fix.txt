@@ -1,0 +1,20 @@
+# The first run at 8x8 (two interfaces) at ac716674, before the harness fix 1e94b301: every map edit read refused
+HEAD ac716674 DIRTY 0 point 8x8 jobs 4 args --variant answering-ports --groups aecp-fanout,aecp-largest-notice start 06:02:36
+REFUSED aecp_fanout.remove_audio_mappings_output.if0: no end: no notification to ['0a0b0c0d0e0f1000@if0', '0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@
+REFUSED aecp_fanout.add_audio_mappings_output.if0: no end: no notification to ['0a0b0c0d0e0f1000@if0', '0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@if0
+REFUSED aecp_fanout.remove_audio_mappings_output.if1: no end: no notification to ['0a0b0c0d0e0f1000@if0', '0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@
+REFUSED aecp_fanout.add_audio_mappings_output.if1: no end: no notification to ['0a0b0c0d0e0f1000@if0', '0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@if0
+REFUSED aecp_long.remove_audio_mappings.if0: no end: no notification to ['0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@if0', '0a0b0c0d0e0f1006@if0', '0a
+REFUSED aecp_long.add_audio_mappings.if0: no end: no notification to ['0a0b0c0d0e0f1001@if0', '0a0b0c0d0e0f1002@if0', '0a0b0c0d0e0f1003@if0', '0a0b0c0d0e0f1004@if0', '0a0b0c0d0e0f1005@if0', '0a0b0c0d0e0f1006@if0', '0a0b0
+REFUSED aecp-largest-notice: no AECP poll item committed a notice longer than AECP_FAN_BYTES, so the largest legal notice was not measured
+2 groups graded, 7 refusals, 0 budget misses (0 of 21 probe instances, 0 of 19 paths), 0 of 439 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=5887s rc=1 end 07:40:43 DIRTY-after 0
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 11 30,135 cycles, 320 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 27,671 cycles, 295 us by the rule
+8x8/2if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 11 29,577 cycles, 315 us by the rule
+8x8/2if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 26,256 cycles, 280 us by the rule
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 11 127,580 cycles, 1340 us by the rule
+8x8/2if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 0 125,361 cycles, 1320 us by the rule
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 40,322 cycles, 425 us by the rule
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 84,888 cycles, 895 us by the rule
+8x8/2if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 7 122,029 cycles, 1285 us by the rule

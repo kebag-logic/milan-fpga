@@ -1,0 +1,20 @@
+# head 1e94b301 (H8A: ac716674, arm A, no edit reaches the store there), 8x8 (two interfaces)
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 0 132,751 cycles, 1395 us by the rule
+8x8/2if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 0 127,977 cycles, 1345 us by the rule
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 40,604 cycles, 430 us by the rule
+8x8/2if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 84,983 cycles, 895 us by the rule
+8x8/2if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 7 121,925 cycles, 1285 us by the rule
+
+results: 8x8/2if answering-ports, 1 groups, 37 AECP records
+8x8/2if held long: the dearest 132,751 CPU cycles, 1395 us by the rule, stated 1650 us (answering-ports aecp-largest-notice: the largest legal command's)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+RESULT: FAIL
+HEAD 1e94b301 DIRTY 0 point 8x8 jobs 4 args --variant answering-ports --groups aecp-largest-notice start 09:11:24
+SHARE aecp-largest-notice: 2 of 140 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 240,969 (2.410 ms)
+STEPS 90 passes carry the store's step; the longest 33,976 CPU cycles (0.340 ms), aecp-largest-notice; the longest step 2,885 (0.029 ms), aecp-largest-notice
+SLICES 3076 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 28,686, THE RETRY's round 3,796 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-largest-notice: 6 join interval(s), the shortest 187.389 ms and the longest 189.949 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 140 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=1080s rc=0 end 09:29:24 DIRTY-after 0

@@ -1,0 +1,381 @@
+{
+ "stream-info-earlier-body-refused": {
+  "caught": true,
+  "file": "aecp/aecp_commands.c",
+  "checks": [
+   [
+    "Core.SetStreamInfoTakesTheEarlierBodyOf48Octets",
+    "the 48-octet body is taken"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "stream-info-short-bodies-taken": {
+  "caught": true,
+  "file": "aecp/aecp_commands.c",
+  "checks": [
+   [
+    "Core.SetStreamInfoTakesTheEarlierBodyOf48Octets",
+    "a body between 48 and 84 octets, or short of 48, is refused"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "restore-forgets-override": {
+  "caught": true,
+  "file": "aecp/aecp_state.c",
+  "checks": [
+   [
+    "Core.RestoreValuesValidateAndRollbackWithoutLiveEvents",
+    "aecp_value_latch"
+   ],
+   [
+    "Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups",
+    "owner.port.latch"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "restore-cluster-channel-ignored": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.RestoredOutputMapsHaveOneGlobalOwner",
+    "a saved row that differs only in its cluster channel is its own"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "restore-owner-unchecked": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.RestoredOutputMapsHaveOneGlobalOwner",
+    "another output port owns stream channel 1"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "restore-conflict-unchecked": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.RestoredOutputMapsHaveOneGlobalOwner",
+    "two saved rows of one stream channel with different clusters conflict"
+   ]
+  ],
+  "run": "plants1"
+ },
+ "edit-store-skipped": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+    "one store edit for the command"
+   ],
+   [
+    "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+    "begin, validate each record, begin the commit, commit each, finish"
+   ]
+  ],
+  "run": "run-plants_redo"
+ },
+ "edit-every-record": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+    "an ADD's additions alone, each once, in command order"
+   ]
+  ],
+  "run": "plants-ab"
+ },
+ "edit-held-mappings-added": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+    "an ADD's additions alone, each once, in command order"
+   ]
+  ],
+  "run": "plants-ab"
+ },
+ "edit-repeats-sent": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.AnAcceptedEditReachesTheStoreBeforeTheMap",
+    "a REMOVE's every distinct mapping, each once, in command order"
+   ]
+  ],
+  "run": "plants-ab"
+ },
+ "edit-refusal-ignored": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.AStoreRefusalIsTheAnswerAndChangesNothing",
+    "the store's refusal is the command's status"
+   ],
+   [
+    "Face.ARefusedBeatAbortsAndNothingMoves",
+    "the map keeps its mappings"
+   ]
+  ],
+  "run": "plants-ab"
+ },
+ "edit-before-the-checks": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.ARefusedEditNeverReachesTheStore",
+    "a command the core refuses never reaches the store"
+   ]
+  ],
+  "run": "plants-ab"
+ },
+ "restore-adds-beside-its-removal": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.RestoredMapsReachTheStoreRemovalsFirst",
+    "two removals and two additions"
+   ]
+  ],
+  "run": "plants-ac"
+ },
+ "restore-removes-what-it-adds": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.RestoredMapsReachTheStoreRemovalsFirst",
+    "the input port's reset set removed"
+   ],
+   [
+    "Face.RestoredMapsReachTheStoreThroughTheEditWindow",
+    "the reset set removed first"
+   ]
+  ],
+  "run": "run-plants_redo"
+ },
+ "restore-reset-set-unclipped": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.TheStoresResetSetIsTheClippedOne",
+    "a map that is the clipped reset set has not moved"
+   ]
+  ],
+  "run": "plants-ac"
+ },
+ "restore-removal-refusal-ignored": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+    "a refused removal keeps the reset set the store holds"
+   ]
+  ],
+  "run": "plants-ac"
+ },
+ "restore-not-put-back": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+    "a refused put-back leaves the store's empty port empty"
+   ]
+  ],
+  "run": "plants-ac"
+ },
+ "restore-put-back-trusted": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.ARefusedRestoreKeepsWhatTheStoreHolds",
+    "a refused put-back leaves the store's empty port empty"
+   ]
+  ],
+  "run": "plants-ac"
+ },
+ "restore-commits-an-open-core": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+    "an open core commits no restored map"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "restore-past-a-page": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+    "a port past a page reaches no store"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "restore-every-configuration": {
+  "caught": true,
+  "file": "aecp/aecp_maps.c",
+  "checks": [
+   [
+    "Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce",
+    "a map of another configuration is not committed"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "restore-not-committed-at-open": {
+  "caught": true,
+  "file": "app/ctrl_app_aecp.c",
+  "checks": [
+   [
+    "AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens",
+    "AECP's open commits the restored maps"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "window-never-aborts": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.ARefusedBeatAbortsAndNothingMoves",
+    "a refused record aborts"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "window-validation-trusted": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.ARefusedBeatAbortsAndNothingMoves",
+    "a refused record aborts"
+   ]
+  ],
+  "run": "plants-ad"
+ },
+ "window-commit-begin-trusted": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.ARefusedBeatAbortsAndNothingMoves",
+    "a refused commit-begin aborts"
+   ]
+  ],
+  "run": "run-plants_ae"
+ },
+ "window-begin-trusted": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.ARefusedBeatAbortsAndNothingMoves",
+    "a refused begin aborts"
+   ]
+  ],
+  "run": "run-plants_ae"
+ },
+ "window-record-halves-swapped": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+    "the record as its two wire quadlets"
+   ]
+  ],
+  "run": "run-plants_ae"
+ },
+ "window-port-every-beat": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+    "EDIT_REQ written once a transaction"
+   ]
+  ],
+  "run": "run-plants_ae"
+ },
+ "window-request-words-from-the-first": {
+  "caught": true,
+  "file": "mbx/mbx.c",
+  "checks": [
+   [
+    "Face.AnEditIsTheReleasesTransactionOnTheEditWindow",
+    "EDIT_REQ written once a transaction"
+   ]
+  ],
+  "run": "run-redo2"
+ },
+ "window-begin-asked-once": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+    "a begin the boot sweep holds is asked once more"
+   ]
+  ],
+  "run": "run-plants_ae"
+ },
+ "window-reserved-commit-refuses": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+    "after the reserved commit, the edit stands"
+   ]
+  ],
+  "run": "run-plants_af"
+ },
+ "window-silence-uncounted": {
+  "caught": true,
+  "file": "aecp/aecp_face.c",
+  "checks": [
+   [
+    "Face.AnUnansweredEditFailsUntilItsCommitIsReserved",
+    "each unanswered beat is counted"
+   ]
+  ],
+  "run": "run-redo2"
+ },
+ "configuration-past-the-count-bad-arguments": {
+  "caught": true,
+  "file": "aecp/aecp_commands.c",
+  "checks": [
+   [
+    "Core.SetConfigurationOutOfRangeIsNoSuchDescriptor",
+    "an index past configurations_count names no CONFIGURATION descriptor"
+   ]
+  ],
+  "run": "run-plants_af"
+ }
+}

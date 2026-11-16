@@ -1,0 +1,14 @@
+# head 1e94b301 (H8A: ac716674, arm A, no edit reaches the store there), 8x8 (two interfaces)
+
+results: 8x8/2if none, 1 groups, 45 AECP records
+8x8/2if held other: the dearest 17,602 CPU cycles, 185 us by the rule, stated 265 us (none aecp-fanout: command 0x0010)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+RESULT: FAIL
+HEAD ac716674 DIRTY 0 point 8x8 jobs 4 args --groups aecp-fanout start 06:02:36
+STEPS 94 passes carry the store's step; the longest 35,460 CPU cycles (0.355 ms), aecp-fanout; the longest step 3,066 (0.031 ms), aecp-fanout
+SLICES 3253 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 28,394, THE RETRY's round 3,773 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-fanout: 6 join interval(s), the shortest 187.470 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 2 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 13 probe instances, 0 of 11 paths), 0 of 150 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=3348s rc=0 end 06:58:24 DIRTY-after 0
