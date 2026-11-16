@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp/dynmap_mutants.py b/tb/verilator/milan_dp/dynmap_mutants.py
+index 915fae02cd..207bfbbe99 100644
+--- a/tb/verilator/milan_dp/dynmap_mutants.py
++++ b/tb/verilator/milan_dp/dynmap_mutants.py
+@@ -641,7 +641,7 @@ def main() -> int:
+         work = Path(td)
+         for leg in dict.fromkeys(m[0] for m in mutations):
+             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
+-            unmade = prepare(leg)
++            unmade = None
+             if unmade is not None:
+                 fails += 1
+                 print(f"[FAIL] the {leg} leg's inputs are not made: {unmade} - its mutant results are "

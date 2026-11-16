@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# wf_batch.sh <head> <root> <workflow:job>...: each job through run_wf.py on its own fresh clone, one after another;
+# its logs stay in <root>/logs, its clone is removed after it (scratch stays small)
+set -u
+head=$1; root=$2; shift 2
+for spec in "$@"; do
+  IFS=: read -r wf job <<< "$spec"
+  echo "$(date +%T) start $wf $job"
+  <tmp>/895-a775/gates/venv/bin/python3 <scratch>/wf/run_wf.py "$wf" "$head" "$job" "$root"
+  echo "$(date +%T) end $wf $job rc=$?"
+  case "$root" in <scratch>/*) rm -rf "$root/${wf%.yml}__${job}/wt" ;; esac
+done
+echo "$(date +%T) BATCH DONE"

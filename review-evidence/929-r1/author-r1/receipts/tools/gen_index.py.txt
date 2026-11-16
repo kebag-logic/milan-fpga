@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""gen_index.py <receipts-dir>: write <receipts-dir>/INDEX.md from the files present: path, size, sha256, and the
+first line of each text file (its header), sorted by path. Run after sanitizing."""
+import hashlib
+import os
+import sys
+
+
+def main(root: str) -> int:
+    rows = []
+    for d, _, files in os.walk(root):
+        for f in files:
+            p = os.path.join(d, f)
+            rel = os.path.relpath(p, root)
+            if rel == 'INDEX.md':
+                continue
+            data = open(p, 'rb').read()
+            first = data.split(b'\n', 1)[0].decode('utf-8', errors='replace').strip().replace('|', '\\|')[:110]
+            rows.append((rel, len(data), hashlib.sha256(data).hexdigest()[:16], first))
+    rows.sort()
+    out = ['# Receipts index', '',
+           'Generated from the files present in this directory (after sanitizing host paths to `<scratch>`,',
+           '`<lane>`, `<tools>`, `<management>`, `<home>`). sha256 is truncated to 16 hex digits.', '',
+           '| File | Bytes | sha256 | First line |', '|---|---:|---|---|']
+    out += [f'| `{r}` | {n:,} | `{h}` | {f} |' for r, n, h, f in rows]
+    open(os.path.join(root, 'INDEX.md'), 'w').write('\n'.join(out) + '\n')
+    print(f'{len(rows)} files indexed')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1]))

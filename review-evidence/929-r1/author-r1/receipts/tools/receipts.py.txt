@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""receipts.py: the lane's receipts under round1/receipts, each a sanitized copy (sanitize.py) or the verdict section
+of a log too large to copy, with every full log's sha256 and size in large-logs.sha256. Re-runnable."""
+import hashlib, subprocess, sys
+from pathlib import Path
+
+S = Path("<scratch>")
+R = Path("<management>/2026-09-23/929-a792/round1/receipts")
+X = S / "tmp/rx"
+X.mkdir(parents=True, exist_ok=True)
+pairs, large = [], []
+
+def copy(src, dst):
+    src = Path(src)
+    if src.is_file():
+        pairs.append((src, R / dst))
+
+def section(src, dst, start, header):
+    """From the first line containing `start` to the end, under a header line; the full log's digest recorded."""
+    src = Path(src)
+    if not src.is_file():
+        return
+    lines = src.read_text(errors="replace").splitlines()
+    at = next((i for i, l in enumerate(lines) if start in l), 0)
+    out = X / dst.replace("/", "__")
+    out.write_text(header + "\n---\n" + "\n".join(lines[at:]) + "\n")
+    pairs.append((out, R / dst))
+    large.append(src)
+
+def digest(src):
+    if Path(src).is_file():
+        large.append(Path(src))
+
+# (a) the twin
+section(S / "units/base-twin.log", "twin/base-70f4056f-twin.txt", "./obj_twin_sp/Vmilan_dp_twin_sp obj_twin/split.json",
+        "make -C tb/verilator/milan_dp -j16 twin at 70f4056f on a clean clone: from the halves' runs to the end (rc in base-70f4056f-twin.rc)")
+copy(S / "units/base-twin.log.rc", "twin/base-70f4056f-twin.rc")
+section(S / "units/twin-932.log", "twin/at-932-09a948d4-twin.txt", "./obj_twin_sp/Vmilan_dp_twin_sp obj_twin/split.json",
+        "make -C tb/verilator/milan_dp -j16 twin at #932's head 09a948d4 on a clean clone: from the halves' runs to the end")
+copy(S / "units/twin-932.log.rc", "twin/at-932-09a948d4-twin.rc")
+copy(X / "captures.sha256", "twin/captures-base-and-932.sha256")
+copy(X / "talkers-base.txt", "twin/base-70f4056f-talker-traces.txt")
+section(S / "G-twin/milan_dp__twin.log", "twin/head-37255683-twin.txt", "./obj_twin_sp/Vmilan_dp_twin_sp obj_twin/split.json",
+        "make -C tb/verilator/milan_dp -j16 twin at 37255683 on a clean clone: from the halves' runs to the end")
+section(S / "G-twin/milan_dp__twin-plants.log", "twin/head-37255683-twin-plants.txt", "exec-twin-sp",
+        "make -C tb/verilator/milan_dp -j16 twin-plants at 37255683 on a clean clone: from the halves' runs to the end")
+copy(S / "G-twin/RUN.txt", "twin/head-37255683-RUN.txt")
+copy(S / "F-twin/RUN.txt", "twin/a9a48546-RUN.txt")
+copy(S / "tmp/rx/makedb.diff", "twin/milan_dp-make-database-base-vs-head.diff")
+# (b) dynmap-mutants
+section(S / "units/base-dynmut.stopped.log", "dynmap/base-70f4056f-dynmap-mutants.txt", "python3 dynmap_mutants.py",
+        "make -C tb/verilator/milan_dp -j16 dynmap-mutants DYNMAP_MUTANT_JOBS=8 at 70f4056f, a fresh clone: the campaign's output (stopped by the lane after its listener control failed)")
+copy(X / "base-render-inputs.txt", "dynmap/base-70f4056f-inputs-absent.txt")
+section(S / "units/G-dynmut.log", "dynmap/head-37255683-dynmap-mutants.txt", "python3 dynmap_mutants.py",
+        "make -C tb/verilator/milan_dp -j16 dynmap-mutants DYNMAP_MUTANT_JOBS=8 at 37255683, a fresh clone: the campaign's output (rc in head-37255683-dynmap-mutants.rc)")
+section(S / "units/F-dynmut.stopped.log", "dynmap/a9a48546-dynmap-mutants-controls.txt", "python3 dynmap_mutants.py", "the same at a9a48546, a fresh clone, stopped by the lane once 37255683 superseded it (its controls and the mutants caught by then)")
+copy(S / "units/G-dynmut.log.rc", "dynmap/head-37255683-dynmap-mutants.rc")
+for tag, what in (("dynfix2-36", "fix, direct invocation"), ("dynp1-36", "plant P1: prepare's make skipped"),
+                  ("dynp2-36", "plant P2: the prepare call removed")):
+    copy(S / f"units/{tag}.log", f"dynmap/becca95f-{tag}.log")
+    copy(S / f"units/{tag}.log.rc", f"dynmap/becca95f-{tag}.rc")
+for p in ("c-dynp1", "c-dynp2"):
+    copy(S / f"units/{p}.plant.diff", f"dynmap/becca95f-{p}.plant.diff")
+# (c) srp_mbx.cpp
+copy(S / "units/base-srp8x8.log", "srp/base-70f4056f-srp_mbx-both-entities.log")
+copy(X / "base-srp8x8-failures.txt", "srp/base-70f4056f-8x8-failures.txt")
+copy(S / "units/F-srp8x8.log", "srp/a9a48546-srp_mbx-both-entities.log")
+copy(S / "units/wt-srpplants2.log", "srp/becca95f-plants-if2.log")
+copy(S / "units/wt-srpplants1.log", "srp/becca95f-plants-if1-inert-at-1x1.log")
+# images
+for h, c in (("base", "70f4056f"), ("G", "37255683")):
+    copy(S / f"relimg-{h}/RUN.txt", f"images/release-{h}-{c}-RUN.txt")
+    copy(S / f"relimg-{h}/IMAGES.sha256", f"images/release-{h}-{c}-IMAGES.sha256")
+copy(X / "release-elf-debug-sections.txt", "images/release-elf-differences-by-section.txt")
+copy(S / "units/led-base.log", "images/split-ledger-base-70f4056f.log")
+copy(S / "units/led-G.log", "images/split-ledger-head-37255683.log")
+# workflows
+copy(X / "verify-G.md", "workflows/verify-37255683.md")
+for p in sorted((S / "wf/run-G/logs").glob("*")) if (S / "wf/run-G/logs").is_dir() else []:
+    if p.stat().st_size <= 200 * 1024:
+        copy(p, f"workflows/logs/{p.name}")
+    else:
+        digest(p)
+for p in sorted((S / "wf/run-G/logs-gates-venv").glob("*")):
+    copy(p, f"workflows/logs-gates-venv/{p.name}")
+for u in ("G-wfdocs", "G-wffw", "G-wffw2", "G-wfbnd"):
+    copy(S / f"units/{u}.log", f"workflows/{u}-batch.log")
+# tools
+for t in sorted((S / "tools").glob("*")):
+    copy(t, f"tools/{t.name}.txt")
+copy(S / "wf/run_wf.py", "tools/run_wf.py.txt")
+copy(S / "wf/verify_wf.py", "tools/verify_wf.py.txt")
+
+args = [str(a) for p in pairs for a in p]
+rc = subprocess.run([sys.executable, str(S / "tools/sanitize.py"), *args]).returncode
+lines = []
+for p in large:
+    d = hashlib.sha256(p.read_bytes()).hexdigest()
+    name = str(p).replace(str(S), "<scratch>")
+    lines.append(f"{d}  {p.stat().st_size:>9} B  {name}")
+(R / "large-logs.sha256").write_text("full logs this directory carries a section of, or none of (sha256, size, scratch path)\n" + "\n".join(lines) + "\n")
+print(f"{len(pairs)} copied, {len(large)} digests, sanitize rc {rc}")
+sys.exit(rc)

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# unit.sh <name> <cpus|pick> <memmax> <log> <cmd...>: run <cmd> (in <cwd>=$PWD) as its own user unit milan-929a792-<name>,
+# pinned to <cpus> (or a range from cpu_ranges.py pick), MemoryMax <memmax>; output to <log>, rc to <log>.rc.
+set -u
+N=$1; C=$2; M=$3; L=$4; shift 4
+if [ "$C" = pick ]; then C=$(python3 -I <management>/2026-09-23/cpu_ranges.py pick) || { echo "no free CPU range"; exit 1; }; fi
+systemd-run --user --unit="milan-929a792-$N" --collect -p MemoryMax="$M" -p MemorySwapMax=0 -p WorkingDirectory="$PWD" \
+  /usr/bin/taskset -c "$C" /usr/bin/bash -c '. <scratch>/tools/env.sh; export TMPDIR=<scratch>/tmp; "$@" > "$0" 2>&1; echo $? > "$0.rc"' "$L" "$@"
+echo "unit milan-929a792-$N cpus $C log $L"

@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""talkers.py <milan_dp dir> FABRIC.json SPLIT.json: each half's MSRP Talker attributes (types 1 and 2), with each
+event's millisecond and LeaveAll flag, the trace twin_mrp shows, and the declaration states at the LeaveAll boundaries;
+then the comparison's verdict with the split-talker-failed row removed (what deleting it would leave)."""
+import sys
+from pathlib import Path
+d = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(d))
+import twin_decode as td, twin_mrp, twin_compare as tc  # noqa: E402
+caps = [td.load(Path(p)) for p in sys.argv[2:4]]
+for cap in caps:
+    print(f"== {cap.placement}: run {cap.run_ms} ms, MSRP frames {len(cap.frames.get('MSRP', []))}")
+    keys = {}
+    for s in cap.frames.get("MSRP", []):
+        evs, la = td.msrp_events(s)
+        for e in evs:
+            if e.kind in (1, 2):
+                keys.setdefault((e.kind, e.value), []).append((s.ms, e.event, la))
+    for k, v in sorted(keys.items()):
+        print(f"  {td.attribute_label(*k)} value {k[1]}")
+        print("    " + ", ".join(f"{ms}:{ev}{'(LA)' if la else ''}" for ms, ev, la in v))
+        print("    trace: " + twin_mrp.trace_shown(cap, "MSRP", k))
+    g = twin_mrp.grade(cap)
+    print("  declarations at LeaveAll:", tc.runs(twin_mrp.declarations(g, set())))
+    print("  grade findings:", [f for f in g.findings] if hasattr(g, "findings") else g)
+    rx = td.received(cap, "MSRP")
+    print(f"  received MSRP: {len(rx)} frames")
+    for s in rx[:40]:
+        evs, la = td.msrp_events(s)
+        print(f"    rx {s.ms}: " + "; ".join(f"{td.attribute_label(e.kind, e.value)} {e.event}" for e in evs) + (" LA" if la else ""))
+saved = tc.OWED
+tc.OWED = tuple(r for r in saved if r.name != "split-talker-failed")
+rep = tc.compare(*caps)
+print("== without the row:", len(rep["findings"]), "finding(s)")
+for f in rep["findings"]:
+    print("  " + f)

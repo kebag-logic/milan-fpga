@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# maketargets.sh <clone> <out> <suite:target>...: each make target on a clean clone in turn (make -j16); rc per target
+# in <out>/<suite>__<target>.rc, log in .log, a line each in <out>/RUN.txt
+set -u
+C=$1; O=$2; shift 2; mkdir -p "$O"; R=$O/RUN.txt; cd "$C" || exit 3
+echo "head $(git rev-parse HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l) start $(date -Iseconds)" | tee -a "$R"
+for st in "$@"; do s=${st%%:*}; t=${st#*:}; b=$(date +%s)
+  make -C "tb/verilator/$s" -j16 --no-print-directory $t > "$O/${s}__${t}.log" 2>&1; rc=$?
+  echo $rc > "$O/${s}__${t}.rc"; echo "$(date +%T) $s $t rc=$rc $(( $(date +%s) - b ))s" | tee -a "$R"
+done
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) end $(date -Iseconds)" | tee -a "$R"

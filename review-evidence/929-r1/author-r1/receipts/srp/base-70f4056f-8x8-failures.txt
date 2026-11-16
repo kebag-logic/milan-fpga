@@ -1,0 +1,110 @@
+srp_mbx.cpp at 70f4056f, the 8x8 entity: each failing test's diagnostics (run.log)
+=== srp-srp_mbx-if1-endstation_ax7101_8x8
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 0
+  10u*19u*count
+    Which is: 190
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 190
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+Value of: std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin())
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: true
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.event
+    Which is: 0
+  events[count]
+    Which is: 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 3
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 0
+  10u*19u*count
+    Which is: 380
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 380
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+Value of: std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin())
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: true
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:293: Failure
+Expected: (count) < (3u), actual: 3 vs 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: (count) < (3u), actual: 3 vs 3
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (0 ms)
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+ 1 FAILED TEST
+=== srp-srp_mbx-if2-endstation_ax7101_8x8
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 0
+  10u*19u*count
+    Which is: 190
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 190
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+Value of: std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin())
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: true
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.event
+    Which is: 0
+  events[count]
+    Which is: 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 3
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+Expected equality of these values:
+  d.time_ms
+    Which is: 0
+  10u*19u*count
+    Which is: 380
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan:     Which is: 380
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+Value of: std::equal(d.value.begin(),d.value.begin()+8,identity(i,index).begin())
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: true
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:293: Failure
+Expected: (count) < (3u), actual: 3 vs 3
+
+  [FAIL] Srp.StartupDeclaresTalkersDomainAndVlan: Expected: (count) < (3u), actual: 3 vs 3
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+--
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+c-fw/sw/firmware/ctrl/test/srp_mbx.cpp:704: Failure
+Value of: srp_mbx_init(&second,&config)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.OneLoopOwnsTheGlobalCentisecondDispatch: Expected: true
+[  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+[  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+ 2 FAILED TESTS

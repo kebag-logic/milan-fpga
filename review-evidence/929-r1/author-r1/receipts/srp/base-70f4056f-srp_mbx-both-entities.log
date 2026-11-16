@@ -1,0 +1,30 @@
+== srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8: rc 0
+   [==========] Running 74 tests from 1 test suite.
+   [==========] 74 tests from 1 test suite ran. (20 ms total)
+   [  PASSED  ] 74 tests.
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+== srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8: rc 0
+   [==========] Running 74 tests from 1 test suite.
+   [==========] 74 tests from 1 test suite ran. (53 ms total)
+   [  PASSED  ] 74 tests.
+== srp-srp_mbx-if1-endstation_ax7101_8x8: rc 1
+   [==========] Running 74 tests from 1 test suite.
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+   [==========] 74 tests from 1 test suite ran. (24 ms total)
+   [  PASSED  ] 73 tests.
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/b-srp8x8-base/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+== srp-srp_mbx-if2-endstation_ax7101_8x8: rc 1
+   [==========] Running 74 tests from 1 test suite.
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+   [  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+   [==========] 74 tests from 1 test suite ran. (74 ms total)
+   [  PASSED  ] 72 tests.
+   [  FAILED  ] 2 tests, listed below:
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+   [  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch

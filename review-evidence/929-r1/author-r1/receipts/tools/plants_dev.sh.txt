@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# plants_dev.sh <bin-dir milan_dp of a built clone> <py-dir milan_dp of the tree under test> <out>: make twin-plants'
+# recipe, the built clone's two half binaries and captures, the tree's comparison and plants
+set -u
+B=$1; P=$2; O=$3; mkdir -p "$O"; cd "$P" || exit 3
+F=$B/obj_twin/fabric.json; S=$B/obj_twin/split.json; rc=0
+python3 -B twin_compare.py $F $S --report $O/report.json --report-only > $O/unplanted.txt || rc=1
+for p in byte-flip srp-plus-k missing-notification; do
+  (cd $B && ./obj_twin_sp/Vmilan_dp_twin_sp $O/split-$p.json --plant $p) | tail -1
+  python3 -B twin_compare.py $S $O/split-$p.json --plant $p --self | tail -1 || rc=1
+  python3 -B twin_compare.py $F $O/split-$p.json --plant $p --baseline $O/report.json | tail -1 || rc=1
+done
+for p in $(sed -n '/^TWIN_CAPTURE_PLANTS/,/^TWIN_FABRIC/p' Makefile | sed 's/TWIN_CAPTURE_PLANTS =//; s/TWIN_FABRIC_PLANTS.*//; s/\\//'); do
+  python3 -B twin_compare.py $F $S --make-plant $p --out $O/split-$p.json > /dev/null || rc=1
+  python3 -B twin_compare.py $S $O/split-$p.json --plant $p --self | tail -1 || rc=1
+  python3 -B twin_compare.py $F $O/split-$p.json --plant $p --baseline $O/report.json | tail -1 || rc=1
+done
+for p in $(sed -n '/^TWIN_FABRIC_PLANTS/,/^twin-plants/p' Makefile | sed 's/TWIN_FABRIC_PLANTS =//; s/^twin-plants.*//; s/\\//'); do
+  python3 -B twin_compare.py $F $S --make-plant $p --out $O/fabric-$p.json > /dev/null || rc=1
+  python3 -B twin_compare.py $F $O/fabric-$p.json --plant $p --self | tail -1 || rc=1
+  python3 -B twin_compare.py $O/fabric-$p.json $S --plant $p --baseline $O/report.json | tail -1 || rc=1
+done
+echo "plants_dev rc=$rc"

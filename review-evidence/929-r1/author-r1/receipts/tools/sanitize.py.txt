@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""sanitize.py <src> <dst> [<src> <dst> ...]: copy each text file with its host paths replaced by placeholders;
+refuses a destination over 200 KB (record its digest instead). With --check <dir>: report any file under <dir>
+that still holds a host path or an account name, and any file over 200 KB; rc 1 if one does."""
+import hashlib
+import os
+import re
+import socket
+import sys
+
+LIMIT = 200 * 1024
+SUBS = [
+    ('<scratch>', '<scratch>'),
+    ('<lane>', '<lane>'),
+    ('<tools>/vivado', '<tools>/vivado'),
+    ('<management>', '<management>'),
+    ('<tools>/litex', '<tools>/litex'),
+    ('<tools>/rv32', '<tools>/rv32'),
+    ('<tools>', '<tools>'),
+    ('<tmp>', '<tmp>'),
+    ('<milan>', '<milan>'),
+    ('<home>', '<home>'),
+    (socket.gethostname(), '<host>'),
+    ("'<user>'", "'<user>'"),
+    ("'<account>'", "'<account>'"),
+]
+WORDS = [w for w in ('<user>', '<account>', socket.gethostname()) if w]
+
+
+def clean(text: str) -> str:
+    for old, new in SUBS:
+        text = text.replace(old, new)
+    return text
+
+
+def check(root: str) -> int:
+    bad = 0
+    pat = re.compile('|'.join([re.escape(o) for o, _ in SUBS] + [r'\b%s\b' % re.escape(w) for w in WORDS]))
+    for d, _, files in os.walk(root):
+        for f in files:
+            p = os.path.join(d, f)
+            size = os.path.getsize(p)
+            if size > LIMIT:
+                print(f'OVER {size} {p}')
+                bad = 1
+            try:
+                text = open(p, encoding='utf-8', errors='replace').read()
+            except OSError:
+                continue
+            for n, line in enumerate(text.splitlines(), 1):
+                m = pat.search(line)
+                if m:
+                    print(f'HOST {os.path.relpath(p, root)}:{n}: {m.group(0)}')
+                    bad = 1
+                    break
+    return bad
+
+
+def main(argv: list) -> int:
+    if argv[:1] == ['--check']:
+        return check(argv[1])
+    if len(argv) % 2:
+        print('pairs of <src> <dst>', file=sys.stderr)
+        return 2
+    for src, dst in zip(argv[::2], argv[1::2]):
+        data = open(src, 'rb').read()
+        text = clean(data.decode('utf-8', errors='replace'))
+        out = text.encode()
+        if len(out) > LIMIT:
+            print(f'REFUSED {src}: {len(out)} B > 200 KB; sha256 {hashlib.sha256(data).hexdigest()}')
+            return 1
+        os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
+        open(dst, 'wb').write(out)
+        print(f'{dst} {len(out)} B')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

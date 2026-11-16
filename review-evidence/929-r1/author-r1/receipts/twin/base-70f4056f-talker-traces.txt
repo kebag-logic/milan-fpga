@@ -1,0 +1,15 @@
+== all-fabric: run 75000 ms, MSRP frames 99
+  Talker Advertise stream_id 0200000000010000 value 020000000001000091e0f00001000002004900017000000000
+    5200:New, 5400:New, 5600:JoinMt, 6200:JoinMt, 7200:JoinMt, 8200:JoinMt, 9200:JoinMt, 10200:JoinMt(LA), 11200:JoinMt, 12200:JoinMt, 13200:JoinMt, 14200:JoinMt, 15200:JoinMt, 16200:JoinMt, 17200:JoinMt, 18200:JoinMt, 19200:JoinMt, 20000:Lv, 21000:Mt, 32400:Mt, 45000:Mt, 57600:Mt, 71200:Mt
+    trace: MSRP Talker Advertise stream_id 0200000000010000: New x2 from ms 5200, JoinMt x15 from ms 5600, Lv x1 from ms 20000, Mt x5 from ms 21000; received no MSRPDU, its Registrar MT throughout
+  declarations at LeaveAll: [('{Talker Advertise stream_id 0200000000010000; Domain value 06030002}', 1), ('{Domain value 06030002}', 5)]
+  grade findings: ["[MRP] all-fabric MSRP Domain value 06030002: JoinMt at ms 1000 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 200"]
+  received MSRP: 0 frames
+== split: run 75000 ms, MSRP frames 95
+  Talker Advertise stream_id 0200000000010000 value 020000000001000091e0f0000100000200d900017000000000
+    5190:New, 5380:New, 5570:JoinMt, 6000:JoinMt, 7000:JoinMt, 8000:JoinMt, 9000:JoinMt, 10000:JoinMt, 11000:JoinMt, 12000:JoinMt, 13000:JoinMt, 14000:JoinMt, 14560:JoinMt(LA), 14750:JoinMt, 14940:JoinMt, 15130:JoinMt, 16000:JoinMt, 17000:JoinMt, 18000:JoinMt, 19000:JoinMt, 20000:JoinMt, 20190:Lv
+    trace: MSRP Talker Advertise stream_id 0200000000010000: New x2 from ms 5190, JoinMt x19 from ms 5570, Lv x1 from ms 20190; received no MSRPDU, its Registrar MT throughout
+  declarations at LeaveAll: [('{Talker Advertise stream_id 0200000000010000; Domain value 06030002}', 1), ('{Domain value 06030002}', 4)]
+  grade findings: []
+  received MSRP: 0 frames
+== without the row: 0 finding(s)

@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""srpplants.py <tree-root> <out> <interfaces> <name> ...: srp_mutants.campaign over the named defects only (its own
+recipe: a planted copy, the arm at the defect's entity for two interfaces); rc 1 when any escaped."""
+import sys
+from pathlib import Path
+root, out, n = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), int(sys.argv[3])
+names = sys.argv[4:]
+sys.path.insert(0, str(root / "sw/firmware/ctrl/test"))
+sys.path.insert(0, str(root / "sw/firmware/gtest"))
+import srp_mutants  # noqa: E402
+table = {d.name: d for d in srp_mutants.DEFECTS}
+missing = [x for x in names if x not in table]
+assert not missing, missing
+srp_mutants.DEFECTS = tuple(table[x] for x in names)
+sys.exit(1 if srp_mutants.campaign(out, root / "third_party/lwSRP", 4, n) else 0)

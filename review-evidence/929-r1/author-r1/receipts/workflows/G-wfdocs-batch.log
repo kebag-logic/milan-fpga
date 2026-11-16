@@ -1,0 +1,89 @@
+23:08:42 start docs.yml wire-accountability
+docs__wire-accountability__ci_step_1	rc=0
+docs__wire-accountability__ci_step_3	rc=0
+docs__wire-accountability__ci_step_4	rc=0
+docs.yml wire-accountability done, failed 0
+23:08:43 end docs.yml wire-accountability rc=0
+23:08:43 start docs.yml docs-check-no-git
+docs__docs-check-no-git__ci_step_1	rc=0
+docs__docs-check-no-git__ci_step_2	rc=0
+docs__docs-check-no-git__ci_step_3	rc=0
+Traceback (most recent call last):
+  File "<scratch>/wf/run_wf.py", line 127, in <module>
+    status = run("git", "status", "--porcelain", cwd=wt)
+  File "<scratch>/wf/run_wf.py", line 36, in <lambda>
+    run = lambda *a, cwd=None: subprocess.run(a, cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
+                               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '('git', 'status', '--porcelain')' returned non-zero exit status 128.
+23:08:56 end docs.yml docs-check-no-git rc=0
+23:09:12 start docs.yml docs-gates-0
+docs__docs-gates-0__ci_step_1	rc=0
+docs__docs-gates-0__gate_1	rc=0
+docs__docs-gates-0__ci_step_5	rc=0
+docs__docs-gates-0__ci_step_7	rc=0
+docs__docs-gates-0__gate_7	rc=0
+docs__docs-gates-0__gate_8	rc=0
+docs__docs-gates-0__gate_9	rc=0
+docs__docs-gates-0__gate_10	rc=0
+docs__docs-gates-0__gate_11	rc=0
+docs__docs-gates-0__gate_12	rc=0
+docs__docs-gates-0__gate_13	rc=0
+docs__docs-gates-0__gate_14	rc=0
+docs__docs-gates-0__gate_15	rc=0
+docs__docs-gates-0__gate_16	rc=0
+docs__docs-gates-0__ci_step_21	rc=0
+docs__docs-gates-0__gate_18	rc=0
+docs__docs-gates-0__gate_19	rc=0
+docs__docs-gates-0__gate_21	rc=0
+docs__docs-gates-0__gate_24	rc=0
+docs__docs-gates-0__gate_26	rc=0
+docs__docs-gates-0__gate_27	rc=0
+docs__docs-gates-0__gate_28	rc=0
+docs__docs-gates-0__gate_29	rc=0
+docs__docs-gates-0__gate_30	rc=0
+docs__docs-gates-0__gate_31	rc=0
+docs__docs-gates-0__gate_32	rc=0
+docs__docs-gates-0__gate_33	rc=0
+docs__docs-gates-0__gate_34	rc=0
+docs__docs-gates-0__gate_35	rc=0
+docs__docs-gates-0__gate_36	rc=0
+docs__docs-gates-0__gate_37	rc=0
+docs__docs-gates-0__gate_38	rc=0
+docs__docs-gates-0__gate_39	rc=0
+docs__docs-gates-0__gate_40	rc=0
+docs__docs-gates-0__gate_43	rc=0
+docs__docs-gates-0__gate_44	rc=0
+docs__docs-gates-0__gate_45	rc=0
+docs__docs-gates-0__gate_46	rc=0
+docs__docs-gates-0__gate_47	rc=0
+docs__docs-gates-0__gate_48	rc=0
+docs__docs-gates-0__gate_49	rc=0
+docs__docs-gates-0__ci_step_52	rc=0
+docs__docs-gates-0__gate_50	rc=0
+docs.yml docs-gates-0 done, failed 0
+23:28:58 end docs.yml docs-gates-0 rc=0
+23:28:58 start docs.yml docs-gates-1
+docs__docs-gates-1__ci_step_1	rc=0
+docs__docs-gates-1__ci_step_3	rc=0
+docs__docs-gates-1__ci_step_5	rc=0
+docs__docs-gates-1__ci_step_9	rc=0
+docs__docs-gates-1__gate_25_0	rc=0
+docs.yml docs-gates-1 done, failed 0
+23:48:29 end docs.yml docs-gates-1 rc=0
+23:48:29 start docs.yml docs-gates-2
+docs__docs-gates-2__ci_step_1	rc=0
+docs__docs-gates-2__ci_step_3	rc=0
+docs__docs-gates-2__ci_step_5	rc=0
+docs__docs-gates-2__ci_step_9	rc=0
+docs__docs-gates-2__gate_25_1	rc=0
+docs__docs-gates-2__gate_41	rc=0
+docs__docs-gates-2__gate_42	rc=0
+docs.yml docs-gates-2 done, failed 0
+23:57:43 end docs.yml docs-gates-2 rc=0
+23:57:43 start docs.yml docs-check
+docs.yml docs-check done, failed 0
+23:57:44 end docs.yml docs-check rc=0
+23:57:44 BATCH DONE
