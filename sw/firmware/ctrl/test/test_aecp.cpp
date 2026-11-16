@@ -3066,7 +3066,8 @@ TEST_F(Core, RestoredMapsReachTheStoreRemovalsFirst)
 }
 
 // #923: the store holds the reset set the restored formats clip (aecp_restore_settle): only its kept rows leave the
-// store, and a map that is that clipped set has not moved. A row of no such stream is kept by no format.
+// store, a map that is that clipped set has not moved, and a port whose removal is refused keeps that clipped set.
+// A row of no such stream is kept by no format.
 TEST_F(Core, TheStoresResetSetIsTheClippedOne)
 {
     store();a.open=false;
@@ -3094,6 +3095,13 @@ TEST_F(Core, TheStoresResetSetIsTheClippedOne)
         EXPECT_EQ(calls,(std::vector<Call>{{true,{defaults[0],defaults[1]}},{false,rows}}))
             <<"a map shorter, longer or other than the clipped reset set has moved";
     }
+    // the store refuses the removal: the port keeps what the store holds, the clipped reset set, and adds nothing
+    ON_CALL(mock,Edit).WillByDefault([&](bool remove,uint16_t,uint16_t,std::vector<aecp_mapping> rows){
+        calls.emplace_back(remove,rows);return remove?7u:0u;});
+    maps[0].rows[0]=in[0];maps[0].count=1;calls.clear();aecp_restore_commit(&a);
+    EXPECT_EQ(calls,(std::vector<Call>{{true,{defaults[0],defaults[1]}}}))<<"a refused removal adds nothing";
+    EXPECT_TRUE(same_rows(maps[0],{defaults[0],defaults[1]}))
+        <<"a refused removal keeps the clipped reset set the store holds";
 }
 
 // #923: a port the store refuses keeps what the store holds: its reset set where the removal is refused; else its
