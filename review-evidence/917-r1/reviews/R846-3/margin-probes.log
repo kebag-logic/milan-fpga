@@ -1,0 +1,79 @@
+COMMAND gen_mailbox.py --check --crosscheck rc 0
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --check rc 1
+[FAIL] hdl/milan/mailbox/KL_mbx_pkg.sv: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] sw/firmware/ctrl/mbx/mbx_contract.h: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] docs/reference/MAILBOX_CONTRACT.md: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] docs/reference/FR_NFR.md: 'AECP command to its response (IEEE 1722.1-2021 9.3.2.6)' reads 1 ms / 218 ms / 228 ms / 6 ms / 213 ms / 223 ms, the contract gives 1 ms / 218 ms / 228 ms / 11 ms / 208 ms / 218 ms; run gen_mailbox.py --write
+[FAIL] docs/reference/FR_NFR.md: 'AECP command to its response, the controller's transaction timeout (9.3.2.6)' reads 1 ms / 228 ms / 238 ms / 6 ms / 223 ms / 233 ms, the contract gives 1 ms / 228 ms / 238 ms / 11 ms / 218 ms / 228 ms; run gen_mailbox.py --write
+[FAIL] docs/reference/FR_NFR.md: 'AECP MVU command to its response (Milan v1.2 5.4.3.4)' reads 1 ms / 218 ms / 228 ms / 6 ms / 213 ms / 223 ms, the contract gives 1 ms / 218 ms / 228 ms / 11 ms / 208 ms / 218 ms; run gen_mailbox.py --write
+gen_mailbox: 6 finding(s)
+
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+wrote docs/reference/FR_NFR.md (its response-margin table)
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --check --crosscheck rc 0
+gen_mailbox: 0 finding(s)
+
+P1 REGENERATED | AECP command to its response (IEEE 1722.1-2021 9.3.2.6) | `aecp` | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 11 ms | 208 ms | 218 ms |
+P1 REGENERATED | AECP command to its response, the controller's transaction timeout (9.3.2.6) | `aecp` | 250 ms | 20 ms | 1 ms | 1 ms | 228 ms | 238 ms | 11 ms | 218 ms | 228 ms |
+P1 REGENERATED | AECP MVU command to its response (Milan v1.2 5.4.3.4) | `aecp` | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 11 ms | 208 ms | 218 ms |
+P1 ACMP unchanged: PASS
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --check rc 1
+[FAIL] docs/reference/FR_NFR.md: 'AECP command to its response (IEEE 1722.1-2021 9.3.2.6)' reads 1 ms / 218 ms / 228 ms / 6 ms / 214 ms / 223 ms, the contract gives 1 ms / 218 ms / 228 ms / 6 ms / 213 ms / 223 ms; run gen_mailbox.py --write
+gen_mailbox: 1 finding(s)
+
+hand-edit PASS
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+wrote docs/reference/FR_NFR.md (its response-margin table)
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --check rc 1
+[FAIL] docs/reference/FR_NFR.md: 'ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26)' leaves no margin: 0 ms
+gen_mailbox: 1 finding(s)
+
+zero-margin PASS
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --write rc 0
+wrote hdl/milan/mailbox/KL_mbx_pkg.sv
+wrote hdl/milan/mailbox/KL_mbx.sv
+wrote sw/firmware/ctrl/mbx/mbx_contract.h
+wrote docs/reference/MAILBOX_CONTRACT.md
+wrote docs/reference/FR_NFR.md (its response-margin table)
+gen_mailbox: 0 finding(s)
+
+COMMAND gen_mailbox.py --check rc 1
+[FAIL] docs/reference/FR_NFR.md: 'ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26)' leaves no margin: -1 ms
+gen_mailbox: 1 finding(s)
+
+negative-margin PASS

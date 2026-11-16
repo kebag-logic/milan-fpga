@@ -1,0 +1,8 @@
+Source: https://github.com/kebag-logic/milan-fpga/pull/918
+Head: 394612c55148b43354359daeab2aa88d4f019ec2
+Base branch: dev-soft-core; recorded base oid 659d76871221847cfcdaad0ff01e860c2583fd56 (not current-dev validation base)
+
+Author packets: [`review-evidence/917-r1/author-r1` and `author-r2`](https://github.com/kebag-logic/milan-fpga/tree/24755cf4/review-evidence/917-r1) on branch `917-review-evidence`; round 3's receipts join them as `author-r3` when published.
+Author packets: [`review-evidence/917-r1/author-r1` to `author-r3`](https://github.com/kebag-logic/milan-fpga/tree/887dbc64/review-evidence/917-r1) on branch `917-review-evidence`.
+- `aecp-held` has run alone at 1x1, 8x8/1if and 8x8; it is part of every point's population, which no run here has repeated.
+- The CPU budget harness is not a CI gate. Its 94-group population was not rerun: the round-2 and round-3 graders regrade the recorded base and head logs byte-identically, and none of them holds a record (the base, which drops a frame its bucket has no token for, and `84d8a214`, which holds it, recorded byte-identical logs for all 94 groups, so no frame of the population met an empty bucket). It cites MAILBOX_SPLIT.md by line number in places, already stale at the base; worth an Issue of its own.

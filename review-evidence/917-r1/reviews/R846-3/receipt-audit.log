@@ -1,0 +1,60 @@
+author-r2 INDEX receipts checked 427 published-copy differences ['receipts/workflows/logs/docs__docs-gates-1__gate_25_0.log', 'receipts/workflows/logs/docs__docs-gates-2__gate_25_1.log', 'receipts/workflows/logs/elaborate__elaborate-gates-0__gate_15_0.log', 'receipts/workflows/logs/elaborate__elaborate-gates-1__gate_15_1.log']
+author-r3 INDEX receipts checked 224 published-copy differences ['receipts/workflows/logs/docs__docs-gates-1__gate_25_0.log', 'receipts/workflows/logs/docs__docs-gates-2__gate_25_1.log', 'receipts/workflows/logs/elaborate__elaborate-gates-0__gate_15_0.log', 'receipts/workflows/logs/elaborate__elaborate-gates-1__gate_15_1.log']
+Fixture hash lists: byte-identical; 46 entries
+RAM initialization hash recorded; excluded from ROM/ELF comparison: 1419f6c025ea524df88b47ba56bc561f894db4307efc586c8a1dc43b1990cbda  alinx_ax7101_mem.init
+split-1x1-394612c5.log 6 image/constraint digest lines match recorded base; ELF: ctrl_app.elf bb04b69678bda6d7aa21458b5a39da1a611c3211efabd314ff590e06f6c76978 145496
+RAM initialization hash recorded; excluded from ROM/ELF comparison: 1419f6c025ea524df88b47ba56bc561f894db4307efc586c8a1dc43b1990cbda  alinx_ax7101_mem.init
+split-8x8-1if-394612c5.log 9 image/constraint digest lines match recorded base; ELF: ctrl_app.elf 506a1ae4da57e1d71f22201f02f4e1df49d6cb110dfe677c5d1fba0e154ca8fb 158176
+== mbx record mover (KL_mbx_dma): checks: 520041   failures: 0 ==
+== mbx (AXI4-Lite host): checks: 667   failures: 0 ==
+== mbx (Wishbone host): checks: 622   failures: 0 ==
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+== mbx (Wishbone host, 2 interfaces): checks: 629   failures: 0 ==
+== mbx (AXI4-Lite host, 2 interfaces): checks: 674   failures: 0 ==
+== mbx (host model, 2 interfaces): checks: 547   failures: 0 ==
+[ok] positive control, 1 interface(s), host 0: == mbx (Wishbone host): checks: 622   failures: 0 ==
+[ok] positive control, 1 interface(s), host 1: == mbx (AXI4-Lite host): checks: 667   failures: 0 ==
+[ok] positive control, 2 interface(s), host 0: == mbx (Wishbone host, 2 interfaces): checks: 629   failures: 0 ==
+[ok] positive control, 2 interface(s), host 1: == mbx (AXI4-Lite host, 2 interfaces): checks: 674   failures: 0 ==
+mbx mutants: 13 of 13 caught
+mbx mutants: 242 of 242 caught
+mutants rc=0
+make rc=0
+porcelain after 0
+Firmware final result: porcelain after 0
+Published workflow rc files: 77 all zero
+77 steps ran, 49 not run with a reason, 0 bad
+grader at 394612c55148b43354359daeab2aa88d4f019ec2 porcelain 0
+== r3-held-1x1 (recorded r2-held-1x1/results, point 1x1)
+groups recorded 1, regraded 1, absent 0, refusals 0, misses 0
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 1 of 1
+rc=0
+== r3-held-8x8-1if (recorded r2-held-8x8-1if/results, point 8x8-1if)
+groups recorded 1, regraded 1, absent 0, refusals 0, misses 0
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 1 of 1
+rc=0
+== r3-aecp-8x8-1if (recorded r2-held-8x8-1if/results-aecp, point 8x8-1if)
+groups recorded 1, regraded 1, absent 0, refusals 0, misses 0
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 1 of 1
+rc=0
+== r3-base-1x1 (recorded base-1x1/results, point 1x1)
+groups recorded 94, regraded 94, absent 0, refusals 0, misses 7
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 94 of 94
+rc=0
+== r3-head-1x1 (recorded head-1x1/results, point 1x1)
+groups recorded 94, regraded 94, absent 0, refusals 0, misses 7
+table.md byte-identical to the recorded run: True
+group grades byte-identical: 94 of 94
+rc=0
+
+held records (last byte, hold, commit, channel, interface, tag, bytes):
+   (100001422, 100001427, 100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60) ingress 4.986 ms
+refused after the mark: [(100001503, 0, '-', 60), (100001584, 0, '-', 60)]
+commits credited on aecp after the mark: [(100001265, 2, 0, '-', 60), (100001346, 2, 0, '-', 60), (100500065, 2, 0, 'aecp.held.read_descriptor.if0', 60)]
+probe: {'status': 'measured', 'ms': 5.31012, 'budget_ms': 20.0, 'within_budget': True, 'ingress_ms': 4.98643, 'ingress_allowance_ms': 6.0}
+NEGATIVE CONTROL caught: refused: the receive commit at 100500065 follows no frame
+

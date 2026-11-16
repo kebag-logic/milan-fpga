@@ -1,0 +1,21 @@
+PASS a held record's commit belongs to its own held frame, measured from its last byte
+PASS the frame refused behind a held one is not credited with its commit
+PASS a held record's ingress is held to one refill period and T_ingress
+PASS a held record's commit on another channel is refused
+PASS a held-record commit with no hold is refused
+PASS a second hold on a channel holding one is refused
+PASS a held record committed past its allowance is refused
+PASS a held record never committed is not served
+PASS a probe frame that was not held starts no held path
+PASS a commit on the channel holding a record is refused: a later frame does not overtake it
+PASS a held record's commit stamped before its hold is refused
+PASS a commit on another channel while one is held is its own frame, and the held record still its own
+PASS another channel's commit in the clock of the held record's commit is credited to each frame
+REMOVED overtaken CAUGHT BY ['a commit on the channel holding a record is refused: a later frame does not overtake it']
+REMOVED follows_hold CAUGHT BY ["a held record's commit stamped before its hold is refused"]
+BOUNDARY 1060 REFUSED the held-record commit at 1060 on channel 2 does not follow its hold at 1070
+BOUNDARY 1070 REFUSED the held-record commit at 1070 on channel 2 does not follow its hold at 1070
+BOUNDARY 1071 ACCEPTED [(1059, 1070, 1071, 2, 0, 'held', 60)]
+BOUNDARY 601059 ACCEPTED [(1059, 1070, 601059, 2, 0, 'held', 60)]
+BOUNDARY 601060 REFUSED the held record held on channel 2 was committed 600001 cycles after its last byte, outside its allowance of 600000
+Focused ordering probes: PASS
