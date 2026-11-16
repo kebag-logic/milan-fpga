@@ -943,6 +943,11 @@ At 100 MHz, before the changes:
   A record that changes no registration walks nothing; of the composed load's 32 Listener Ready records, only the first changes one.
   `mrp_reclaim` runs only after a transition or a receive, and stays owed while the participant holds the owed frame, which lwSRP never reclaims.
   lwSRP itself is unchanged.
+  Since [#930](https://github.com/kebag-logic/milan-fpga/issues/930) a Listener's change is copied where lwSRP reports it, so it walks nothing.
+  Its indication copies its declaration and the transition observer its presence.
+  A Registrar state change owes no walk either: each change of what the walk copies comes with an indication, since every Registrar change into or out of MT does (IEEE 802.1Q-2018 Table 10-4) and lwSRP indicates a value changed while it registers.
+  A walk now follows a Talker's indication, a binding, one of the adapter's own declarations or a participant's creation.
+  `srp_listeners.cpp` holds the copies to the walk's schedule as this cut left it: random record sequences at 1x1/1if and 8x8/1if make the same mailbox writes, licence calls and state in both, with a planted defect at each copy and mark caught by name.
 - **(c) The service loop's hot code first** (`sw/firmware/ctrl/plat/ctrl_split.ld`).
   The 203 functions a service pass ran in the composed windows, 46,064 bytes, are placed ahead of the rest of `.text`, in the order a pass first ran them.
   Since contract 2.3's face writer replaced the size fixture's stream observation, `ctrl_aecp_image a_stream`, 202 are listed, in the same order.
