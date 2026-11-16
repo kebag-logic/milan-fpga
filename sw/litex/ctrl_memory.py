@@ -263,7 +263,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
                                          "declarations plan within it (#895)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -272,7 +272,9 @@ LEDGERED: dict[str, Ledgered] = {
                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
                                             "declarations composed on the control loop's tiers, 184 B of rom past "
                                             "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
-                                            "owed to the hybrid XIP work, the cap fully used"),
+                                            "owed to the hybrid XIP work, the cap fully used; ctrl_plat 64 B more "
+                                            "with each binding's latest Talker kind (#925), "
+                                            "within the same 60.5"),
 }
 
 
