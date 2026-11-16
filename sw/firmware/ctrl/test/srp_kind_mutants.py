@@ -13,9 +13,10 @@ registrations in one MRPDU follow their order; a declaration the filter's copy c
 the MRPDU, on the wire and in ACMP's view; a binding made later takes the StreamID's latest from any binding of it,
 whatever that one's destination, and one replaced in place keeps it; and a StreamID none binds holds its latest while
 both stay registered, for its next binding and no other StreamID's, until either leaves or the interface resets, and
-for its own interface only; past the table's bound, both registered with no latest known take Failed. srp_mutants.py plants each with the rest of its table, and the named test must fail on its
-own words. A name that starts with "feedback-" is planted in both interface counts' campaigns
-(test_ctrl_firmware.run_srp_mutants); the two "held-latest-" defects of another interface, in the two-interface one.
+for its own interface only; past the table's bound, both registered with no latest known take Failed.
+srp_mutants.py plants each with the rest of its table, and the named test must fail on its own words. A name that
+starts with "feedback-" is planted in both interface counts' campaigns (test_ctrl_firmware.run_srp_mutants); the two
+"held-latest-" defects of another interface, in the two-interface one.
 """
 from __future__ import annotations
 
