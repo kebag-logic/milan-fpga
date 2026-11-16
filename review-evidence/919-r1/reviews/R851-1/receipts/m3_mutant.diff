@@ -1,0 +1,14 @@
+tree afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.c b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+index 7590d3d23e..d150730da1 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+@@ -224,7 +224,7 @@ static void take(struct ctrl_plat_phy *phy)
+ 		// negotiation restarts once a time it is owed: at boot always, after a loss only where the PHY no longer
+ 		// held the advertisement
+ 		if ((phy->adv & CTRL_PLAT_PHY_ADV_RESTARTED) != 0u ||
+-		    ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))) {
++		    ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only(0u, (uint32_t)phy->gig))) {
+ 			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
+ 		}
+ 		break;

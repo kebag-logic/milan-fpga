@@ -1,0 +1,14 @@
+gcov of sw/firmware/ctrl/plat/ctrl_plat_phy.c (head blob) under test_plat_phy.cpp alone (-O0 --coverage, store calls stubbed)
+File 'ctrl_plat_phy.c'
+Lines executed:96.53% of 173
+Branches executed:95.00% of 160
+Taken at least once:95.00% of 160
+Calls executed:87.10% of 31
+Lines executed:96.53% of 173
+lines not executed by this suite (the THE STEP client, exercised by test_plat_boot.cpp B12):
+    #####:  307:bool ctrl_plat_phy_store_step(void *ctx, uint32_t deadline)
+    #####:  309:	const struct nvm_status *s = nvm_store_status();
+    #####:  310:	const uint32_t steps = s->steps;
+    #####:  311:	const bool saving = (uint32_t)s->phase - NVM_P_CAPTURE <= (uint32_t)(NVM_P_VERIFY - NVM_P_CAPTURE);
+    #####:  312:	const bool store = nvm_store_step(NULL, deadline);
+    #####:  314:	return ctrl_plat_phy_step(ctx, saving && s->steps != steps ? 0 : (int32_t)(deadline - nvm_store_clock(N

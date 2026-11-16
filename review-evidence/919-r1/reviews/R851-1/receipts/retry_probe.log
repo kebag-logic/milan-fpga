@@ -1,0 +1,54 @@
+--- <clone>/sw/firmware/ctrl/test/phy_peer.hpp	2026-11-16 22:05:13.066210232 +0100
++++ inc/phy_peer.hpp	2026-11-16 22:41:08.433263338 +0100
+@@ -55,6 +55,7 @@
+     unsigned ignored = 32;                     // a register whose writes it drops (32: none)
+     bool restart_drops = false;
+     unsigned restarts = 0;
++    std::uint16_t adv_at_restart = 0;
+     std::uint32_t word = 13u;                  // link_status's value: the reset value, 1000 Mb/s full duplex, up
+     std::vector<Frame> frames;
+     std::vector<Publication> published;
+@@ -146,6 +147,7 @@
+         std::uint16_t value = static_cast<std::uint16_t>(data);
+         if (reg == 0u && (value & 0x0200u) != 0u) {
+             ++restarts;
++            adv_at_restart = regs[4];
+             if (restart_drops) latched_down = true;
+         }
+         if (reg == 0u) value &= static_cast<std::uint16_t>(~0x8200u);
+--- <clone>/sw/firmware/ctrl/test/test_plat_phy.cpp	2026-11-16 22:05:13.070210233 +0100
++++ inc/t.cpp	2026-11-16 22:41:08.449857862 +0100
+@@ -630,4 +630,19 @@
+     }
+ }
+ 
++TEST_F(PlatPhy, R851DroppedBootWriteThenRepaired) {
++    peer.ignored = 4u;
++    arm_again();
++    (void)poll(now);
++    ASSERT_EQ(peer.restarts, 1u);
++    EXPECT_EQ(peer.adv_at_restart, 0x01e1u) << "R851 the only restart so far ran on the PHY defaults (100BASE-TX)";
++    peer.ignored = 32u;
++    for (int k = 0; k < 10; ++k) next();
++    std::printf("R851-PROBE register4=%04x advertised-at-last-restart=%04x restarts=%u adv-owed=%u published=%u\n",
++                peer.regs[4], peer.adv_at_restart, peer.restarts, phy.adv, peer.word);
++    EXPECT_EQ(peer.regs[4], 0x0001u) << "R851 register 4 repaired and read back";
++    EXPECT_EQ(phy.adv, 0u) << "R851 the advertisement counts as verified";
++    EXPECT_EQ(peer.adv_at_restart & 0x0180u, 0u) << "R851 the last negotiation ran without 100BASE-TX advertised";
++}
++
+ }  // namespace
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+R851-PROBE register4=0001 advertised-at-last-restart=01e1 restarts=1 adv-owed=0 published=13
+inc/t.cpp:645: Failure
+Expected equality of these values:
+  peer.adv_at_restart & 0x0180u
+    Which is: 384
+  0u
+    Which is: 0
+R851 the last negotiation ran without 100BASE-TX advertised
+
+[  FAILED  ] PlatPhy.R851DroppedBootWriteThenRepaired (0 ms)
+[==========] 17 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 16 tests.
+rc=1
