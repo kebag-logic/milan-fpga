@@ -65,7 +65,7 @@ CSR_BANK_BYTES = 0x800
 FLASH_MAP = Path('split-soc/flash-map')
 sys.path.insert(0, str(CAPTURE))
 import soc as capture_soc  # noqa: E402  the capture harness's simulation, read only
-from migen import ClockSignal, If, Instance, ResetSignal, Signal  # noqa: E402
+from migen import ClockSignal, Constant, If, Instance, Replicate, ResetSignal, Signal  # noqa: E402
 from litex.soc.interconnect.csr import CSRStorage  # noqa: E402
 from litex.build.generic_platform import Pins, Subsignal  # noqa: E402
 from litex.build.sim.config import SimConfig  # noqa: E402
@@ -247,13 +247,16 @@ class StimulusMailbox(LiteXModule):
         wait the contract allows for each of its beats. CTR, AMAP and GSI stay idle."""
         window = next(w for w in contract.face_windows if w.name == 'EDIT')
         req, tag = face['o_edit_req_o'], face['o_edit_tag_o']
-        pulse, data = Signal(n_if), Signal(64 * n_if)
+        pulse = Signal(n_if)
         last = window.wait_cycles - 1
         for i in range(n_if):
             waited = Signal(max=window.wait_cycles)
             self.sync += If(~req[i], waited.eq(0)).Elif(waited != last, waited.eq(waited + 1))
-            self.comb += [pulse[i].eq(req[i] & (waited == last)), data[64 * i:64 * (i + 1)].eq(1)]
-        return {'i_edit_ans_p_i': pulse, 'i_edit_ans_tag_i': tag, 'i_edit_ans_data_i': data}
+            self.comb += pulse[i].eq(req[i] & (waited == last))
+        # The verdicts are a constant on the port: a slice per interface assigned in comb is a block of constants alone,
+        # which no event runs in the simulation, so at two interfaces its register kept its initial 0 and every beat
+        # read refused (#923).
+        return {'i_edit_ans_p_i': pulse, 'i_edit_ans_tag_i': tag, 'i_edit_ans_data_i': Replicate(Constant(1, 64), n_if)}
 
 
 def unread_publication(contract: object, n_if: int) -> dict[str, object]:
