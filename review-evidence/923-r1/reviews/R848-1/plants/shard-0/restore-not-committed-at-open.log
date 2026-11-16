@@ -1,0 +1,27 @@
+Note: Google Test filter = AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppStore
+[ RUN      ] AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:801: Failure
+Expected equality of these values:
+  edits.size()
+    Which is: 0
+  2u
+    Which is: 2
+AECP's open commits the restored maps
+
+  [FAIL] AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens: AECP's open commits the restored maps
+[  FAILED  ] AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens (2 ms)
+[----------] 1 test from AppStore (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,55 @@
+Note: Google Test filter = Core.ARefusedRestoreKeepsWhatTheStoreHolds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ARefusedRestoreKeepsWhatTheStoreHolds
+unknown file: Failure
+
+Unexpected mock function call - returning default value.
+    Function call: Edit(false, 14, 0, { {0,2,0,0} })
+          Returns: 0
+Google Mock tried the following 3 expectations, but none matched:
+
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3123: tried expectation #0: EXPECT_CALL(mock, Edit(true,14,0,reset))...
+         Expected: the expectation is active
+           Actual: it is retired
+         Expected: to be called once
+           Actual: called once - saturated and retired
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3124: tried expectation #1: EXPECT_CALL(mock, Edit(true,15,0,reset))...
+  Expected arg #0: is equal to true
+           Actual: false
+  Expected arg #1: is equal to 15
+           Actual: 14
+  Expected arg #3: is equal to { {0,0,0,0}, {0,1,1,0} }
+           Actual: { {0,2,0,0} }
+         Expected: to be called once
+           Actual: called once - saturated and active
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3125: tried expectation #2: EXPECT_CALL(mock, Edit(false,15,0,restored_out))...
+  Expected arg #1: is equal to 15
+           Actual: 14
+  Expected arg #3: is equal to { {0,2,2,0} }
+           Actual: { {0,2,0,0} }
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.ARefusedRestoreKeepsWhatTheStoreHolds:            Actual: never called - unsatisfied and active
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Value of: same_rows(maps[0],reset)
+  Actual: false
+Expected: true
+a refused removal keeps the reset set the store holds
+
+  [FAIL] Core.ARefusedRestoreKeepsWhatTheStoreHolds: a refused removal keeps the reset set the store holds
+[  FAILED  ] Core.ARefusedRestoreKeepsWhatTheStoreHolds (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ARefusedRestoreKeepsWhatTheStoreHolds
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

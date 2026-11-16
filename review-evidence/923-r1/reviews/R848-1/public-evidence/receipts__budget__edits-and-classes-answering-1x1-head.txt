@@ -1,0 +1,18 @@
+# B1x1
+1x1/1if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 26,391 cycles, 280 us by the rule
+1x1/1if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 25,265 cycles, 270 us by the rule
+1x1/1if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 27,866 cycles, 295 us by the rule
+1x1/1if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 26,492 cycles, 280 us by the rule
+1x1/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 0 92,714 cycles, 975 us by the rule
+1x1/1if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 0 86,606 cycles, 910 us by the rule
+1x1/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 22,567 cycles, 240 us by the rule
+1x1/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 72,824 cycles, 765 us by the rule
+1x1/1if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 7 74,765 cycles, 790 us by the rule
+
+results: 1x1/1if answering-ports, 3 groups, 75 AECP records
+1x1/1if held long: the dearest 92,714 CPU cycles, 975 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 19,249 CPU cycles, 205 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 19,737 CPU cycles, 210 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x000e)
+1x1/1if held paced: the dearest 28,076 CPU cycles, 295 us by the rule, stated 300 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED the pass runs no arm A leg at 1x1/1if
+RESULT: FAIL

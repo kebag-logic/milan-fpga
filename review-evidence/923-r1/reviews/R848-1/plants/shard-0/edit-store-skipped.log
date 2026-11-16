@@ -1,0 +1,60 @@
+Note: Google Test filter = Core.AnAcceptedEditReachesTheStoreBeforeTheMap:Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:2978: Failure
+Expected equality of these values:
+  calls.size()
+    Which is: 0
+  1u
+    Which is: 1
+one store edit for the command
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: one store edit for the command
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] 1 test from Face
+[ RUN      ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4290: Failure
+Expected equality of these values:
+  phases()
+    Which is: {}
+  (P{0,4,4,1,5,5,2})
+    Which is: { 0, 4, 4, 1, 5, 5, 2 }
+begin, validate each record, begin the commit, commit each, finish
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: begin, validate each record, begin the commit, commit each, finish
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4291: Failure
+Expected equality of these values:
+  ordinals()
+    Which is: {}
+  (P{0,0,1,0,0,1,0})
+    Which is: { 0, 0, 1, 0, 0, 1, 0 }
+each record's beat names its record
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: each record's beat names its record
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4292: Failure
+Expected equality of these values:
+  far.beats.size()
+    Which is: 0
+  7u
+    Which is: 7
+seven beats for two records
+
+  [FAIL] Face.AnEditIsTheReleasesTransactionOnTheEditWindow: seven beats for two records
+[  FAILED  ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+[  FAILED  ] Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

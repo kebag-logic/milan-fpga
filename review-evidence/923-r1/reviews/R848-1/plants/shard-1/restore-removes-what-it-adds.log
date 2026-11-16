@@ -1,0 +1,108 @@
+Note: Google Test filter = Core.RestoredMapsReachTheStoreRemovalsFirst:Face.RestoredMapsReachTheStoreThroughTheEditWindow
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.RestoredMapsReachTheStoreRemovalsFirst
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3050: Failure
+Expected equality of these values:
+  calls[0]
+    Which is: (false, 14, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0} })
+  Call(true,14,{in_defaults.begin(),in_defaults.end()})
+    Which is: (true, 14, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0} })
+the input port's reset set removed
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst: the input port's reset set removed
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3051: Failure
+Expected equality of these values:
+  calls[1]
+    Which is: (false, 15, { {0,0,0,0}, {0,1,1,0} })
+  Call(true,15,{out_defaults.begin(),out_defaults.end()})
+    Which is: (true, 15, { {0,0,0,0}, {0,1,1,0} })
+the output port's reset set removed
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst: the output port's reset set removed
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3052: Failure
+Expected equality of these values:
+  calls[2]
+    Which is: (true, 14, { {0,3,0,0}, {0,2,1,0} })
+  Call(false,14,{in,in+2})
+    Which is: (false, 14, { {0,3,0,0}, {0,2,1,0} })
+every removal before any addition
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst: every removal before any addition
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3053: Failure
+Expected equality of these values:
+  calls[3]
+    Which is: (true, 15, { {0,1,1,0} })
+  Call(false,15,{out,out+1})
+    Which is: (false, 15, { {0,1,1,0} })
+every removal before any addition
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst: every removal before any addition
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3059: Failure
+Expected equality of these values:
+  calls[0]
+    Which is: (false, 14, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0} })
+  Call(true,14,{in_defaults.begin(),in_defaults.end()})
+    Which is: (true, 14, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0} })
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst:     Which is: (true, 14, { {0,0,0,0}, {0,1,1,0}, {0,2,2,0}, {0,3,3,0} })
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:3065: Failure
+Expected equality of these values:
+  calls[0]
+    Which is: (true, 15, { {0,1,1,0} })
+  Call(false,15,{out,out+1})
+    Which is: (false, 15, { {0,1,1,0} })
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst:     Which is: (false, 15, { {0,1,1,0} })
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] 1 test from Face
+[ RUN      ] Face.RestoredMapsReachTheStoreThroughTheEditWindow
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4378: Failure
+Expected equality of these values:
+  phases()
+    Which is: { 0, 4, 4, 1, 5, 5, 2, 0, 4, 3, 0, 4, 4, 1, 5, 5, 2 }
+  (std::vector<unsigned>{0,4,4,1,5,5,2,0,4,4,1,5,5,2})
+    Which is: { 0, 4, 4, 1, 5, 5, 2, 0, 4, 4, 1, 5, 5, 2 }
+the reset set removed, then the restored set added
+
+  [FAIL] Face.RestoredMapsReachTheStoreThroughTheEditWindow: the reset set removed, then the restored set added
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4381: Failure
+Value of: far.beats.front().remove
+  Actual: false
+Expected: true
+the reset set removed first
+
+  [FAIL] Face.RestoredMapsReachTheStoreThroughTheEditWindow: the reset set removed first
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4382: Failure
+Value of: far.beats.back().remove
+  Actual: true
+Expected: false
+then the restored set added
+
+  [FAIL] Face.RestoredMapsReachTheStoreThroughTheEditWindow: then the restored set added
+$REVIEWS/r848-1-923/sw/firmware/ctrl/test/test_aecp.cpp:4123: Failure
+Expected equality of these values:
+  got
+    Which is: { {0,0,0,0}, {0,1,1,0} }
+  want
+    Which is: {}
+GET_AUDIO_MAP and the datapath's store hold the same mappings
+
+  [FAIL] Face.RestoredMapsReachTheStoreThroughTheEditWindow: GET_AUDIO_MAP and the datapath's store hold the same mappings
+[  FAILED  ] Face.RestoredMapsReachTheStoreThroughTheEditWindow (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst
+[  FAILED  ] Face.RestoredMapsReachTheStoreThroughTheEditWindow
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

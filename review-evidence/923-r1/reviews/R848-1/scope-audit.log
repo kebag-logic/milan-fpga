@@ -1,0 +1,70 @@
+70c100da36330bb3862d76fa6eb003091775f310 Count the pin controls of the two twin-maps targets in the firmware page's figure, 185 (#923)
+e628d35a46152cab94b520980c51eb16c59810f1 State the 8x8/2if one-row edit's measured 355 us with its commit and give section 13 the commit's records at both points against the base, every tier input unchanged (#923)
+1e94b30143ac7c07b5e7363a8c702f08a6dde5b0 Drive the harness SoC's EDIT verdicts as a constant on the port, which at two interfaces a comb block of constants left at 0 so every map edit read refused (#923)
+13e7bed2335ee9cc3fb7a329ff66f145ca6a897d Record the coverage of the six firmware files the map edits' commit changes, each at 100 % of its lines and branches (#923)
+ac7166742954489bf12791fec9096db09185091a Hold the harnesses' 8x8 two-interface SoC plan to their named ledgered point in place of the entry add_ctrl_memory names, which it passed twice (#923)
+6effb7963b20a302bce44d697314b94ebf6e444f Hold a refused restore removal to the clipped reset set the store holds, its plant caught by name, and keep rows_tiers within its module length with the 975 us comment as the base states it (#923)
+679b4a44471ac19e733eb51fdd70f21ee9d183f3 State the one-row edit's measured 295 us and the largest legal command's 92,714 CPU cycles with the edit's commit through the EDIT window; the paced class and every row unchanged (#923)
+6abb6cc6aaf52d5ec75845172af4468bdc8f5ce1 Ledger the 8x8/1if platform image at its measured 56.5 RAMB36 as S14 debt, planned by the product build at its own entry by its symbols, and raise the 8x8/2if entries to 59.5 and 61.0 (#923)
+def26a618ae430fb01f71074c2b88aad8db87c30 Hold the split image's audio maps on the render store in the twin's split half (twin-maps): edits, the format verdict and a restored map, and the defect #923 found planted; document the edit port (#923)
+10264ac23cebf90064f1909b65859c8141b54ea1 Commit each accepted ADD and REMOVE_AUDIO_MAPPINGS, and the restored maps at AECP's open, to the datapath's map store through the EDIT window; SET_CONFIGURATION past the count answers NO_SUCH_DESCRIPTOR and SET_STREAM_INFO takes the 48-octet body (#923, #924)
+
+Changed files 33
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+docs/reference/FR_NFR.md
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/aecp/README.md
+sw/firmware/ctrl/aecp/aecp.h
+sw/firmware/ctrl/aecp/aecp_commands.c
+sw/firmware/ctrl/aecp/aecp_face.c
+sw/firmware/ctrl/aecp/aecp_face.h
+sw/firmware/ctrl/aecp/aecp_maps.c
+sw/firmware/ctrl/aecp/aecp_mbx.c
+sw/firmware/ctrl/app/ctrl_app_aecp.c
+sw/firmware/ctrl/mbx/mbx.c
+sw/firmware/ctrl/mbx/mbx.h
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/test/aecp_configuration_mutants.py
+sw/firmware/ctrl/test/aecp_map_mutants.py
+sw/firmware/ctrl/test/aecp_mutants.py
+sw/firmware/ctrl/test/test_aecp.cpp
+sw/firmware/gtest/coverage.ratchet
+sw/litex/ctrl_memory.py
+sw/litex/ctrl_memory_ledger.py
+sw/litex/milan_soc.py
+sw/litex/test_ctrl_memory.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/edit_rows.py
+tb/verilator/ctrl_service_budget/split_soc.py
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/plat_ledger.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/twin_probes.vlt
+tb/verilator/milan_dp/twin_split.cpp
+PASS no RTL or mailbox-contract delta
+New tests
+14
+TEST_F(AppStore, TheRestoredMapsReachTheStoreBeforeAecpOpens)
+TEST_F(Core, AnAcceptedEditReachesTheStoreBeforeTheMap)
+TEST_F(Core, AStoreRefusalIsTheAnswerAndChangesNothing)
+TEST_F(Core, ARefusedEditNeverReachesTheStore)
+TEST_F(Core, RestoredMapsReachTheStoreRemovalsFirst)
+TEST_F(Core, TheStoresResetSetIsTheClippedOne)
+TEST_F(Core, ARefusedRestoreKeepsWhatTheStoreHolds)
+TEST_F(Core, TheRestoreCommitsOnlyAClosedCoresMapsInForce)
+TEST_F(Core, SetConfigurationOutOfRangeIsNoSuchDescriptor)
+TEST_F(Core, SetStreamInfoTakesTheEarlierBodyOf48Octets)
+TEST_F(Face, AnEditIsTheReleasesTransactionOnTheEditWindow)
+TEST_F(Face, ARefusedBeatAbortsAndNothingMoves)
+TEST_F(Face, AnUnansweredEditFailsUntilItsCommitIsReserved)
+TEST_F(Face, RestoredMapsReachTheStoreThroughTheEditWindow)
+Six changed files retain 100% line and branch thresholds:
+sw/firmware/ctrl/aecp/aecp_commands.c  lines 477/477  branches 404/404
+sw/firmware/ctrl/aecp/aecp_face.c  lines 212/212  branches 188/188
+sw/firmware/ctrl/aecp/aecp_maps.c  lines 339/339  branches 419/419
+sw/firmware/ctrl/aecp/aecp_mbx.c  lines 140/140  branches 76/76
+sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 170/170  branches 126/126
+sw/firmware/ctrl/mbx/mbx.c  lines 367/367  branches 188/188
+Threshold audit only; not a new coverage measurement.

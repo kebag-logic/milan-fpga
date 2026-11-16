@@ -1,0 +1,53 @@
+1x1/1if split image, firmware 6abb6cc6 (identical in every gateware and firmware input to the head 70c100da): S9's three directives against the floor WNS and WHS >= +0.030 ns at every corner
+the sign-off of each route (round1/scripts/signoff.py) and every path at or under +0.029 ns in its four sign-off timing reports
+
+== ExtraPostPlacementOpt
+Slow_85C: WNS +0.256 ns (0 failing), WHS +0.054 ns (0 failing)
+Slow_0C: WNS +0.256 ns (0 failing), WHS +0.054 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.015 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.015 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+  Fast_85C: Slack (MET) :             0.015ns  (arrival time - required time)
+  Fast_85C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_85C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_85C:   Path Type:              Hold (Min at Fast Process Corner)
+  Fast_0C: Slack (MET) :             0.015ns  (arrival time - required time)
+  Fast_0C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_0C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_0C:   Path Type:              Hold (Min at Fast Process Corner)
+
+== ExtraTimingOpt
+Slow_85C: WNS +0.126 ns (0 failing), WHS +0.053 ns (0 failing)
+Slow_0C: WNS +0.126 ns (0 failing), WHS +0.053 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+  Fast_85C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_85C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_85C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_85C:   Path Type:              Hold (Min at Fast Process Corner)
+  Fast_0C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_0C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_0C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_0C:   Path Type:              Hold (Min at Fast Process Corner)
+
+== AltSpreadLogic_high
+Slow_85C: WNS +0.195 ns (0 failing), WHS +0.053 ns (0 failing)
+Slow_0C: WNS +0.195 ns (0 failing), WHS +0.053 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+  Fast_85C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_85C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_85C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_85C:   Path Type:              Hold (Min at Fast Process Corner)
+  Fast_0C: Slack (MET) :             0.014ns  (arrival time - required time)
+  Fast_0C:   Source:                 milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[3][22]/C
+  Fast_0C:   Destination:            milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1/DIADI[22]
+  Fast_0C:   Path Type:              Hold (Min at Fast Process Corner)
