@@ -121,9 +121,12 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
 #: states its own by the rule, in either column; the nearest point's table is untouched. OWN_MEASURED is each one's
 #: measurement, CPU cycles and where: 8x8/1if's ADP record on the image that merges #902's 234bc149, 12,210 cycles,
-#: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240).
-OWN = {'8x8/1if': {'record.adp': 130}}
-OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill')}}
+#: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240); and its MAAP
+#: record on the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), 16,323 cycles in the
+#: valid-destinations arm's range lost to a peer's ANNOUNCE, 175 us by the rule, over 8x8/2if's 155 in both columns.
+OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175}}
+OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
+                            'record.maap': (16_323, 'the valid-destinations arm, srp-talker-loss')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE

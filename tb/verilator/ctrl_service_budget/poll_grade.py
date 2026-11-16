@@ -111,8 +111,11 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: the withdrawal 10,317, the rebuild 55,813, the walk 4,701, the reclaim 2,604, ACMP's owed frame 6,813 and a declined
 #: offer 2,542, a notice 13,297 (the answering-every-port arm) and a long one 30,097; a retained record's retry at the
 #: SRP record's measured cost there, 32,421 cycles, 345 us. On the image that merges #902's 234bc149 the walk is 4,905
-#: (the srp group) and a notice 13,572 (the answering-every-port arm's notice-every-0), 55 and 145 us by the rule.
-EIGHT_ONE = dict(base=235, withdraw=110, rebuild=590, walk=55, reclaim=30, retained=345, mrpdu=0, acmp=75, aecp=145,
+#: (the srp group) and a notice 13,572 (the answering-every-port arm's notice-every-0), 55 and 145 us by the rule. On
+#: the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), over every group of arm A, the
+#: answering-every-port, valid-destinations and answering-ports arms, the base is 23,756 (save-held and save-starved)
+#: and ACMP's owed frame 7,450 (backlog-owed), 250 and 80 us by the rule, as #901 found the base grown at 1x1/1if.
+EIGHT_ONE = dict(base=250, withdraw=110, rebuild=590, walk=55, reclaim=30, retained=345, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
