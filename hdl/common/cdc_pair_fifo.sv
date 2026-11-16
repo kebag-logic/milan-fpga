@@ -28,10 +28,8 @@
 module cdc_pair_fifo #(
   parameter int WIDTH = 48,   //! payload width (a stereo 24-bit pair)
   parameter int LOG2D = 4,    //! depth = 2^LOG2D entries
-  //! 1: the storage is distributed RAM, whatever its width. A block RAM's
-  //! write-data hold requirement leaves a register written straight into it
-  //! about +0.014 ns of hold at the fast corner, so a wide, shallow FIFO fed
-  //! from registers takes distributed RAM instead (#927). 0: the tool's choice
+  //! 1: the storage is distributed RAM, whatever its width; 0: the tool's
+  //! choice (the storage block below says why a FIFO takes it, #927)
   parameter int DIST_RAM_P = 0
 )(
   input  wire              wclk_i,    //! write clock (producer domain)
@@ -103,7 +101,10 @@ module cdc_pair_fifo #(
   end : rd_side
 
   // ---- the storage: written on the write side, read into rdata_o --------
-  // The two branches differ only in the mapping attribute.
+  // The two branches differ only in the mapping attribute. A block RAM's
+  // write-data hold requirement leaves a register written straight into it
+  // about +0.014 ns of hold at the fast corner, so a wide, shallow FIFO fed
+  // from registers takes distributed RAM (DIST_RAM_P = 1, #927).
   if (DIST_RAM_P != 0) begin : g_mem
     (* ram_style = "distributed" *) logic [WIDTH-1:0] mem_r [0:(1<<LOG2D)-1];
     always_ff @(posedge wclk_i) begin : mem_wr
