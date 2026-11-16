@@ -1,0 +1,52 @@
+# The 8x8/1if stated-cost lines (STATED), the base (replay2: 659d7687's image) against the fix (fix2: 9e28059b's image),
+# the same two groups, the same held load. Kinds and ranges of every STATED line each run printed:
+== replay2-8x8-1if
+  save-flight: a build-one pass: 17 line(s), 92,100 to 94,668 CPU cycles
+  save-flight: a pass's polls base: 2 line(s), 21,531 to 21,774 CPU cycles
+  save-flight: an SRP record's apply: 1 line(s), 30,063 to 30,063 CPU cycles
+== fix2-8x8-1if
+  save-burst: a build-one pass: 21 line(s), 92,628 to 109,408 CPU cycles
+  save-burst: a pass's polls base: 20 line(s), 20,562 to 23,251 CPU cycles
+  save-burst: a tier-2 slice of THE TRANSMIT's build: 17 line(s), 95,401 to 109,408 CPU cycles
+  save-burst: an SRP record's apply: 1 line(s), 29,998 to 29,998 CPU cycles
+  save-flight: a build-one pass: 16 line(s), 92,628 to 96,241 CPU cycles
+  save-flight: a pass's polls base: 2 line(s), 22,364 to 23,251 CPU cycles
+  save-flight: a tier-2 slice of THE TRANSMIT's build: 12 line(s), 95,340 to 96,241 CPU cycles
+  save-flight: an SRP record's apply: 1 line(s), 30,494 to 30,494 CPU cycles
+
+# The longest build slices and what each holds (slice_grade.slices; SPAN lines inside the pass)
+== fix2-8x8-1if save-burst
+41 build slices; longest [109408, 98063, 96274, 96163, 96116]; median 92628
+slice 109,408 at sys 1,462,191,996 (14621.9 ms): mrp_reclaim x2 (1,217), srp_mbx:build_mrpdu x1 (104,680)
+slice 98,063 at sys 1,481,124,201 (14811.2 ms): mrp_reclaim x2 (1,329), srp_mbx:build_mrpdu x1 (93,707)
+slice 96,274 at sys 306,149,307 (3061.5 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,740)
+slice 96,163 at sys 506,225,573 (5062.3 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,503)
+slice 96,116 at sys 1,500,130,377 (15001.3 ms): mrp_reclaim x2 (1,329), srp_mbx:build_mrpdu x1 (91,760)
+== fix2-8x8-1if save-flight
+34 build slices; longest [96241, 96177, 96095, 96038, 96038]; median 32608
+slice 96,241 at sys 406,146,221 (4061.5 ms): mrp_reclaim x2 (1,152), srp_mbx:build_mrpdu x1 (91,512)
+slice 96,177 at sys 506,155,074 (5061.6 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,548)
+slice 96,095 at sys 1,206,141,106 (12061.4 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,495)
+slice 96,038 at sys 706,155,823 (7061.6 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,409)
+slice 96,038 at sys 1,006,151,592 (10061.5 ms): mrp_reclaim x2 (1,102), srp_mbx:build_mrpdu x1 (91,409)
+== replay2-8x8-1if save-flight
+36 build slices; longest [94668, 94468, 94446, 94431, 94421]; median 31344
+slice 94,668 at sys 406,142,811 (4061.4 ms): mrp_reclaim x2 (1,127), srp_mbx:build_mrpdu x1 (90,675)
+slice 94,468 at sys 1,206,140,199 (12061.4 ms): mrp_reclaim x2 (1,127), srp_mbx:build_mrpdu x1 (90,475)
+slice 94,446 at sys 1,106,144,801 (11061.4 ms): mrp_reclaim x2 (1,127), srp_mbx:build_mrpdu x1 (90,509)
+slice 94,431 at sys 11,370,420 (113.7 ms): mrp_reclaim x2 (1,164), srp_mbx:build_mrpdu x1 (90,356)
+slice 94,421 at sys 806,145,367 (8061.5 ms): mrp_reclaim x2 (1,127), srp_mbx:build_mrpdu x1 (90,428)
+
+# The heaviest polls bases and what each holds (poll_grade.sections/instances; SPAN lines inside the section)
+== fix2-8x8-1if save-flight
+62198 sections; heaviest bases [23251, 22364, 18095, 17741]; median 12080
+base 23,251 at 2715.8 ms; items []: adp_mbx:on_poll x1 (363), acmp_mbx:on_poll x1 (311), maap_mbx:poll x1 (3,936), aecp:transmit x1 (2,955), aecp_mbx:poll x1 (4,389), ctrl_app_aecp:deliver x1 (8,053), srp_mbx:poll x1 (2,248), ctrl_app_srp:deliver x1 (3,399)
+base 22,364 at 3745.9 ms; items []: adp_mbx:on_poll x1 (491), acmp_mbx:on_poll x1 (310), maap_mbx:poll x1 (4,456), aecp:transmit x1 (2,474), aecp_mbx:poll x1 (3,319), ctrl_app_aecp:deliver x1 (7,717), srp_mbx:poll x1 (2,217), ctrl_app_srp:deliver x1 (3,342)
+base 18,095 at 63.2 ms; items [('walk', 2562)]: adp_mbx:on_poll x1 (428), acmp_mbx:on_poll x1 (890), maap_mbx:poll x1 (5,426), aecp:transmit x1 (370), aecp_mbx:poll x1 (1,786), ctrl_app_aecp:deliver x1 (2,670), mrp_attr_visit x1 (2,562), srp_mbx:poll x1 (5,565), ctrl_app_srp:deliver x1 (3,413)
+base 17,741 at 2717.0 ms; items []: adp_mbx:on_poll x1 (304), acmp_mbx:on_poll x1 (166), maap_mbx:poll x1 (3,936), aecp:transmit x1 (74), aecp_mbx:poll x1 (2,134), ctrl_app_aecp:deliver x1 (5,744), srp_mbx:poll x1 (1,904), ctrl_app_srp:deliver x1 (3,205)
+== replay2-8x8-1if save-flight
+75068 sections; heaviest bases [21774, 21531, 18113, 16853]; median 11567
+base 21,774 at 2715.6 ms; items []: adp_mbx:on_poll x1 (225), acmp_mbx:on_poll x1 (310), maap_mbx:poll x1 (3,936), aecp:transmit x1 (2,832), aecp_mbx:poll x1 (4,319), ctrl_app_aecp:deliver x1 (7,322), srp_mbx:poll x1 (1,921), ctrl_app_srp:deliver x1 (3,164)
+base 21,531 at 4301.8 ms; items []: adp_mbx:on_poll x1 (225), acmp_mbx:on_poll x1 (310), maap_mbx:poll x1 (4,688), aecp:transmit x1 (2,427), aecp_mbx:poll x1 (3,711), ctrl_app_aecp:deliver x1 (7,138), srp_mbx:poll x1 (1,921), ctrl_app_srp:deliver x1 (2,961)
+base 18,113 at 63.2 ms; items [('walk', 2766)]: adp_mbx:on_poll x1 (287), acmp_mbx:on_poll x1 (735), maap_mbx:poll x1 (5,519), aecp:transmit x1 (357), aecp_mbx:poll x1 (1,765), ctrl_app_aecp:deliver x1 (3,057), mrp_attr_visit x1 (2,766), srp_mbx:poll x1 (5,687), ctrl_app_srp:deliver x1 (3,381)
+base 16,853 at 2716.7 ms; items []: adp_mbx:on_poll x1 (225), acmp_mbx:on_poll x1 (166), maap_mbx:poll x1 (3,936), aecp:transmit x1 (177), aecp_mbx:poll x1 (2,337), ctrl_app_aecp:deliver x1 (5,067), srp_mbx:poll x1 (1,636), ctrl_app_srp:deliver x1 (2,967)

@@ -1,0 +1,6 @@
+# head 54280c9408ba06a16fa925f85e0398a16f33777d workflow docs.yml job docs-gates-0 step gate_21: Bare-metal scope gate
+# clone <scratch>/wf/run-54280c9408ba06a16fa925f85e0398a16f33777d/docs__docs-gates-0/wt
+# venv <other-scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+baremetal-only: OK (0 findings across 1598 tracked first-party file(s))
+baremetal-only selftest: PASS (867 arm(s))

@@ -1,0 +1,22 @@
+{
+ "cwd": "<lanes>/920-a786-fsw-shard2",
+ "head": "bd252db1d73511307c0ecb78470f0d15d0c3ea9b",
+ "base": "70f4056f",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:<home>/br-milan-rv32/host/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<management>/tools/tsn-gen-deca300c",
+   "TMPDIR=<lanes>/920-a786-tmp/sweep-r2",
+   "SUITE_TIMEOUT=10800",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep/run-final-bd252db1/shard-2/logs",
+   "--wait",
+   "--shard",
+   "2/4"
+  ]
+ ]
+}
