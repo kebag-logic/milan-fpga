@@ -15,7 +15,11 @@
 // the line high. A write at the PHY's address sets the register, unless it is
 // on the `ignored` list; register 0's restart (22.2.4.1.7) and reset bits
 // clear themselves, a restart is counted, and where `restart_drops` it
-// latches a loss, as a real PHY's renegotiation does. BMSR's link status
+// latches a loss, as a real PHY's renegotiation does. Where `negotiates`, a
+// restart latches registers 4 and 9 as the abilities in force (28.2.4.1.3),
+// apart from the registers a later write changes, and the link is the highest
+// mode they share with the partner's (registers 5 and 10): `active_speed`,
+// 0 when none, its link status following. BMSR's link status
 // latches low (22.2.4.2.13): a loss the test latches reads as link down once,
 // at the PHY's own address. Every frame and every publication is recorded with
 // the bus access it ended at, and the first violation of the frame is kept as
@@ -55,6 +59,9 @@ struct Peer {
     unsigned ignored = 32;                     // a register whose writes it drops (32: none)
     bool restart_drops = false;
     unsigned restarts = 0;
+    bool negotiates = false;                   // a restart latches the abilities in force and sets the link
+    std::uint16_t active_anar = 0, active_gctrl = 0;
+    unsigned active_speed = 0;                 // Mb/s of the link negotiated on them, 0: none
     std::uint32_t word = 13u;                  // link_status's value: the reset value, 1000 Mb/s full duplex, up
     std::vector<Frame> frames;
     std::vector<Publication> published;
@@ -144,12 +151,25 @@ private:
         const unsigned reg = command & 31u;
         if (((command >> 5) & 31u) != address || reg == ignored) return;
         std::uint16_t value = static_cast<std::uint16_t>(data);
+        if (reg == 0u) regs[0] = static_cast<std::uint16_t>(value & ~0x8200u);
+        else regs[reg] = value;
         if (reg == 0u && (value & 0x0200u) != 0u) {
             ++restarts;
             if (restart_drops) latched_down = true;
+            if (negotiates) negotiate();
         }
-        if (reg == 0u) value &= static_cast<std::uint16_t>(~0x8200u);
-        regs[reg] = value;
+    }
+
+public:
+    // A negotiation on the registers as they are now: registers 4 and 9 latched as the abilities in force, and the
+    // link the highest mode they share with the partner's, or none.
+    void negotiate() {
+        active_anar = regs[4];
+        active_gctrl = regs[9];
+        const unsigned gig = (static_cast<unsigned>(active_gctrl) << 2) & regs[10] & 0x0c00u;
+        const unsigned common = active_anar & regs[5] & 0x03e0u;
+        active_speed = gig != 0u ? 1000u : (common & 0x0380u) != 0u ? 100u : common != 0u ? 10u : 0u;
+        link(active_speed != 0u);
     }
 };
 

@@ -41,9 +41,13 @@
 //   P14 a PHY that lost the advertisement (reset to its defaults) is written
 //       and restarted once after the loss
 //   P15 an advertisement that does not read back stays owed, written again
-//       each poll, its restart once, until it reads back
+//       and negotiation restarted each poll, until it reads back
 //   P16 a read the advertisement needs unacknowledged writes nothing; the
 //       next poll retries
+//   P17 the abilities in force are the verified advertisement: with
+//       register 4's writes dropped through a try, at boot and after a loss,
+//       the repair restarts negotiation, so a 100BASE-TX-only partner has no
+//       link once it reads back, and no restart follows
 
 #include <gtest/gtest.h>
 
@@ -562,38 +566,38 @@ TEST_F(PlatPhy, P14AResetPhyIsAdvertisedAgain) {
 }
 
 TEST_F(PlatPhy, P15AnUnverifiedAdvertisementStaysOwed) {
-    peer.ignored = 4u;   // a PHY that drops its writes to register 4
-    arm_again();
-    (void)poll(now);
-    EXPECT_EQ(peer.restarts, 1u) << "P15 the boot restarts negotiation";
-    for (unsigned k = 0; k < 3u; ++k) {
-        const std::size_t from = peer.frames.size();
+    // a PHY that drops its writes to register 4, then one that drops them to register 9: each try writes and
+    // restarts again, the registers as read not holding the advertisement, until it reads back
+    for (const unsigned reg : {4u, 9u}) {
+        peer.gigabit(7u);
+        peer.ignored = reg;
+        arm_again();
+        (void)poll(now);
+        EXPECT_GE(peer.restarts, 1u) << "P15 the boot restarts negotiation, register " << reg;
+        for (unsigned k = 0; k < 3u; ++k) {
+            const std::size_t from = peer.frames.size();
+            const unsigned restarts = peer.restarts;
+            next();
+            EXPECT_EQ(writes_since(from).size(), 3u)
+                << "P15 an advertisement that does not read back is written again each poll, register " << reg
+                << ", poll " << k;
+            EXPECT_EQ(peer.restarts, restarts + 1u)
+                << "P15 and negotiation restarts after every repaired write, register " << reg << ", poll " << k;
+        }
+        peer.ignored = 32u;
+        std::size_t from = peer.frames.size();
+        unsigned restarts = peer.restarts;
         next();
-        EXPECT_EQ(writes_since(from).size(), 2u)
-            << "P15 an advertisement that does not read back is written again each poll, poll " << k;
+        EXPECT_EQ(writes_since(from).size(), 3u) << "P15 once the PHY takes it, it reads back, register " << reg;
+        EXPECT_TRUE(peer.regs[4] == 0x0001u && peer.regs[9] == 0x0200u)
+            << "P15 once the PHY takes it, it reads back, register " << reg;
+        EXPECT_EQ(peer.restarts, restarts + 1u) << "P15 the repaired advertisement is negotiated, register " << reg;
+        from = peer.frames.size();
+        restarts = peer.restarts;
+        next();
+        EXPECT_TRUE(writes_since(from).empty()) << "P15 verified, the next poll writes nothing, register " << reg;
+        EXPECT_EQ(peer.restarts, restarts) << "P15 verified, the next poll restarts nothing, register " << reg;
     }
-    EXPECT_EQ(peer.restarts, 1u) << "P15 and restarts negotiation once, not each poll";
-    peer.ignored = 32u;
-    std::size_t from = peer.frames.size();
-    next();
-    EXPECT_EQ(writes_since(from).size(), 2u) << "P15 once the PHY takes it, it reads back";
-    EXPECT_EQ(peer.regs[4], 0x0001u) << "P15 once the PHY takes it, it reads back";
-    from = peer.frames.size();
-    next();
-    EXPECT_TRUE(writes_since(from).empty()) << "P15 verified, the next poll writes nothing";
-    // a PHY that drops its writes to register 9: register 4 reads back, 9 still advertises half duplex
-    peer.gigabit(7u);
-    peer.ignored = 9u;
-    arm_again();
-    (void)poll(now);
-    from = peer.frames.size();
-    next();
-    EXPECT_EQ(writes_since(from).size(), 2u) << "P15 an advertisement whose register 9 does not read back is owed";
-    peer.ignored = 32u;
-    next();
-    from = peer.frames.size();
-    next();
-    EXPECT_TRUE(writes_since(from).empty()) << "P15 verified, the next poll writes nothing";
     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
 }
 
@@ -628,6 +632,60 @@ TEST_F(PlatPhy, P16AnUnacknowledgedReadWritesNothing) {
         EXPECT_EQ(writes_since(again).size(), 2u)
             << "P16 a read-back unacknowledged leaves the advertisement owed: register " << reg;
     }
+}
+
+// P17's oracle: after a repair, the registers, the verification and the abilities in force (phy_peer.hpp
+// `negotiates`) are the gigabit-only advertisement, a partner of 100BASE-TX full duplex alone has no link, and no
+// restart follows.
+void expect_in_force(PlatPhy& f, const char* arm) {
+    EXPECT_EQ(f.peer.regs[4], 0x0001u) << "P17 the repaired advertisement reads back, " << arm;
+    EXPECT_EQ(f.phy.adv, 0u) << "P17 the repaired advertisement is verified, " << arm;
+    EXPECT_EQ(f.peer.active_anar & 0x03e0u, 0u) << "P17 the active advertisement is 1000BASE-T only, " << arm;
+    EXPECT_EQ(f.peer.active_gctrl & 0x0300u, 0x0200u) << "P17 the active advertisement is 1000BASE-T only, " << arm;
+    EXPECT_EQ(f.peer.active_speed, 0u) << "P17 a 100BASE-TX-only partner has no link, " << arm;
+    EXPECT_EQ(f.peer.word, 0u) << "P17 a 100BASE-TX-only partner has no link, " << arm;
+    const unsigned restarts = f.peer.restarts;
+    f.next();
+    f.next();
+    EXPECT_EQ(f.peer.restarts, restarts) << "P17 no restart once the advertisement in force is the verified one, "
+                                         << arm;
+}
+
+TEST_F(PlatPhy, P17TheRepairedAdvertisementIsTheOneInForce) {
+    // at boot: register 4's writes dropped through the first poll, a partner of 100BASE-TX full duplex alone
+    peer.gigabit(7u);
+    peer.negotiates = true;
+    peer.regs[5] = 0x0101u;
+    peer.regs[10] = 0x0000u;
+    peer.link(false);
+    peer.ignored = 4u;
+    arm_again();
+    (void)poll(now);
+    EXPECT_EQ(peer.active_speed, 100u) << "P17 the first restart negotiated the dropped write's 10/100 advertisement";
+    peer.ignored = 32u;
+    for (unsigned k = 0; k < 10u; ++k) next();
+    expect_in_force(*this, "at boot");
+    // after a loss: a 1000BASE-T link, then the PHY reset to its defaults behind a partner of 100BASE-TX full
+    // duplex alone, renegotiating on them, the repair's first register-4 write dropped
+    peer.regs[5] = 0x01e1u;
+    peer.regs[10] = 0x0c00u;
+    peer.negotiate();
+    next();
+    next();
+    EXPECT_EQ(peer.word, kGigFull) << "P17 a 1000BASE-T partner links at 1000 Mb/s";
+    peer.regs[4] = 0x01e1u;
+    peer.regs[9] = 0x0300u;
+    peer.regs[5] = 0x0101u;
+    peer.regs[10] = 0x0000u;
+    peer.negotiate();
+    peer.latched_down = true;
+    peer.ignored = 4u;
+    next();
+    EXPECT_EQ(peer.active_speed, 100u) << "P17 the loss's first restart negotiated 10/100 again";
+    peer.ignored = 32u;
+    for (unsigned k = 0; k < 10u; ++k) next();
+    expect_in_force(*this, "after a loss");
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
 }
 
 }  // namespace

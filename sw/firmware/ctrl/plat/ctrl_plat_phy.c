@@ -221,15 +221,15 @@ static void take(struct ctrl_plat_phy *phy)
 	case CTRL_PLAT_PHY_ADV_SET_GIG:
 		break;
 	case CTRL_PLAT_PHY_ADV_SET_LOCAL:
-		// negotiation restarts once a time it is owed: at boot always, after a loss only where the PHY no longer
-		// held the advertisement
-		if ((phy->adv & CTRL_PLAT_PHY_ADV_RESTARTED) != 0u ||
-		    ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))) {
+		// negotiation restarts after every write that repaired the advertisement, so the abilities in force are the
+		// ones written (28.2.4.1.3), and at boot whatever the PHY held (the release's init); a PHY that still held it
+		// is written and not restarted, so a restart's own latched loss never restarts again
+		if ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)) {
 			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
 		}
 		break;
 	case CTRL_PLAT_PHY_ADV_RESTART:
-		phy->adv |= CTRL_PLAT_PHY_ADV_RESTARTED;
+		phy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_BOOT;
 		break;
 	case CTRL_PLAT_PHY_ADV_CHECK_GIG:
 		// verified: the read-back holds the advertisement; else it stays owed

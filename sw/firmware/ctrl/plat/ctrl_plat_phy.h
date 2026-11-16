@@ -40,11 +40,15 @@
 // restart is never published), at boot and again after every link loss,
 // a published link going down (#919): registers 4 and 9 are read, written
 // and read back, and the poll owes it again until the read-back holds the
-// advertisement (verified). Negotiation restarts at most once a time it is
-// owed: always at boot, as the release's init, and after a loss only where
-// the PHY no longer held the advertisement (a PHY reset to its defaults),
-// so a restart, which latches a loss of its own, never restarts again. An
-// unacknowledged read writes nothing; the next poll retries.
+// advertisement (verified). Negotiation restarts after every write that
+// repaired the advertisement, the registers as read not holding it (a PHY
+// reset to its defaults, a write the PHY dropped), so the abilities in force
+// are always the ones written and verified (28.2.4.1.3: a changed
+// advertisement is negotiated again), and once at boot whatever the PHY held,
+// as the release's init. A PHY that still held the advertisement is written
+// and not restarted, so a restart, which latches a loss of its own, never
+// restarts again; a PHY that never takes a write is restarted at each try.
+// An unacknowledged read writes nothing; the next poll retries.
 //
 // THE PACE. A poll starts CTRL_PLAT_PHY_POLL_US after the last one started,
 // the release's PHY_POLL_NS by its own derivation: half the writer's 250 ms
@@ -55,8 +59,10 @@
 // misses is due again at once, as the release's.
 //
 // THE STEP (ctrl_loop.h). A poll is up to nine register reads, and nine more
-// frames, seven reads and three writes, where the advertisement is owed, each a
-// whole Clause-22 frame of 65 bit periods, too long to stand beside the records of
+// frames where the advertisement is owed, six reads (15, 4, 9, 0, then 4 and 9
+// back) and three writes (9, 4, 0; the restart's write omitted where the PHY
+// still held the advertisement), each a whole Clause-22 frame of 64 bit periods
+// (CTRL_PLAT_PHY_FRAME_BITS), too long to stand beside the records of
 // a pass (it would lengthen every one still waiting, as a flash step would),
 // and IEEE 802.3 22.2.2.13 gives MDC no maximum high or low time, so a poll
 // may stop between two frames. So a poll is resumable, one frame at a time,
@@ -167,11 +173,10 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_COMMAND_BITS 14u
 #define CTRL_PLAT_PHY_DATA_BITS 16u
 #define CTRL_PLAT_PHY_FRAME_BITS 64u
-// THE ADVERTISEMENT owed (struct ctrl_plat_phy's adv): owed, owed by the boot (negotiation restarts whatever the
-// PHY holds), and negotiation already restarted since it was owed.
+// THE ADVERTISEMENT owed (struct ctrl_plat_phy's adv): owed, and owed by the boot, whose first restart is taken
+// whatever the PHY holds.
 #define CTRL_PLAT_PHY_ADV_OWED 0x1u
 #define CTRL_PLAT_PHY_ADV_BOOT 0x2u
-#define CTRL_PLAT_PHY_ADV_RESTARTED 0x4u
 #define CTRL_PLAT_PHY_ADDRESSES 32u
 // A half period's least length, as the reciprocal of a time: 1 / 200 ns (the file's head, THE BIT).
 #define CTRL_PLAT_PHY_HALF_HZ 5000000u

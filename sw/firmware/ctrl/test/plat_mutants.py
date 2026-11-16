@@ -309,7 +309,13 @@ def phy_mutants(mutant: type) -> tuple:
 ANAR_MASK = "(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)"
 GCTRL_SET = "((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :"
 RESTART_BITS = "| CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &"
-HELD = "((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))"
+HELD = "(phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)"
+#: The repair's restart, as ctrl_plat_phy.c's take() decides it and takes it, and the defect of a restart marked
+#: taken before the read-back verifies, so the repair of a dropped write restarts nothing (#919).
+REPAIR = ("\t\tif (" + HELD + ") {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n\t\t}\n\t\tbreak;\n"
+          "\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_BOOT;\n")
+RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x4u) != 0u || (" + HELD + ")) {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n"
+                   "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x4u;\n")
 READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
 P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
 P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
@@ -361,9 +367,11 @@ def advertisement_mutants(mutant: type) -> tuple:
           "P13 a loss with the advertisement held restarts nothing"),
         m("plat-phy-reset-phy-not-restarted", PHY, HELD, "(phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u", "platboot1",
           "PlatPhy.P14AResetPhyIsAdvertisedAgain", "P14 a PHY that lost the advertisement is written and restarted"),
-        m("plat-phy-restart-each-poll", PHY, "(phy->adv & CTRL_PLAT_PHY_ADV_RESTARTED) != 0u ||", "false ||",
-          "platboot1", "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
-          "P15 and restarts negotiation once, not each poll"),
+        # the restart marked taken before verification, so a repair is never negotiated
+        m("plat-phy-restarted-before-verified", PHY, REPAIR, RESTARTED_EARLY, "platboot1",
+          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the active advertisement is 1000BASE-T only",
+          also=(("platboot1", "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
+                 "P15 and negotiation restarts after every repaired write"),)),
         m("plat-phy-advertisement-unverified", PHY,
           "if (phy->local >= 0 && v >= 0 && gigabit_only((uint32_t)phy->local, u)) {", "if (true) {", "platboot1",
           "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
