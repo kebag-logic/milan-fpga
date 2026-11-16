@@ -28,6 +28,7 @@ WINDOW_SILENT = 'Face.AnUnansweredEditFailsUntilItsCommitIsReserved'
 WINDOW_RESTORE = 'Face.RestoredMapsReachTheStoreThroughTheEditWindow'
 WINDOW_LATE = 'Face.ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing'
 RESTORE_LATE = 'Face.ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing'
+WINDOW_PICK = 'Face.AnEditCommitsTheMappingsTheCorePicksAndNoOthers'
 DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
 OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
 CLEARED = 'Core.MapEditWorkReadsOnlyWhatItCleared'
@@ -334,4 +335,9 @@ ROWS = (
      '\tfor (size_t k = 0; k < count && record(f, request, APPLY, records, pick, k, &ok); ++k) {\n\t}\n',
      (WINDOW_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings"),
      (RESTORE_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings")),
+    # the face reads the command's first records in place of the ones the core picked: a held one for the new one
+    ('window-pick-ignored', 'aecp_face.c',
+     '\tconst uint8_t *r = records + 8u * (pick != NULL ? pick[k] : k);',
+     '\tconst uint8_t *r = records + 8u * (pick != NULL ? k : k);',
+     (WINDOW_PICK, 'the records the core picked are committed')),
 )

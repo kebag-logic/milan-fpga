@@ -4390,6 +4390,27 @@ TEST_F(Face, ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing)
     }
 }
 
+// #923: the store takes the mappings that change the map as the core picks them, not the command's first ones: an ADD
+// of a held and a new mapping validates and commits the new one alone, and a REMOVE naming a mapping twice commits
+// each distinct mapping once. GET_AUDIO_MAP and the store then hold the same mappings.
+TEST_F(Face, AnEditCommitsTheMappingsTheCorePicksAndNoOthers)
+{
+    using M=std::vector<aecp_mapping>;
+    aecp_mapping held{0,1,1,0},fresh{0,2,2,0};
+    auto records=[this](unsigned phase){M v;for(auto &b:far.beats)if(b.phase==phase)v.push_back(b.r);return v;};
+    receive(44,mappings(14,{held}));agree(14);
+    far.beats.clear();receive(44,mappings(14,{held,fresh}));
+    EXPECT_EQ(records(4),(M{fresh}))<<"the records the core picked are validated";
+    EXPECT_EQ(records(5),(M{fresh}))<<"the records the core picked are committed";
+    ASSERT_FALSE(far.beats.empty());EXPECT_EQ(far.beats.front().count,1u)<<"COUNT the records the core picked";
+    EXPECT_EQ(maps[0].count,2u);agree(14);
+    far.beats.clear();receive(45,mappings(14,{held,held,fresh}));
+    EXPECT_EQ(records(4),(M{held,fresh}))<<"the records the core picked are validated";
+    EXPECT_EQ(records(5),(M{held,fresh}))<<"the records the core picked are committed";
+    ASSERT_FALSE(far.beats.empty());EXPECT_EQ(far.beats.front().count,2u)<<"COUNT the records the core picked";
+    EXPECT_EQ(maps[0].count,0u);agree(14);
+}
+
 // #923: the restore's commit with a reply lost after its commit-begin: a removal of the reset set the store holds
 // (the restored map empty) or an addition of the restored set, its first or second record's reply lost. The store took
 // each, so when AECP opens GET_AUDIO_MAP answers what the store holds, and the lost reply is counted.
