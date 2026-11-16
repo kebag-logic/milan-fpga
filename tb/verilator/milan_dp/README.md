@@ -107,7 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
+- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty-one plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
@@ -1379,16 +1379,25 @@ a finding too: the lane that fixes it deletes the row.
 
 | Row | Fabric | Split | Owed to |
 |---|---|---|---|
-| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
-| `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | #665, its step not yet named (#929) |
 | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
 
-The first two have one cause: the split's sources stay unallocated until an
-SRP adapter entry takes MAAP's range
-([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
-The third is the fabric's: its AECP engine serves the image's ENTITY
+The first is the split's. Since #895 its Talker Advertise for STREAM_OUTPUT
+0's stream is declared after the PROBE_TX and withdrawn, as the fabric's is,
+and the split sends no notice at either change (Milan v1.2 5.4.5.2, Table
+5.22). The second is the fabric's: its AECP engine serves the image's ENTITY
 descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
 6.2.2.15).
+
+A third row, `split-talker-failed`, held the split's Talker Failed for both
+sources from boot, never withdrawn, against the fabric's Talker Advertise for
+source 0. Its cause, no SRP adapter entry taking MAAP's allocation, went with
+#895 (`srp_mbx_allocation`): at its head the split declares no Talker Failed in
+this stimulus, and its Talker Advertise for source 0 runs from 5190 ms to its
+Leave at 20190 ms, the fabric's from 5200 ms to 20000 ms. #929 deleted the row.
+Its Talker attributes are now compared as every other MSRP attribute is, at the
+LeaveAll boundaries and against Table 10-3, and `talker-failed-back` plants the
+row's old behaviour.
 
 `OWED_GRADES` holds an owed defect that one half's grade finds. Its row asserts
 that half's exact behaviour and takes those grade findings out while it holds.
@@ -1410,7 +1419,7 @@ item 2).
 
 ### The plants
 
-`make twin-plants` runs twenty plants. Each must be refused by its words
+`make twin-plants` runs twenty-one plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1426,7 +1435,7 @@ asserts.
 | Plant | What it changes | Refused by, between the placements |
 |---|---|---|
 | `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
-| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
+| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 0200000000010001` |
 | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
 | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
 | `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
@@ -1435,7 +1444,8 @@ asserts.
 | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
 | `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
 | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
-| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
+| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]` |
+| `talker-failed-back` | the split's Talker declared as Talker Failed again, as before #895: each Talker Advertise vector re-encoded in place as Talker Failed of the same StreamID and events, code 2 | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1` |
 | `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
 | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
 | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
@@ -1456,8 +1466,22 @@ per controller (0 and 1 to the second, 0 to the first), the split per entity
 (0 and 2 to the second, 1 to the first). Both halves meet every timing bound.
 No stream frame is sent and no sink settles in this stimulus, so the 4.3.2
 and 4.4.1 checks hold without being tested. At every LeaveAll boundary both
-halves declare the Domain. The Talker attributes are the
-`split-talker-failed` owed row's.
+halves declare the Domain, and at the first one, while both declare it, each
+half's Talker Advertise for source 0. Each half's Talker passes the Table 10-3
+grade: the split's is New twice from 5190 ms, then JoinMt, then Lv at 20190 ms;
+the fabric's New twice from 5200 ms, then JoinMt, Lv at 20000 ms, then Mt x5
+from 21000 ms.
+
+The comparison reads a Talker attribute by its type and StreamID
+(`twin_mrp.declarations`), not its TSpec, and the halves' TSpecs differ: the
+split's MaxFrameSize is 217, Milan v1.2 4.3.3.2 Table 4.4's 24 x 8 + 24 + 1
+for the entity's 8 channels, the fabric's 73, the same formula at 2, though
+both halves' notices carry the 8-channel format (`0205022002006000`). The twin
+builds both datapaths at `TALKER_WIRE_CHANS_P`'s default of 2, where the
+shipping AX shape builds 8 (`--talker-wire-chans 8`), and the fabric's source 0
+declares its `LWSRP_TSPEC` word (`milan_datapath.sv`, the TSpec geometry's
+reset). Which of the two sets the 73 is not diagnosed here. Reported on #929,
+not held here.
 
 `make twin` exits 0: everything else is a ledger or an owed row. The split's
 Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its

@@ -16,6 +16,8 @@ Each plant names the grade or row it is the plant of:
     against its Registrar (twin_mrp.py);
   * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665);
   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
+  * talker-failed-back: the same comparison of the Talker declarations, which no owed row holds since #895
+    (#929): the split's Talker Advertise declared as Talker Failed again;
   * leave-all-omission: a LeaveAll frame that leaves out a declared attribute, against Table 10-3's txLA!
     (twin_mrp.py);
   * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
@@ -44,6 +46,9 @@ MVRP_ETHERTYPE = 0x88F5
 DOMAIN = bytes.fromhex("06030002")
 #: IEEE 802.1Q-2018 10.8.2.6: a single value's ThreePackedEvents octet is its event x 36
 NEW, JOIN_IN, JOIN_MT, LV = 0, 1, 3, 5
+#: a Talker Advertise FirstValue's octets (IEEE 802.1Q-2018 35.2.2.8.1: StreamID, DataFrameParameters, TSpec,
+#: PriorityAndRank, AccumulatedLatency)
+TALKER_ADVERTISE_BYTES = 25
 
 
 def frame_fields(entry: dict) -> tuple[str, Sent] | None:
@@ -223,6 +228,41 @@ def plant_leave_all_omission(fabric: dict, split: dict) -> dict:
     raise SystemExit("plant leave-all-omission: no split MSRP LeaveAll frame carrying the Domain after 20000 ms")
 
 
+def plant_talker_failed_back(fabric: dict, split: dict) -> dict:
+    """The split's Talker declared as Talker Failed again, as before #895: every Message of Talker Advertise
+    vectors re-encoded in place as Talker Failed of the same StreamIDs and events, each FirstValue followed by
+    FailureInformation, the split's MAC as system identifier and code 2 (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6),
+    and its AttributeLength and AttributeListLength grown by it (10.8.1.2)."""
+    del fabric
+    planted_any = False
+    for entry in split["frames"]:
+        found = frame_fields(entry)
+        if found is None or found[0] != "MSRP":
+            continue
+        raw = bytes.fromhex(entry["hex"])
+        data, offset = bytearray(raw), found[1].at + 1
+        while offset + 4 <= len(data) and data[offset:offset + 2] != b"\0\0":
+            listed = int.from_bytes(data[offset + 2:offset + 4], "big")
+            if data[offset] == 1 and data[offset + 1] == TALKER_ADVERTISE_BYTES:
+                failure = bytes(2) + raw[6:12] + bytes([2])
+                vector, end, grown = offset + 4, offset + 4 + listed, 0
+                while vector + 2 <= end + grown and data[vector:vector + 2] != b"\0\0":
+                    count = int.from_bytes(data[vector:vector + 2], "big") & 0x1FFF
+                    at = vector + 2 + TALKER_ADVERTISE_BYTES
+                    data[at:at] = failure
+                    grown += len(failure)
+                    vector = at + len(failure) + (count + 2) // 3
+                data[offset], data[offset + 1] = 2, TALKER_ADVERTISE_BYTES + len(failure)
+                data[offset + 2:offset + 4] = (listed + grown).to_bytes(2, "big")
+                listed += grown
+                planted_any = True
+            offset += 4 + listed
+        entry["hex"] = bytes(data).hex()
+    if not planted_any:
+        raise SystemExit("plant talker-failed-back: the split declared no Talker Advertise")
+    return planted(split, "talker-failed-back")
+
+
 def plant_received_join(fabric: dict, split: dict) -> dict:
     """A peer's MSRP Domain JoinIn the split receives at 30500 ms, as the stimulus would apply it: its Registrar
     goes IN (IEEE 802.1Q-2018 Table 10-4), so its next sJ must be JoinIn (10.7.6.3), and the split, which never
@@ -375,7 +415,7 @@ SPLIT_PLANTS: dict[str, Plant] = {
     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
-    "leave-all-omission": plant_leave_all_omission,
+    "leave-all-omission": plant_leave_all_omission, "talker-failed-back": plant_talker_failed_back,
     "mvrp-join-in": plant_mvrp_join_in, "mvrp-received-join": plant_mvrp_received_join,
 }
 #: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)

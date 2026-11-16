@@ -956,11 +956,13 @@ twin: build-twin
 # (twin_plants.py, through twin_compare.py --make-plant): the split's for a
 # difference no row covers, an owed difference gone, the entity's commands and
 # their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
-# out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
+# out a declared attribute, the LeaveAll declarations and the Talker declared as
+# Talker Failed again (#929); the fabric's for its owed defects gone (#857, #858, #860), and
 # for the #860 rows' exact traces
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
 TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
-  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
+  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join \
+  talker-failed-back
 TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
   vanished-vid2-join-in vid2-registrar-in
 twin-plants: build-twin
