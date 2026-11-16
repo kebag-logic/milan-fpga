@@ -1,0 +1,54 @@
+Note: Google Test filter = SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+$REVIEWS/r850-1-925/sw/firmware/ctrl/test/srp_mbx.cpp:1934: Failure
+Expected equality of these values:
+  sink(1).desired
+    Which is: '\x1' (1)
+  kAdvertise
+    Which is: 2
+a later binding takes the latest registration
+
+  [FAIL] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream: a later binding takes the latest registration
+$REVIEWS/r850-1-925/sw/firmware/ctrl/test/srp_mbx.cpp:1935: Failure
+Expected equality of these values:
+  sink(1).declared
+    Which is: '\x1' (1)
+  kAdvertise
+    Which is: 2
+the shared declaration stays Ready, not ReadyFailed
+
+  [FAIL] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream: the shared declaration stays Ready, not ReadyFailed
+$REVIEWS/r850-1-925/sw/firmware/ctrl/test/srp_mbx.cpp:1936: Failure
+Expected equality of these values:
+  d.subtype
+    Which is: 1
+  kAdvertise
+    Which is: 2
+the shared declaration stays Ready
+
+  [FAIL] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream: the shared declaration stays Ready
+$REVIEWS/r850-1-925/sw/firmware/ctrl/test/srp_mbx.cpp:1936: Failure
+Expected equality of these values:
+  d.subtype
+    Which is: 1
+  kAdvertise
+    Which is: 2
+the shared declaration stays Ready
+
+  [FAIL] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream: the shared declaration stays Ready
+[  FAILED  ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (0 ms)
+[----------] 1 test from SrpTalkerKinds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

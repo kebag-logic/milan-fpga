@@ -1,0 +1,54 @@
+Note: Google Test filter = SrpTalkerKinds.ReviewMinimal*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ReviewMinimalTrailingDomain
+OBS latest=2 trailing=0 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=2
+OBS first_matching_wire_ms=0
+OBS latest=2 trailing=1 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=1
+OBS first_matching_wire_ms=600
+$REVIEWS/925-r850-1-packet/scratch/reproduce-if2/tests/srp_mbx.cpp:1992: Failure
+Expected equality of these values:
+  declared_at_join
+    Which is: 1
+  latest
+    Which is: 2
+replacement must reach wire declaration within a JoinTime
+
+  [FAIL] SrpTalkerKinds.ReviewMinimalTrailingDomain: replacement must reach wire declaration within a JoinTime
+$REVIEWS/925-r850-1-packet/scratch/reproduce-if2/tests/srp_mbx.cpp:1993: Failure
+Expected: (first_wire) <= (kJoinMs), actual: 600 vs 190
+replacement transmit latency
+
+  [FAIL] SrpTalkerKinds.ReviewMinimalTrailingDomain: replacement transmit latency
+OBS latest=1 trailing=0 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=1
+OBS first_matching_wire_ms=0
+OBS latest=1 trailing=1 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=2
+OBS first_matching_wire_ms=600
+$REVIEWS/925-r850-1-packet/scratch/reproduce-if2/tests/srp_mbx.cpp:1992: Failure
+Expected equality of these values:
+  declared_at_join
+    Which is: 2
+  latest
+    Which is: 1
+replacement must reach wire declaration within a JoinTime
+
+  [FAIL] SrpTalkerKinds.ReviewMinimalTrailingDomain: replacement must reach wire declaration within a JoinTime
+$REVIEWS/925-r850-1-packet/scratch/reproduce-if2/tests/srp_mbx.cpp:1993: Failure
+Expected: (first_wire) <= (kJoinMs), actual: 600 vs 190
+replacement transmit latency
+
+  [FAIL] SrpTalkerKinds.ReviewMinimalTrailingDomain: replacement transmit latency
+[  FAILED  ] SrpTalkerKinds.ReviewMinimalTrailingDomain (1 ms)
+[----------] 1 test from SrpTalkerKinds (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpTalkerKinds.ReviewMinimalTrailingDomain
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,46 @@
+Note: Google Test filter = SrpTalkerKinds.ReviewRebinding*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind
+OBS rebind registered=3 latest=0 desired=1 declared=1
+$REVIEWS/925-r850-1-packet/scratch/rebind-if2/tests/srp_mbx.cpp:1972: Failure
+Expected equality of these values:
+  sink(0).desired
+    Which is: '\x1' (1)
+  kAdvertise
+    Which is: 2
+unchanged registrations retain their order across an unbind
+
+  [FAIL] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind: unchanged registrations retain their order across an unbind
+$REVIEWS/925-r850-1-packet/scratch/rebind-if2/tests/srp_mbx.cpp:1973: Failure
+Expected equality of these values:
+  sink(0).declared
+    Which is: '\x1' (1)
+  kAdvertise
+    Which is: 2
+later binding follows the latest retained registration
+
+  [FAIL] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind: later binding follows the latest retained registration
+$REVIEWS/925-r850-1-packet/scratch/rebind-if2/tests/srp_mbx.cpp:1974: Failure
+Expected equality of these values:
+  sink(0).feedback_kind
+    Which is: '\x1' (1)
+  kAdvertise
+    Which is: 2
+later ACMP binding observes the latest retained registration
+
+  [FAIL] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind: later ACMP binding observes the latest retained registration
+[  FAILED  ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind (0 ms)
+[----------] 1 test from SrpTalkerKinds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

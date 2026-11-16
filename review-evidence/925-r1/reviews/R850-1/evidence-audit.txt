@@ -1,0 +1,174 @@
+:100644 100644 1bd48a0e33 983701e531 M	docs/design/SPLIT_CONTROL_MEMORY.md
+:100644 100644 2359fa02fd b1a3866c73 M	sw/firmware/ctrl/srp/README.md
+:100644 100644 9730217f63 f2f79f8408 M	sw/firmware/ctrl/srp/srp_mbx.c
+:100644 100644 4d06c1ca57 5f2dbc97b6 M	sw/firmware/ctrl/srp/srp_mbx.h
+:100644 100644 46a7c39aca 2f5a1b4607 M	sw/firmware/ctrl/test/srp_feedback.hpp
+:000000 100644 0000000000 3a3a11d444 A	sw/firmware/ctrl/test/srp_kind_mutants.py
+:100644 100644 1728c02a9f fab2d01fc7 M	sw/firmware/ctrl/test/srp_mbx.cpp
+:100644 100644 2005953409 01a7248bf3 M	sw/firmware/ctrl/test/srp_mutants.py
+:100644 100644 d3aad22680 9a359c9c0e M	sw/firmware/gtest/coverage.ratchet
+:100644 100644 08d591fc61 d84c53ae32 M	sw/litex/ctrl_memory.py
+:100644 100644 756fe88e24 68546e204b M	sw/litex/ctrl_memory_ledger.py
+
+
+09a948d46413ef3b3ab0fa11bf97c06323f9051f
+a7ff40db6afec61b93243ede79af62dd9efd8cb7
+a7ff40db6afec61b93243ede79af62dd9efd8cb7
+ed63495c5332415db216457abec37809737e0a0b
+ed63495c5332415db216457abec37809737e0a0b
+
+
+author-r1/receipts/budget/1x1/run-summary.log
+96 groups graded, 0 refusals, 7 budget misses (7 of 950 probe instances, 4 of 92 paths), 0 of 129813 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+
+author-r1/receipts/budget/8x8-1if/run-summary.log
+STATED backlog-adp@program-aged2-5: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged2-6: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged2-7: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-0: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-1: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-2: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-3: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-4: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-5: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-6: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-7: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-0: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-1: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-2: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-3: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-4: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-5: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-6: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-7: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-0: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-1: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-2: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-3: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-4: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-5: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-6: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-7: a pass's polls base of 22,846 CPU cycles, over its stated 22,500
+STATED save: a pass's polls base of 23,076 CPU cycles, over its stated 22,500
+STATED backlog-owed: a acmp item of 6,626 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,656 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 5,905 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,388 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,398 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,522 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,373 CPU cycles, over its stated 2,000
+
+author-r1/receipts/firmware/cov.log
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+    RESULT: PASS
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 102   failures: 0 ==
+  RESULT: PASS
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+sw/firmware/ctrl/srp/srp_mbx.c                   741/741     671/674     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (39 files)
+rc=0
+
+author-r1/receipts/firmware/fw0.log
+    RESULT: PASS
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 2   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == AECP core: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform CSR window and console (host bus): checks: 10   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    RESULT: PASS
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    RESULT: PASS
+test_ctrl_firmware: PASS
+rc=0
+
+author-r1/receipts/firmware/fw1.log
+    first: [FAIL] Pool.P1ClassesExhaustionAndRefusals: P1 refusals are counted
+[ok] mutant model-mismatch-counts-identity-refusals (model): 27 check(s) failed
+[ok] mutant acmp-kept-passed (acmp): 9 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed
+mutants: 716 of 716 caught
+test_ctrl_firmware: PASS
+rc=0
+
+author-r1/receipts/firmware/fw2.log
+[ok] retry-refusals-outlive-the-round: Mailbox.ARoundTriesAPortOnceAndItsNextRoundTheNext
+test_ctrl_firmware: PASS
+rc=0
+
+author-r1/receipts/firmware/fw3b-1be0a6c4.log
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-unknown-advertise: SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst / neither registration seen: Failed first
+[ok] feedback-latest-filter-failed-first: SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind / the latest kind precedes the withdrawal
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-unknown-advertise: SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst / neither registration seen: Failed first
+[ok] feedback-latest-filter-failed-first: SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind / the latest kind precedes the withdrawal
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+test_ctrl_firmware: PASS
+rc=0
+
+author-r1/receipts/release-image/COMPARE.txt
+
+
+author-r2/receipts/identity/images-a9f0dbc0-vs-09a948d4.txt
+
+
+author-r2/receipts/sweep/shard-0-summary.log
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 361003   in-suite failures: 0
+
+author-r2/receipts/sweep/shard-1-reruns/summary.log
+gptp_shadow make rc=0 (timeout 1800 s, -j4 --no-print-directory; 124 = the wall clock) verdict rc=0: ; 241 s
+milan_dp_gm_steps make rc=0 (timeout 1800 s, -j4 --no-print-directory; 124 = the wall clock) verdict rc=0: ; 695 s
+milan_dp_render make rc=0 (timeout 1800 s, -j4 --no-print-directory; 124 = the wall clock) verdict rc=0: ; 908 s
+
+author-r2/receipts/sweep/shard-1-summary.log
+suites: 17   passed: 14   failed: 1   timed out: 2
+checks: 2046218   in-suite failures: 0
+
+author-r2/receipts/sweep/shard-2-summary.log
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 284233   in-suite failures: 0
+
+author-r2/receipts/sweep/shard-3-summary.log
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 21575   in-suite failures: 0
