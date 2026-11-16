@@ -6,15 +6,20 @@
 // sw/firmware/nvm_hosttest/phy_peer.h answers the release's poll.
 //
 // It follows the pins the firmware writes, edge by edge: the 32 preamble ones
-// and the 14 command bits driven, the turnaround and data released, each
-// command a Clause-22 read (ST 01, OP 10). The PHY launches bit k + 1 on MDC's
+// and the 14 command bits driven, then a Clause-22 read (ST 01, OP 10) releases
+// the turnaround and data, and a write (ST 01, OP 01, #840) drives its
+// turnaround 10 and its 16 data bits too. The PHY launches bit k + 1 on MDC's
 // rising edge k (IEEE 802.3 22.3.4), so an STA that samples before the next
 // rising edge reads the turnaround's zero, then D15 to D0. A PHY at another
 // address, one told not to acknowledge, and a register on its NAK list leave
-// the line high. BMSR's link status latches low (22.2.4.2.13): a loss the test
-// latches reads as link down once, at the PHY's own address. Every frame and
-// every publication is recorded with the bus access it ended at, and the first
-// violation of the frame is kept as a finding instead of aborting the test.
+// the line high. A write at the PHY's address sets the register, unless it is
+// on the `ignored` list; register 0's restart (22.2.4.1.7) and reset bits
+// clear themselves, a restart is counted, and where `restart_drops` it
+// latches a loss, as a real PHY's renegotiation does. BMSR's link status
+// latches low (22.2.4.2.13): a loss the test latches reads as link down once,
+// at the PHY's own address. Every frame and every publication is recorded with
+// the bus access it ended at, and the first violation of the frame is kept as
+// a finding instead of aborting the test.
 
 #ifndef PHY_PEER_HPP
 #define PHY_PEER_HPP
@@ -30,7 +35,9 @@ namespace phy_peer {
 struct Frame {
     unsigned address;
     unsigned reg;
-    std::size_t at;   // the bus access that ended it
+    std::size_t at;        // the bus access that ended it
+    bool write = false;    // a Clause-22 write, its value below
+    std::uint16_t value = 0;
 };
 
 struct Publication {
@@ -45,11 +52,14 @@ struct Peer {
     bool latched_down = false;
     bool acknowledge = true;
     unsigned nak = 32;
+    unsigned ignored = 32;                     // a register whose writes it drops (32: none)
+    bool restart_drops = false;
+    unsigned restarts = 0;
     std::uint32_t word = 13u;                  // link_status's value: the reset value, 1000 Mb/s full duplex, up
     std::vector<Frame> frames;
     std::vector<Publication> published;
     std::string fault;
-    unsigned edge = 0, previous = 0, command = 0, reply = 1, input = 0;
+    unsigned edge = 0, previous = 0, command = 0, reply = 1, input = 0, data = 0;
 
     bool owns(std::uintptr_t a) const { return a != 0u && (a == w || a == r || a == status); }
     void violate(const char* what) {
@@ -84,9 +94,12 @@ struct Peer {
         if (a != w) return;
         if ((v & 1u) != 0u && (previous & 1u) == 0u) rise(v);
         if ((v & 1u) == 0u && edge == 64u) {
-            frames.push_back({(command >> 5) & 31u, command & 31u, at});
+            const bool write = (command >> 10) == 5u;
+            frames.push_back({(command >> 5) & 31u, command & 31u, at, write, static_cast<std::uint16_t>(data)});
+            if (write) written();
             edge = 0;
             command = 0;
+            data = 0;
             reply = 1;
         }
         previous = v;
@@ -104,10 +117,14 @@ private:
             if (edge < 32u && (v & 4u) == 0u) violate("a preamble bit not one");
             if (edge >= 32u) command = command << 1 | ((v >> 2) & 1u);
             reply = 1;
+        } else if ((command >> 10) == 5u) {
+            if ((v & 2u) == 0u) violate("a write's turnaround or data not driven");
+            data = (data << 1 | ((v >> 2) & 1u)) & 0x3ffffu;
+            reply = 1;
         } else {
             const bool addressed = ((command >> 5) & 31u) == address;
             if ((v & 2u) != 0u) violate("the turnaround or data driven by the STA");
-            if ((command >> 10) != 6u) violate("not a Clause-22 read");
+            if ((command >> 10) != 6u) violate("not a Clause-22 read or write");
             if (edge == 46u) {
                 const unsigned reg = command & 31u;
                 input = regs[reg];
@@ -120,6 +137,19 @@ private:
             if (!addressed || !acknowledge || (command & 31u) == nak) reply = 1;
         }
         ++edge;
+    }
+    // A whole write: its turnaround 10 (22.2.4.5), then the register set at the PHY's own address.
+    void written() {
+        if ((data >> 16) != 2u) violate("a write's turnaround not 10");
+        const unsigned reg = command & 31u;
+        if (((command >> 5) & 31u) != address || reg == ignored) return;
+        std::uint16_t value = static_cast<std::uint16_t>(data);
+        if (reg == 0u && (value & 0x0200u) != 0u) {
+            ++restarts;
+            if (restart_drops) latched_down = true;
+        }
+        if (reg == 0u) value &= static_cast<std::uint16_t>(~0x8200u);
+        regs[reg] = value;
     }
 };
 

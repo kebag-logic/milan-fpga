@@ -443,6 +443,8 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
 constexpr ctrl_plat_phy_bus kPhyBus = {0xf0002004u, 0xf0002008u, 0xf000201cu};
 constexpr std::uint32_t kGigFull = 13u;
 constexpr unsigned kPollMs = CTRL_PLAT_PHY_POLL_US / 1000u;
+// The first poll's frames after ready, the boot's advertisement's nine among them (#840), one a step
+constexpr unsigned kFirstPollMs = 10u;
 
 // The boot with a 1000BASE-T PHY behind the bus at address 0, and the datapath's effective link as the RTL
 // builds it from the published word (L2): a level that stands between two turns, its edges counted, posted to the
@@ -533,7 +535,7 @@ TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
     image[image.size() / 2] ^= 0x01u;
     env.aem = image.data();
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IMAGE);
-    run(5);
+    run(kFirstPollMs);
     EXPECT_FALSE(peer.published.empty()) << "B11 a stage refused past the identity check keeps publishing the link";
     EXPECT_EQ(peer.word, kGigFull) << "B11 a stage refused past the identity check keeps publishing the link";
     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
@@ -541,7 +543,7 @@ TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
 
 TEST_F(Phy, B12StepCarriesTheStoresSaveOrAPhyFrame) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    run(5);
+    run(kFirstPollMs);
     ASSERT_EQ(peer.word, kGigFull);
     ASSERT_EQ(nvm_store_status()->phase, NVM_P_IDLE) << "a blank flash's store is idle";
     nvm_fmodel_advance_us(CTRL_PLAT_PHY_POLL_US);
@@ -577,7 +579,7 @@ TEST_F(Phy, B12StepCarriesTheStoresSaveOrAPhyFrame) {
 
 TEST_F(Phy, L1ReadyLoopPublishesTheLink) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    run(5);
+    run(kFirstPollMs);
     EXPECT_FALSE(peer.published.empty()) << "L1 the ready loop publishes the PHY's link";
     EXPECT_EQ(peer.word, kGigFull) << "L1 the ready loop publishes the PHY's link";
     const std::size_t pubs = peer.published.size();
@@ -589,7 +591,7 @@ TEST_F(Phy, L1ReadyLoopPublishesTheLink) {
 
 TEST_F(Phy, L2EveryEdgeIsCounted) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    run(5);
+    run(kFirstPollMs);
     ASSERT_EQ(peer.word, kGigFull);
     EXPECT_EQ(counters.up + counters.down, 0u) << "L2 a PHY up at boot moves neither counter";
     flap(3000u);
@@ -624,7 +626,7 @@ std::vector<std::uint8_t> registration(std::uint64_t mac, std::uint64_t entity) 
 
 TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    run(5);
+    run(kFirstPollMs);
     const auto reg = registration(ctrl_plat.config.entity->mac, ctrl_plat.config.entity->entity_id);
     ASSERT_TRUE(mbx_model_rx(&fabric, reg.data(), reg.size(), 0));
     run(20);
@@ -637,7 +639,7 @@ TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
 
 TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    run(5);
+    run(kFirstPollMs);
     flap(3000u);
     const std::uint64_t back = nvm_fmodel_now_us();
     run(2u * kPollMs + 10u);

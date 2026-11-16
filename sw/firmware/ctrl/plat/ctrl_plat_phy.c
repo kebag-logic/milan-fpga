@@ -35,6 +35,7 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 	phy->bus = *bus;
 	phy->clock = clock;
 	phy->ctx = ctx;
+	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_BOOT;
 	// THE BIT: CYCLES_HALF turns, or one where a timed run of more than TIMED_ONE us (at least TIMED_ONE, less the
 	// clock's resolution) shows a turn alone holds 200 ns
 	phy->spin = CYCLES_HALF;
@@ -58,18 +59,18 @@ static uint32_t bit(const struct ctrl_plat_phy *phy, bool drive, uint32_t out)
 	return in;
 }
 
-// One Clause-22 read of `reg` at the poll's address, its 64 bit periods in one pass: the preamble's ones and ST OP
-// PHYAD REGAD driven, then the turnaround and the 16 data bits released, the pins released after. The last 32
-// samples stay in `value`: the turnaround's second bit at bit 16, D15 to D0 below it. A PHY that does not pull that
-// turnaround bit low did not answer: -1, never a value (the release's acknowledgement rule).
-static int32_t frame(const struct ctrl_plat_phy *phy, uint32_t reg)
+// One Clause-22 frame at the poll's address, its 64 bit periods in one pass: the preamble's ones, then `lo`, its
+// first `driven` bits driven, the pins released after. A read drives ST OP PHYAD REGAD and releases the turnaround
+// and the 16 data bits; its last 32 samples stay in `value`: the turnaround's second bit at bit 16, D15 to D0 below
+// it. A PHY that does not pull that turnaround bit low did not answer: -1, never a value (the release's
+// acknowledgement rule). A write drives every bit (22.2.4.5) and has no reply.
+static int32_t frame(const struct ctrl_plat_phy *phy, uint32_t lo, uint32_t driven)
 {
-	// the 64 bits as a shift register of two words: the preamble's 32 ones, then ST OP PHYAD REGAD, then zeros
+	// the 64 bits as a shift register of two words: the preamble's 32 ones, then `lo`
 	uint32_t hi = ~0u;
-	uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
 	uint32_t value = 0;
-	for (uint32_t k = 0; k < 64u; ++k) {
-		value = value << 1 | bit(phy, k < CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS, hi >> 31);
+	for (uint32_t k = 0; k < CTRL_PLAT_PHY_FRAME_BITS; ++k) {
+		value = value << 1 | bit(phy, k < driven, hi >> 31);
 		hi = hi << 1 | lo >> 31;
 		lo <<= 1;
 	}
@@ -97,18 +98,53 @@ static uint32_t common_mode(uint32_t common)
 	return (common & CTRL_PLAT_PHY_AN_10_HALF) != 0u ? up(CTRL_PLAT_PHY_SPEED_10, 0u) : 0u;
 }
 
-// The register each stage's frame reads, in enum ctrl_plat_phy_stage's order.
+// The register each stage's frame reads or writes, in enum ctrl_plat_phy_stage's order.
 static const uint8_t regs[] = {0u, CTRL_PLAT_PHY_PHYID1, CTRL_PLAT_PHY_BMSR, CTRL_PLAT_PHY_BMSR, CTRL_PLAT_PHY_BMCR,
 			       CTRL_PLAT_PHY_ESTAT, CTRL_PLAT_PHY_GCTRL, CTRL_PLAT_PHY_GSTAT, CTRL_PLAT_PHY_ANAR,
-			       CTRL_PLAT_PHY_ANLPAR};
+			       CTRL_PLAT_PHY_ANLPAR, CTRL_PLAT_PHY_ESTAT, CTRL_PLAT_PHY_ANAR, CTRL_PLAT_PHY_GCTRL,
+			       CTRL_PLAT_PHY_BMCR, CTRL_PLAT_PHY_GCTRL, CTRL_PLAT_PHY_ANAR, CTRL_PLAT_PHY_BMCR,
+			       CTRL_PLAT_PHY_ANAR, CTRL_PLAT_PHY_GCTRL};
+
+// THE ADVERTISEMENT held by registers 4 and 9 as read: no 10/100 mode, 1000BASE-T full duplex and not half.
+static bool gigabit_only(uint32_t anar, uint32_t gctrl)
+{
+	return (anar & CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT) == 0u &&
+	       (gctrl & (CTRL_PLAT_PHY_GCTRL_1000_FULL | CTRL_PLAT_PHY_GCTRL_1000_HALF)) == CTRL_PLAT_PHY_GCTRL_1000_FULL;
+}
+
+// A word published to the link status, kept as the word the next poll's latched loss is judged against. A link
+// that was published up and is not now is a loss: THE ADVERTISEMENT is owed again (#840, #919).
+static void publish(struct ctrl_plat_phy *phy, uint32_t word)
+{
+	ctrl_plat_io_write32(phy->bus.link_status, word);
+	if ((phy->published & ~word & CTRL_PLAT_PHY_LINK_UP) != 0u) {
+		phy->adv = CTRL_PLAT_PHY_ADV_OWED;
+	}
+	phy->published = word;
+}
 
 // The frame `stage` names, and what it decides: the next stage, by default the one after it, or the poll's end,
-// its word published and kept as the word the next poll's latched loss is judged against (link down unless
-// resolved). A probe that missed ends so, with link down.
+// its word published (link down unless resolved). A probe that missed ends so, with link down. THE ADVERTISEMENT's
+// three writes carry the registers as read, changed as the release's init changes them.
 static void take(struct ctrl_plat_phy *phy)
 {
 	const uint32_t stage = phy->stage;
-	const int32_t v = frame(phy, regs[stage]);
+	const uint32_t reg = regs[stage];
+	uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
+	uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;
+	if (stage - CTRL_PLAT_PHY_ADV_SET_GIG <= CTRL_PLAT_PHY_ADV_RESTART - CTRL_PLAT_PHY_ADV_SET_GIG) {
+		const uint32_t data =
+			stage == CTRL_PLAT_PHY_ADV_SET_GIG ?
+				((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :
+			stage == CTRL_PLAT_PHY_ADV_SET_LOCAL ?
+				(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED) :
+				((uint32_t)phy->control | CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &
+					~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE);
+		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | (uint32_t)phy->address << 23 | reg << 18 | CTRL_PLAT_PHY_WRITE_TA << 16 |
+		     data;
+		driven = CTRL_PLAT_PHY_FRAME_BITS;
+	}
+	const int32_t v = frame(phy, lo, driven);
 	const uint32_t u = (uint32_t)v;
 	uint32_t next = stage + 1u;
 	uint32_t status = 0u;
@@ -130,8 +166,7 @@ static void take(struct ctrl_plat_phy *phy)
 		// current state, unless the link stood up through the latch or the read failed
 		if (stage == CTRL_PLAT_PHY_STATUS && v >= 0) {
 			if ((u & CTRL_PLAT_PHY_BMSR_LINK) == 0u && (phy->published & CTRL_PLAT_PHY_LINK_UP) != 0u) {
-				ctrl_plat_io_write32(phy->bus.link_status, 0u);
-				phy->published = 0u;
+				publish(phy, 0u);
 			}
 			if ((phy->published & CTRL_PLAT_PHY_LINK_UP) == 0u) {
 				break;
@@ -160,7 +195,48 @@ static void take(struct ctrl_plat_phy *phy)
 		break;
 	case CTRL_PLAT_PHY_GIG_LOCAL:
 	case CTRL_PLAT_PHY_LOCAL:
+	case CTRL_PLAT_PHY_ADV_LOCAL:
+	case CTRL_PLAT_PHY_ADV_CHECK_LOCAL:
 		phy->local = v;
+		break;
+	case CTRL_PLAT_PHY_ADV_ABILITY:
+		// no 1000BASE-T full duplex ability: a 10/100 PHY, never written; unacknowledged: the next poll retries
+		if (v >= 0 && (u & CTRL_PLAT_PHY_ESTAT_1000T_FULL) == 0u) {
+			phy->adv = 0u;
+		}
+		if (v < 0 || phy->adv == 0u) {
+			next = phy->resume;
+		}
+		break;
+	case CTRL_PLAT_PHY_ADV_GIG:
+		phy->gig = v;
+		break;
+	case CTRL_PLAT_PHY_ADV_CONTROL:
+		// a register unacknowledged writes nothing: the next poll retries
+		phy->control = v;
+		if (phy->local < 0 || phy->gig < 0 || v < 0) {
+			next = phy->resume;
+		}
+		break;
+	case CTRL_PLAT_PHY_ADV_SET_GIG:
+		break;
+	case CTRL_PLAT_PHY_ADV_SET_LOCAL:
+		// negotiation restarts once a time it is owed: at boot always, after a loss only where the PHY no longer
+		// held the advertisement
+		if ((phy->adv & CTRL_PLAT_PHY_ADV_RESTARTED) != 0u ||
+		    ((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))) {
+			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
+		}
+		break;
+	case CTRL_PLAT_PHY_ADV_RESTART:
+		phy->adv |= CTRL_PLAT_PHY_ADV_RESTARTED;
+		break;
+	case CTRL_PLAT_PHY_ADV_CHECK_GIG:
+		// verified: the read-back holds the advertisement; else it stays owed
+		if (phy->local >= 0 && v >= 0 && gigabit_only((uint32_t)phy->local, u)) {
+			phy->adv = 0u;
+		}
+		next = phy->resume;
 		break;
 	case CTRL_PLAT_PHY_GIG_PEER: {
 		// 1000BASE-T (40.5.1.1): GCTRL's advertisement two bits below GSTAT's partner ability; a fault is no link
@@ -179,9 +255,18 @@ static void take(struct ctrl_plat_phy *phy)
 		status = phy->local < 0 || v < 0 ? 0u : common_mode((uint32_t)phy->local & u);
 		break;
 	}
+	// THE ADVERTISEMENT where it is owed, after the poll's first BMSR read (a PHY without BMSR's extended capability
+	// is a 10/100 PHY, never written), then the stage that read chose
+	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u) {
+		if ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {
+			phy->adv = 0u;
+		} else {
+			phy->resume = (uint8_t)next;
+			next = CTRL_PLAT_PHY_ADV_ABILITY;
+		}
+	}
 	if (next == CTRL_PLAT_PHY_IDLE) {
-		ctrl_plat_io_write32(phy->bus.link_status, status);
-		phy->published = status;
+		publish(phy, status);
 	}
 	phy->stage = (uint8_t)next;
 }

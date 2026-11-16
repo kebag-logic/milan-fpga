@@ -28,6 +28,22 @@
 //       period's spin is ceil(cpu_hz / CTRL_PLAT_PHY_HALF_HZ) turns
 //   P10 the clock wraps: a poll is due by the wrapped difference, and at once
 //       when the clock went back
+//   P11 THE ADVERTISEMENT at boot (#840), as the release's PHY init: register
+//       9, then 4, then 0, each property by its own name from start values
+//       in opposite states, autonegotiation restarted once after both, read
+//       back, and never again while the link stands
+//   P12 a 10/100 PHY, without BMSR's extended capability or without
+//       1000BASE-T full duplex ability, is never written, at boot or after a
+//       loss
+//   P13 after every link loss the advertisement is written and read back
+//       again, with no restart where the PHY still held it, so a restart's
+//       own latched loss restarts nothing
+//   P14 a PHY that lost the advertisement (reset to its defaults) is written
+//       and restarted once after the loss
+//   P15 an advertisement that does not read back stays owed, written again
+//       each poll, its restart once, until it reads back
+//   P16 a read the advertisement needs unacknowledged writes nothing; the
+//       next poll retries
 
 #include <gtest/gtest.h>
 
@@ -77,6 +93,8 @@ struct PlatPhy : ::testing::Test {
         arm(kBus);
     }
     bool call(std::uint32_t at) { return step(at, kRoom); }
+    // The poll armed afresh, as a boot arms it, on the peer as the test set it.
+    void arm_again() { arm(kBus); }
     // Calls at `at` until nothing is owed, at most `most`; the calls taken.
     unsigned poll(std::uint32_t at, unsigned most = 64) {
         unsigned n = 0;
@@ -96,6 +114,14 @@ struct PlatPhy : ::testing::Test {
     std::vector<unsigned> regs_since(std::size_t k) const {
         std::vector<unsigned> out;
         for (; k < peer.frames.size(); ++k) out.push_back(peer.frames[k].reg);
+        return out;
+    }
+    // The writes from frame `k` on.
+    std::vector<phy_peer::Frame> writes_since(std::size_t k) const {
+        std::vector<phy_peer::Frame> out;
+        for (; k < peer.frames.size(); ++k) {
+            if (peer.frames[k].write) out.push_back(peer.frames[k]);
+        }
         return out;
     }
     // The address's PHY found and the peer's link published (the first poll).
@@ -144,8 +170,10 @@ TEST_F(PlatPhy, P3LatchedLossPublishesBothEdges) {
         << "P3 a loss that recovered between two polls publishes link down, then link up";
     const auto regs = regs_since(frames);
     ASSERT_GE(regs.size(), 2u);
+    // the loss owes THE ADVERTISEMENT (P13), whose eight frames come between the two BMSR reads
+    ASSERT_GE(regs.size(), 10u);
     EXPECT_EQ(regs[0], CTRL_PLAT_PHY_BMSR) << "P3 the latched BMSR, then the current one";
-    EXPECT_EQ(regs[1], CTRL_PLAT_PHY_BMSR) << "P3 the latched BMSR, then the current one";
+    EXPECT_EQ(regs[9], CTRL_PLAT_PHY_BMSR) << "P3 the latched BMSR, then the current one";
     EXPECT_LT(peer.published[pubs].at, peer.frames[frames + 1u].at)
         << "P3 the loss is published before the current state is read: a frame between the two words";
     // a sustained loss, then its end
@@ -174,8 +202,9 @@ TEST_F(PlatPhy, P4ResolvedModesAreTheReleases) {
     peer.regs[10] = 0x0400u;
     next();
     EXPECT_EQ(peer.word, kGigHalf) << "P4 1000BASE-T half duplex";
-    // MII: no extended status register
+    // MII: no extended status register, the PHY's own advertisement (the boot wrote the gigabit PHY's)
     peer.regs[1] = 0x0024u;
+    peer.regs[4] = 0x01e1u;
     const std::uint16_t partner[4] = {0x0101u, 0x0081u, 0x0041u, 0x0021u};
     const std::uint32_t want[4] = {kFull100, kHalf100, kFull10, kHalf10};
     for (unsigned k = 0; k < 4u; ++k) {
@@ -193,7 +222,8 @@ TEST_F(PlatPhy, P4ResolvedModesAreTheReleases) {
     std::size_t frames = peer.frames.size();
     next();
     EXPECT_EQ(peer.word, kFull100) << "P4 an extended status without 1000BASE-T resolves from 4 and 5";
-    EXPECT_EQ(regs_since(frames), (std::vector<unsigned>{1, 1, 0, 15, 4, 5})) << "P4 the release's registers in order";
+    // the loss before it owes the advertisement: its ability read finds no 1000BASE-T full duplex and writes nothing
+    EXPECT_EQ(regs_since(frames), (std::vector<unsigned>{1, 15, 1, 0, 15, 4, 5})) << "P4 the release's registers in order";
     // 1000BASE-T offered but not common: 4 and 5 after 9 and 10
     peer.regs[15] = 0x3000u;
     peer.regs[10] = 0x0000u;
@@ -207,7 +237,10 @@ TEST_F(PlatPhy, P4ResolvedModesAreTheReleases) {
     EXPECT_EQ(peer.word, 0u) << "P4 a master-slave configuration fault is link down";
     peer.regs[10] = 0x0c00u;
     peer.regs[9] = 0x0300u;
-    // the forced modes, autonegotiation off
+    // the fault's loss owes the advertisement, which restarts negotiation on a PHY that no longer holds it (P14):
+    // the link resolved again, then the forced modes, autonegotiation off
+    next();
+    EXPECT_EQ(peer.word, kGigFull) << "P4 the fault's end resolves 1000BASE-T full duplex";
     const std::uint16_t forced[3] = {0x2100u, 0x0140u, 0x0000u};
     const std::uint32_t mode[3] = {kFull100, kGigFull, kHalf10};
     for (unsigned k = 0; k < 3u; ++k) {
@@ -225,6 +258,7 @@ TEST_F(PlatPhy, P4ResolvedModesAreTheReleases) {
 TEST_F(PlatPhy, P5ErrorsAreLinkDown) {
     found();
     peer.regs[1] = 0x0024u;
+    peer.regs[4] = 0x01e1u;   // an MII PHY's own advertisement
     peer.regs[5] = 0x0101u;
     peer.nak = 5u;
     next();
@@ -268,7 +302,8 @@ TEST_F(PlatPhy, P6FramesAreClause22Reads) {
     const std::size_t from = peer.frames.size();
     peer.latched_down = true;
     next();
-    EXPECT_TRUE(peer.fault.empty()) << "P6 every frame a Clause-22 read, driven then released: " << peer.fault;
+    EXPECT_TRUE(peer.fault.empty()) << "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it: "
+                                    << peer.fault;
     for (std::size_t k = from; k < peer.frames.size(); ++k) {
         EXPECT_EQ(peer.frames[k].address, 7u) << "P6 every frame at the PHY's address once found";
     }
@@ -288,8 +323,9 @@ TEST_F(PlatPhy, P7OneFrameACallWithItsRoom) {
         ++calls;
         if (!owed) break;
     }
-    EXPECT_EQ(calls, 7u + 1u + 6u)
-        << "P7 seven misses, the probe, then the first poll's six frames (BMSR twice: nothing published up yet)";
+    EXPECT_EQ(calls, 7u + 1u + 6u + 9u)
+        << "P7 seven misses, the probe, then the first poll's six frames (BMSR twice: nothing published up yet) and "
+           "the boot's advertisement's nine";
     now += CTRL_PLAT_PHY_POLL_US;
     std::size_t frames = peer.frames.size();
     EXPECT_TRUE(step(now, CTRL_PLAT_PHY_STEP_US - 1)) << "P7 a frame without its room is owed";
@@ -342,6 +378,256 @@ TEST_F(PlatPhy, P10TheClockWraps) {
     const std::size_t frames = peer.frames.size();
     EXPECT_TRUE(call(5u)) << "P10 a clock that went back makes a poll due at once";
     EXPECT_EQ(peer.frames.size(), frames + 1u) << "P10 a clock that went back makes a poll due at once";
+}
+
+// THE ADVERTISEMENT's three writes from frame `from` on, each property graded by its own name against the registers
+// the PHY held before them (`start`, registers 0, 4 and 9), as the release's host test grades its PHY init (#840)
+void expect_gigabit_only(const std::vector<phy_peer::Frame>& frames, std::size_t from, const std::uint16_t start[3],
+                         const char* arm) {
+    int at0 = -1;
+    int at4 = -1;
+    int at9 = -1;
+    std::uint16_t ctl = 0;
+    std::uint16_t adv = 0x03e0u;
+    std::uint16_t gig = 0;
+    unsigned writes = 0;
+    for (std::size_t k = from; k < frames.size(); ++k) {
+        if (!frames[k].write) continue;
+        ++writes;
+        const int at = static_cast<int>(k);
+        if (frames[k].reg == 0u) at0 = at, ctl = frames[k].value;
+        if (frames[k].reg == 4u) at4 = at, adv = frames[k].value;
+        if (frames[k].reg == 9u) at9 = at, gig = frames[k].value;
+    }
+    EXPECT_EQ(writes, 3u) << "P11 three writes, " << arm;
+    EXPECT_TRUE(at4 >= 0 && (adv & 0x0060u) == 0u) << "P11 no 10BASE-T advertised, " << arm;
+    EXPECT_TRUE(at4 >= 0 && (adv & 0x0180u) == 0u) << "P11 no 100BASE-TX advertised, " << arm;
+    EXPECT_TRUE(at4 >= 0 && (adv & 0x0200u) == 0u) << "P11 no 100BASE-T4 advertised, " << arm;
+    EXPECT_TRUE(at4 >= 0 && (adv & 0x4000u) == 0u) << "P11 reserved bit 14 cleared, " << arm;
+    EXPECT_EQ(adv & 0x0c00u, start[1] & 0x0c00u) << "P11 the pause bits kept, " << arm;
+    EXPECT_EQ(adv & 0x001fu, start[1] & 0x001fu) << "P11 the selector kept, " << arm;
+    EXPECT_TRUE(at9 >= 0 && (gig & 0x0200u) != 0u) << "P11 1000BASE-T full duplex advertised, " << arm;
+    EXPECT_TRUE(at9 >= 0 && (gig & 0x01ffu) == 0u) << "P11 no 1000BASE-T half duplex advertised, " << arm;
+    EXPECT_EQ(gig & 0x1c00u, start[2] & 0x1c00u) << "P11 MASTER-SLAVE kept, " << arm;
+    EXPECT_TRUE(at9 >= 0 && (gig & 0xe000u) == 0u) << "P11 the test mode cleared, " << arm;
+    EXPECT_TRUE(at0 >= 0 && (ctl & 0x0200u) != 0u) << "P11 autonegotiation restarted, " << arm;
+    EXPECT_TRUE(at0 >= 0 && (ctl & 0x1000u) != 0u) << "P11 autonegotiation enabled, " << arm;
+    EXPECT_TRUE(at0 >= 0 && (ctl & 0x8000u) == 0u) << "P11 reset cleared, " << arm;
+    EXPECT_TRUE(at0 >= 0 && (ctl & 0x0400u) == 0u) << "P11 isolate cleared, " << arm;
+    EXPECT_EQ(ctl & 0x0800u, start[0] & 0x0800u) << "P11 power-down kept, " << arm;
+    EXPECT_EQ(ctl & 0x4000u, start[0] & 0x4000u) << "P11 loopback kept, " << arm;
+    EXPECT_TRUE(at0 > at4 && at0 > at9) << "P11 the restart after both, " << arm;
+    EXPECT_TRUE(at9 >= 0 && at9 < at4) << "P11 register 9, then 4, as the release's init writes them, " << arm;
+}
+
+TEST_F(PlatPhy, P11TheBootAdvertisesGigabitOnly) {
+    // two arms whose kept bits start in opposite states (the release's host test's): the selector 00001 then
+    // 11110, pause 10 then 01, MASTER-SLAVE 101 then 010, power-down 1 then 0, loopback 0 then 1; every bit the
+    // init clears set
+    const std::uint16_t arms[2][3] = {{0x9c00u, 0x4be1u, 0xf5ffu}, {0xc400u, 0x47feu, 0xebffu}};
+    for (unsigned a = 0; a < 2u; ++a) {
+        const char* arm = a == 0u ? "first arm" : "second arm";
+        peer.gigabit(7u);
+        peer.regs[0] = arms[a][0];
+        peer.regs[4] = arms[a][1];
+        peer.regs[9] = arms[a][2];
+        arm_again();
+        const std::size_t from = peer.frames.size(), pubs = peer.published.size();
+        const unsigned restarts = peer.restarts;
+        (void)poll(now);
+        expect_gigabit_only(peer.frames, from, arms[a], arm);
+        EXPECT_EQ(peer.restarts, restarts + 1u) << "P11 autonegotiation restarted once, " << arm;
+        // read back after the restart, then the link resolved and published
+        const auto w = writes_since(from);
+        ASSERT_EQ(w.size(), 3u);
+        std::size_t k = from;
+        while (k < peer.frames.size() && peer.frames[k].at != w[2].at) ++k;
+        ASSERT_LT(k + 2u, peer.frames.size());
+        EXPECT_EQ(peer.frames[k + 1u].reg, 4u) << "P11 register 4 read back after the writes, " << arm;
+        EXPECT_FALSE(peer.frames[k + 1u].write) << "P11 register 4 read back after the writes, " << arm;
+        EXPECT_EQ(peer.frames[k + 2u].reg, 9u) << "P11 register 9 read back after the writes, " << arm;
+        ASSERT_GT(peer.published.size(), pubs);
+        EXPECT_GT(peer.published.back().at, w[2].at) << "P11 the link is resolved after the advertisement, " << arm;
+        EXPECT_EQ(peer.word, kGigFull) << "P11 the link negotiated on the advertisement, " << arm;
+        // verified: the next polls write nothing while the link stands
+        const std::size_t later = peer.frames.size();
+        next();
+        next();
+        EXPECT_TRUE(writes_since(later).empty()) << "P11 the advertisement is written once while the link stands, "
+                                                 << arm;
+        EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+    }
+    // a PHY that already holds the advertisement is restarted at boot all the same, as the release's init restarts
+    // it (a link it formed before the init is never published)
+    peer.gigabit(7u);
+    peer.regs[4] = 0x0001u;
+    peer.regs[9] = 0x0200u;
+    arm_again();
+    const unsigned restarts = peer.restarts;
+    (void)poll(now);
+    EXPECT_EQ(peer.restarts, restarts + 1u) << "P11 the boot restarts negotiation whatever the PHY holds";
+}
+
+TEST_F(PlatPhy, P12A10100PhyIsNeverWritten) {
+    // MII: BMSR without the extended capability, register 15 as a gigabit PHY's would read
+    peer.gigabit(7u);
+    peer.regs[1] = 0x002cu;
+    peer.regs[5] = 0x01e1u;
+    arm_again();
+    std::size_t from = peer.frames.size();
+    (void)poll(now);
+    EXPECT_EQ(peer.word, kFull100) << "P12 an MII PHY resolves its own advertisement";
+    EXPECT_TRUE(writes_since(from).empty()) << "P12 a PHY without BMSR's extended capability is never written";
+    auto read = regs_since(from);
+    read.erase(read.begin(), read.begin() + 8);   // the probe's PHYID1 reads, addresses 0 to 7
+    EXPECT_EQ(read, (std::vector<unsigned>{1, 1, 0, 4, 5})) << "P12 and its poll reads no ability";
+    peer.link(false);
+    next();
+    peer.link(true);
+    peer.latched_down = true;
+    next();
+    EXPECT_TRUE(writes_since(from).empty()) << "P12 a PHY without BMSR's extended capability is never written";
+    // extended, without 1000BASE-T full duplex ability: half duplex alone
+    peer.gigabit(7u);
+    peer.regs[15] = 0x1000u;
+    peer.regs[10] = 0x0000u;
+    arm_again();
+    from = peer.frames.size();
+    (void)poll(now);
+    EXPECT_TRUE(writes_since(from).empty()) << "P12 a PHY without 1000BASE-T full duplex ability is never written";
+    peer.link(false);
+    next();
+    peer.link(true);
+    next();
+    EXPECT_TRUE(writes_since(from).empty()) << "P12 a PHY without 1000BASE-T full duplex ability is never written";
+    EXPECT_EQ(peer.regs[4], 0x01e1u) << "P12 its advertisement is its own";
+    EXPECT_EQ(peer.regs[9], 0x0300u) << "P12 its advertisement is its own";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(PlatPhy, P13ALossWritesAndVerifiesItAgain) {
+    // a PHY whose restart latches a loss of its own, as a real PHY's renegotiation does
+    peer.restart_drops = true;
+    arm_again();
+    (void)poll(now);
+    next();
+    ASSERT_EQ(peer.word, kGigFull);
+    EXPECT_EQ(peer.restarts, 1u) << "P13 the boot's restart is the only one: its own latched loss restarts nothing";
+    for (unsigned loss = 0; loss < 3u; ++loss) {
+        const std::size_t from = peer.frames.size();
+        if (loss == 1u) {
+            peer.link(false);   // a sustained loss, then its end
+            next();
+            peer.link(true);
+        }
+        peer.latched_down = true;
+        next();
+        EXPECT_EQ(peer.restarts, 1u) << "P13 a loss with the advertisement held restarts nothing, loss " << loss;
+        const auto w = writes_since(from);
+        ASSERT_EQ(w.size(), 2u) << "P13 after a link loss the advertisement is written again, loss " << loss;
+        EXPECT_EQ(w[0].reg, 9u) << "P13 after a link loss the advertisement is written again, loss " << loss;
+        EXPECT_EQ(w[0].value, 0x0200u) << "P13 after a link loss the advertisement is written again, loss " << loss;
+        EXPECT_EQ(w[1].reg, 4u) << "P13 after a link loss the advertisement is written again, loss " << loss;
+        EXPECT_EQ(w[1].value, 0x0001u) << "P13 after a link loss the advertisement is written again, loss " << loss;
+        std::size_t k = from;
+        while (k < peer.frames.size() && peer.frames[k].at != w[1].at) ++k;
+        ASSERT_LT(k + 2u, peer.frames.size());
+        EXPECT_TRUE(peer.frames[k + 1u].reg == 4u && peer.frames[k + 2u].reg == 9u && !peer.frames[k + 2u].write)
+            << "P13 and read back, loss " << loss;
+        EXPECT_EQ(peer.word, kGigFull) << "P13 the link's return is published in the same poll, loss " << loss;
+        const std::size_t later = peer.frames.size();
+        next();
+        EXPECT_TRUE(writes_since(later).empty()) << "P13 verified, the next poll writes nothing, loss " << loss;
+    }
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(PlatPhy, P14AResetPhyIsAdvertisedAgain) {
+    found();
+    // the PHY reset to its defaults behind a loss: 10/100 and 1000BASE-T half duplex advertised again
+    peer.regs[4] = 0x01e1u;
+    peer.regs[9] = 0x0300u;
+    peer.latched_down = true;
+    const std::size_t from = peer.frames.size();
+    next();
+    const auto w = writes_since(from);
+    ASSERT_EQ(w.size(), 3u) << "P14 a PHY that lost the advertisement is written and restarted once";
+    EXPECT_EQ(w[2].reg, 0u) << "P14 a PHY that lost the advertisement is written and restarted once";
+    EXPECT_EQ(peer.restarts, 2u) << "P14 a PHY that lost the advertisement is written and restarted once";
+    EXPECT_EQ(peer.regs[4], 0x0001u) << "P14 the advertisement written again";
+    EXPECT_EQ(peer.regs[9], 0x0200u) << "P14 the advertisement written again";
+    const std::size_t later = peer.frames.size();
+    next();
+    EXPECT_TRUE(writes_since(later).empty()) << "P14 verified, the next poll writes nothing";
+}
+
+TEST_F(PlatPhy, P15AnUnverifiedAdvertisementStaysOwed) {
+    peer.ignored = 4u;   // a PHY that drops its writes to register 4
+    arm_again();
+    (void)poll(now);
+    EXPECT_EQ(peer.restarts, 1u) << "P15 the boot restarts negotiation";
+    for (unsigned k = 0; k < 3u; ++k) {
+        const std::size_t from = peer.frames.size();
+        next();
+        EXPECT_EQ(writes_since(from).size(), 2u)
+            << "P15 an advertisement that does not read back is written again each poll, poll " << k;
+    }
+    EXPECT_EQ(peer.restarts, 1u) << "P15 and restarts negotiation once, not each poll";
+    peer.ignored = 32u;
+    std::size_t from = peer.frames.size();
+    next();
+    EXPECT_EQ(writes_since(from).size(), 2u) << "P15 once the PHY takes it, it reads back";
+    EXPECT_EQ(peer.regs[4], 0x0001u) << "P15 once the PHY takes it, it reads back";
+    from = peer.frames.size();
+    next();
+    EXPECT_TRUE(writes_since(from).empty()) << "P15 verified, the next poll writes nothing";
+    // a PHY that drops its writes to register 9: register 4 reads back, 9 still advertises half duplex
+    peer.gigabit(7u);
+    peer.ignored = 9u;
+    arm_again();
+    (void)poll(now);
+    from = peer.frames.size();
+    next();
+    EXPECT_EQ(writes_since(from).size(), 2u) << "P15 an advertisement whose register 9 does not read back is owed";
+    peer.ignored = 32u;
+    next();
+    from = peer.frames.size();
+    next();
+    EXPECT_TRUE(writes_since(from).empty()) << "P15 verified, the next poll writes nothing";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(PlatPhy, P16AnUnacknowledgedReadWritesNothing) {
+    for (const unsigned reg : {15u, 4u, 9u, 0u}) {
+        peer.nak = reg;
+        const std::size_t from = peer.frames.size();
+        now += CTRL_PLAT_PHY_POLL_US;
+        (void)poll(now);
+        EXPECT_TRUE(writes_since(from).empty()) << "P16 no write before its read: register " << reg << " unacknowledged";
+    }
+    peer.nak = 32u;
+    const std::size_t from = peer.frames.size();
+    next();
+    EXPECT_EQ(writes_since(from).size(), 3u) << "P16 the next poll with every read answered writes it";
+    EXPECT_EQ(peer.restarts, 1u) << "P16 the next poll with every read answered writes it";
+    // a read-back unacknowledged, register 4's or 9's after the writes: the advertisement stays owed
+    for (const unsigned reg : {4u, 9u}) {
+        peer.gigabit(7u);
+        arm_again();
+        for (unsigned k = 0; k < 64u && !(!peer.frames.empty() && peer.frames.back().write &&
+                                          peer.frames.back().reg == 0u); ++k) {
+            (void)call(now);
+        }
+        if (reg == 9u) (void)call(now);   // register 4 read back, acknowledged
+        peer.nak = reg;
+        (void)call(now);
+        peer.nak = 32u;
+        (void)poll(now);
+        const std::size_t again = peer.frames.size();
+        next();
+        EXPECT_EQ(writes_since(again).size(), 2u)
+            << "P16 a read-back unacknowledged leaves the advertisement owed: register " << reg;
+    }
 }
 
 }  // namespace

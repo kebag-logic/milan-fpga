@@ -25,6 +25,27 @@
 // a peer's master-slave fault stay link down. Registers are read in the
 // release's order, both of each pair before either is judged.
 //
+// THE ADVERTISEMENT (#840), the release's PHY init: the MAC runs at 1 Gb/s
+// only, so a PHY with 1000BASE-T full duplex ability (the extended status,
+// 22.2.4.4.3, behind BMSR's extended capability) advertises 1000BASE-T full
+// duplex alone: register 9 keeps its MASTER-SLAVE bits and advertises full
+// duplex (Table 40-3), register 4 drops 10BASE-T, 100BASE-TX and 100BASE-T4
+// and the reserved bit 14 (Table 28B-1, Table 28-2), then register 0 enables
+// and restarts autonegotiation with reset and isolate clear (22.2.4.1), as
+// 28.2.4.1.3 asks after a change. A partner without 1000BASE-T then gets no
+// link, published down, rather than a 100 Mb/s link the MAC is silent on. A
+// PHY without that ability is a 10/100 PHY and is never written. It is done
+// in the poll's first frames after its first BMSR read, before the current
+// state is resolved, as the release's (so a link the PHY formed before the
+// restart is never published), at boot and again after every link loss,
+// a published link going down (#919): registers 4 and 9 are read, written
+// and read back, and the poll owes it again until the read-back holds the
+// advertisement (verified). Negotiation restarts at most once a time it is
+// owed: always at boot, as the release's init, and after a loss only where
+// the PHY no longer held the advertisement (a PHY reset to its defaults),
+// so a restart, which latches a loss of its own, never restarts again. An
+// unacknowledged read writes nothing; the next poll retries.
+//
 // THE PACE. A poll starts CTRL_PLAT_PHY_POLL_US after the last one started,
 // the release's PHY_POLL_NS by its own derivation: half the writer's 250 ms
 // heartbeat (MILAN_NVM_HEARTBEAT_MS, scripts/nvm_shape.py), the service
@@ -33,8 +54,9 @@
 // simulation"); the other half is the poll's own transactions. A probe that
 // misses is due again at once, as the release's.
 //
-// THE STEP (ctrl_loop.h). A poll is up to nine register reads, each a whole
-// Clause-22 frame of 65 bit periods, too long to stand beside the records of
+// THE STEP (ctrl_loop.h). A poll is up to nine register reads, and nine more
+// frames, seven reads and three writes, where the advertisement is owed, each a
+// whole Clause-22 frame of 65 bit periods, too long to stand beside the records of
 // a pass (it would lengthen every one still waiting, as a flash step would),
 // and IEEE 802.3 22.2.2.13 gives MDC no maximum high or low time, so a poll
 // may stop between two frames. So a poll is resumable, one frame at a time,
@@ -112,11 +134,22 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_BMSR_LINK 0x0004u
 #define CTRL_PLAT_PHY_BMSR_AN_DONE 0x0020u
 #define CTRL_PLAT_PHY_BMSR_EXTENDED 0x0100u
+#define CTRL_PLAT_PHY_BMCR_RESET 0x8000u
 #define CTRL_PLAT_PHY_BMCR_SPEED_LSB 0x2000u
 #define CTRL_PLAT_PHY_BMCR_AN_ENABLE 0x1000u
+#define CTRL_PLAT_PHY_BMCR_ISOLATE 0x0400u
+#define CTRL_PLAT_PHY_BMCR_AN_RESTART 0x0200u
 #define CTRL_PLAT_PHY_BMCR_FULL 0x0100u
 #define CTRL_PLAT_PHY_BMCR_SPEED_MSB 0x0040u
 #define CTRL_PLAT_PHY_ESTAT_1000T 0x3000u
+#define CTRL_PLAT_PHY_ESTAT_1000T_FULL 0x2000u
+// THE ADVERTISEMENT's fields: register 4's 10BASE-T, 100BASE-TX and 100BASE-T4 bits (5 to 9) and its reserved
+// bit 14; register 9's MASTER-SLAVE bits (12 to 10) and its 1000BASE-T full and half duplex.
+#define CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT 0x03e0u
+#define CTRL_PLAT_PHY_ANAR_RESERVED 0x4000u
+#define CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE 0x1c00u
+#define CTRL_PLAT_PHY_GCTRL_1000_FULL 0x0200u
+#define CTRL_PLAT_PHY_GCTRL_1000_HALF 0x0100u
 #define CTRL_PLAT_PHY_GSTAT_FAULT 0x8000u
 #define CTRL_PLAT_PHY_G_1000_FULL 0x0800u   // GCTRL's advertisement, shifted onto GSTAT's partner bits
 #define CTRL_PLAT_PHY_G_1000_HALF 0x0400u
@@ -125,11 +158,20 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_AN_10_FULL 0x0040u
 #define CTRL_PLAT_PHY_AN_10_HALF 0x0020u
 // A frame's fields (22.2.4.5): ST 01 and OP 10 (read) above the address and the register, 14 bits after the
-// 32-bit preamble, then the turnaround's two bits and 16 data bits.
+// 32-bit preamble, then the turnaround's two bits and 16 data bits; a write's ST 01 and OP 01, its turnaround 10
+// and its data driven too, the whole frame's 64 bits.
 #define CTRL_PLAT_PHY_READ_OP 0x6u
+#define CTRL_PLAT_PHY_WRITE_OP 0x5u
+#define CTRL_PLAT_PHY_WRITE_TA 0x2u
 #define CTRL_PLAT_PHY_PREAMBLE_BITS 32u
 #define CTRL_PLAT_PHY_COMMAND_BITS 14u
 #define CTRL_PLAT_PHY_DATA_BITS 16u
+#define CTRL_PLAT_PHY_FRAME_BITS 64u
+// THE ADVERTISEMENT owed (struct ctrl_plat_phy's adv): owed, owed by the boot (negotiation restarts whatever the
+// PHY holds), and negotiation already restarted since it was owed.
+#define CTRL_PLAT_PHY_ADV_OWED 0x1u
+#define CTRL_PLAT_PHY_ADV_BOOT 0x2u
+#define CTRL_PLAT_PHY_ADV_RESTARTED 0x4u
 #define CTRL_PLAT_PHY_ADDRESSES 32u
 // A half period's least length, as the reciprocal of a time: 1 / 200 ns (the file's head, THE BIT).
 #define CTRL_PLAT_PHY_HALF_HZ 5000000u
@@ -158,7 +200,17 @@ enum ctrl_plat_phy_stage {
 	CTRL_PLAT_PHY_GIG_LOCAL,   // the 1000BASE-T control
 	CTRL_PLAT_PHY_GIG_PEER,    // the 1000BASE-T status
 	CTRL_PLAT_PHY_LOCAL,       // the advertisement
-	CTRL_PLAT_PHY_PEER         // the link partner's ability
+	CTRL_PLAT_PHY_PEER,        // the link partner's ability
+	// THE ADVERTISEMENT, after STATUS where it is owed, then the stage STATUS chose
+	CTRL_PLAT_PHY_ADV_ABILITY,      // the extended status: 1000BASE-T full duplex ability
+	CTRL_PLAT_PHY_ADV_LOCAL,        // register 4, as the PHY holds it
+	CTRL_PLAT_PHY_ADV_GIG,          // register 9
+	CTRL_PLAT_PHY_ADV_CONTROL,      // register 0
+	CTRL_PLAT_PHY_ADV_SET_GIG,      // write 9: MASTER-SLAVE kept, 1000BASE-T full duplex
+	CTRL_PLAT_PHY_ADV_SET_LOCAL,    // write 4: no 10/100, no reserved bit
+	CTRL_PLAT_PHY_ADV_RESTART,      // write 0: autonegotiation enabled and restarted
+	CTRL_PLAT_PHY_ADV_CHECK_LOCAL,  // read 4 back
+	CTRL_PLAT_PHY_ADV_CHECK_GIG     // read 9 back: verified, or owed again
 };
 
 struct ctrl_plat_phy {
@@ -169,11 +221,15 @@ struct ctrl_plat_phy {
 	bool polled;            // a poll has started since the last probe that missed (the release's phy_last_poll)
 	uint8_t stage;          // enum ctrl_plat_phy_stage
 	uint8_t address;
+	uint8_t adv;            // THE ADVERTISEMENT owed: CTRL_PLAT_PHY_ADV_*, 0 when verified or not the PHY's
+	uint8_t resume;         // the stage the poll takes after the advertisement
 	uint32_t spin;          // the turns of a half period
 	uint32_t started;       // the clock as the last poll took its first frame, in microseconds
 	uint32_t published;     // the word last published by a poll
 	int32_t bmsr;           // the BMSR the poll resolves
-	int32_t local;          // the first of a pair, read before the second
+	int32_t local;          // the first of a pair, read before the second; register 4 for the advertisement
+	int32_t gig;            // register 9 as read for the advertisement
+	int32_t control;        // register 0 as read for the advertisement
 };
 
 // Arm the poll on `bus`: called once the CSR window passed its identity check, so nothing touches the MDIO pins
