@@ -303,7 +303,7 @@ void BootSaHarness::tick() {
     fires_.data = dut_->s_axi_rdata;
     if (!(wrote_lo_ && wrote_hi_)) {
         const auto* r = dut_->rootp;
-        if (r->milan_datapath__DOT__pp_shadow__DOT__txp_valid_r) pp_offered_early_ = true;
+        if (r->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__txp_valid_r) pp_offered_early_ = true;
         if (r->milan_datapath__DOT__maap_txs_tvalid_w) maap_offered_early_ = true;
         if (r->milan_datapath__DOT__aaf_txs_tvalid_w) aaf_offered_early_ = true;
         if (r->milan_datapath__DOT__crft_txs_tvalid_w) crf_offered_early_ = true;

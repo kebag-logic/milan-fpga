@@ -1978,10 +1978,10 @@ class PpShadowHarness {
     //! one cycle's view of the serializer's byte stream into the processor
     void tap_sample(TapTally& t) {
         const auto* rp = dut->rootp;
-        if (rp->milan_datapath__DOT__pp_shadow__DOT__ff_overflow_w) t.overflows++;
-        if (!rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_valid_w) return;
-        t.partial.push_back(rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_data_w);
-        if (rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_last_w) {
+        if (rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__ff_overflow_w) t.overflows++;
+        if (!rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__pp_rx_valid_w) return;
+        t.partial.push_back(rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__pp_rx_data_w);
+        if (rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__pp_rx_last_w) {
             t.handed.push_back(t.partial);
             t.partial.clear();
         }
