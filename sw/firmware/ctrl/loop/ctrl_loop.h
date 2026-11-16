@@ -205,8 +205,8 @@
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; #894's
-// amendment of 2026-11-13 to its contingent ruling, item 2).
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 140 ms (aecp_mbx.h; the queued
+// rule's figure for its row, #895's ruling of 2026-11-15, item 1).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -265,18 +265,21 @@ extern "C" {
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
 // AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3). The built slice
 // is the rule's choice, which the model's self-test holds (#894's ruling of
-// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut.
+// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut,
+// and 900 us at SRP's Talker declarations' composition with it once the last
+// queued notice's bound follows its row to 140 ms (#895's ruling of 2026-11-15
+// on that composition, items 1 and 4).
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
-// their bounds (slice_choice). A 950 us slice holds one MRPDU's build, not both,
+// their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both,
 // CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
 // shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
 // measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
 // which states 1x1/1if's (#894).
-#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 950u : 1300u)
+#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)
 // An SRP record's stated cost, the load gate's record.srp at each point, the
 // dearer of its two columns' (load_grade.py, which refuses any other figure):
 // the slice starts a record only while it has this left, so a record that
@@ -319,8 +322,8 @@ extern "C" {
 // a pass given whole it carries (#894). A slice that holds one MRPDU's build
 // makes the declarations in the first: the srp group's after its Listener
 // Ready is 68,951 cycles at 1x1/1if, and 69,635 under #894's SET_CONFIGURATION
-// cut (fe0cef5b), the same build moved by the cut's code, so a build of one is
-// 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// cut, measured at fe0cef5b, the same build moved by the cut's code, so a build
+// of one is 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
 // refuted, with its rows (#894, owed to #872).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
@@ -365,10 +368,13 @@ extern "C" {
 #define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
 // (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
-// tree whose row passes this). At 8x8/2if, whose rows by every source are
-// reported and not held (#894, the owner's decision of 2026-11-12, owed to
-// #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)
+// tree whose row passes this): 105 ms at 8x8/2if for its 104.25 there (#895's
+// ruling of 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off
+// adds it (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
+// 8x8/2if, whose rows by every source are reported and not held (#894, the
+// owner's decision of 2026-11-12, owed to #872), it is over the bound, and
+// ctrl_loop.c holds 1x1/1if alone to it.
+#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

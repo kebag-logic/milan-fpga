@@ -36,6 +36,9 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
   [LIC]   the licence scenario: at every millisecond the policer's stream gate holds exactly the LICENCE
           the firmware last wrote, the AAF talker's gate opens only under source 0's, and no stream frame
           leaves while no source holds one (#867 item 6).
+  [SID]   the licence scenario: a stream leaves, and every stream frame's AVTPDU stream_id is one a Talker
+          Advertise the split declared carries: the datapath stamps SRC_SID_HI:SRC_SID_LO, which the firmware
+          writes before the source's DA_GATE bit opens (#905; KL_mbx_pkg.sv SRC_SID_LO).
 
 The licence scenario runs the srptx.hpp fixture (source 0 allocated at SRP creation), and every finding of
 that scenario names it.
@@ -544,6 +547,25 @@ def gate_at(policer: list[dict], ms: int) -> int:
     return value
 
 
+def grade_stream_id(cap: Capture) -> list[str]:
+    """[SID] (#905): a stream leaves, and every stream frame's AVTPDU stream_id (IEEE 1722-2016 4.4.4.8) is one a
+    Talker Advertise the split declared on the wire carries, the ID its Listener's binding matches. The datapath
+    stamps SRC_SID_HI:SRC_SID_LO, which the firmware writes before the source's DA_GATE bit opens (KL_mbx_pkg.sv
+    SRC_SID_LO; Milan v1.2 5.3.7.5)."""
+    declared = {value[:16] for f in cap.mrpdus if f.proto == "MSRP" and not f.error
+                for kind, value, event in f.values() if kind == 1 and event in DECLARING}
+    stream = cap.doc["stream"]
+    if not stream:
+        return ["[SID] no stream frame left the MAC, so none carried a declared stream_id" + FIXTURE]
+    wrong = [(ms, sid, n) for ms, sid, n in stream if sid not in declared]
+    if not wrong:
+        return []
+    ids = sorted({sid for _, sid, _ in wrong})
+    return [f"[SID] {sum(n for _, _, n in wrong)} stream frame(s), ms {wrong[0][0]} to {wrong[-1][0]}, carry stream_id "
+            f"{', '.join(ids)}, which no Talker Advertise the split declared carries "
+            f"({', '.join(sorted(declared)) or 'none declared'})" + FIXTURE]
+
+
 def grade_licence(cap: Capture) -> tuple[list[str], dict]:
     """The licence scenario: the #608 stop at the LeaveAll's LeaveTime deadline, and the policer holding the
     licence written at every millisecond."""
@@ -592,6 +614,7 @@ def grade_licence(cap: Capture) -> tuple[list[str], dict]:
         if not gate_at(policer, ms) and not gate_at(policer, ms - 1):
             found.append(f"[LIC] {n} stream frame(s) with stream_id {sid} at ms {ms} while no source holds its licence"
                          + FIXTURE)
+    found += grade_stream_id(cap)
     leave = [t for t in cap.doc["timers"] if t["kind"] == "leave" and t["proto"] == "MSRP"]
     stream = cap.doc["stream"]
     return found, {"licence_from_ms": on, "peer_leave_all_ms": leave_all, "withdrawal_ms": withdraw,

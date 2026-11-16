@@ -67,7 +67,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
-#: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+#: makes, stated at the SRP record's cost (280 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
 #: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
@@ -86,11 +86,20 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. Under #894's edit cut ACMP's item at 1x1/1if is 55 us, the
 #: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
 #: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
-#: backlog-owed (6,239 at 5b264bf2).
-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+#: backlog-owed (6,239 at 5b264bf2). With SRP's Talker declarations (#895), measured on their merge with that
+#: cut, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
+#: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
+#: #894's own image measures 18,843 (200 us): MAAP's poll and SRP's delivery, which carry the Talker's declarations
+#: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass; on its merge of
+#: #894's SET_CONFIGURATION cut, with srp_mbx_gate's repeat call cut (#895), 225 us, 21,094 cycles in save-held
+#: (19,793 before the merge), 262 instructions fewer and 49 more instruction refills in that pass than before, not
+#: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+#: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+#: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=325, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
-                    aecp=275, aecp_long=655, acmp_declined=20)}
+             2: dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
+                    aecp=275, aecp_long=700, acmp_declined=20)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.

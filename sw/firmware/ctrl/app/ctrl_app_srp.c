@@ -60,6 +60,11 @@ static bool deliver(void *ctx)
     if (app->srp->loop != &app->loop) {
         return false;
     }
+    // A Talker is declared while its destination is valid (#895; Milan v1.2 4.3.3.1, 5.3.7.4): the MAAP adapter's DA
+    // gate, refreshed by MAAP's poll before this one, with the range MAAP holds on the interface
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],app->maap.ifs[interface].core.base);
+    }
     bool pending = false;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];

@@ -96,9 +96,9 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
 #: Each datapath event's stated cost in us, its take and every sink's work: the most the CPU budget harness measured
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
 #: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
-#: 29.06, 23.33 us at 1x1/1if and 36.57, 34.43, 23.02 at 8x8; with the map table's direct index 30.55, 31.57, 25.51).
+#: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
 DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
-               '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 25}}
+               '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
 TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
 #: Each channel the loop serves and its rows (#894's ruling of 2026-11-13, item 2): a tier-1 channel's last record of
@@ -926,13 +926,13 @@ def channel_controls(root: Path) -> list[str]:
     moved = {srp: (root / srp).read_text().replace('drain_ch = MBX_CH_SRP + 1u;', 'drain_ch = MBX_CH_MAAP + 1u;')}
     if moved[srp] == (root / srp).read_text() or not unrowed(root, BUILT, one, moved):
         escaped.append("the tier-1 channels not the loop's")
-    # ctrl_loop.h states THE TRANSMIT's figure at or over its row and its bound at the timer budget's
+    # ctrl_loop.h states THE TRANSMIT's figure at or over its row at each point, and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 98u)'
+    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)'
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 98u)')}
-    if figure not in header or tx_statements(root, one) or not tx_statements(root, one, under):
+    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 104u)')}
+    if figure not in header or tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)
     if bound not in header or not all(tx_statements(root, one, {loop: header.replace(bound, typed)}) for typed in (

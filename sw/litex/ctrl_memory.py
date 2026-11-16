@@ -261,18 +261,21 @@ LEDGERED: dict[str, Ledgered] = {
                                          "of the 58.0 allowance, one half tile, 528 B of sram past 55 granules "
                                          "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
-                                         "cap raised to 59.0 as debt owed to S14, no hold"),
+                                         "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
+                                         "declarations plan within it (#895)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
                                             "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
-                                            "(#665 decision D3); 60.5, the cap, with GET_AS_PATH's read through the "
-                                            "face composed on the control loop's tiers, 168 B of rom past 60.0, by "
-                                            "#895's ruling of 2026-11-14, item 4, as #897's ruling of 2026-11-15, "
-                                            "item 1, takes it: ROM debt of 4.5 RAMB36 owed to the hybrid XIP work, "
-                                            "the cap fully used"),
+                                            "(#665 decision D3); ctrl_plat 64 B more with SRP's Talker "
+                                            "declarations (#895); 60.5, the cap, with SRP's Talker "
+                                            "declarations composed on the control loop's tiers, 184 B of rom past "
+                                            "60.0, by #895's ruling of 2026-11-14, item 4, and with GET_AS_PATH's "
+                                            "read through the face composed on them, 992 B of rom past 60.0, "
+                                            "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
+                                            "RAMB36 owed to the hybrid XIP work, the cap fully used"),
 }
 
 

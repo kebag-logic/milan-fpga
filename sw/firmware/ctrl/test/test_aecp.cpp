@@ -261,12 +261,13 @@ namespace {
 struct Nvm : Core {
     aecp_nvm owner{};
     aecp_value names[AECP_ENTITY_NAMES]=AECP_ENTITY_NAMES_INIT;
+    aecp_name_run runs[AECP_ENTITY_NAME_RUNS]=AECP_ENTITY_NAME_RUNS_INIT;
     aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{}, scratch[AECP_ENTITY_MAP_MAX]{};
     aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);
     void SetUp() override {
         Core::SetUp();cfg.maps=pools;cfg.map_count=AECP_ENTITY_MAPS;
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));
-        aecp_nvm_init(&owner,&a,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&a,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         nvm_fmodel_blank();nvm_fmodel_power_on();
         nvm_fmodel_window(NVM_SLOT_A,NVM_SLOT_B+NVM_SLOT_BYTES);
         nvm_fmodel_times(1000,100);
@@ -463,6 +464,10 @@ TEST_F(Nvm, EveryChangeQueuesOnlyItsOwnedRecords)
     aecp_nvm_changed(&owner,AECP_CHANGE_IDENTIFY,26,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_SYSTEM_ID,0,0);
     aecp_nvm_changed(&owner,AECP_CHANGE_FORMAT,6,65535);
+    // a name of a type the writable names' runs hold, at the index just past its last run, which
+    // no run holds: past a run's count it marks no ordinal of the runs after it (#894)
+    unsigned past=0;for(const auto&r:runs)if(r.type==5)past=std::max(past,unsigned(r.index+r.count));
+    aecp_nvm_changed(&owner,AECP_CHANGE_NAME,5,uint16_t(past));
     EXPECT_FALSE(aecp_nvm_poll(&owner))<<"reserved and absent records never enter the queue";
 }
 #endif
@@ -495,7 +500,7 @@ struct App : Nvm {
         setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
         ASSERT_TRUE(ctrl_app_compose(&application,&setup));
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&ports,&owner));
-        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&adapter.core,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
         EXPECT_FALSE(ctrl_app_open_aecp(&bridge));
         nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
@@ -4468,7 +4473,7 @@ struct AppFace : Nvm {
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&face.ports,&owner));
         ASSERT_TRUE(ctrl_app_aecp_attach_face(&bridge,&face));
         EXPECT_FALSE(ctrl_app_aecp_attach_face(&bridge,&face))<<"one face";
-        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        aecp_nvm_init(&owner,&adapter.core,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
         nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
         ASSERT_TRUE(ctrl_app_open(&application,&setup));

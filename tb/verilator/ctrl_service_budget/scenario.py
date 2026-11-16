@@ -656,8 +656,8 @@ def srp_groups(p: Point) -> list[Group]:
     for i in range(p.interfaces):
         sid = (p.mac << 16) | 0
         ready_listener = f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])
-        # The fixture's sources stay unallocated (ctrl_aecp_image.c), so they are declared as
-        # Talker Failed and no licence follows: the path ends at the record's release.
+        # The fixture's sources have no valid destination (ctrl_aecp_image.c), so they declare
+        # nothing (#895) and no licence follows: the path ends at the record's release.
         g.probe(Probe(f'srp.listener_ready.if{i}', 'Listener Ready RX (registrar)', 'srp', f'rxc:{srp}',
                       [f'pass_end:{srp}']),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [ready_listener]).hex()}', wait=f'cycles {30 * MS}')
