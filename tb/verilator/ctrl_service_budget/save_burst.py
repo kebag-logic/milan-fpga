@@ -12,7 +12,7 @@ persistence scenario's.
 followed by a GET_NAME (7.4.18) of it, as a controller sets each name and reads it back. The entity's two names come
 first, then every other name from the last ordinal down, so each later mark is of a record before the earlier ones and
 a capture that starts during the burst has passed it (nvm_store.c, nvm_mark). The frames go out FRAME_MS apart, the
-controller's pace in the rehearsal's capture (1.1 to 1.4 ms from a response to its next command), while the AECP
+controller's pace in #665's capture of the finding (1.1 to 1.4 ms from a response to its next command), while the AECP
 channel's token bucket holds a token (KL_mbx_rx.sv, the contract's burst and refill); a frame the bucket would refuse
 the controller sends RETRY_MS later instead, its command timeout, as the capture shows it doing three times. Every
 other receive channel is held at its contract refill rate with its bursts (save_window.arrivals) from the first
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
 
 #: The ruling's target, the persistence scenario's cut, and the store's first-dirty window (DR2a), in ms.
 TARGET_MS, CUT_MS = 5000, 10000
-#: The controller's pace, from a frame to its next one, and its command timeout, in ms (the rehearsal's capture).
+#: The controller's pace, from a frame to its next one, and its command timeout, in ms (#665's capture of the finding).
 FRAME_MS, RETRY_MS = 1.3, 250.0
 #: The bucket refills one token a period up to its burst on the fabric's ms tick (KL_mbx_rx.sv, buckets), whose phase
 #: the script does not know: the schedule counts a refill this long after its period ends and sends only while it holds
