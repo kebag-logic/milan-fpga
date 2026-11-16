@@ -3951,9 +3951,13 @@ struct Far {
     std::vector<unsigned> selectors;                                  // each GSI request's selector
     //! The datapath's map store behind the EDIT window (#923), as milan_datapath.sv's transaction server keeps it:
     //! each dynamic port's live mappings, a transaction's records claimed as they validate and written as each
-    //! commits. mute decides a beat: 0 the store's own verdict, 1 refused, 2 no answer (the window times out).
+    //! commits. mute decides a beat: 0 the store's own verdict, 1 refused, 2 no answer in the window's bound. A
+    //! begin, a record's validation or the commit-begin with no answer is held, not taken. A record's commit or the
+    //! finish is taken and only its reply is lost: the release's engine reserves the transaction at an accepted
+    //! commit-begin and has those beats complete without back-pressure (KL_aecp_engine.sv, the transaction face), so
+    //! the store never skips a write after it.
     struct Beat { unsigned phase,rec,count,type,index; bool remove; aecp_mapping r; };
-    std::vector<Beat> beats;                                                // every answered beat, in order
+    std::vector<Beat> beats;                                                // every beat the store took, in order
     std::map<std::pair<unsigned,unsigned>,std::vector<aecp_mapping>> live;  // port (type, index): its mappings
     std::vector<std::pair<unsigned,unsigned>> dynamic{{14,0},{15,0}};
     std::vector<aecp_mapping> claims;
@@ -3978,7 +3982,9 @@ struct Far {
         Beat b{r[1]&7u,(r[1]>>8)&255u,r[1]>>16,r[0]&0xffffu,r[0]>>16,((r[1]>>4)&1u)!=0,
                {uint16_t(r[3]>>16),uint16_t(r[3]),uint16_t(r[2]>>16),uint16_t(r[2])}};
         unsigned verdict=mute?mute(b):0u;
-        if(verdict==2u){*reply=MBX_MODEL_SILENT;return 0;}
+        bool reserved=b.phase==5u||b.phase==2u;
+        if(verdict==2u&&!reserved){*reply=MBX_MODEL_SILENT;return 0;}
+        if(verdict==2u){*reply=MBX_MODEL_SILENT;verdict=0u;}   // taken; its reply lost
         beats.push_back(b);
         auto &rows=live[{b.type,b.index}];
         bool ok=verdict==0u;
@@ -4335,8 +4341,8 @@ TEST_F(Face, ARefusedBeatAbortsAndNothingMoves)
 
 // #923: a datapath that does not answer. The store's edit face waits for the restore's terminal and its boot sweep,
 // so a begin with no answer is asked once more. No answer before the commit is begun aborts and answers
-// ENTITY_MISBEHAVING, nothing moved; once it is begun the store holds the reservation, so the edit stands and each
-// unanswered beat is counted.
+// ENTITY_MISBEHAVING, nothing moved; once it is begun the store holds the reservation and takes each commit and the
+// finish, so only a reply is lost: the edit stands in the map as in the store, and each unanswered beat is counted.
 TEST_F(Face, AnUnansweredEditFailsUntilItsCommitIsReserved)
 {
     using P=std::vector<unsigned>;
@@ -4361,7 +4367,48 @@ TEST_F(Face, AnUnansweredEditFailsUntilItsCommitIsReserved)
         receive(44,mappings(14,{{0,uint16_t(phase),uint16_t(phase),0}}));
         EXPECT_EQ(face.unanswered,before+1u)<<"an unanswered beat after the reserved commit is counted";
         EXPECT_EQ(maps[0].count,phase==5u?2u:3u)<<"after the reserved commit, the edit stands";
-        far.mute=nullptr;
+        far.mute=nullptr;agree(14);
+    }
+}
+
+// #923: a reply lost after the reserved commit-begin, whichever record's: the store took the commit, so a two-record
+// ADD answers SUCCESS with both mappings in the map and in the store, a REMOVE leaves neither in either, and the lost
+// reply is counted. A face that stops committing at a lost reply would leave the store short of the map.
+TEST_F(Face, ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing)
+{
+    std::vector<aecp_mapping> two{{0,1,1,0},{0,2,2,0}};
+    for(unsigned rec:{1u,0u}){
+        for(unsigned cmd:{44u,45u}){
+            auto before=face.unanswered;
+            far.mute=[rec](const Far::Beat &b){return b.phase==5u&&b.rec==rec?2u:0u;};
+            auto out=receive(cmd,mappings(14,two));far.mute=nullptr;
+            EXPECT_EQ(get(out,16,2)>>11,0u)<<"the reserved edit answers SUCCESS";
+            EXPECT_EQ(face.unanswered,before+1u)<<"the lost reply is counted";
+            EXPECT_EQ(maps[0].count,cmd==44u?2u:0u)<<"the edit stands in the map";
+            agree(14);
+        }
+    }
+}
+
+// #923: the restore's commit with a reply lost after its commit-begin: a removal of the reset set the store holds
+// (the restored map empty) or an addition of the restored set, its first or second record's reply lost. The store took
+// each, so when AECP opens GET_AUDIO_MAP answers what the store holds, and the lost reply is counted.
+TEST_F(Face, ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing)
+{
+    std::array<aecp_mapping,2> defaults{{{0,0,0,0},{0,1,1,0}}};
+    auto &m=maps[0];m.defaults=defaults.data();m.default_count=2;
+    aecp_mapping in[]={{0,3,1,0},{0,2,2,0}};
+    struct Case { bool remove; unsigned rec; size_t restored; };
+    for(auto c:std::vector<Case>{{true,1,0},{true,0,0},{false,1,2},{false,0,2}}){
+        adapter.core.open=false;ASSERT_TRUE(aecp_restore_defaults(&adapter.core));
+        far.live[{14u,0u}]={defaults.begin(),defaults.end()};
+        ASSERT_EQ(aecp_map_restore(&adapter.core,&m,c.restored!=0u?in:nullptr,c.restored),0u);
+        auto before=face.unanswered;
+        far.mute=[c](const Far::Beat &b){return b.phase==5u&&b.rec==c.rec&&b.remove==c.remove?2u:0u;};
+        aecp_restore_commit(&adapter.core);far.mute=nullptr;
+        EXPECT_EQ(face.unanswered,before+1u)<<"the lost reply is counted";
+        EXPECT_EQ(m.count,c.restored)<<"the restored map stands";
+        adapter.core.open=true;agree(14);
     }
 }
 

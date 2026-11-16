@@ -182,7 +182,13 @@ NOT_SUPPORTED, a refused record or commit-begin BAD_ARGUMENTS, and a beat with
 no answer before the commit is reserved ENTITY_MISBEHAVING; each aborts, and
 the core then changes nothing and answers that status (Milan v1.2 5.4.2.27,
 5.4.2.28). An accepted commit-begin reserves the commit, so the beats after it
-never refuse. `EDIT_REQ` is written once a transaction and each beat writes
+never refuse: the release's engine has each record's commit and the finish
+complete without back-pressure (`KL_aecp_engine.sv`, the transaction face). A
+commit or finish with no answer within the window's bound has therefore been
+taken and only its reply is lost: the face counts it (`unanswered`), goes on
+with the next record, and the edit stands in the store as in the core's map.
+Delivery loss after the commit-begin is outside that contract and has no
+recovery here. `EDIT_REQ` is written once a transaction and each beat writes
 only what moves (`mbx_win_ask`). The store's edit face waits from reset until
 the restore's terminal and its boot sweep, so a begin with no answer is asked
 once more. So GET_AUDIO_MAP, the format verdict's survival check and the

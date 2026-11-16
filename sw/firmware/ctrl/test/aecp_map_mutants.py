@@ -26,6 +26,8 @@ WINDOW = 'Face.AnEditIsTheReleasesTransactionOnTheEditWindow'
 WINDOW_REFUSES = 'Face.ARefusedBeatAbortsAndNothingMoves'
 WINDOW_SILENT = 'Face.AnUnansweredEditFailsUntilItsCommitIsReserved'
 WINDOW_RESTORE = 'Face.RestoredMapsReachTheStoreThroughTheEditWindow'
+WINDOW_LATE = 'Face.ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing'
+RESTORE_LATE = 'Face.ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing'
 DOMAIN = 'Core.EveryKeyOfTheDomainIsItsOwn'
 OUTSIDE = 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn'
 CLEARED = 'Core.MapEditWorkReadsOnlyWhatItCleared'
@@ -326,4 +328,10 @@ ROWS = (
      '\t\t++f->unanswered;\n\t\treturn false;\n\t}\n\t*accepted',
      '\t\t(void)f;\n\t\treturn false;\n\t}\n\t*accepted',
      (WINDOW_SILENT, 'each unanswered beat is counted')),
+    # a lost reply stops the commit: the store's application of the records after it is missing, the edit answered
+    ('window-lost-reply-stops-the-commit', 'aecp_face.c',
+     '\tfor (size_t k = 0; k < count; ++k) {\n\t\t(void)record(f, request, APPLY, records, pick, k, &ok);\n\t}\n',
+     '\tfor (size_t k = 0; k < count && record(f, request, APPLY, records, pick, k, &ok); ++k) {\n\t}\n',
+     (WINDOW_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings"),
+     (RESTORE_LATE, "GET_AUDIO_MAP and the datapath's store hold the same mappings")),
 )
