@@ -108,7 +108,7 @@ The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
 At 8x8 with two interfaces the image plans 61.0 RAMB36 with the control loop's tiers (#894), SRP's Talker declarations (#895) and the map edits' commit through the `EDIT` window (#923), and its entry ledgers its measured 61.0 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024), under the owner's rule of 2026-11-15 that supersedes the 60.5 cap of 2026-11-12 until S14; `ctrl_memory.LEDGERED`), owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
-At 8x8 with one interface, a shipping image, it plans 56.5 since #923, 888 B of `rom` past what 56.0 held, and has its own entry at 56.5, owed to S14 by the same ruling: its command adds `--ledgered-point platform-8x8-one-interface`, and the product SoC build plans it at that entry by its symbols (`ctrl_memory.own_point`).
+At 8x8 with one interface, a shipping image, it plans 56.5 since #923, 1,280 B of `rom` past what 56.0 held, and has its own entry at 56.5, owed to S14 by the same ruling: its command adds `--ledgered-point platform-8x8-one-interface`, and the product SoC build plans it at that entry by its symbols (`ctrl_memory.own_point`).
 Every 1x1 point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
 ## Tests and evidence
