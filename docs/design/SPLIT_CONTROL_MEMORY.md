@@ -141,7 +141,7 @@ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 64
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
 The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
-The platform's entry is 60.5, its cap, since #920: the saved-state store's name marks over layout 3's id space and its step a pass add 304 B of `rom` to every image, and the platform's 8x8 image with two interfaces then holds 131,224 B of `rom`, past the 131,072 B its 60.0 held, debt owed to S14; its `ctrl_plat` is 20,416 B ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
+The platform's entry is 60.5, its cap, since #920: the saved-state store's name marks over layout 3's id space and its step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and the platform's 8x8 image with two interfaces then holds 131,224 B of `rom`, past the 131,072 B its 60.0 held, debt owed to S14; its `ctrl_plat` is 20,416 B ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
 The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
 
 Each override recognises its image by the image's own symbols.
@@ -2606,7 +2606,7 @@ Under input that leaves no pass empty, `save-starved` and `save-second`, a save 
 A save alone's longest gap between flash steps is its blank check, whose read-backs the grade merges into one read: 27 steps at 1x1/1if and 107 at 8x8/1if, a step a pass.
 
 **The images.**
-The marks over layout 3's space and the store's join and step a pass add 304 B of `rom` to every image and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
+The marks over layout 3's space and the store's join and step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
 The target platform's 8x8 image with two interfaces then holds 131,224 B of `rom`, past the 131,072 B its 60.0 RAMB36 held, and its ledger entry is 60.5, the owner's cap, debt owed to S14 ([section 3](#3-named-refusals)).
 
 ### What is left
