@@ -188,8 +188,8 @@ struct ctrl_plat_phy_bus {
 // One frame's stated cost in microseconds on the split CPU (THE STEP): the most measured, plus 5 %, rounded up to
 // 5 us, the margin holding the call's few instructions around the frame's pins. Measured by the split boot
 // simulation on the platform image, from a frame's first pin write to its release (tb/verilator/ctrl_split_boot,
-// the PHY grade, which fails a frame over this figure), reads and the advertisement's writes alike: 14,481 CPU
-// cycles at 1x1/1if, 144.81 us, and 14,569 at 8x8/1if, 145.69 us (14,537 and 14,512 before the advertisement). A
+// the PHY grade, which fails a frame over this figure), reads and the advertisement's writes alike: 14,537 CPU
+// cycles at 1x1/1if, 145.37 us, and 14,545 at 8x8/1if, 145.45 us (14,537 and 14,512 before the advertisement). A
 // frame is taken only while this much of the pass's share is left. It is under a fifth of a store's
 // read-back step (0.77 ms, nvm_store.h), so a step call that carries a frame and an idle store step is lighter than
 // one that carries a save's flash step, which the CPU budget harness measures in every pass class THE STEP enters.
