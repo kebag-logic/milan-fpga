@@ -52,7 +52,7 @@
 //   P18 THE OUTCOME: a restart write the PHY lost leaves the earlier
 //       negotiation in force while 4 and 9 read back; a completed negotiation
 //       sharing no 1000BASE-T mode is published down and restarted by the next
-//       poll, counted, one restart a poll until one takes, so a
+//       poll, counted (saturating), one restart a poll until one takes, so a
 //       100BASE-TX-only partner has no link at 100 Mb/s; none while the
 //       negotiation is incomplete, none at 1000BASE-T, none on a PHY the
 //       advertisement is not for
@@ -803,6 +803,15 @@ TEST_F(PlatPhy, P18OneRestartAPollUntilOneTakes) {
     EXPECT_EQ(restart_writes(*this, from), 0u) << "P18 no restart once the negotiation in force is the verified one";
     EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P18 no link below 1000BASE-T is ever published";
     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+    // the count saturates: a PHY that loses every restart write is counted to 0xffff and no further
+    hundred_in_force(*this);
+    peer.drop_restarts = 2u;
+    arm_again();
+    phy.renegotiations = 0xfffeu;
+    (void)poll(now);
+    EXPECT_EQ(phy.renegotiations, 0xffffu) << "P18 the count saturates at 0xffff";
+    next();
+    EXPECT_EQ(phy.renegotiations, 0xffffu) << "P18 the count saturates at 0xffff";
 }
 
 TEST_F(PlatPhy, P18OnlyAMissingGigabitLinkOwesARestart) {
