@@ -94,10 +94,17 @@ Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz; 
 
 | Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 27.605 ms | 2,760,525 | 18 of 18 equal | 4.268 / 0.674 / 0.317 ms | 0.417 / 0.242 / 0.155 ms |
-| 8x8, one interface | 67.347 ms | 6,734,675 | 18 of 18 equal | 5.550 / 0.751 / 0.371 ms | 0.533 / 0.306 / 0.207 ms |
+| 1x1, one interface | 27.558 ms | 2,755,803 | 18 of 18 equal | 5.763 / 0.662 / 0.312 ms | 0.428 / 0.249 / 0.160 ms |
+| 8x8, one interface | 66.548 ms | 6,654,832 | 18 of 18 equal | 6.960 / 0.757 / 0.367 ms | 0.564 / 0.327 / 0.218 ms |
 
-The PHY at this head (#919), both shapes: 34 frames and 10 publications; the longest frame 14,537 CPU cycles (145.37 us) at 1x1 and 14,512 at 8x8, against the stated 155 us; seven polls, 125.055 to 125.493 ms apart before the loss; the latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, the return's `[13]`, 126.2 ms after it; MDC at least 930 ns high, 1,120 ns low and 2,260 ns a period.
+The PHY at this head (#919, with #840's advertisement), both shapes:
+- 59 frames and 10 publications. The longest frame is 14,481 CPU cycles (144.81 us) at 1x1 and 14,569 (145.69 us) at 8x8, against the stated 155 us.
+- Seven polls, 125.024 to 125.521 ms apart before the loss.
+- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.6 ms after it.
+- The advertisement's seven writes: the boot's register 9 0x0200, 4 0x0001 and 0 0x1200, then 9 and 4 after each loss, each group read back.
+- MDC at least 950 ns high, 1,120 ns low and 2,260 ns a period.
+
+At `55769f09`, before the advertisement and the merge of dev-soft-core `70f4056f`, the PHY gave 34 frames, the longest 14,537 CPU cycles at 1x1. The boot reached ready in 27.605 and 67.347 ms, and `milan_status` took 4.268 / 0.674 / 0.317 and 5.550 / 0.751 / 0.371 ms.
 The PHY adds to the boot and the console: the arm's timed run (1,024 spin turns, about 0.28 ms) before ready, and a frame in an empty pass between two of the console's output passes, which lengthens its longest gap by a frame's 0.15 ms.
 At `659d7687`, the head before the PHY, the same host gave 26.883 ms to ready at 1x1 and `milan_status` 3.027 / 0.486 / 0.133 ms.
 
@@ -123,7 +130,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 60.5 RAMB36: the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5, and the PHY poll's `rom` (#919) takes it to that cap, owed to lane S14.
+The 8x8 image with two interfaces plans 61.0 RAMB36. The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers 61.0, owed to lane S14. The 8x8 image with one interface plans 56.5, its product entry's, which the product SoC build plans by the image's symbols.
 At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
 
 The smoke grader's verdicts on the simulated UART:

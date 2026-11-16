@@ -588,22 +588,31 @@ def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = N
 
 def phy_rows(sys_hz: int) -> list[str]:
     """A valid run's PHY lines (#919), as sim_main.cpp prints them: the boot's poll probing one miss, two steady
-    polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart."""
+    polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart; the advertisement
+    (#840) after the first BMSR of the boot's poll and of each poll that publishes a loss, its writes' PHYW lines."""
     period = int(phy_constants()[0] * sys_hz / 1e6)
-    steady = [(PHY_ADDRESS, 1), (PHY_ADDRESS, 0), (PHY_ADDRESS, 15), (PHY_ADDRESS, 9), (PHY_ADDRESS, 10)]
-    second = [(PHY_ADDRESS, 1)] + steady
+    a = PHY_ADDRESS
+    steady = [(a, 1), (a, 0), (a, 15), (a, 9), (a, 10)]
+    second = [(a, 1)] + steady
+    read = [(a, 15), (a, 4), (a, 9), (a, 0)]
+    boot = read + [(a, r, v) for r, v in ADVERTISED_BOOT] + [(a, 4), (a, 9)]
+    loss = read + [(a, r, v) for r, v in ADVERTISED_LOSS] + [(a, 4), (a, 9)]
+    probe = [(n, 2) for n in range(a + 1)]
     #: each poll: its frames, and the frame after which each word is published
-    plan = [([(a, 2) for a in range(PHY_ADDRESS + 1)] + second, {0: 0, PHY_ADDRESS + len(second): GIG_FULL}),
+    plan = [(probe + [(a, 1)] + boot + steady, {0: 0, len(probe) + len(boot) + len(steady): GIG_FULL}),
             (steady, {len(steady) - 1: GIG_FULL}), (steady, {len(steady) - 1: GIG_FULL}),
-            (second, {0: 0, len(second) - 1: GIG_FULL}), (second[:2], {0: 0, 1: 0}),
+            ([(a, 1)] + loss + steady, {0: 0, len(loss) + len(steady): GIG_FULL}),
+            ([(a, 1)] + loss + [(a, 1)], {0: 0, len(loss) + 1: 0}),
             (second[:2], {1: 0}), (second, {len(second) - 1: GIG_FULL})]
     events = {2: 'latched', 3: 'down', 5: 'back'}
     rows = []
     for k, (frames, words) in enumerate(plan):
         start = 1_000_000 + k * period
-        for j, (address, reg) in enumerate(frames):
+        for j, frame in enumerate(frames):
             first = start + j * 20_000
-            rows.append(f'PHYF {first} {first + 10_000} {address} {reg}')
+            rows.append(f'PHYF {first} {first + 10_000} {frame[0]} {frame[1]}')
+            if len(frame) == 3:
+                rows.append(f'PHYW {first + 10_000} {frame[0]} {frame[1]} {frame[2]}')
             if j in words:
                 rows.append(f'PHYP {first + 10_100} {words[j]}')
         if k in events:
