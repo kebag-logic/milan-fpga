@@ -13,7 +13,7 @@ registrations in one MRPDU follow their order; a declaration the filter's copy c
 the MRPDU, on the wire and in ACMP's view; a binding made later takes the StreamID's latest from any binding of it,
 whatever that one's destination, and one replaced in place keeps it; and a StreamID none binds holds its latest while
 both stay registered, for its next binding and no other StreamID's, until either leaves or the interface resets, and
-for its own interface only. srp_mutants.py plants each with the rest of its table, and the named test must fail on its
+for its own interface only; past the table's bound, both registered with no latest known take Failed. srp_mutants.py plants each with the rest of its table, and the named test must fail on its
 own words. A name that starts with "feedback-" is planted in both interface counts' campaigns
 (test_ctrl_firmware.run_srp_mutants); the two "held-latest-" defects of another interface, in the two-interface one.
 """
@@ -72,6 +72,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "a Failed New beside the Advertise decides again",
              also=(("s->registered_kinds &= (uint8_t)~kind;",
                     "const uint8_t held = s->registered_kinds; s->registered_kinds &= (uint8_t)~kind;"),)),
+        # both registered with no latest known withdraws, past the held table's bound
+        kind("feedback-latest-unknown-withdraws", KINDS + "AFullHeldTableHoldsNothingMore",
+             "return (kinds & 1u) != 0u ? 1u : kinds;", "return kinds == 3u ? 0u : kinds;", "no latest known: Failed"),
         # a binding replaced in place does not carry its own latest
         kind("feedback-latest-not-carried-in-place", KINDS + "ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream",
              "                replacement.latest_kind = r->latest_kind;\n",

@@ -1897,13 +1897,14 @@ TEST_F(SrpTalkerKinds, AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime) {
     EXPECT_EQ(sink(0).registered_kinds,3u)<<"the Failed is still registered beside the New";
 }
 
-// The reverse: a Talker Failed New over a registered Talker Advertise asks Failed at once, and again after an
-// Advertise New beside it, both kinds still registered.
+// The reverse: a Talker Failed New over a registered Talker Advertise asks Failed at once, and again over an
+// Advertise registered New beside the Failed, both kinds still registered.
 TEST_F(SrpTalkerKinds, AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime) {
     settle(); advance(400); bind(0);
     expect_declared(record(kAdvertise,kJoinIn),0,kAdvertise,"a first registration declares within a JoinTime");
     expect_declared(record(kFailed,kNew),0,kFailed,"a Failed New replaces the registered Advertise");
     EXPECT_EQ(sink(0).registered_kinds,3u)<<"the Advertise is still registered beside the New";
+    expect_declared(record(kAdvertise,kLv),0,kFailed,"the Advertise leaves");
     expect_declared(record(kAdvertise,kNew),0,kAdvertise,"an Advertise New beside the Failed");
     expect_declared(record(kFailed,kNew),0,kFailed,"a Failed New replaces the registered Advertise, both registered");
 }
