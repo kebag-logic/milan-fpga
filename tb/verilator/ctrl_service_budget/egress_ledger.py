@@ -12,8 +12,8 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 
 The ledger is derived at 8x8/1if, the one point that has one (#894's ledger ruling, items 2 and
 3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
-service behind it at the merged image's measurement (MEASURED) plus 5 %, rounded up to 0.01 ms (figure). Section 13's
-table states those figures, and the self-test holds the two together and the derivation to the rule.
+service behind it at its measurement (MEASURED, the larger of two images') plus 5 %, rounded up to 0.01 ms (figure).
+Section 13's table states those figures, and the self-test holds the two together and the derivation to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
 bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
 whose BUDGET lines name every instance over its budget to 1 us, so a ledger row read there is held at the most its
@@ -60,12 +60,18 @@ def hold_ms(text: str | None = None) -> int:
 
 
 HOLD_MS = hold_ms()
-#: Each row's measurement at 8x8/1if on the image that merges #902's 234bc149 (a15345f7's, arm A's backlog-owed),
-#: in ms to 10 ns: the figure the ledger derives from (#894's ledger ruling, item 2).
-MEASURED = {'8x8-1if': {'backlog.owed.if0': 63.23710, 'backlog.owed_behind0.if0': 63.45889,
-                        'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746,
-                        'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386,
-                        'backlog-owed.service.aecp.last.if0': 61.84625}}
+#: Each row's measurement at 8x8/1if, arm A's backlog-owed, in ms to 10 ns: on the image that merges #902's 234bc149
+#: (a15345f7's; #894's ledger ruling, item 2), and on the image that merges dev-soft-core 70f4056f (#901, d1c9023b's).
+MERGED = {'backlog.owed.if0': 63.23710, 'backlog.owed_behind0.if0': 63.45889, 'backlog.owed_behind1.if0': 63.73898,
+          'backlog.owed_behind2.if0': 63.95746, 'backlog.owed_behind3.if0': 64.19076,
+          'backlog-owed.service.acmp.last.if0': 62.18386, 'backlog-owed.service.aecp.last.if0': 61.84625}
+COMPOSED = {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858,
+            'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511,
+            'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 61.75319}
+#: The measurement each figure derives from, the larger of the two (#894's ruling of 2026-11-16 on the composition
+#: with #901, item 1): the six rows that grew there at their composed measurement, service.aecp.last, which shrank,
+#: at the merged image's.
+MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row]) for row in MERGED}}
 
 
 def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
@@ -244,18 +250,26 @@ def main(argv: list[str] | None = None) -> int:
 # ---- the self-test -----------------------------------------------------------------------------------------------
 
 #: Section 13's table of the rows the egress decides at 8x8/1if: the row, the measurement at 716a8ae7, the merged
-#: image's, and the ledger figure derived from it.
+#: image's, the composed image's, and the ledger figure derived from the larger of those two.
 DOC_HEAD = ('| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | '
-            'Measured on #902\'s 234bc149 merged, ms '
+            'Measured on #902\'s 234bc149 merged, ms | Measured on dev-soft-core 70f4056f composed, ms '
             '| Ledger, ms |')
 
 
 def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
     """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and the measurement it
     derives from."""
+    merged, composed = doc_measurements(text)
     block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
-    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
-    return {n: float(f) for n, _, _, f in rows}, {n: float(m) for n, _, m, _ in rows}
+    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| [\d.]+ \| [\d.]+ \| ([\d.]+) \|$', block, re.M)
+    return {n: float(f) for n, f in rows}, {n: max(merged[n], composed[n]) for n, _ in rows}
+
+
+def doc_measurements(text: str) -> tuple[dict[str, float], dict[str, float]]:
+    """Section 13's table's two measurements of each row: the merged image's and the composed image's."""
+    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
+    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| ([\d.]+) \| ([\d.]+) \| [\d.]+ \|$', block, re.M)
+    return {n: float(m) for n, m, _ in rows}, {n: float(c) for n, _, c in rows}
 
 
 def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
@@ -325,6 +339,8 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
     out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
             str(doc_figures)),
            ("section 13's measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
+           ("section 13's two measurements are the two images'",
+            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED), str(doc_measurements(DOC.read_text()))),
            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
             str(rule)),
            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
@@ -404,6 +420,8 @@ MUTANTS = {
     "the hold not the scenario's": lambda m: patch.object(m, 'HOLD_MS', 59),
     'a measurement the ledger does not derive from': lambda m: patch.dict(
         m.MEASURED['8x8-1if'], {'backlog.owed_behind1.if0': 63.526}),
+    "a figure at the merged image's measurement where the composed one is larger": lambda m: patch.dict(
+        m.MEASURED['8x8-1if'], dict(m.MERGED)),
     "a run's refusals not read": lambda m: patch.object(m, 'run_refusals', lambda path: []),
     "a ledger row's name taken in any group": lambda m: patch.object(
         m, 'is_row', lambda p, ledger: p['probe'] in ledger),
