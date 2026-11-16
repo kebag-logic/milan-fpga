@@ -75,6 +75,32 @@ protected:
     void queue(unsigned k, const std::vector<uint8_t>& frame) {
         ASSERT_TRUE(mbx_model_rx(&model,frame.data(),frame.size(),acfg.sink_interface[k]));
     }
+    // Whether a Listener Ready of sink k's StreamID left in an SRP frame from frame `from` on, by `by` ms: each
+    // Message's type, attribute length and list length, and in a Listener list each vector's values, their events
+    // three to a byte and their declarations four to one (IEEE 802.1Q-2018 10.8, 35.2.2).
+    bool ready_sent(unsigned k, uint32_t from, uint32_t by) {
+        for (uint32_t n=from;n<model.tx_sent;++n) {
+            const auto *f=mbx_model_tx_frame(&model,n);
+            if (f->channel!=MBX_CH_SRP || wire_be16(f->bytes+12)!=0x22ea || f->now_ms>by) { continue; }
+            const uint8_t *end=f->bytes+f->len;
+            for (const uint8_t *p=f->bytes+15; p+4<=end && p[0]!=0; p+=4+wire_be16(p+2)) {
+                const uint8_t *last=p+4+wire_be16(p+2);
+                for (const uint8_t *q=p+4; p[0]==3 && q+2<=last && wire_be16(q)!=0;) {
+                    const unsigned count=wire_be16(q)%8192;
+                    for (unsigned v=0;v<count;++v) {
+                        const unsigned packed=q[10+v/3];
+                        const unsigned event=v%3==0 ? packed/36 : v%3==1 ? packed/6%6 : packed%6;
+                        const unsigned declaration=q[10+(count+2)/3+v/4]>>(6-2*(v%4))&3u;
+                        if (wire_be64(q+2)+v==wire_be64(sink(k).stream_id.bytes) && event!=5 && declaration==2) {
+                            return true;
+                        }
+                    }
+                    q+=10+(count+2)/3+(count+3)/4;
+                }
+            }
+        }
+        return false;
+    }
     void reprobed(unsigned k) {
         EXPECT_EQ(core()->sinks[k].state,ACMP_PRB_W_AVAIL) << "retained withdrawal reprobes";
         EXPECT_FALSE(sink(k).bound) << "retained withdrawal retires binding";
@@ -110,7 +136,8 @@ TEST_F(SrpFeedback, FailedToAdvertiseUpdatesTheSettledWireView) {
 }
 
 // #925: a Talker Advertise New over a registered Talker Failed is the latest registration, so ACMP and the wire see
-// Advertise at once (IEEE 802.1Q-2018 35.2.4, 35.2.6), Failed again when it leaves, and the Failed's Leave withdraws.
+// Advertise at once (Milan v1.2 5.3.8.5, the ruling on #925), Failed again when it leaves, and the Failed's Leave
+// withdraws.
 TEST_F(SrpFeedback, AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView) {
     for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); registration(k,true,1,k); current_kind(k,true); }
     for (unsigned k=0;k<2u;++k) {
@@ -142,6 +169,34 @@ TEST_F(SrpFeedback, AWithdrawalInsideOneMrpduRetainsTheLatestKind) {
         reprobed(k);
         fk.hook=nullptr;
     }
+}
+
+// #925: an Advertise New over a registered Failed, then an unchanged Domain JoinIn in the same MRPDU, at an idle join
+// timer. The receive filter's copy sees the change before the walk does: the declaration is owed all the same, so
+// within a JoinTime the Listener Ready is on the wire and ACMP's GET_RX_STATE reports no Failed.
+TEST_F(SrpFeedback, AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews) {
+    const unsigned k=0;
+    const unsigned i=acfg.sink_interface[k];
+    bind(k); response(k); registration(k,true,1);
+    for (unsigned n=0;n<2000u && (srp_adapter.join_left[2u*i]!=0u || srp_adapter.join_left[2u*i+1u]!=0u ||
+                                 srp_adapter.tx_due!=0u);++n) {
+        mbx_model_advance_ms(&model,1); settle();
+    }
+    ASSERT_EQ(srp_adapter.join_left[2u*i],0u) << "an idle join timer";
+    ASSERT_EQ(srp_adapter.tx_due,0u);
+    ASSERT_EQ(sink(k).declared,1u);
+    current_kind(k,true);
+    auto frame=talker(0,false,0);
+    // Domain, attribute length 4, list length 9: one JoinIn of {6,3,2}, then the Message and PDU EndMarks.
+    const std::vector<uint8_t> domain={4,4,0,9,0,1,6,3,0,2,36,0,0,0,0};
+    frame.resize(frame.size()-2); frame.insert(frame.end(),domain.begin(),domain.end());
+    const auto sent=model.tx_sent;
+    const auto start=model.now_ms;
+    queue(k,frame); settle();
+    for (unsigned n=0;n<CTRL_LOOP_JOIN_CS*10u;++n) { mbx_model_advance_ms(&model,1); settle(); }
+    EXPECT_EQ(sink(k).declared,2u) << "the Listener declaration is Ready within a JoinTime";
+    EXPECT_TRUE(ready_sent(k,sent,start+CTRL_LOOP_JOIN_CS*10u)) << "Listener Ready on the wire within a JoinTime";
+    current_kind(k,false);
 }
 
 TEST_F(SrpFeedback, WithdrawalThenRegistrationRetainsTheFirstEvent) {

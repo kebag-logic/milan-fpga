@@ -30,8 +30,11 @@ struct srp_sink {
     uint8_t desired;
     uint8_t declared;
     uint8_t registered_kinds; // copied indication state: bit 0 Failed, bit 1 Advertise
-    // The kind (that bit) of its StreamID's latest Talker registration indicated while bound, 0 none, which decides
-    // while both kinds are registered (#925, listener_kind).
+    // The kinds registered for its StreamID whatever their destination and VID, the same bits, as the registrar walk
+    // copies them: a final unbinding with both holds the latest (#925, srp_mbx_bind).
+    uint8_t stream_kinds;
+    // The kind (that bit) of its StreamID's latest Talker registration on the interface, 0 none, which decides while
+    // both kinds are registered (#925, listener_kind).
     uint8_t latest_kind;
     // Latest continuous kind before the first withdrawal of this binding.
     // A later receive cannot erase that withdrawal before ACMP consumes it.
@@ -102,6 +105,23 @@ struct srp_mbx_config {
     // srp_mbx_gate (#895).
     bool sources_valid;
 };
+// Pool counts are derived from the compiled entity shape. The caller owns
+// the statically declared arena and binds it through shlan_port_bind_pool.
+#define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
+#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
+#define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
+#define SRP_POOL_N_CLASSES 3u
+#define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
+// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, and
+// the kind registered latest, which its next binding takes (#925, srp_mbx_bind). Each registration is an lwSRP
+// attribute, whose instance takes a medium or large block (it is over the small class's 64 bytes), and a StreamID is
+// held only while both of its own are, so half the pool's medium and large blocks bound the StreamIDs held.
+struct srp_held {
+    struct msrp_stream_id stream_id;
+    uint8_t interface;
+    uint8_t latest_kind;
+};
+#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS) / 2u)
 struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
@@ -133,20 +153,17 @@ struct srp_mbx {
     // The centiseconds each source's withdrawal still holds a changed
     // destination back (#895, declare_sources).
     uint16_t held_cs[CTRL_SRP_SOURCES];
+    // The StreamIDs held, the first held_count of held (#925, srp_held).
+    uint8_t held_count;
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
     // Ethernet header before it, so a frame is never copied (#665).
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
+    // After them, as it is read only through a scan from its start (#925).
+    struct srp_held held[SRP_HELD_STREAMS];
 };
-// Pool counts are derived from the compiled entity shape. The caller owns
-// the statically declared arena and binds it through shlan_port_bind_pool.
-#define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
-#define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_N_CLASSES 3u
-#define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);

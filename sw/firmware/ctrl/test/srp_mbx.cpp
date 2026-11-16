@@ -1385,11 +1385,12 @@ struct Walked {
     std::vector<int> present;
     std::vector<int> desired;
     std::vector<int> kinds;
+    std::vector<int> streams;
     bool operator==(const Walked &) const = default;
 };
 Walked walk(const srp_interface &i) {
     Walked w{std::vector<int>(CTRL_SRP_SOURCES),std::vector<int>(CTRL_SRP_SOURCES),
-             std::vector<int>(CTRL_SRP_SINKS),std::vector<int>(CTRL_SRP_SINKS)};
+             std::vector<int>(CTRL_SRP_SINKS),std::vector<int>(CTRL_SRP_SINKS),std::vector<int>(CTRL_SRP_SINKS)};
     struct Ctx { const srp_interface *i; Walked *w; } ctx{&i,&w};
     mrp_attr_visit(i.msrp,0,[](void *p,const mrp_attr_status *s) {
         auto &c=*static_cast<Ctx*>(p);
@@ -1403,9 +1404,12 @@ Walked walk(const srp_interface &i) {
             const auto *t=static_cast<const msrp_talker_adv*>(s->attr_val);
             for(unsigned k=0;k<CTRL_SRP_SINKS;++k) {
                 const auto &sink=c.i->sinks[k];
+                const int kind=s->attr_type==MSRP_ATTR_TYPE_TALKER_FAILED ? 1 : 2;
+                // the StreamID's kinds whatever their destination and VID, which a final unbinding reads (#925)
+                if(sink.bound && !std::memcmp(sink.stream_id.bytes,t->stream_id.bytes,8)) c.w->streams[k]|=kind;
                 if(sink.bound && !std::memcmp(sink.stream_id.bytes,t->stream_id.bytes,8) &&
                    !std::memcmp(sink.dest_mac,t->dest_mac,6) && sink.vid==t->vlan_id)
-                    c.w->kinds[k]|=s->attr_type==MSRP_ATTR_TYPE_TALKER_FAILED ? 1 : 2;
+                    c.w->kinds[k]|=kind;
             }
         }
     },&ctx);
@@ -1420,7 +1424,10 @@ Walked walk(const srp_interface &i) {
 Walked held(const srp_interface &i) {
     Walked w;
     for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) { w.registered.push_back(i.registered[n]); w.present.push_back(i.listener_present[n]); }
-    for(unsigned k=0;k<CTRL_SRP_SINKS;++k) { w.desired.push_back(i.sinks[k].desired); w.kinds.push_back(i.sinks[k].registered_kinds); }
+    for(unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+        w.desired.push_back(i.sinks[k].desired); w.kinds.push_back(i.sinks[k].registered_kinds);
+        w.streams.push_back(i.sinks[k].stream_kinds);
+    }
     return w;
 }
 void expect_held(const srp_mbx &adapter, const char *step) {
@@ -1801,9 +1808,10 @@ TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
 }
 
 // ---- #925: Talker Advertise and Talker Failed for one stream -------------------------------------------
-// A talker declares one of the two for a stream (IEEE 802.1Q-2018 35.2.4) and a registration of the other kind
-// replaces the one held (35.2.6). lwSRP withdraws the old one for a received JoinIn or JoinMt, but a New registers
-// beside it, the Failed staying until the talker's next MRPDU: the latest registered decides the Listener declaration.
+// A talker declares one of the two for a stream and moves directly between them (IEEE 802.1Q-2018 35.1.2.1). A
+// received JoinIn or JoinMt of one replaces a registered other (35.2.6), but lwSRP registers a New beside it, where
+// 35.2.6's informative NOTE would give the Failed precedence. Milan v1.2 5.3.8.5 and the ruling on #925 decide: the
+// latest registered decides the Listener declaration for as long as both stay registered.
 class SrpTalkerKinds : public Srp {
 protected:
     static constexpr unsigned kJoinMs=CTRL_LOOP_JOIN_CS*10u;
@@ -1837,8 +1845,21 @@ protected:
         return f;
     }
     std::vector<uint8_t> record(unsigned kind, unsigned event) { return mrpdu({{kind,event,0}}); }
+    // The MRPDU f with the messages of MRPDU next after its own.
+    static std::vector<uint8_t> then(std::vector<uint8_t> f, const std::vector<uint8_t> &next) {
+        f.resize(f.size()-2u);
+        f.insert(f.end(),next.begin()+15,next.end());
+        return f;
+    }
     void bind(unsigned k, unsigned s=0, unsigned d=0) {
         ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,&sid[s],da[d],2)); settle();
+    }
+    void unbind(unsigned k) { ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,nullptr,nullptr,0)); settle(); }
+    // Time passes until both of the interface's join timers are idle and it owes no MRPDU.
+    void idle() {
+        for (unsigned n=0; n<2000u && (adapter.join_left[0]!=0u || adapter.join_left[1]!=0u || adapter.tx_due!=0u); ++n)
+            advance(1);
+        ASSERT_EQ(adapter.join_left[0],0u); ASSERT_EQ(adapter.join_left[1],0u); ASSERT_EQ(adapter.tx_due,0u);
     }
     const srp_sink &sink(unsigned k) const { return adapter.ifs[0].sinks[k]; }
     // The Listener declarations of stream s sent from frame `from` on.
@@ -1867,7 +1888,7 @@ protected:
     }
 };
 
-// Finding 18: the talker replaces its Talker Failed with a Talker Advertise, New. The Listener is Ready within a
+// #925: the talker replaces its Talker Failed with a Talker Advertise, New. The Listener is Ready within a
 // JoinTime of it, as its first registration was declared, with the Failed still registered beside it.
 TEST_F(SrpTalkerKinds, AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime) {
     settle(); advance(400); bind(0);
@@ -1908,8 +1929,8 @@ TEST_F(SrpTalkerKinds, LeaveOfEitherKindLeavesTheOtherDeciding) {
     }
 }
 
-// Coincident registrations, both in one MRPDU: lwSRP applies its events in order (35.2.6), so the later decides; and
-// a replacement whose Leave of the old kind rides the same MRPDU as the New is continuous.
+// Coincident registrations, both in one MRPDU: lwSRP applies its messages in their order, so the later registration
+// decides; and a replacement whose Leave of the old kind rides the same MRPDU as the New is continuous.
 TEST_F(SrpTalkerKinds, CoincidentRegistrationsInOneMrpduFollowTheirOrder) {
     settle(); advance(400); bind(0,0,0); bind(1,1,1);
     expect_declared(mrpdu({{kFailed,kNew,0},{kAdvertise,kNew,0}}),0,kAdvertise,"Failed then Advertise in one MRPDU");
@@ -1922,7 +1943,8 @@ TEST_F(SrpTalkerKinds, CoincidentRegistrationsInOneMrpduFollowTheirOrder) {
 }
 
 // A binding made while both are registered takes the StreamID's latest from any binding of it, whatever that one's
-// destination: another binding of the same destination, then one of another.
+// destination: another binding of the same destination, then one of another; and the StreamID's only binding replaced
+// in place by one of another destination carries it back to its own.
 TEST_F(SrpTalkerKinds, ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream) {
     settle(); advance(400);
     for (unsigned other : {0u,1u}) {
@@ -1934,6 +1956,11 @@ TEST_F(SrpTalkerKinds, ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream)
         EXPECT_EQ(sink(1).desired,kAdvertise)<<"a later binding takes the latest registration";
         EXPECT_EQ(sink(1).declared,kAdvertise)<<"the shared declaration stays Ready, not ReadyFailed";
         for (const auto &d:listeners(from)) EXPECT_EQ(d.subtype,kAdvertise)<<"the shared declaration stays Ready";
+        // in place: the StreamID's only binding replaced by one of another destination, then by its own again
+        unbind(0); bind(1,0,1); advance(kJoinMs);
+        EXPECT_EQ(sink(1).desired,0u)<<"another destination matches neither registration";
+        bind(1); advance(kJoinMs);
+        EXPECT_EQ(sink(1).desired,kAdvertise)<<"a later binding takes the latest registration, one in place too";
         offer(record(kAdvertise,kLv)); offer(record(kFailed,kLv)); advance(kJoinMs);
         EXPECT_EQ(sink(1).registered_kinds,0u);
         ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
@@ -1942,17 +1969,141 @@ TEST_F(SrpTalkerKinds, ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream)
     }
 }
 
-// No binding of the StreamID saw either registration (both made while it was bound, then unbound, then bound again
-// before either left): Failed first, the rule before #925, until the talker's next MRPDU leaves one kind.
-TEST_F(SrpTalkerKinds, ABindingThatSawNeitherRegistrationTakesFailedFirst) {
+// The latest is the StreamID's for as long as both registrations stay, whatever its bindings do. Its last binding
+// ends and the sink binds it again with no talker MRPDU between: the latest decides again, in the Listener
+// declaration and in ACMP's copy. A binding of another StreamID in that sink's place, or made while it is held, takes
+// none of it, and the StreamID's next binding still takes it.
+TEST_F(SrpTalkerKinds, AFinalUnbindingKeepsTheLatestWhileBothStayRegistered) {
+    for (unsigned latest : {kAdvertise,kFailed}) {
+        settle(); advance(400); bind(0);
+        offer(record(3u-latest,kJoinIn)); offer(record(latest,kNew)); advance(kJoinMs);
+        ASSERT_EQ(sink(0).declared,latest);
+        unbind(0); advance(kJoinMs);
+        EXPECT_EQ(adapter.held_count,1u)<<"the StreamID none binds holds its latest";
+        const uint32_t from=model.tx_sent;
+        bind(0); advance(kJoinMs);
+        EXPECT_EQ(sink(0).registered_kinds,3u);
+        EXPECT_EQ(sink(0).desired,latest)<<"a final unbinding keeps the latest registration";
+        EXPECT_EQ(sink(0).declared,latest)<<"a final unbinding keeps the latest registration";
+        EXPECT_EQ(sink(0).feedback_kind,latest)<<"ACMP sees the latest registration";
+        for (const auto &d:listeners(from)) EXPECT_EQ(d.subtype,latest)<<"the binding made again declares the latest";
+        EXPECT_EQ(adapter.held_count,0u)<<"the binding took it";
+        bind(0,1,1); advance(kJoinMs);
+        EXPECT_EQ(adapter.held_count,1u)<<"a binding of another StreamID in its place holds it";
+        bind(0); advance(kJoinMs);
+        EXPECT_EQ(sink(0).desired,latest)<<"the StreamID's next binding still takes the latest";
+        unbind(0); bind(0,1,1); advance(kJoinMs);
+        EXPECT_EQ(sink(0).latest_kind,0u)<<"another StreamID takes none of it";
+        EXPECT_EQ(adapter.held_count,1u)<<"another StreamID takes none of it";
+        bind(0); advance(kJoinMs);
+        EXPECT_EQ(sink(0).desired,latest)<<"the StreamID's next binding still takes the latest";
+        expect_declared(record(latest,kLv),0,3u-latest,"the latest leaves: the other decides");
+        EXPECT_EQ(adapter.held_count,0u);
+        TearDown(); SetUp();
+    }
+}
+
+// A StreamID none binds is held only while both registrations stay. The talker's messages for it are ignored while
+// no binding has it, so a LeaveAll of one kind lets that registration expire; that, or a reset of the interface,
+// ends the hold, and a binding made later follows what is left.
+TEST_F(SrpTalkerKinds, AHeldStreamEndsWithEitherRegistrationOrAReset) {
+    for (unsigned ending : {kAdvertise,kFailed,0u}) {
+        settle(); advance(400); bind(0);
+        offer(record(kFailed,kJoinIn)); offer(record(kAdvertise,kNew)); advance(kJoinMs);
+        unbind(0); advance(kJoinMs);
+        ASSERT_EQ(adapter.held_count,1u);
+        if (ending) {
+            auto v=talker_value(sid[0],da[0],2);
+            if (ending==kFailed) { v.resize(34); v[33]=1; }
+            offer(frame(ending==kAdvertise ? 1u : 2u,v,kJoinIn,0,true)); advance(5100);
+        } else {
+            mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle(); advance(400);
+        }
+        EXPECT_EQ(adapter.held_count,0u)<<"a registration's end or a reset ends the hold";
+        bind(0); advance(kJoinMs);
+        EXPECT_EQ(sink(0).registered_kinds,ending ? 3u-ending : 0u);
+        EXPECT_EQ(sink(0).desired,ending ? 3u-ending : 0u)<<"the registration left decides";
+        EXPECT_EQ(sink(0).latest_kind,0u)<<"nothing held is taken";
+        unbind(0); advance(kJoinMs);
+        EXPECT_EQ(adapter.held_count,0u)<<"one kind registered holds nothing";
+        TearDown(); SetUp();
+    }
+}
+
+// A StreamID is held for its own interface: one held on the last interface is taken by no binding of another and
+// survives another's reset, and its own interface's binding takes it.
+TEST_F(SrpTalkerKinds, AStreamIsHeldForItsOwnInterface) {
+    if (MBX_N_IF < 2u) GTEST_SKIP() << "one interface";
+    const unsigned last=MBX_N_IF-1u;
+    settle(); advance(400);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,last,0,&sid[0],da[0],2)); settle();
+    offer(record(kFailed,kJoinIn),last); offer(record(kAdvertise,kNew),last); advance(kJoinMs);
+    ASSERT_EQ(adapter.ifs[last].sinks[0].desired,kAdvertise);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,last,0,nullptr,nullptr,0)); settle();
+    ASSERT_EQ(adapter.held_count,1u);
+    bind(0); advance(kJoinMs);
+    EXPECT_EQ(sink(0).latest_kind,0u)<<"another interface's binding takes none of it";
+    EXPECT_EQ(adapter.held_count,1u)<<"another interface's binding takes none of it";
+    mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle(); advance(400);
+    EXPECT_EQ(adapter.held_count,1u)<<"another interface's reset leaves it";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,last,0,&sid[0],da[0],2)); settle(); advance(kJoinMs);
+    EXPECT_EQ(adapter.ifs[last].sinks[0].desired,kAdvertise)<<"its own interface's binding takes it";
+    EXPECT_EQ(adapter.held_count,0u);
+}
+
+// Half the pool's medium and large blocks bound the StreamIDs held (srp_held), so the table does not fill. Were it
+// full, a final unbinding would hold nothing, and a later binding of both kinds with no latest known take Failed.
+TEST_F(SrpTalkerKinds, AFullHeldTableHoldsNothingMore) {
     settle(); advance(400); bind(0);
     offer(record(kFailed,kJoinIn)); offer(record(kAdvertise,kNew)); advance(kJoinMs);
-    ASSERT_EQ(sink(0).desired,kAdvertise);
-    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); advance(kJoinMs);
-    bind(0);
+    adapter.held_count=SRP_HELD_STREAMS; // every entry interface 0, StreamID 0, as init left them
+    unbind(0); advance(kJoinMs);
+    EXPECT_EQ(adapter.held_count,SRP_HELD_STREAMS)<<"a full table holds nothing more";
+    bind(0); advance(kJoinMs);
+    EXPECT_EQ(sink(0).latest_kind,0u);
+    EXPECT_EQ(sink(0).desired,kFailed)<<"no latest known: Failed";
+    adapter.held_count=0u;
+}
+
+// Each New in turn decides, also one of a kind registered beside the other: a talker that moves Failed, Advertise,
+// Failed with both kinds still registered asks Failed again, and Ready after its next Advertise.
+TEST_F(SrpTalkerKinds, EachNewInTurnDecidesWhileBothAreRegistered) {
+    settle(); advance(400); bind(0);
+    expect_declared(record(kFailed,kJoinIn),0,kFailed,"the Failed");
+    expect_declared(record(kAdvertise,kNew),0,kAdvertise,"an Advertise New beside it");
+    expect_declared(record(kFailed,kNew),0,kFailed,"a Failed New beside the Advertise decides again");
     EXPECT_EQ(sink(0).registered_kinds,3u);
-    EXPECT_EQ(sink(0).desired,kFailed)<<"neither registration seen: Failed first";
-    expect_declared(record(kAdvertise,kJoinIn),0,kAdvertise,"the talker's JoinIn replaces the Failed");
+    expect_declared(record(kAdvertise,kNew),0,kAdvertise,"an Advertise New beside the Failed decides again");
+}
+
+// A replacement New followed in its MRPDU by a message that changes nothing, an unchanged Domain JoinIn or a Talker
+// of a StreamID no binding has, which the filter ignores: the receive filter's copy sees the change before the walk
+// does, and the declaration is owed all the same, on the wire within a JoinTime of an idle join timer. A New and its
+// own Leave in one MRPDU, then such a message, leave the declaration as it was: only the final state is declared.
+TEST_F(SrpTalkerKinds, AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime) {
+    const auto domain=frame(4,{6,3,0,2},1);
+    const auto ignored=mrpdu({{kAdvertise,kJoinIn,1}});
+    for (unsigned latest : {kAdvertise,kFailed}) {
+        for (const auto *trailer : {&domain,&ignored}) {
+            settle(); advance(400); bind(0);
+            expect_declared(record(3u-latest,kJoinIn),0,3u-latest,"the older registration");
+            idle();
+            expect_declared(then(record(latest,kNew),*trailer),0,latest,"a New before a message that changes nothing");
+            EXPECT_EQ(sink(0).feedback_kind,latest);
+            TearDown(); SetUp();
+        }
+    }
+    settle(); advance(400); bind(0);
+    expect_declared(record(kFailed,kJoinIn),0,kFailed,"the Failed");
+    idle();
+    const uint32_t from=model.tx_sent;
+    offer(then(mrpdu({{kAdvertise,kNew,0},{kAdvertise,kLv,0}}),domain)); advance(kJoinMs);
+    EXPECT_EQ(sink(0).declared,kFailed)<<"an Advertise New and its Leave in one MRPDU leave the Failed deciding";
+    EXPECT_FALSE(sink(0).withdrawn);
+    for (const auto &d:listeners(from)) {
+        EXPECT_NE(d.event,kLv)<<"no withdrawal on the wire";
+        EXPECT_EQ(d.subtype,kFailed)<<"only the final state is declared";
+    }
 }
 
 }
