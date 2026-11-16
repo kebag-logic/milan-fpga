@@ -1,0 +1,17 @@
+[R852] NEGATIVE - exact head afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+Independent pass recorded before reading prior PR findings or another reviewer's report.
+
+MAJOR F1: A transient failed advertisement write can leave the PHY negotiating the old abilities after registers read back correctly. ctrl_plat_phy.c:228-248 suppresses restart after the first attempt, even when that attempt restarted with an incorrect advertisement. The independent pin-level probe repairs register 4 but retains an active 100BASE-TX link: register4=0001, advertised-at-last-restart=01e1, active-Mbps=100, restarts=1, owed=0, published=0. Existing P1-P16 and composed tests pass. The added probe fails. Applies to Conformance, RTL (firmware state machine/interface), Robustness, Tests, and Docs (the unconditional no-100-Mb/s-link claim and retry contract).
+
+MINOR F2: ctrl_plat_phy.h:56-58 and plat/README.md THE STEP state 65 bit periods, while FRAME_BITS=64, frame() and both pin peers use 64; the header also calls nine added frames seven reads plus three writes, whereas there are six reads and three writes. These are numerical protocol/work-count statements, not merely wording. Docs and Conformance.
+
+RESIDUE R1: New source commentary in ctrl_memory.py includes issue-comment IDs and lane names. Remove those tokens while retaining issue IDs, behaviour, and the debt reason, under the owner's comment rule.
+
+Reviewer-owned ledger:
+Conformance | UNCLEAN | issue #919/#840; ctrl_plat_phy.{c,h}; release phy_link_tick; Clause 28.2.4.1.3; retry-probe.log | R852-1 | afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+RTL | UNCLEAN | ctrl_plat_phy.c; ctrl_plat.c; ctrl_loop.h; milan_soc.py; milan_datapath.sv; KL_gptp_engine.sv | R852-1 | afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+Robustness | UNCLEAN | test_plat_phy.cpp P1-P16; test_plat_boot.cpp B11/B12/L1-L4; retry_probe.cpp | R852-1 | afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+Tests | UNCLEAN | platform-1.log; platform-2.log; maps.log; native-controls.log; retry-probe.log; published boot/campaign/coverage/budget/sweep receipts | R852-1 | afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+Docs | UNCLEAN | ctrl_plat_phy.h; plat/README.md; SPLIT_CONTROL_MEMORY.md; boot README; public issue rulings and source evidence | R852-1 | afa3ea19d6a1075382c63e4fc1e188a9aadf33bb
+
+Further work before final report: prior public findings reconciliation; manager evidence comments; receipt summary, no-fault probe control and exact-byte/index/gitlink verification. No full bank or hardware run performed.

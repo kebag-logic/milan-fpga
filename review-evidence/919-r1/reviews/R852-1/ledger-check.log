@@ -1,0 +1,9 @@
+PASS one-interface product selection and 56.5-tile plan
+PASS same image without product allowance allocation over budget: 56.5 RAMB36 (rom 132148 bytes in 133120, sram 97392 bytes in 98304) exceeds the 56-RAMB36 budget
+PASS one-interface half-tile excess allocation over budget: 57 RAMB36 (rom 133121 bytes in 135168, sram 97392 bytes in 98304) exceeds the 56.5-RAMB36 budget ledgered for target platform's 8x8, one interface
+PASS wrong ctrl_plat size allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18240}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 18241}
+PASS wrong staging size allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18240}; this image carries {'nvm_stage': 13595, 'ctrl_plat': 18240}
+PASS two-interface explicit allowance and 61-tile plan
+PASS two-interface no product allowance allocation over budget: 61 RAMB36 (rom 133716 bytes in 135168, sram 114352 bytes in 114688) exceeds the 56-RAMB36 budget
+PASS two-interface half-tile excess allocation over budget: 61.5 RAMB36 (rom 135169 bytes in 137216, sram 114352 bytes in 114688) exceeds the 61-RAMB36 budget ledgered for target platform's 8x8, two interfaces
+PASS: eight ledger checks; synthetic maps, not a new linked-image measurement

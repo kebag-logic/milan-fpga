@@ -1,0 +1,7 @@
+  [PASS] PlatMap.M1AllThreeRowsGiveTheirAddresses: M1 the PHY's three rows give their addresses (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_PHY_MDIO_W': 4026540036, 'CTRL_PLAT_PHY_MDIO_R': 4026540040, 'CTRL_PLAT_LINK_STATUS': 4026540060})
+  [PASS] PlatMap.M2NoRowsGiveZero: M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_PHY_MDIO_W': 0, 'CTRL_PLAT_PHY_MDIO_R': 0, 'CTRL_PLAT_LINK_STATUS': 0})
+  [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 2)
+  [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_r (exit 2)
+  [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+== ctrl split platform bus map: checks: 5   failures: 0 ==
+RESULT: PASS

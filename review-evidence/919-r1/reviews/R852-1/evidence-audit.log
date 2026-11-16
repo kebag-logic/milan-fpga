@@ -1,0 +1,229 @@
+Public author evidence archive c129707b2d1d3b84c746849c9201b96ef2b1499d
+Reviewed source afa3ea19d6a1075382c63e4fc1e188a9aadf33bb merged base 70f4056f384e12520ccae254fe26f6286fd39db6
+Workflow inventory: {'0': 118, 'NOT RUN': 130} ; NOT RUN is not an executed pass
+Executed workflow rc files independently checked: 118
+Control campaign: 760/760; all advertisement plants matched by name:
+[ok] mutant plat-phy-100base-tx-advertised (platboot1): 13 check(s) failed
+[ok] mutant plat-phy-10base-t-advertised (platboot1): 13 check(s) failed
+[ok] mutant plat-phy-reserved-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-half-duplex-advertised (platboot1): 11 check(s) failed
+[ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-test-mode-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-not-restarted (platboot1): 13 check(s) failed
+[ok] mutant plat-phy-reset-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-boot-restart-dropped (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-write-released (platboot1): 10 check(s) failed
+[ok] mutant plat-phy-mii-written (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-10-100-written (platboot1): 8 check(s) failed
+[ok] mutant plat-phy-advertised-once (platboot1): 4 check(s) failed
+[ok] mutant plat-phy-restart-every-loss (platboot1): 3 check(s) failed
+[ok] mutant plat-phy-reset-phy-not-restarted (platboot1): 3 check(s) failed
+[ok] mutant plat-phy-restart-each-poll (platboot1): 8 check(s) failed
+[ok] mutant plat-phy-advertisement-unverified (platboot1): 8 check(s) failed
+[ok] mutant plat-phy-written-before-read (platboot1): 4 check(s) failed
+aecp campaign tail PASS; full large log represented by archive hash/tail
+srp campaign tail PASS; full large log represented by archive hash/tail
+Coverage: sw/firmware/ctrl/plat/ctrl_plat_phy.c            173/173     160/160     lines 100.00 %  branches 100.00 %
+Sweep 0 suites: 15   passed: 15   failed: 0   timed out: 0 checks: 361003   in-suite failures: 0
+Sweep 1 suites: 17   passed: 17   failed: 0   timed out: 0 checks: 2046229   in-suite failures: 0
+Sweep 2 suites: 17   passed: 17   failed: 0   timed out: 0 checks: 284233   in-suite failures: 0
+Sweep 3 suites: 16   passed: 16   failed: 0   timed out: 0 checks: 21575   in-suite failures: 0
+Sweep total: 65 suites; 2713040 checks
+Budget 1x1 rc 0 stated-cost lines 0
+96 groups graded, 0 refusals, 7 budget misses (7 of 950 probe instances, 4 of 92 paths), 0 of 130341 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+Budget 8x8-1if rc 1 stated-cost lines 11
+95 groups graded, 0 refusals, 7 budget misses (7 of 947 probe instances, 4 of 85 paths), 0 of 270769 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED save-second: a pass's polls base of 22,653 CPU cycles, over its stated 22,500
+STATED save-second: a pass's polls base of 23,164 CPU cycles, over its stated 22,500
+STATED save-held: a pass's polls base of 23,756 CPU cycles, over its stated 22,500
+STATED save-starved: a pass's polls base of 23,756 CPU cycles, over its stated 22,500
+STATED backlog-owed: a acmp item of 6,812 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,872 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,137 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,142 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,310 CPU cycles, over its stated 2,000
+Boot 1x1
+PHY 59 frames, 10 publications; the longest frame 14481 bus cycles (14481 CPU cycles, 144.81 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.024 to 125.415 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.202 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+ctrl_split_boot: PASS (0 finding(s))
+Boot 8x8
+PHY 59 frames, 10 publications; the longest frame 14569 bus cycles (14569 CPU cycles, 145.69 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.045 to 125.521 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.604 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+ctrl_split_boot: PASS (0 finding(s))
+Published linked-image ledger:
+plat_ledger controls: 8 of 8 as required
+POINT 1x1-if1: rom 119,444 B, sram 56,288 B, 43.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 17600 B: PASS
+POINT 1x1-if2: rom 121,028 B, sram 58,464 B, 44.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19136 B: PASS
+POINT 8x8-if1: rom 132,148 B, sram 97,392 B, 56.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 18240 B: PASS
+POINT 8x8-if2: rom 133,716 B, sram 114,352 B, 61 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 20416 B: PASS
+plat_ledger: PASS (0 finding(s))
+budget/image-identity-base-70f4056f-head.txt
+The CPU service budget harness's firmware images at c805f699 (the harness's head) against the base's (dev-soft-core 70f4056f), each linked by the base's own ctrl_srp_image.py with the harness build's flash map and runtime archives
+command: ctrl_srp_image.py --config <shape> --interfaces 1 --with-aecp --layout split --flash-map <harness>/split-soc/flash-map --libc/--compiler-runtime <harness>/runtime/*; sha256 of ctrl_app.elf
+---
+1x1: base 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8, harness 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8, build.json records 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8
+8x8-1if: base 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae, harness 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae, build.json records 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae
+
+command: git diff --stat 70f4056f afa3ea19 -- tb/verilator/ctrl_service_budget tb/verilator/fw_service_budget hdl
+(empty: the harness's testbench and RTL are the base's)
+
+command: git diff --name-only c805f699 afa3ea19 (none is a source of the harness's image, testbench or RTL)
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+
+The harness's SoC export reads sw/litex/milan_soc.py, whose add_ctrl_memory now plans by ctrl_memory.product_point; the fixture image carries no ctrl_plat, so product_point names no point (test_ctrl_memory's product facts) and its plan, banks and export are the base's.
+So the harness at the head measures the base's image on the base's testbench: its verdict is the base's.
+
+release-image/COMPARE.txt
+The release (all-fabric) firmware image at the round-2 head c805f699 against its base dev-soft-core 70f4056f, both shipped configs: the all-fabric recipe's SoC export (endstation_builder.py <config>, then milan_soc.py with its argv, software compiled, no gateware)
+command: scripts/release_image.sh <clone> <out> endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8, at each commit; then sha256 of bios.bin, the disassembly and the ELF with debug sections stripped
+---
+base RUN:
+head 70f4056f384e12520ccae254fe26f6286fd39db6 porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 6 porcelain-after 0
+head RUN:
+head c805f6999ee873240fcee63354a46022de1fd7bf porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 6 porcelain-after 0
+
+identical 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin 
+differ    bbb697658e8692581c173c2b5ee014f50d136c8336029370354b7c1b07555502 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf 
+differ    bdf62d82efc7fa5a27b40bd6ca8441a51765b6c2528c1faee798eb69a414c497 ./endstation_ax7101_1x1_tdm8/software/libmilan_baremetal/libmilan_baremetal.a 
+identical d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99 ./endstation_ax7101_8x8/software/bios/bios.bin 
+differ    52d93b775bb6aa7f3ac4a3cabc202ae7499aa1aff373f8adc6deaa5cee0ce285 ./endstation_ax7101_8x8/software/bios/bios.elf 
+differ    bc7da715dc9fa23a153de9e8f1be5625a995cb388ced7aa7f2518433befdcbad ./endstation_ax7101_8x8/software/libmilan_baremetal/libmilan_baremetal.a 
+identical 3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+identical 51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+
+endstation_ax7101_1x1_tdm8 bios.elf debug-stripped: base 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719 head 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719 identical
+endstation_ax7101_8x8 bios.elf debug-stripped: base 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb head 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb identical
+
+bios.elf and libmilan_baremetal.a whole files differ only by the build directory each embeds in its debug information (each clone's path, 2 strings each)
+
+route/route-inputs-c805f699-afa3ea19.txt
+The round-2 routes ran at c805f699; the final head afa3ea19 changes none of their inputs. The route images relinked at afa3ea19 with the routes' own inputs (the stand-in csr.csv, flash map and runtime archives) are identical.
+command: git diff --name-only c805f699 afa3ea19; ctrl_plat_image.py at afa3ea19; ctrl_memory.rom_words / segments / symbols compared
+---
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+tb/verilator/ctrl_split_boot/README.md
+tb/verilator/ctrl_split_boot/run.py
+
+1x1: rom words identical True ; load segments identical True ; symbols identical True ; plan 43.5 RAMB36 the 56-RAMB36 budget
+8x8: rom words identical True ; load segments identical True ; symbols identical True ; plan 56.5 RAMB36 platform-8x8-one-interface
+
+Why the routes ran again (manager: route again only if the gateware changes after the merge): the round-1 and round-2 exports' CPU memories
+== route
+round 1 (895681e5): // Memory rom_bank0: 16384-words x 32-bit
+round 1 (895681e5): // Memory rom_bank1: 8192-words x 32-bit
+round 1 (895681e5): // Memory rom_bank2: 4096-words x 32-bit
+round 1 (895681e5): // Memory rom_bank3: 1024-words x 32-bit
+round 1 (895681e5): // Memory sram_bank0: 8192-words x 32-bit
+round 1 (895681e5): // Memory sram_bank1: 4096-words x 32-bit
+round 1 (895681e5): // Memory sram_bank2: 2048-words x 32-bit
+round 2 (c805f699): // Memory rom_bank0: 16384-words x 32-bit
+round 2 (c805f699): // Memory rom_bank1: 8192-words x 32-bit
+round 2 (c805f699): // Memory rom_bank2: 4096-words x 32-bit
+round 2 (c805f699): // Memory rom_bank3: 1024-words x 32-bit
+round 2 (c805f699): // Memory rom_bank4: 512-words x 32-bit
+round 2 (c805f699): // Memory sram_bank0: 8192-words x 32-bit
+round 2 (c805f699): // Memory sram_bank1: 4096-words x 32-bit
+round 2 (c805f699): // Memory sram_bank2: 2048-words x 32-bit
+== route8
+round 1 (895681e5): // Memory rom_bank0: 32768-words x 32-bit
+round 1 (895681e5): // Memory sram_bank0: 16384-words x 32-bit
+round 1 (895681e5): // Memory sram_bank1: 8192-words x 32-bit
+round 2 (c805f699): // Memory rom_bank0: 32768-words x 32-bit
+round 2 (c805f699): // Memory rom_bank1: 512-words x 32-bit
+round 2 (c805f699): // Memory sram_bank0: 16384-words x 32-bit
+round 2 (c805f699): // Memory sram_bank1: 8192-words x 32-bit
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt2/route/split/gateware)
+command: tools/signoff.py <scratch>/rt2/route/split/gateware
+---
+Slow_85C: WNS +0.414 ns (0 failing), WHS +0.054 ns (0 failing)
+Slow_0C: WNS +0.414 ns (0 failing), WHS +0.054 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.015 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.015 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-ExtraTimingOpt, <scratch>/rt2/route/split-ExtraTimingOpt)
+command: tools/signoff.py <scratch>/rt2/route/split-ExtraTimingOpt
+---
+Slow_85C: WNS +0.176 ns (0 failing), WHS +0.058 ns (0 failing)
+Slow_0C: WNS +0.176 ns (0 failing), WHS +0.058 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.032 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.032 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (1x1/1if-AltSpreadLogic_high, <scratch>/rt2/route/split-AltSpreadLogic_high)
+command: tools/signoff.py <scratch>/rt2/route/split-AltSpreadLogic_high
+---
+Slow_85C: WNS +0.090 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.090 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (8x8/1if-integrated-ExtraPostPlacementOpt, <scratch>/rt2/route8/split/gateware)
+command: tools/signoff.py <scratch>/rt2/route8/split/gateware
+---
+Slow_85C: WNS +0.189 ns (0 failing), WHS +0.064 ns (0 failing)
+Slow_0C: WNS +0.189 ns (0 failing), WHS +0.064 ns (0 failing)
+Fast_85C: WNS +1.412 ns (0 failing), WHS +0.031 ns (0 failing)
+Fast_0C: WNS +1.412 ns (0 failing), WHS +0.031 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff.py rc=0
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (8x8/1if-ExtraTimingOpt, <scratch>/rt2/route8/split-ExtraTimingOpt)
+command: tools/signoff.py <scratch>/rt2/route8/split-ExtraTimingOpt
+---
+Slow_85C: WNS +0.005 ns (0 failing), WHS +0.065 ns (0 failing)
+Slow_0C: WNS +0.005 ns (0 failing), WHS +0.065 ns (0 failing)
+Fast_85C: WNS +1.364 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.364 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff.py rc=1
+
+head c805f6999ee873240fcee63354a46022de1fd7bf (8x8/1if-AltSpreadLogic_high, <scratch>/rt2/route8/split-AltSpreadLogic_high)
+command: tools/signoff.py <scratch>/rt2/route8/split-AltSpreadLogic_high
+---
+Slow_85C: WNS +0.002 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.002 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.364 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.364 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff.py rc=1
+
+PASS merged-base RTL and budget harness paths unchanged
+PASS c805f699..afa3ea19: firmware header changes comments only; remaining changes boot README/native controls
+Six merge resolutions: docs/design/SPLIT_CONTROL_MEMORY.md, sw/firmware/ctrl/plat/README.md, sw/firmware/ctrl/plat/ctrl_plat.c, sw/firmware/gtest/coverage.ratchet, sw/litex/ctrl_memory.py, sw/litex/ctrl_memory_ledger.py
+Original-base changed paths: 74
+Merged-base changed paths: 30
+PASS audit of 147 immutable public artifacts; source receipts are author execution, not manager execution
