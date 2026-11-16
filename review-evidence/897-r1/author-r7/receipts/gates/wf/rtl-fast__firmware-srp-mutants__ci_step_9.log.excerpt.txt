@@ -1,0 +1,101 @@
+# head 59c934c6acef2f6b56ffe35646427ed62c76d5f3 workflow rtl-fast.yml job firmware-srp-mutants step ci_step_9: Run both SRP mutation campaigns and pin controls
+# clone <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1526 live invocations in exactly one shard; shard sizes [79, 718, 309, 420]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] f3b-listener-wrong-interface: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+wrote <scratch>/r4/gates-out/final-59c934c6/rtl-fast__firmware-srp-mutants/tmp/ctrl-fw-kkmr78r6/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+[...]
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two LeaveAllTime periods after the Leave
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-drops-the-transmit-term: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+[ok] talker-hold-off-drops-the-join-and-transmit-terms: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / the changed destination comes no sooner than two LeaveAllTime periods after the Leave
+[ok] talker-hold-off-rounds-the-transmit-term-down: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave / the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+[ok] talker-gate-repeat-ignores-its-base: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS

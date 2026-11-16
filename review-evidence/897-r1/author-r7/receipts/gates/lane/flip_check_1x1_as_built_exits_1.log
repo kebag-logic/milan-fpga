@@ -1,0 +1,11 @@
+# head 59c934c6acef2f6b56ffe35646427ed62c76d5f3 gate flip_check_1x1_as_built_exits_1: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if --design as-built
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 1x1/1if | R4 | 82.95 | 20 | +62.95 | srp 20.44, others 12.02, passes 10.40 |
+| 1x1/1if | R5 | 43.82 | 90 | -46.18 | others 10.81, srp 8.96, passes 3.64 |
+| 1x1/1if | R6 | 37.80 | 90 | -52.20 | srp 8.96, others 7.33, rounds 3.23 |
+| 1x1/1if | first | 20.00 | 20 | +0.00 | AECP_QUEUED_FIRST_MS 20.00 |
+| 1x1/1if | last | 140.00 | 125 | +15.00 | AECP_QUEUED_MS 140.00 |
+OVER 1x1/1if R4: by every source 82.95 ms, over its bound 20 ms; the largest term srp 20.44 ms
+OVER 1x1/1if last: by every source 140.00 ms, over its bound 125 ms; the largest term AECP_QUEUED_MS 140.00 ms
+RESULT: FAIL

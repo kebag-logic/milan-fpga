@@ -1,0 +1,91 @@
+make -C ../milan_dp gmstep
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 95 programs
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695
+python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_gmstep/aem-build
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C1935893E1 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/nvm_split.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+python3 ../../../avdecc/gen_aemi_image.py --overlay obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_gmstep/aemi.bin
+[gen_aemi_image] obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 42 descriptors -> obj_gmstep/aemi.bin, 7512 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 39
+index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+checksum 0xBCE6817E
+
+[...]
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 14, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 15, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 16, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 17, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 18, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 19, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 20, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 21, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 22, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 23, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 24, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 25, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 26, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 27, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 28, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 29, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 30, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 31, overlap 0, outgoing toggles 1
+  [ ok ] coincident: every trial consumes one received CRF toggle got=32 exp=32
+  [ ok ] coincident: every trial issues one software settime got=32 exp=32
+  [ ok ] coincident: every settime actually steps the PHC got=32 exp=32
+  [ ok ] coincident: received CRF mr overlaps the PHC re-base pulse
+  [ ok ] coincident: PDUs bracket every trial and complete the hold got=0 exp=0
+  [ ok ] coincident: the selected CRF sink stays locked got=0 exp=0
+  [ ok ] coincident: a PHC step does not suppress the CRF restart got=0 exp=0
+simulated_cycles=54891194
+== gmstep: checks: 196   failures: 0 ==
+RESULT: PASS
+python3 gmstep_mutants.py --no-small-steps
+[PASS] the unmutated gateware still passes the gmstep leg (--no-small-steps)
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 2 check(s): CRF control: selected CRF mr propagates exactly once; coincident: a PHC step does not suppress the CRF restart
+[PASS] control caught: the grandmaster identity empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+    it broke 2 check(s): render: ...and only those: every refused PDU was sent between the two steps; render: every PDU not presented was refused by the stage and counted once
+[PASS] control caught: the step empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+    it broke 4 check(s): render: ...and only those: every refused PDU was sent between the two steps; render: every PDU not presented was refused by the stage and counted once; render: every other PDU's six events presented once, in order; render: the refused PDUs' frames are one counted slip
+
+6 checks: 6 PASS, 0 FAIL
