@@ -189,16 +189,18 @@ def channel_controls(root: Path) -> list[str]:
             escaped.append(CHANNEL_CONTROLS[0])
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     text = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)'
+    table = shape_costs.listed(text)
     held = []
-    # each interface count's leg planted under its row alone, refused at its own point (8x8/2if's rows are reported,
-    # so its flip check exits 1 by design and only this control holds its statement)
-    for leg, point, said in (('33u : 99u', '1x1/1if', 33), ('34u : 98u', '8x8/2if', 98)):
-        under = {loop: text.replace(figure, figure.replace('34u : 99u', leg))}
+    # each point's figure, stated for its shape (THE SHAPES), planted one under its row's alone and refused at its own
+    # point (8x8/2if's rows are reported, so its flip check exits 1 by design and only this control holds its statement)
+    for point in ('1x1/1if', '8x8/2if'):
+        at = shape_costs.of_point(point, root)
+        said = table[at][shape_costs.TX] - 1
+        under = {loop: shape_costs.planted_at(text, at, shape_costs.TX, said)}
         with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements,
                                u=under: f(r, p, u)):
             held.append(any(f'CTRL_LOOP_TX_MS states {said} ms' in f for f in row_findings(root, (point,))))
-    if text.count(figure) != 1 or not all(held):
+    if not all(held):
         escaped.append(CHANNEL_CONTROLS[1])
     # THE TRANSMIT's: Table 4.3's 240 ms less the armed join time, 19 cs, and T_egress; R4L's paced: 9.3.2.6's 240 ms
     # less T_ingress and T_egress (#894's contingent ruling of 2026-11-13, item 3; its egress ruling, item 1)
@@ -263,12 +265,10 @@ def row_controls(root: Path) -> list[str]:
     if any(rows_grade.costs(root, '8x8/2if')[k] != pin[k] for k in pin):
         escaped.append('the rows read on the column graded with tsn-c-stack#32')
     # the queued notices are the tree's stated bounds: a statement past its bound is refused
-    path = load_grade.ROW_HEADERS[2]
+    path = shape_costs.HEADER
     text = (root / path).read_text()
-    old = f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {queued_bound.stated(root)}u : 62u)'
-    planted = {path: text.replace(old, '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 1250u : 62u)')}
-    if text.count(old) != 1 or not any(f.startswith('1x1/1if last:') for f in
-                                       rows_grade.findings(root, ('1x1/1if',), texts=planted)):
+    planted = {path: shape_costs.planted_at(text, shape_costs.of_point('1x1/1if', root), shape_costs.QUEUED, 1250)}
+    if not any(f.startswith('1x1/1if last:') for f in rows_grade.findings(root, ('1x1/1if',), texts=planted)):
         escaped.append('the last queued notice past its bound')
     escaped += queued_bound.controls(root)
     # every source the method's docstring names is counted in every solved row, and every term it counts has one

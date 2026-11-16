@@ -48,11 +48,18 @@ HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
 NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SRP_UNIT_US',
          'CTRL_LOOP_RETRY_COLD_US', 'CTRL_LOOP_RETRY_ATTEMPT_US')
 SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
+#: The bounds in milliseconds each listed shape states after NAMES, so that one shape's figure is never another's: the
+#: last queued notice's, which aecp_mbx.h's AECP_QUEUED_MS is, and THE TRANSMIT's MRPDU by every source at the built
+#: design, which rows_tiers.py holds and a withdrawn Talker's hold-off adds (srp_mbx.c, SRP_REDECLARE_CS).
+BOUNDS = ('CTRL_LOOP_QUEUED_MS', 'CTRL_LOOP_TX_MS')
+QUEUED, TX = BOUNDS
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
 #: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's retry-cost
 #: ruling, item 1).
 RETRY = {'AECP_ROUND_COLD_US': ('sw/firmware/ctrl/aecp/aecp_mbx.h', RETRY_COLD),
          'AECP_ATTEMPT_US': ('sw/firmware/ctrl/aecp/aecp.h', RETRY_ATTEMPT)}
+#: The last queued notice's bound AECP reads, where it is defined and the table's name it must be, held as RETRY is.
+SHAPED = {**RETRY, 'AECP_QUEUED_MS': ('sw/firmware/ctrl/aecp/aecp_mbx.h', QUEUED)}
 #: The most a slice may be, in microseconds: #894's shape ruling, item (b), which re-rules the cap from
 #: 1,300 us; a design parameter, the rows and the load the owner's gate.
 SLICE_MOST_US = 1600
@@ -91,8 +98,9 @@ def text_of(root: Path, texts: dict[str, str] | None = None) -> str:
 
 
 def listed(text: str) -> dict[Shape, dict[str, int]]:
-    """Each shape the header's table lists and its costs in microseconds; a table that is not one #if chain of
-    CTRL_LOOP_SHAPE tests, each stating NAMES once as plain numbers, ending in #else and the #error, is refused."""
+    """Each shape the header's table lists and its costs in microseconds, and its BOUNDS in milliseconds; a table
+    that is not one #if chain of CTRL_LOOP_SHAPE tests, each stating NAMES and BOUNDS once as plain numbers in that
+    order, ending in #else and the #error, is refused."""
     lines = text.splitlines()
     starts = [k for k, line in enumerate(lines) if re.match(r'#(?:el)?if CTRL_LOOP_SHAPE\(', line)]
     if not starts or not lines[starts[0]].startswith('#if '):
@@ -110,13 +118,13 @@ def listed(text: str) -> dict[Shape, dict[str, int]]:
         k += 1
         while not re.match(r'#(?:elif|else|endif)\b', lines[k]):
             define = re.fullmatch(r'#define (\w+) (\d+)u', lines[k].split('//')[0].strip())
-            if define is None or define[1] not in NAMES or define[1] in costs:
+            if define is None or define[1] not in NAMES + BOUNDS or define[1] in costs:
                 raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')
             costs[define[1]] = int(define[2])
             k += 1
-        if tuple(costs) != NAMES:
+        if tuple(costs) != NAMES + BOUNDS:
             raise ValueError(f'ctrl_loop.h states {", ".join(costs) or "nothing"} for the shape {tuple(shape)}, '
-                             f'not {", ".join(NAMES)}')
+                             f'not {", ".join(NAMES + BOUNDS)}')
         out[shape] = costs
         if lines[k].startswith('#else'):
             break
@@ -151,8 +159,8 @@ def interfaces(given: int | Shape) -> int:
 
 
 def at(given: int | Shape, root: Path = ROOT, texts: dict[str, str] | None = None) -> dict[str, int]:
-    """The costs ctrl_loop.h lists for a shape, in microseconds; a shape it does not list is refused by the build's
-    own words."""
+    """The costs ctrl_loop.h lists for a shape, in microseconds, and its BOUNDS, in milliseconds; a shape it does not
+    list is refused by the build's own words."""
     text = text_of(root, texts)
     s = shape(given, root, texts)
     table = listed(text)
@@ -322,14 +330,14 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
 
 
 def retry_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str]:
-    """THE RETRY's round costs keyed on the shape (#894's retry-cost ruling, item 1): AECP_ROUND_COLD_US
-    and AECP_ATTEMPT_US each defined once as the name the table states it by (RETRY), not a figure of its own nor a
-    ternary on the interface count; and at each point, each evaluated as its header derives it there, the costs the
-    table lists for that point's shape. A point whose cost falls back to the interface count's, or to one figure at
-    every shape, is named with both figures."""
+    """THE RETRY's round costs keyed on the shape (#894's retry-cost ruling, item 1), and the last queued notice's
+    bound with them (SHAPED): AECP_ROUND_COLD_US, AECP_ATTEMPT_US and AECP_QUEUED_MS each defined once as the name
+    the table states it by, not a figure of its own nor a ternary on the interface count; and at each point, each
+    evaluated as its header derives it there, the figure the table lists for that point's shape. A point whose
+    figure falls back to the interface count's, or to one figure at every shape, is named with both figures."""
     out = []
     table = listed(text_of(root, texts))
-    for name, (path, shaped) in RETRY.items():
+    for name, (path, shaped) in SHAPED.items():
         text = (texts or {}).get(path) or (root / path).read_text()
         found = re.findall(rf'^#define {name} (.+)$', text, re.M)
         body = found[0].split('//')[0].strip() if found else None
@@ -349,8 +357,9 @@ def retry_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> li
             except (KeyError, ValueError, SyntaxError):
                 got = None
             if got != want:
-                out.append(f'{point}: {name} is {got} us at its shape {tuple(s)}, not the {want} us THE SHAPES state '
-                           f'for it ({shaped})')
+                unit = 'ms' if shaped in BOUNDS else 'us'
+                out.append(f'{point}: {name} is {got} {unit} at its shape {tuple(s)}, not the {want} {unit} THE SHAPES '
+                           f'state for it ({shaped})')
     return out
 
 
@@ -378,16 +387,37 @@ def notice_findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> l
     return out
 
 
+def planted_at(text: str, s: Shape, name: str, value: int | str) -> str:
+    """ctrl_loop.h's text with one name of one listed shape's block stated as value (a planted control's fixture);
+    refused unless the block states the name once."""
+    head = re.search(rf'^#(?:el)?if CTRL_LOOP_SHAPE\({s.interfaces}u, {s.sources}u, {s.sinks}u\).*$', text, re.M)
+    end = re.compile(r'^#(?:elif|else|endif)\b', re.M).search(text, head.end()) if head else None
+    block = text[head.end():end.start()] if end else ''
+    line = re.compile(rf'^#define {name} \d+u$', re.M)
+    if len(line.findall(block)) != 1:
+        raise AssertionError(f'control fixture: the shape {tuple(s)} does not state {name} once')
+    return text[:head.end()] + line.sub(f'#define {name} {value}' + ('u' if isinstance(value, int) else ''), block) \
+        + text[end.start():]
+
+
+def planted_under(text: str, shapes: list[Shape], name: str) -> str:
+    """ctrl_loop.h's text with one name stated one under its figure at each of the shapes (planted_at)."""
+    for s in shapes:
+        text = planted_at(text, s, name, listed(text)[s][name] - 1)
+    return text
+
+
 def report(root: Path = ROOT) -> list[str]:
     """Every listed shape's costs, and each point's shape."""
     table = listed(text_of(root))
     lines = ['| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us '
-             '| THE RETRY: cold start, us | refused attempt, us | Points |', '|---|---:|---:|---:|---:|---:|---:|---|']
+             '| THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT\'s MRPDU, ms '
+             '| Points |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|']
     points = {p: of_point(p, root) for p in BUILT}
     for s, c in table.items():
         named = ', '.join(p for p, at_ in points.items() if at_ == s) or 'none the model names'
         lines.append(f'| {tuple(s)} | {c[SLICE]} | {c[BUILD]} | {c[BUILD_ONE]} | {c[SRP_UNIT]} | {c[RETRY_COLD]} '
-                     f'| {c[RETRY_ATTEMPT]} | {named} |')
+                     f'| {c[RETRY_ATTEMPT]} | {c[QUEUED]} | {c[TX]} | {named} |')
     lines.append(f'with no shape header: {default_streams(text_of(root))} streams')
     return lines
 
@@ -405,7 +435,7 @@ def controls(root: Path = ROOT) -> list[str]:
 
     first = next(iter(listed(text)))
     one = listed(text)[first]
-    block = ''.join(f'#define {name} {one[name]}u\n' for name in NAMES)
+    block = ''.join(f'#define {name} {one[name]}u\n' for name in NAMES + BOUNDS)
     unlisted = Shape(first.interfaces, 3, 3)
     try:
         at(unlisted, root)
@@ -468,7 +498,7 @@ def retry_controls(root: Path = ROOT) -> list[str]:
     point = '8x8/1if'
     s = of_point(point, root)
     mine = listed(text_of(root))[s]
-    for name, (path, shaped) in RETRY.items():
+    for name, (path, shaped) in SHAPED.items():
         if mine[shaped] == listed(text_of(root))[shape(s.interfaces, root)][shaped]:
             escaped.append(f'{point}\'s {name} not apart from the interface count\'s, so no plant can tell them')
     text = {path: (root / path).read_text() for path, _ in RETRY.values()}
@@ -483,6 +513,8 @@ def retry_controls(root: Path = ROOT) -> list[str]:
             raise AssertionError(f'control fixture {old!r} does not occur exactly once in {path}')
         return {path: body.replace(old, new)}
     cold, attempt = RETRY['AECP_ROUND_COLD_US'][0], RETRY['AECP_ATTEMPT_US'][0]
+    queued = listed(loop)
+    q_one, q_two = (queued[shape(n, root)][QUEUED] for n in (1, 2))
     plants = {
         'a round\'s cold start keyed on the interface count (earlier rule)': (planted(
             cold, f'#define AECP_ROUND_COLD_US {RETRY_COLD}\n',
@@ -495,6 +527,10 @@ def retry_controls(root: Path = ROOT) -> list[str]:
             HEADER, block, block.replace(f'#define {RETRY_COLD} {mine[RETRY_COLD]}u\n',
                                          f'#define {RETRY_COLD} (MBX_N_IF == 1u ? {one}u : {two}u)\n')),
             f'for the shape {tuple(s)} ({point})'),
+        'the last queued notice\'s bound keyed on the interface count (earlier rule)': (planted(
+            SHAPED['AECP_QUEUED_MS'][0], f'#define AECP_QUEUED_MS {QUEUED}\n',
+            f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {q_one}u : {q_two}u)\n'),
+            f'{point}: AECP_QUEUED_MS is {q_one} ms at its shape {tuple(s)}, not the {mine[QUEUED]} ms'),
     }
     for name, (texts, words) in plants.items():
         if not any(words in f for f in findings(root, texts)):
@@ -582,7 +618,8 @@ CONTROLS = ('a shape the table does not list', 'a slice over the cap', 'a build 
             'the shape header\'s key domain not the image\'s',
             'a round\'s cold start keyed on the interface count (earlier rule)',
             'a refused attempt one figure at every shape (earlier rule)',
-            'a shape\'s round costs falling back to the interface count')
+            'a shape\'s round costs falling back to the interface count',
+            'the last queued notice\'s bound keyed on the interface count (earlier rule)')
 
 
 def shape_checks() -> list[tuple[str, bool, str]]:

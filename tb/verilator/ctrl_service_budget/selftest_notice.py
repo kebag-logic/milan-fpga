@@ -99,7 +99,9 @@ def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
 
 def queue_checks() -> list[Check]:
     """The queued notices' bounds: read from the headers, each point's own, the first of a queue held to its own."""
-    got = notice_window.queued_ms(1), notice_window.queued_ms(2)
+    import shape_costs
+    got = (notice_window.queued_ms(1), notice_window.queued_ms(shape_costs.of_point('8x8/1if', scenario.ROOT)),
+           notice_window.queued_ms(2))
     first = notice_window.queued_first_ms(1), notice_window.queued_first_ms(2)
     rows = lambda first, last, bound: [dict(group='g', probes=[
         dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=bound, within_budget=True),
@@ -107,9 +109,10 @@ def queue_checks() -> list[Check]:
              within_budget=last <= bound)])]
     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
                      ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
-                      (19.5, 131.0, 1)))
-    return [("a queued notice's bound is the constants', the last queued notice's 130 ms at one interface (#894's "
-             "amendment of 2026-11-13 to decision D's 125) and 62 ms at two", got == (130, 62), str(got)),
+                      (19.5, 141.0, 1)))
+    return [("a queued notice's bound is the constants' for each shape, the last queued notice's 140 ms at 1x1/1if "
+             "(its row rounded up by the queued rule, #895's ruling of 2026-11-15, item 1; 130 by #894's amendment of "
+             "2026-11-13 to decision D's 125), 8x8/1if's own 130 and 62 ms at two", got == (140, 130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
              first == (20, 22), str(first)),
             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",

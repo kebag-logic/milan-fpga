@@ -98,6 +98,9 @@ PLANTS = {
                          "the policer reads active 0x1, admitted 0x1, gate 0x0, and the firmware's LICENCE is 0x1"),
     "aaf-without-licence": ("licence", "the AAF gate open at the first sample", "AAF talker's gate is open without"),
     "stream-without-licence": ("licence", "a stream frame at ms 100", "while no source holds its licence"),
+    # [SID], #905
+    "stream-id-unwritten": ("licence", "every stream frame's stream_id 0, as with no SRC_SID written",
+                            "which no Talker Advertise the split declared carries"),
 }
 WORDS = {name: words for name, (_, _, words) in PLANTS.items()}
 #: name -> (the scenario it plants, what it changes): 1 ms inside the bound its plant passes, graded clean
@@ -313,6 +316,9 @@ def plant(name: str, doc: dict) -> None:
         doc["policer"][0]["aaf"] = 1
     elif name == "stream-without-licence":
         doc["stream"].insert(0, [100, doc["stream"][0][1], 1])
+    elif name == "stream-id-unwritten":
+        for entry in doc["stream"]:
+            entry[1] = "0" * 16
     else:
         raise SystemExit(f"srptx_plants: no plant named {name}")
 

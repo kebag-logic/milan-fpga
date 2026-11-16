@@ -61,13 +61,15 @@ def names() -> list[str]:
     return [f'notice-retried-{k}' for k in range(PHASES)]
 
 
-def queued_ms(interfaces: int) -> int:
-    """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h): the bound every queued notice meets, the last queued
-    notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment of 2026-11-13,
-    queued_bound.py) and the stated 62 ms at two."""
-    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp_mbx.h').read_text()
-    one, two = re.search(r'#define AECP_QUEUED_MS \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
-    return int(one if interfaces == 1 else two)
+def queued_ms(at: 'int | scenario.Point | object') -> int:
+    """AECP_QUEUED_MS at a point's shape, a shape, or that many interfaces at the shipping shape's streams
+    (aecp_mbx.h, CTRL_LOOP_QUEUED_MS as THE SHAPES state it for each shape, never by the interface count): the bound
+    every queued notice meets, the last queued notice's tier bound at 1x1/1if (#665 decision D's 125 ms, 140 by
+    queued_bound.py's rule), 8x8/1if's own 130 ms and the stated 62 ms at two interfaces."""
+    import shape_costs
+    if isinstance(at, scenario.Point):
+        at = shape_costs.of_config(scenario.ROOT / 'configs' / f'{at.shape}.yaml', at.interfaces, scenario.ROOT)
+    return shape_costs.at(at, scenario.ROOT)[shape_costs.QUEUED]
 
 
 def queued_first_ms(interfaces: int) -> int:
@@ -163,7 +165,7 @@ def every_group(p: scenario.Point, build: dict, k: int, name: str = 'notice-ever
     probes = [scenario.Probe(f'{g.name}.notices.{command:x}.{kind}.{index}.if0',
                              "a queued notice, from its port's answer", 'notify', 'entry:retry_port_answers',
                              [f'notify:{aecp}:{command:04x}:{kind}:{index}'], recipients=everyone,
-                             until='notice.end', path=QUEUED, wait_ms=queued_ms(p.interfaces) - scenario.T_SVC_MS)
+                             until='notice.end', path=QUEUED, wait_ms=queued_ms(p) - scenario.T_SVC_MS)
               for command, kind, index in every_notice(build)]
     g.steps.remove(f'mark {template.name}')
     at = g.steps.index(wait_ms(load_ms))

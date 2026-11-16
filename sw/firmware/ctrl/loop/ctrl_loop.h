@@ -205,8 +205,8 @@
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; #894's
-// amendment of 2026-11-13 to its contingent ruling, item 2).
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 140 ms (aecp_mbx.h; the queued
+// rule's figure for its row, #895's ruling of 2026-11-15, item 1).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -266,11 +266,14 @@ extern "C" {
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
 // AECP_PACE_MS (#894's contingent ruling of 2026-11-13, item 3). The built slice
 // is the rule's choice, which the model's self-test holds (#894's ruling of
-// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut.
+// 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut,
+// and 900 us at SRP's Talker declarations' composition with it once the last
+// queued notice's bound follows its row to 140 ms (#895's ruling of 2026-11-15
+// on that composition, items 1 and 4).
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
-// their bounds (slice_choice). A 950 us slice holds one MRPDU's build, not both,
+// their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both,
 // CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
@@ -314,6 +317,13 @@ extern "C" {
 // and 2,009 a refused attempt, through the dearest rounds of two and of four
 // refused attempts, 19,326 and 23,343 cycles; plus 5 %, rounded up to 5 us,
 // 165 and 25 us.
+// And two bounds in milliseconds that differ by shape, so that one shape's figure
+// is never another's: the last queued notice's, CTRL_LOOP_QUEUED_MS (aecp_mbx.h,
+// AECP_QUEUED_MS, its comment says how each is set), and THE TRANSMIT's MRPDU by
+// every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
+// bound): 1x1/1if's, 140 and 34 ms, are #895's (its rulings of 2026-11-15),
+// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row's 67.84 ms
+// rounded up, 68 ms, and both two-interface shapes 8x8/2if's, 62 and 105 ms.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -324,12 +334,14 @@ extern "C" {
 #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
-#define CTRL_LOOP_SLICE_US 950u
+#define CTRL_LOOP_SLICE_US 900u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 735u
 #define CTRL_LOOP_SRP_UNIT_US 280u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 140u
+#define CTRL_LOOP_TX_MS 34u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
@@ -337,6 +349,8 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_TX_MS 68u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
@@ -344,6 +358,8 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 185u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
 #elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
@@ -351,6 +367,8 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 185u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
@@ -442,10 +460,14 @@ extern "C" {
 #define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
 // (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
-// tree whose row passes this). At 8x8/2if, whose rows by every source are
-// reported and not held (#894, the owner's decision of 2026-11-12, owed to
-// #872), it is over the bound, and ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 99u)
+// tree whose row passes this), CTRL_LOOP_TX_MS, stated for each shape in THE
+// SHAPES above: 34 ms at 1x1/1if, 68 ms at 8x8/1if for its 67.84 (#894's rows by
+// every source there, reported), and 105 ms at 8x8/2if for its 104.25 there (#895's
+// ruling of 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off
+// adds it (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
+// 8x8/2if and at 8x8/1if, whose rows by every source are reported and not held
+// (#894, the owner's decision of 2026-11-12, owed to #872), it is over the bound,
+// and ctrl_loop.c holds 1x1/1if alone to it.
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

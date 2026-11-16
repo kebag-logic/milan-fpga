@@ -168,6 +168,8 @@ OUTSIDE = {
                                          "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
+    "sw/firmware/ctrl/test/srp_talker_mutants.py": "SRP's Talker declarations' planted defects (#895), which the "
+                                                   "SRP campaign (srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
@@ -257,7 +259,8 @@ OUTSIDE = {
                                                            "ctrl_loop.h's CTRL_LOOP_TX_BOUND_MS derivation and "
                                                            "compiles nothing",
     "tb/verilator/ctrl_service_budget/queued_bound.py": "the last queued notice's bound in the tier model: it reads "
-                                                        "aecp_mbx.h's AECP_QUEUED_MS, and its controls plant it in "
+                                                        "AECP_QUEUED_MS as ctrl_loop.h's table states it "
+                                                        "(CTRL_LOOP_QUEUED_MS), and its controls plant it in "
                                                         "memory; it compiles nothing",
     "tb/verilator/ctrl_service_budget/flip_grade.py": "the flip check, the rows rows_tiers.py solves, and its "
                                                       "controls plant ctrl_loop.h's and aecp.h's text in memory; it "

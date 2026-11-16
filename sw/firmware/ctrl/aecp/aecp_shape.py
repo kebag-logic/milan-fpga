@@ -71,11 +71,17 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
         indexes[cfg, typ] = first + count
         if name != 0xffff:
             for n in range(count):
-                ordinals[name + n] = f"{{AECP_CHANGE_NAME,{typ},{first+n},0}}"
+                ordinals[name + n] = (typ, first + n, 0)
             if typ == 0:
-                ordinals[name + 1] = "{AECP_CHANGE_NAME,0,0,1}"
+                ordinals[name + 1] = (0, 0, 1)
     if any(item is None for item in ordinals):
         raise ValueError("image has an unassigned writable name")
+    runs = []  # the table's runs (aecp_nvm.h struct aecp_name_run): type, index, count, ordinal, name
+    for ordinal, (typ, index, second) in enumerate(ordinals):
+        if runs and not second and not runs[-1][4] and runs[-1][0] == typ and runs[-1][1] + runs[-1][2] == index:
+            runs[-1][2] += 1
+        else:
+            runs.append([typ, index, 1, ordinal, second])
     ports = overlay["stream_ports"]
     shape = Shape(Path(), names, overlay["descriptor_counts"], ports["input"], ports["output"])
     maps, defaults = [], []
@@ -104,7 +110,9 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
     # compile given none, a host arm, takes the image's own from here, by the same derivation (#894's held-egress
     # ruling, item (c))
     result += ["#ifndef CTRL_SRP_ENTITY_H", *key_domain(blob), "#endif"]
-    result += table_macro("AECP_ENTITY_NAMES_INIT", ordinals)
+    result += [f"#define AECP_ENTITY_NAME_RUNS {len(runs)}u"]
+    result += table_macro("AECP_ENTITY_NAMES_INIT", [f"{{AECP_CHANGE_NAME,{t},{i},{s}}}" for t, i, s in ordinals])
+    result += table_macro("AECP_ENTITY_NAME_RUNS_INIT", ["{" + ",".join(map(str, r)) + "}" for r in runs])
     result += table_macro("AECP_ENTITY_MAPS_INIT(rows)", maps)
     # aecp_maps.c reads the constants alone; the tables below are each including unit's own
     result += ["#ifndef AECP_ENTITY_SHAPE_ONLY", "static const struct aecp_mapping aecp_map_defaults[] = {",
