@@ -1,0 +1,24 @@
+# B8x8
+8x8/1if answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS status 0 36,363 cycles, 385 us by the rule
+8x8/1if answering-ports aecp-fanout: ADD_AUDIO_MAPPINGS status 0 34,588 cycles, 365 us by the rule
+8x8/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 0 169,021 cycles, 1775 us by the rule
+8x8/1if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 0 165,006 cycles, 1735 us by the rule
+8x8/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 41,252 cycles, 435 us by the rule
+8x8/1if answering-ports aecp-largest-notice: REMOVE_AUDIO_MAPPINGS status 7 92,859 cycles, 980 us by the rule
+8x8/1if answering-ports aecp-largest-notice: ADD_AUDIO_MAPPINGS status 7 154,398 cycles, 1625 us by the rule
+
+results: 8x8/1if answering-ports, 3 groups, 73 AECP records
+8x8/1if reported long: the dearest 169,021 CPU cycles, 1775 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 21,014 CPU cycles, 225 us by the rule, stated 235 us (answering-ports aecp-fanout: command 0x000e)
+8x8/1if reported paced: the dearest 65,515 CPU cycles, 690 us by the rule, stated 300 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REPORTED 8x8/1if answering-ports aecp-fanout: a record of 36,363 CPU cycles, 385 us by the rule, over the paced record's 300 us (REMOVE_AUDIO_MAPPINGS, paced)
+REPORTED 8x8/1if answering-ports aecp-fanout: a record of 34,588 CPU cycles, 365 us by the rule, over the paced record's 300 us (ADD_AUDIO_MAPPINGS, paced)
+REPORTED 8x8/1if answering-ports aecp-fanout: a record of 65,515 CPU cycles, 690 us by the rule, over the paced record's 300 us (SET_CONFIGURATION, paced)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 169,021 CPU cycles, 1775 us by the rule, over the long record's 975 us (the largest legal command's)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 165,006 CPU cycles, 1735 us by the rule, over the long record's 975 us (the largest legal command's)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 92,859 CPU cycles, 980 us by the rule, over the long record's 975 us (the largest legal command's)
+REPORTED 8x8/1if answering-ports aecp-largest-notice: a record of 154,398 CPU cycles, 1625 us by the rule, over the long record's 975 us (the largest legal command's)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+RESULT: FAIL

@@ -1,0 +1,7 @@
+The release (all-fabric) image at the base 16ba667d and at the head def26a61, each built by the release recipe
+(endstation_builder.py, then milan_soc.py with its software compiled) for endstation_ax7101_1x1_tdm8 and
+endstation_ax7101_8x8:
+- bios.bin, the image the release loads: byte-identical at both configs (IMAGES-base.sha256, IMAGES-head.sha256).
+- bios.elf: its disassembly identical, and the file identical once its debug sections are stripped
+  (bios-elf-stripped.sha256); the unstripped files and libmilan_baremetal.a differ only in the build directory
+  recorded in their debug information (each tree was built in its own directory).

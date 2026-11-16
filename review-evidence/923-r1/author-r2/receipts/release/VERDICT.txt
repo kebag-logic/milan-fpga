@@ -1,0 +1,8 @@
+The release (all-fabric) image at round 2's head 679b4a44, built by the same release recipe as round 1
+(endstation_builder.py, then milan_soc.py with its software compiled) for endstation_ax7101_1x1_tdm8 and
+endstation_ax7101_8x8, against the base 16ba667d (round1/receipts/release/IMAGES-base.sha256):
+- bios.bin: byte-identical to the base at both configs.
+- bios.elf: its disassembly identical to the base's, and the file identical once its debug sections are stripped
+  (bios-elf-stripped-679b4a44.sha256 against round 1's base lines).
+Round 2's sw/litex change (milan_soc.py add_ctrl_memory, ctrl_memory.py) plans the split image's control memory only;
+the all-fabric recipe builds no control memory, so the release image cannot move with it, and it did not.
