@@ -9,40 +9,29 @@ block RAM the SoC builds from them. This file grades nine things:
   1. BANKS. For every need up to past the budget, the banks are powers of two
      of whole RAMB18 granules, largest first, and hold the need with less than
      one granule spare. The oracle is ceil(need / 2,048) and its binary digits.
-  2. RULES. ELFs written by `ctrl_memory_elf.py`, a writer independent of
-     `read_elf`, are planned or refused. A good image is accepted and its rom
-     contents are the bytes placed at their load addresses. Every rule in `ctrl_memory.RULES`
-     has a planted defect that must be refused by that rule, among them a
-     truncated ELF, writable data running in rom, a CPU with other origins and
-     a load segment carrying fewer bytes than its sections claim.
-     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
-     Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
-     size fixture's and the platform's 8x8 images with two interfaces and the
-     platform's 8x8 image with one) plans its 60.0, 62.0 or 57.5 by name, and
-     through add_ctrl_memory at its own entry by its symbols (#923's ruling),
-     and is refused without its override and half a tile past, through
-     add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56,
-     and the product image with a ctrl_plat of another size. Each override is
-     refused on every other point, on the others' images and on an image with
-     one of its two symbols. Ten planted ledgers, each widening an entry to
-     another point or image or past its tiles, must each turn the ledger red
-     with its pin set aside.
-  3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
-     largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
-     at the first and last word of every bank and drops a write; sram writes
-     byte lanes and reads them back at every bank boundary. Addresses past the
-     last bank, sampled to the top of the 256 KiB window the SoC decodes for a
-     region and so past 224 KiB, answer err in either region and write no
-     bank. An access presented on the cycle after an err acks with its data.
-  4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe
-     linked by `sw/firmware/ctrl/plat/ctrl_split.ld` behind
-     `ctrl_split_start.S` enters at the reset address with the reset entry
-     first, loads .data's initial value from rom and is planned, and its rom
-     words are the toolchain's own `objcopy -O binary` of it. The same script
-     with `.data`'s `AT > rom` removed, with `.data` linked in rom, or entering
-     at `main` is refused by its rule, and so is the linked image with its
-     reset segment's file bytes emptied or cut to one word, or .data's emptied.
-     Without a compiler this arm is a declared skip.
+  2. RULES. ELFs written by `ctrl_memory_elf.py`, a writer independent of `read_elf`, are planned or refused. A good
+     image is accepted and its rom contents are the bytes placed at their load addresses. Every rule in
+     `ctrl_memory.RULES` has a planted defect that must be refused by that rule, among them a truncated ELF, writable
+     data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
+     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
+     (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
+     interfaces and the platform's 8x8 image with one) plans its 60.0, 62.0 or 57.5 by name, and through
+     add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
+     tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
+     image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
+     on an image with one of its two symbols. Ten planted ledgers, each widening an entry to another point or image or
+     past its tiles, must each turn the ledger red with its pin set aside.
+  3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the largest image's sram banks (64, 32, 8, 4
+     and 2 KiB). rom reads its image at the first and last word of every bank and drops a write; sram writes byte
+     lanes and reads them back at every bank boundary. Addresses past the last bank, sampled to the top of the 256 KiB
+     window the SoC decodes for a region and so past 224 KiB, answer err in either region and write no bank. An access
+     presented on the cycle after an err acks with its data.
+  4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe linked by
+     `sw/firmware/ctrl/plat/ctrl_split.ld` behind `ctrl_split_start.S` enters at the reset address with the reset
+     entry first, loads .data's initial value from rom and is planned, and its rom words are the toolchain's own
+     `objcopy -O binary` of it. The same script with `.data`'s `AT > rom` removed, with `.data` linked in rom, or
+     entering at `main` is refused by its rule, and so is the linked image with its reset segment's file bytes emptied
+     or cut to one word, or .data's emptied. Without a compiler this arm is a declared skip.
   5. THE SOC BUILD. milan_soc.py's own main(), on the shipping 1x1 config's
      argv (sw/builder/endstation_builder.py), exporting without Vivado or
      software: an allocation over budget, a memory-map overlap, the 8x8 stage
