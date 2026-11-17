@@ -146,11 +146,11 @@ def stated_misses(results: list[dict]) -> list[str]:
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
     239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
-    participant's transmit opportunity, or absent (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
+    participant's transmit opportunity, or absent, or whose owner the testbench did not record at the expiry
+    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
     run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
     (mrpdu_grade.leave_alls)."""
     import join_grade
-    import mrpdu_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -173,14 +173,23 @@ def stated_misses(results: list[dict]) -> list[str]:
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
-            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
-             (f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity at "
-              f"{o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)"
-              if o['outcome'] == 'late' else
-              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
-             for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
+            [run_out_miss(g['group'], o) for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
             [leave_all_miss(g['group'], o)
              for g in results for o in g['passes'].get('joins', {}).get('leave_all', {}).get('failing', [])])
+
+
+def run_out_miss(group: str, o: dict) -> str:
+    """An MRP timer's run-out whose build is late past its participant's transmit opportunity, or absent, or whose
+    owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names it."""
+    import mrpdu_grade
+    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, "
+    if o['outcome'] == 'late':
+        return (at + f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity "
+                f"at {o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+    if o['outcome'] == 'unowned':
+        return at + ('its owner recorded unresolved' if o.get('recorded') else 'no owner recorded') + \
+            ' at the expiry (owner unresolved)'
+    return at + f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)"
 
 
 def leave_all_miss(group: str, o: dict) -> str:

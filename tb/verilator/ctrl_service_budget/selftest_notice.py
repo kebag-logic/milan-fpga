@@ -54,7 +54,7 @@ def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: b
     frame = bytes(60)
     sent = tx_sequence(srp, [(0, frame, commit)]) if built else []
     lines = ['MARK 1000 load', f'EVW {TICK_AT} 0 {mrpdu_grade.TICK:08x}', f'EVW {TICK_AT} 1 00000001',
-             f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer',
+             f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer if0 MSRP',
              f'ENTRY {commit - 2000} build_mrpdu',
              f'PASS 1 {commit - 3000} {commit - 3000} 5000 instr=10 store_mbx=1 W {commit - 1000}:1:0', *sent]
     log = grade.parse(synthetic(lines), SYS_HZ, CPU_HZ)

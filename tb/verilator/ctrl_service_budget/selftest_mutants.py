@@ -872,8 +872,12 @@ MUTANTS: dict[str, Patches] = {
     "rule)": lambda: [patch.object(mrpdu_grade, 'anchor', lambda log, entry: max([entry] + [
         c for c, name in log.entries if name == 'on_join_timer' and entry < c <= next(
             (b for b in mrpdu_grade.index(log)[0] if b > entry), entry)]))],
-    "transmit: a build that sends nothing timed from the latest participant's opportunity, its timer's recorded owner "
-    "ignored": lambda: [patch.object(mrpdu_grade, 'recorded_owner', lambda log, entry: None)],
+    "transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback "
+    "restored)": lambda: [patch.object(mrpdu_grade, 'recorded_owner', lambda log, entry, f=mrpdu_grade.recorded_owner: (
+        f(log, entry) or max(mrpdu_grade.sends(log)[0], key=lambda who: mrpdu_grade.opportunity(log, who, entry),
+                             default=None)))],
+    "transmit: an unowned run-out not failing the run": lambda: [patch.object(
+        mrpdu_grade, 'FAILING', ('late', 'absent'))],
     "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
         mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
     'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(

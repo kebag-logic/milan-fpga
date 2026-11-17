@@ -246,28 +246,52 @@ def anchor_checks(graded: Graded) -> list[Check]:
         callback=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'), (1_330, join, 'if0 MVRP')), (1_400,),
                         (1_360,)),
         own=graded(((1_000, MSRP, False, 0), (1_250, MSRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)),
-        other=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)),
-        unowned=graded(((1_000, MSRP, False, 0), (1_040, MVRP, False, 0)),
-                       ((1_300, pt, None), (1_330, join, 'if0 MVRP')), (1_400,), (1_360,)),
-        latest=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, None),), (), (1_460,)))
+        other=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)))
     late = {k: ([(f['kind'], f['from_ms'], f['after_ms']) for f in h['failing']], h['runs']['empty'])
             for k, (_, h) in cases.items()}
     said = named_late(cases['callback'][1])
     out.append(("a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit "
                 "opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, "
-                "a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it; and "
-                "with no owner recorded, the latest of the participants'", late == {
-                    'alone': ([('periodic', 1300.001, 59.979)], 0),
-                    'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
-                    'other': ([('periodic', 1300.001, 159.979)], 0),
-                    'unowned': ([('periodic', 1300.001, 59.979)], 1), 'latest': ([], 1)} and said == [
+                "a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it",
+                late == {'alone': ([('periodic', 1300.001, 59.979)], 0),
+                         'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
+                         'other': ([('periodic', 1300.001, 159.979)], 0)} and said == [
                     "c: the periodic timer's run-out at 1300.001 ms, its first frame or build 59.979 ms after its "
                     "participant's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms (late)"],
                 str((late, said))))
-    return out
+    return out + unowned_checks(graded)
+
+
+def unowned_checks(graded: Graded) -> list[Check]:
+    """An MRP timer's run-out whose owner the testbench did not record at the expiry, or recorded unresolved, is
+    unowned and fails the run by name, whatever its builds sent (mrpdu_grade.resolve, #665's ruling on the fallback):
+    no other participant's transmit opportunity stands in for its owner's."""
+    join, pt = JOIN, 'on_pt_timer'
+    cases = dict(
+        # no owner recorded; its build at 1,360 ms sends nothing, 59.979 ms after the run-out
+        none=graded(((1_000, MSRP, False, 0), (1_040, MVRP, False, 0)), ((1_300, pt, None), (1_330, join, 'if0 MVRP')),
+                    (1_400,), (1_360,)),
+        # no owner recorded, and MVRP's join timer, armed at 1,250 ms, runs to the 1,430 ms TICK: the latest of the
+        # participants' opportunities would hold the build at 1,460 ms
+        running=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, None),), (), (1_460,)),
+        # the owner recorded unresolved, and its build's MRPDU on time at 1,191 ms
+        unresolved=graded(((1_000, MSRP, False, 0), (1_191, MSRP, False, 0)), ((1_190, join, 'unresolved 0001a2b4'),)))
+    lost = {k: [(f['kind'], f['outcome'], f.get('recorded')) for f in h['failing']] for k, (_, h) in cases.items()}
+    said = named_late(cases['none'][1]) + named_late(cases['unresolved'][1])
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    return [("an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is "
+             "unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, "
+             "and its frames are still its builds'", lost == {
+                 'none': [('periodic', 'unowned', False)], 'running': [('periodic', 'unowned', False)],
+                 'unresolved': [('join', 'unowned', True)]} and cases['unresolved'][1]['count'] == 1 and said == [
+                 "c: the periodic timer's run-out at 1300.001 ms, no owner recorded at the expiry (owner unresolved)",
+                 "c: the join timer's run-out at 1190.001 ms, its owner recorded unresolved at the expiry (owner "
+                 "unresolved)"] and run.verdict(args, [scenario.Group('c')], [], [], [], said[:1]) == 1,
+             str((lost, said)))]
 
 
 def named_late(held: dict) -> list[str]:
-    """A log's late or absent builds as a run names them."""
+    """A log's late, absent or unowned run-outs as a run names them."""
     return [m for m in run.stated_misses([dict(group='c', passes=dict(joins=held))])
-            if m.endswith(('(late)', '(absent)'))]
+            if m.endswith(('(late)', '(absent)', '(owner unresolved)')) and 'LeaveAll' not in m]

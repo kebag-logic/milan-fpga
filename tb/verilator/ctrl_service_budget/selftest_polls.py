@@ -257,7 +257,8 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
 
     def joins(sends: tuple, timers: tuple = (), idle: tuple = (), ordinary: tuple = (), owed: tuple = ()) -> dict:
         """The join intervals of a log whose MRPDUs are (ms, interface, EtherType), each committed in a pass of its own
-        after its build, whose timers are (ms, callback), whose builds at the ms in idle sent nothing, which has passes
+        after its build, whose timers are (ms, callback) or (ms, callback, owner), each owner as the testbench records
+        it at the expiry (if0 MSRP where none is named), whose builds at the ms in idle sent nothing, which has passes
         with no build at the ms in ordinary, and whose sends at the ms in owed are their poll's, a pass after their
         build, the ring having refused the frame (A3)."""
         lines, word = [], 0
@@ -269,7 +270,7 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
         lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at in builds]
         lines += [f'PASS {at} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
                   for at in sorted(builds + list(owed) + list(ordinary))]   # a pass a ms, idle or not
-        lines += [f'ENTRY {at * ms} {name}' for at, name in timers]
+        lines += [f'ENTRY {t[0] * ms} {t[1]} {t[2] if len(t) > 2 else "if0 MSRP"}' for t in timers]
         return join_grade.held(grade.parse(synthetic(lines), sys_hz, cpu_hz))
 
     msrp, mvrp = 0x22EA, 0x88F5
@@ -280,7 +281,7 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
             and edge['count'] == 2 and edge['shortest'] == 181.0 and edge['longest'] == 239.0 and edge['over'] == [],
             str(edge))]
     short = joins(((1_000, 0, msrp), (1_180, 0, msrp)), ((1_170, 'on_join_timer'),))
-    long = joins(((1_000, 0, mvrp), (1_240, 0, mvrp)), ((1_230, 'on_join_timer'),))
+    long = joins(((1_000, 0, mvrp), (1_240, 0, mvrp)), ((1_230, 'on_join_timer', 'if0 MVRP'),))
     named = run.stated_misses([dict(group='j', passes=dict(joins=short)), dict(group='k', passes=dict(joins=long))])
     out.append(('a join interval under 181.0 ms or over 239.0 ms is named with its participant',
                 named == ['j: a join interval of 180.000 ms (if0 MSRP), outside 181.0 to 239.0 ms',

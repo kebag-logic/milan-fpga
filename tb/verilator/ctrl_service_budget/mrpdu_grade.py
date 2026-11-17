@@ -16,10 +16,11 @@ build's frames those it commits and those it leaves owed, which only the poll se
 run-out is `released` where they send frames, `empty` where the first sends none, `late` where its first frame comes
 past THE TRANSMIT's bound (LATE_MS) after its participant's transmit opportunity, or where its first build sends none
 and comes past the bound after the transmit opportunity of the timer's owner, the participant the testbench recorded
-at the expiry, or with none recorded the latest of the log's participants' (anchor), `absent` where no build follows
-it in a log that runs on past the bound after every participant's opportunity, and `unresolved` where the log ends
-first. A late or absent build fails the run (join_grade.held); an unresolved one is counted and named, never taken for
-one that owes nothing.
+at the expiry (anchor), `absent` where no build follows it in a log that runs on past the bound after every
+participant's opportunity, and `unresolved` where the log ends first; and whatever its builds sent, `unowned` where the
+testbench recorded no owner at the expiry, or recorded it unresolved (recorded_owner). A late, absent or unowned
+run-out fails the run (join_grade.held); an unresolved one is counted and named, never taken for one that owes
+nothing.
 
 A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
 at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
@@ -68,8 +69,8 @@ LEAVE_ALL = 'on_la_timer'
 LEAVE_ALL_OUTCOMES = ('sent', 'skipped', 'late', 'absent', 'unresolved', 'unowned')
 LEAVE_ALL_FAILING = ('skipped', 'late', 'absent', 'unowned')
 #: The outcomes of a timer's run-out (resolve), and those that fail a run.
-OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
-FAILING = ('late', 'absent')
+OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved', 'unowned')
+FAILING = ('late', 'absent', 'unowned')
 
 
 def ticks(log: grade.Log) -> list[int]:
@@ -170,9 +171,9 @@ def commits(grader: grade.Grader, entry: int) -> list[tuple[int, int]]:
 
 def released(log: grade.Log, entry: int) -> list[tuple[int, int]]:
     """commits' frames, from the log alone: what the timer that ran out at entry released, late or not (join_grade.py
-    too)."""
+    too); an unowned run-out's too, which fails the run whatever its builds sent."""
     outcome, frames = resolve(log, entry)
-    return frames if outcome in ('released', 'late') else []
+    return frames if outcome in ('released', 'late', 'unowned') else []
 
 
 def end_of(log: grade.Log, p: grade.Pass) -> int:
@@ -198,7 +199,14 @@ def index(log: grade.Log) -> tuple[list[int], list[grade.Pass], list[tuple[int, 
 
 def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
     """The outcome (OUTCOMES) of the timer that ran out at entry, and the (cycle, interface) of the frames its builds
-    sent, as the module docstring says."""
+    sent, as the module docstring says: `unowned` where the testbench recorded no owner at the expiry, whatever its
+    builds sent, since no transmit opportunity is the run-out's without its owner (PR #934)."""
+    outcome, frames = built(log, entry)
+    return ('unowned' if recorded_owner(log, entry) is None else outcome), frames
+
+
+def built(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
+    """What the builds after the timer's run-out at entry did (resolve), its owner aside."""
     builds, passes, sent, last = index(log)
     starts = [p.start_sys for p in passes]
     bound = int(LATE_MS * log.sys_hz / 1000)
@@ -244,13 +252,11 @@ def recorded_owner(log: grade.Log, entry: int) -> str | None:
 def anchor(log: grade.Log, entry: int) -> int:
     """Where the lateness of the timer's first build after its run-out at entry counts from, where that build sends no
     frame (resolve): the first transmit opportunity of the timer's owner, the participant the testbench recorded at
-    the expiry, as opportunity derives it from the posted TICKs; where none is recorded, the latest of every
-    participant's in the log, one interface's at a one-interface point. Never a join timer's callback, which may be
-    another participant's (PR #934)."""
+    the expiry, as opportunity derives it from the posted TICKs. Never a join timer's callback, which may be another
+    participant's, and never another participant's opportunity (PR #934). A run-out with no owner recorded has none:
+    it is unowned (resolve), and the run-out itself stands in here."""
     who = recorded_owner(log, entry)
-    if who:
-        return opportunity(log, who, entry)
-    return max([entry] + [opportunity(log, other, entry) for other in sends(log)[0]])
+    return opportunity(log, who, entry) if who else entry
 
 
 def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:

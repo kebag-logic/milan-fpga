@@ -10,8 +10,8 @@ no horizon) and neither the periodic nor the LeaveAll timer ran out between them
 timer armed at the first commit gave, since lwSRP arms it at a commit alone. A run-out with nothing to send releases
 nothing, and the MRPDU a later request then sends at once (its join timer idle) ends no interval. The harness reports
 each group's shortest and longest and its MRP timers' run-outs by outcome (run.py, JOINS); a group with an interval
-under LEAST_MS or over MOST_MS, or a run-out whose build is late or absent (mrpdu_grade.FAILING), fails the run
-whatever findings it records.
+under LEAST_MS or over MOST_MS, or a run-out whose build is late or absent or whose owner the testbench did not record
+at the expiry (mrpdu_grade.FAILING), fails the run whatever findings it records.
 """
 from __future__ import annotations
 
@@ -67,7 +67,8 @@ def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
     MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
     with its timer, its time, its participant's transmit opportunity (a build that sends nothing, its timer's owner's:
-    mrpdu_grade.anchor) and how far its first frame or build, or the log's end, lies past that; and every LeaveAll
+    mrpdu_grade.anchor) and how far its first frame or build, or the log's end, lies past that, and each unowned one
+    with whether the testbench recorded its owner unresolved or recorded none; and every LeaveAll
     timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
     named."""
     every = intervals(log)
@@ -86,7 +87,9 @@ def held(log: grade.Log) -> dict:
                 # a build that sends nothing: from its timer's owner's transmit opportunity (mrpdu_grade.anchor)
                 start = mrpdu_grade.anchor(log, entry)
             failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
-                                after_ms=round((after - start) * 1000 / log.sys_hz, 3)))
+                                after_ms=round((after - start) * 1000 / log.sys_hz, 3),
+                                **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
+                                   if outcome == 'unowned' else {})))
     alls = mrpdu_grade.leave_alls(log)
     leave_all = dict(runs={o: sum(1 for r in alls if r['outcome'] == o) for o in mrpdu_grade.LEAVE_ALL_OUTCOMES},
                      failing=[dict(outcome=r['outcome'], who=r.get('who'), at_ms=ms(r['at']),
