@@ -11,6 +11,15 @@ static unsigned channels(uint64_t format)
 	return (format >> 56) == 2u ? (unsigned)((format >> 22) & 1023u) : 0u;
 }
 
+// channels() of the big-endian format at p, from the three bytes it reads:
+// the first, and the fifth and sixth, which hold the ten bits of the channel
+// count. An edit checks each of its mappings' stream formats, so it reads no
+// 64-bit word to do it (#665).
+static unsigned format_channels(const uint8_t *p)
+{
+	return p[0] == 2u ? (unsigned)p[4] << 2 | (unsigned)p[5] >> 6 : 0u;
+}
+
 bool aecp_maps_allow_format(struct aecp *a, uint16_t type, uint16_t index, uint64_t format)
 {
 	uint16_t port_type = type == 5u ? 14u : 15u;
@@ -85,21 +94,33 @@ static bool foreign(const struct aecp *a, const struct aecp_descriptor *port, co
 	return !(other->configuration != a->configuration || other->type != 15u || other->index == port->index);
 }
 
+// What legal() reads of a port, read once for all of an edit's mappings
+// (#665): its streams' descriptor type, its cluster count and its first
+// cluster's index.
+struct geometry {
+	uint16_t streams;
+	unsigned clusters;
+	unsigned base;
+};
+
+static struct geometry geometry(const struct aecp_descriptor *port)
+{
+	return (struct geometry){port->type == 14u ? 5u : 6u, (unsigned)wire_be16(port->value + 12),
+		(unsigned)wire_be16(port->value + 14)};
+}
+
 // Every check of a mapping that reads nothing: its stream, stream channel,
 // cluster and cluster channel are the port's.
-static bool legal(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
+static bool legal(struct aecp *a, const struct geometry *g, const struct aecp_mapping *r)
 {
-	uint16_t type = port->type == 14u ? 5u : 6u;
-	struct aecp_descriptor *stream = aecp_find(a, a->configuration, type, r->stream);
-	if (stream == NULL || stream->length < 82u || r->channel >= channels(wire_be64(stream->value + 74))) {
+	struct aecp_descriptor *stream = aecp_find(a, a->configuration, g->streams, r->stream);
+	if (stream == NULL || stream->length < 82u || r->channel >= format_channels(stream->value + 74)) {
 		return false;
 	}
-	unsigned ncluster = (unsigned)wire_be16(port->value + 12);
-	unsigned base = (unsigned)wire_be16(port->value + 14);
-	if (r->cluster >= ncluster || base + r->cluster > UINT16_MAX) {
+	if (r->cluster >= g->clusters || g->base + r->cluster > UINT16_MAX) {
 		return false;
 	}
-	struct aecp_descriptor *cluster = aecp_find(a, a->configuration, 20u, (uint16_t)(base + r->cluster));
+	struct aecp_descriptor *cluster = aecp_find(a, a->configuration, 20u, (uint16_t)(g->base + r->cluster));
 	return cluster != NULL && cluster->length >= 86u && r->cluster_channel < wire_be16(cluster->value + 84);
 }
 
@@ -113,7 +134,8 @@ static bool idle(struct aecp *a, const struct aecp_descriptor *port, const struc
 
 static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
 {
-	if (!legal(a, port, r)) {
+	struct geometry g = geometry(port);
+	if (!legal(a, &g, r)) {
 		return false;
 	}
 	for (size_t n = 0; port->type != 14u && n < a->cfg.map_count; ++n) {
@@ -441,13 +463,14 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	// conflict, is refused at its turn at the latest, so the table ends there.
 	// The geometry's check comes first, and the key's slot only after it.
 	size_t steps = count;
+	struct geometry g = geometry(port);
 	for (size_t n = 0; n < steps; ++n) {
 		uint32_t first = wire_be32(in + 8u + n * 8u), second = wire_be32(in + 12u + n * 8u);
 		e.rows[n].r = (struct aecp_mapping){(uint16_t)(first >> 16), (uint16_t)first, (uint16_t)(second >> 16),
 			(uint16_t)second};
 		e.rep[n] = (uint8_t)n;
 		e.next[n] = e.flags[n] = e.copies[n] = 0u;
-		size_t s = legal(a, port, &e.rows[n].r) ? place(&e, &e.rows[n]) : MAP_SLOTS;
+		size_t s = legal(a, &g, &e.rows[n].r) ? place(&e, &e.rows[n]) : MAP_SLOTS;
 		if (s == MAP_SLOTS) {
 			e.flags[n] = ILLEGAL;
 			steps = n + 1u;
