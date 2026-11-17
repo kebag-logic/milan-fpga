@@ -1,0 +1,7 @@
+# the --check control and its harness mutant at e1ecce20d52c3ca1c34c50722f4a0fb607964bc9; 260 harness mutants
+--check --point 8x8/1if with 8x8/1if's CTRL_LOOP_TX_MS planted at 70 ms, at the wiring: refused
+under the mutant "flip: --check does not call tx_held, so 8x8/1if's THE TRANSMIT figure goes unheld":
+  FAIL: the flip check refuses --check --point 8x8/1if with 8x8/1if's CTRL_LOOP_TX_MS planted at 70 ms (escaped)
+  the three earlier controls: refused
+after the mutant: refused
+RESULT: PASS: the mutant is caught by the new check alone

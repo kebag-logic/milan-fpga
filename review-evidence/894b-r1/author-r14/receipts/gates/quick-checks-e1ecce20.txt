@@ -1,0 +1,25 @@
+# quick checks at e1ecce20d52c3ca1c34c50722f4a0fb607964bc9
+shape_costs rc=0: RESULT: PASS
+flip_selftest rc=0: flip check: 616 of 616 planted controls refused
+flip_check_8x8_2if_by_design_rc1 rc=1: RESULT: FAIL
+flip_check_1x1 rc=0: RESULT: PASS
+flip_check_8x8_1if rc=0: RESULT: PASS
+flip_held_8x8_1if rc=0: HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 75 ms against its tx row by every source 74.26 ms (tx_held; the hold-off adds the figure)
+rows_tiers_selftest rc=0: rows_tiers: 1033 of 1033 planted controls refused
+load_check rc=0: RESULT: PASS
+load_selftest rc=0: load gate: 28 of 28 planted controls refused
+record_classes_selftest rc=0: record classes: 14 of 14 planted controls refused
+egress_ledger_selftest rc=0: RESULT: PASS: 15 mutants, 0 failure(s)
+mixed_probe rc=0: RESULT: PASS: the mixed-point pass is refused by name at 1x1/1if
+docs_check rc=0: docs_check: 0 finding(s) across 219 md files + 1606 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+py_idiom rc=0:   over-long line: 0 <= 0
+cpp_idiom rc=0:   build without warnings: 0 <= 0
+comment_scan_pr rc=0: # 7398ec0aeea4..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+comment_scan_round13 rc=0: # 8883d4998496..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+comment_scan_round14 rc=0: # d0a2a1605d7a..HEAD: added non-Markdown lines with an issue-comment ID or review-round wording: 0
+r844_audit rc=0: R844-1 source_comment_audit.py over e1ecce20d52c3ca1c34c50722f4a0fb607964bc9: 0 line(s)
+diffcheck_round13 rc=0: 
+diffcheck_round14 rc=0: 
+diffcheck_70f4056f rc=0: 
+firmware_delta_round14 rc=0:  2 files changed, 4 insertions(+), 3 deletions(-)
+# the clone after: 0 changed path(s)
