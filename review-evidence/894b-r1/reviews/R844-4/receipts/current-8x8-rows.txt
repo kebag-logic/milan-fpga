@@ -1,0 +1,19 @@
+# 8x8/1if, derived, paced class 685 us (8x8/1if), at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475, 'CTRL_LOOP_SRP_UNIT_US': 365, 'CTRL_LOOP_RETRY_COLD_US': 165, 'CTRL_LOOP_RETRY_ATTEMPT_US': 25, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 70} (shape (1, 9, 9)): slice 1475 us, pace 9 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1715 us, item.aecp.long 320 us, notices 40
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 21.39 | 20 | +1.39 | aecp 4.24, timers 3.73, passes 1.92 |
+| R5 | 136.64 | 90 | +46.64 | others 26.41, passes 15.04, srp 11.68 |
+| R6 | 132.93 | 90 | +42.93 | others 25.97, passes 14.40, srp 11.68 |
+| first | 18.98 | 20 | -1.02 | spacing 8.00, others 1.71, slice 1.48 |
+| last | 387.95 | 130 | +257.95 | srp 80.67, others 55.39, passes 48.00 |
+| R4L | 208.55 | 238 | -29.45 | pace 195.00, timers 1.98, aecp 1.72 |
+| ACMP | 52.76 | 30 | +22.76 | timers 7.24, own 7.04, aecp 6.89 |
+| ADP | 52.64 | 30 | +22.64 | others 13.19, aecp 6.89, timers 6.78 |
+| MAAP | 53.91 | 30 | +23.91 | others 14.56, aecp 6.89, timers 6.78 |
+| tx | 74.26 | 49 | +25.26 | others 18.73, passes 9.92, timers 8.63 |
+| txL | 159.82 | 49 | +110.82 | aecp 38.55, others 28.82, passes 22.72 |
+
+Long-window load at the pin: 0.735 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.694 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 1.034

@@ -1,0 +1,23 @@
+Head: 8883d4998496c6d2e234143b43807731e8851b63
+tx_statements with the published shape input recipe: ["8x8/1if: CTRL_LOOP_TX_MS states 70 ms, under the built design's tx row 74.26 ms"]
+tx row ms: 74.260000000 stated ms: 70 required ceiling ms: 75
+Current hold-off cs: 2026 hold-off if statement covers model: 2027
+Minimum remaining hold after latest modelled Leave, ms: 19995.74
+Required after Leave: 20000 ms (IEEE 802.1Q-2018 35.2.2.8, source contract srp_mbx.c:30-36)
+MODEL ENVELOPE CHECK: FAIL
+Default tx_statements: []
+
+Current model table:
+R4 21.39000
+R5 136.64000
+R6 132.93000
+first 18.98000
+last 387.95000
+R4L 208.55000
+ACMP 52.76000
+ADP 52.64000
+MAAP 53.91000
+tx 74.26000
+txL 159.82000
+
+This probe does not claim an observed early wire departure; it checks the declared timing envelope.

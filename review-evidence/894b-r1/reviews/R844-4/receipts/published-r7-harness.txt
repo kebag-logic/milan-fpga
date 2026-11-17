@@ -1,0 +1,18 @@
+# run.py --self-test at d539f162 (lane gate harness_selftest, a clean clone, rc 0) against af2c4d7a's (round 6's lane gate): its PASS/FAIL lines differ only by the new record-classes control
+# d539f162: self-test: 0 failures; af2c4d7a: self-test: 0 failures
+862a863
+> PASS: the record classes refuse a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+PASS: the record classes refuse a pass missing a group of arm A
+PASS: the record classes refuse an unpaced edit charged at the edit record
+PASS: the record classes refuse an edit over its record
+PASS: the record classes refuse an ordinary record over record.aecp
+PASS: the record classes refuse a long record over its record
+PASS: the record classes refuse a labelled arm's record held
+PASS: the record classes refuse a pass missing arm B's SET_CONFIGURATION
+PASS: the record classes refuse a pass missing arm B's SET_STREAM_INFO
+PASS: the record classes refuse an unpaced SET_CONFIGURATION charged as ordinary
+PASS: the record classes refuse a SET_CONFIGURATION over the paced record
+PASS: the record classes refuse a record named by a later record's response
+PASS: the record classes refuse an 8x8/1if record over its class's record reported, not held
+PASS: the record classes refuse an 8x8/1if pass missing arm B's SET_CONFIGURATION
+PASS: the record classes refuse a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION

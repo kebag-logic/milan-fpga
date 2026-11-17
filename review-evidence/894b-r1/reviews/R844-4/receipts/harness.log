@@ -1,0 +1,10 @@
+COMMAND: python3 -B tb/verilator/ctrl_service_budget/run.py --selftest
+usage: run.py [-h] [--point {1x1,8x8,8x8-1if}] [--build-dir BUILD_DIR]
+              [--reuse-build] [--groups GROUPS] [--out OUT] [--jobs JOBS]
+              [--cpu-regions {cover,as-built}]
+              [--fetch-l1 split|none|SETSxWAYS] [--xip]
+              [--record-budget-findings] [--record-share-findings]
+              [--mutation {none,slow-adp-rx,slow-adp-shutdown,store-step-unbounded,store-step-ageless,store-step-aged-heavier,retry-ageless,transmit-aged,polls-rebuild-in-the-base,polls-rebuild-twice,notice-fan-out-as-it-was,srp-compared-by-memcmp,acmp-redelivered-every-poll}]
+              [--variant {none,answering-ports,shutdown-entry,answering-later,answering-every-port,valid-destinations}]
+              [--regrade] [--self-test]
+run.py: error: unrecognized arguments: --selftest
