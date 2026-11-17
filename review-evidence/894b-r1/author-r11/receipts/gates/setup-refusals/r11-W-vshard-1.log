@@ -1,0 +1,28 @@
+# shard 1/19 at 05a7ea82fa0625e077959cd1b4eed28a7a05b064, owns: capture_coherence__3 milan_dp__1 adp_tx avtp_rxmon controller_rate datapath queues tcam tsn_fuzz 
+shard: 1/19   selected suites: 9
+FAIL     capture_coherence__3
+FAIL     milan_dp__1
+PASS     adp_tx
+PASS     avtp_rxmon
+PASS     controller_rate
+PASS     datapath
+PASS     queues
+PASS     tcam
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 9   passed: 7   failed: 2   timed out: 0
+checks: 26097   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 2 suite log(s):
+  NOCOUNT  capture_coherence__3: printed no tally line at all
+  NOCOUNT  milan_dp__1: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: capture_coherence__3 milan_dp__1
+logs: <scratch>/fullR11/vshard-logs-1
+# the clone after: 2 changed path(s); rc=2

@@ -1,0 +1,45 @@
+# Original bytes 350372; sha256 c8ef7f86cec60adc1449113862919bfbaf64959964b3f1dfdc15b8cc3fc195fc
+# excerpt; raw file exceeds packet size limit
+1: # head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 workflow docs.yml job docs-gates-2 step gate_41: CI event and SHA contract gate
+2: # clone <scratch>/fullR11/wf/docs__docs-gates-2/wt
+3: # venv <scratch>/gates/venv/bin
+4: # env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+5:   note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+6: ci_events: OK (2271 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+7:   ok   generated gates: docs wire-accountability missing job
+8:   ok   generated gates: docs wire-accountability conditional job
+9:   ok   generated gates: docs wire-accountability masked job
+10:   ok   generated gates: docs wire-accountability host environment
+11:   ok   generated gates: docs wire-accountability missing step 0
+12:   ok   generated gates: docs wire-accountability changed step 0
+13:   ok   generated gates: docs wire-accountability changed body 0
+14:   ok   generated gates: docs wire-accountability missing step 1
+15:   ok   generated gates: docs wire-accountability changed step 1
+16:   ok   generated gates: docs wire-accountability changed body 1
+17:   ok   generated gates: docs wire-accountability missing step 2
+18:   ok   generated gates: docs wire-accountability changed step 2
+5451:   ok   rtl-script-439 firmware-verilator step 8 missing record
+5452:   ok   rtl-script-439 firmware-verilator step 8 empty record
+5453:   ok   rtl-script-439 firmware-verilator step 8 blank record
+5454:   ok   rtl-script-439 firmware-verilator step 8 wrong-type record
+5455:   ok   rtl-script-439 firmware-verilator step 8 stale record
+5456:   ok   rtl-script-439 firmware-verilator step 8 maintained record
+5457:   ok   rtl-script-439 firmware-verilator step 9 missing record
+5458:   ok   rtl-script-439 firmware-verilator step 9 empty record
+5459:   ok   rtl-script-439 firmware-verilator step 9 blank record
+5460:   ok   rtl-script-439 firmware-verilator step 9 wrong-type record
+5461:   ok   rtl-script-439 firmware-verilator step 9 stale record
+5462:   ok   rtl-script-439 firmware-verilator step 9 maintained record
+5463:   ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborate scope step; carrier-script-407 every carrier body)
+5464:   ok   rtl-script-439 every body accepts existing whitespace normalization
+5465:   ok   default-branch: schedule on dev passes
+5466:   ok   default-branch: dispatch on dev passes
+5467:   ok   default-branch: schedule on main refuses, naming main
+5468:   ok   default-branch: dispatch on main refuses
+5469:   ok   default-branch: schedule with an unreadable value refuses
+5470:   ok   default-branch: schedule with an empty value refuses
+5471:   ok   default-branch: schedule with surrounding whitespace still passes
+5472:   ok   default-branch: pull_request on main warns and continues
+5473:   ok   default-branch: push on main warns and continues
+5474:   ok   default-branch: a missing event cannot run
+5475: selftest: PASS (2271 contract items, 5467 arms)

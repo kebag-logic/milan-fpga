@@ -1,0 +1,83 @@
+# Original bytes 244765; sha256 9c80f69ae8599ef034250479f22cb5218cd07c0d53f3b5e311839319350f17be
+# excerpt; raw file exceeds packet size limit
+1: # head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 workflow rtl-fast.yml job firmware-srp-mutants step ci_step_9: Run both SRP mutation campaigns and pin controls
+2: # clone <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants/wt
+3: # venv <scratch>/gates/venv/bin
+4: # env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+5: PASS: shard inventory rejects planted missing suite
+6: PASS: shard inventory rejects planted duplicate suite
+7: PASS: a newly discovered suite is assigned without an ownership list
+8: PASS: 1537 live invocations in exactly one shard; shard sizes [82, 717, 303, 435]
+9: PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+10: toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+11: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+12: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+13: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+14: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+15: [ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+16: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+17: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+18: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+38: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+39: [ESCAPED] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+40: Note: Google Test filter = Srp.RegisteredListenerSubtypeChangeRevokesPermission
+41: [==========] Running 1 test from 1 test suite.
+42: [----------] Global test environment set-up.
+43: [----------] 1 test from Srp
+44: [ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+45: [       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+46: [----------] 1 test from Srp (0 ms total)
+47: 
+48: [----------] Global test environment tear-down
+49: [==========] 1 test from 1 test suite ran. (0 ms total)
+50: [  PASSED  ] 1 test.
+51: == ctrl SRP mailbox: checks: 1   failures: 0 ==
+52: RESULT: PASS
+53:   verdict: PASS (1 tests, 0 failures, exit 0)
+54: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+55: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+56: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+104: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+105: [ESCAPED] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+106: Note: Google Test filter = Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+107: [==========] Running 1 test from 1 test suite.
+108: [----------] Global test environment set-up.
+109: [----------] 1 test from Srp
+110: [ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+111: [       OK ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+112: [----------] 1 test from Srp (0 ms total)
+113: 
+114: [----------] Global test environment tear-down
+115: [==========] 1 test from 1 test suite ran. (0 ms total)
+116: [  PASSED  ] 1 test.
+117: == ctrl SRP mailbox: checks: 1   failures: 0 ==
+118: RESULT: PASS
+119:   verdict: PASS (1 tests, 0 failures, exit 0)
+120: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+121: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+122: wrote <scratch>/fullR11/wf/rtl-fast__firmware-srp-mutants<tmp>/ctrl-fw-yvdu11m4/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1376: [ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+1377: [ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+1378: [ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+1379: [ok] talker-gate-repeat-ignores-its-base: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+1380: [ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+1381: [ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+1382: [ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+1383: [ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+1384: [ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+1385: [ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+1386: [ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+1387: [ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+1388: [ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1389: [ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1390: [ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1391: [ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1392: [ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1393: [ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1394: [ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1395: [ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1396: [ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1397: [ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1398: [ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+1399: [ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+1400: test_ctrl_firmware: FAIL

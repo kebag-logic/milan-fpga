@@ -1,0 +1,45 @@
+# Original bytes 237103; sha256 1ff74ae0c91b46062b98fb6a50fbef0db8336a60b008b42e6ba2368174d47a97
+# excerpt; raw file exceeds packet size limit
+1: # head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 gate behave: cd tests && <scratch>/gates/venv/bin/behave --no-capture -f plain
+2: USING RUNNER: behave.runner:Runner
+3: Feature: back-to-back state-changing commands from two controllers, with AECP's owed-notice queue
+4:   Background: 
+5: 
+6:   Scenario: A's and B's commands back to back, the second taken while the first's notice is owed
+7:     Given AECP's owed-notice rules read from the shipped firmware ... passed in 0.001s
+8:     And controllers A, B and C registered for unsolicited notifications ... passed in 0.000s
+9:     When A sends a state-changing command and B sends one before any notice leaves ... passed in 0.000s
+10:     Then the wire carries A's response, then B's response, then the notices ... passed in 0.000s
+11:     And C receives A's notice before B's, at consecutive sequence_ids ... passed in 0.000s
+12:     And A receives only B's notice and B only A's ... passed in 0.000s
+13: 
+14:   Scenario: the queue is bounded and AECP takes no command while it is full
+15:     Given AECP's owed-notice rules read from the shipped firmware ... passed in 0.000s
+16:     And controllers A, B and C registered for unsolicited notifications ... passed in 0.000s
+17:     When commands fill the owed-notice queue at its depth ... passed in 0.000s
+18:     Then AECP is not ready for the next command ... passed in 0.000s
+3412:     Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+3413: 
+3414:   Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+3415:     Given the wire-truth analyser is importable ... passed in 0.000s
+3416:     Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+3417:     When the analyser checks the SRP declarations ... passed in 0.000s
+3418:     Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+3419: 
+3420:   Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+3421:     Given the wire-truth analyser is importable ... passed in 0.000s
+3422:     Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+3423:     When the analyser checks the SRP declarations ... passed in 0.000s
+3424:     Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+3425: 
+3426:   Scenario: a capture with no MRP frames says the tap is what is missing
+3427:     Given the wire-truth analyser is importable ... passed in 0.000s
+3428:     Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+3429:     When the analyser checks the SRP declarations ... passed in 0.000s
+3430:     Then every SRP verdict is SKIP ... passed in 0.000s
+3431:     And the SRP skip says an inline tap is required ... passed in 0.000s
+3432: 
+3433: 15 features passed, 0 failed, 0 skipped
+3434: 511 scenarios passed, 0 failed, 0 skipped
+3435: 2346 steps passed, 0 failed, 0 skipped
+3436: Took 0min 2.508s

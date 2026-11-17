@@ -1,0 +1,7 @@
+# Original bytes 627; sha256 02332bc7028e45813147b93b2f8fc437280af7903a498993be18f13fd55f9816
+# complete normalized text
+# head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 gate probe_r712_pin_1x1: python3 -I <home>/milan-fpga-management/2026-09-23/665s2b-r712-6/scripts/probe_pin_1x1.py $PWD
+head: 1x1/1if pin 0.517 graded 0.514 findings []
+plant pin 1x1/1if record.acmp=2000: pin load 0.861 (> 0.70: True); merge gate findings: ['1x1/1if: the load 0.861 at the pin is over its ceiling 0.70']; held
+plant pin 1x1/1if event.ACMP=20000: pin load 0.716 (> 0.70: True); merge gate findings: ['1x1/1if: the load 0.716 at the pin is over its ceiling 0.70']; held
+plant pin 1x1/1if base=400: pin load 0.517 (> 0.70: False); merge gate findings: []; held

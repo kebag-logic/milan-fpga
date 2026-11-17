@@ -1,0 +1,14 @@
+[i]  11 builds on 4 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp): the domain event's marker latency drops its frame term: every stamp a sample period late (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every AAF PDU's after it less TUmax, 125 us" and "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
+[PASS] mutant caught (dp): the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773) - its build refuses it: "exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (chmap): the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick cycle with none pending names the frame before (#632) - breaks "F: tick-cycle: col 1 walk instant is frame 2's"
+
+11 checks: 11 PASS, 0 FAIL

@@ -1,0 +1,169 @@
+# excerpt: the original is 580,888 bytes, sha256 473d83911f7810b35ba7bc5faa7cb9b78458707f1f1c07c70d15f26fcd4ab0f1
+# its first 40 lines:
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695
+ucode.hex: 2048 words, 95 programs
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+divergent shape: row0 0x0205022001006000, row1 0x020702200100C000
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1038:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1038 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1042:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1042 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1045:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1085:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1085 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1089:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1136:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1136 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1139:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1139 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1142:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1142 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1145:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1145 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+# its 5 verdict lines ([ok], [ESCAPED], PASS, FAIL, RESULT):
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+# its last 120 lines:
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-CRF: no slip across the selection              = 0
+  [ok]   RENDER-LIVE-CRF: nothing refused across the selection      = 0
+  RENDER-LIVE-CRF: 4960 PDUs, 29760 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-CRF: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the presentation law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1200
+  RENDER-CRF: 1200 PDUs, 7200 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-CRF: PDUs graded                                    = 1
+  [ok]   RENDER-CRF: every event presented once, in order           = 0
+  [ok]   RENDER-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-CRF: no slip inside the window                      = 0
+  [ok]   RENDER-CRF: nothing refused inside the window              = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-ARRIVE-CRF] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-CRF (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-CRF (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-CRF] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-CRF: the domain's instants moved 65532 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-CRF: the step reached the domain's instants    = 1
+  RENDER-STEP-CRF: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 12.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-CRF: PDUs graded                               = 1
+  [ok]   RENDER-STEP-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-CRF: no slip across the step                   = 0
+  [ok]   RENDER-STEP-CRF: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-CRF: presenting throughout (converged)         = 1
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23873557-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 0 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 2883664
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 1
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 0
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 0
+  [ok]   MR: align loop stays engaged back at INTERNAL (A2-a)       = 1
+
+[RENDER-LIVE-INT] the deselect under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-INT: no slip across the deselect               = 0
+  [ok]   RENDER-LIVE-INT: nothing refused across the deselect       = 0
+  RENDER-LIVE-INT: 720 PDUs, 4320 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-INT: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-INT: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-INT: converged                                 = 1
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x002C0050 (tap 0x002C0050)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 2883664
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 2883664
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 131648
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131648
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 131647
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131647
+
+----------------------------------------------------------------------
+media_aclk: 182 checks, 0 failures
+RESULT: PASS
+======== milan_dp/render-mutants ========
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+
+6 checks: 6 PASS, 0 FAIL

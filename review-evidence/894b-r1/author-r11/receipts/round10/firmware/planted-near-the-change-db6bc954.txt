@@ -1,0 +1,83 @@
+head db6bc954dcf2076c415199e6600c2f78153e282d, 0 changed path(s)
+== interfaces 2
+defects: ['four-way-f3b-listener-not-forwarded', 'four-way-f3b-asking-failed-excluded', 'four-way-f3b-withdrawal-stale', 'failed-listener-ready', 'ready-before-vlan', 'shared-identity-overwritten', 'shared-ready-uses-first-vlan', 'feedback-withdrawal-overwritten', 'feedback-intrapdu-lost', 'feedback-change-clears-both-kinds', 'feedback-identity-copy-stale', 'p11-reset-withdrawal-lost', 'p11-postwithdrawal-kind-overwrite', 'binding-change-not-copied', 'snapshot-walks-once', 'unchanged-record-walks', 'own-listener-declaration-not-copied', 'own-talker-declaration-not-copied', 'reclaim-forgotten-while-owed', 'reset-keeps-listener-present', 'transmit-binding-holds-a-build', 'transmit-walk-holds-nothing', 'retry-without-a-change', 'no-retry-after-a-change', 'attribute-change-uncounted', 'refusal-moves-unrecorded', 'refusal-returns-unrecorded', 'unchanged-deadline-unchecked', 'talker-change-while-valid-unmarked', 'listener-copy-talker-indication-unwalked', 'listener-copy-declaration-lost', 'listener-copy-presence-lost', 'listener-copy-leaving-counted-absent', 'listener-copy-departure-dropped']
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] snapshot-walks-once: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] unchanged-record-walks: ARecordThatChangesNoRegistrationCostsNoWalk / a record that changes nothing walks no registrar
+[ok] own-listener-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the own Listener Ready declaration rewrote the registered Listener
+[ok] own-talker-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the adopted Domain's Talker declaration rewrote the registered Talker
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+[ok] reset-keeps-listener-present: InterfaceResetClearsListenerPresent / the interface reset clears listener_present
+[ok] transmit-binding-holds-a-build: AnOwedMrpduTakesAPassOfItsOwn / a binding owes no MRPDU itself
+[ok] transmit-walk-holds-nothing: AnOwedMrpduTakesAPassOfItsOwn / the walk that finds its declaration owes the MRPDU that declares it
+[ok] retry-without-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] no-retry-after-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] attribute-change-uncounted: SrpRetry.AnAttributeChangeAloneAllowsTheRetry / every Applicant or Registrar change lwSRP reports is marked
+[ok] refusal-moves-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] refusal-returns-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] unchanged-deadline-unchecked: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+ALL CAUGHT
+== interfaces 1
+defects: ['four-way-f3b-listener-not-forwarded', 'four-way-f3b-asking-failed-excluded', 'four-way-f3b-withdrawal-stale', 'failed-listener-ready', 'ready-before-vlan', 'shared-identity-overwritten', 'shared-ready-uses-first-vlan', 'feedback-withdrawal-overwritten', 'feedback-intrapdu-lost', 'feedback-change-clears-both-kinds', 'feedback-identity-copy-stale', 'p11-reset-withdrawal-lost', 'p11-postwithdrawal-kind-overwrite', 'binding-change-not-copied', 'snapshot-walks-once', 'unchanged-record-walks', 'own-listener-declaration-not-copied', 'own-talker-declaration-not-copied', 'reclaim-forgotten-while-owed', 'reset-keeps-listener-present', 'transmit-binding-holds-a-build', 'transmit-walk-holds-nothing', 'retry-without-a-change', 'no-retry-after-a-change', 'attribute-change-uncounted', 'refusal-moves-unrecorded', 'refusal-returns-unrecorded', 'unchanged-deadline-unchecked', 'talker-change-while-valid-unmarked', 'listener-copy-talker-indication-unwalked', 'listener-copy-declaration-lost', 'listener-copy-presence-lost', 'listener-copy-leaving-counted-absent', 'listener-copy-departure-dropped']
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] snapshot-walks-once: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] unchanged-record-walks: ARecordThatChangesNoRegistrationCostsNoWalk / a record that changes nothing walks no registrar
+[ok] own-listener-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the own Listener Ready declaration rewrote the registered Listener
+[ok] own-talker-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the adopted Domain's Talker declaration rewrote the registered Talker
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+[ok] reset-keeps-listener-present: InterfaceResetClearsListenerPresent / the interface reset clears listener_present
+[ok] transmit-binding-holds-a-build: AnOwedMrpduTakesAPassOfItsOwn / a binding owes no MRPDU itself
+[ok] transmit-walk-holds-nothing: AnOwedMrpduTakesAPassOfItsOwn / the walk that finds its declaration owes the MRPDU that declares it
+[ok] retry-without-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] no-retry-after-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] attribute-change-uncounted: SrpRetry.AnAttributeChangeAloneAllowsTheRetry / every Applicant or Registrar change lwSRP reports is marked
+[ok] refusal-moves-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] refusal-returns-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] unchanged-deadline-unchecked: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+ALL CAUGHT
+== 8x8/1if
+defects: ['listener-copy-talker-indication-unwalked', 'listener-copy-declaration-lost', 'listener-copy-presence-lost', 'listener-copy-leaving-counted-absent', 'listener-copy-departure-dropped']
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+ALL CAUGHT

@@ -1,0 +1,125 @@
+# round 8's eight legs on the composed image (regraded with 84c1704d's graders), gated at 24753b96's ledger (the six figures moved by #894's ruling of 2026-11-16, item 1): exit 0
+# 116 groups graded over 7 leg(s); 1736 probe instances, 1736 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 187 | 7.611 | `notice-burst-3.held.acmp.if0` (notice-burst-3) | 20.0 | 30 | 0 |
+| adp | ADP | 190 | 6.973 | `notice-every-7.held.adp.if0` (notice-every-7) | 20.0 | 30 | 0 |
+| aecp | AECP | 221 | 4.719 | `notice-every-4.held.aecp.if0` (notice-every-4) | 20.0 | 20 | 0 |
+| disc | ADP (a bound talker's ENTITY_AVAILABLE) | 78 | 5.099 | `backlog-adp@program-aged2-7.adp_available.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| maap | MAAP | 178 | 6.143 | `notice-every-6.held.maap.if0` (notice-every-6) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 14 | 2.296 | `save-starved.mrpdu.periodic.if0` (save-starved) | 49.0 | 49 | 0 |
+| notify | AECP's notices (retried, the largest notice's fan-out) | 20 | 3.132 | `aecp_fanout.set_sampling_rate.if0` (aecp-fanout) | 20.0 | 20 | 0 |
+| srp | SRP | 177 | 9.929 | `notice-every-1.held.srp.if0` (notice-every-1) | 20.0 | 90 | 0 |
+
+## SRP's Talker declaration rows (the valid-destinations arm, #901), each against its harness budget, a JoinTime's wait plus T_svc
+
+| Group | Instances | Worst, ms | Worst instance | Its budget, ms | Over it |
+|---|---:|---:|---|---:|---:|
+| srp-talker | 9 | 189.426 | `srp.talker_declare.s2.if0` | 220.0 | 0 |
+| srp-talker-loss | 10 | 189.688 | `srp.talker_loss.if0` | 220.0 | 0 |
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+| Group | Notices | First, ms | Last, ms | Last instance | Its budget, ms |
+|---|---:|---:|---:|---|---:|
+| notice-burst-0 | 40 | 2.034 | 25.086 | `notice-burst-0.notices.29.36.0.if0` | 130.0 |
+| notice-burst-1 | 40 | 2.204 | 24.621 | `notice-burst-1.notices.29.36.0.if0` | 130.0 |
+| notice-burst-2 | 40 | 2.205 | 24.526 | `notice-burst-2.notices.29.36.0.if0` | 130.0 |
+| notice-burst-3 | 40 | 2.196 | 24.593 | `notice-burst-3.notices.29.36.0.if0` | 130.0 |
+| notice-burst-4 | 40 | 2.649 | 25.646 | `notice-burst-4.notices.29.36.0.if0` | 130.0 |
+| notice-burst-5 | 40 | 2.019 | 23.474 | `notice-burst-5.notices.29.36.0.if0` | 130.0 |
+| notice-burst-6 | 40 | 2.052 | 25.465 | `notice-burst-6.notices.29.36.0.if0` | 130.0 |
+| notice-burst-7 | 40 | 2.014 | 24.557 | `notice-burst-7.notices.28.9.0.if0` | 130.0 |
+| notice-every-0 | 40 | 2.228 | 20.507 | `notice-every-0.notices.29.36.0.if0` | 130.0 |
+| notice-every-1 | 40 | 2.227 | 20.965 | `notice-every-1.notices.29.36.0.if0` | 130.0 |
+| notice-every-2 | 40 | 1.997 | 20.484 | `notice-every-2.notices.29.36.0.if0` | 130.0 |
+| notice-every-3 | 40 | 2.044 | 20.536 | `notice-every-3.notices.29.36.0.if0` | 130.0 |
+| notice-every-4 | 40 | 2.585 | 20.550 | `notice-every-4.notices.29.36.0.if0` | 130.0 |
+| notice-every-5 | 40 | 2.586 | 20.550 | `notice-every-5.notices.29.36.0.if0` | 130.0 |
+| notice-every-6 | 40 | 2.220 | 20.725 | `notice-every-6.notices.29.36.0.if0` | 130.0 |
+| notice-every-7 | 40 | 1.625 | 22.076 | `notice-every-7.notices.29.36.0.if0` | 130.0 |
+
+Over every group: the first at most 2.649 ms, the last at most 25.646 ms; 640 queued notices in 16 groups
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+| Instance | Family | ms | Its budget, ms |
+|---|---|---:|---:|
+| `aecp_long.refused.conflict_last.if0` | aecp | 3.599 | 20.0 |
+| `aecp_long.add_audio_mappings.if0` | notify | 3.114 | 20.0 |
+| `aecp_long.refused.collision_values.if0` | aecp | 3.002 | 20.0 |
+| `aecp_long.remove_audio_mappings.if0` | notify | 2.163 | 20.0 |
+| `aecp_long.refused.collision_indices.if0` | aecp | 1.515 | 20.0 |
+
+The most: 3.599 ms (`aecp_long.refused.conflict_last.if0`), against 238 ms
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.67337 | 63.86 | -0.18663 | yes |
+| `backlog.owed_behind0.if0` | 63.90106 | 64.1 | -0.19894 | yes |
+| `backlog.owed_behind1.if0` | 64.14858 | 64.36 | -0.21142 | yes |
+| `backlog.owed_behind2.if0` | 64.38819 | 64.61 | -0.22181 | yes |
+| `backlog.owed_behind3.if0` | 64.62511 | 64.86 | -0.23489 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.49045 | 62.62 | -0.12955 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.75319 | 61.94 | -0.18681 | yes |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 0
+Instances over their budget: 7; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 0
+
+Join intervals: 383 in 115 groups, the shortest 186.613 ms (srp-talker), the longest 190.363 ms (srp-talker-loss), against the commit-side gate 181.0 to 239.0
+
+The longest tier-2 slice of each kind, against the stated slice 147,500 CPU cycles:
+- build: 91,604 (srp-talker)
+- round: 92,686 (notice-burst-7)
+- srp: 119,542 (backlog-adp@blank-aged1-2)
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+- build: 0 (srp-talker-loss), stated 179,500
+- build-one: 91,604 (srp-talker), stated 147,500
+- step: 80,673 (backlog-adp@program-aged2-2), stated 97,500
+
+Groups with work passes over THE SHARE: 1
+- aecp-largest-notice: 2 pass(es), the longest 223,194 CPU cycles
+
+THE RETRY's rounds: 2,303,370, held to attempt 25 us, cold 165 us, notice 255 us; the heaviest by notices built: 0: 24,347 (notice-every-2), 1: 24,345 (aecp-fanout), 4: 92,686 (notice-burst-7); over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-second,backlog-adp@blank-6,backlog-adp@blank-aged1-2,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-2,backlog-adp@blank-aged2-6,backlog-adp@program-2,backlog-adp@program-6,backlog-adp@program-aged1-2,backlog-adp@program-aged1-6,backlog-adp@program-aged2-2,backlog-adp@program-aged2-6,backlog-adp@verify-2,backlog-adp@verify-6,backlog-adp@verify-aged1-2,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-2,backlog-adp@verify-aged2-6,save,backlog-owed,adp-gm,acmp-cmd --regrade start 2026-11-16T11:51:49
+BUDGET backlog.owed.if0: 63.673 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.901 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.149 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.388 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.625 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.490 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.753 ms over its budget 20 ms
+22 groups graded, 0 refusals, 7 budget misses (7 of 213 probe instances, 4 of 24 paths), 0 of 141427 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:56:43
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-held,backlog-adp@blank-1,backlog-adp@blank-4,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-4,backlog-adp@blank-aged2-0,backlog-adp@blank-aged2-4,backlog-adp@program-0,backlog-adp@program-4,backlog-adp@program-aged1-0,backlog-adp@program-aged1-4,backlog-adp@program-aged2-0,backlog-adp@program-aged2-4,backlog-adp@verify-0,backlog-adp@verify-4,backlog-adp@verify-aged1-0,backlog-adp@verify-aged1-4,backlog-adp@verify-aged2-0,backlog-adp@verify-aged2-4,adp-advertise,backlog-adp,maap,aecp-fanout,fixture --regrade start 2026-11-16T11:52:25
+24 groups graded, 0 refusals, 0 budget misses (0 of 250 probe instances, 0 of 37 paths), 0 of 23647 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:54:53
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-starved,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@blank-aged1-1,backlog-adp@blank-aged1-5,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-5,backlog-adp@program-1,backlog-adp@program-5,backlog-adp@program-aged1-1,backlog-adp@program-aged1-5,backlog-adp@program-aged2-1,backlog-adp@program-aged2-5,backlog-adp@verify-1,backlog-adp@verify-5,backlog-adp@verify-aged1-1,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-5,acmp-noresp,backlog,acmp-disc,adp-link,aecp --regrade start 2026-11-16T11:52:59
+24 groups graded, 0 refusals, 0 budget misses (0 of 253 probe instances, 0 of 54 paths), 0 of 80717 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:55:39
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups acmp-notk,backlog-adp@blank-0,backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-7,backlog-adp@blank-aged2-3,backlog-adp@blank-aged2-7,backlog-adp@program-3,backlog-adp@program-7,backlog-adp@program-aged1-3,backlog-adp@program-aged1-7,backlog-adp@program-aged2-3,backlog-adp@program-aged2-7,backlog-adp@verify-3,backlog-adp@verify-7,backlog-adp@verify-aged1-3,backlog-adp@verify-aged1-7,backlog-adp@verify-aged2-3,backlog-adp@verify-aged2-7,srp,backlog-adp-refill,adp-discover,control,datapath-events --regrade start 2026-11-16T11:53:34
+25 groups graded, 0 refusals, 0 budget misses (0 of 231 probe instances, 0 of 20 paths), 0 of 24588 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:55:19
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups notice-burst-0,notice-burst-1,notice-burst-2,notice-burst-3,notice-burst-4,notice-burst-5,notice-burst-6,notice-burst-7,notice-every-0,notice-every-1,notice-every-2,notice-every-3,notice-every-4,notice-every-5,notice-every-6,notice-every-7 --variant answering-every-port --regrade start 2026-11-16T11:54:58
+16 groups graded, 0 refusals, 0 budget misses (0 of 728 probe instances, 0 of 7 paths), 0 of 19371 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:55:40
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups aecp,aecp-fanout,aecp-largest-notice --variant answering-ports --regrade start 2026-11-16T11:55:32
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 223,194 (2.232 ms)
+3 groups graded, 0 refusals, 0 budget misses (0 of 42 probe instances, 0 of 41 paths), 2 of 335 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:55:33
+HEAD 84c1704dde53adfb32c0862b8b0f105c4480ca76 DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker,srp-talker-loss --variant valid-destinations --regrade start 2026-11-16T11:56:06
+2 groups graded, 0 refusals, 0 budget misses (0 of 19 probe instances, 0 of 10 paths), 0 of 2987 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T11:57:44
+
+RESULT: PASS: every row the CPU decides within its bound, no held-egress row over its ledger figure, no new budget miss, every instance measured, the joins within the gate

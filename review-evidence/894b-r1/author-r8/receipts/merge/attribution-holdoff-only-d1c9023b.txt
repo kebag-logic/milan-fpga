@@ -1,0 +1,13 @@
+# the attribution: the 8x8/1if images of the merge d1c9023b (THE TRANSMIT's figure 68 ms at its shape) against the same tree with that figure at 1x1/1if's 34 ms, the bare composition's: objdump -d and -s of each ELF
+## fixture-8x8-1if: instructions that differ (< bare, > the merge)
+10447c10447
+<     9e54:	7e700693          	li	a3,2023
+---
+>     9e54:	7ea00693          	li	a3,2026
+## fixture-8x8-1if: section-dump lines that differ: 2 (the one word above, old and new)
+## platform-8x8-1if: instructions that differ (< bare, > the merge)
+10434c10434
+<     9e30:	7e700693          	li	a3,2023
+---
+>     9e30:	7ea00693          	li	a3,2026
+## platform-8x8-1if: section-dump lines that differ: 2 (the one word above, old and new)

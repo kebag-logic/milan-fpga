@@ -1,0 +1,32 @@
+# record_classes.py at acfa5601's statements (the long record 1,715, the paced class 685 us at 8x8/1if) over every leg of the composed image: exit 0
+results: 8x8/1if none, 22 groups, 308 AECP records
+results: 8x8/1if none, 24 groups, 2957 AECP records
+results: 8x8/1if none, 24 groups, 2956 AECP records
+results: 8x8/1if none, 25 groups, 339 AECP records
+results: 8x8/1if answering-every-port, 16 groups, 1040 AECP records
+results: 8x8/1if answering-ports, 3 groups, 73 AECP records
+results: 8x8/1if valid-destinations, 2 groups, 0 AECP records
+8x8/1if held long: the dearest 162,969 CPU cycles, 1715 us by the rule, stated 1715 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 19,500 CPU cycles, 205 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x0010)
+8x8/1if held other: the dearest 20,923 CPU cycles, 220 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/1if held paced: the dearest 65,169 CPU cycles, 685 us by the rule, stated 685 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+RESULT: PASS
+rc=0
+
+# the same at 84c1704d's statements (1,510 and 635 us), exit 1:
+results: 8x8/1if none, 22 groups, 308 AECP records
+results: 8x8/1if none, 24 groups, 2957 AECP records
+results: 8x8/1if none, 24 groups, 2956 AECP records
+results: 8x8/1if none, 25 groups, 339 AECP records
+results: 8x8/1if answering-every-port, 16 groups, 1040 AECP records
+results: 8x8/1if answering-ports, 3 groups, 73 AECP records
+results: 8x8/1if valid-destinations, 2 groups, 0 AECP records
+8x8/1if held long: the dearest 162,969 CPU cycles, 1715 us by the rule, stated 1510 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 19,500 CPU cycles, 205 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x0010)
+8x8/1if held other: the dearest 20,923 CPU cycles, 220 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/1if held paced: the dearest 65,169 CPU cycles, 685 us by the rule, stated 635 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED 8x8/1if answering-ports aecp-fanout: a record of 65,169 CPU cycles, 685 us by the rule, over the paced record's 635 us (SET_CONFIGURATION, paced)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 162,969 CPU cycles, 1715 us by the rule, over the long record's 1510 us (the largest legal command's)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 160,113 CPU cycles, 1685 us by the rule, over the long record's 1510 us (the largest legal command's)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 152,853 CPU cycles, 1605 us by the rule, over the long record's 1510 us (the largest legal command's)
+RESULT: FAIL

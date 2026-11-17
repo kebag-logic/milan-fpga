@@ -1,0 +1,168 @@
+# excerpt: the original is 493,839 bytes, sha256 e6e869d230b8b200792afb2b240649f2e599a823c216fa1fc0736868effa8dc8
+# its first 40 lines:
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695
+ucode.hex: 2048 words, 95 programs
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+divergent shape: row0 0x0205022001006000, row1 0x020702200100C000
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1038:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1038 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1042:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1042 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1045:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1085:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1085 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1089:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1136:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1136 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1139:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1139 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1142:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1142 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1145:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1145 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+# its 4 verdict lines ([ok], [ESCAPED], PASS, FAIL, RESULT):
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+# its last 120 lines:
+  [i]    transfers, after the power cycle: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    transfers, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys across ports: the map restore held the faces 13773 clocks after restore_done, 21860 after PP_CTRL[1]
+  [i]    conflicting keys across ports: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 1: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 2: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 3: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 4: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 5: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 6: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the crossbar RAM routes as the reference = 0x0
+  [i]    conflicting keys across ports: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] refused put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] refused put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    refused put-back: the map restore held the faces 13618 clocks after restore_done, 21705 after PP_CTRL[1]
+  [i]    refused put-back: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 0: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 1: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 2: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 3: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 4: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 5: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 6: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] refused put-back: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] refused put-back: the crossbar RAM routes as the reference = 0x0
+  [i]    refused put-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] refused put-back: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT fail 1      = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x28
+--------------------------------------------------------------
+checks: 219   failures: 0
+RESULT: PASS

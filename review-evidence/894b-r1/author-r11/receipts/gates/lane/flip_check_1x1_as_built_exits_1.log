@@ -1,0 +1,21 @@
+# Original bytes 1496; sha256 7996aa3ead2e73724a0d50ea5b0194888600f054d2474b880224315bede78c90
+# complete normalized text
+# head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 gate flip_check_1x1_as_built_exits_1: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if --design as-built
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 1x1/1if | R4 | 82.79 | 20 | +62.79 | srp 20.44, others 12.02, passes 10.40 |
+| 1x1/1if | R5 | 43.66 | 90 | -46.34 | others 10.65, srp 8.96, passes 3.64 |
+| 1x1/1if | R6 | 37.70 | 90 | -52.30 | srp 8.96, others 7.24, rounds 3.23 |
+| 1x1/1if | first | 20.00 | 20 | +0.00 | AECP_QUEUED_FIRST_MS 20.00 |
+| 1x1/1if | last | 140.00 | 125 | +15.00 | AECP_QUEUED_MS 140.00 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+OVER 1x1/1if R4: by every source 82.79 ms, over its bound 20 ms; the largest term srp 20.44 ms
+OVER 1x1/1if last: by every source 140.00 ms, over its bound 125 ms; the largest term AECP_QUEUED_MS 140.00 ms
+RESULT: FAIL

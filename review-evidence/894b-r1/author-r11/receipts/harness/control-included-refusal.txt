@@ -1,0 +1,246 @@
+# Regrade only: 15 round-10 legs, no new measurement. Gate checkout 05a7ea82.
+# 125 groups graded over 15 leg(s); 1818 probe instances, 1818 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 196 | 7.555 | `notice-burst-5.held.acmp.if0` (notice-burst-5) | 20.0 | 30 | 0 |
+| adp | ADP | 199 | 7.000 | `notice-every-6.held.adp.if0` (notice-every-6) | 20.0 | 30 | 0 |
+| aecp | AECP | 230 | 5.144 | `notice-every-0.held.aecp.if0` (notice-every-0) | 20.0 | 20 | 0 |
+| disc | ADP (a bound talker's ENTITY_AVAILABLE) | 78 | 4.900 | `backlog-adp@program-aged2-7.adp_available.if0` (backlog-adp@program-aged2-7) | 20.0 | 30 | 0 |
+| maap | MAAP | 187 | 6.275 | `notice-every-5.held.maap.if0` (notice-every-5) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 25 | 72.534 | `notice-retried-4.mrpdu.periodic.if0` (notice-retried-4) | 49.0 | 49 | 8 |
+| notify | AECP's notices (retried, the largest notice's fan-out) | 28 | 8.254 | `notice-retried-7.stream_info.if0` (notice-retried-7) | 20.0 | 20 | 0 |
+| srp | SRP | 195 | 10.869 | `srp-talker-held.held.srp.if0` (srp-talker-held) | 20.0 | 90 | 0 |
+
+## SRP's Talker declaration rows (the valid-destinations arm, #901), each against its harness budget, a JoinTime's wait plus T_svc
+
+| Group | Instances | Worst, ms | Worst instance | Its budget, ms | Over it |
+|---|---:|---:|---|---:|---:|
+| srp-talker | 9 | 189.528 | `srp.talker_declare.s2.if0` | 220.0 | 0 |
+| srp-talker-held | 9 | 189.528 | `srp.talker_declare.s2.if0` | 220.0 | 0 |
+| srp-talker-loss | 10 | 189.638 | `srp.talker_loss.if0` | 220.0 | 0 |
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+| Group | Notices | First, ms | Last, ms | Last instance | Its budget, ms |
+|---|---:|---:|---:|---|---:|
+| notice-burst-0 | 40 | 2.650 | 25.541 | `notice-burst-0.notices.29.36.0.if0` | 130.0 |
+| notice-burst-1 | 40 | 2.206 | 25.625 | `notice-burst-1.notices.29.36.0.if0` | 130.0 |
+| notice-burst-2 | 40 | 1.727 | 25.097 | `notice-burst-2.notices.29.36.0.if0` | 130.0 |
+| notice-burst-3 | 40 | 2.189 | 24.665 | `notice-burst-3.notices.29.36.0.if0` | 130.0 |
+| notice-burst-4 | 40 | 1.708 | 25.124 | `notice-burst-4.notices.29.36.0.if0` | 130.0 |
+| notice-burst-5 | 40 | 2.180 | 24.747 | `notice-burst-5.notices.29.36.0.if0` | 130.0 |
+| notice-burst-6 | 40 | 2.067 | 25.095 | `notice-burst-6.notices.29.36.0.if0` | 130.0 |
+| notice-burst-7 | 40 | 2.047 | 23.706 | `notice-burst-7.notices.29.36.0.if0` | 130.0 |
+| notice-every-0 | 40 | 2.199 | 20.747 | `notice-every-0.notices.29.36.0.if0` | 130.0 |
+| notice-every-1 | 40 | 2.201 | 20.533 | `notice-every-1.notices.29.36.0.if0` | 130.0 |
+| notice-every-2 | 40 | 2.258 | 20.587 | `notice-every-2.notices.29.36.0.if0` | 130.0 |
+| notice-every-3 | 40 | 2.028 | 20.579 | `notice-every-3.notices.29.36.0.if0` | 130.0 |
+| notice-every-4 | 40 | 2.263 | 20.645 | `notice-every-4.notices.29.36.0.if0` | 130.0 |
+| notice-every-5 | 40 | 2.258 | 20.638 | `notice-every-5.notices.29.36.0.if0` | 130.0 |
+| notice-every-6 | 40 | 2.194 | 20.543 | `notice-every-6.notices.29.36.0.if0` | 130.0 |
+| notice-every-7 | 40 | 1.963 | 20.721 | `notice-every-7.notices.29.36.0.if0` | 130.0 |
+
+Over every group: the first at most 2.650 ms, the last at most 25.625 ms; 640 queued notices in 16 groups
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+| Instance | Family | ms | Its budget, ms |
+|---|---|---:|---:|
+| `aecp_long.refused.conflict_last.if0` | aecp | 3.404 | 20.0 |
+| `aecp_long.refused.collision_values.if0` | aecp | 3.197 | 20.0 |
+| `aecp_long.add_audio_mappings.if0` | notify | 2.933 | 20.0 |
+| `aecp_long.remove_audio_mappings.if0` | notify | 2.170 | 20.0 |
+| `aecp_long.refused.collision_indices.if0` | aecp | 1.516 | 20.0 |
+
+The most: 3.404 ms (`aecp_long.refused.conflict_last.if0`), against 238 ms
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.51129 | 63.86 | -0.34871 | yes |
+| `backlog.owed_behind0.if0` | 63.74479 | 64.1 | -0.35521 | yes |
+| `backlog.owed_behind1.if0` | 64.02681 | 64.36 | -0.33319 | yes |
+| `backlog.owed_behind2.if0` | 64.24822 | 64.61 | -0.36178 | yes |
+| `backlog.owed_behind3.if0` | 64.48987 | 64.86 | -0.37013 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.40080 | 62.62 | -0.21920 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.04905 | 62.16 | -0.11095 | yes |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 0
+Instances over their budget: 15; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 8
+- notice-retried-0.mrpdu.periodic.if0 (notice-retried-0): a new budget miss, 72.14968 ms against its budget 49.0 ms
+- notice-retried-1.mrpdu.periodic.if0 (notice-retried-1): a new budget miss, 71.89461 ms against its budget 49.0 ms
+- notice-retried-2.mrpdu.periodic.if0 (notice-retried-2): a new budget miss, 71.86993 ms against its budget 49.0 ms
+- notice-retried-3.mrpdu.periodic.if0 (notice-retried-3): a new budget miss, 72.41310 ms against its budget 49.0 ms
+- notice-retried-4.mrpdu.periodic.if0 (notice-retried-4): a new budget miss, 72.53424 ms against its budget 49.0 ms
+- notice-retried-5.mrpdu.periodic.if0 (notice-retried-5): a new budget miss, 72.32281 ms against its budget 49.0 ms
+- notice-retried-6.mrpdu.periodic.if0 (notice-retried-6): a new budget miss, 72.10123 ms against its budget 49.0 ms
+- notice-retried-7.mrpdu.periodic.if0 (notice-retried-7): a new budget miss, 72.14072 ms against its budget 49.0 ms
+
+Join intervals: 422 in 124 groups, the shortest 186.895 ms (save-starved), the longest 240.166 ms (notice-retried-0), against the commit-side gate 181.0 to 239.0
+
+The longest tier-2 slice of each kind, against the stated slice 147,500 CPU cycles:
+- build: 122,179 (srp-talker-held)
+- round: 88,365 (notice-burst-6)
+- srp: 124,869 (srp-talker-held)
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+- build: 0 (srp-talker-loss), stated 179,500
+- build-one: 122,179 (srp-talker-held), stated 147,500
+- step: 80,442 (backlog-adp@program-aged2-6), stated 97,500
+
+Groups with work passes over THE SHARE: 1
+- aecp-largest-notice: 2 pass(es), the longest 222,434 CPU cycles
+
+THE RETRY's rounds: 2,516,424, held to attempt 25 us, cold 165 us, notice 255 us; the heaviest by notices built: 0: 24,822 (notice-every-1), 1: 24,163 (aecp-fanout), 4: 88,365 (notice-burst-6); over their stated cost: 0
+
+The legs' STATED lines, by kind: 128
+- 8 x "a join interval of 240.166 ms (if0 MSRP), outside 181.0 to 239.0 ms"; the dearest: notice-retried-7: a join interval of 240.166 ms (if0 MSRP), outside 181.0 to 239.0 ms
+- 8 x "the join timer's run-out at 1311.130 ms, its first frame or build 62.176 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 1311.130 ms, its first frame or build 62.176 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 1311.133 ms, its first frame or build 62.173 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 1311.133 ms, its first frame or build 62.173 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 2311.164 ms, its first frame or build 62.647 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 2311.164 ms, its first frame or build 62.647 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 2311.167 ms, its first frame or build 62.644 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 2311.167 ms, its first frame or build 62.644 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 301.014 ms, its first frame or build 57.527 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 301.014 ms, its first frame or build 57.527 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 301.018 ms, its first frame or build 57.523 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 301.018 ms, its first frame or build 57.523 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 541.181 ms, its first frame or build 57.526 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 541.181 ms, its first frame or build 57.526 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 541.185 ms, its first frame or build 57.522 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 541.185 ms, its first frame or build 57.522 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the join timer's run-out at 781.011 ms, its first frame or build 62.454 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the join timer's run-out at 781.011 ms, its first frame or build 62.454 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the periodic timer's run-out at 1061.142 ms, its first frame or build 62.340 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 1061.142 ms, its first frame or build 62.340 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the periodic timer's run-out at 1061.179 ms, its first frame or build 62.303 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 1061.179 ms, its first frame or build 62.303 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the periodic timer's run-out at 2061.201 ms, its first frame or build 62.822 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 2061.201 ms, its first frame or build 62.822 ms after it, past THE TRANSMIT's 49 ms (late)
+- 8 x "the periodic timer's run-out at 2061.237 ms, its first frame or build 62.785 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 2061.237 ms, its first frame or build 62.785 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.025 ms, its first frame or build 71.595 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-2: the periodic timer's run-out at 3061.025 ms, its first frame or build 71.595 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.030 ms, its first frame or build 71.861 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 3061.030 ms, its first frame or build 71.861 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.037 ms, its first frame or build 71.814 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-6: the periodic timer's run-out at 3061.037 ms, its first frame or build 71.814 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.061 ms, its first frame or build 71.559 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-2: the periodic timer's run-out at 3061.061 ms, its first frame or build 71.559 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.065 ms, its first frame or build 71.826 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-7: the periodic timer's run-out at 3061.065 ms, its first frame or build 71.826 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.073 ms, its first frame or build 71.778 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-6: the periodic timer's run-out at 3061.073 ms, its first frame or build 71.778 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.075 ms, its first frame or build 72.088 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-3: the periodic timer's run-out at 3061.075 ms, its first frame or build 72.088 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.081 ms, its first frame or build 71.564 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-1: the periodic timer's run-out at 3061.081 ms, its first frame or build 71.564 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.096 ms, its first frame or build 71.977 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-5: the periodic timer's run-out at 3061.096 ms, its first frame or build 71.977 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.111 ms, its first frame or build 72.052 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-3: the periodic timer's run-out at 3061.111 ms, its first frame or build 72.052 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.117 ms, its first frame or build 71.528 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-1: the periodic timer's run-out at 3061.117 ms, its first frame or build 71.528 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.132 ms, its first frame or build 71.940 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-5: the periodic timer's run-out at 3061.132 ms, its first frame or build 71.940 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.165 ms, its first frame or build 72.119 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-4: the periodic timer's run-out at 3061.165 ms, its first frame or build 72.119 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.168 ms, its first frame or build 71.733 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-0: the periodic timer's run-out at 3061.168 ms, its first frame or build 71.733 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.201 ms, its first frame or build 72.083 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-4: the periodic timer's run-out at 3061.201 ms, its first frame or build 72.083 ms after it, past THE TRANSMIT's 49 ms (late)
+- 1 x "the periodic timer's run-out at 3061.204 ms, its first frame or build 71.697 ms after it, past THE TRANSMIT's 49 ms (late)"; the dearest: notice-retried-0: the periodic timer's run-out at 3061.204 ms, its first frame or build 71.697 ms after it, past THE TRANSMIT's 49 ms (late)
+
+The legs' own lines (STATED lines above):
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-second,backlog-adp@blank-aged2-6,backlog-adp@program-6,backlog-adp@program-aged1-6,backlog-adp@program-aged2-6,backlog-adp@verify-6,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-6,backlog-adp-refill,control start 2026-11-16T19:47:22
+10 groups graded, 0 refusals, 0 budget misses (0 of 91 probe instances, 0 of 15 paths), 0 of 131368 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T22:09:12
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-held,backlog-adp@blank-aged1-1,backlog-adp@blank-aged2-0,backlog-adp@program-0,backlog-adp@program-aged1-0,backlog-adp@program-aged2-0,backlog-adp@verify-0,backlog-adp@verify-aged1-0,backlog-adp@verify-aged2-0,adp-advertise,acmp-cmd start 2026-11-16T19:48:00
+11 groups graded, 0 refusals, 0 budget misses (0 of 107 probe instances, 0 of 28 paths), 0 of 12625 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T21:26:52
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups save-starved,backlog-adp@blank-aged1-2,backlog-adp@blank-aged2-1,backlog-adp@program-1,backlog-adp@program-aged1-1,backlog-adp@program-aged2-1,backlog-adp@verify-1,backlog-adp@verify-aged1-1,backlog-adp@verify-aged2-1,acmp-noresp,adp-link start 2026-11-16T20:50:43
+11 groups graded, 0 refusals, 0 budget misses (0 of 103 probe instances, 0 of 24 paths), 0 of 69843 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T21:51:27
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups acmp-notk,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-7,backlog-adp@blank-aged2-7,backlog-adp@program-7,backlog-adp@program-aged1-7,backlog-adp@program-aged2-7,backlog-adp@verify-7,backlog-adp@verify-aged1-7,backlog-adp@verify-aged2-7,backlog-owed,aecp start 2026-11-16T21:27:30
+BUDGET backlog.owed.if0: 63.511 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.745 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.027 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.248 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.490 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.401 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.049 ms over its budget 20 ms
+12 groups graded, 0 refusals, 7 budget misses (7 of 140 probe instances, 4 of 39 paths), 0 of 13950 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T22:22:15
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups backlog-adp@blank-0,backlog-adp@blank-4,backlog-adp@blank-aged1-3,backlog-adp@blank-aged2-2,backlog-adp@program-2,backlog-adp@program-aged1-2,backlog-adp@program-aged2-2,backlog-adp@verify-2,backlog-adp@verify-aged1-2,backlog-adp@verify-aged2-2,save,adp-gm start 2026-11-16T21:28:15
+12 groups graded, 0 refusals, 0 budget misses (0 of 113 probe instances, 0 of 14 paths), 0 of 11046 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T22:03:11
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups backlog-adp@blank-1,backlog-adp@blank-5,backlog-adp@blank-aged1-4,backlog-adp@blank-aged2-3,backlog-adp@program-3,backlog-adp@program-aged1-3,backlog-adp@program-aged2-3,backlog-adp@verify-3,backlog-adp@verify-aged1-3,backlog-adp@verify-aged2-3,srp,adp-discover,aecp-fanout start 2026-11-16T21:51:57
+13 groups graded, 0 refusals, 0 budget misses (0 of 124 probe instances, 0 of 24 paths), 0 of 10876 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T22:29:13
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups backlog-adp@blank-2,backlog-adp@blank-6,backlog-adp@blank-aged1-5,backlog-adp@blank-aged2-4,backlog-adp@program-4,backlog-adp@program-aged1-4,backlog-adp@program-aged2-4,backlog-adp@verify-4,backlog-adp@verify-aged1-4,backlog-adp@verify-aged2-4,backlog,acmp-disc,datapath-events start 2026-11-16T22:03:43
+13 groups graded, 0 refusals, 0 budget misses (0 of 125 probe instances, 0 of 16 paths), 0 of 11705 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T23:24:12
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-5,backlog-adp@program-5,backlog-adp@program-aged1-5,backlog-adp@program-aged2-5,backlog-adp@verify-5,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-5,backlog-adp,maap,fixture start 2026-11-16T22:09:45
+13 groups graded, 0 refusals, 0 budget misses (0 of 144 probe instances, 0 of 23 paths), 0 of 11102 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T22:48:57
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups notice-burst-0,notice-burst-2,notice-burst-4,notice-burst-6,notice-every-0,notice-every-2,notice-every-4,notice-every-6 --variant answering-every-port start 2026-11-16T23:58:05
+8 groups graded, 0 refusals, 0 budget misses (0 of 364 probe instances, 0 of 7 paths), 0 of 9843 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T00:11:31
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups notice-burst-1,notice-burst-3,notice-burst-5,notice-burst-7,notice-every-1,notice-every-3,notice-every-5,notice-every-7 --variant answering-every-port start 2026-11-17T00:12:01
+8 groups graded, 0 refusals, 0 budget misses (0 of 364 probe instances, 0 of 7 paths), 0 of 9808 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T00:24:23
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups aecp,aecp-fanout,aecp-largest-notice --variant answering-ports start 2026-11-17T00:16:22
+SHARE aecp-largest-notice: 2 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 222,434 (2.224 ms)
+3 groups graded, 0 refusals, 0 budget misses (0 of 42 probe instances, 0 of 41 paths), 2 of 338 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T00:19:41
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --variant answering-later --mutation transmit-aged start 2026-11-17T00:50:08
+BUDGET notice-retried-0.mrpdu.periodic.if0: 72.150 ms over its budget 49 ms
+BUDGET notice-retried-1.mrpdu.periodic.if0: 71.895 ms over its budget 49 ms
+BUDGET notice-retried-2.mrpdu.periodic.if0: 71.870 ms over its budget 49 ms
+BUDGET notice-retried-3.mrpdu.periodic.if0: 72.413 ms over its budget 49 ms
+BUDGET notice-retried-4.mrpdu.periodic.if0: 72.534 ms over its budget 49 ms
+BUDGET notice-retried-5.mrpdu.periodic.if0: 72.323 ms over its budget 49 ms
+BUDGET notice-retried-6.mrpdu.periodic.if0: 72.101 ms over its budget 49 ms
+BUDGET notice-retried-7.mrpdu.periodic.if0: 72.141 ms over its budget 49 ms
+8 groups graded, 0 refusals, 8 budget misses (8 of 56 probe instances, 1 of 7 paths), 0 of 11667 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CONTROL transmit-aged caught: 8 of 8 group(s) with a timer-driven MRPDU over its bound (notice-retried-0, notice-retried-1, notice-retried-2, notice-retried-3, notice-retried-4, notice-retried-5, notice-retried-6, notice-retried-7), 0 refusal(s)
+END rc=0 2026-11-17T01:12:01
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker-held --variant valid-destinations start 2026-11-16T19:46:17
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 3460 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-16T21:27:41
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker-loss --variant valid-destinations start 2026-11-17T00:15:07
+1 groups graded, 0 refusals, 0 budget misses (0 of 10 probe instances, 0 of 10 paths), 0 of 816 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T00:42:03
+HEAD 46cf2a7db17a4abddfe68d3f64d2517029e173eb DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker --variant valid-destinations start 2026-11-17T00:13:51
+1 groups graded, 0 refusals, 0 budget misses (0 of 9 probe instances, 0 of 9 paths), 0 of 2169 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T01:29:28
+
+RESULT: FAIL
+- notice-retried-0.mrpdu.periodic.if0 (notice-retried-0): 72.150 ms over the ruling's 49 ms
+- notice-retried-1.mrpdu.periodic.if0 (notice-retried-1): 71.895 ms over the ruling's 49 ms
+- notice-retried-2.mrpdu.periodic.if0 (notice-retried-2): 71.870 ms over the ruling's 49 ms
+- notice-retried-3.mrpdu.periodic.if0 (notice-retried-3): 72.413 ms over the ruling's 49 ms
+- notice-retried-4.mrpdu.periodic.if0 (notice-retried-4): 72.534 ms over the ruling's 49 ms
+- notice-retried-5.mrpdu.periodic.if0 (notice-retried-5): 72.323 ms over the ruling's 49 ms
+- notice-retried-6.mrpdu.periodic.if0 (notice-retried-6): 72.101 ms over the ruling's 49 ms
+- notice-retried-7.mrpdu.periodic.if0 (notice-retried-7): 72.141 ms over the ruling's 49 ms
+- the ledger: notice-retried-0.mrpdu.periodic.if0 (notice-retried-0): a new budget miss, 72.14968 ms against its budget 49.0 ms
+- the ledger: notice-retried-1.mrpdu.periodic.if0 (notice-retried-1): a new budget miss, 71.89461 ms against its budget 49.0 ms
+- the ledger: notice-retried-2.mrpdu.periodic.if0 (notice-retried-2): a new budget miss, 71.86993 ms against its budget 49.0 ms
+- the ledger: notice-retried-3.mrpdu.periodic.if0 (notice-retried-3): a new budget miss, 72.41310 ms against its budget 49.0 ms
+- the ledger: notice-retried-4.mrpdu.periodic.if0 (notice-retried-4): a new budget miss, 72.53424 ms against its budget 49.0 ms
+- the ledger: notice-retried-5.mrpdu.periodic.if0 (notice-retried-5): a new budget miss, 72.32281 ms against its budget 49.0 ms
+- the ledger: notice-retried-6.mrpdu.periodic.if0 (notice-retried-6): a new budget miss, 72.10123 ms against its budget 49.0 ms
+- the ledger: notice-retried-7.mrpdu.periodic.if0 (notice-retried-7): a new budget miss, 72.14072 ms against its budget 49.0 ms
+- a join interval outside (181.0, 239.0): 186.895 to 240.166 ms
+- 8 STATED line(s) "a join interval of 240.166 ms (if0 MSRP), outside 181.0 to 239.0 ms"
+- 8 STATED line(s) "the join timer's run-out at 1311.130 ms, its first frame or build 62.176 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 1311.133 ms, its first frame or build 62.173 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 2311.164 ms, its first frame or build 62.647 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 2311.167 ms, its first frame or build 62.644 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 301.014 ms, its first frame or build 57.527 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 301.018 ms, its first frame or build 57.523 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 541.181 ms, its first frame or build 57.526 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 541.185 ms, its first frame or build 57.522 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the join timer's run-out at 781.011 ms, its first frame or build 62.454 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the periodic timer's run-out at 1061.142 ms, its first frame or build 62.340 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the periodic timer's run-out at 1061.179 ms, its first frame or build 62.303 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the periodic timer's run-out at 2061.201 ms, its first frame or build 62.822 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 8 STATED line(s) "the periodic timer's run-out at 2061.237 ms, its first frame or build 62.785 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.025 ms, its first frame or build 71.595 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.030 ms, its first frame or build 71.861 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.037 ms, its first frame or build 71.814 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.061 ms, its first frame or build 71.559 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.065 ms, its first frame or build 71.826 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.073 ms, its first frame or build 71.778 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.075 ms, its first frame or build 72.088 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.081 ms, its first frame or build 71.564 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.096 ms, its first frame or build 71.977 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.111 ms, its first frame or build 72.052 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.117 ms, its first frame or build 71.528 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.132 ms, its first frame or build 71.940 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.165 ms, its first frame or build 72.119 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.168 ms, its first frame or build 71.733 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.201 ms, its first frame or build 72.083 ms after it, past THE TRANSMIT's 49 ms (late)"
+- 1 STATED line(s) "the periodic timer's run-out at 3061.204 ms, its first frame or build 71.697 ms after it, past THE TRANSMIT's 49 ms (late)"
+
+rc=1

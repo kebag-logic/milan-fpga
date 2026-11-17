@@ -1,0 +1,69 @@
+{
+  "firmware-unit": {
+    "steps": 6,
+    "rcs": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ok_lines": 132,
+    "escaped_lines": []
+  },
+  "firmware-control-mutants": {
+    "steps": 3,
+    "rcs": [
+      0,
+      0,
+      0
+    ],
+    "ok_lines": 716,
+    "escaped_lines": []
+  },
+  "firmware-aecp-mutants": {
+    "steps": 3,
+    "rcs": [
+      0,
+      0,
+      0
+    ],
+    "ok_lines": 302,
+    "escaped_lines": []
+  },
+  "firmware-srp-mutants": {
+    "steps": 3,
+    "rcs": [
+      0,
+      0,
+      1
+    ],
+    "ok_lines": 434,
+    "escaped_lines": [
+      "[ESCAPED] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]",
+      "[ESCAPED] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count"
+    ]
+  },
+  "firmware-boundary": {
+    "steps": 3,
+    "rcs": [
+      0,
+      0,
+      0
+    ],
+    "ok_lines": 299,
+    "escaped_lines": []
+  },
+  "firmware-verilator": {
+    "steps": 4,
+    "rcs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "ok_lines": 193,
+    "escaped_lines": []
+  }
+}

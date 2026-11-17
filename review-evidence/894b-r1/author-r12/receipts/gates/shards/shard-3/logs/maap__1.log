@@ -1,0 +1,34 @@
+[ok] clean: rc=0
+[ok] m3_xors_clock: rc=1
+  named rejection: M3 B.3.6.1 first enable seeds MAC plus clock
+[ok] m4_first_offset_raw_seed_bits: rc=1
+  named rejection: M4 B.3.6.1 adjacent MACs claim disjoint first blocks
+[ok] m4_offset_row6_bit_drop: rc=1
+  named rejection: M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8
+[ok] m6_overwrite_active_response: rc=1
+  named rejection: M6 occupied response buffer preserves active DEFEND
+[ok] m6_pending_source_not_saved: rc=1
+  named rejection: M6 pending response preserves prober and requested range
+[ok] m1_probe_no_compare: rc=1
+  named rejection: M1 rProbe/PROBE lower MAC keeps range
+[ok] m7_accept_invalid_seed: rc=1
+  named rejection: M7 Table B.9 invalid supplied range refused
+[ok] m2_own_requested_count: rc=1
+  named rejection: M2 B.3.6.6 requested count echoes all 16 bits
+[ok] every_frame_to_the_prober: rc=1
+  named rejection: B.2.1 PROBE DA multicast (Begin! 1)
+[ok] announce_draw_11_bits: rc=1
+  named rejection: B.3.4.1 announce T < 32 s
+[ok] announce_judged_on_conflict_fields: rc=1
+  named rejection: B.2.7 ANNOUNCE conflict_* is not its range
+[ok] no_compare_mac: rc=1
+  named rejection: T.B7 note d: lower MAC keeps range
+[ok] first_probe_after_a_timer: rc=1
+  named rejection: T.B7 Begin!: first PROBE at once
+[ok] overlap_count_to_our_end: rc=1
+  named rejection: B.2.8 conflict_count = overlap (below)
+[ok] m4_reset_time_sampling: rc=1
+  named rejection: M4 datapath: programmed MAC changes probe intervals
+[ok] m3_datapath_first_offset_ignores_clock: rc=1
+  named rejection: M3 datapath: fixed PHC time pair claims different first offsets
+== maap mutants: checks: 17   failures: 0 ==

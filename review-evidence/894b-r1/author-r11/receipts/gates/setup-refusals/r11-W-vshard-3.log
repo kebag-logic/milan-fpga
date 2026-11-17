@@ -1,0 +1,27 @@
+# shard 3/19 at 05a7ea82fa0625e077959cd1b4eed28a7a05b064, owns: maap__1 aaf_audio_loop chmap_capture chmap_render fw_service_budget gptp_tables lat_history_ring ptp ptp_ts 
+shard: 3/19   selected suites: 9
+FAIL     maap__1
+PASS     aaf_audio_loop
+PASS     chmap_capture
+PASS     chmap_render
+PASS     fw_service_budget
+PASS     gptp_tables
+PASS     lat_history_ring
+PASS     ptp
+PASS     ptp_ts
+----------------------------------------------------------------
+suites: 9   passed: 8   failed: 1   timed out: 0
+checks: 202947   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  maap__1: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: maap__1
+logs: <scratch>/fullR11/vshard-logs-3
+# the clone after: 0 changed path(s); rc=1

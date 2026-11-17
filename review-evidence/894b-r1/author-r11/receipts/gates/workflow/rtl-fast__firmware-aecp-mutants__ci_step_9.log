@@ -1,0 +1,45 @@
+# Original bytes 205603; sha256 0247ff88255a77eeecc01ae97f46add64060138bd3f3c6d1fdb1a2c82fee1559
+# excerpt; raw file exceeds packet size limit
+1: # head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 workflow rtl-fast.yml job firmware-aecp-mutants step ci_step_9: Run the AECP mutation campaign
+2: # clone <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants/wt
+3: # venv <scratch>/gates/venv/bin
+4: # env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+5: PASS: shard inventory rejects planted missing suite
+6: PASS: shard inventory rejects planted duplicate suite
+7: PASS: a newly discovered suite is assigned without an ownership list
+8: PASS: 1537 live invocations in exactly one shard; shard sizes [82, 717, 303, 435]
+9: PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+10: toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+11: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+12: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+13: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+14: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+15: [ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+16: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+17: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+18: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1166: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1167: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1168: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1169: [ok] configuration-streams-never: Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+1170: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1171: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1172: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1173: [ok] configuration-move-unnamed: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+1174: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1175: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1176: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1177: [ok] configuration-move-always-named: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+1178: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1179: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1180: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1181: [ok] configuration-moved-by-its-override: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+1182: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1183: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1184: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1185: [ok] configuration-unpaced: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+1186: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1187: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+1188: wrote <scratch>/fullR11/wf/rtl-fast__firmware-aecp-mutants<tmp>/ctrl-fw-u1j24064/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+1189: [ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+1190: test_ctrl_firmware: PASS

@@ -1,0 +1,12 @@
+# Original bytes 819; sha256 195a8d7f4bf45471fbf01a515a9ca4222c4bcf2b325e68690e4ed7a6f9707368
+# complete normalized text
+# head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 gate shape_costs: python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check --selftest
+the table of shapes: 25 of 25 planted controls refused
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS

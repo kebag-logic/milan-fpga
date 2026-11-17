@@ -1,0 +1,274 @@
+=== milan_datapath NxN integration (N_STREAMS=8, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 19520 bytes, 124 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 7 burst(s), 1007 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [MAPREC] #637: the channel-map records across 8 dynamic output ports --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 0: the mappings are the expected list = 0x1
+  [i]    first boot: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 1: the mappings are the expected list = 0x1
+  [i]    first boot: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 2: the mappings are the expected list = 0x1
+  [i]    first boot: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 3: the mappings are the expected list = 0x1
+  [i]    first boot: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 4: the mappings are the expected list = 0x1
+  [i]    first boot: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 5: the mappings are the expected list = 0x1
+  [i]    first boot: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 6: the mappings are the expected list = 0x1
+  [i]    first boot: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] transfers: port 1 REMOVE s1.c0 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 ADD s1.c0 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 REMOVE s0.c1 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 7 ADD s0.c1 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [i]    transfers, live: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, live: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, live: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] transfers: the restore reached its terminal and the map restore ended = 0x1
+  [i]    transfers: the map restore held the faces 13703 clocks after restore_done, 21790 after PP_CTRL[1]
+  [i]    transfers, after the power cycle: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    transfers, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys across ports: the map restore held the faces 13773 clocks after restore_done, 21860 after PP_CTRL[1]
+  [i]    conflicting keys across ports: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 1: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 2: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 3: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 4: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 5: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 6: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the crossbar RAM routes as the reference = 0x0
+  [i]    conflicting keys across ports: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] refused put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] refused put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    refused put-back: the map restore held the faces 13618 clocks after restore_done, 21705 after PP_CTRL[1]
+  [i]    refused put-back: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 0: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 1: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 2: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 3: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 4: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 5: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 6: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] refused put-back: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] refused put-back: the crossbar RAM routes as the reference = 0x0
+  [i]    refused put-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] refused put-back: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT fail 1      = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x28
+--------------------------------------------------------------
+checks: 219   failures: 0
+RESULT: PASS

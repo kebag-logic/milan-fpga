@@ -1,0 +1,20 @@
+# 8x8/1if's rows by every source and the load at acfa5601's statements (rows_8x8_1if_r8.py): DERIVED, reported, owed to #872
+# 8x8/1if, derived, paced class 685 us (8x8/1if), at {'CTRL_LOOP_SLICE_US': 1475, 'CTRL_LOOP_BUILD_PASS_US': 1795, 'CTRL_LOOP_BUILD_ONE_PASS_US': 1475, 'CTRL_LOOP_SRP_UNIT_US': 365, 'CTRL_LOOP_RETRY_COLD_US': 165, 'CTRL_LOOP_RETRY_ATTEMPT_US': 25, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 68} (shape (1, 9, 9)): slice 1475 us, pace 9 ms, owed slots 16, build 1795 us, build_one 1475 us, item.mrpdu 1475 us, record.aecp 265 us, record.aecp.long 1715 us, item.aecp.long 320 us, notices 40
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 20.96 | 20 | +0.96 | aecp 4.24, timers 3.73, passes 1.74 |
+| R5 | 129.34 | 90 | +39.34 | others 25.29, passes 13.34, srp 11.68 |
+| R6 | 126.84 | 90 | +36.84 | others 25.29, passes 12.76, srp 11.68 |
+| first | 18.75 | 20 | -1.25 | spacing 8.00, others 1.71, slice 1.48 |
+| last | 347.75 | 130 | +217.75 | srp 73.36, others 50.56, passes 40.02 |
+| R4L | 208.27 | 238 | -29.73 | pace 195.00, timers 1.98, aecp 1.72 |
+| ACMP | 49.64 | 30 | +19.64 | own 7.04, timers 7.00, aecp 6.62 |
+| ADP | 49.44 | 30 | +19.44 | others 12.75, aecp 6.62, timers 6.54 |
+| MAAP | 52.53 | 30 | +22.53 | others 14.56, aecp 6.89, timers 6.78 |
+| tx | 69.84 | 49 | +20.84 | others 18.05, passes 8.70, timers 8.39 |
+| txL | 148.97 | 49 | +99.97 | aecp 36.58, others 27.70, item.aecp 19.52 |
+
+Long-window load at the pin: 0.718 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.677 (the ruling holds 0.75); largest terms srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 1.017

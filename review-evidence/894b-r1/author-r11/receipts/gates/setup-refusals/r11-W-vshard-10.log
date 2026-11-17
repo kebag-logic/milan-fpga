@@ -1,0 +1,24 @@
+# shard 10/19 at 05a7ea82fa0625e077959cd1b4eed28a7a05b064, owns: milan_dp__2 crf_tx gptp_txts milan_dp_gm_steps pcmlpf tdm 
+shard: 10/19   selected suites: 6
+FAIL     milan_dp__2
+PASS     crf_tx
+PASS     gptp_txts
+PASS     milan_dp_gm_steps
+PASS     pcmlpf
+PASS     tdm
+----------------------------------------------------------------
+suites: 6   passed: 5   failed: 1   timed out: 0
+checks: 483   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  milan_dp__2: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: milan_dp__2
+logs: <scratch>/fullR11/vshard-logs-10
+# the clone after: 0 changed path(s); rc=1

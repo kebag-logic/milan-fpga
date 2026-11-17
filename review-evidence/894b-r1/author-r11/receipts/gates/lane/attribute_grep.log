@@ -1,0 +1,5 @@
+# Original bytes 303; sha256 378d5aee96c481b2f296f24bade52ca029696b78732ad36087a4efd15ee639c9
+# complete normalized text
+# head 05a7ea82fa0625e077959cd1b4eed28a7a05b064 gate attribute_grep: git grep -n __attribute__ -- sw/firmware/ctrl ':!*/test/*'
+sw/firmware/ctrl/plat/ctrl_cc.h:31:#define CTRL_CC_NOINLINE __attribute__((noinline))
+sw/firmware/ctrl/plat/ctrl_cc.h:32:typedef void *__attribute__((may_alias)) ctrl_cc_ptr;

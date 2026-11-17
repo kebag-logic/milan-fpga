@@ -1,0 +1,6 @@
+clone at 8883d4998496c6d2e234143b43807731e8851b63, 0 changed path(s)
+defect asking-is-ready: srp/srp_mbx.c 'i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||' -> 'i->registered[n] = declaration == MSRP_LISTENER_DECL_ASKING_FAILED || declaration == MSRP_LISTENER_DECL_READY ||'; test RegisteredListenerSubtypeChangeRevokesPermission, words 'adapter.ifs[0].active[0]'
+defect readyfailed-ignored: srp/srp_mbx.c '                               declaration == MSRP_LISTENER_DECL_READY_FAILED;' -> '                               false;'; test ReadyFailedAndUninterestingStreamsAreSeparated, words 'Actual function call count'
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+ALL CAUGHT

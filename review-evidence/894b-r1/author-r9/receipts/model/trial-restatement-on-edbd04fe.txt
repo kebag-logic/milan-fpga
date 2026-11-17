@@ -1,0 +1,126 @@
+# the restatements by the rule srp-talker-held's measurements require (NOT committed; for the ruling): the patch on edbd04fe, then the load gate, the flip check at both points and 8x8/1if's rows by every source at those statements
+```diff
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 9bfd5d5fc7..5ef50df49a 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -337,7 +337,7 @@ extern "C" {
+ #define CTRL_LOOP_SLICE_US 900u
+ #define CTRL_LOOP_BUILD_PASS_US 1010u
+ #define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+-#define CTRL_LOOP_SRP_UNIT_US 280u
++#define CTRL_LOOP_SRP_UNIT_US 290u
+ #define CTRL_LOOP_RETRY_COLD_US 85u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+ #define CTRL_LOOP_QUEUED_MS 140u
+@@ -346,7 +346,7 @@ extern "C" {
+ #define CTRL_LOOP_SLICE_US 1475u
+ #define CTRL_LOOP_BUILD_PASS_US 1795u
+ #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+-#define CTRL_LOOP_SRP_UNIT_US 365u
++#define CTRL_LOOP_SRP_UNIT_US 450u
+ #define CTRL_LOOP_RETRY_COLD_US 165u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+ #define CTRL_LOOP_QUEUED_MS 130u
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index c24ee7aea4..9a0d098b00 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -124,7 +124,7 @@ NEAREST = {'8x8/1if': '8x8/2if'}
+ #: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240); and its MAAP
+ #: record on the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), 16,323 cycles in the
+ #: valid-destinations arm's range lost to a peer's ANNOUNCE, 175 us by the rule, over 8x8/2if's 155 in both columns.
+-OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175}}
++OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175, 'record.srp': 450}}
+ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
+                             'record.maap': (16_323, 'the valid-destinations arm, srp-talker-loss')}}
+ #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
+@@ -181,7 +181,7 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
+ #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
+ #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+ STATED_US = {
+-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 290, 'record.aecp': 235, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60},
+@@ -229,7 +229,7 @@ STATED_US = {
+ #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
+ #: polls' base 325 to 345 (poll_grade.py; #895, reported).
+ STATED_US_DONOR = {
+-    '1x1/1if': {'record.srp': 280, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 290, 'record.aecp': 235, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index a5ecd8c820..8ae1b0306d 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -101,7 +101,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+ #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+ #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=0, acmp=55, aecp=210,
++ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=210,
+            aecp_long=365, acmp_declined=20)
+ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
+            aecp_long=700, acmp_declined=20)
+@@ -115,7 +115,7 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
+ #: the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), over every group of arm A, the
+ #: answering-every-port, valid-destinations and answering-ports arms, the base is 23,756 (save-held and save-starved)
+ #: and ACMP's owed frame 7,450 (backlog-owed), 250 and 80 us by the rule, as #901 found the base grown at 1x1/1if.
+-EIGHT_ONE = dict(base=250, withdraw=110, rebuild=590, walk=55, reclaim=30, retained=345, mrpdu=0, acmp=80, aecp=145,
++EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=35, retained=450, mrpdu=0, acmp=80, aecp=145,
+                  aecp_long=320, acmp_declined=30)
+ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
+              shape_costs.Shape(2, 9, 9): TWO}
+```
+
+## load_grade.py --check
+| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+| 1x1/1if | 0.522 | 0.519 | 0.70, both columns | 1.00x | 260 | srp 0.173, rec.acmp 0.053, ticks 0.049, rec.aecp 0.047, item.aecp 0.046, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.010, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/1if | 0.783 | 0.742 | the flip check, 0.75 at the pin (flip_grade.py) | 1.06x | 320 | srp 0.270, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.036, steps 0.034, timers 0.031, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.adp 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+RESULT: PASS
+
+## flip_grade.py --check --point 8x8/1if
+| 8x8/1if | 0.783 | 0.75 | 1.04x | srp 0.270, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, timers 0.037, item.reclaim 0.036, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+OVER 8x8/1if: the load 0.783 at the pin is over the flip ceiling 0.75
+RESULT: FAIL
+
+## flip_grade.py --check --point 1x1/1if
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+| 1x1/1if | R4 | 13.20 | 20 | -6.80 | 5 | aecp 3.760, timers 1.485, passes 1.300 |
+| 1x1/1if | R5 | 83.69 | 90 | -6.31 | 47 | passes 12.220, others 12.020, item.aecp 9.870 |
+| 1x1/1if | R6 | 79.29 | 90 | -10.71 | 44 | others 11.520, passes 11.440, srp 9.280 |
+| 1x1/1if | first | 14.72 | 20 | -5.28 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 157.09 | 140 | +17.09 | 97 | srp 30.740, passes 25.220, others 16.635 |
+| 1x1/1if | R4L | 203.52 | 238 | -34.48 | 3 | pace 195.000, timers 1.105, item.aecp 1.095 |
+| 1x1/1if | ACMP | 29.58 | 30 | -0.42 | 17 | aecp 4.935, own 4.480, passes 4.420 |
+| 1x1/1if | ADP | 27.81 | 30 | -2.19 | 13 | others 6.915, aecp 4.935, passes 3.380 |
+| 1x1/1if | MAAP | 27.91 | 30 | -2.09 | 13 | others 6.930, aecp 4.935, passes 3.380 |
+| 1x1/1if | tx | 33.95 | 49 | -15.05 | 17 | others 8.350, aecp 5.170, passes 4.420 |
+| 1x1/1if | txL | 48.53 | 49 | -0.47 | 23 | aecp 10.315, others 9.410, item.aecp 8.395 |
+OVER 1x1/1if last: under the tiers (slice 900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 157.09 ms, over its bound 140 ms; the largest term srp 30.74 ms
+OVER 1x1/1if: the last queued notice 157.09 ms, past the amendment's 140 ms: the owner's
+RESULT: FAIL
+
+## 8x8/1if rows by every source (rows_8x8_1if_r8.py)
+| Row | W, ms | Bound, ms | Over by, ms | Largest terms, ms |
+|---|---:|---:|---:|---|
+| R4 | 21.36 | 20 | +1.36 | aecp 4.24, timers 3.73, passes 1.92 |
+| R5 | 143.75 | 90 | +53.75 | others 27.27, passes 15.36, srp 14.40 |
+| R6 | 137.60 | 90 | +47.60 | others 26.41, srp 14.40, passes 14.40 |
+| first | 18.96 | 20 | -1.04 | spacing 8.00, others 1.71, slice 1.48 |
+| last | 507.34 | 130 | +377.34 | srp 126.45, others 69.88, passes 59.52 |
+| R4L | 208.52 | 238 | -29.48 | pace 195.00, timers 1.98, aecp 1.72 |
+| ACMP | 52.73 | 30 | +22.73 | timers 7.24, own 7.04, aecp 6.89 |
+| ADP | 52.61 | 30 | +22.61 | others 13.19, aecp 6.89, timers 6.78 |
+| MAAP | 53.88 | 30 | +23.88 | others 14.56, aecp 6.89, timers 6.78 |
+| tx | 74.23 | 49 | +25.23 | others 18.73, passes 9.92, timers 8.63 |
+| txL | 159.79 | 49 | +110.79 | aecp 38.55, others 28.82, passes 22.72 |
+
+Long-window load at the pin: 0.783 (the ruling holds 0.75); largest terms srp 0.270, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053
+
+Long-window load with tsn-c-stack#32: 0.742 (the ruling holds 0.75); largest terms srp 0.270, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053
+With every AECP command the largest legal one: 1.082

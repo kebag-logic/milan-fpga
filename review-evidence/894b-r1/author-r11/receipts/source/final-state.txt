@@ -1,0 +1,17 @@
+Head: 05a7ea82fa0625e077959cd1b4eed28a7a05b064
+Branch: 894-8x8-1if
+Status (empty means clean):
+
+Commits in round 11:
+05a7ea82fa0625e077959cd1b4eed28a7a05b064 Let the firmware shard inventory's SRP campaign stand-in take the campaign's entity and name its calls by it, so the 8x8/1if Listener copy campaign is one invocation (#930)
+9203d89d6e51c6ce407a869598ebbcf406a169f6 State the Listener copies' measurement at both points in section 13 and FR_NFR 3.4.1, the head's image now theirs (#930, #894)
+7ee9342d3133b2f04ac7fce3d29722301af3f58b Move 8x8/1if's service.aecp.last ledger figure to the rule's 62.16 ms at its measurement with the Listener copies, by #894's ruling of 2026-11-17, stating the three measurements (#930, #894)
+
+Changed paths:
+ docs/design/SPLIT_CONTROL_MEMORY.md                | 29 +++++++++-----
+ docs/reference/FR_NFR.md                           |  6 +--
+ sw/firmware/ctrl/test/test_ctrl_firmware_shards.py |  7 ++--
+ tb/verilator/ctrl_service_budget/egress_ledger.py  | 45 ++++++++++++++--------
+ 4 files changed, 55 insertions(+), 32 deletions(-)
+
+No tracked docs_inventory path: True

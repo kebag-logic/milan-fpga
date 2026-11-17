@@ -1,0 +1,10 @@
+# the merge d1c9023b (a clean clone): every image against dev-soft-core's 70f4056f (a clean clone)
+fixture-1x1-1if: identical (ELF 10684d74b002, loadable a882e429c614), tiles 41.0
+fixture-1x1-2if: identical (ELF 719fc9ee2c60, loadable 8a540e70a56e), tiles 42.5
+fixture-8x8-1if: moved from the start (ELF 31f9d0214835), tiles 55.0
+fixture-8x8-2if: identical (ELF 671123cb682c, loadable a8005c2f9ea8), tiles 59.0
+platform-1x1-1if: identical (ELF fc8105eccb0b, loadable 23b93ddfff8d), tiles 43.0
+platform-1x1-2if: identical (ELF 5633645b8e7c, loadable 43d1c5018528), tiles 44.0
+platform-8x8-1if: moved from the start (ELF bbfb834fd48a), tiles 56.0, at most 56.0
+platform-8x8-2if: identical (ELF 27aaf973f123, loadable 534c6ea1660f), tiles 60.5
+RESULT: PASS: every fixed image identical, platform-8x8-1if within 56.0

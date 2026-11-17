@@ -1,0 +1,54 @@
+# at db6bc954, the tree's graders
+## python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.517 | 0.514 | 0.70, both columns | 1.00x | 260 | srp 0.168, rec.acmp 0.053, ticks 0.049, rec.aecp 0.047, item.aecp 0.046, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.010, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.798 | 0.756 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 385 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.060, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.735 | 0.694 | the flip check, 0.75 at the pin (flip_grade.py) | 1.00x | 320 | srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.031, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.adp 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.517, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.514, its ceiling 0.70
+RESULT: PASS
+rc=0
+## python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.25 | 20 | -6.75 | 5 | aecp 3.760, timers 1.485, passes 1.300 |
+| 1x1/1if | R5 | 75.84 | 90 | -14.16 | 39 | others 11.520, passes 10.140, srp 8.960 |
+| 1x1/1if | R6 | 73.36 | 90 | -16.64 | 37 | others 11.240, passes 9.620, srp 8.960 |
+| 1x1/1if | first | 14.72 | 20 | -5.28 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 136.65 | 140 | -3.35 | 71 | srp 26.880, passes 18.460, others 15.190 |
+| 1x1/1if | R4L | 203.57 | 238 | -34.43 | 3 | pace 195.000, timers 1.105, item.aecp 1.095 |
+| 1x1/1if | ACMP | 29.63 | 30 | -0.37 | 17 | aecp 4.935, own 4.480, passes 4.420 |
+| 1x1/1if | ADP | 27.86 | 30 | -2.14 | 13 | others 6.915, aecp 4.935, passes 3.380 |
+| 1x1/1if | MAAP | 27.96 | 30 | -2.04 | 13 | others 6.930, aecp 4.935, passes 3.380 |
+| 1x1/1if | tx | 34.00 | 49 | -15.00 | 17 | others 8.350, aecp 5.170, passes 4.420 |
+| 1x1/1if | txL | 48.58 | 49 | -0.42 | 23 | aecp 10.315, others 9.410, item.aecp 8.395 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+## python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/1if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.735 | 0.75 | 1.00x | srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+RESULT: PASS
+rc=0
