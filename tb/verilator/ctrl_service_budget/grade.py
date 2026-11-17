@@ -217,8 +217,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
                 log.records.append((cycle, words))
         elif kind == 'TXC':
             commits.append((int(rest[0]), int(rest[1]), int(rest[2])))
-        elif kind == 'WIRE':
-            # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
+        elif kind == 'WIRE':  # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
             log.wire.append((int(rest[0]), int(rest[2]), int(rest[1]), bytes.fromhex(rest[3])))
         elif kind == 'PASS':
             index, start_sys, start_cpu, cycles = (int(v) for v in rest[:4])

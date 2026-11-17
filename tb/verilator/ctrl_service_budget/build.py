@@ -387,13 +387,11 @@ def flash_map(generated: Path, shape: str) -> Path:
     return generated
 
 
-#: The labelled hybrid-XIP arm (#665, decision D3): the anchor in plat/ctrl_split.ld that
-#: places all code in rom, and what replaces it. Every other function executes from the QSPI
-#: flash window behind the instruction cache. rom keeps the reset entry, the saved-state flash
-#: driver (nvm_flash_litespi.c), .rodata and the initial values of .data, which the core reads
-#: through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching
-#: from the flash cannot also hold the flash's command master, so the driver's own fetches would
-#: wait behind its chip select.
+#: The labelled hybrid-XIP arm (#665, decision D3): the anchor in plat/ctrl_split.ld that places all code in rom, and
+#: what replaces it. Every other function executes from the QSPI flash window behind the instruction cache. rom keeps
+#: the reset entry, the saved-state flash driver (nvm_flash_litespi.c), .rodata and the initial values of .data, which
+#: the core reads through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching from the
+#: flash cannot also hold the flash's command master, so the driver's own fetches would wait behind its chip select.
 XIP_TEXT = ('\t.text :\n\t{\n\t\tKEEP(*(.text.start))\n',
             '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
             '\t.text : ALIGN(4)\n\t{\n')
@@ -637,10 +635,9 @@ STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 #: first and last firmware poll and the polls' heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
 SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS,
                 *poll_items.PART_SPANS)
-#: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
-#: static function) pair: the state port's owners as the boot walks apply and the write path
-#: latches, the flash port's calls, a round's attempts and the notices it builds (#665), and the
-#: cuts of a pass into its parts (poll_items.PART_CALLS).
+#: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module, static function) pair:
+#: the state port's owners as the boot walks apply and the write path latches, the flash port's calls, a round's
+#: attempts and the notices it builds (#665), and the cuts of a pass into its parts (poll_items.PART_CALLS).
 CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_restore', 'aecp_map_restore',
                 'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
                 'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
@@ -874,10 +871,9 @@ class Core:
     cpu_cd: str | None = None
 
 
-#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30;
-#: milan_soc.CTRL_CPU_CD): the SoC's sys clock, the bus clock. A build whose CPU runs in any other
-#: domain, the Milan clock among them, or records none (a build made before the CPU moved), is
-#: refused, whether it is built or reused.
+#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30; milan_soc.CTRL_CPU_CD): the
+#: SoC's sys clock, the bus clock. A build whose CPU runs in any other domain, the Milan clock among them, or records
+#: none (a build made before the CPU moved), is refused, whether it is built or reused.
 SPLIT_CPU_CD = 'sys'
 
 
