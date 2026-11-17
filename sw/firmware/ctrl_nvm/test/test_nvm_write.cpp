@@ -155,7 +155,7 @@ TEST_P(NvmBoth, debounce) {
 // #920 (#665, the ruling of issuecomment-6899740728, item 1): a change marked
 // during a running capture joins it. One to a record no capture holds, marked
 // once the capture has passed it, has the capture walk again for it, so one
-// save holds every change; in that walk a record no capture holds still joins.
+// save holds every change; the walk again also takes a new record ahead of it.
 // A change to a record the capture has taken is the next save's, on the first
 // walk once the cursor has passed it or reached the end and on any later walk,
 // and so is one after a failed attempt's capture took it; the next save starts
@@ -188,7 +188,7 @@ TEST_P(NvmBoth, capture_joins) {
         {"a record the capture took, the cursor at the end, is the next save's",
          concat(start, {"--service", "2", "--set", set_word(b, value(b, 2))}), 2,
          {{a, value(a, 1)}, {b, value(b, 2)}}},
-        {"on the walk again a record no capture holds joins, one the capture took is the next save's",
+        {"the walk again takes a new record ahead of the cursor, one the capture took is the next save's",
          concat(start, {"--service", "1", "--set", set_word(behind, value(behind, 1)), "--service", "3", "--set",
                         set_word(ahead, value(ahead, 1)), "--set", set_word(a, value(a, 3)), "--set",
                         set_word(b, value(b, 3))}),
@@ -228,6 +228,46 @@ TEST_P(NvmBoth, capture_joins) {
         << r.text();
     restored(f, {{a, value(a, 4)}, {b, value(b, 4)}, {behind, value(behind, 4)}},
              "records in flight a retry's cursor has yet to reach");
+}
+
+// #920, DR2a: after the immediate save of a change left in flight, a later
+// first change must get its full first-dirty window again.
+TEST_P(NvmBoth, first_change_after_flight) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const auto [last, payload] = one_change(1);
+    const unsigned first = rids().front();
+    const Result r = go(port(), f,
+                       {"--slot-b", "g.bin", "--boot", "--set", set_word(last, payload), "--until-phase",
+                        num(NVM_P_SEAL), "--set", set_word(first, value(first, 9)), "--until-idle", "--run-ms",
+                        "5000", "--mark", "--set", set_word(first, value(first, 10)), "--until-idle"});
+    EXPECT_TRUE(r.at("ok") == 3 && r.erases.size() == 3u &&
+                in(after_mark(r, 2), 1000 * kMs, 1050 * kMs))
+        << "first change after an immediate save must wait its full first-dirty window: erase "
+        << after_mark(r, 2) << " us after it, want 1,000 to 1,050 ms: " << r.text();
+}
+
+// #920, DR2c: a capture that walked again must not leave a later retry
+// treating its first walk as a rewind. A record already in flight, changed
+// in the failed attempt's backoff, must be captured and survive a power cut.
+TEST_P(NvmBoth, retry_after_rewind) {
+    const std::vector<unsigned> ids = rids();
+    const unsigned behind = ids[0], a = ids[1], b = ids.back();
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const Result r = go(port(), f,
+                       {"--slot-b", "g.bin", "--boot", "--set", set_word(a, value(a, 1)), "--set",
+                        set_word(b, value(b, 1)), "--until-phase", num(NVM_P_CAPTURE), "--service", "1", "--set",
+                        set_word(behind, value(behind, 1)), "--until-idle", "--run-ms", "5000", "--fault",
+                        "program-drop:1", "--set", set_word(a, value(a, 5)), "--until-phase", num(NVM_P_ERASE_WAIT),
+                        "--until-phase", num(NVM_P_IDLE), "--set", set_word(a, value(a, 6)), "--until-idle",
+                        "--run-ms", "5000", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 1 && r.at("attempts") == 0 &&
+                r.at("dirty") == 0 && r.at("pending") == 0)
+        << "retry after a rewind must capture the backoff change: " << r.text();
+    const Result boot = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
+    EXPECT_TRUE(boot.at("auth") >= 0) << "retry after a rewind must boot a verified slot: " << boot.text();
+    expect_state(f, "st", with(fx().payloads("golden"),
+                              {{a, value(a, 6)}, {b, value(b, 1)}, {behind, value(behind, 1)}}),
+                 "retry after a rewind must restore the backoff change");
 }
 
 // #920: while a save is in flight, every pass THE STEP is called in takes a

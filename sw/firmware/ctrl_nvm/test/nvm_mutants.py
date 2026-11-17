@@ -369,6 +369,11 @@ MUTANTS = (
     _m("taken_after_last_latch", STORE, "(!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id)",
        "(!nvm.rewound && id >= nvm.cursor.id)", "capture_joins"),
     # ---- #920: the capture's join, the next save, a step a pass ----
+    # the immediate-save flag survives its capture, shortening a later first-dirty window
+    _m("next_now_not_reset", STORE, "\tnvm.next_now = 0;\n\tnvm.st.phase = NVM_P_CAPTURE;",
+       "\tnvm.st.phase = NVM_P_CAPTURE;", "first_change_after_flight"),
+    # a prior rewind survives into a retry, which skips an in-flight record changed in backoff
+    _m("rewound_not_reset", STORE, "\tnvm.rewound = 0;\n", "", "retry_after_rewind"),
     # a change behind the cursor to a record no capture holds left out of the capture, with no window
     _m("join_never_walks_again", STORE, "\t\tif (nvm_joined_behind()) {", "\t\tif (0) {",
        "capture_joins", "capture_window_edges"),
