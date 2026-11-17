@@ -1,0 +1,82 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+Note: Google Test filter = Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Nvm
+[ RUN      ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:361: Failure
+Expected equality of these values:
+  delivered
+    Which is: 34
+  39u
+    Which is: 39
+every name's mark reaches the store, once
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: every name's mark reaches the store, once
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:362: Failure
+Expected equality of these values:
+  nvm_store_status()->n_dirty
+    Which is: 34
+  39u
+    Which is: 39
+the store holds every name dirty
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: the store holds every name dirty
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:368: Failure
+Expected equality of these values:
+  latch(NVM_G_NAME,k,64)
+    Which is: { 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'R' (82, 0x52), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  value(k)
+    Which is: { 'n' (110, 0x6E), 'I' (73, 0x49), '1' (49, 0x31), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+name 34 (descriptor 20 22) survives the power cycle
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: name 34 (descriptor 20 22) survives the power cycle
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:368: Failure
+Expected equality of these values:
+  latch(NVM_G_NAME,k,64)
+    Which is: { 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'L' (76, 0x4C), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  value(k)
+    Which is: { 'n' (110, 0x6E), 'J' (74, 0x4A), '1' (49, 0x31), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+name 35 (descriptor 20 23) survives the power cycle
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: name 35 (descriptor 20 23) survives the power cycle
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:368: Failure
+Expected equality of these values:
+  latch(NVM_G_NAME,k,64)
+    Which is: { 'L' (76, 0x4C), 'o' (111, 0x6F), 'o' (111, 0x6F), 'p' (112, 0x70), 'b' (98, 0x62), 'a' (97, 0x61), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'S' (83, 0x53), '0' (48, 0x30), ' ' (32, 0x20), 'S' (83, 0x53), 'R' (82, 0x52), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  value(k)
+    Which is: { 'n' (110, 0x6E), 'K' (75, 0x4B), '1' (49, 0x31), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+name 36 (descriptor 20 24) survives the power cycle
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: name 36 (descriptor 20 24) survives the power cycle
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:368: Failure
+Expected equality of these values:
+  latch(NVM_G_NAME,k,64)
+    Which is: { 'I' (73, 0x49), 'd' (100, 0x64), 'e' (101, 0x65), 'n' (110, 0x6E), 't' (116, 0x74), 'i' (105, 0x69), 'f' (102, 0x66), 'y' (121, 0x79), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  value(k)
+    Which is: { 'n' (110, 0x6E), 'L' (76, 0x4C), '1' (49, 0x31), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+name 37 (descriptor 26 0) survives the power cycle
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: name 37 (descriptor 26 0) survives the power cycle
+<packet>/scratch/cause/tree-659d7687/sw/firmware/ctrl/test/test_aecp.cpp:368: Failure
+Expected equality of these values:
+  latch(NVM_G_NAME,k,64)
+    Which is: { 'C' (67, 0x43), 'l' (108, 0x6C), 'o' (111, 0x6F), 'c' (99, 0x63), 'k' (107, 0x6B), ' ' (32, 0x20), 'R' (82, 0x52), 'e' (101, 0x65), 'f' (102, 0x66), 'e' (101, 0x65), 'r' (114, 0x72), 'e' (101, 0x65), 'n' (110, 0x6E), 'c' (99, 0x63), 'e' (101, 0x65), ' ' (32, 0x20), 'F' (70, 0x46), 'o' (111, 0x6F), 'r' (114, 0x72), 'm' (109, 0x6D), 'a' (97, 0x61), 't' (116, 0x74), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  value(k)
+    Which is: { 'n' (110, 0x6E), 'M' (77, 0x4D), '1' (49, 0x31), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+name 38 (descriptor 36 0) survives the power cycle
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: name 38 (descriptor 36 0) survives the power cycle
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle (2 ms)
+[----------] 1 test from Nvm (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

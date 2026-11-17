@@ -1,0 +1,106 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 106   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (106 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  longest service call, model time: 167 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, layout 3 NAME capacity (endstation_ax7101_1x1_tdm8): checks: 6   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+  == NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  over capacity: 908 names refused at compile time ('the names outgrow their id block')
+  over width: MILAN_NVM3_MAPIN_ENTRIES_0 = 256 refused at compile time ("an input map's entries outgrow the codec's byte table")
+  over width: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused at compile time ("an output map's entries outgrow the codec's 16-bit table")
+  at width: MILAN_NVM3_MAPIN_ENTRIES_0 = 255, its table's limit, compiles
+  doctored build outside the host test: refused at compile time ("NVM_DOCTORED_MAPIN builds only under the host test's shape header")
+  rv32 at 100000000 Hz: text=13864 data=24 bss=4430 stage=3454 payload=136 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+  self-test OK: name_assert_removed        caught by over_capacity
+  over width: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused at compile time ("an output map's entries outgrow the codec's 16-bit table")
+  self-test OK: mapin_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPIN_ENTRIES_0 = 256, past its table's width, compiled
+  over width: MILAN_NVM3_MAPIN_ENTRIES_0 = 256 refused at compile time ("an input map's entries outgrow the codec's byte table")
+  self-test OK: mapout_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused for another reason: rror: comparison is always false due to limite
+  self-test OK: mapin_limit_one_early      caught by at_width
+  self-test OK: doctored_error_removed     caught by doctored_outside
+FINDING: self-test: no defect names the test apply_fault_rolls_back
+FINDING: self-test: no defect names the test authority_unknown
+FINDING: self-test: no defect names the test binding_walk
+FINDING: self-test: no defect names the test blank_boot
+FINDING: self-test: no defect names the test blankcheck_tail
+FINDING: self-test: no defect names the test both_torn_blank
+FINDING: self-test: no defect names the test capacity_commit_over_stale
+FINDING: self-test: no defect names the test capacity_round_trip
+FINDING: self-test: no defect names the test codec_erased_loaded_prefix
+FINDING: self-test: no defect names the test codec_ids_without_the_walk
+FINDING: self-test: no defect names the test codec_loaded_prefix
+FINDING: self-test: no defect names the test codec_lookups
+FINDING: self-test: no defect names the test codec_parity
+FINDING: self-test: no defect names the test codec_room
+FINDING: self-test: no defect names the test console_commit_unchanged
+FINDING: self-test: no defect names the test erased_records
+FINDING: self-test: no defect names the test fallback_restage
+FINDING: self-test: no defect names the test first_commit_no_blank_slot
+FINDING: self-test: no defect names the test golden_restore
+FINDING: self-test: no defect names the test klj2_in_slot_refused
+FINDING: self-test: no defect names the test klj2_journal_at_its_flash_map_address
+FINDING: self-test: no defect names the test klj2_journal_refused
+FINDING: self-test: no defect names the test klj2_journal_unreadable
+FINDING: self-test: no defect names the test legacy_other_format_not_recorded
+FINDING: self-test: no defect names the test long_container_reads
+FINDING: self-test: no defect names the test media_verdicts
+FINDING: self-test: no defect names the test model_unproven_closes
+FINDING: self-test: no defect names the test name_block_ends
+FINDING: self-test: no defect names the test newer_wins
+FINDING: self-test: no defect names the test one_past_refused
+FINDING: self-test: no defect names the test own_refusal_kept_over_legacy
+FINDING: self-test: no defect names the test port_clock
+FINDING: self-test: no defect names the test port_deadline
+FINDING: self-test: no defect names the test port_drain_deadline
+FINDING: self-test: no defect names the test port_guard
+FINDING: self-test: no defect names the test port_read_range
+FINDING: self-test: no defect names the test port_stall
+FINDING: self-test: no defect names the test port_write_refusals
+FINDING: self-test: no defect names the test read_alias_at_stage
+FINDING: self-test: no defect names the test read_disagreement
+FINDING: self-test: no defect names the test read_fail_boot
+FINDING: self-test: no defect names the test read_flip_at_stage
+FINDING: self-test: no defect names the test read_flip_boot
+FINDING: self-test: no defect names the test reads_agree_in_digest_not_length
+FINDING: self-test: no defect names the test reads_differ_in_verdict
+FINDING: self-test: no defect names the test refused_keeps_default
+FINDING: self-test: no defect names the test refused_slot_kept
+FINDING: self-test: no defect names the test rollback_fault_closes
+FINDING: self-test: no defect names the test settle_after_the_last_record
+FINDING: self-test: no defect names the test settle_fault_rolls_back
+FINDING: self-test: no defect names the test shape_mismatch_disables_persistence
+FINDING: self-test: no defect names the test time_base
+FINDING: self-test: no defect names the test torn_falls_back
+FINDING: self-test: no defect names the test vector_round_trip
+FINDING: self-test: no defect names the test verdict_parity
+FINDING: self-test: no defect names the test verify_tail
+FINDING: self-test: no defect names the test wrong_version_falls_back
+FINDING: self-test: probe_next_now_kept at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, capture_joins, busy_steps, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
+FINDING: self-test: probe_rewound_kept at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, capture_joins, busy_steps, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
+FINDING: self-test: probe_joined_behind_any_dirty at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, busy_steps, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id
+FINDING: self-test: probe_busy_ignores_room at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, capture_joins, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
+FINDING: self-test: probe_verify_not_in_flight at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, capture_joins, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
+FINDING: self-test: probe_rewound_walk_refuses_join at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, debounce, capture_joins, busy_steps, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
+FINDING: self-test: probe_join_also_flags_next at endstation_ax7101_1x1_tdm8 was NOT caught by first_commit_bytes, change_commit_bytes, busy_steps, open_count, unchanged_no_erase, failed_commit_not_skipped, media_failures, recovers_after_failure, dr2c_unchanged_set, dr2c_console, service_bound, step_room, powercut, nothing_to_save, change_unknown_record, change_by_record_id, capture_window_edges
