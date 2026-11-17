@@ -1,0 +1,44 @@
+git show 0fdfdba7 (round 4's one commit on 5f625090)
+commit 0fdfdba721 State the platform entry at 61.0 refused at 61.5 and the planted ledgers at 61.5 and 61.0, and name the hybrid XIP work for the debt in the ledger's comment (#925)
+
+ docs/design/SPLIT_CONTROL_MEMORY.md | 6 +++---
+ sw/litex/ctrl_memory.py             | 3 ++-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 91122c27da..ccfe8103ef 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -142,7 +142,7 @@ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision o
+ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+-The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
++Until #925 the caps were 59.0 for the size fixture's point and 60.5 for the platform's, which their entries held, each image refused half a tile past its entry, at 59.5 and 61.0. Since the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the caps are no longer stop conditions for the flip lanes: an image past its entry raises it to its measured size at the next half tile. The entries now stand at 59.0 for the size fixture's point and 61.0 for the platform's (below), each image refused half a tile past its entry, at 59.5 and 61.5.
+ SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
+ Each binding's latest Talker kind (#925, `srp_mbx.h`'s `latest_kind`) adds 64 B at 8x8 with two interfaces, 20,416 B, its `sram` 114,288 B and its plan still 60.5 RAMB36, and none at the other three, where it takes the padding (`plat_ledger.py` at #925's head: 17,536, 19,072, 18,240 and 20,416 B; `rom` 88 B more at 1x1 and 32 B more at 8x8, the 8x8 one-interface image's plan still 56.0).
+ The StreamIDs held with their latest Talker kind (#925, `srp_mbx.h`'s `srp_held`: half the SRP pool's medium and large blocks, 16, 32, 40 and 81 entries of 10 B) add 192, 320, 384 and 832 B: 17,728, 19,392, 18,624 and 21,248 B. At 8x8 with two interfaces the image's `sram` is then 115,120 B, 432 B past 56 granules, so it plans 61.0 RAMB36, and its entry is 61.0 by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745): an image past its entry raises it to its measured size, at the next half tile, as debt owed to S14. With the receive filter's hold of a changed declaration, `rom` is 552 B more at 1x1 and 520 B more at 8x8 (`plat_ledger.py` at #925's round-3 head: 118,128, 119,712, 130,752 and 132,304 B); the other three points plan 43.0, 44.0 and 56.0 as before, the 8x8 one-interface image with 320 B of `rom` before its next granule.
+@@ -170,8 +170,8 @@ It requires `budget` to refuse that image in three cases: without the override,
+ It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
+ An override name the ledger does not hold is refused by `budget` too.
+ Six planted ledgers each widen one entry to another point or image, or past its tiles.
+-The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.0.
+-The fixture's loses `image_allocation`, or plans the platform's 60.5.
++The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.5.
++The fixture's loses `image_allocation`, or plans the platform's 61.0.
+ Each must turn the test red with the ledger's own entries, which the test pins, set aside.
+ It also requires this table to equal `ctrl_memory.RULES`.
+ For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index ead4b5d76e..1f9d5df8bc 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -247,7 +247,8 @@ class Ledgered:
+ #: and the platform's at 61.5, its entry at 61.0: 60.5, the owner's decision's cap of 2026-11-12 (#665), which #895's
+ #: ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of
+ #: 2026-11-12 ledgered the size fixture's at its cap, then 61.0 by the owner's decision of 2026-11-15 (#665: an image
+-#: past its entry raises it to its measured size, at the next half tile, as debt owed to S14). The
++#: past its entry raises it to its measured size, at the next half tile, as debt owed to the hybrid XIP work (#665
++#: decision D3)). The
+ #: platform's image is linked at every point with the override its point takes, against this ledger, by
+ #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+ #: where it happens.

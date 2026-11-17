@@ -1,0 +1,43 @@
+round 4 image identity
+Every image of round 3's head 5f625090 and round 4's 0fdfdba7, each built on its own clean clone (own unit):
+plat_ledger.py (the four platform images and both shapes' split-SoC stand-in and mapped images) and the release recipe at both configs.
+
+Images (sha256, 16) | 5f625090 | 0fdfdba7 | same
+ledger/1x1-if1/ctrl_app.elf | d122328c295efc50 | d122328c295efc50 | yes
+ledger/1x1-if1/nvm-shape/builder/endstation_ax7101_1x1_tdm8.img.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/1x1-if2/ctrl_app.elf | 1d22a559c451a90d | 1d22a559c451a90d | yes
+ledger/1x1-if2/nvm-shape/builder/endstation_ax7101_1x1_tdm8.img.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/8x8-if1/ctrl_app.elf | 7f92470f48dbbd9a | 7f92470f48dbbd9a | yes
+ledger/8x8-if1/nvm-shape/builder/endstation_ax7101_8x8.img.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+ledger/8x8-if2/ctrl_app.elf | 7710b8fff3893807 | 7710b8fff3893807 | yes
+ledger/8x8-if2/nvm-shape/builder/endstation_ax7101_8x8.img.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf | b43f2fe8b1ac0cda | b43f2fe8b1ac0cda | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/nvm-shape/builder/endstation_ax7101_1x1_tdm8.img.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/aem_desc.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image/ctrl_app.elf | eddacf82c7ca7f21 | eddacf82c7ca7f21 | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image/nvm-shape/builder/endstation_ax7101_1x1_tdm8.img.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/soc/aem_desc.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+ledger/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf | 5a4b4d38b43a186d | 5a4b4d38b43a186d | yes
+ledger/endstation_ax7101_8x8/split-soc/mapped/image/nvm-shape/builder/endstation_ax7101_8x8.img.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+ledger/endstation_ax7101_8x8/split-soc/mapped/soc/aem_desc.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+ledger/endstation_ax7101_8x8/split-soc/stand-ins/image/ctrl_app.elf | e1df920d0d8aa02d | e1df920d0d8aa02d | yes
+ledger/endstation_ax7101_8x8/split-soc/stand-ins/image/nvm-shape/builder/endstation_ax7101_8x8.img.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+ledger/endstation_ax7101_8x8/split-soc/stand-ins/soc/aem_desc.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+release/endstation_ax7101_1x1_tdm8/aem_desc.bin | 4fc8d61582a965fe | 4fc8d61582a965fe | yes
+release/endstation_ax7101_1x1_tdm8/software/bios/bios.bin | 860d4771decf5b92 | 860d4771decf5b92 | yes
+release/endstation_ax7101_8x8/aem_desc.bin | d8296833b03fe124 | d8296833b03fe124 | yes
+release/endstation_ax7101_8x8/software/bios/bios.bin | d8851b6d470e811c | d8851b6d470e811c | yes
+
+release endstation_ax7101_1x1_tdm8 bios.elf with debug sections stripped: identical; bios.elf disassembly: identical
+release endstation_ax7101_8x8 bios.elf with debug sections stripped: identical; bios.elf disassembly: identical
+
+Not images and different by build path alone: the static archives (.a) and the unstripped bios.elf carry the clone's directory name in their debug and archive data (38 files).
+
+0fdfdba7 POINT 1x1-if1: rom 118,128 B, sram 56,416 B, 43 RAMB36 (the 56-RAMB36 budget), ctrl_plat 17728 B: PASS
+0fdfdba7 POINT 1x1-if2: rom 119,712 B, sram 58,720 B, 44 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19392 B: PASS
+0fdfdba7 POINT 8x8-if1: rom 130,752 B, sram 97,712 B, 56 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18624 B: PASS
+0fdfdba7 POINT 8x8-if2: rom 132,304 B, sram 115,120 B, 61 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21248 B: PASS
+0fdfdba7 plat_ledger: PASS (0 finding(s))
+      2 done
+      2 plat_ledger rc=0
+      2 release rc=0
