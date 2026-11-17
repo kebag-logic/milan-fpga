@@ -1,0 +1,9 @@
+docs_check.py (docs.yml gate_7) on the clean probe clone at e2be92b0:
+rc=0
+docs_check: 0 finding(s) across 222 md files + 1875 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+check_doc_style.py (docs.yml gate_9 first command):
+rc=0
+documentation style: OK (25 current documents)
+
+check_em_dash.py --base 6ceed753 / 659d7687 (docs.yml gate_8): NOT RUN, rc 2 'cannot judge: the pinned Markdown renderer is not installed (html5lib)'; no shared install was made. Substitute: added lines of git diff 6ceed753..e2be92b0 containing U+2014: 0

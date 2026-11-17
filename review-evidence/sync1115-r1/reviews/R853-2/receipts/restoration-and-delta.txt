@@ -1,0 +1,43 @@
+review clone $REVIEWS/r853-2-sync1115 after the review (no probe ran in it):
+HEAD e2be92b0e0f9a8f0529dea252f23ed44a21e050a tree 54c1e870df27971db88de7ad664a0078ca2cf9cf write-tree 54c1e870df27971db88de7ad664a0078ca2cf9cf
+porcelain (submodules included): 0 lines
+index (mode blob stage path) sha256: af809b92eefc8e178d64305ef376480c669568238cf1fbc2f43e67d14f3e62f0
+HEAD tree as index sha256:          af809b92eefc8e178d64305ef376480c669568238cf1fbc2f43e67d14f3e62f0
+gitlinks at HEAD and checked-out submodule commits:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+delta 6ceed753..e2be92b0 paths:
+docs/reference/FR_NFR.md
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/build.py
+tb/verilator/ctrl_service_budget/grade.py
+tb/verilator/ctrl_service_budget/join_grade.py
+tb/verilator/ctrl_service_budget/mrpdu_grade.py
+tb/verilator/ctrl_service_budget/observe.vlt
+tb/verilator/ctrl_service_budget/observers.py
+tb/verilator/ctrl_service_budget/run.py
+tb/verilator/ctrl_service_budget/selftest_leaveall.py
+tb/verilator/ctrl_service_budget/selftest_mutants.py
+tb/verilator/ctrl_service_budget/selftest_notice.py
+tb/verilator/ctrl_service_budget/selftest_polls.py
+tb/verilator/ctrl_service_budget/sim_main.cpp
+paths changed after c10c549e (the testbench simulated for the re-run legs is unchanged):
+docs/reference/FR_NFR.md
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/join_grade.py
+tb/verilator/ctrl_service_budget/mrpdu_grade.py
+tb/verilator/ctrl_service_budget/run.py
+tb/verilator/ctrl_service_budget/selftest_leaveall.py
+tb/verilator/ctrl_service_budget/selftest_mutants.py
+tb/verilator/ctrl_service_budget/selftest_notice.py
+tb/verilator/ctrl_service_budget/selftest_polls.py

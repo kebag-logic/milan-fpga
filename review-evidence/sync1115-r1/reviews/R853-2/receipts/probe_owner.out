@@ -1,0 +1,19 @@
+OK A-true-owners: leave_all={'sent': 2} runs={'released': 2} expect: sent 2
+OK A-swapped-owners: leave_all={'late': 1, 'absent': 1} runs={'released': 2} expect: both fail (owner's LeaveAll 400 ms away)
+    STATED A-swapped-owners: the LeaveAll timer's run-out at 1050.001 ms (if0 MVRP): its LeaveAll at 1451.000 ms, 261.000 ms after its first transmit opportunity at 1190.000 ms, past THE TRANSMIT's 49 ms (LeaveAll late)
+    STATED A-swapped-owners: the LeaveAll timer's run-out at 1450.001 ms (if0 MSRP): no MRPDU of its owner after it though the log runs on past its first transmit opportunity at 1450.001 ms and THE TRANSMIT's bound (LeaveAll absent)
+OK B-other-interface-answers: leave_all={'absent': 1} runs={'released': 1} expect: absent for if1 MSRP
+    STATED B-other-interface-answers: the LeaveAll timer's run-out at 1050.001 ms (if1 MSRP): no MRPDU of its owner after it though the log runs on past its first transmit opportunity at 1180.000 ms and THE TRANSMIT's bound (LeaveAll absent)
+OK C-silent-owner: leave_all={'absent': 1} runs={'released': 1} expect: absent for if0 MVRP
+    STATED C-silent-owner: the LeaveAll timer's run-out at 1050.001 ms (if0 MVRP): no MRPDU of its owner after it though the log runs on past its first transmit opportunity at 1050.001 ms and THE TRANSMIT's bound (LeaveAll absent)
+OK D-double-expiry-one-LeaveAll: leave_all={'sent': 2} runs={'released': 3} expect: informative: sent 2
+OK E-empty-build-other-participant-running: leave_all={} runs={'late': 1} expect: late (MVRP's own opportunity is its run-out)
+    STATED E-empty-build-other-participant-running: the periodic timer's run-out at 1300.001 ms, its first frame or build 159.979 ms after its participant's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms (late)
+OK F-empty-build-own-running: leave_all={} runs={'empty': 1} expect: empty, no failure
+OK G-join-unresolved: leave_all={} runs={'unowned': 1} expect: unowned, named
+    STATED G-join-unresolved: the join timer's run-out at 1190.001 ms, its owner recorded unresolved at the expiry (owner unresolved)
+OK H-mixed-owned-unowned: leave_all={'sent': 1, 'unowned': 1} runs={'released': 1, 'unowned': 1} expect: sent 1, unowned 1
+    STATED H-mixed-owned-unowned: the leaveall timer's run-out at 1450.001 ms, no owner recorded at the expiry (owner unresolved)
+    STATED H-mixed-owned-unowned: the LeaveAll timer's run-out at 1450.001 ms, no owner recorded at the expiry (LeaveAll owner unresolved)
+probe: 0 unexpected
+rc=0
