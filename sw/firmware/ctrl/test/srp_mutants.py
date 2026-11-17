@@ -90,11 +90,13 @@ DEFECTS = (
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #930: a Listener's declaration is copied by its indication (listener), no longer by the registrar walk.
     Defect(
         name='asking-is-ready',
         test='RegisteredListenerSubtypeChangeRevokesPermission',
-        old='v[8] == 2 || v[8] == 3',
-        new='v[8] == 1 || v[8] == 2 || v[8] == 3',
+        old='i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||',
+        new=('i->registered[n] = declaration == MSRP_LISTENER_DECL_ASKING_FAILED || '
+             'declaration == MSRP_LISTENER_DECL_READY ||'),
         needle='adapter.ifs[0].active[0]',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -220,11 +222,12 @@ DEFECTS = (
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #930: as asking-is-ready, at the Listener's indication.
     Defect(
         name='readyfailed-ignored',
         test='ReadyFailedAndUninterestingStreamsAreSeparated',
-        old='v[8] == 2 || v[8] == 3',
-        new='v[8] == 2',
+        old='                               declaration == MSRP_LISTENER_DECL_READY_FAILED;',
+        new='                               false;',
         needle='Actual function call count',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
