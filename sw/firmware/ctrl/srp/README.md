@@ -318,6 +318,12 @@ python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
 ```
 
 The gate requires the exact lwSRP gitlink and compiled source bytes.
+`srp_mbx.cpp` runs at the 1x1 and the 8x8 entity, each at one and two
+interfaces (#929). Its startup test holds every source of the compiled shape
+to its own declaration, Talker Advertise for the allocated one and Talker
+Failed, code 2, for each other. Its dispatch test gives its two adapters two
+of the shape's pools. The two-interface campaign plants three defects at the
+8x8 entity that its two-source 1x1 shape cannot catch.
 The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
 `-march=rv32i -mabi=ilp32`, as required by #679. The split image
 (`ctrl_srp_image.py --layout split`) uses `-march=rv32im`, the split hart's

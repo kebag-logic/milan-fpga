@@ -313,6 +313,18 @@ DEFECTS = (
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #929: the startup and dispatch tests at the 8x8 entity. The first two plants touch only sources past the 1x1
+    # entity's two, so only its nine can catch them; the third is duplicate-tick-owner where the test reaches its
+    # second attachment only with a pool sized to the shape
+    Defect('startup-8x8-sources-past-two-undeclared', 'StartupDeclaresTalkersDomainAndVlan',
+           'const bool valid = (i->gate & bit) != 0u;', 'const bool valid = (i->gate & bit) != 0u && n < 2u;',
+           "each source's three Talker declarations and no other", entity='endstation_ax7101_8x8'),
+    Defect('startup-8x8-failure-code-past-two', 'StartupDeclaresTalkersDomainAndVlan',
+           'value.failure_info[8] = i->sources[n].allocated ? 1 : 2;',
+           'value.failure_info[8] = i->sources[n].allocated || n >= 2u ? 1 : 2;',
+           "source 2's failure code", entity='endstation_ax7101_8x8'),
+    Defect('duplicate-tick-owner-8x8', 'OneLoopOwnsTheGlobalCentisecondDispatch',
+           '!m->loop && !timer_owner &&', '!m->loop &&', 'srp_mbx_attach', entity='endstation_ax7101_8x8'),
     Defect(
         name='binding-debug-guard',
         test='SynchronousBindingFromOutputAsserts',
