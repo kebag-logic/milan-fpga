@@ -31,8 +31,8 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 // support a changed FirstValue on a StreamID: at least two LeaveAllTime periods pass between the Leave and the new
 // declaration (IEEE 802.1Q-2018 35.2.2.8; Table 10-7, the 1000 cs create_participants configures). The count starts
 // at the Leave's request, which leaves at most a JoinTime and THE TRANSMIT's MRPDU by every source later (hold,
-// CTRL_LOOP_TX_MS, the built design's, which rows_tiers.py holds at every listed point: flip_grade.py, tx_held at
-// 8x8/1if), so it adds both.
+// CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by flip_grade.py --check:
+// rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
 #define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
