@@ -42,8 +42,11 @@ usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--s
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
@@ -61,10 +64,12 @@ FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
 POINTS = (*rows_grade.POINTS, '8x8/1if')
 REPORTED = ('8x8/1if',)
-#: The understated figures planted at a reported point, each refused by name (TX_HELD_CONTROLS): two of the review's
-#: and one a millisecond under the head's figure.
+#: The understated figures planted at a reported point, each refused by name (TX_HELD_CONTROLS): well under the row
+#: (60 ms), under it by more than a millisecond (69 ms), and a millisecond under the head's figure (74 ms).
 TX_UNDER_MS = (60, 69, 74)
 TX_HELD_CONTROLS = tuple(f"8x8/1if's CTRL_LOOP_TX_MS planted at {ms} ms, under its tx row" for ms in TX_UNDER_MS)
+#: The control that --check itself reports tx_held's refusal (check_held_control): main run as the CLI runs it.
+CHECK_HELD_CONTROL = "--check --point 8x8/1if with 8x8/1if's CTRL_LOOP_TX_MS planted at 70 ms"
 #: The column it reads: the stated costs at this tree's pin.
 COLUMN = load_grade.STATED_US
 #: The designs the rows are held by: the built design's tier model first, the default; THE DRAIN before the tiers.
@@ -90,6 +95,20 @@ def tx_held_controls(root: Path) -> list[str]:
         if not any(f.startswith(f'8x8/1if: CTRL_LOOP_TX_MS states {ms} ms') for f in found):
             escaped.append(name)
     return escaped
+
+
+def check_held_control(root: Path) -> list[str]:
+    """CHECK_HELD_CONTROL, if it escapes: main as `--check --point 8x8/1if` runs it on ROOT, 8x8/1if's figure planted at
+    70 ms (under its tx row) in the text tx_held reads and nowhere else, must exit 1 naming the figure. So the refusal
+    is --check's own, and it is one only while main's findings call tx_held."""
+    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+    planted = {loop: shape_costs.planted_at((root / loop).read_text(), shape_costs.of_point('8x8/1if', root),
+                                            shape_costs.TX, 70)}
+    held, out = tx_held, io.StringIO()
+    with patch.object(sys.modules[__name__], 'tx_held', lambda r, p, texts=None: held(r, p, texts or planted)), \
+            patch.object(sys, 'argv', [__file__, '--check', '--point', '8x8/1if']), contextlib.redirect_stdout(out):
+        rc = main()
+    return [] if rc and 'OVER 8x8/1if: CTRL_LOOP_TX_MS states 70 ms' in out.getvalue() else [CHECK_HELD_CONTROL]
 
 
 def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
@@ -170,7 +189,7 @@ def controls(root: Path) -> list[str]:
     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
     # item (b): the slice at most 1,600 us, a shape not listed failing the build)
     escaped += [f'the table of shapes: {name}' for name in shape_costs.controls(root)]
-    return escaped + tx_held_controls(root) + row_controls(root) + built_controls(root)
+    return escaped + tx_held_controls(root) + check_held_control(root) + row_controls(root) + built_controls(root)
 
 
 def built_controls(root: Path) -> list[str]:
@@ -385,7 +404,7 @@ CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised ov
             'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if',
             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
             'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
-            *TX_HELD_CONTROLS)
+            *TX_HELD_CONTROLS, CHECK_HELD_CONTROL)
 
 
 def row_control_names(root: Path) -> tuple[str, ...]:

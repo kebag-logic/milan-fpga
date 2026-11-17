@@ -233,6 +233,18 @@ def _start_with(rule: Callable) -> Patches:
     return lambda: [patch.object(grade.Grader, 'start', start)]
 
 
+def _flip_check_without_tx_held() -> list:
+    """flip_grade.main as if its --check findings left out tx_held's: while main runs, and only then, tx_held finds
+    nothing; every other caller of tx_held, the self-test's own controls among them, keeps it."""
+    original = flip_grade.main
+
+    def main() -> int:
+        """The mutant main: the original, with tx_held returning nothing for its duration."""
+        with patch.object(flip_grade, 'tx_held', lambda *a, **k: []):
+            return original()
+    return [patch.object(flip_grade, 'main', main)]
+
+
 def _tag_ignored(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
     if not probe.start.startswith('rxc'):
         return 'unchanged'
@@ -485,6 +497,7 @@ MUTANTS: dict[str, Patches] = {
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
     'flip: 8x8/1if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP',
                                                                     {'8x8/2if': 0.70, '8x8/1if': 0.80})],
+    "flip: --check does not call tx_held, so 8x8/1if's THE TRANSMIT figure goes unheld": _flip_check_without_tx_held,
     'shapes: the slice and builds keyed on the interface count alone (earlier rule)': lambda: [patch.object(
         shape_costs, 'of_config', lambda config, n_if, root=shape_costs.ROOT: shape_costs.shape(n_if, root))],
     "shapes: a shape not listed taken at the shipping shape's costs": lambda: [patch.object(
