@@ -92,14 +92,16 @@
 //       path_sequence its datapath serves through the GSI window, kind 2
 //       (IEEE 1722.1-2021 7.4.41, Milan v1.2 5.4.2.24; #897)
 //
-// THE PHY (#919), the Phy fixture's own tests (Phy.B11, Phy.B12, Phy.L1 to L4):
+// THE PHY (#919), the Phy fixture's own tests (Phy.B11, Phy.B12, Phy.L1 to L6):
 //   B11 the PHY poll (#919, ctrl_plat_phy.h) is armed past the identity check:
 //       a foreign window's MDIO pins are never touched; a stage refused past
 //       it keeps publishing the PHY's link on its console's turns (#70)
 //   B12 THE STEP's client: a call whose store takes a step of its save carries
 //       no PHY frame, and one whose store step is an idle one, or that has no
-//       store step, carries one; the client owes a step while the PHY owes a
-//       frame
+//       store step, carries one; a call that owes no centisecond's step takes
+//       the PHY's frame and leaves the store's step count unchanged, and one
+//       that owes no frame either takes the save's extra step (#920); the
+//       client owes a step while the PHY owes a frame
 //   L1  the ready loop publishes the PHY's link to milan_mac_link_status
 //   L2  the datapath's effective link (milan_datapath.sv eff_link_w, the
 //       published link_up through the SoC's synchroniser), modelled as a level
@@ -111,6 +113,11 @@
 //   L4  the link's return is published by the first poll after it, so the
 //       gPTP plane's port enable rises then and its Pdelay_Req cease ends
 //       (Milan v1.2 4.2.6.2.5), within CTRL_PLAT_PHY_POLL_US of the return
+//   L5  a save in flight across several poll periods leaves the poll its
+//       period: a loss and a return during it are each published within one
+//       (#665's ruling of 2026-11-17)
+//   L6  a probe that always misses owes a frame in every call, and the save
+//       is still durable within its stated worst case (nvm_store.h)
 
 #include <gtest/gtest.h>
 
@@ -1348,14 +1355,26 @@ TEST_F(Phy, B12StepCarriesTheStoresSaveOrAPhyFrame) {
         << "B12 the client owes a step while the PHY owes a frame";
     EXPECT_EQ(nvm_store_status()->steps, steps + 1u) << "B12 the store's step of its save is taken";
     EXPECT_EQ(peer.frames.size(), frames) << "B12 a call whose store takes a step of its save carries no PHY frame";
-    // no store step owed: the PHY's frame
+    // no centisecond step owed: the PHY's frame, and the save's extra step (#920) yields to it in that call
+    ASSERT_FALSE(nvm_store_owed());
+    steps = nvm_store_status()->steps;
     EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US))
         << "B12 the client owes a step while the PHY owes a frame";
     EXPECT_EQ(peer.frames.size(), frames + 1u) << "B12 a call with no store step carries the PHY's frame";
-    // the poll's end, then a store step owed with no room for it: the store's owed step alone keeps the client owing
-    for (unsigned k = 0; k < 16u && ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) +
-                                                                                 CTRL_LOOP_SHARE_US); ++k) {
+    EXPECT_EQ(nvm_store_status()->steps, steps) << "B12 the yielding call leaves the store's step count unchanged";
+    // the poll's end: each call owing no centisecond step takes the next frame, none of the save's steps
+    for (unsigned k = 0; k < 32u && ctrl_plat.phy.stage != CTRL_PLAT_PHY_IDLE; ++k) {
+        (void)ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US);
     }
+    ASSERT_EQ(ctrl_plat.phy.stage, CTRL_PLAT_PHY_IDLE) << "the poll ends";
+    EXPECT_EQ(nvm_store_status()->steps, steps) << "B12 the yielding call leaves the store's step count unchanged";
+    // no frame owed and no centisecond step owed: the save's extra step
+    ASSERT_NE(nvm_store_status()->phase, NVM_P_IDLE) << "the save is still in flight";
+    frames = peer.frames.size();
+    (void)ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr) + CTRL_LOOP_SHARE_US);
+    EXPECT_EQ(nvm_store_status()->steps, steps + 1u) << "B12 a call with no frame owed takes the extra step";
+    EXPECT_EQ(peer.frames.size(), frames) << "B12 a call with no frame owed takes the extra step";
+    // then a store step owed with no room for it: the store's owed step alone keeps the client owing
     nvm_store_tick();
     EXPECT_TRUE(ctrl_plat_phy_store_step(&ctrl_plat.phy, nvm_store_clock(nullptr)))
         << "B12 the client owes a step while the store owes one";
@@ -1433,6 +1452,61 @@ TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
     EXPECT_LE(edges[1].first - back, std::uint64_t{CTRL_PLAT_PHY_POLL_US} + 10000u)
         << "L4 the first poll after the link's return publishes it up: the gPTP plane's port enable rises within "
            "CTRL_PLAT_PHY_POLL_US of the return, ending its Pdelay_Req cease";
+}
+
+// A save in flight: its phases CAPTURE to VERIFY (nvm_store.h)
+bool saving() {
+    const auto phase = nvm_store_status()->phase;
+    return phase >= NVM_P_CAPTURE && phase <= NVM_P_VERIFY;
+}
+
+TEST_F(Phy, L5ASaveKeepsThePollItsPeriod) {
+    nvm_fmodel_times(500000, 100);   // the save's erase holds it in flight for 500 ms, four poll periods
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(kFirstPollMs);
+    ASSERT_EQ(peer.word, kGigFull);
+    const unsigned commits = nvm_store_status()->commits_ok;
+    ASSERT_EQ(nvm_store_commit_now(), 1);
+    run(20u);
+    ASSERT_TRUE(saving()) << "the save is in flight";
+    peer.link(false);
+    const std::uint64_t lost = nvm_fmodel_now_us();
+    run(kPollMs + 10u);
+    ASSERT_EQ(edges.size(), 1u) << "L5 a loss during a save is published within one poll period";
+    EXPECT_FALSE(edges[0].second) << "L5 a loss during a save is published within one poll period";
+    EXPECT_LE(edges[0].first - lost, std::uint64_t{CTRL_PLAT_PHY_POLL_US} + 10000u)
+        << "L5 a loss during a save is published within one poll period";
+    peer.link(true);
+    const std::uint64_t back = nvm_fmodel_now_us();
+    run(kPollMs + 10u);
+    ASSERT_EQ(edges.size(), 2u) << "L5 a return during a save is published within one poll period";
+    EXPECT_TRUE(edges[1].second) << "L5 a return during a save is published within one poll period";
+    EXPECT_LE(edges[1].first - back, std::uint64_t{CTRL_PLAT_PHY_POLL_US} + 10000u)
+        << "L5 a return during a save is published within one poll period";
+    EXPECT_TRUE(saving()) << "L5 the save spans both publications";
+    for (unsigned ms = 0; ms < 3000u && nvm_store_status()->commits_ok == commits; ++ms) run(1u);
+    EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u) << "L5 the save completes";
+    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+}
+
+TEST_F(Phy, L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase) {
+    peer.acknowledge = false;   // no PHY answers: each probe misses, and the next is owed at once
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    run(kFirstPollMs);
+    ASSERT_EQ(peer.word, 0u) << "an absent PHY is published link down";
+    const unsigned commits = nvm_store_status()->commits_ok;
+    const std::uint32_t steps = nvm_store_status()->steps;
+    const std::size_t frames = peer.frames.size();
+    const std::uint64_t from = nvm_fmodel_now_us();
+    ASSERT_EQ(nvm_store_commit_now(), 1);
+    for (unsigned ms = 0; ms < 60000u && nvm_store_status()->commits_ok == commits; ++ms) run(1u);
+    ASSERT_EQ(nvm_store_status()->commits_ok, commits + 1u) << "L6 the save is durable while every probe misses";
+    const std::uint64_t took = nvm_fmodel_now_us() - from;
+    const std::uint32_t taken = nvm_store_status()->steps - steps;
+    EXPECT_LE(took, std::uint64_t{taken} * (CTRL_LOOP_STEP_AGE + 1u) * 10000u)
+        << "L6 the save is durable within its stated worst case, CTRL_LOOP_STEP_AGE + 1 centiseconds a step "
+           "(nvm_store.h)";
+    EXPECT_GT(peer.frames.size(), frames + took / 10000u) << "L6 the probe takes the calls the store's steps leave";
 }
 
 }  // namespace

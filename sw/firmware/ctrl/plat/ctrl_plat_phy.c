@@ -291,6 +291,12 @@ static bool due(const struct ctrl_plat_phy *phy, uint32_t now)
 	return !phy->polled || now - phy->started >= CTRL_PLAT_PHY_POLL_US;
 }
 
+// A frame is owed: a poll in progress, a poll due, or a probe that missed (an unarmed poll owes none)
+static bool owes(const struct ctrl_plat_phy *phy)
+{
+	return phy->clock != NULL && (phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, (uint32_t)phy->clock(phy->ctx)));
+}
+
 bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room)
 {
 	if (phy->clock == NULL) {
@@ -319,6 +325,11 @@ _Static_assert(NVM_P_OFF < NVM_P_CAPTURE && NVM_P_IDLE < NVM_P_CAPTURE && NVM_P_
 
 bool ctrl_plat_phy_store_step(void *ctx, uint32_t deadline)
 {
+	// a call that owes no centisecond's step and a frame owed: the frame, and the store's extra step (#920) waits
+	// for a call that owes none, so the 125 ms poll keeps its period through a save (#919)
+	if (!nvm_store_owed() && owes(ctx)) {
+		return ctrl_plat_phy_step(ctx, (int32_t)(deadline - nvm_store_clock(NULL)));
+	}
 	const struct nvm_status *s = nvm_store_status();
 	const uint32_t steps = s->steps;
 	const bool saving = (uint32_t)s->phase - NVM_P_CAPTURE <= (uint32_t)(NVM_P_VERIFY - NVM_P_CAPTURE);

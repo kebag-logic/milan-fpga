@@ -83,16 +83,24 @@
 // and IEEE 802.3 22.2.2.13 gives MDC no maximum high or low time, so a poll
 // may stop between two frames. So a poll is resumable, one frame at a time,
 // and each frame is THE STEP's work: the platform binds ctrl_plat_phy_store_step
-// as THE STEP's client, which takes the saved-state store's owed step first,
-// as nvm_store_step alone would, and the PHY's next frame only in a call where
-// the store took no step of a save (none, or one from its OFF, IDLE or HELD
-// phase, which touches no flash and no record), with CTRL_PLAT_PHY_STEP_US
-// still left before the pass's deadline. No pass carries a save's step and a
-// frame, no frame stands beside an input, and the store's steps come first, so
-// its worst cases in nvm_store.h stand. While a poll owes a frame the client
-// reports a step owed, so under input that never leaves a pass empty its frames
-// ride THE STEP's age limit: one in each pass given whole to an aged step whose
-// store step is an idle one, every CTRL_LOOP_STEP_AGE + 1 centiseconds.
+// as THE STEP's client. A call that owes the store a centisecond's step takes it
+// first, as nvm_store_step alone would, and the PHY's next frame only where that
+// step was none of a save (none, or one from its OFF, IDLE or HELD phase, which
+// touches no flash and no record). A call that owes no centisecond's step takes
+// an owed frame, and the store takes none of its steps past the centisecond's
+// (#920) in that call; a call that owes neither takes the store's. Each frame
+// needs CTRL_PLAT_PHY_STEP_US still left before the pass's deadline. No call
+// carries a save's step and a frame, no frame stands beside an input, and the
+// centisecond's step keeps its first place, so the store's slowest pace and its
+// worst cases in nvm_store.h stand, and the heaviest call is still a save's
+// step. The poll keeps its period through a save: its 125 ms publishes the loss
+// BMSR latched (IEEE 802.3 22.2.4.2.13) and the link's return that re-enables
+// the gPTP port (IEEE 802.1AS-2011 10.2.4.11; Milan v1.2 4.2.6.2.5), which may
+// not wait a save's 1 to 22 s (#665's ruling of 2026-11-17). While a poll owes a
+// frame the client reports a step owed, so under input that never leaves a pass
+// empty its frames ride THE STEP's age limit: one in each pass given whole to an
+// aged step whose store step is an idle one, every CTRL_LOOP_STEP_AGE + 1
+// centiseconds.
 //
 // THE BIT, the release's phy_mdio_bit with its last write folded into the
 // next bit's first: the pins written with MDC low, which lowers the bit
@@ -268,9 +276,10 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 // progress, a poll due, or a probe that missed. An unarmed poll owes nothing and touches nothing.
 bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room);
 
-// THE STEP's client the platform binds (ctrl_loop_set_step, with nvm_store_clock): the saved-state store's step,
-// as nvm_store_step, then the PHY's frame only where the store took none; ctx is the struct ctrl_plat_phy. True
-// while either owes one.
+// THE STEP's client the platform binds (ctrl_loop_set_step, with nvm_store_clock): where a centisecond's step is
+// owed (nvm_store_owed), the saved-state store's step, as nvm_store_step, then the PHY's frame only where that step
+// was none of a save; where none is owed, the PHY's owed frame, and the store's step only where no frame is owed;
+// ctx is the struct ctrl_plat_phy. True while either owes one.
 bool ctrl_plat_phy_store_step(void *ctx, uint32_t deadline);
 
 #ifdef __cplusplus

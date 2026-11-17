@@ -121,8 +121,8 @@
 // THE STEP (#665). One client takes a deferrable step at the end of a pass
 // that took no input, no event and no record, after the polls: the
 // saved-state store's write path, and on the split platform also its PHY
-// poll's Clause-22 frames, each only in a call whose store took no step of a
-// save (plat/ctrl_plat_phy.h, #919). Its flash steps (a page program's issue up
+// poll's Clause-22 frames, never in a call whose store takes a step of a save
+// (plat/ctrl_plat_phy.h, #919). Its flash steps (a page program's issue up
 // to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
 // pass the other slices make (1.90 ms at 8x8/2if), and in a pass that takes
 // records they lengthen every record still waiting, so its centisecond
@@ -135,7 +135,10 @@
 // such a pass waits for it, as for any pass running when it arrives. The
 // client may take a step in every pass the loop calls it in, not only the one
 // a centisecond owes, one a pass: the store does while a save is in flight
-// (nvm_store.h, #920).
+// (nvm_store.h, #920), except on the split platform in a pass whose call owes
+// no centisecond's step and the PHY owes a frame, which takes the frame. The
+// centisecond's step keeps its first place, so no pass the step enters is
+// heavier than one that carries a save's step.
 // Input that never leaves a pass empty would hold the step off for good, so
 // it has an age limit: once more than CTRL_LOOP_STEP_AGE centiseconds have
 // been dispatched since the step last ran or owed nothing, the next pass is

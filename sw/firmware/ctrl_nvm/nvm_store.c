@@ -890,6 +890,11 @@ void nvm_store_tick(void)
 	nvm.owed = 1;
 }
 
+bool nvm_store_owed(void)
+{
+	return nvm.owed != 0;
+}
+
 /* 1 while a step would advance the write path with no centisecond owed: a save
  * in flight, or a change the save just ended left, outside a failed attempt's
  * backoff. It reads no clock: a window and a backoff wait for the centisecond. */

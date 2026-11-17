@@ -30,6 +30,9 @@ FACE = "aecp/aecp_face.c"
 #: GET_AS_PATH's count read, as aecp_face.c holds it (#897).
 AS_PATH_COUNT = "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {"
 PHY = "plat/ctrl_plat_phy.c"
+#: THE STEP's client, a call owing no centisecond step (#665's ruling of 2026-11-17): its test and its frame.
+YIELD = "\tif (!nvm_store_owed() && owes(ctx)) {\n"
+FRAME = "\t\treturn ctrl_plat_phy_step(ctx, (int32_t)(deadline - nvm_store_clock(NULL)));\n"
 C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
 
@@ -400,6 +403,17 @@ def phy_mutants(mutant: type) -> tuple:
         m("plat-phy-after-an-idle-step-refused", PHY, "saving && s->steps != steps ? 0 :",
           "(saving || true) && s->steps != steps ? 0 :", "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
           "B12 a call whose store step is an idle one carries one PHY frame"),
+        # a call owing no centisecond step: the PHY's owed frame, never the save's extra step beside it or before it
+        # (#919, #920; #665's ruling of 2026-11-17)
+        m("plat-phy-frame-yields-to-the-extra-step", PHY, YIELD, "\tif (false && !nvm_store_owed() && owes(ctx)) {\n",
+          "platboot1", "Phy.L5ASaveKeepsThePollItsPeriod", "L5 a loss during a save is published within one poll period"),
+        m("plat-phy-frame-beside-the-extra-step", PHY, FRAME,
+          FRAME.replace("NULL)));", "NULL))) | nvm_store_step(NULL, deadline);"), "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 the yielding call leaves the store's step count unchanged"),
+        m("plat-phy-frame-before-the-centisecond-step", PHY, YIELD, "\tif (owes(ctx)) {\n", "platboot1",
+          "Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase", "L6 the save is durable while every probe misses"),
+        m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed()) {\n", "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 a call with no frame owed takes the extra step"),
         # the poll's rules
         m("plat-phy-probe-scans", PHY, "\t\tphy->polled = false;\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
           "\t\tphy->polled = false;\n\t\tif (phy->address != 0u) {\n\t\t\tphy->stage = CTRL_PLAT_PHY_PROBE;\n"

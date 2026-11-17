@@ -13,7 +13,11 @@
  * loop's age limit (nvm_store_step; THE STEP in
  * sw/firmware/ctrl/loop/ctrl_loop.h). While a save is in flight, or a change
  * it left waits, every pass that took no input and has room takes a step too,
- * one a pass, the centisecond's or not (#920).
+ * one a pass, the centisecond's or not (#920), except one whose call owes no
+ * centisecond's step and that the split platform gives to its PHY poll's owed
+ * frame instead (plat/ctrl_plat_phy.h, #919). The centisecond's step keeps its
+ * first place and no call carries a save's step and a frame, so the slowest
+ * pace below, and every worst case it gives, stand.
  *
  * A CHANGE'S WORST CASE. Under input that leaves no pass empty the loop takes
  * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds and no pass
@@ -182,6 +186,11 @@ void nvm_store_tick(void);
  * `deadline` on nvm_store_clock; true while a centisecond's step is still
  * owed. */
 bool nvm_store_step(void *ctx, uint32_t deadline);
+/* True while a centisecond's step is owed and not yet taken. THE STEP's client
+ * on the split platform reads it before the call's step: a call that owes none
+ * takes the PHY poll's owed frame, and the store's step past the centisecond's
+ * (#920) waits for a call that owes no frame (plat/ctrl_plat_phy.h, #919). */
+bool nvm_store_owed(void);
 /* The flash port's clock in microseconds, the one the store's windows run
  * on. Valid once nvm_store_boot has run: a platform binds the step after it. */
 uint32_t nvm_store_clock(void *ctx);
