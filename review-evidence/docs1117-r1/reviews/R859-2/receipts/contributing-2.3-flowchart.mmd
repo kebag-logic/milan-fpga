@@ -1,0 +1,9 @@
+flowchart LR
+    RV[2 positive<br/>at the PR head] --> FZ[frozen]
+    FZ --> CO[compose once<br/>in order]
+    CO --> CR[one composition review]
+    CR --> CA[one full candidate<br/>bench gate on the same images]
+    CR -->|finding| CO
+    CA -->|finding| CO
+    CA -->|clean| M[one merge]
+    M --> C[containment<br/>for every member]

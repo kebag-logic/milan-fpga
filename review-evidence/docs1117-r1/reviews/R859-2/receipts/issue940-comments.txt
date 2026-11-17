@@ -1,0 +1,80 @@
+=== 6939809424 Mister-M-alt 2026-11-17T05:43:21Z
+[A795] TAKEN
+Branch: docs-batch-merge (from dev 6b66f66d)
+Authoritative references: #665 issuecomment-6939460730 and issuecomment-6939574513; CONTRIBUTING.md 2.1 and 2.2; AGENTS.md sections 6, 7 and 8; docs/testing/CI_WORKFLOWS.md "Fast feedback".
+Interpreted scope: docs only. Add CONTRIBUTING.md section 2.3 "Batched merges" (freeze, batch, compose once, check once, merge once, findings after composition, not batched). Add the batch path to the 2.1 diagram and a batch note to step 7. Add pointers and amendments in AGENTS.md sections 6, 7 and 8, and update the CI_WORKFLOWS "Fast feedback" lines that describe the merge train. No code, test or RTL change.
+Validation plan: every docs workflow check on a clean clone of the final head (docs_check, check_doc_style, check_em_dash, gen_toc anchors and contents, check_doc_paths, docs_inventory, check_feature_status and the rest of the docs jobs), all rc 0.
+Blockers: none
+
+
+=== 6940360656 Mister-M-alt 2026-11-17T06:13:04Z
+[A795] REVIEW READY
+Commit: 490d54ee (branch docs-batch-merge, on dev 6b66f66d; the manager pushes it and opens the PR)
+Changed: docs only, 3 files, +117/-3. CONTRIBUTING.md has a new section 2.3 "Batched merges", the batch path in the 2.1 diagram, and a batch-candidate paragraph in step 7. AGENTS.md has the frozen-PR and composition-review paragraphs in section 6, the composed-batch ledger paragraph and the amended candidate bullet in section 7, and two never-rules in section 8. docs/testing/CI_WORKFLOWS.md "Fast feedback" now describes one batch candidate per merge. Every piece is the draft's text, verbatim, at its quoted anchor. The commit's added and removed lines equal the draft's, file by file.
+Validation: the five docs workflow jobs (wire-accountability, docs-check-no-git, docs-gates-0/1/2), replayed step by step on a clean clone of 490d54ee: 71 run steps, all rc 0, every job success. The two builder legs and the RV32 SDK install are included. Hosted-only plumbing (evidence upload, the docs-check receipt union, apt resolution) was not run.
+- docs_check 0 findings; check_doc_style OK; check_em_dash 0 findings over 117 added lines; gen_toc --check OK; check_doc_paths OK; docs_inventory fresh; check_feature_status 0 findings.
+- gen_toc --verify-anchors: 620 cross-page fragment links (617 on dev). The three new ones are CONTRIBUTING.md#23-batched-merges from AGENTS.md (twice) and CI_WORKFLOWS.md.
+- Planted mutants: a broken #23-batched-merges fragment in AGENTS.md or CI_WORKFLOWS.md fails gen_toc --verify-anchors ("MISS ... #23-batched-mergez"). A wrong ../CONTRIBUTING.md path fails docs_check ("broken link").
+- Both CONTRIBUTING.md flowcharts parse and render.
+Acceptance criteria: met. Section 2.3 is added, and the pointers and amendments are in CONTRIBUTING.md 2.1, AGENTS.md sections 6, 7 and 8, and CI_WORKFLOWS "Fast feedback", all on dev as docs only. The head descends directly from the unchanged dev tip, so its tree is the candidate merge tree.
+Open risks/questions:
+1. No docs gate checks a same-page (#fragment) link: a broken #23-batched-merges inside CONTRIBUTING.md would pass. The new one resolves under gen_toc's anchor walk. This gap needs its own Issue.
+2. check_doc_style does not cover these three pages. The new paragraphs in AGENTS.md sections 6 and 7 (29, 40 and 63 words) and the CI_WORKFLOWS block are longer than its audience-doc limits. The draft wording is kept as written; splitting them is a reviewer call.
+3. The decisions scope option B to the flip train; standing process rests on the owner's request in #940. Ancestry-merged member PRs are still unproved against check_merge_review_integrity and check_merge_containment --merged-prs (the follow-up #940 records).
+
+
+=== 6941601004 Mister-M-alt 2026-11-17T07:24:19Z
+[A795] REVIEW READY (round 2; replaces the round-1 REVIEW READY for review)
+Commit: ee5c6f92 (branch docs-batch-merge: 490d54ee, then ee5c6f92, on dev 6b66f66d; the manager pushes it and opens the PR)
+Changed: docs only, 3 files, +122/-3.
+- 490d54ee applies the draft's text at its anchors. CONTRIBUTING.md gets section 2.3 "Batched merges", the batch path in the 2.1 diagram and the step-7 batch note. AGENTS.md gets the section 6 and 7 paragraphs, the amended completion bullet and two section 8 rules. docs/testing/CI_WORKFLOWS.md gets "Fast feedback".
+- ee5c6f92 splits the three paragraphs over 30 words into short paragraphs, wording and order unchanged. AGENTS.md section 6 went from 40 to 19 + 21 words, section 7 from 63 to 23 + 21 + 19, and the CI_WORKFLOWS block from 70 to 24 + 19 + 27. Ignoring whitespace, the diff from 490d54ee is empty.
+- Every new or changed paragraph is now 30 words or fewer (largest 29), and every new bullet 20 or fewer. The draft's standing-process wording is kept, as the owner asked.
+Validation: the five docs workflow jobs (wire-accountability, docs-check-no-git, docs-gates-0/1/2), replayed step by step on a clean clone of ee5c6f92: 71 run steps, all rc 0, every job success (the two builder legs and the RV32 SDK install included; the three gate jobs re-run in full after a host restart). Hosted-only plumbing (evidence upload, the docs-check receipt union, apt resolution) was not run.
+- docs_check 0 findings; check_doc_style OK; check_em_dash 0 findings over 122 added lines; gen_toc --check OK; check_doc_paths OK; docs_inventory fresh; check_feature_status 0 findings.
+- gen_toc --verify-anchors: 620 cross-page fragment links (617 on dev). The three new ones are CONTRIBUTING.md#23-batched-merges from AGENTS.md (twice) and CI_WORKFLOWS.md.
+- Planted mutants: a broken #23-batched-merges fragment in AGENTS.md or CI_WORKFLOWS.md fails gen_toc --verify-anchors ("MISS ... #23-batched-mergez"). A wrong ../CONTRIBUTING.md path fails docs_check ("broken link").
+- Both CONTRIBUTING.md flowcharts render (the file is unchanged since 490d54ee).
+Acceptance criteria: met. Section 2.3 is added, and the pointers and amendments are in CONTRIBUTING.md 2.1, AGENTS.md sections 6, 7 and 8, and CI_WORKFLOWS "Fast feedback", all on dev as docs only. The head descends directly from the unchanged dev tip, so its tree is the candidate merge tree.
+Open risks/questions:
+1. No docs gate checks a same-page (#fragment) link: a broken #23-batched-merges inside CONTRIBUTING.md would pass. The new one resolves under gen_toc's anchor walk. This gap needs its own Issue.
+2. Member PRs marked merged by ancestry are not yet proved against check_merge_review_integrity and check_merge_containment --merged-prs. #940 records this as a follow-up after the first batch merge.
+
+
+=== 6941861692 Mister-M-alt 2026-11-17T07:38:37Z
+[A10] **Maintainer decision on the batched-merge details** (for the owner, by the owner-delegated advisor, 2026-11-17). The owner asked for the process of #665 issuecomment-6939460730 and issuecomment-6939574513 to be recorded as standing process. These are the details CONTRIBUTING.md 2.3 adds, with the reason for each:
+
+- **Batch size:** four to eight PRs from one area, as guidance, not a gate. Narrowing a failing batch of eight takes about three partial runs. The current ten-member flip train stands under the owner's own decision.
+- **Order:** dependencies first, then the time each PR froze. Deterministic, so nobody argues about ordering.
+- **Who forms a batch:** a maintainer, on a public Issue, so the batch can be rebuilt from public state (AGENTS.md section 2).
+- **The composition is its own PR, merge commit only.** A squash or rebase leaves member heads outside the base, and GitHub would not mark them merged.
+- **If the base moves before the merge:** merge it in and run the candidate again. This keeps step 7's rule that the gated tree is the merged tree.
+- **One fix round per finding, then drop the PR.** A second round on the composition holds every good member hostage. This refines option B item 5 ("rebuild and rerun"): the rebuild and rerun happen after the drop.
+- **Narrowing:** rerun only the failing units along the ordered merges, then one full candidate on the rebuilt tree. Partial runs locate the member; only the full run counts as evidence.
+- **A dropped PR** returns to section 2.1 and joins a later batch. Its reviews stay valid at its head unless its own change changes.
+- **Not batched:** urgent single fixes, and shared infrastructure (gate tooling, harness grading, the mailbox contract), the owner's two classes. "Settled" means clean containment and green hosted gates on the base. While a batch candidate runs, only an urgent fix may move the base, or the candidate would test a stale tree.
+- **Freezing applies only to PRs a maintainer has named in a batch** (R859-1 R859-001). An unbatched PR follows section 2.1 as before, including merging the moving base, and that merge is reviewed under 2.1 as new change.
+
+
+=== 6942376268 Mister-M-alt 2026-11-17T08:06:34Z
+[A795] REVIEW READY (round 3; answers R859-1 on PR #942 and replaces the round-2 REVIEW READY for review)
+Commit: eade77c9 (branch docs-batch-merge: 490d54ee, ee5c6f92, eade77c9, on dev 6b66f66d; the manager pushes it to PR #942)
+Changed: docs only. +14/-6 against ee5c6f92 and +130/-3 against dev, in AGENTS.md, CONTRIBUTING.md and docs/testing/CI_WORKFLOWS.md.
+- R859-001: freezing applies only to a PR a maintainer has named in a batch. An unbatched PR follows section 2.1 as before. It may merge the moving base, and that merge is reviewed under 2.1 as new change. This is stated in CONTRIBUTING.md 2.3 Freeze (447-448, 454-455), AGENTS.md section 6 (298-303) and section 8 (475).
+- R859-001, the urgent-fix case: an urgent fix that conflicts after two positives is unbatched (2.3:509), so it is not frozen (447). It merges the base, that merge is reviewed under 2.1 (454-455), and it then goes through step 7's candidate.
+- R859-002: 2.3 links the maintainer decision (#940 issuecomment-6941861692) next to the two #665 decisions (CONTRIBUTING.md:428). No rule text changed for it. Every 2.3 rule traces to one of those three comments.
+- R859-003: in CI_WORKFLOWS "Fast feedback", the two batch lines now follow the "Those banks" paragraph, so "Those banks" sits after its antecedent again. No word changed.
+- R859-004: the 2.3 flowchart gains the edge CR -->|finding| CO.
+- R859-006: not taken. Three of the four Contents entries are already over 30 words (31, 36 and 76), so adding to them would break the limit.
+- Every new or changed paragraph is 30 words or fewer (largest 30), and every new bullet 23 or fewer.
+Validation: the five docs workflow jobs (wire-accountability, docs-check-no-git, docs-gates-0/1/2), each replayed step by step on its own clean clone of eade77c9 in a booked unit: 71 run steps, all rc 0, every job success. The two builder legs and the RV32 SDK install are included. Hosted-only plumbing (evidence upload, the docs-check receipt union, apt resolution) was not run.
+- docs_check 0 findings; check_doc_style OK; check_em_dash 0 findings over 130 added lines; gen_toc --check OK; check_doc_paths OK; docs_inventory fresh; check_feature_status 0 findings.
+- gen_toc --verify-anchors: 621 cross-page fragment links (617 on dev). The new ones are three CONTRIBUTING.md#23-batched-merges links and one CONTRIBUTING.md#21-the-issue-to-merge-lane link.
+- Planted mutants: a broken fragment in AGENTS.md (either link) or CI_WORKFLOWS.md fails gen_toc --verify-anchors. A wrong ../CONTRIBUTING.md path fails docs_check.
+- Both CONTRIBUTING.md flowcharts render.
+Acceptance criteria: met. The head descends directly from the unchanged dev tip, so its tree is the candidate merge tree.
+Open risks/questions:
+1. Same-page (#fragment) links are not gated (#941). The new one resolves.
+2. Member PRs marked merged by ancestry are not yet proved against check_merge_review_integrity and check_merge_containment --merged-prs. #940 records this as a follow-up after the first batch merge.
+
+

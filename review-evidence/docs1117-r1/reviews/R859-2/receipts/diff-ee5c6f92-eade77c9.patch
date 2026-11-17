@@ -1,0 +1,84 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index de630e5d14..a0863f54bc 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -296,9 +296,12 @@ A review round that discovers defects is not approval of later fixes. Re-review
+ the corrected commit and publish a new verdict.
+ 
+ **A frozen PR is not re-reviewed because its base moved.**
+-[CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges) freezes a PR at two positives.
++[CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges) freezes a batch member at two positives.
+ Re-review it only when its own change changes.
+ 
++An unbatched PR is never frozen and may merge the moving base.
++That merge is reviewed under [CONTRIBUTING.md section 2.1](CONTRIBUTING.md#21-the-issue-to-merge-lane) as new change.
++
+ **A composition review has a narrow diff.**
+ It covers the conflict resolutions, the composition fixes and the composed measurements.
+ 
+@@ -469,6 +472,6 @@ and the lens already yielding findings is always the cheapest to run again.
+   linked requirement and executable evidence.
+ - Never publish private chain-of-thought; publish concise conclusions and evidence.
+ - Keep commits one-line with no trailers, as required by [CONTRIBUTING.md](CONTRIBUTING.md).
+-- Never merge the moving base into a frozen PR, and never re-review one for a base move.
++- Never merge the moving base into a frozen batch member, or re-review one for a base move; an unbatched PR is never frozen.
+ - Never fix a batch member on its own branch after composition; fix it in the composition lane.
+ - Follow candidate-merge validation and post-merge containment exactly.
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 2ff614ba1d..a4a0f9ab91 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -425,6 +425,7 @@ Two board rules that go with it:
+ [Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513)
+ replaces repeated sync rounds with one composition.
+ It builds on the [one-candidate decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939460730).
++[Issue #940's maintainer decision](https://github.com/kebag-logic/milan-fpga/issues/940#issuecomment-6941861692) gives the reason for each detail.
+ 
+ Section 2.1 still governs every PR up to its two positive reviews.
+ This section governs how reviewed PRs reach the base branch together.
+@@ -435,6 +436,7 @@ flowchart LR
+     FZ --> CO[compose once<br/>in order]
+     CO --> CR[one composition review]
+     CR --> CA[one full candidate<br/>bench gate on the same images]
++    CR -->|finding| CO
+     CA -->|finding| CO
+     CA -->|clean| M[one merge]
+     M --> C[containment<br/>for every member]
+@@ -442,12 +444,15 @@ flowchart LR
+ 
+ **Freeze.**
+ 
+-- A PR with both positive reviews at its own head is frozen.
++- Freezing applies only to a PR a maintainer has named in a batch.
++- Such a PR with both positive reviews at its own head is frozen.
+ - An earlier positive counts when the other reviewer covers the later delta.
+ - A frozen PR takes no merge of the moving base.
+ - Nobody re-reviews it because the base moved.
+ - It changes only for a defect in its own change.
+ - That fix is re-reviewed under section 2.1, and the PR freezes again.
++- An unbatched PR follows section 2.1 as before, and may merge the moving base.
++- That base merge is reviewed under section 2.1 as new change.
+ 
+ **Batch.**
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 3a06920493..0325415e92 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -273,13 +273,13 @@ An unknown push base retains the full tracked-file fallback.
+ Merge validation gates the composed tree before every merge into the base.
+ Its candidate on the live base runs builder and full native banks.
+ 
+-A batch merges once, so one candidate covers all its members.
+-[CONTRIBUTING.md section 2.3](../../CONTRIBUTING.md#23-batched-merges) defines that path.
+-
+ Those banks catch interactions with intervening base changes.
+ Scope selection therefore need not charge those changes to PRs.
+ The hosted required contexts and merge validation remain mandatory.
+ 
++A batch merges once, so one candidate covers all its members.
++[CONTRIBUTING.md section 2.3](../../CONTRIBUTING.md#23-batched-merges) defines that path.
++
+ The scope self-test executes each workflow's actual shell body.
+ It compares hosted merge checkouts with replay head checkouts.
+ Its histories cover documentation, RTL, gitlinks, and empty deltas.
