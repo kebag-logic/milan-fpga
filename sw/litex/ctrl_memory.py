@@ -247,7 +247,8 @@ class Ledgered:
 #: and the platform's at 61.5, its entry at 61.0: 60.5, the owner's decision's cap of 2026-11-12 (#665), which #895's
 #: ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of
 #: 2026-11-12 ledgered the size fixture's at its cap, then 61.0 by the owner's decision of 2026-11-15 (#665: an image
-#: past its entry raises it to its measured size, at the next half tile, as debt owed to S14). The
+#: past its entry raises it to its measured size, at the next half tile, as debt owed to the hybrid XIP work (#665
+#: decision D3)). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
