@@ -405,11 +405,13 @@ def phy_mutants(mutant: type) -> tuple:
           "B12 a call whose store step is an idle one carries one PHY frame"),
         # a call owing no centisecond step: the PHY's owed frame, never the save's extra step beside it or before it
         # (#919, #920; #665's ruling of 2026-11-17)
-        m("plat-phy-frame-yields-to-the-extra-step", PHY, YIELD, "\tif (false && !nvm_store_owed() && owes(ctx)) {\n",
-          "platboot1", "Phy.L5ASaveKeepsThePollItsPeriod", "L5 a loss during a save is published within one poll period"),
+        m("plat-phy-frame-yields-to-the-extra-step", PHY, YIELD,
+          "\tif (false && !nvm_store_owed() && owes(ctx)) {\n", "platboot1", "Phy.L5ASaveKeepsThePollItsPeriod",
+          "L5 a loss during a save is published within one poll period"),
         m("plat-phy-frame-beside-the-extra-step", PHY, FRAME,
           FRAME.replace("NULL)));", "NULL))) | nvm_store_step(NULL, deadline);"), "platboot1",
-          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 the yielding call leaves the store's step count unchanged"),
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 the yielding call leaves the store's step count unchanged"),
         m("plat-phy-frame-before-the-centisecond-step", PHY, YIELD, "\tif (owes(ctx)) {\n", "platboot1",
           "Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase", "L6 the save is durable while every probe misses"),
         m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed()) {\n", "platboot1",
