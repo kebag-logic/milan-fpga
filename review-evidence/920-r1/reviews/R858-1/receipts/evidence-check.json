@@ -1,0 +1,102 @@
+{
+  "archive": "4a3e37f80640ec17ab6acffbe5cf8c4ac587c5dc",
+  "selected_hashes_checked": 37,
+  "sweep": {
+    "head": "bd252db1d73511307c0ecb78470f0d15d0c3ea9b",
+    "suites": 65,
+    "checks": 2713040
+  },
+  "save_lines": {
+    "1x1": [
+      "BURST save-flight: 1 name(s), the latest durable 165.045 ms after its response (name 0; target 5,000 ms), 2 save(s), 19 steps to the next save's erase (want 19) within",
+      "BURST save-burst: 39 name(s), the latest durable 1107.785 ms after its response (name 0; target 5,000 ms), 1 save(s), the cut's container sequence 1, 0 name(s) missing within"
+    ],
+    "8x8-1if": [
+      "BURST save-burst: 107 name(s), the latest durable 1370.301 ms after its response (name 0; target 5,000 ms), 6 save(s), the cut's container sequence 6, 0 name(s) missing within",
+      "BURST save-flight: 1 name(s), the latest durable 663.104 ms after its response (name 0; target 5,000 ms), 2 save(s), 59 steps to the next save's erase (want 59) within"
+    ]
+  },
+  "budgets": {
+    "1x1": {
+      "groups": 98,
+      "refusals": 0,
+      "over_share": 0,
+      "work_passes": 132926,
+      "recorded_held_egress_misses": 7
+    },
+    "8x8-1if": {
+      "groups": 97,
+      "refusals": 0,
+      "over_share": 0,
+      "work_passes": 231039,
+      "recorded_held_egress_misses": 7
+    }
+  },
+  "images": {
+    "fixture-1x1-1if": {
+      "rom": 112728,
+      "rom_cap": 114688,
+      "sram": 55264,
+      "sram_cap": 55296,
+      "tiles": 41.5,
+      "rom_growth": 304
+    },
+    "fixture-1x1-2if": {
+      "rom": 114288,
+      "rom_cap": 114688,
+      "sram": 57456,
+      "sram_cap": 59392,
+      "tiles": 42.5,
+      "rom_growth": 304
+    },
+    "fixture-8x8-1if": {
+      "rom": 125392,
+      "rom_cap": 126976,
+      "sram": 96432,
+      "sram_cap": 98304,
+      "tiles": 55.0,
+      "rom_growth": 304
+    },
+    "fixture-8x8-2if": {
+      "rom": 126912,
+      "rom_cap": 126976,
+      "sram": 113376,
+      "sram_cap": 114688,
+      "tiles": 59.0,
+      "rom_growth": 304
+    },
+    "platform-1x1-1if": {
+      "rom": 117776,
+      "rom_cap": 118784,
+      "sram": 56352,
+      "sram_cap": 57344,
+      "tiles": 43.0,
+      "rom_growth": 296
+    },
+    "platform-1x1-2if": {
+      "rom": 119368,
+      "rom_cap": 120832,
+      "sram": 58528,
+      "sram_cap": 59392,
+      "tiles": 44.0,
+      "rom_growth": 304
+    },
+    "platform-8x8-1if": {
+      "rom": 130488,
+      "rom_cap": 131072,
+      "sram": 97392,
+      "sram_cap": 98304,
+      "tiles": 56.0,
+      "rom_growth": 304
+    },
+    "platform-8x8-2if": {
+      "rom": 132040,
+      "rom_cap": 133120,
+      "sram": 114352,
+      "sram_cap": 114688,
+      "tiles": 60.5,
+      "rom_growth": 296
+    }
+  },
+  "errors": []
+}

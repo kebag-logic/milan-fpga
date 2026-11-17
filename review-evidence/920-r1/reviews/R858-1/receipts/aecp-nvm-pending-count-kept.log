@@ -1,0 +1,150 @@
+Note: Google Test filter = Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle:Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Nvm
+[ RUN      ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:363: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 39
+  0u
+    Which is: 0
+the pending count follows its bits
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: the pending count follows its bits
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle (2 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 1
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 2
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 2
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 3
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 4
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 4
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 5
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 5
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 6
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 6
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 7
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:484: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 8
+  1u
+    Which is: 1
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 1
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:485: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 8
+  0u
+    Which is: 0
+
+  [FAIL] Nvm.EveryChangeQueuesOnlyItsOwnedRecords:     Which is: 0
+[  FAILED  ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 2 tests from Nvm (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+[  FAILED  ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

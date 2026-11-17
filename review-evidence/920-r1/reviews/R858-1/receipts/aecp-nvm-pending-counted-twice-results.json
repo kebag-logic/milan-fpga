@@ -1,0 +1,15 @@
+[
+  {
+    "name": "nvm-pending-counted-twice",
+    "path": "aecp/aecp_nvm.c",
+    "old": "\tif ((*word & bit) == 0u) ++n->pending_count;",
+    "new": "\t++n->pending_count;",
+    "checks": [
+      [
+        "Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle",
+        "the pending count follows its bits"
+      ]
+    ],
+    "caught": true
+  }
+]

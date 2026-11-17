@@ -1,0 +1,19 @@
+[
+  {
+    "name": "nvm-ids-past-256-dropped",
+    "path": "aecp/aecp_nvm.c",
+    "old": "\tif (id < 0) return;\n",
+    "new": "\tif (id < 0 || id >= 256) return;\n",
+    "checks": [
+      [
+        "Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle",
+        "every name's mark reaches the store, once"
+      ],
+      [
+        "Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle",
+        "survives the power cycle"
+      ]
+    ],
+    "caught": true
+  }
+]

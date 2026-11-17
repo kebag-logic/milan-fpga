@@ -1,0 +1,19 @@
+[
+  {
+    "name": "nvm-pending-count-kept",
+    "path": "aecp/aecp_nvm.c",
+    "old": "\t\t--n->pending_count;\n",
+    "new": "",
+    "checks": [
+      [
+        "Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle",
+        "the pending count follows its bits"
+      ],
+      [
+        "Nvm.EveryChangeQueuesOnlyItsOwnedRecords",
+        "owner.pending_count"
+      ]
+    ],
+    "caught": true
+  }
+]
