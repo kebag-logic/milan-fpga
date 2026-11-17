@@ -1,0 +1,39 @@
+Rounds 3 and 4: the commits and files, afa3ea19 (round 2's head) -> 1a1e6665, round 4's own da8a8b84 -> 1a1e6665
+command: git log --format='%h %s' afa3ea19..1a1e6665
+1a1e6665fc Restate the platform images and the boot as this head measures them, 64 B more rom at every point for the restart's outcome check with banks unchanged, and ratchet ctrl_plat_phy.c at its measured 178 lines and 164 branches (#919)
+33041d648d Grade the PHY's renegotiation count saturating at 0xffff, and plant the count wrapping (#919)
+8beada7683 Verify the PHY's restart by what it negotiates: a completed negotiation with no 1000BASE-T mode, the advertisement verified, is published down and restarted by the next poll, counted, and a restart's poll resolves from a BMSR read after it (#919, #840)
+da8a8b84e6 Restate the platform images and the PHY frame as this head measures them, 8 B less rom at every point and at most 145.45 us a frame within the stated 155 us (#919)
+c79f1c76c2 State the platform entry's one history on the fit page, 60.0, 60.5 by #895 and 61.0 by the PHY poll, and the ledger's comments by issue and decision alone (#919)
+5c2682a472 Grade the after-loss restart on a PHY that lost register 4 alone and one that lost register 9 alone, each restarted once, and plant both decisions reading the lost register as held (#919)
+319afb3d80 Restart negotiation after every write that repaired the PHY's advertisement, the abilities in force latched by the peer and graded through a dropped write at boot and after a loss (#919, #840)
+
+command: git diff --stat da8a8b84 1a1e6665 (round 4)
+ docs/design/SPLIT_CONTROL_MEMORY.md     |  16 ++--
+ sw/firmware/ctrl/plat/README.md         |  11 +--
+ sw/firmware/ctrl/plat/ctrl_plat_phy.c   |  31 ++++---
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h   |  27 ++++++-
+ sw/firmware/ctrl/test/phy_peer.hpp      |  16 +++-
+ sw/firmware/ctrl/test/plat_mutants.py   |  52 +++++++++---
+ sw/firmware/ctrl/test/test_plat_phy.cpp | 139 +++++++++++++++++++++++++++++++-
+ sw/firmware/gtest/coverage.ratchet      |   2 +-
+ sw/litex/ctrl_memory.py                 |   4 +-
+ tb/verilator/ctrl_split_boot/README.md  |   8 +-
+ tb/verilator/ctrl_split_boot/run.py     |   5 +-
+ 11 files changed, 260 insertions(+), 51 deletions(-)
+
+command: git diff --stat afa3ea19 1a1e6665 -- hdl sw/firmware/ctrl/mbx tb/verilator/ctrl_service_budget tb/verilator/fw_service_budget (RTL, mailbox, CPU budget harness: empty)
+(end)
+
+command: git diff --stat c805f699 1a1e6665 -- sw/firmware/milan_baremetal sw/firmware/nvm_hosttest sw/litex/patches hdl (the release image's inputs since its byte comparison: empty)
+(end)
+
+command: git diff --stat 8beada76 1a1e6665 (the measured code head to the final head: tests, docs, the ratchet row and two ledger reason strings)
+ docs/design/SPLIT_CONTROL_MEMORY.md     | 16 ++++++++--------
+ sw/firmware/ctrl/plat/README.md         | 10 +++++-----
+ sw/firmware/ctrl/test/plat_mutants.py   |  3 +++
+ sw/firmware/ctrl/test/test_plat_phy.cpp | 11 ++++++++++-
+ sw/firmware/gtest/coverage.ratchet      |  2 +-
+ sw/litex/ctrl_memory.py                 |  4 ++--
+ tb/verilator/ctrl_split_boot/README.md  |  8 ++++----
+ 7 files changed, 33 insertions(+), 21 deletions(-)

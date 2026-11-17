@@ -1,0 +1,36 @@
+rom bytes (.text, .rodata, .srodata, .data load) per object, base 70f4056f (dev-soft-core) -> c79f1c76 (the platform image at each point, linked by plat_ledger.py); objects that changed
+command: mapdiff.py <base point>/ctrl_app.map <head point>/ctrl_app.map
+== 1x1-if1
+ctrl_plat.o                                  9850 ->     9910  +60
+ctrl_plat_main.o                              168 ->      180  +12
+ctrl_plat_phy.o                                 0 ->     1875  +1875
+total                                      119780 ->   121727  +1947
+== 1x1-if2
+ctrl_plat.o                                  9898 ->     9962  +64
+ctrl_plat_main.o                              168 ->      180  +12
+ctrl_plat_phy.o                                 0 ->     1875  +1875
+total                                      121792 ->   123743  +1951
+== 8x8-if1
+ctrl_plat.o                                 22630 ->    22690  +60
+ctrl_plat_main.o                              224 ->      236  +12
+ctrl_plat_phy.o                                 0 ->     1875  +1875
+total                                      132488 ->   134435  +1947
+== 8x8-if2
+ctrl_plat.o                                 22718 ->    22786  +68
+ctrl_plat_main.o                              224 ->      236  +12
+ctrl_plat_phy.o                                 0 ->     1875  +1875
+total                                      134472 ->   136427  +1955
+
+== round 3's own share: the round-2 head afa3ea19 -> c79f1c76
+-- 1x1-if1
+ctrl_plat_phy.o                              1883 ->     1875  -8
+total                                      121735 ->   121727  -8
+-- 1x1-if2
+ctrl_plat_phy.o                              1883 ->     1875  -8
+total                                      123751 ->   123743  -8
+-- 8x8-if1
+ctrl_plat_phy.o                              1883 ->     1875  -8
+total                                      134443 ->   134435  -8
+-- 8x8-if2
+ctrl_plat_phy.o                              1883 ->     1875  -8
+total                                      136435 ->   136427  -8

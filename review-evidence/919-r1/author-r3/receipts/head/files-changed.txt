@@ -1,0 +1,29 @@
+Round 3's commits and files, afa3ea19 (round 2's head) -> da8a8b84
+command: git log --oneline afa3ea19..da8a8b84
+da8a8b84e6 Restate the platform images and the PHY frame as this head measures them, 8 B less rom at every point and at most 145.45 us a frame within the stated 155 us (#919)
+c79f1c76c2 State the platform entry's one history on the fit page, 60.0, 60.5 by #895 and 61.0 by the PHY poll, and the ledger's comments by issue and decision alone (#919)
+5c2682a472 Grade the after-loss restart on a PHY that lost register 4 alone and one that lost register 9 alone, each restarted once, and plant both decisions reading the lost register as held (#919)
+319afb3d80 Restart negotiation after every write that repaired the PHY's advertisement, the abilities in force latched by the peer and graded through a dropped write at boot and after a loss (#919, #840)
+
+command: git diff --stat afa3ea19 da8a8b84
+ docs/design/SPLIT_CONTROL_MEMORY.md     |  19 ++--
+ sw/firmware/ctrl/plat/README.md         |  14 +--
+ sw/firmware/ctrl/plat/ctrl_plat_phy.c   |  10 +-
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h   |  29 +++---
+ sw/firmware/ctrl/test/phy_peer.hpp      |  26 ++++-
+ sw/firmware/ctrl/test/plat_mutants.py   |  24 ++++-
+ sw/firmware/ctrl/test/test_plat_phy.cpp | 172 +++++++++++++++++++++++---------
+ sw/litex/ctrl_memory.py                 |  12 +--
+ tb/verilator/ctrl_split_boot/README.md  |  10 +-
+ 9 files changed, 216 insertions(+), 100 deletions(-)
+
+command: git diff --stat afa3ea19 da8a8b84 -- hdl sw/firmware/ctrl/mbx tb/verilator/ctrl_service_budget tb/verilator/fw_service_budget (RTL, mailbox, CPU budget harness: empty)
+(end)
+
+command: git diff --stat c79f1c76 da8a8b84 (the measured head to the final head: comments, docs and two ledger reason strings)
+ docs/design/SPLIT_CONTROL_MEMORY.md    | 16 ++++++++--------
+ sw/firmware/ctrl/plat/README.md        |  4 ++--
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h  |  4 ++--
+ sw/litex/ctrl_memory.py                |  4 ++--
+ tb/verilator/ctrl_split_boot/README.md | 10 +++++-----
+ 5 files changed, 19 insertions(+), 19 deletions(-)

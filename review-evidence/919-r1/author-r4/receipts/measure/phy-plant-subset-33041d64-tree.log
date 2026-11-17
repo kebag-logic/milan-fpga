@@ -1,0 +1,184 @@
+54 mutants
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake
+[ESCAPED] no defect names the test AcmpMailbox.F3bListenerRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.F3bProbeRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse
+[ESCAPED] no defect names the test AcmpMailbox.B11RestoredBindingsArePublishedAtOpen
+[ESCAPED] no defect names the test AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream
+[ESCAPED] no defect names the test AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake
+[ESCAPED] no defect names the test AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder
+[ESCAPED] no defect names the test AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe
+[ESCAPED] no defect names the test AcmpMailbox.K3AStartDropsTheKeptCommand
+[ESCAPED] no defect names the test AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass
+[ESCAPED] no defect names the test AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend
+[ESCAPED] no defect names the test AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted
+[ESCAPED] no defect names the test AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends
+[ESCAPED] no defect names the test AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[ESCAPED] no defect names the test AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[ESCAPED] no defect names the test AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ESCAPED] no defect names the test Plat.C1IdentityIsMilnAndReadsVersion
+[ESCAPED] no defect names the test Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[ESCAPED] no defect names the test Plat.C3StatusIsReadInMilanStatusOrder
+[ESCAPED] no defect names the test Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[ESCAPED] no defect names the test Plat.K1MilanStatusAnswersTheGradersLines
+[ESCAPED] no defect names the test Plat.K2MilanGettimeAnswersTaiNs
+[ESCAPED] no defect names the test Plat.K3LinesEndOnceAndOthersAreRefused
+[ESCAPED] no defect names the test Plat.K4EachPassIsBounded
+[ESCAPED] no defect names the test Plat.K5TextPastTheRingIsDroppedAndCounted
+[ESCAPED] no defect names the test Plat.K6NumbersAtTheirEdges
+[ESCAPED] no defect names the test PlatMmio.I1ReadIsTheWordAtTheAddress
+[ESCAPED] no defect names the test PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[ESCAPED] no defect names the test Boot.B1ReachesReadyInStepOrder
+[ESCAPED] no defect names the test Boot.B2ForeignWindowStopsAtIdentity
+[ESCAPED] no defect names the test Boot.B3RefusedImageStopsAtImage
+[ESCAPED] no defect names the test Boot.B4RefusedStreamCountStopsAfterThePolicy
+[ESCAPED] no defect names the test Boot.B5OtherContractStopsAtMailbox
+[ESCAPED] no defect names the test Boot.B6UnacknowledgedFaceStopsAtAecp
+[ESCAPED] no defect names the test Boot.B7OnlyAReadyBootServicesTheLoop
+[ESCAPED] no defect names the test Boot.B8PlatformPortsAnswerAsDocumented
+[ESCAPED] no defect names the test Boot.B9SrpSourcesCarryTheGeneratedStreams
+[ok] mutant plat-store-step-unbound (platboot1): 11 check(s) failed
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+[ok] mutant plat-phy-never-armed (platboot1): 15 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-loss-not-latched (platboot1, platboot1): 16 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 46 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-cease-not-ended (platboot1, platboot1): 24 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-link-counter-change-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.L3EachEdgeNotifiesTheCounters: L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one
+[ok] mutant plat-map-phy-rows-ignored (platmap): 1 check(s) failed
+    first: [FAIL] PlatMap.M1AllThreeRowsGiveTheirAddresses: M1 the PHY's three rows give their addresses (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_PHY_MDIO_W': 0, 'CTRL_PLAT_PHY_MDIO_R': 0, 'CTRL_PLAT_LINK_STATUS': 0})
+[ok] mutant plat-map-partial-accepted (platmap): 3 check(s) failed
+    first: [FAIL] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 0)
+[ok] mutant plat-map-absent-refused (platmap): 1 check(s) failed
+    first: [FAIL] PlatMap.M2NoRowsGiveZero: M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit 2, {})
+[ok] mutant plat-phy-unguarded (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a foreign window's MDIO pins are never touched
+[ok] mutant plat-phy-refused-stage-unpolled (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-store-owed-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the store owes one
+[ok] mutant plat-phy-after-an-idle-step-refused (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store step is an idle one carries one PHY frame
+[ok] mutant plat-phy-probe-scans (platboot1): 11 check(s) failed
+    first: [FAIL] PlatPhy.P1OneAddressIsProbedACall: P1 one address an opportunity, no scan in one call
+[ok] mutant plat-phy-late-sample (platboot1): 109 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-unpaced (platboot1, platboot1): 14 check(s) failed
+    first: [FAIL] Phy.L1ReadyLoopPublishesTheLink: L1 a poll a period, each publishing the link
+[ok] mutant plat-phy-wrap-unsafe (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P10TheClockWraps: P10 a poll is not due again before the clock wraps
+[ok] mutant plat-phy-common-mode-misread (platboot1): 7 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 the highest common mode of 4 and 5, case 0
+[ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+[ok] mutant plat-phy-ack-ignored (platboot1): 7 check(s) failed
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 a NAKed register is link down: 0xffff would resolve 100 full
+[ok] mutant plat-phy-turnaround-driven (platboot1): 16 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: the turnaround or data driven by the STA
+[ok] mutant plat-phy-no-deadline (platboot1): 5 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-not-owed (platboot1): 166 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-half-period-short (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 the half period at the SoC's clock: 200 ns, a turn a cycle
+[ok] mutant plat-phy-timed-run-ignored (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 277 us: one turn holds 200 ns
+[ok] mutant plat-phy-timed-resolution-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20
+[ok] mutant plat-phy-100base-tx-advertised (platboot1): 48 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-10base-t-advertised (platboot1): 42 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-reserved-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reserved bit 14 cleared, first arm
+[ok] mutant plat-phy-half-duplex-advertised (platboot1): 39 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 MASTER-SLAVE kept, first arm
+[ok] mutant plat-phy-test-mode-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 the test mode cleared, first arm
+[ok] mutant plat-phy-not-restarted (platboot1): 48 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 autonegotiation restarted, first arm
+[ok] mutant plat-phy-reset-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reset cleared, first arm
+[ok] mutant plat-phy-boot-restart-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 the boot restarts negotiation whatever the PHY holds
+[ok] mutant plat-phy-write-released (platboot1): 14 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: a write's turnaround or data not driven
+[ok] mutant plat-phy-mii-written (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 the register answering again resolves
+[ok] mutant plat-phy-10-100-written (platboot1): 10 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 an extended status without 1000BASE-T resolves from 4 and 5
+[ok] mutant plat-phy-advertised-once (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: Expected: (regs.size()) >= (10u), actual: 6 vs 10
+[ok] mutant plat-phy-restart-every-loss (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-reset-phy-not-restarted (platboot1): 21 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, both registers
+[ok] mutant plat-phy-lost-local-not-restarted (platboot1): 11 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 4 alone
+[ok] mutant plat-phy-lost-gig-not-restarted (platboot1): 9 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 9 alone
+[ok] mutant plat-phy-restarted-before-verified (platboot1, platboot1): 36 check(s) failed
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+[ok] mutant plat-phy-advertisement-unverified (platboot1): 22 check(s) failed
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+[ok] mutant plat-phy-written-before-read (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P16AnUnacknowledgedReadWritesNothing: P16 no write before its read: register 4 unacknowledged
+[ok] mutant plat-phy-outcome-unchecked (platboot1, platboot1): 42 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+[ok] mutant plat-phy-outcome-not-renegotiated (platboot1, platboot1): 32 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 one extra restart
+[ok] mutant plat-phy-outcome-uncounted (platboot1): 10 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+[ok] mutant plat-phy-outcome-count-wraps (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+[ok] mutant plat-phy-outcome-at-gigabit (platboot1): 22 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 1000BASE-T half duplex
+[ok] mutant plat-phy-resolved-before-restart (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce: P17 the repair restarts negotiation itself, THE OUTCOME owing none, at boot
+[ok] mutant plat-phy-outcome-on-unadvertised (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart: P18 a PHY the advertisement is not for owes no restart
+mutants: 54 of 54 caught; 74 test(s) named by no defect

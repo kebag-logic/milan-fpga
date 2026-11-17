@@ -1,0 +1,20 @@
+The platform image at each point, as plat_ledger.py --self-test plans it (each point's JSON record): rom and
+sram bytes, banks and tiles at round 2's head afa3ea19 and at da8a8b84; and each ctrl_app.elf's sha256 at
+c79f1c76 (the measured head) and da8a8b84 (comments, docs and ledger reason strings between them)
+== 1x1-if1
+  afa3ea19: rom 119444 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  da8a8b84: rom 119436 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  banks and tiles unchanged; ctrl_app.elf c79f1c76 33a3f8ed8f22d6f7 da8a8b84 33a3f8ed8f22d6f7: identical
+== 1x1-if2
+  afa3ea19: rom 121028 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  da8a8b84: rom 121020 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  banks and tiles unchanged; ctrl_app.elf c79f1c76 d8cd7b20035867e9 da8a8b84 d8cd7b20035867e9: identical
+== 8x8-if1
+  afa3ea19: rom 132148 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  da8a8b84: rom 132140 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  banks and tiles unchanged; ctrl_app.elf c79f1c76 5d628de6fb5b66a2 da8a8b84 5d628de6fb5b66a2: identical
+== 8x8-if2
+  afa3ea19: rom 133716 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  da8a8b84: rom 133708 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  banks and tiles unchanged; ctrl_app.elf c79f1c76 b633173c144760e8 da8a8b84 b633173c144760e8: identical
+verdict: every point's ROM and SRAM banks are round 2's: no route repeated (timing owed to #927)

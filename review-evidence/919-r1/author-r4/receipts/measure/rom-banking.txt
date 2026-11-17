@@ -1,0 +1,19 @@
+The platform image at each point as plat_ledger.py --self-test plans it (each point's JSON record): rom and sram
+bytes, banks and tiles at round 3's head da8a8b84 and at round 4's code head 8beada76
+== 1x1-if1
+  da8a8b84: rom 119436 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  8beada76: rom 119500 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  banks and tiles unchanged; rom left in its banks 1332 B
+== 1x1-if2
+  da8a8b84: rom 121020 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  8beada76: rom 121084 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  banks and tiles unchanged; rom left in its banks 1796 B
+== 8x8-if1
+  da8a8b84: rom 132140 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  8beada76: rom 132204 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  banks and tiles unchanged; rom left in its banks 916 B
+== 8x8-if2
+  da8a8b84: rom 133708 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  8beada76: rom 133772 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  banks and tiles unchanged; rom left in its banks 1396 B
+verdict: every point's ROM and SRAM banks are round 3's (and round 2's): no route repeated

@@ -1,0 +1,48 @@
+R851-1's mutants.sh and an executor's copy with renamed anchors, at 1a1e6665 (round 4)
+== scripts/mutants.sh, as the review wrote it: m3, m3b and m8 anchor on names this head renamed (refused)
+anchor found 0 times
+m3: anchor refused
+anchor found 0 times
+m3b: anchor refused
+anchor found 0 times
+m8: anchor refused
+m1 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m2 rc=1 FAILED  ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+m3 rc=3 
+m3b rc=3 
+m4 rc=1 FAILED  ] PlatPhy.P4ResolvedModesAreTheReleases
+m5 rc=1 FAILED  ] PlatPhy.P7OneFrameACallWithItsRoom
+m6 rc=0 
+m7 rc=1 FAILED  ] PlatPhy.P2PollsArePaced
+m8 rc=3 
+
+== scripts/mutants_renamed.sh: the same mutants with those three anchors renamed (diff below)
+m1 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m2 rc=1 FAILED  ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+m3 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m3b rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m4 rc=1 FAILED  ] PlatPhy.P4ResolvedModesAreTheReleases
+m5 rc=1 FAILED  ] PlatPhy.P7OneFrameACallWithItsRoom
+m6 rc=0 
+m7 rc=1 FAILED  ] PlatPhy.P2PollsArePaced
+m8 rc=1 FAILED  ] PlatPhy.P3LatchedLossPublishesBothEdges
+
+== diff scripts/mutants.sh scripts/mutants_renamed.sh
+2c2,4
+< # mutants.sh: the round's disposable mutants of ctrl_plat_phy.c, each built into a copy and run against
+---
+> # mutants_renamed.sh (round 4, the executor's copy): R851-1's mutants.sh with m3's, m3b's and m8's anchors
+> # renamed to this head's names (CTRL_PLAT_PHY_ADV_BOOT -> _RENEGOTIATE, the HELD line's break, STATUS's owed test);
+> # every other line is the review's. mutants.sh: the round's disposable mutants of ctrl_plat_phy.c, each built into a copy and run against
+16c18
+< mk m3 '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only(0u, (uint32_t)phy->gig))'
+---
+> mk m3 '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only(0u, (uint32_t)phy->gig))'
+18c20
+< mk m3b '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, CTRL_PLAT_PHY_GCTRL_1000_FULL))'
+---
+> mk m3b '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, CTRL_PLAT_PHY_GCTRL_1000_FULL))'
+29c31
+< mk m8 '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u) {' '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u && (phy->adv & CTRL_PLAT_PHY_ADV_BOOT) != 0u) {'
+---
+> mk m8 '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u) {' '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u && (phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) != 0u) {'

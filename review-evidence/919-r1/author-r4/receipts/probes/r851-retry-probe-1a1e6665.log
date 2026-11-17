@@ -1,0 +1,45 @@
+--- <scratch>/c-r4f/sw/firmware/ctrl/test/phy_peer.hpp	2026-11-17 01:03:54.989474409 +0100
++++ inc/phy_peer.hpp	2026-11-17 01:06:05.036769063 +0100
+@@ -64,6 +64,7 @@
+     unsigned drop_restarts = 0;                // the restart writes it loses next, whole
+     bool restart_drops = false;
+     unsigned restarts = 0;
++    std::uint16_t adv_at_restart = 0;
+     bool negotiates = false;                   // a restart latches the abilities in force and sets the link
+     std::uint16_t active_anar = 0, active_gctrl = 0;
+     unsigned active_speed = 0;                 // Mb/s of the link negotiated on them, 0: none
+@@ -164,6 +165,7 @@
+         else regs[reg] = value;
+         if (reg == 0u && (value & 0x0200u) != 0u) {
+             ++restarts;
++            adv_at_restart = regs[4];
+             if (restart_drops) latched_down = true;
+             if (negotiates) negotiate();
+         }
+--- <scratch>/c-r4f/sw/firmware/ctrl/test/test_plat_phy.cpp	2026-11-17 01:03:54.995474409 +0100
++++ inc/t.cpp	2026-11-17 01:06:05.052143374 +0100
+@@ -841,4 +841,19 @@
+     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+ }
+ 
++TEST_F(PlatPhy, R851DroppedBootWriteThenRepaired) {
++    peer.ignored = 4u;
++    arm_again();
++    (void)poll(now);
++    ASSERT_EQ(peer.restarts, 1u);
++    EXPECT_EQ(peer.adv_at_restart, 0x01e1u) << "R851 the only restart so far ran on the PHY defaults (100BASE-TX)";
++    peer.ignored = 32u;
++    for (int k = 0; k < 10; ++k) next();
++    std::printf("R851-PROBE register4=%04x advertised-at-last-restart=%04x restarts=%u adv-owed=%u published=%u\n",
++                peer.regs[4], peer.adv_at_restart, peer.restarts, phy.adv, peer.word);
++    EXPECT_EQ(peer.regs[4], 0x0001u) << "R851 register 4 repaired and read back";
++    EXPECT_EQ(phy.adv, 0u) << "R851 the advertisement counts as verified";
++    EXPECT_EQ(peer.adv_at_restart & 0x0180u, 0u) << "R851 the last negotiation ran without 100BASE-TX advertised";
++}
++
+ }  // namespace
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+R851-PROBE register4=0001 advertised-at-last-restart=0001 restarts=2 adv-owed=0 published=13
+[==========] 21 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 21 tests.
+rc=0
