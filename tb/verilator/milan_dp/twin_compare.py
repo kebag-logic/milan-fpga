@@ -466,8 +466,8 @@ SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapt
                "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
 SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
 SPLIT_DEST_MAC = ("the split datapath answers a STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's "
-                  "address, which the split does not build (hdl/milan/milan_datapath.sv, g_no_maap, and gsi_answer's "
-                  "selector 4), so a declaring STREAM_OUTPUT reads 0")
+                  "address, which the split does not build (milan_datapath.sv, g_no_maap, and gsi_answer's selector "
+                  "4), so a declaring STREAM_OUTPUT reads 0")
 FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
                 "image's constant 0, and never reads ADP's")
 
