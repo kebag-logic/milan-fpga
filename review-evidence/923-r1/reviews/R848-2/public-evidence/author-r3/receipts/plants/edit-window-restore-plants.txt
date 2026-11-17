@@ -1,0 +1,34 @@
+# every edit-, window- and restore- row of the AECP campaign (aecp_mutants.DEFECTS), each planted alone in a copy at 88676700, the whole table's controls first (round1/scripts/some_plants.py)
+caught  restore-forgets-override  Core.RestoreValuesValidateAndRollbackWithoutLiveEvents | Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+caught  restore-cluster-channel-ignored  Core.RestoredOutputMapsHaveOneGlobalOwner
+caught  restore-owner-unchecked  Core.RestoredOutputMapsHaveOneGlobalOwner
+caught  restore-conflict-unchecked  Core.RestoredOutputMapsHaveOneGlobalOwner
+caught  edit-store-skipped  Core.AnAcceptedEditReachesTheStoreBeforeTheMap | Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+caught  edit-every-record  Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+caught  edit-held-mappings-added  Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+caught  edit-repeats-sent  Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+caught  edit-refusal-ignored  Core.AStoreRefusalIsTheAnswerAndChangesNothing | Face.ARefusedBeatAbortsAndNothingMoves
+caught  edit-before-the-checks  Core.ARefusedEditNeverReachesTheStore
+caught  restore-adds-beside-its-removal  Core.RestoredMapsReachTheStoreRemovalsFirst
+caught  restore-removes-what-it-adds  Core.RestoredMapsReachTheStoreRemovalsFirst | Face.RestoredMapsReachTheStoreThroughTheEditWindow
+caught  restore-reset-set-unclipped  Core.TheStoresResetSetIsTheClippedOne
+caught  restore-refused-reset-unclipped  Core.TheStoresResetSetIsTheClippedOne
+caught  restore-removal-refusal-ignored  Core.ARefusedRestoreKeepsWhatTheStoreHolds
+caught  restore-not-put-back  Core.ARefusedRestoreKeepsWhatTheStoreHolds
+caught  restore-put-back-trusted  Core.ARefusedRestoreKeepsWhatTheStoreHolds
+caught  restore-commits-an-open-core  Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+caught  restore-past-a-page  Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+caught  restore-every-configuration  Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+caught  restore-not-committed-at-open  AppStore.TheRestoredMapsReachTheStoreBeforeAecpOpens
+caught  window-never-aborts  Face.ARefusedBeatAbortsAndNothingMoves
+caught  window-validation-trusted  Face.ARefusedBeatAbortsAndNothingMoves
+caught  window-commit-begin-trusted  Face.ARefusedBeatAbortsAndNothingMoves
+caught  window-begin-trusted  Face.ARefusedBeatAbortsAndNothingMoves
+caught  window-record-halves-swapped  Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+caught  window-port-every-beat  Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+caught  window-request-words-from-the-first  Face.AnEditIsTheReleasesTransactionOnTheEditWindow
+caught  window-begin-asked-once  Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+caught  window-reserved-commit-refuses  Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+caught  window-silence-uncounted  Face.AnUnansweredEditFailsUntilItsCommitIsReserved
+caught  window-lost-reply-stops-the-commit  Face.ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing | Face.ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing
+32 of 32 caught
