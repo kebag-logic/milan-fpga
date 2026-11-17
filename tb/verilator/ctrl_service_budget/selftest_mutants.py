@@ -878,6 +878,15 @@ MUTANTS: dict[str, Patches] = {
     "leaveall: the participants' applications not told apart": lambda: [patch.dict(
         mrpdu_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
     "leaveall: a Listener vector's FourPackedEvents not skipped": lambda: [patch.object(mrpdu_grade, 'LISTENER', 0)],
+    "leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner "
+    "(earlier rule)": lambda: [patch.object(mrpdu_grade, 'owner', lambda log, entry: next((who for _, who in sorted(
+        (c, who) for who, mine in mrpdu_grade.sends(log)[0].items() for c, la in mine if c > entry and la)), None))],
+    "leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP": lambda: [patch.object(
+        mrpdu_grade, 'owner', lambda log, entry, f=mrpdu_grade.owner: f(log, entry) or 'if0 MSRP')],
+    "leaveall: the participants' interfaces not told apart": lambda: [patch.object(
+        mrpdu_grade, 'participant', lambda frame, interface, f=mrpdu_grade.participant: f(frame, 0))],
+    'leaveall: an unowned LeaveAll not failing the run': lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('skipped', 'late', 'absent'))],
     'leaveall: an absent LeaveAll taken for an unresolved one': lambda: [patch.object(
         mrpdu_grade, 'leave_alls', lambda log, f=mrpdu_grade.leave_alls: [
             dict(r, outcome='unresolved') if r['outcome'] == 'absent' else r for r in f(log)])],

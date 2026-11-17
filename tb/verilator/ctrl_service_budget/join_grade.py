@@ -67,8 +67,8 @@ def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
     MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
     with its timer, its time, its participant's transmit opportunity and how far its first frame or build, or the log's
-    end, lies past that; and every LeaveAll timer's run-out by its LeaveAll (mrpdu_grade.leave_alls), each skipped, late
-    or absent one named."""
+    end, lies past that; and every LeaveAll timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each
+    skipped, late, absent or unowned one named."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
     builds, _, sent, last = mrpdu_grade.index(log)
@@ -86,9 +86,9 @@ def held(log: grade.Log) -> dict:
     alls = mrpdu_grade.leave_alls(log)
     leave_all = dict(runs={o: sum(1 for r in alls if r['outcome'] == o) for o in mrpdu_grade.LEAVE_ALL_OUTCOMES},
                      failing=[dict(outcome=r['outcome'], who=r.get('who'), at_ms=ms(r['at']),
-                                   **({} if 'sent' not in r else dict(
-                                       opportunity_ms=ms(r['opportunity']), first_ms=ms(r['first']),
-                                       sent_ms=ms(r['sent']))))
+                                   recorded=r.get('recorded', True),
+                                   **{f'{k}_ms': ms(r[k]) for k in ('opportunity', 'first', 'sent')
+                                      if r.get(k) is not None})
                               for r in alls if r['outcome'] in mrpdu_grade.LEAVE_ALL_FAILING])
     return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
                 longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing,

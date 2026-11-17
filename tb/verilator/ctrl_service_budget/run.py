@@ -184,17 +184,22 @@ def stated_misses(results: list[dict]) -> list[str]:
 
 
 def leave_all_miss(group: str, o: dict) -> str:
-    """A LeaveAll timer's run-out whose LeaveAll went past its participant's first transmit opportunity, late after
-    it, or not at all (mrpdu_grade.leave_alls), as a finding names it."""
+    """A LeaveAll timer's run-out whose owner's LeaveAll went past its first transmit opportunity, late after it, or
+    not at all, or whose owner was not recorded at the expiry (mrpdu_grade.leave_alls), as a finding names it."""
     import mrpdu_grade
+    at = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms"
+    if o['outcome'] == 'unowned':
+        return (at + (", its owner recorded unresolved at the expiry" if o.get('recorded') else
+                      ", no owner recorded at the expiry") + ' (LeaveAll owner unresolved)')
+    head = f"{at} ({o['who']}): "
     if o['outcome'] == 'absent':
-        return (f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms, no LeaveAll after it though the log "
-                f"runs on past every participant's transmit opportunity and THE TRANSMIT's bound (LeaveAll absent)")
-    head = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms ({o['who']}): "
+        return (head + f"no MRPDU of its owner after it though the log runs on past its first transmit opportunity at "
+                f"{o['opportunity_ms']:.3f} ms and THE TRANSMIT's bound (LeaveAll absent)")
     if o['outcome'] == 'skipped':
+        went = (f"the LeaveAll went at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after it"
+                if 'sent_ms' in o else 'no LeaveAll followed')
         return (head + f"its first transmit opportunity at {o['opportunity_ms']:.3f} ms sent an MRPDU without the "
-                f"LeaveAll at {o['first_ms']:.3f} ms, and the LeaveAll went at {o['sent_ms']:.3f} ms (LeaveAll past "
-                f"its first transmit opportunity)")
+                f"LeaveAll at {o['first_ms']:.3f} ms, and {went} (LeaveAll past its first transmit opportunity)")
     return (head + f"its LeaveAll at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after its "
             f"first transmit opportunity at {o['opportunity_ms']:.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} "
             f"ms (LeaveAll late)")

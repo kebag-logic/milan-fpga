@@ -104,6 +104,11 @@ class Log:
     rxc: list[tuple[int, int, int, str, int]] = field(default_factory=list)  # cycle, channel, interface, tag, bytes
     refused: list[tuple[int, int, str, int]] = field(default_factory=list)   # last byte, interface, tag, bytes
     entries: list[tuple[int, str]] = field(default_factory=list)            # cycle, function entered
+    # An MRP timer's entry's owner as the testbench recorded it at the expiry (sim_main.cpp, owner_of), by its
+    # (cycle, callback): the participant (`if0 MSRP`), or None where it recorded the owner unresolved; an entry
+    # with no record (a log before the record) has no key.
+    owners: dict[tuple[int, str], str | None] = field(default_factory=dict)
+    participants: list[tuple[int, int, str]] = field(default_factory=list)  # cycle, timer argument, its owner
     traced: list[tuple[str, ...]] = field(default_factory=list)              # SPAN and CALL lines' fields
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
@@ -158,6 +163,17 @@ def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -
     return frame[:3]
 
 
+def entry(log: Log, kind: str, rest: list[str]) -> None:
+    """A function's entry (ENTRY), with an MRP timer's owner as the testbench recorded it at the expiry, or the
+    testbench's binding of a participant's timer argument at its creation (PARTICIPANT; sim_main.cpp, note_owner)."""
+    if kind == 'PARTICIPANT':
+        log.participants.append((int(rest[0]), int(rest[1], 16), ' '.join(rest[2:])))
+        return
+    log.entries.append((int(rest[0]), rest[1]))
+    if len(rest) > 2:
+        log.owners[(int(rest[0]), rest[1])] = None if rest[2] == 'unresolved' else ' '.join(rest[2:4])
+
+
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
     """Every observation line; a line the testbench does not print is refused."""
     log = Log(sys_hz, cpu_hz)
@@ -183,8 +199,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'RXC':
             cycle = int(rest[0])
             log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
-        elif kind == 'ENTRY':
-            log.entries.append((int(rest[0]), rest[1]))
+        elif kind in ('ENTRY', 'PARTICIPANT'):
+            entry(log, kind, rest)
         elif kind in ('SPAN', 'CALL'):
             # The saved-state store's traced calls (#665): nvm_split_target grades them; this grader reads none.
             log.traced.append((kind, *rest))

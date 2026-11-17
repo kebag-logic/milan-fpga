@@ -20,12 +20,18 @@ runs on past the bound after every participant's opportunity, and `unresolved` w
 absent build fails the run (join_grade.held); an unresolved one is counted and named, never taken for one that owes
 nothing.
 
-A LeaveAll timer's run-out owes its participant's LeaveAll (leave_alls): the participant's first MRPDU after the
-run-out that declares a LeaveAll, which must be the first MRPDU it sends after the run-out, at its first transmit
-opportunity, and within THE TRANSMIT's bound of that opportunity (IEEE 802.1Q-2018 10.7.4.1: the LeaveAll goes
-out at the next transmit opportunity after the timer expires). A participant that sends an MRPDU without it first has
-`skipped` a transmit opportunity; one whose LeaveAll comes past the bound is `late`; and no LeaveAll after the run-out
-is `absent` or `unresolved` as above. A skipped, late or absent LeaveAll fails the run (join_grade.held).
+A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
+at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
+participant's creation (grade.Log.owners; sim_main.cpp, owner_of and note_owner), never inferred from an output after
+it (PR #934). The owner's LeaveAll is the first of the owner's own MRPDUs after the run-out that declares a LeaveAll,
+which must be the first MRPDU the owner sends after the run-out, at its first transmit opportunity, and within THE
+TRANSMIT's bound of that opportunity (IEEE 802.1Q-2018 10.7.4.1: the LeaveAll goes out at the next transmit
+opportunity after the timer expires). An owner that sends an MRPDU without it first has `skipped` a transmit
+opportunity; one whose LeaveAll comes past the bound is `late`; no MRPDU of the owner's after the run-out is `absent`
+in a log that runs on past the bound after the owner's opportunity, and `unresolved` where the log ends first; and a
+run-out with no owner recorded, or its owner recorded unresolved, is `unowned`. A skipped, late, absent or unowned
+LeaveAll fails the run (join_grade.held). The LeaveAll's row is timed on the owner's LeaveAll, from the owner's first
+transmit opportunity (rows).
 """
 from __future__ import annotations
 
@@ -58,8 +64,8 @@ LISTENER = 3
 #: The LeaveAll timer's callback (mrp_mad.c).
 LEAVE_ALL = 'on_la_timer'
 #: The outcomes of a LeaveAll timer's run-out by its LeaveAll (leave_alls), and those that fail a run.
-LEAVE_ALL_OUTCOMES = ('sent', 'skipped', 'late', 'absent', 'unresolved')
-LEAVE_ALL_FAILING = ('skipped', 'late', 'absent')
+LEAVE_ALL_OUTCOMES = ('sent', 'skipped', 'late', 'absent', 'unresolved', 'unowned')
+LEAVE_ALL_FAILING = ('skipped', 'late', 'absent', 'unowned')
 #: The outcomes of a timer's run-out (resolve), and those that fail a run.
 OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
 FAILING = ('late', 'absent')
@@ -234,39 +240,53 @@ def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:
     return [(entry, TIMERS[name], resolve(log, entry)[0]) for entry, name in log.entries if name in TIMERS]
 
 
+def owner(log: grade.Log, entry: int) -> str | None:
+    """The participant that owns a LeaveAll timer's run-out at entry, as the testbench recorded it at the expiry
+    (grade.Log.owners), or None where it recorded none or recorded the owner unresolved."""
+    return log.owners.get((entry, LEAVE_ALL))
+
+
 def leave_alls(log: grade.Log) -> list[dict]:
-    """Each LeaveAll timer's run-out and the LeaveAll it owes, as the module docstring says: its time, its outcome
-    (LEAVE_ALL_OUTCOMES), its participant, that participant's first transmit opportunity after it, the commit of its
-    first MRPDU after it and of the LeaveAll. A LeaveAll answers one run-out, the earliest still unanswered before
-    it."""
+    """Each LeaveAll timer's run-out and the LeaveAll its owner owes, as the module docstring says: its time, its
+    outcome (LEAVE_ALL_OUTCOMES), its owner, the owner's first transmit opportunity after it, the commit of the
+    owner's first MRPDU after it and of its LeaveAll; with no owner, whether the testbench recorded one unresolved."""
     by, _, _ = sends(log)
     last, bound = index(log)[3], int(LATE_MS * log.sys_hz / 1000)
-    taken: set[tuple[str, int]] = set()
     out = []
     for entry in sorted(c for c, name in log.entries if name == LEAVE_ALL):
-        found = [(c, who) for who, mine in by.items()
-                 for c in [next((c for c, la in mine if c > entry and la and (who, c) not in taken), None)] if c]
-        if not found:
-            latest = max([entry] + [opportunity(log, who, entry) for who in by])
-            out.append(dict(at=entry, outcome='absent' if last > latest + bound else 'unresolved'))
+        who = owner(log, entry)
+        if who is None:
+            out.append(dict(at=entry, outcome='unowned', recorded=(entry, LEAVE_ALL) in log.owners))
             continue
-        sent, who = min(found)
-        taken.add((who, sent))
+        mine = by.get(who, [])
         start = opportunity(log, who, entry)
-        first = next(c for c, _ in by[who] if c > entry)
-        outcome = 'skipped' if first < sent else 'late' if sent > start + bound else 'sent'
+        first = next((c for c, _ in mine if c > entry), None)
+        sent = next((c for c, la in mine if c > entry and la), None)
+        if first is None:
+            out.append(dict(at=entry, outcome='absent' if last > start + bound else 'unresolved', who=who,
+                            opportunity=start))
+            continue
+        outcome = 'skipped' if sent is None or first < sent else 'late' if sent > start + bound else 'sent'
         out.append(dict(at=entry, outcome=outcome, who=who, opportunity=start, first=first, sent=sent))
     return out
 
 
+def tick_at(log: grade.Log, at: int) -> int:
+    """The centisecond whose TICK is the last at or before a bus cycle, or that cycle with none before it."""
+    posted = sends(log)[2]
+    k = bisect_right(posted, at)
+    return posted[k - 1] if k else at
+
+
 def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
     """A held group's timer rows: for each timer and interface the longest, each a row of its own, from its
-    participant's transmit opportunity (begin)."""
+    participant's transmit opportunity (begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
     if not group.save or not group.save.get('loaded'):
         return []
     log = grader.log
     origin = next(cycle for cycle, name in log.marks if name == group.save.get('origin', 'save.change'))
     posted = ticks(log)
+    alls = leave_alls(log)
     worst: dict[tuple[str, int], tuple[int, int]] = {}
     for entry, name in log.entries:
         if name not in TIMERS or entry < origin:
@@ -274,8 +294,14 @@ def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
         deadline = max((c for c in posted if c <= entry), default=None)
         if deadline is None or deadline < origin:
             continue
-        for end, interface in commits(grader, entry):
-            key, start = (TIMERS[name], interface), begin(log, entry, end, interface)
+        if name == LEAVE_ALL:
+            # the owner's LeaveAll, from the owner's first transmit opportunity (leave_alls)
+            r = next((r for r in alls if r['at'] == entry), {})
+            timed = [(r['sent'], int(r['who'].split()[0][2:]), tick_at(log, r["opportunity"]))] if r.get('sent') else []
+        else:
+            timed = [(end, interface, begin(log, entry, end, interface)) for end, interface in commits(grader, entry)]
+        for end, interface, start in timed:
+            key = (TIMERS[name], interface)
             if key not in worst or end - start > worst[key][1] - worst[key][0]:
                 worst[key] = (start, end)
     out = []
