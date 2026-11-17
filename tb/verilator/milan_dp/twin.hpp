@@ -53,8 +53,8 @@ constexpr std::uint64_t kMaapMulticast = 0x91E0F000FF00ull;  // IEEE 1722-2016 T
 
 //! The entity under test, from the shipping shape's generated identity
 //! (configs/endstation_ax7101_1x1_tdm8.yaml; adp_entity_gen.h).
-constexpr std::uint64_t kEntityId = 0x020000FFFE000001ull;
-constexpr std::uint64_t kEntityMac = 0x020000000001ull;
+constexpr std::uint64_t kEntityId = 0x024B4CFFFE4B4C01ull;
+constexpr std::uint64_t kEntityMac = 0x024B4C4B4C01ull;
 //! The controller, a second controller, a peer talker and a peer listener.
 constexpr std::uint64_t kController = 0x1111222233334444ull;
 constexpr std::uint64_t kControllerMac = 0x001B92000099ull;

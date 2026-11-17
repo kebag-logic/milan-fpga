@@ -942,6 +942,61 @@ MUTANTS: dict[str, Patches] = {
         mrpdu_grade, 'index', lambda log, f=mrpdu_grade.index: (lambda builds, passes, sent, last: (
             builds, passes, [s for s in sent if any(q.start_sys <= s[0] < mrpdu_grade.end_of(log, q) and any(
                 q.start_sys <= c < mrpdu_grade.end_of(log, q) for c in builds) for q in passes)], last))(*f(log)))],
+    "transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier "
+    "rule)": lambda: [patch.object(mrpdu_grade, 'opportunity', lambda log, who, entry: entry)],
+    "transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier "
+    "rule)": lambda: [patch.object(mrpdu_grade, 'anchor', lambda log, entry: max([entry] + [
+        c for c, name in log.entries if name == 'on_join_timer' and entry < c <= next(
+            (b for b in mrpdu_grade.index(log)[0] if b > entry), entry)]))],
+    "transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback "
+    "restored)": lambda: [patch.object(mrpdu_grade, 'recorded_owner', lambda log, entry, f=mrpdu_grade.recorded_owner: (
+        f(log, entry) or max(mrpdu_grade.sends(log)[0], key=lambda who: mrpdu_grade.opportunity(log, who, entry),
+                             default=None)))],
+    "transmit: an unowned run-out not failing the run": lambda: [patch.object(
+        mrpdu_grade, 'FAILING', ('late', 'absent'))],
+    "transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule)":
+        lambda: [patch.object(mrpdu_grade, 'horizon', lambda log, entry, who: max([entry] + [
+            mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[0]]))],
+    "transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's "
+    "opportunity (earlier rule)": lambda: [patch.object(mrpdu_grade, 'served', lambda log, entry, who, frames: (
+        frames, min([mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[1].get(
+            frames[0], ())] or [entry]) if frames else entry))],
+    "transmit: another participant's MRPDU credited to a run-out, timed from its owner": lambda: [patch.object(
+        mrpdu_grade, 'served', lambda log, entry, who, frames: (frames, mrpdu_grade.opportunity(log, who, entry)))],
+    "transmit: a build's recorded participant ignored, every build from the owner's opportunity taken for the owner's":
+        lambda: [patch.object(mrpdu_grade, 'candidate', lambda log, b, who, start: 'own' if b >= start else None)],
+    "transmit: a run-out settled by the first build after it, whichever participant's (earlier rule)": lambda: [
+        patch.object(mrpdu_grade, 'candidate', lambda log, b, who, start: 'own')],
+    "transmit: a build with no participant recorded that sends nothing taken for the owner's": lambda: [patch.object(
+        mrpdu_grade, 'candidate', lambda log, b, who, start, f=mrpdu_grade.candidate: (
+            lambda kind: 'own' if kind == 'unattributed' else kind)(f(log, b, who, start)))],
+    "transmit: the owner's own build before its transmit opportunity settling its run-out": lambda: [patch.object(
+        mrpdu_grade, 'candidate', lambda log, b, who, start, f=mrpdu_grade.candidate: f(log, b, who, -1))],
+    "transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)":
+        lambda: [patch.object(mrpdu_grade, 'start_of', lambda log, entry, whose: min([
+            mrpdu_grade.opportunity(log, other, entry) for other in whose] or [entry]))],
+    "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
+        mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
+    'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('late', 'absent'))],
+    "leaveall: a late LeaveAll not failing the run": lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('skipped', 'absent'))],
+    'leaveall: any MRPDU taken for the LeaveAll': lambda: [patch.object(mrpdu_grade, 'leave_all', lambda frame: True)],
+    "leaveall: the participants' applications not told apart": lambda: [patch.dict(
+        mrpdu_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
+    "leaveall: a Listener vector's FourPackedEvents not skipped": lambda: [patch.object(mrpdu_grade, 'LISTENER', 0)],
+    "leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner "
+    "(earlier rule)": lambda: [patch.object(mrpdu_grade, 'owner', lambda log, entry: next((who for _, who in sorted(
+        (c, who) for who, mine in mrpdu_grade.sends(log)[0].items() for c, la in mine if c > entry and la)), None))],
+    "leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP": lambda: [patch.object(
+        mrpdu_grade, 'owner', lambda log, entry, f=mrpdu_grade.owner: f(log, entry) or 'if0 MSRP')],
+    "leaveall: the participants' interfaces not told apart": lambda: [patch.object(
+        mrpdu_grade, 'participant', lambda frame, interface, f=mrpdu_grade.participant: f(frame, 0))],
+    'leaveall: an unowned LeaveAll not failing the run': lambda: [patch.object(
+        mrpdu_grade, 'LEAVE_ALL_FAILING', ('skipped', 'late', 'absent'))],
+    'leaveall: an absent LeaveAll taken for an unresolved one': lambda: [patch.object(
+        mrpdu_grade, 'leave_alls', lambda log, f=mrpdu_grade.leave_alls: [
+            dict(r, outcome='unresolved') if r['outcome'] == 'absent' else r for r in f(log)])],
     'polls: the declined offers held to three a send': lambda: [patch.object(
         poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(

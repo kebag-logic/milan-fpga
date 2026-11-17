@@ -87,6 +87,9 @@ def builtin_spec() -> dict[str, Any]:
         # builder derives them from gptp-processor/hdl/ucode/
         # gen_gptp_ucode.py and refuses a diverging config, so a drift here
         # breaks gate 10 loudly instead of shipping two clocks.
+        # clock_accuracy is the arty config's own 0xFE (802.1AS-2011
+        # 8.6.2.3 b), an uncharacterised oscillator), which the builder
+        # passes to the engine per image since #843.
         # port_number is the engine's OUR_PORTNUM_C (#462), written out
         # here for the same reason and graded the same way: gate 37 reads
         # this literal against the builder's parse of the generator, so a

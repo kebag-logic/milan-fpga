@@ -189,10 +189,12 @@ def stated_misses(results: list[dict]) -> list[str]:
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
-    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
-    absent (join_grade.held, mrpdu_grade.resolve)."""
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
+    participant's transmit opportunity, or absent, or whose owner the testbench did not record at the expiry
+    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
+    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
+    (mrpdu_grade.leave_alls)."""
     import join_grade
-    import mrpdu_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -215,11 +217,51 @@ def stated_misses(results: list[dict]) -> list[str]:
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
-            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
-             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
-              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
-              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
-             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])
+            [run_out_miss(g['group'], o) for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
+            [leave_all_miss(g['group'], o)
+             for g in results for o in g['passes'].get('joins', {}).get('leave_all', {}).get('failing', [])])
+
+
+def run_out_miss(group: str, o: dict) -> str:
+    """An MRP timer's run-out whose owner's frame or build is late past the owner's transmit opportunity, or absent, or
+    whose owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names
+    it, with its owner and the owner's opportunity."""
+    import mrpdu_grade
+    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms"
+    if o['outcome'] == 'unowned':
+        return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
+            ' at the expiry (owner unresolved)'
+    opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
+    if o['outcome'] == 'late' and o.get('by') == 'bound':
+        return (at + f" ({o.get('who')}): no frame or build of its owner's within THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+                f"ms of {opp}, a build {o['after_ms']:.3f} ms after it (late)")
+    if o['outcome'] == 'late':
+        return (at + f" ({o.get('who')}): its owner's first frame or build {o['after_ms']:.3f} ms after {opp}, past "
+                f"THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+    return at + f" ({o.get('who')}): no build after it though the log runs on {o['after_ms']:.3f} ms past {opp} " \
+        '(absent)'
+
+
+def leave_all_miss(group: str, o: dict) -> str:
+    """A LeaveAll timer's run-out whose owner's LeaveAll went past its first transmit opportunity, late after it, or
+    not at all, or whose owner was not recorded at the expiry (mrpdu_grade.leave_alls), as a finding names it."""
+    import mrpdu_grade
+    at = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms"
+    if o['outcome'] == 'unowned':
+        return (at + (", its owner recorded unresolved at the expiry" if o.get('recorded') else
+                      ", no owner recorded at the expiry") + ' (LeaveAll owner unresolved)')
+    head = f"{at} ({o['who']}): "
+    if o['outcome'] == 'absent':
+        return (head + f"no MRPDU of its owner after it though the log runs on past its first transmit opportunity at "
+                f"{o['opportunity_ms']:.3f} ms and THE TRANSMIT's bound (LeaveAll absent)")
+    if o['outcome'] == 'skipped':
+        went = (f"the LeaveAll went at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after it"
+                if 'sent_ms' in o else 'no LeaveAll followed')
+        return (head + f"its first transmit opportunity at {o['opportunity_ms']:.3f} ms sent an MRPDU without the "
+                f"LeaveAll at {o['first_ms']:.3f} ms, and {went} (LeaveAll past its first transmit opportunity)")
+    return (head + f"its LeaveAll at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after its "
+            f"first transmit opportunity at {o['opportunity_ms']:.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+            f"ms (LeaveAll late)")
 
 
 #: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
@@ -243,6 +285,9 @@ def print_joins(results: list[dict]) -> None:
     for g in results:
         j = g['passes'].get('joins') or {}
         runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
+        alls = ', '.join(f'{n} {outcome}' for outcome, n in
+                         ((j.get('leave_all') or {}).get('runs') or {}).items() if n)
+        runs += f"; LeaveAll timers' run-outs by their LeaveAll: {alls}" if alls else ''
         if j.get('count'):
             print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
                   f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}; MRP "

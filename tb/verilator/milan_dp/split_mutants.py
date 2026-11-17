@@ -4,8 +4,8 @@
 """split_mutants.py - the split leg's planted defects, each caught by the check it names (#665).
 
 Each arm plants one defect into a copy of one source of the split placement's
-control path (the datapath's split branch, KL_mbx_cdc, its window or
-KL_ctrl_split), builds the split leg through its own recipe (make build-split
+control path (the datapath's split branch and the #839 transmit gate on its
+control lane, KL_mbx_cdc, its window or KL_ctrl_split), builds the split leg through its own recipe (make build-split
 with the copy in place of the source: DP_SRC, CDC_SRC, CDCW_SRC or CTLS_SRC)
 into a directory of its own, and runs it. The arm is caught when the run
 fails and prints FAIL beside the label of the check the arm names. A clean
@@ -144,6 +144,16 @@ ARMS = (
      "      .rx_drops_o       (),\n      .tx_frames_o      (pp_tx_frames_w)\n    );\n"
      "    assign pp_rx_drops_w = 8'd0;",
      "[RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count"),
+    ("the control lane past the station MAC transmit gate", DP,
+     "  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;\n"
+     "  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;",
+     "  assign pp_tx_tvalid_w    = pp_txs_tvalid_w;\n"
+     "  assign pp_txs_tready_w   = pp_tx_tready_w;",
+     "[TX] the gate holds the committed frame before the station MAC is written (#839)"),
+    ("the station MAC transmit gate opened by one half", DP,
+     "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;",
+     "  assign tx_sa_ok_w = mac_alo_wr_r | mac_ahi_wr_r;",
+     "[TX] ...and with its low half alone"),
 )
 
 

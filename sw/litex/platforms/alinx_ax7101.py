@@ -17,7 +17,7 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
 from clock_constraints import BoundedEthVivadoToolchain
-from platforms.ax7101_timing import TIMING_GRADE, configure_commands
+from platforms.ax7101_timing import board_part, configure_commands
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -294,15 +294,18 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9 / 200e6
 
-    def __init__(self, toolchain="vivado"):
+    def __init__(self, toolchain="vivado", part=None):
         # The board marking is industrial; #395 declares a commercial release.
-        Xilinx7SeriesPlatform.__init__(self, TIMING_GRADE["part"], _io, _connectors,
+        # `part` picks the die (#911): the pins, banks and constraints below
+        # are the board's and hold for every entry of BOARD_PARTS.
+        part = board_part(part)
+        Xilinx7SeriesPlatform.__init__(self, part, _io, _connectors,
                                        toolchain=toolchain)
         if toolchain == "vivado":
             # Replace before adding any hooks; state on the old toolchain
             # would be discarded. Keep all hook configuration below this.
             self.toolchain = BoundedEthVivadoToolchain()
-        for command in configure_commands():
+        for command in configure_commands(part):
             # LiteX formats these strings once while writing the build Tcl.
             self.toolchain.pre_placement_commands.append(
                 command.replace("{", "{{").replace("}", "}}"))
