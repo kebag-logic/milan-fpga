@@ -6,7 +6,8 @@
 // msrp_app_create and mrp_set_observer renamed to the seams below (srp_arms.py), which restore that schedule in the
 // reference run and only pass each call on in the copied run. Random record sequences run through both from the same
 // seed: every mailbox write and every licence call, in order, and the state the loop, ACMP and THE TRANSMIT read must
-// be the same after every step, and each settled step of the copied run holds what a walk of the registrar copies.
+// be the same after every step, and each settled step of the copied run holds what a walk of the registrar copies,
+// each sink's declaration by the latest Talker registration while both kinds are registered (#925).
 // Run at 1x1/1if and 8x8/1if (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
 #include <array>
@@ -88,7 +89,9 @@ bool holds_walk(const srp_interface &i) {
         if(w.present[n]!=i.listener_present[n] || w.registered[n]!=i.registered[n]) return false;
     for(unsigned k=0;k<CTRL_SRP_SINKS;++k) {
         if(w.kinds[k]!=i.sinks[k].registered_kinds) return false;
-        if(i.sinks[k].desired!=((w.kinds[k]&1) ? 1 : (w.kinds[k]&2))) return false;
+        // the declaration the walked kinds ask for, the latest registered deciding while both are (#925)
+        const uint8_t latest=i.sinks[k].latest_kind, kinds=(w.kinds[k]&latest) ? latest : w.kinds[k];
+        if(i.sinks[k].desired!=((kinds&1) ? 1 : kinds)) return false;
     }
     return true;
 }
