@@ -295,6 +295,15 @@ Verification: <how the fix will be checked>
 A review round that discovers defects is not approval of later fixes. Re-review
 the corrected commit and publish a new verdict.
 
+**A frozen PR is not re-reviewed because its base moved.**
+[CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges) freezes a PR at two positives.
+Re-review it only when its own change changes.
+
+**A composition review has a narrow diff.**
+It covers the conflict resolutions, the composition fixes and the composed measurements.
+State lens coverage as usual, at the composition head.
+Cover a lens that no resolution touches by naming the clean merges.
+
 **The canonical overall verdict** (the #311 decision) is the token `POSITIVE`
 or `NEGATIVE` on the reviewer's own `[R<n>]`-led line — typically the round's
 opening line, e.g. `[R1] POSITIVE — exact head <sha>` — in a PR comment or
@@ -388,6 +397,13 @@ A task is complete only when:
   head**. A ledger whose heads are not the merge candidate, or an ancestor of it
   that nothing in that lens's scope has touched since, does not clear this bullet.
 
+  **In a composed batch, each member's ledger stays banked at its frozen head.**
+  Another member's commits are covered by that member's own ledger.
+  Only the conflict resolutions and the composition fixes are new change.
+  The composition review's ledger covers those, at the composition head.
+  Interactions that merge without conflict are checked by the batch candidate, not by review.
+  [Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513) records this.
+
   **The ledger is published by a reviewer, or explicitly accepted by one.** Every
   other bullet here is an executor's claim about its own work, which is why
   section 3 says an executor never approves its own work. This one decides
@@ -411,7 +427,8 @@ A task is complete only when:
   counts while any other lens is dirty, which is the unbounded loop again
   wearing a different collar;
 - no review round remains in flight;
-- the candidate merge result is validated;
+- the candidate merge result is validated, or for a batched PR the batch
+  candidate of [CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges);
 - the change lands in `dev`;
 - post-merge containment is clean under CONTRIBUTING's stated proof claims;
 - authoritative documentation is current;
@@ -449,4 +466,6 @@ and the lens already yielding findings is always the cheapest to run again.
   linked requirement and executable evidence.
 - Never publish private chain-of-thought; publish concise conclusions and evidence.
 - Keep commits one-line with no trailers, as required by [CONTRIBUTING.md](CONTRIBUTING.md).
+- Never merge the moving base into a frozen PR, and never re-review one for a base move.
+- Never fix a batch member on its own branch after composition; fix it in the composition lane.
 - Follow candidate-merge validation and post-merge containment exactly.

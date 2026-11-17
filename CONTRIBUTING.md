@@ -75,6 +75,8 @@ flowchart LR
     RV -->|findings| W
     W -->|fixed| RV
     RV -->|2 positive:<br/>1 own + 1 EXTERNAL| G[validate candidate merge result<br/>with the FULL local bar]
+    RV -->|2 positive,<br/>batched| BT[frozen, then composed once<br/>section 2.3]
+    BT -->|batch candidate clean| M
     G -->|regression| W
     G -->|clean| M[merge to dev]
     M --> C[branch stops moving<br/>run containment]
@@ -183,6 +185,9 @@ flowchart LR
    both repos' suites, behave, the lint ratchet, and Yosys. If the reviewed head
    directly descends from the unchanged base, its tree is the candidate merge
    tree; record both object IDs with the local gate results.
+
+   A PR merged through a [batch](#23-batched-merges) uses the batch's candidate.
+   That candidate gates the composed tree, not each member's own merge result.
 
    This is not defensive box-ticking. On 2026-08-16 two lanes independently
    added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
@@ -414,6 +419,94 @@ Two board rules that go with it:
   the 1722.1 command layouts; that file went with the AECP/ACMP/ADP step suites
   on 2026-08-13, and the rule stands for whatever table-shaped step module
   replaces it.
+
+### 2.3 Batched merges
+
+[Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513)
+replaces repeated sync rounds with one composition.
+It builds on the [one-candidate decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939460730).
+
+Section 2.1 still governs every PR up to its two positive reviews.
+This section governs how reviewed PRs reach the base branch together.
+
+```mermaid
+flowchart LR
+    RV[2 positive<br/>at the PR head] --> FZ[frozen]
+    FZ --> CO[compose once<br/>in order]
+    CO --> CR[one composition review]
+    CR --> CA[one full candidate<br/>bench gate on the same images]
+    CA -->|finding| CO
+    CA -->|clean| M[one merge]
+    M --> C[containment<br/>for every member]
+```
+
+**Freeze.**
+
+- A PR with both positive reviews at its own head is frozen.
+- An earlier positive counts when the other reviewer covers the later delta.
+- A frozen PR takes no merge of the moving base.
+- Nobody re-reviews it because the base moved.
+- It changes only for a defect in its own change.
+- That fix is re-reviewed under section 2.1, and the PR freezes again.
+
+**Batch.**
+
+- A maintainer names the members and their order on a public Issue.
+- A batch normally holds four to eight frozen PRs from one area.
+- Order follows dependencies first, then the time each PR froze.
+
+**Compose once.**
+
+- One composition lane owns one branch, cut from the live base tip.
+- It merges each member head in order, one `--no-ff` merge each.
+- It resolves every conflict there, once.
+- It never pushes to a member's branch.
+- It repeats every measurement a member reported, on the composed images.
+- It fixes only what composition breaks.
+- It opens one PR and lists the conflicted paths of each merge.
+
+**Check once.**
+
+- The internal and the external reviewer each publish one composition verdict.
+- Their review covers the conflict resolutions, the composition fixes and the composed measurements.
+- `git show --remerge-diff <merge>` shows one merge's resolution exactly.
+- The review does not reopen a member's own change.
+- One full candidate runs on the final composed tree.
+- It runs the builder bank and the full native bank.
+- Any bench gate runs on the images that candidate built.
+- The intermediate merges get no full candidate of their own.
+
+**Merge once.**
+
+- No review round may be in flight on a member or on the composition.
+- The composition PR meets the protected merge bar like any PR.
+- The composed tree must descend from the base tip at merge time.
+- If the base moved, merge it in and run the candidate again.
+- A maintainer authorizes the one merge.
+- It is a merge commit, never a squash or a rebase.
+- Each member head is then an ancestor of the base.
+- GitHub therefore marks each member PR merged.
+- Run step 7's containment and review-integrity checks for every member.
+
+**Findings after composition.**
+
+- Fix the finding on the composition branch, not on the member's branch.
+- The composition review covers that fix.
+- Allow one fix round per finding.
+- If it fails, drop the PR that carries the finding.
+- To find that PR, rerun only the failing units along the ordered merges.
+- Rebuild the composition without it, then rerun the full candidate.
+- Resolutions changed by the rebuild are reviewed again.
+- A dropped PR returns to section 2.1, then joins a later batch.
+
+**Not batched.**
+
+- An urgent single fix follows section 2.1 alone.
+- So does a change to shared infrastructure.
+- That means gate tooling, harness grading and the mailbox contract.
+- Such a change merges and settles before a batch is composed.
+- Settled means clean containment and green hosted gates on the base.
+- While a batch candidate runs, only an urgent fix may move the base.
 
 ## 3. Verification bar
 
