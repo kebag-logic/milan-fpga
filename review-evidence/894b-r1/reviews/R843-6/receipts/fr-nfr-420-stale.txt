@@ -1,0 +1,13 @@
+# FR_NFR.md:420 at d0a2a1605d7acc691936a61f9afaa0e67f4b46f2 against the tree's own figures
+## the doc (current tense):
+2,030 cs at two interfaces (2,029 at 99 ms), 2,023 at 1x1/1if, and 2,026 at 8x8/1if, whose `CTRL_LOOP_TX_MS` is its own tx row's 69.84 ms rounded up, 70 ms, each figure stated for its shape (THE SHAPES), never by the interface count, so a withdrawn Talker's hold-off follows its own shape's row. IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, and
+## the tree:
+355:#define CTRL_LOOP_TX_MS 75u
+29:#define SRP_JOIN_CS CTRL_LOOP_JOIN_CS
+36:#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+436:#define CTRL_LOOP_JOIN_CS 19u
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 75 ms against its tx row by every source 74.26 ms (tx_held; the hold-off adds the figure)
+## the same figures stated elsewhere at the head:
+227:2,027 at 8x8/1if, whose figure is its own tx row's
+2815:2,027 cs there (2,026 at 70 ms)
+## the delta's FR_NFR hunks: @@ -393 +393 @@ At 8x8/2if the stated bounds stand, 22 ms for the first and 62 ms for every othe
