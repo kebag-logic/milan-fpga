@@ -422,6 +422,7 @@ identity. [`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py)
 
 Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
 It reads Clause-22 link, speed and duplex over bit-bang MDIO.
+The split placement's control firmware does the same, one Clause-22 frame per THE STEP's call ([the PHY](../../sw/firmware/ctrl/plat/README.md#the-phy), #919).
 The existing CDC carries this publication to MAC_STATUS.
 Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
 The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).

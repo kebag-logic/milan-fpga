@@ -22,13 +22,14 @@ flash.
 from __future__ import annotations
 
 #: The test files whose every test a defect here must name.
-SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp")
+SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp", "test_plat_phy.cpp")
 CSR = "plat/ctrl_plat_csr.c"
 CONSOLE = "plat/ctrl_plat_console.c"
 PLAT = "plat/ctrl_plat.c"
 FACE = "aecp/aecp_face.c"
 #: GET_AS_PATH's count read, as aecp_face.c holds it (#897).
 AS_PATH_COUNT = "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {"
+PHY = "plat/ctrl_plat_phy.c"
 C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
 
@@ -39,7 +40,7 @@ EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
 #: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
 SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
 TICK = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);\n"
-STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);\n"
+STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);\n"
 SERVICE = TICK + STEP
 OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
         "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
@@ -48,7 +49,7 @@ OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
 
 def mutants(mutant: type) -> tuple:
     """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
-    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant)
+    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant) + phy_mutants(mutant)
 
 
 def csr_mutants(mutant: type) -> tuple:
@@ -327,3 +328,231 @@ def channel_wait_mutants(mutant: type) -> tuple:
                         f"\t\t\tif (ch != MBX_CH_ADP && ch != {const} && !drained(ch)) {{\n",
                         "platboot1", B21, f"B21 no ENTITY_DEPARTING while the {name} ring holds a frame")
                  for const, name in CHANNELS if name not in ("ADP", "AECP"))
+
+
+#: The latched loss's publication and the second BMSR read, as ctrl_plat_phy.c's take() holds them (#919).
+LATCHED = "\t\t\t\tpublish(phy, 0u);\n"
+CURRENT = "\t\t\tif ((phy->published & CTRL_PLAT_PHY_LINK_UP) == 0u) {\n\t\t\t\tbreak;\n\t\t\t}\n"
+#: The sample before MDC's rise, as ctrl_plat_phy.c's bit() holds it, and the release's late-sample defect.
+SAMPLE = ("\tconst uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;\n"
+          "\tctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);\n\tspin(phy->spin);\n")
+LATE = ("\tctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);\n\tspin(phy->spin);\n"
+        "\tconst uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;\n")
+ARM = "\tctrl_plat_phy_arm(&p->phy, &env->phy, env->flash->now_us, env->flash->ctx);\n"
+IDENTITY = "\tif (!ctrl_plat_csr_identity(env->csr, &p->version)) {\n"
+L2 = "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each"
+P3 = "P3 a loss that recovered between two polls publishes link down, then link up"
+
+
+#: The map generator's PHY rows (#919), as ctrl_plat_gen.py holds them.
+GEN = "plat/ctrl_plat_gen.py"
+PARTIAL = "    if any(phy) and not all(phy):\n"
+
+
+def phy_mutants(mutant: type) -> tuple:
+    """The PHY poll's (#919): the four the issue names (no poll, the loss not latched, an edge not counted, the
+    cease not ended on link-up), each reproducing the bench's symptom, then the poll's own rules."""
+    m = mutant
+    return (
+        # no poll: the PHY never armed, so milan_mac_link_status keeps its reset value
+        m("plat-phy-never-armed", PLAT, ARM, "", "platboot1", "Phy.L1ReadyLoopPublishesTheLink",
+          "L1 the ready loop publishes the PHY's link"),
+        # the loss BMSR latched between two polls never published
+        m("plat-phy-loss-not-latched", PHY, LATCHED, "\t\t\t\tphy->published = 0u;\n", "platboot1",
+          "PlatPhy.P3LatchedLossPublishesBothEdges", P3, also=(("platboot1", "Phy.L2EveryEdgeIsCounted", L2),)),
+        # an edge not counted: the whole poll in one call, so the loss's word and the current state's land in
+        # the same turn and the datapath's synchronised level never sees the loss
+        m("plat-phy-edge-not-counted", PHY, "\t\ttake(phy);\n\t}\n",
+          "\t\tdo {\n\t\t\ttake(phy);\n\t\t} while (phy->stage != CTRL_PLAT_PHY_IDLE);\n\t}\n",
+          "platboot1", "Phy.L2EveryEdgeIsCounted", L2,
+          also=(("platboot1", "PlatPhy.P7OneFrameACallWithItsRoom", "P7 one frame a call"),)),
+        # the cease not ended on link-up: the second BMSR read dropped, so the poll after the link's return
+        # resolves the latched loss and publishes it down, a period late for the gPTP plane's toggle
+        m("plat-phy-cease-not-ended", PHY, CURRENT, "", "platboot1", "Phy.L4ReturnEndsTheCeaseWithinAPoll",
+          "L4 the first poll after the link's return publishes it up",
+          also=(("platboot1", "PlatPhy.P3LatchedLossPublishesBothEdges", P3),)),
+        # the counter change of a link edge dropped before AECP: no notification
+        m("plat-link-counter-change-dropped", "app/ctrl_app_aecp.c",
+          "\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n", "\t\t(void)c;\n", "platboot1",
+          "Phy.L3EachEdgeNotifiesTheCounters", "L3 each link edge sends one unsolicited GET_COUNTERS"),
+        # the bus map: the rows' addresses dropped, some rows accepted, none refused
+        m("plat-map-phy-rows-ignored", GEN, "if all(phy) else 0:08X}u", "if False else 0:08X}u", "platmap",
+          "PlatMap.M1AllThreeRowsGiveTheirAddresses", "M1 the PHY's three rows give their addresses"),
+        m("plat-map-partial-accepted", GEN, PARTIAL, "    if False:\n", "platmap", "PlatMap.M3SomeRowsAreRefused",
+          "M3 some but not all of the PHY's rows are refused"),
+        m("plat-map-absent-refused", GEN, PARTIAL, "    if not all(phy):\n", "platmap", "PlatMap.M2NoRowsGiveZero",
+          "M2 a SoC with no MDIO gives 0 for each"),
+        # the guard and the paths
+        # the poll armed before the identity check: a foreign window's pins bit-banged
+        m("plat-phy-unguarded", PLAT, IDENTITY, ARM + IDENTITY, "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
+          "B11 a foreign window's MDIO pins are never touched"),
+        m("plat-phy-refused-stage-unpolled", PLAT,
+          "\t\t(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);\n", "",
+          "platboot1", "Phy.B11ArmedPastTheIdentityCheck",
+          "B11 a stage refused past the identity check keeps publishing the link"),
+        m("plat-phy-beside-a-save-step", PHY, "saving && s->steps != steps ? 0 :",
+          "saving && s->steps != steps && false ? 0 :",
+          "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 a call whose store takes a step of its save carries no PHY frame"),
+        m("plat-phy-store-owed-dropped", PHY, "(int32_t)(deadline - nvm_store_clock(NULL))) ||\n\t       store;",
+          "(int32_t)(deadline - nvm_store_clock(NULL))) ||\n\t       (false && store);", "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 the client owes a step while the store owes one"),
+        m("plat-phy-after-an-idle-step-refused", PHY, "saving && s->steps != steps ? 0 :",
+          "(saving || true) && s->steps != steps ? 0 :", "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 a call whose store step is an idle one carries one PHY frame"),
+        # the poll's rules
+        m("plat-phy-probe-scans", PHY, "\t\tphy->polled = false;\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
+          "\t\tphy->polled = false;\n\t\tif (phy->address != 0u) {\n\t\t\tphy->stage = CTRL_PLAT_PHY_PROBE;\n"
+          "\t\t\ttake(phy);\n\t\t\treturn;\n\t\t}\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
+          "platboot1", "PlatPhy.P1OneAddressIsProbedACall", "P1 one address an opportunity, no scan in one call"),
+        m("plat-phy-late-sample", PHY, SAMPLE, LATE, "platboot1", "PlatPhy.P1OneAddressIsProbedACall",
+          "P1 the PHY found at its address publishes its link"),
+        m("plat-phy-unpaced", PHY, "now - phy->started >= CTRL_PLAT_PHY_POLL_US", "now - phy->started >= 1u",
+          "platboot1",
+          "PlatPhy.P2PollsArePaced", "P2 no poll before CTRL_PLAT_PHY_POLL_US",
+          also=(("platboot1", "Phy.L1ReadyLoopPublishesTheLink", "L1 a poll a period"),)),
+        m("plat-phy-wrap-unsafe", PHY, "now - phy->started >= CTRL_PLAT_PHY_POLL_US",
+          "now >= phy->started + CTRL_PLAT_PHY_POLL_US", "platboot1", "PlatPhy.P10TheClockWraps",
+          "P10 a clock that went back makes a poll due at once"),
+        m("plat-phy-common-mode-misread", PHY, "\tif ((common & CTRL_PLAT_PHY_AN_100_FULL) != 0u) {",
+          "\tif ((common & CTRL_PLAT_PHY_AN_100_HALF) != 0u && false) {", "platboot1",
+          "PlatPhy.P4ResolvedModesAreTheReleases", "P4 the highest common mode of 4 and 5"),
+        m("plat-phy-fault-ignored", PHY, " && (u & CTRL_PLAT_PHY_GSTAT_FAULT) == 0u", "", "platboot1",
+          "PlatPhy.P4ResolvedModesAreTheReleases", "P4 a master-slave configuration fault is link down"),
+        m("plat-phy-ack-ignored", PHY,
+          "return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);",
+          "return (int32_t)(value & 0xffffu);",
+          "platboot1", "PlatPhy.P5ErrorsAreLinkDown", "P5 a NAKed register is link down"),
+        m("plat-phy-turnaround-driven", PHY, READ_DRIVEN, READ_DRIVEN.replace(";", " + 1u;"), "platboot1",
+          "PlatPhy.P6FramesAreClause22Reads", P6),
+        m("plat-phy-no-deadline", PHY, "room >= (int32_t)CTRL_PLAT_PHY_STEP_US", "room >= -1000000",
+          "platboot1", "PlatPhy.P7OneFrameACallWithItsRoom",
+          "P7 a frame is taken only with CTRL_PLAT_PHY_STEP_US left"),
+        m("plat-phy-not-owed", PHY, "\treturn phy->stage != CTRL_PLAT_PHY_IDLE || due(phy, now);",
+          "\treturn false;", "platboot1", "PlatPhy.P8OwedWhileAFrameIsDue",
+          "P8 a probe that missed owes the next"),
+        m("plat-phy-half-period-short", PHY,
+          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)",
+          "(CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ / 2u)", "platboot1",
+          "PlatPhy.P9NoMdioArmsNothing",
+          "P9 the half period at 100 MHz: 200 ns, 20 turns"),
+        m("plat-phy-timed-run-ignored", PHY, "\t\tphy->spin = 1u;\n", "", "platboot1", "PlatPhy.P9NoMdioArmsNothing",
+          "P9 a run of 277 us: one turn holds 200 ns"),
+        m("plat-phy-timed-resolution-ignored", PHY, "- before > TIMED_ONE) {", "- before >= TIMED_ONE) {", "platboot1",
+          "PlatPhy.P9NoMdioArmsNothing", "P9 a run of 205 us bounds a turn under 200 ns"),
+    ) + advertisement_mutants(mutant)
+
+
+#: THE ADVERTISEMENT's writes and decisions (#840 on the split, #919), as ctrl_plat_phy.c's take() holds them.
+ANAR_MASK = "(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)"
+GCTRL_SET = "((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :"
+RESTART_BITS = "| CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &"
+HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n"
+        "\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)")
+#: The repair's restart, as ctrl_plat_phy.c's take() decides it and takes it, and the defect of a restart marked
+#: taken before the read-back verifies, so the repair of a dropped write restarts nothing (#919).
+REPAIR = ("\t\tif (" + HELD + ") {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n\t\t}\n\t\tbreak;\n"
+          "\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv &= (uint8_t)~CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n")
+RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x8u) != 0u || (" + HELD + ")) {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n"
+                   "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x8u;\n")
+#: THE OUTCOME's judgement (#919): a completed negotiation sharing no 1000BASE-T mode, the advertisement verified.
+OUTCOME = "if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {"
+OUTCOME_OWED = ("\t\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
+                "\t\t\t\tif (phy->renegotiations")
+P18 = "PlatPhy.P18TheRestartIsVerifiedByItsOutcome"
+P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one restart a poll, paced like the poll")
+READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
+P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
+P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
+
+
+def advertisement_mutants(mutant: type) -> tuple:
+    """THE ADVERTISEMENT's: the release's PHY init's writes, each property its own defect, and the split's rules,
+    written and verified at boot and after every link loss, restarted after every repair, and its restart verified by
+    the negotiation's outcome."""
+    m = mutant
+    return (
+        # #840's named defect: 100BASE-TX left advertised
+        m("plat-phy-100base-tx-advertised", PHY, ANAR_MASK, ANAR_MASK.replace("CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT",
+                                                                              "0x0260u"),
+          "platboot1", P11, "P11 no 100BASE-TX advertised"),
+        m("plat-phy-10base-t-advertised", PHY, ANAR_MASK, ANAR_MASK.replace("CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT",
+                                                                            "0x0380u"),
+          "platboot1", P11, "P11 no 10BASE-T advertised"),
+        m("plat-phy-reserved-kept", PHY, ANAR_MASK, ANAR_MASK.replace(" | CTRL_PLAT_PHY_ANAR_RESERVED", ""),
+          "platboot1", P11, "P11 reserved bit 14 cleared"),
+        m("plat-phy-half-duplex-advertised", PHY, GCTRL_SET,
+          GCTRL_SET.replace(" :", " | CTRL_PLAT_PHY_GCTRL_1000_HALF :"), "platboot1", P11,
+          "P11 no 1000BASE-T half duplex advertised"),
+        m("plat-phy-master-slave-dropped", PHY, GCTRL_SET, GCTRL_SET.replace("(uint32_t)phy->gig &", "0u &"),
+          "platboot1", P11, "P11 MASTER-SLAVE kept"),
+        m("plat-phy-test-mode-kept", PHY, GCTRL_SET,
+          GCTRL_SET.replace("CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE)", "(CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE | 0xe000u))"),
+          "platboot1", P11, "P11 the test mode cleared"),
+        m("plat-phy-not-restarted", PHY, RESTART_BITS, RESTART_BITS.replace(" | CTRL_PLAT_PHY_BMCR_AN_RESTART", ""),
+          "platboot1", P11, "P11 autonegotiation restarted"),
+        m("plat-phy-reset-kept", PHY, "~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)",
+          "~CTRL_PLAT_PHY_BMCR_ISOLATE", "platboot1", P11, "P11 reset cleared"),
+        m("plat-phy-boot-restart-dropped", PHY,
+          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n",
+          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
+          "P11 the boot restarts negotiation whatever the PHY holds"),
+        m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
+          "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
+          "PlatPhy.P6FramesAreClause22Reads", P6),
+        # a 10/100 PHY written
+        m("plat-phy-mii-written", PHY,
+          "\t\tif ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {\n\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_NONE;\n",
+          "\t\tif (false) {\n\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_NONE;\n", "platboot1",
+          "PlatPhy.P12A10100PhyIsNeverWritten",
+          "P12 a PHY without BMSR's extended capability is never written"),
+        m("plat-phy-10-100-written", PHY, "if (v >= 0 && (u & CTRL_PLAT_PHY_ESTAT_1000T_FULL) == 0u) {",
+          "if (v >= 0 && false) {", "platboot1", "PlatPhy.P12A10100PhyIsNeverWritten",
+          "P12 a PHY without 1000BASE-T full duplex ability is never written"),
+        # the split's rules: after every loss, verified, its restart once a time it is owed
+        m("plat-phy-advertised-once", PHY, "\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "\t\t(void)0;\n", "platboot1",
+          "PlatPhy.P13ALossWritesAndVerifiesItAgain", "P13 after a link loss the advertisement is written again"),
+        m("plat-phy-restart-every-loss", PHY, HELD, "false", "platboot1", "PlatPhy.P13ALossWritesAndVerifiesItAgain",
+          "P13 a loss with the advertisement held restarts nothing"),
+        m("plat-phy-reset-phy-not-restarted", PHY, HELD, "(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u",
+          "platboot1",
+          "PlatPhy.P14AResetPhyIsAdvertisedAgain", "P14 a PHY that lost the advertisement is written and restarted"),
+        # a PHY that lost one register alone behind a loss, its decision reading that register as held
+        m("plat-phy-lost-local-not-restarted", PHY, HELD, HELD.replace("(uint32_t)phy->local,", "0u,"), "platboot1",
+          "PlatPhy.P14AResetPhyIsAdvertisedAgain",
+          "P14 a PHY that lost the advertisement is written and restarted once, register 4 alone"),
+        m("plat-phy-lost-gig-not-restarted", PHY, HELD,
+          HELD.replace("(uint32_t)phy->gig)", "CTRL_PLAT_PHY_GCTRL_1000_FULL)"), "platboot1",
+          "PlatPhy.P14AResetPhyIsAdvertisedAgain",
+          "P14 a PHY that lost the advertisement is written and restarted once, register 9 alone"),
+        # the restart marked taken before verification, so a repair is never negotiated
+        m("plat-phy-restarted-before-verified", PHY, REPAIR, RESTARTED_EARLY, "platboot1",
+          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the repair restarts negotiation itself",
+          also=(("platboot1", "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
+                 "P15 and negotiation restarts after every repaired write"),)),
+        m("plat-phy-advertisement-unverified", PHY,
+          "if (phy->local >= 0 && v >= 0 && gigabit_only((uint32_t)phy->local, u)) {", "if (true) {", "platboot1",
+          "PlatPhy.P15AnUnverifiedAdvertisementStaysOwed",
+          "P15 an advertisement that does not read back is written again each poll"),
+        m("plat-phy-written-before-read", PHY, "if (phy->local < 0 || phy->gig < 0 || v < 0) {", "if (false) {",
+          "platboot1", "PlatPhy.P16AnUnacknowledgedReadWritesNothing", "P16 no write before its read"),
+        # THE OUTCOME: a restart the PHY lost, seen by what it negotiates
+        m("plat-phy-outcome-unchecked", PHY, OUTCOME, "if (false) {", "platboot1", P18,
+          "P18 no link at 100 after recovery", also=(P18_PACED,)),
+        m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
+          OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
+          also=(P18_PACED,)),
+        m("plat-phy-outcome-uncounted", PHY, "\t\t\t\t\t++phy->renegotiations;\n", "", "platboot1", P18,
+          "P18 the outcome's restart is counted"),
+        m("plat-phy-outcome-count-wraps", PHY, "\t\t\t\tif (phy->renegotiations != 0xffffu) {\n",
+          "\t\t\t\tif (true) {\n", "platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes",
+          "P18 the count saturates at 0xffff"),
+        m("plat-phy-outcome-at-gigabit", PHY, OUTCOME, "if (phy->adv == 0u) {", "platboot1",
+          "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a negotiation at 1000BASE-T owes no restart"),
+        m("plat-phy-resolved-before-restart", PHY, "\t\tphy->resume = CTRL_PLAT_PHY_CURRENT;\n", "", "platboot1",
+          "PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce", "P17 the repair restarts negotiation itself"),
+        m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
+          OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
+          "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
+    )
+

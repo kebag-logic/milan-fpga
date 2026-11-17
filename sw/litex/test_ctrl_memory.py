@@ -16,13 +16,12 @@ block RAM the SoC builds from them. This file grades nine things:
      truncated ELF, writable data running in rom, a CPU with other origins and
      a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
-     Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
-     size fixture's and the platform's 8x8 images with two interfaces) plans
-     its 59.5 or 60.5 by name and is refused without its override, through
-     add_ctrl_memory and half a tile past; each override is refused on every
-     other point, on the other's image and on an image with one of its two
-     symbols. Six planted ledgers, each widening an entry to another point or
-     image, must each turn the ledger red with its pin set aside.
+     Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py) plans
+     its tiles by name and is refused without its override and half a tile
+     past; each override is refused on every other point and image. The SoC
+     build plans the one product entry's image by its symbols (#923's ruling)
+     and refuses the others'. Thirteen planted ledgers, each widening an entry
+     or making it a product entry or not, must each turn the ledger red.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
      at the first and last word of every bank and drops a write; sram writes
@@ -230,12 +229,23 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with two tiles of .text more and of .bss less, still 56 RAMB36, then
-    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 61.0, half a tile past the
-    platform's 60.5."""
+    """A ledger case written: the good image with three tiles of .text more and of .bss less, still 56 RAMB36,
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 62.0, past the 61.5
+    half a tile beyond the platform's 61.0."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 4 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 4) * GRANULE))
+                                  text=GOOD.text + 6 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 6) * GRANULE))
+
+
+def soc_plan(path: Path) -> object:
+    """The SoC build's plan of the image at `path` (milan_soc.add_ctrl_memory, looked up when it runs), or its
+    Refusal."""
+    soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
+    try:
+        milan_soc.add_ctrl_memory(soc, path)
+    except ctrl_memory.Refusal as exc:
+        return exc
+    return soc.ctrl_plan
 
 
 def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
@@ -314,7 +324,7 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
         *ledgers.refusals(partial(ledger_elf, tmp)),
         *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image", soc(own))
-          for name, own in ledgers.OWN.items()),
+          for name, own in ledgers.OWN.items() if name not in ledgers.PRODUCT),
         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
         ("stage size", "PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage)",
          stage(GOOD, STAGE_8X8)),
@@ -329,10 +339,13 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     The refusals (no override, the SoC build, half a tile more, every other
     point and image, an unknown name) are refusal_arms rows under `budget`.
     """
-    held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+    held = {name: (p.symbols, p.tiles, p.product) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+                                          f"platform's 8x8 images with two interfaces at 59.5 and 61.0 and the "
+                                          f"platform's with one at 56.5, the one product entry ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+        check(problems, holds, what)
+    for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
         check(problems, holds, what)
     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
     check(problems, not {"ledgered", "ledgered_tiles"} & set(good),
@@ -349,6 +362,7 @@ def ledger_plant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
         caught: list[str] = []
         with contextlib.redirect_stdout(None), patched(ctrl_memory, "LEDGERED", planted):
             caught += [fact for holds, fact in ledgers.facts(partial(ledger_elf, tmp)) if not holds]
+            caught += [fact for holds, fact in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan) if not holds]
             for rule, row, attempt in refusal_arms(tmp):
                 refused(caught, rule, attempt, row)
         check(problems, bool(caught), f"PLANTED ledger '{what}' is caught: {caught[0] if caught else 'nothing red'}")
@@ -749,6 +763,7 @@ class Mutant(NamedTuple):
 
 #: What the mutants target besides ctrl_memory.RULES: the documented behaviour that is not a refusal.
 PROPERTIES = {
+    "product point": "the product SoC build plans a product entry's image at its entry by its symbols, and no other",
     "load address": "a section's load address is read through its segment",
     "bank order": "banks are largest first",
     "decode width": "a region decodes its whole window",
@@ -773,6 +788,7 @@ _ERR = "hole.err.eq(hole.cyc & hole.stb & ~hole.err)"
 _HOLE = "slaves.append((lambda a: a[:low] >= first, hole))"
 _BIOS = "kwargs.update(integrated_rom_size=0, integrated_sram_size=0)"
 _LEDGER = "if carried != dict(point.symbols):"
+_PRODUCT = "if point.product and all("
 MUTANTS = tuple(Mutant(*row) for row in (
     ("elf class weakened", "elf class", "ctrl_memory", "read_elf",
      'if data[:6] != b"\\x7fELF\\x01\\x01":', 'if data[:4] != b"\\x7fELF":', "checks"),
@@ -813,6 +829,12 @@ MUTANTS = tuple(Mutant(*row) for row in (
     ("budget 1.5 tiles slack", "budget", "ctrl_memory", "plan", "if need.tiles > budget:",
      "if need.tiles > budget + 1.5:", "checks"),
     ("an override on any image", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER, "if False:", "checks"),
+    ("no product point", "product point", "ctrl_memory", "product_point", _PRODUCT, "if False and all(", "checks"),
+    ("every entry a product entry", "product point", "ctrl_memory", "product_point", _PRODUCT, "if all(", "checks"),
+    ("a product point by its staging buffer alone", "product point", "ctrl_memory", "product_point",
+     "for s, size in point.symbols):", "for s, size in point.symbols[:1]):", "checks"),
+    ("the SoC build plans no product point", "product point", "milan_soc", "add_ctrl_memory",
+     "ledgered=ctrl_memory.product_point(soc.ctrl_image))", "ledgered=None)", "checks"),
     ("an override on any image carrying its symbols", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,
      "if None in carried.values():", "checks"),
     ("an override on any image with its staging buffer", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,

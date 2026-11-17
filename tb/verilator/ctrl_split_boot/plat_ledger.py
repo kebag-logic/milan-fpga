@@ -57,10 +57,11 @@ class Point(NamedTuple):
 
 
 #: The four points the ledger names (ctrl_memory_ledger.PLAT_*): the shipping 1x1 shape and the 8x8 one, each with
-#: one and two interfaces; the 8x8 image with two interfaces takes the platform's override.
+#: one and two interfaces; each 8x8 image takes the platform's override, the one-interface image its product entry,
+#: which the product build plans by the image's symbols (#919, #923's ruling of 2026-11-16).
 POINTS = (Point('endstation_ax7101_1x1_tdm8', 1, None, 'PLAT_1X1_1'),
           Point('endstation_ax7101_1x1_tdm8', 2, None, 'PLAT_1X1_2'),
-          Point('endstation_ax7101_8x8', 1, None, 'PLAT_8X8_1'),
+          Point('endstation_ax7101_8x8', 1, 'platform-8x8-one-interface', 'PLAT_8X8_1'),
           Point('endstation_ax7101_8x8', 2, 'platform-8x8-two-interfaces', 'PLAT_8X8_2'))
 
 
@@ -210,11 +211,11 @@ class Control(NamedTuple):
     want: frozenset[tuple[str, str]]
 
 
-LAST, FIRST, ONE8 = name(POINTS[-1]), name(POINTS[0]), name(POINTS[2])
+LAST, FIRST, TWO1, ONE8 = name(POINTS[-1]), name(POINTS[0]), name(POINTS[1]), name(POINTS[2])
 #: The planted ledgers: a stale key alone, a plan past its tiles alone, both at once (the case that hid, #665), a
-#: stale record in ctrl_memory_ledger.py, the budget under a point's plan (read by TILES; the link plans against
-#: ctrl_memory.plan's own default, which a rebinding of the name does not move), the override not taken, and an
-#: override of the platform's image that no point links.
+#: stale record in ctrl_memory_ledger.py, the budget under the plan of the largest point it holds (read by TILES; the
+#: link plans against ctrl_memory.plan's own default, which a rebinding of the name does not move), each override
+#: not taken, and an override of the platform's image that no point links.
 CONTROLS = {
     'stale-key': Control(lambda out: planted(ctrl_memory, 'LEDGERED', entry(stale)),
                          frozenset({('LINK', LAST), ('KEY', LAST)})),
@@ -226,14 +227,18 @@ CONTROLS = {
     'stale-record': Control(lambda out: planted(ledgers, POINTS[0].plat, getattr(ledgers, POINTS[0].plat) - 64),
                             frozenset({('KEY', FIRST)})),
     'budget-under-a-point': Control(lambda out: planted(ctrl_memory, 'BUDGET_TILES', ctrl_memory.plan(
-        ctrl_memory.read_elf(out / ONE8 / 'ctrl_app.elf'), budget=math.inf).tiles - 0.5),
-                                    frozenset({('TILES', ONE8)})),
+        ctrl_memory.read_elf(out / TWO1 / 'ctrl_app.elf'), budget=math.inf).tiles - 0.5),
+                                    frozenset({('TILES', TWO1)})),
     'override-not-taken': Control(lambda out: planted(sys.modules[__name__], 'POINTS',
                                                       (*POINTS[:-1], POINTS[-1]._replace(override=None))),
                                   frozenset({('LINK', LAST), ('TILES', LAST), ('LEDGER', '')})),
+    'product-override-not-taken': Control(lambda out: planted(sys.modules[__name__], 'POINTS',
+                                                              (*POINTS[:2], POINTS[2]._replace(override=None),
+                                                               POINTS[3])),
+                                          frozenset({('LINK', ONE8), ('TILES', ONE8), ('LEDGER', '')})),
     'override-unlinked': Control(lambda out: planted(ctrl_memory, 'LEDGERED', {
-        **ctrl_memory.LEDGERED, 'platform-8x8-one-interface': dataclasses.replace(
-            ctrl_memory.LEDGERED[POINTS[-1].override], symbols=(('ctrl_plat', ledgers.PLAT_8X8_1),))}),
+        **ctrl_memory.LEDGERED, 'platform-planted-unlinked': dataclasses.replace(
+            ctrl_memory.LEDGERED[POINTS[-1].override], symbols=(('ctrl_plat', ledgers.PLAT_8X8_1 + 64),))}),
         frozenset({('LEDGER', '')})),
 }
 

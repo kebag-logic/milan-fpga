@@ -52,6 +52,13 @@
 // sources are configured at boot from the generated stream table; SRP's
 // licences reach the fabric through the publication block (srp_mbx.c), and
 // the platform's licence port records them.
+//
+// THE PHY (#919). The PHY poll (ctrl_plat_phy.h) is armed once the CSR window
+// passed its identity check, so it runs on every boot path from there, a
+// refused stage's included, as the release's does on every path past its
+// identity check (#70): THE STEP's client the loop binds once ready, and each
+// turn of a refused stage's console. A window that failed the check leaves the
+// MDIO pins untouched.
 
 #ifndef CTRL_PLAT_H
 #define CTRL_PLAT_H
@@ -64,6 +71,7 @@
 #include "ctrl_app_aecp.h"
 #include "ctrl_plat_console.h"
 #include "ctrl_plat_csr.h"
+#include "ctrl_plat_phy.h"
 #include "maap_csr.h"
 #include "nvm_flash.h"
 #include "srp_mbx.h"
@@ -107,6 +115,7 @@ struct ctrl_plat_env {
 	size_t aem_bytes;
 	uint32_t aem_crc;
 	uintptr_t reboot;                           // the REBOOT reset port's register, 0 for none (#871)
+	struct ctrl_plat_phy_bus phy;               // the MDIO pair and the link-status word (no MDIO: mdio_w 0)
 };
 
 // The allocation MAAP last reported on one interface.
@@ -142,6 +151,7 @@ struct ctrl_plat {
 	struct srp_mbx srp;
 	struct srp_mbx_config srp_config;
 	struct srp_source sources[MBX_N_IF][CTRL_SRP_SOURCES];
+	struct ctrl_plat_phy phy;
 };
 
 // The image's one instance, with every pool the generated shape sizes.

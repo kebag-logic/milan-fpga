@@ -226,12 +226,17 @@ class Ledgered:
     symbols: tuple[tuple[str, int], ...]    # (symbol, size): what makes an image that point
     tiles: float                            # what it may plan
     owed: str                               # the lane that recovers the tiles, and the ruling
+    product: bool = False                   # the product SoC build plans its image here by its symbols
 
 
 #: The only images `plan` may let past BUDGET_TILES, each only when its own
 #: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py,
-#: ctrl_plat_image.py); the product SoC build names none, so no product build
-#: is held to more than 56 RAMB36; the measurement harness names the size
+#: ctrl_plat_image.py). The product SoC build (milan_soc.add_ctrl_memory) and
+#: the platform image's link without --ledgered-point name a point only where
+#: an entry is a product entry and the image carries its symbols
+#: (`product_point`, #919 and #923): the target platform's
+#: 8x8 image with one interface, a shipping image; every unledgered image stays
+#: refused past 56 RAMB36. The measurement harness names the size
 #: fixture's for that point only (its image and SoC plan,
 #: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
 #: point when it carries every listed symbol at its listed size: the 8x8 shape's
@@ -241,16 +246,18 @@ class Ledgered:
 #: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
 #: MBX_N_IF and the shape's streams) at its size in that image, so a change to
 #: that struct refuses the override until the size is measured again here.
-#: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+#: All are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
 #: 60.0, its entry at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before
-#: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image,
-#: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
-#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
-#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
-#: size fixture's at its cap, and AECP's REBOOT (#871) for its image on the tiers by the owner's decision of
-#: 2026-11-15 (#665): an image past its entry raises it to its measured size, at the next half tile, as debt
-#: owed to S14. The
+#: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image;
+#: the platform's two-interface image at 61.5, its entry at 61.0: 60.5, the owner's decision's cap (#665), which
+#: #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, #897's ruling of
+#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, and the owner's decision of 2026-11-15 for AECP's
+#: REBOOT on them (#871), as #665's ruling of 2026-11-12 ledgered the size fixture's at its cap, then 61.0 with the
+#: PHY poll (#919) on that image, by the owner's rule of 2026-11-15 (an image past its entry raises it to its
+#: measured size, at the next half tile, as debt owed to S14), which supersedes the cap until the hybrid XIP work
+#: (#665 decision D3); and the platform's one-interface image at 57.0, its entry at 56.5, by the same rule (#919:
+#: #895's declarations and the PHY poll). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
@@ -272,7 +279,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
                                          "(#665): an image past its entry raises it"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 61.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -284,9 +291,30 @@ LEDGERED: dict[str, Ledgered] = {
                                             "read through the face composed on them, 992 B of rom past 60.0, "
                                             "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
                                             "RAMB36 owed to the hybrid XIP work, the cap fully used; 60.5 with "
-                                            "AECP's REBOOT composed on the tiers (#871), by the "
-                                            "owner's decision of 2026-11-15"),
+                                            "AECP's REBOOT composed on the tiers (#871), by the owner's decision "
+                                            "of 2026-11-15; 61.0 with the PHY "
+                                            "poll and its 1000BASE-T-only advertisement on that image (#919, "
+                                            "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
+                                            "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
+                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14"),
+    "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_304)), 56.5,
+                                           "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+                                           "a shipping image, with SRP's Talker declarations (#895) and the PHY "
+                                           "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+                                           "rom past 56.0, by the owner's rule of 2026-11-15 (#923's ruling of "
+                                           "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
+                                           "S14", product=True),
 }
+
+
+def product_point(image: Image) -> str | None:
+    """The product entry whose symbols `image` carries at their sizes, the point the product SoC build plans it
+    as; None for every other image, which the build holds to BUDGET_TILES."""
+    for name, point in LEDGERED.items():
+        if point.product and all(image.symbols.get(s, (0, None))[1] == size for s, size in point.symbols):
+            return name
+    return None
 
 
 def ledgered_tiles(image: Image, name: str) -> float:
