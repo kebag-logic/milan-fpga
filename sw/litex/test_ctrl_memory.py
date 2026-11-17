@@ -15,7 +15,7 @@ block RAM the SoC builds from them. This file grades nine things:
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
      (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one) plans its 60.0, 62.0 or 57.5 by name, and through
+     interfaces and the platform's 8x8 image with one) plans its 60.0, 62.5 or 57.5 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
@@ -224,8 +224,8 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
     """A ledger case written: the good image with four tiles of .text more and of .bss less, still 56 RAMB36,
-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.0, past the
-    platform's 62.5, half a tile past its 62.0."""
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.0, half a tile past
+    the platform's 62.5."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
                                   text=GOOD.text + 8 * GRANULE,
                                   bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 8) * GRANULE))
@@ -339,7 +339,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.0 and 62.0 and the "
+                                          f"platform's 8x8 images with two interfaces at 60.0 and 62.5 and the "
                                           f"platform's 8x8 image with one at 57.5 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)

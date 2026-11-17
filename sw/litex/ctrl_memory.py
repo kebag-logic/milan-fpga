@@ -246,7 +246,8 @@ class Ledgered:
 #: fixture's is refused at 60.5, its entry at 60.0 with the map edits' commit through the EDIT window (#923) composed
 #: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
 #: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
-#: image is refused at 62.5, its entry at 62.0 with the map edits' commit composed on the flip train's other changes:
+#: image is refused at 63.0, its entry at 62.5 with the StreamIDs held with their latest Talker kind (#925) composed
+#: on the flip train's other changes, 62.0 with the map edits' commit (#923) before them:
 #: 60.5, the owner's decision's cap (#665), which #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker
 #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
 #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
@@ -277,7 +278,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "holds, by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
                                          "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_672)), 62.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_504)), 62.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -303,9 +304,14 @@ LEDGERED: dict[str, Ledgered] = {
                                             "rom, 672 B past the 137,216 B 61.5 holds, ctrl_plat at its measured "
                                             "20,672 B, by the owner's rule of 2026-11-15 (#923's ruling of "
                                             "2026-11-16, #665's of 2026-11-17): ROM debt of 6.0 RAMB36 owed to "
-                                            "S14"),
+                                            "S14; ctrl_plat 64 B more with each binding's latest Talker kind and "
+                                            "832 B more with the StreamIDs held with it (#925), its sram a 57th "
+                                            "granule, 61.0 at #925's head; and 62.5 with them on the composed "
+                                            "train, 138,560 B of rom and 115,440 B of sram, 752 B past the 56 "
+                                            "granules 62.0 held, ctrl_plat at its measured 21,504 B, by the same "
+                                            "rule: debt of 6.5 RAMB36 owed to S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_496)), 57.5,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 57.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -317,7 +323,9 @@ LEDGERED: dict[str, Ledgered] = {
                                            "136,304 B of rom, 1,136 B past the 135,168 B 57.0 holds, ctrl_plat "
                                            "at its measured 18,496 B, by the same rule (#923's ruling of "
                                            "2026-11-16, #665's of 2026-11-17): ROM debt of 1.5 RAMB36 owed to "
-                                           "S14"),
+                                           "S14; still 57.5 with the StreamIDs held with their latest Talker "
+                                           "kind (#925) on that train, 136,984 B of rom and 98,096 B of sram, "
+                                           "ctrl_plat at its measured 18,944 B"),
 }
 
 

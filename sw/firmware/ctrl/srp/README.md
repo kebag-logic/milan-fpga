@@ -248,6 +248,36 @@ withdrawal is owed. THE TRANSMIT's next call meets no frame owed, so its first
 declarations take the Leave, and the hold-off starts at the Leave lwSRP took.
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
+A talker declares one of the two for a stream and moves directly between them
+(IEEE 802.1Q-2018 35.1.2.1). A received JoinIn or JoinMt of one kind replaces a
+registered other (35.2.6), as lwSRP does, but lwSRP registers a New beside it.
+35.2.6's informative NOTE gives the Talker Failed precedence while both are
+registered. Milan v1.2 5.3.8.5 is normative: a Listener declares Ready while a
+matching Talker Advertise is received. The
+[ruling on #925](https://github.com/kebag-logic/milan-fpga/issues/925#issuecomment-6930043105)
+follows it, and the NOTE is a documented departure: while both are registered
+the kind registered latest, the talker's current state, decides the declaration
+and the kind ACMP sees, and the other decides once the latest leaves. Each New
+in turn decides, also one of a kind already registered beside the other.
+A Talker Advertise's New over a registered Talker Failed is Ready on the wire
+within a JoinTime, as a first registration is, not at the talker's next MRPDU,
+whatever other messages follow it in the MRPDU: a change the receive filter's
+copy makes owes its transmission as one the registrar walk finds does.
+Every binding of a StreamID holds which kind its latest registration was,
+whatever its destination, and a binding made later, or one replaced in place,
+takes it from them. A StreamID whose last binding ends while both kinds stay
+registered is held with its latest (`srp_held`) for its interface's next
+binding of it, until either kind leaves or the interface resets; its
+registrations' leave timers still run, as the talker's messages for a StreamID
+no binding has are ignored. Each registration is an lwSRP attribute in a medium
+or large pool block, so half those blocks bound the StreamIDs held, and the
+table does not fill. `srp_mbx.cpp`'s `SrpTalkerKinds` and `test_acmp_mbx.cpp`'s
+`SrpFeedback` tests hold both replacements, each New in turn, either leave,
+coincident registrations in one MRPDU, a replacement before a message that
+changes nothing (the Listener declaration and ACMP's GET_RX_STATE), a later
+binding, one replaced in place, a final unbinding, the hold's ends and its
+interface, each with a planted defect in `srp_kind_mutants.py`. No SRP timer
+changes.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
 
 Startup declares Domain class 6, priority 3, VID 2 and MVRP membership in VID 2.
@@ -475,10 +505,14 @@ of every processor state. The complete original processor suites run separately.
 |---|---|---|
 | D1, resolved | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Firmware agrees under Milan v1.2 4.2.7.2.2. A later Lv in LV retains the original LeaveTime deadline; the #608 cases remain covered. |
 | D2 | Sections B/E encode Listener withdrawal with FourPackedEvent Ignore (0) | Retain the last declaration subtype on Lv. IEEE 802.1Q-2018 35.2.2.7.2: Ignore is not a Listener declaration to register or withdraw. |
+| D3 | `KL_srp_listener_fsm.sv` holds one Talker registrar a sink, whose type a registering event of either swaps in place: a Talker Lv of either type on IN unregisters it | With both kinds registered the latest decides; its Lv hands the declaration to the older kind, still registered, and the older's Lv changes nothing (`SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding`). The registrations that remain decide (IEEE 802.1Q-2018 35.2.6, Milan v1.2 5.3.8.5, the ruling on #925). |
 
 Milan v1.2 4.2.7.2.2 governs D1; IEEE 802.1Q-2018 35.2.2.7.2 governs D2.
-JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6;
-conflicting New registrations retain Failed precedence until replacement/expiry.
+JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6. Of a
+New beside a registered other kind the latest decides while it stays registered
+(Milan v1.2 5.3.8.5 and the ruling on #925, a documented departure from 35.2.6's
+informative NOTE), as the processor's in-place type swap takes every
+registering event; once one of the two leaves, the two differ (D3).
 
 ## Integration still owed
 
