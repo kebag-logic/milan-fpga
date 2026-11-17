@@ -1,0 +1,8 @@
+# gen_toc.py --verify-anchors (clean clone at eade77c9; dev figure from the dev clone at 6b66f66d)
+dev 6b66f66d:  anchor check: 617 existing cross-page fragment links reproduced
+head eade77c9: anchor check: 621 existing cross-page fragment links reproduced
+(+1 against round 2: the new AGENTS.md link to CONTRIBUTING.md#21-the-issue-to-merge-lane)
+
+# check_em_dash.py --base 6b66f66d89cf25d2717687bcc2c3bf617685a99a (= merge-base with live origin/dev)
+check_em_dash: 0 finding(s) over 130 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6b66f66d..HEAD]
+rc=0

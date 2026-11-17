@@ -1,0 +1,78 @@
+# Word count of every new or changed prose block at eade77c9 vs dev 6b66f66d (check_doc_style normalisation; limit 30)
+## CONTRIBUTING.md
+CONTRIBUTING.md:189-190 para 22 words ok :: A PR merged through a [batch](#23-batched-merges) uses the batch's can
+CONTRIBUTING.md:425-428 para 26 words ok :: [Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issu
+CONTRIBUTING.md:430-431 para 24 words ok :: Section 2.1 still governs every PR up to its two positive reviews. Thi
+CONTRIBUTING.md:445-445 para 1 words ok :: **Freeze.**
+CONTRIBUTING.md:447-447 item 13 words ok :: Freezing applies only to a PR a maintainer has named in a batch.
+CONTRIBUTING.md:448-448 item 13 words ok :: Such a PR with both positive reviews at its own head is frozen.
+CONTRIBUTING.md:449-449 item 12 words ok :: An earlier positive counts when the other reviewer covers the later de
+CONTRIBUTING.md:450-450 item 10 words ok :: A frozen PR takes no merge of the moving base.
+CONTRIBUTING.md:451-451 item 7 words ok :: Nobody re-reviews it because the base moved.
+CONTRIBUTING.md:452-452 item 10 words ok :: It changes only for a defect in its own change.
+CONTRIBUTING.md:453-453 item 13 words ok :: That fix is re-reviewed under section 2.1, and the PR freezes again.
+CONTRIBUTING.md:454-454 item 15 words ok :: An unbatched PR follows section 2.1 as before, and may merge the movin
+CONTRIBUTING.md:455-455 item 12 words ok :: That base merge is reviewed under section 2.1 as new change.
+CONTRIBUTING.md:457-457 para 1 words ok :: **Batch.**
+CONTRIBUTING.md:459-459 item 12 words ok :: A maintainer names the members and their order on a public Issue.
+CONTRIBUTING.md:460-460 item 12 words ok :: A batch normally holds four to eight frozen PRs from one area.
+CONTRIBUTING.md:461-461 item 10 words ok :: Order follows dependencies first, then the time each PR froze.
+CONTRIBUTING.md:463-463 para 2 words ok :: **Compose once.**
+CONTRIBUTING.md:465-465 item 12 words ok :: One composition lane owns one branch, cut from the live base tip.
+CONTRIBUTING.md:466-466 item 10 words ok :: It merges each member head in order, one `--no-ff` merge each.
+CONTRIBUTING.md:467-467 item 6 words ok :: It resolves every conflict there, once.
+CONTRIBUTING.md:468-468 item 7 words ok :: It never pushes to a member's branch.
+CONTRIBUTING.md:469-469 item 11 words ok :: It repeats every measurement a member reported, on the composed images
+CONTRIBUTING.md:470-470 item 6 words ok :: It fixes only what composition breaks.
+CONTRIBUTING.md:471-471 item 12 words ok :: It opens one PR and lists the conflicted paths of each merge.
+CONTRIBUTING.md:473-473 para 2 words ok :: **Check once.**
+CONTRIBUTING.md:475-475 item 11 words ok :: The internal and the external reviewer each publish one composition ve
+CONTRIBUTING.md:476-476 item 13 words ok :: Their review covers the conflict resolutions, the composition fixes an
+CONTRIBUTING.md:477-477 item 5 words ok :: `git show --remerge-diff <merge>` shows one merge's resolution exactly
+CONTRIBUTING.md:478-478 item 9 words ok :: The review does not reopen a member's own change.
+CONTRIBUTING.md:479-479 item 9 words ok :: One full candidate runs on the final composed tree.
+CONTRIBUTING.md:480-480 item 10 words ok :: It runs the builder bank and the full native bank.
+CONTRIBUTING.md:481-481 item 10 words ok :: Any bench gate runs on the images that candidate built.
+CONTRIBUTING.md:482-482 item 10 words ok :: The intermediate merges get no full candidate of their own.
+CONTRIBUTING.md:484-484 para 2 words ok :: **Merge once.**
+CONTRIBUTING.md:486-486 item 14 words ok :: No review round may be in flight on a member or on the composition.
+CONTRIBUTING.md:487-487 item 11 words ok :: The composition PR meets the protected merge bar like any PR.
+CONTRIBUTING.md:488-488 item 12 words ok :: The composed tree must descend from the base tip at merge time.
+CONTRIBUTING.md:489-489 item 12 words ok :: If the base moved, merge it in and run the candidate again.
+CONTRIBUTING.md:490-490 item 6 words ok :: A maintainer authorizes the one merge.
+CONTRIBUTING.md:491-491 item 11 words ok :: It is a merge commit, never a squash or a rebase.
+CONTRIBUTING.md:492-492 item 10 words ok :: Each member head is then an ancestor of the base.
+CONTRIBUTING.md:493-493 item 7 words ok :: GitHub therefore marks each member PR merged.
+CONTRIBUTING.md:494-494 item 10 words ok :: Run step 7's containment and review-integrity checks for every member.
+CONTRIBUTING.md:496-496 para 3 words ok :: **Findings after composition.**
+CONTRIBUTING.md:498-498 item 12 words ok :: Fix the finding on the composition branch, not on the member's branch.
+CONTRIBUTING.md:499-499 item 6 words ok :: The composition review covers that fix.
+CONTRIBUTING.md:500-500 item 6 words ok :: Allow one fix round per finding.
+CONTRIBUTING.md:501-501 item 10 words ok :: If it fails, drop the PR that carries the finding.
+CONTRIBUTING.md:502-502 item 13 words ok :: To find that PR, rerun only the failing units along the ordered merges
+CONTRIBUTING.md:503-503 item 10 words ok :: Rebuild the composition without it, then rerun the full candidate.
+CONTRIBUTING.md:504-504 item 8 words ok :: Resolutions changed by the rebuild are reviewed again.
+CONTRIBUTING.md:505-505 item 13 words ok :: A dropped PR returns to section 2.1, then joins a later batch.
+CONTRIBUTING.md:507-507 para 2 words ok :: **Not batched.**
+CONTRIBUTING.md:509-509 item 9 words ok :: An urgent single fix follows section 2.1 alone.
+CONTRIBUTING.md:510-510 item 7 words ok :: So does a change to shared infrastructure.
+CONTRIBUTING.md:511-511 item 10 words ok :: That means gate tooling, harness grading and the mailbox contract.
+CONTRIBUTING.md:512-512 item 11 words ok :: Such a change merges and settles before a batch is composed.
+CONTRIBUTING.md:513-513 item 11 words ok :: Settled means clean containment and green hosted gates on the base.
+CONTRIBUTING.md:514-514 item 13 words ok :: While a batch candidate runs, only an urgent fix may move the base.
+## AGENTS.md
+AGENTS.md:298-300 para 30 words ok :: **A frozen PR is not re-reviewed because its base moved.** [CONTRIBUTI
+AGENTS.md:302-303 para 25 words ok :: An unbatched PR is never frozen and may merge the moving base. That me
+AGENTS.md:305-306 para 19 words ok :: **A composition review has a narrow diff.** It covers the conflict res
+AGENTS.md:308-309 para 21 words ok :: State lens coverage as usual, at the composition head. Cover a lens th
+AGENTS.md:404-405 para 23 words ok :: **In a composed batch, each member's ledger stays banked at its frozen
+AGENTS.md:407-408 para 21 words ok :: Only the conflict resolutions and the composition fixes are new change
+AGENTS.md:410-411 para 19 words ok :: Interactions that merge without conflict are checked by the batch cand
+AGENTS.md:436-437 item 20 words ok :: the candidate merge result is validated, or for a batched PR the batch
+AGENTS.md:475-475 item 23 words ok :: Never merge the moving base into a frozen batch member, or re-review o
+AGENTS.md:476-476 item 17 words ok :: Never fix a batch member on its own branch after composition; fix it i
+## docs/testing/CI_WORKFLOWS.md
+docs/testing/CI_WORKFLOWS.md:273-274 para 24 words ok :: Merge validation gates the composed tree before every merge into the b
+docs/testing/CI_WORKFLOWS.md:280-281 para 19 words ok :: A batch merges once, so one candidate covers all its members. [CONTRIB
+blocks over 30 words: 0
+rc=0

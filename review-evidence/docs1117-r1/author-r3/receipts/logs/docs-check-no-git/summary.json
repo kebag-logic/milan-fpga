@@ -1,0 +1,54 @@
+{
+ "job": "docs-check-no-git",
+ "head": "eade77c95b997e5d9176b58e1f06266aea92c19f",
+ "rows": [
+  {
+   "id": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "action": "not run",
+   "reason": "hosted action actions/checkout@v4"
+  },
+  {
+   "id": "ci_step_1",
+   "name": "Retain checkout identity before removing metadata",
+   "action": "not run",
+   "reason": "hosted evidence plumbing"
+  },
+  {
+   "id": "ci_step_2",
+   "name": "Set CPU-derived job budgets",
+   "action": "run",
+   "rc": 0,
+   "seconds": 0.0,
+   "note": "",
+   "log": "02_ci_step_2.log",
+   "tail": []
+  },
+  {
+   "id": "ci_step_3",
+   "name": "Strip git metadata, then run the docs gate",
+   "action": "run",
+   "rc": 0,
+   "seconds": 6.6,
+   "note": "",
+   "log": "03_ci_step_3.log",
+   "tail": [
+    "docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]",
+    "feature_status: 0 finding(s)"
+   ]
+  },
+  {
+   "id": "ci_record",
+   "name": "Record actual job execution",
+   "action": "not run",
+   "reason": "hosted evidence plumbing"
+  },
+  {
+   "id": "ci_upload",
+   "name": "Upload actual job execution",
+   "action": "not run",
+   "reason": "hosted action actions/upload-artifact@v4"
+  }
+ ],
+ "result": "success"
+}
