@@ -1,0 +1,380 @@
+d66b4045529fbba7b483aadbbea15ad75bd1ccf9
+54280c9408ba06a16fa925f85e0398a16f33777d 70f4056f384e12520ccae254fe26f6286fd39db6
+Merge dev-soft-core 70f4056f, #901's Talker declarations (#895), into the saved-state burst, both sides kept (#920)
+
+diff --cc docs/design/SPLIT_CONTROL_MEMORY.md
+index 8897a94b6a,1bd48a0e33..ac4a42d1b2
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@@ -135,14 -135,15 +135,16 @@@ Both are 8x8 with two interfaces, and [
+  | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+  |---|---|---|---:|
+  | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
+- | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
+ -| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
+++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,480 B | 60.5 |
+  
+  The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+  The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+  The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+  It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+- The platform's entry is 60.5, its cap, since #920: the saved-state store's name marks over layout 3's id space and its step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and the platform's 8x8 image with two interfaces then holds 131,224 B of `rom`, past the 131,072 B its 60.0 held, debt owed to S14; its `ctrl_plat` is 20,416 B ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
++ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+  The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
++ SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
+++Within that cap, the saved-state store's name marks over layout 3's id space and its step a pass (#920) add 296 to 304 B of `rom` to every image over those, and to `ctrl_plat` 128 B at 1x1 with one interface or two and at 8x8 with two, and 64 B at 8x8 with one, where the 36 words take padding the other changes left: 17,664, 19,200, 18,304 and 20,480 B; the platform's 8x8 image with two interfaces holds 132,040 B of `rom` in its 60.5 RAMB36 ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
+  
+  Each override recognises its image by the image's own symbols.
+  `nvm_stage` is the 8x8 shape's staging buffer.
+@@@ -2509,106 -2592,134 +2595,233 @@@ Every stated table was compared by the 
+  - A build of one, the `srp` group's after its Listener Ready, 69,635 cycles (68,972 at `9606b3a9`): 735 us (`CTRL_LOOP_BUILD_ONE_PASS_US`, which only a static assertion reads, so every image is byte-identical), and an owed MRPDU with it.
+  - A TICK, once the SRP drain's record cost is the load gate's ([above](#the-srp-drains-record-cost)), 4,784 cycles in arm A's `backlog-adp@program-0` (4,692 before it): 55 us, both columns.
+  
+- With them **the last queued notice at 1x1/1if was 132.71 ms, over its 130 ms**, at the design then built (900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue): it took 70 passes, two more, and its largest term was SRP's 26.32 ms. The slice rule (`tier_grid.py`) held 10 of 420 candidates and chose 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2. Without the build of one's and the TICK's restatements every row held, the last queued notice at 127.98 ms; either alone put it over (132.64 and 132.65 ms). Every other 1x1/1if row held by every source, the load was 0.516 and 0.512, and the pace stayed 8 ms. [#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796) takes the rule's choice: the built slice at one interface is the slice rule's within 650 to 1,100 us, 950 us now, which `ctrl_loop.h` states and the model's self-test holds; the 130 ms bound stays. At 950 us every 1x1/1if row holds by every source (the table [above](#the-tiers)): R4 13.10 ms, the last queued notice 127.21, ACMP 28.95 and txL 48.43; the load is 0.516 and 0.512, the pace stays 8 ms, and the slice rule chooses the built design. `CTRL_LOOP_BUILD_MOST` stays 1, a 950 us slice being shorter than a build of both of an interface's MRPDUs (1,010 us). Only the one-interface images changed, `ctrl_loop.o` at equal sizes; every one-interface leg was measured again on them, and every stated table holds there by the rule but for the class lines. A SET_CONFIGURATION cannot complete late on the product port: the datapath takes a commit on its crossing's pulse with no backpressure and acknowledges it within the contract's 64 cycles (2 polls on the split composition, `sim_split.cpp`), which the firmware outwaits, so no interface is ever owed and no change waits. That holds while the datapath's clock runs and is out of reset, which in the product is whenever the mailbox's is: `cd_milan` is a clock output of the PLL that makes `cd_sys` (`milan_soc.py`, `pll.create_clkout`), and each output's domain takes the PLL's lock as its reset, so both are held in reset until the PLL locks and enter it when it loses lock, each released through its own synchronizer. A datapath clock or reset of its own would reopen the late path.
++ With them **the last queued notice at 1x1/1if was 132.71 ms, over its 130 ms**, at the design then built (900 us, tier 1 aecp-first, tier 2 srp-first, AECP queue): it took 70 passes, two more, and its largest term was SRP's 26.32 ms. The slice rule (`tier_grid.py`) held 10 of 420 candidates and chose 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue, cap 2. Without the build of one's and the TICK's restatements every row held, the last queued notice at 127.98 ms; either alone put it over (132.64 and 132.65 ms). Every other 1x1/1if row held by every source, the load was 0.516 and 0.512, and the pace stayed 8 ms. [#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796) takes the rule's choice: the built slice at one interface is the slice rule's within 650 to 1,100 us, 950 us on #894's head, which its `ctrl_loop.h` states and the model's self-test holds; the 130 ms bound stays. At 950 us every 1x1/1if row holds by every source (the table [above](#the-tiers)): R4 13.10 ms, the last queued notice 127.21, ACMP 28.95 and txL 48.43; the load is 0.516 and 0.512, the pace stays 8 ms, and the slice rule chooses the built design. `CTRL_LOOP_BUILD_MOST` stays 1, a 950 us slice being shorter than a build of both of an interface's MRPDUs (1,010 us). Only the one-interface images changed, `ctrl_loop.o` at equal sizes; every one-interface leg was measured again on them, and every stated table holds there by the rule but for the class lines. A SET_CONFIGURATION cannot complete late on the product port: the datapath takes a commit on its crossing's pulse with no backpressure and acknowledges it within the contract's 64 cycles (2 polls on the split composition, `sim_split.cpp`), which the firmware outwaits, so no interface is ever owed and no change waits. That holds while the datapath's clock runs and is out of reset, which in the product is whenever the mailbox's is: `cd_milan` is a clock output of the PLL that makes `cd_sys` (`milan_soc.py`, `pll.create_clkout`), and each output's domain takes the PLL's lock as its reset, so both are held in reset until the PLL locks and enter it when it loses lock, each released through its own synchronizer. A datapath clock or reset of its own would reopen the late path.
++ 
++ ### SRP's Talker declarations on THE TIERS
++ 
++ At round 5's head `62298ab5`, superseded by the subsections below: the figures are that image's.
++ 
++ [The ruling of 2026-11-14 on #895's composition with THE TIERS](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305) settles what the merge moves:
++ 
++ - **The costs** (item 2). The composed tables are #894's with one cost #895's, MAAP's record, a range lost to a peer's ANNOUNCE that restarts the core: 115 us at 1x1/1if and 150 at 8x8/2if, against #894's 90 and 130. Measured again on the merge, every group of arm A, the `answering-every-port` arm, the `valid-destinations` arm and arm B's `aecp` group, AECP's timer slot is 6,805 CPU cycles at 1x1/1if (75 us by the rule; 65 stated) and the TICK 4,385 (50; 45), and at 8x8/2if AECP's timer slot 10,824 (115; 105), the TICK 4,948 (55; 40), a pass's events' fixed part 2,882 (35; 30) and MAAP's record 14,361 (155; 150), so `load_grade.py` states them, in both columns (with tsn-c-stack #32 the 8x8/2if TICK keeps its 85). The same AECP group on #894's own image is 6,188 cycles: the pass that holds the dearest slot runs 4,321 instructions against 4,234 and refills the instruction cache 119 times against 106, the code's placement the merge moves, the instruction side of what [#909](https://github.com/kebag-logic/milan-fpga/issues/909) records for data, not traced to a function and not chased. The dearest TICK at 1x1/1if carries AECP's work, which #894's does not: the event's composition moved. An AECP record measured 28,173 cycles in `aecp-fanout` (300 us; 235 stated), and 27,851 on #894's own image, so it is #894's to check ([#894](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6876349104)), and it stays 235 us until #894 restates it. #894's round 11 cut the edit and took the edits as a class of their own ([above](#the-one-row-edit)): at round 6's `bf0844f1` a paced edit was at most 245 us by the rule and every other record 220 ([below](#the-composition-measured-again-895)); at this head the dearest edit is 255 us, the paced class's dearest record 300 and the ordinary class's 225 ([the record classes graded](#the-record-classes-graded-895)).
++ - **The pace** (item 1). At those costs and the 8 ms pace the tx row at 1x1/1if is 33.20 ms and txL 49.46, over its 49 ms (at #894's costs with #895's MAAP record alone, 33.01 and 49.20). The tx row does not depend on the pace. By #894's rule the pace is the smallest whole ms that holds txL within 49 ms and R4L within 238 at 1x1/1if (`paced_rows.choice`), 9 ms at round 5's head `62298ab5` (and 9 at this head), and `aecp_mbx.h` states it (`AECP_PACE_MS`): txL 47.86 ms and R4L 203.48 there (47.60 and 203.44 with #894's AECP timer slot and TICK). At round 5's head every 1x1/1if row held by every source: the last queued notice 127.08 ms within 130 and ACMP's last record 28.85 within 30. The slice rule still gave 900 us there (least margin +0.0225; at 9 ms and #894's two costs it gave 950), the last queued notice's rule 130 ms, and `tier_grid.py` held 18 of its 420 designs, choosing the built one; the load was 0.515 at the pin, 0.511 with tsn-c-stack #32, and 0.694 with every command the largest legal one, each within 0.70. 8x8/2if's reported rows at 9 ms: R4L 210.90 ms within 238, txL 399.09 ms over 49 as before.
++ - **THE TRANSMIT's figure** (item 1). `CTRL_LOOP_TX_MS` states the built design's tx row by every source rounded up to the ms, and `rows_tiers.tx_statements` refuses a figure under it: at 1x1/1if the row was 33.20 ms at round 5's head (33.69 at round 7A's `4c9757ee`, [below](#the-rules-slice-built-895); 34.00 at this head), so the figure is 34 ms (30 before), within `CTRL_LOOP_TX_BOUND_MS`'s 49 (`ctrl_loop.c` holds it there at compile time); at 8x8/2if the row was 89.15 ms (94.99 at `4c9757ee`; 104.25 at this head), under the 98 stated, which stands (reported, not held). A withdrawn Talker's hold-off adds a JoinTime and that figure to two LeaveAllTime periods in whole centiseconds (`SRP_REDECLARE_CS`, `srp_mbx.c`), so it was 2,023 cs at one interface (2,022 before) and 2,029 at two (2,030 since, [below](#the-transmits-figure-at-two-interfaces-895)), still no sooner than the 2,000 cs IEEE 802.1Q-2018 35.2.2.8 asks between a Leave and a changed FirstValue; the Talker tests read their horizon from the same headers.
++ - **The ROM** (item 4). At round 5's head the platform's 8x8/2if image planned 60.5 RAMB36, 184 B of `rom` past 60.0, and its entry is 60.5, the owner's cap, with 1,864 B left then (1,656 at round 6's `bf0844f1`, [below](#the-composition-measured-again-895); 1,368 at this head) and a debt of 4.5 RAMB36 owed to S14; the size fixture and both of the harness's 8x8/2if arms are within #894's 59.0, and every other point within 56 ([section 5](#5-fit)). The pace and THE TRANSMIT restatements leave every image's linked ROM and SRAM sizes unchanged.
++ - **#894's round 11** (the merge of `9606b3a9`; [above](#the-one-row-edit)). Each cost is the one of the side that moved it from the merge base `7398ec0a`, the larger where both did: ACMP's owed frame #894's, 55 us at 1x1/1if and 70 at 8x8/2if; AECP's timer slot, the 8x8/2if TICK and MAAP's record #895's; the TICK at 1x1/1if and a pass's events' fixed part at 8x8/2if, raised on both sides, 50 and 35 us; the edits a class of their own at 260 and 325 us. At those tables the pace by #894's rule stays 9 ms (txL 49.58 ms at 8), txL 47.97 ms and R4L 203.49, and every 1x1/1if row holds by every source: R4 13.03 ms, ACMP 29.03, the last queued notice 127.73 within 130, tx 33.39, which `CTRL_LOOP_TX_MS`'s 34 ms states. The load is 0.517 at the pin, 0.513 with tsn-c-stack #32 and 0.696 with every command the largest legal one. But the slice rule takes 950 us there, least margin +0.0200 with txL binding, against the built 900 us's +0.0175 with the last queued notice binding, so `tier_grid.py` chooses 950 us and `rows_tiers.py --selftest` refuses the merged tables ("the built design's slice not the rule's"). The merge moves #894's cut into this image, so its costs are measured again on it ([below](#the-composition-measured-again-895)).
++ 
++ So at round 5's head every 1x1/1if row held by every source, the load was within 0.70 in both columns, `tier_grid.py` held the built design, and each image was within its entry; on the merge of #894's round 11, and with its costs measured again ([below](#the-composition-measured-again-895)), the slice rule leaves the built design. 8x8/2if's rows are reported, as before.
++ 
++ ### The composition measured again (#895)
++ 
++ At round 6's head `bf0844f1`, superseded by the subsections below: the figures are that image's.
++ 
++ The merge of #894's round 11 moves #894's one-row edit's cut into this image, so the CPU budget harness ran again at 1x1/1if on the merge's image `df0bc467`: every group of arm A, of the `answering-every-port` and `valid-destinations` arms, and arm B's `aecp`, `aecp-largest-notice` and `aecp-fanout`. Every stated cost the rows read is held to those legs by the rule (but the paced record class, of which that survey read no record, and arm B's SET_STREAM_INFO, which it left out of the ordinary class: [the record classes graded](#the-record-classes-graded-895)), the most measured plus 5 % and rounded up to 5 us ([a review of #901](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6881281833)): `load_grade.py`'s two columns, `poll_grade.STATED_US`, `whole_grade.stated_us` (`ctrl_loop.h`'s passes given whole), `rows_grade.ROW_COSTS`, `rows_tiers.DATAPATH_US`, `LONG_NOTICE_US` and `LONG_RECORD_US`, and `edit_rows.EDIT_RECORD_US`, each against round 1's parsers and the harness's own heaviest (`poll_grade.held`, `whole_grade.held`, `record_classes.py`).
++ 
++ - **Two costs were under their rule figure, and each is restated in both columns**; every other is within it.
++   - **The polls' base at 1x1/1if**: 20,282 CPU cycles in `acmp-cmd`, 215 us by the rule against the 205 stated (`poll_grade.STATED_US`, `load_grade.STATED_US_DONOR`; 20,456 at round 5's head). On #894's own image `9606b3a9` the same group's heaviest base is 18,843 cycles, 200 us. Its pass at round 6's `bf0844f1` runs 79 instructions more with 4 instruction refills fewer, so the 1,439 cycles are code. They fall in the polls: MAAP's 407 and SRP's delivery's 378, which carry the Talker's declarations and each source's stream_id (#905), and ACMP's, ADP's and AECP's 320, 198 and 161. The base over 205 is SRP's Talker declarations'.
++   - **A pass's events' fixed part at 1x1/1if**: 3,041 cycles in the `answering-every-port` arm's `notice-burst-0`, 35 us against the 30 stated (`load_grade.py`, both columns; 2,623 at round 5's head), not traced: the cut moves the code's placement ([#909](https://github.com/kebag-logic/milan-fpga/issues/909)).
++ - **AMAP_LIVE_WRITE at 8x8/2if.** The `datapath-events` group on this image at 8x8/2if measures its take and sinks at 2,367 cycles, 23.67 us, within the 23.80 us that 25 us holds by the rule, so 25 stands (`eventcost.py`, the measure #894 states `DATAPATH_US` by, [#894](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6872978311); 2,426 at round 5's head). AVB_INFO_CHANGED and AS_PATH_CHANGED are 3,575 and 3,421 cycles there, within their 40 us.
++ - **AECP's records by class** (`record_classes.py` on these legs): a paced edit at most 23,306 cycles (245 us, within `EDIT_RECORD_US`'s 260), the largest legal command's 86,762 (915 us, within 975), and every other record 20,525 (220 us, within the 235 stated). Arm B's SET_CONFIGURATION, 33,304 cycles (350 us), is reported and not held, as #894 records ([above](#the-one-row-edit)).
++ - **The rows at the restated tables** (`flip_grade.py --check --point 1x1/1if`, by every source, ms): R4 13.11, R5 74.47, R6 72.53, the first queued notice 14.65, R4L 203.53, ACMP 29.29, ADP 27.56, MAAP 27.65, tx 33.64 and txL 48.32 are each within their bounds. **The last queued notice is 134.94 ms, over its 130**, at the built 900 us slice, so the check fails. The fixed part alone puts it at 132.72 ms, and with it the base at 210 us at 133.91. The pace by #894's rule stays 9 ms (txL 49.94 at 8), and the last queued notice is over 130 at every pace from 7 to 13 ms (135.04 to 134.81). `CTRL_LOOP_TX_MS`'s 34 ms still states the tx row. The load is 0.517 at the pin, 0.513 with tsn-c-stack #32 and 0.696 with every command the largest legal one, each within 0.70.
++ - **The slice rule takes 950 us** (`rows_tiers.slice_choice` and `ruled`, least margin +0.0129, txL binding), not the built 900. `tier_grid.py` holds 12 of its 420 designs and chooses 950 us (AECP first, SRP first, the AECP queue, cap 2), and `rows_tiers.py --selftest` refuses the tree ("the built design's slice not the rule's"). At 950 us every 1x1/1if row holds by every source: R4 13.16 ms, R5 74.52, R6 72.58, the first queued notice 14.70, the last 127.83, R4L 203.58, ACMP 29.34, ADP 27.61, MAAP 27.70, tx 33.69 and txL 48.37, at the same 9 ms pace.
++ - **The ROM.** #894's cut adds 208 to 224 B of `rom` to every image and no `sram` ([section 5](#5-fit)). The platform's 8x8/2if image plans 60.5 RAMB36 with 1,656 B left, the size fixture and the harness's two 8x8/2if arms 59.0 with 656, 348 and 488 B, and every other point is within 56.
++ 
++ So at those tables the 900 us design's last queued notice at 1x1/1if was over its bound by every source, and the slice rule left it: a stop of the ruling of 2026-11-14 on #895's composition, which [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886) answers by building the rule's slice ([below](#the-rules-slice-built-895)). 8x8/2if's rows were reported at its tables then: R4 42.85 ms, R4L 210.91, tx 89.98 under the 98 stated, txL 399.86, and the load 0.798 at the pin and 0.756 with tsn-c-stack #32.
++ 
++ ### The rule's slice built (#895)
++ 
++ At round 7A's head `4c9757ee`, superseded by the subsections below: the figures are that image's.
++ 
++ [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886) makes the built 1x1/1if slice the slice rule's choice at the tree's restated tables within 650 to 1,100 us, a rule and not a number (item 1): `ctrl_loop.h` states it, 950 us (`CTRL_LOOP_SLICE_US`; 900 before), and the harness self-test holds the figure, `rows_tiers.py`'s tree control refusing the 900 us header and `selftest_round.py` the stated length. The last queued notice keeps its 130 ms (item 2). A 950 us slice holds one MRPDU's build, as 900 did (`CTRL_LOOP_BUILD_MOST`), and every image's linked ROM and SRAM sizes are those of the 900 us head.
++ 
++ - **The image measured again.** The CPU budget harness ran every group of every arm on the image with the 950 us slice, at both points: arm A, the `answering-every-port` and `valid-destinations` arms, and arm B's `aecp`, `aecp-largest-notice` and `aecp-fanout`. Every stated table the rows read was held to those legs by the rule, as [above](#the-composition-measured-again-895), with the same two record-class exceptions.
++   - **At 1x1/1if** every cost equals its measurement at the 900 us slice, cycle for cycle, and none is under its rule figure.
++   - **At 8x8/2if**, whose legs ran first in this composition, one is under: MAAP's timer slot, 21,120 cycles in arm A's `save` group, 225 us by the rule against 215, restated in both columns (`load_grade.py`; 19,993 at #895's merge with the tiers). AMAP_LIVE_WRITE stays within its 25 us (2,367 cycles), and every other cost is within its figure.
++ - **The rows** (`flip_grade.py --check --point 1x1/1if`, by every source, ms): R4 13.16, R5 74.52, R6 72.58, the first queued notice 14.70, the last 127.83 within 130, R4L 203.58, ACMP 29.34, ADP 27.61, MAAP 27.70, tx 33.69 and txL 48.37. Every row holds, and `CTRL_LOOP_TX_MS`'s 34 ms states the tx row.
++ - **The rule chooses the same slice again** on the rebuilt image's tables: `rows_tiers.slice_choice` and `ruled` give 950 us (least margin +0.0129, txL binding). `tier_grid.py` holds 12 of its 420 designs and chooses the built one, and `rows_tiers.py --selftest` refuses none of its planted controls.
++ - **The pace** by #894's rule stays 9 ms (txL 49.99 ms at 8). The load is 0.517 at the pin, 0.513 with tsn-c-stack #32 and 0.696 with every command the largest legal one.
++ - **The joins.** Every join interval the legs measure is within 181 to 239 ms: 1,109 in 231 group runs, 182.679 to 190.642 ms.
++ - **8x8/2if is reported:** R4 42.87 ms, R4L 210.93, tx 94.99 under the 98 stated, txL 399.88, and the load 0.798 at the pin and 0.756 with tsn-c-stack #32. In arm B's `aecp-largest-notice`, which no earlier pass ran at that point, two of its 138 work passes are over the per-pass share, the longest 223,684 cycles (2.237 ms): the share at 8x8/2if is the flip's under #890, as [below](#what-is-left) (the round 28 ruling, item 3).
++ 
++ So at round 7A's head (`4c9757ee`) every 1x1/1if row held by every source at the built slice, which was the slice rule's choice, the load was within 0.70 in both columns, and each image was within its entry; composed with #894's SET_CONFIGURATION cut that no longer holds ([below](#the-composition-with-894s-set_configuration-cut-895)). 8x8/2if's rows are reported, as before.
++ 
++ ### The composition with #894's SET_CONFIGURATION cut (#895)
++ 
++ At round 7B's head `0c93071e`, superseded by the subsections below: the figures are that image's.
++ 
++ The merge of #902's `234bc149` brings #894's SET_CONFIGURATION cut, its slice at the rule's 950 us, which this branch takes for its own ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796), item 2), and `CTRL_LOOP_SRP_UNIT_US` at the load gate's 280 us. Each cost is the side's that moved it from the merge base `9606b3a9`, the larger where both did: AECP's timer slot at 1x1/1if this branch's 75 us against #894's 70, a TICK there #894's 55, a build of one and an owed MRPDU #894's 735. The pace by #894's rule stays 9 ms there (txL 52.09 ms at 8).
++ 
++ - **At the composed tables no slice the rule may take holds every row.** At 950 us the last queued notice at 1x1/1if is 134.74 ms, over its 130, and it is over at every slice from 650 to 1,100 us. The slice rule's largest least margin is at 1,200 us (+0.0004), outside that range, so `rows_tiers.ruled` falls back to 800 us. Every row holds at 950 us once a pass's polls' base and its events' fixed part come to 240 us together (205 and 35), and not at 245.
++ - **The polls' base, attributed.** The heaviest base in `acmp-cmd` is 20,453 cycles on the merge's image (215 us by the rule) and 19,074 on #894's own `234bc149` (205). The 1,379 cycles fall in AECP's poll (+625) and its delivery (+840), whose code this branch does not change. MAAP's poll and SRP's delivery, which carry the Talker's declarations, are 6 and 290 cycles cheaper. The pass runs 82 instructions more with 17 instruction refills fewer, so it is the code's placement ([#909](https://github.com/kebag-logic/milan-fpga/issues/909)).
++ - **The cut** ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 3), one, behaviour-neutral. `srp_mbx_gate`, the Talker's per-pass check, returns at once on the gate and base its last call left (`gate_seen`, `gate_base`, `srp_mbx.h`). Only init and the entry write what it reads, so such a call would change nothing. The Talker plants hold it: `talker-gate-repeat-ignores-its-base` is caught by name at one interface and two.
++ - **Measured again on the cut's image**, every group of arm A, the `answering-every-port` and `valid-destinations` arms and arm B's three groups at 1x1/1if:
++   - `acmp-cmd`'s base is 19,736 cycles, 717 fewer.
++   - `save-held`'s base is 21,094 cycles (19,793 at round 7A's head), with 262 instructions fewer and 49 more instruction refills in its pass. It is the placement again, and 225 us by the rule.
++   - So the polls' base is restated 215 to 225 us in both tables. Every other cost is within its figure, and a pass's events' fixed part measures 2,449 cycles, within its 35.
++ - **The rows at the final tables** (`flip_grade.py --check --point 1x1/1if`, by every source, ms, at 950 us): R4 13.30, R5 75.89, R6 73.41, the first queued notice 14.77, R4L 203.62, ACMP 29.68, ADP 27.91, MAAP 28.01, txL 48.63 and tx 34.05 are within their bounds. The last queued notice is 135.43, over its 130, and tx is over the 34 ms `CTRL_LOOP_TX_MS` states.
++   - No slice from 650 to 1,100 us holds every row: at 950 us the least margin is -0.0418. At 1,200 us txL is 49.21, over its 49.
++   - `tier_grid.py` holds none of its 420 designs. `rows_tiers.ruled` falls back to 800 us.
++   - The pace by the rule is 9 ms (txL 52.34 at 8). The load is 0.517 at the pin and 0.514 with tsn-c-stack #32.
++   - Every join interval is within 181 to 239 ms: 359 on the cut's image, 188.102 to 190.121 ms.
++ - **The ROM** at the cut's head is within every entry. The platform's 8x8/2if image is 131,752 B at 60.5 RAMB36 (1,368 B left). The size fixture and the harness's two 8x8/2if arms are at 59.0, with 368, 60 and 200 B left. Every other point is within 56.
++ 
++ So after the ruling's one cut no slice within 650 to 1,100 us held every 1x1/1if row at the 130 ms bound: the stop of [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), for the maintainer, which [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) answers ([below](#the-bound-and-the-slice-at-140-ms-895)). The 8x8/2if legs were not run on the cut's image, so its rows were the composed tables' then.
++ 
++ ### The bound and the slice at 140 ms (#895)
++ 
++ [#895's ruling of 2026-11-15 on round 7B's stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) moves the last queued notice's bound to its row in #895 alone, and lets the slice rule choose again there:
++ 
++ - **The bound** (item 1). `queued_bound.py` rules the built design's row rounded up to the next 5 ms, never over 140 ms. The row was 135.43 ms at 950 us, 10.43 over decision D's 125, 5.43 over #894's amended 130 and 4.57 within 140, so `AECP_QUEUED_MS` at one interface is 140 ms (`aecp_mbx.h`). #894's head keeps 130, and #908 stays open.
++ - **The slice** (item 4). At the 140 ms bound the slice rule takes 900 us (least margin +0.0086, txL binding; 950 us +0.0076, 1,000 us +0.0065), and `rows_tiers.ruled` agrees. The loop is built there (`CTRL_LOOP_SLICE_US`), and at 900 us the row is 136.65 ms, which rules the same 140. A 900 us slice holds one MRPDU's build, as 950 did.
++ - **THE TRANSMIT's figure** (item 3). By the rule `CTRL_LOOP_TX_MS` is the built design's tx row rounded up to the ms: 34.00 ms at 1x1/1if at 900 us, so it stays 34 (the 35 of 950 us is not taken), and `SRP_REDECLARE_CS` stays 2,023 cs at one interface. At 8x8/2if see below.
++ - **The sync.** The merge of #902's `b6f5c638` changes no image of this branch: every image `ledger.sh` links has its loadable bytes and objects identical to those at round 7B's cut head, 552 of 552 by sha256, and #894 shows its own images identical to `234bc149`'s. The bound and the slice change only the one-interface images, in `ctrl_loop.o` and the ELF. Every two-interface image is identical.
++ - **Measured again on the rebuilt image,** every group of arm A, the `answering-every-port` and `valid-destinations` arms and arm B's three groups at 1x1/1if, and the same at 8x8/2if.
++   - At 1x1/1if every cost equals its measurement on the cut's image but for event counts. The polls' base is 21,094 cycles in `save-held`, 225 us, and a pass's events' fixed part 2,715 cycles, within its 35. No stated cost the survey measured is under its rule figure, so the bound and the slice settle after the one rebuild; that survey read no paced record and left arm B's SET_STREAM_INFO out of the ordinary class, which [the record classes graded](#the-record-classes-graded-895) answers, no statement moving.
++   - At 8x8/2if, reported: four costs were under their rule figures, each restated in its tables (`b69388c7`): the polls' base, 32,705 cycles in the `answering-every-port` arm's `notice-every-4`, 345 us against 325; a notice longer than `AECP_FAN_BYTES`, 66,481 cycles in arm B's `aecp-largest-notice`, 700 against 655; a pass's events' fixed part, 3,437 cycles in `acmp-noresp`, 40 against 35; and AMAP_LIVE_WRITE's take and sinks, 2,465 cycles, 30 against 25 (2,367 at round 6's head). Every other cost is within its figure, and both legs that failed on the first two regrade rc 0 at the restated tables. Two passes of the `answering-every-port` arm (at most 2.018 ms) and two of arm B's `aecp-largest-notice` (at most 2.337 ms) are over the per-pass share, which is #890's at that point. Its joins are within 181 to 239 ms, 750 from 185.605 to 190.228 ms.
++ - **The rows** (`flip_grade.py --check --point 1x1/1if`, by every source, ms, with each margin): R4 13.25 (6.75), R5 75.84 (14.16), R6 73.36 (16.64), the first queued notice 14.72 (5.28), the last 136.65 (3.35 of 140), R4L 203.57 (34.43), ACMP 29.63 (0.37), ADP 27.86 (2.14), MAAP 27.96 (2.04), tx 34.00 (15.00) and txL 48.58 (0.42). Every row holds by every source.
++   - `tier_grid.py` holds 6 of its 420 designs and chooses the built one. The pace by #894's rule is 9 ms (txL 49.99 at 8).
++   - The load is 0.517 at the pin and 0.514 with tsn-c-stack #32, and 0.696 with every command the largest legal one.
++   - Every join interval is within 181 to 239 ms: 359 at 1x1/1if, 188.102 to 190.121 ms.
++ - **The 140 ms limit.** A pass's own cost at 1x1/1if, a pass's events' fixed part and its polls' base, is 260 us. The last queued notice holds 140 ms up to 278 us, and at 279 us it is 141.36 ms and txL 49.02 ms, each over its bound (`review-evidence/895-r1/author-r8/scripts/per_pass_threshold.py` on the `895-review-evidence` branch). These 18 us are the bounds' headroom, not the flip check's: `CTRL_LOOP_TX_MS` states the tx row, 34.00 ms, rounded up with no slack, so any rise in a pass's own cost restates it by the rule (the flip check refuses the statement from a 226 us base, the tx row 34.02), with no wire change at one interface until it passes 40 ms. The placement that moves the base by a thousand cycles a group is #909's.
++ - **The ROM** is round 7B's cut head's to the byte in size: the platform's 8x8/2if image at 60.5 RAMB36 with 1,368 B left, the size fixture and the harness's two 8x8/2if arms at 59.0 with 368, 60 and 200 B, every other point within 56.
++ 
++ - **THE TRANSMIT's figure at 8x8/2if.** With 8x8/2if's costs restated, its tx row is 104.25 ms, over the 99 `CTRL_LOOP_TX_MS` stated there then, and `rows_tiers.tx_statements` holds each interface count's figure at or over its row. By the rule the figure would be 105 ms, and `SRP_REDECLARE_CS` at two interfaces, two LeaveAllTime periods, a JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10, would move from 2,029 to 2,030 cs: a withdrawn Talker's changed destination declared 10 ms later at 8x8/2if, a wire-visible change. So the figure was not restated in that round; it was the maintainer's under [the ruling](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), and is 105 ms by the next ([below](#the-transmits-figure-at-two-interfaces-895)).
++ 
++ So at this head every 1x1/1if row holds by every source at the built slice, the slice rule's 900 us, with the last queued notice's bound at its row's 140 ms; the load is within 0.70 in both columns, and each image is within its entry. 8x8/2if's THE TRANSMIT figure waited for the maintainer, and is 105 ms ([below](#the-transmits-figure-at-two-interfaces-895)). 8x8/2if is reported: R4 45.06 ms, R4L 211.08, tx 104.25, txL 466.85, and the load 0.798 at the pin and 0.756 with tsn-c-stack #32.
++ 
++ ### THE TRANSMIT's figure at two interfaces (#895)
++ 
++ [#895's ruling of 2026-11-15 on round 8's stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865) takes the rule's figure at 8x8/2if:
++ 
++ - **The figure** (item 1). `CTRL_LOOP_TX_MS` at two interfaces is the built design's tx row by every source rounded up to the ms, 105 ms for its 104.25 at the restated costs ([above](#the-bound-and-the-slice-at-140-ms-895)), so `rows_tiers.tx_statements` holds both interface counts' figures at or over their rows. #894's head keeps 99.
++ - **The hold-off follows it** (items 1 and 2). `SRP_REDECLARE_CS` (`srp_mbx.c`) is two LeaveAllTime periods, a JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10, the latest the Leave departs after its request: 2,030 cs at two interfaces, 2,029 at 99 ms, and 2,023 at one, unchanged. IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, so the terms above it must follow the tx row, and a withdrawn Talker's changed destination is declared 10 ms later at two interfaces, on the safe side.
++ - **Refused** (item 3): a statement under its row, and a second source for the hold-off's term.
++ - **The term held** ([R835-4's review of #901](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6900107977)). `Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave` (`srp_talker.cpp`) requests the Leave on a centisecond and holds the loop a JoinTime and `CTRL_LOOP_TX_MS` after it, the latest the Leave can leave, and requires the changed destination no sooner than two LeaveAllTime periods after the Leave on the wire: 20,005 ms at two interfaces and 20,006 at one. The Talker campaign plants the hold-off without THE TRANSMIT's term (19,895 and 19,966 ms), with it rounded down (19,995 and 19,996) and without the JoinTime's either, each caught by name at 1x1/1if and at 8x8/2if.
++ - **The images** (item 5). By sha256 of every image `ledger.sh` links, each ELF's loadable bytes and every linked object (552 files), no one-interface image changes. At each of the six two-interface images, the platform's and the size fixture's at 1x1 and 8x8 and the CPU budget harness's two 8x8/2if arms, only `srp_mbx.o` and the ELF differ, each in the one instruction that loads the hold-off, `li a3,2029` to `li a3,2030`; every other instruction and every other section byte is equal (`objdump -d` and `objdump -s`). So every leg measured on the image before carries.
++ - **The sync.** The merge of #902's `41ca9f87` (#894's round 20: section 13's history in the past, comments and `rows_grade.py`'s docstring) changes no image: 552 of 552 identical to those of the image the legs measured.
++ - **Measured again** at two interfaces: `srp_talker.cpp` at 8x8/2if (11 tests) and at 1x1/1if (11), the composition's `SrpGate` at 8x8/2if (7) and the SRP and ACMP arm at two interfaces (76) pass.
++ - **The rows** are those [above](#the-bound-and-the-slice-at-140-ms-895): every 1x1/1if row holds by every source, and `rows_tiers.tx_statements` holds both interface counts' figures (`rows_tiers.py --selftest` refuses 1,033 of its 1,033 planted controls). A pass's own cost at 1x1/1if, 260 us, has 18 us to the 279 us at which the last queued notice, 141.36 ms, and txL, 49.02, pass their bounds.
++ - **The memory ledger.** `ctrl_plat` at 8x8 with one interface is 18,240 B since the one cut, 64 B over the 18,176 the ledger recorded, which `plat_ledger.py` refused from that cut on; the ledger records it ([section 3](#3-named-refusals)), and `plat_ledger.py` passes at every point.
++ 
++ ### The record classes graded (#895)
++ 
++ [R836-4's review of #901](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6899966960) found the cost survey of rounds 6 to 9 short on two of AECP's record classes. Its `EDIT_RECORD_US` row looked for a class `record_classes.py` never names, so the paced class read no record and printed "not staged". And it called `record_classes.held` without the record's command, so arm B's `aecp-fanout` SET_STREAM_INFO, which the formal measurement holds only with its command, was left out of the ordinary class. Both are answered on round 8's legs, which carry to this head ([above](#the-transmits-figure-at-two-interfaces-895)):
++ 
++ - **The head's class grader over every held leg** (`record_classes.py` over arm A, the `answering-every-port` and `valid-destinations` arms and arm B, at both points, in one pass) gives RESULT PASS. The dearest record of each class, by the rule, against its statement:
++ 
++   | Point | Class | Dearest record | CPU cycles | By the rule | Stated |
++   |---|---|---|---:|---:|---:|
++   | 1x1/1if | paced (`EDIT_RECORD_US`) | arm B's accepted SET_CONFIGURATION | 28,288 | 300 us | 300 us |
++   | 1x1/1if | ordinary (`record.aecp`) | `answering-every-port`, `notice-burst-0` | 21,187 | 225 us | 235 us |
++   | 1x1/1if | long (`LONG_RECORD_US`) | arm B, `aecp-largest-notice` | 86,698 | 915 us | 975 us |
++   | 8x8/2if | paced | arm B's accepted SET_CONFIGURATION | 55,365 | 585 us | 595 us |
++   | 8x8/2if | ordinary | `answering-every-port`, `notice-every-7` | 18,904 | 200 us | 265 us |
++   | 8x8/2if | long | arm B, `aecp-largest-notice` | 126,152 | 1,325 us | 1,650 us |
++ 
++   Arm B's SET_STREAM_INFO is 20,363 cycles at 1x1/1if (215 us) and at most 17,511 at 8x8/2if (185 us), each held in the ordinary class and within it. 8x8/1if is reported by class and never held (`record_classes.held`), and this branch has no leg there.
++ - **No statement moves.** Every class's dearest record is within its statement by the rule, the paced class at 1x1/1if at its 300 us exactly, so the rows, the load, the pace and the slice stand.
++ - **The survey corrected** reads the paced class under its key, gives `held` the record's command and counts `record.aecp` like every other statement. At each point it holds 63 statements: 57 measured, each within by the rule, and 6 derived and not staged (the probe's item; the polls' owed MRPDU, and in the donor column the owed MRPDU and a build of both MRPDUs; and the pass given whole's build). The rows also read `aecp_mbx.h`'s round costs, which each leg's round check holds, and `CTRL_LOOP_TICK_US`, a floor under the centisecond the survey holds.
++ - **Planted on the same path.** An accepted SET_CONFIGURATION raised over the paced record (40,000 cycles at 1x1/1if, 60,000 at 8x8/2if), and a SET_STREAM_INFO raised over the ordinary record (30,000 at each point), each in a copy of arm B's leg. The class grader over every leg refuses each, naming the record, and the corrected survey refuses each (UNDER 1). Round 8's survey passed all four: the two defects, each now caught.
+  
+ +### A burst of names and a change in flight (#920)
+ +
+ +The rehearsal of the flip's bench gate on the test machine found that after a burst of about 35 SET_NAMEs, every one answered SUCCESS, a 10 s wait and a cold power cut, the last five names came back as their defaults ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6899519003)).
+ +Milan v1.2 5.3.13 requires the names saved in non-volatile memory and restored after a power cycle.
+ +The [ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6899740728), item 1, set the target: at 1x1/1if and 8x8/1if, under the contract's held load, every acknowledged change durable within 5 s of its response, a burst marking every name and a change marked during a save in flight included.
+ +
+ +**The cause: a lost mark, not the step rate.**
+ +The AECP owner queued its saved-state marks in `uint32_t pending[8]` (`aecp_nvm.h`), 256 ids, a size from layout 2's 8-bit record_id.
+ +Layout 3 ([#823](https://github.com/kebag-logic/milan-fpga/issues/823), `nvm_layout3.h`) puts the NAME block after every other block, at id 222, so name ordinal k is id 222 + k, and every name from ordinal 34 on has an id of 256 or more.
+ +`mark()` then set a bit past the array and `aecp_nvm_poll()`, which scans its 8 words, never delivered it: the store never saw the change, so it opened no window and wrote nothing, however long the wait.
+ +At 1x1/1if the names table holds 39 names, and ordinals 34 to 38 are AUDIO_CLUSTER 22, 23 and 24, CONTROL 0 and CLOCK_DOMAIN 0, the five the rehearsal lost.
+ +At 8x8 it is 73 of 107 names, and their bits land in the word after the array and in `struct ctrl_plat`'s next member, the ACMP persistence wrapper's pointer and group.
+ +Three receipts show it before any change:
+ +
+ +- `Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle`, at the base: 34 of the 39 marks reach the store, and names 34 to 38 come back as their defaults after the real store's save and a power cycle, with nothing in flight and no time limit involved;
+ +- the budget harness's `save-burst` at the base, 1x1/1if, the burst paced as the rehearsal's controller sent it (below): one save, the other 34 names durable 1,489 to 2,338 ms after their responses, names 34 to 38 never durable and missing from the authoritative container at the cut;
+ +- the board, on the rehearsal's image, running the same scenario: the store's bits read over the console (PP_STAT, which the split drives from the store) went dirty, then pending, and from about 2 s after the burst to the cut 10 s later read backed, nothing dirty, nothing pending, no stale claim, no alarm and verdict OK; the same five names came back as their defaults.
+ +
+ +The step rate does not explain it: in the rehearsal's own capture AUDIO_CLUSTER 24 and 23 were answered 574 and 577 ms into an 878 ms burst and lost, while the clusters answered after them were saved.
+ +A failed attempt would leave the claim stale or the alarm set, and the flash part's erase and program time cannot pick names by id.
+ +
+ +**The mark, fixed as that defect.**
+ +`pending` holds one bit per id of layout 3's space, `AECP_NVM_WORDS`, 36 words, and `pending_count` the bits set, so a poll with nothing pending tests no word; a static assert holds every id of the shape inside the array.
+ +
+ +**The ruling's three mechanisms** (`nvm_store.c`), and nothing else:
+ +
+ +- **A change marked during a running capture joins it.**
+ +  On its first walk the capture takes a record it has yet to reach, as before, and at any walk a record no capture holds: at the end of a walk, a changed record no capture holds (`nvm_joined_behind`) has it walk again from the first record, taking only such records, so it takes each record once and ends.
+ +  A change to a record the capture has taken is the next save's.
+ +- **The next save starts at the first idle step after the save in flight.**
+ +  A change the save in flight cannot take sets `next_now`, and the idle step after that save starts the capture without a window; a first change keeps DR2a's 1,000 ms window, and a failed attempt DR2c's 1,000 ms back-off.
+ +- **More than one step a centisecond, only in passes that took no input and have the step's time left, one step a pass.**
+ +  While a save is in flight, or a change it left waits, `nvm_store_step` takes a step in every pass the loop calls it in when `NVM_STEP_US` is left, owed by a centisecond or not.
+ +  The loop calls it once a pass and only in a pass that took no input (THE STEP, `ctrl_loop.h`), and on the split image `mbx_hal_wait()` returns at once, so the loop passes again at once and a save advances a step in each such pass.
+ +  A step not owed that finds no room owes nothing, so the age does not run on it; the age limit, the tiers and the pace are as they were.
+ +
+ +The step's length, the two-slot sequence, the blank check, the verify and the format are unchanged.
+ +
+ +**The harness's two groups** ([the harness README](../../tb/verilator/ctrl_service_budget/README.md)).
+ +`save-burst` sets every name the image's table holds and reads each back, the entity's two names first and the rest from the last ordinal down, its frames 1.3 ms apart while the AECP channel's bucket holds a token and 250 ms later where it would not, the rehearsal controller's pace and timeout, with every other receive channel at its refill rate with its bursts until the cut 10 s after the last frame; its journal at the cut must hold every name in its authoritative slot.
+ +`save-flight` sets the entity's name under the same load and at the first save's erase sets it again.
+ +Each save's container is read off the log, and each name is timed from its SET_NAME's response to the verify of the first save that holds it.
+ +
+ +| Group | 1x1/1if, the base | 1x1/1if | 8x8/1if, the base | 8x8/1if |
+ +|---|---|---|---|---|
+ +| `save-burst`: names, frames, the burst | 39, 78, 850 ms | 39, 78, 850 ms | 107, 214, 2,777 ms | 107, 214, 2,777 ms |
+ +| `save-burst`: the latest name from its response to durable | never (names 34 to 38) | 1,101.7 ms (253.0 to 1,101.7) | none timed: the CPU traps | 1,367.5 ms (332.7 to 1,367.5) |
+ +| `save-burst`: saves, the cut | 1; names 34 to 38 missing | 1; every name at the cut (sequence 1) | none graded: 8 load faults in `deliver` | 6; every name at the cut (sequence 6) |
+ +| `save-flight`: from its response to durable | 2,020.4 ms | 158.5 ms | 7,049.8 ms | 657.7 ms |
+ +| `save-flight`: steps from the first save's verify to the next erase (its capture and seal's) | 36 (19) | 19 (19) | 59 (59) | 59 (59) |
+ +
+ +At the base, 8x8/1if's burst made the CPU trap: in the harness's fixture image `pending[9]` and `pending[10]` are the AECP bridge's `app` and `aecp` pointers, and the names of ordinals 66 to 106, which the descending burst marks first, set bits in them; `deliver` took a load access fault 0.28 s after the first SET_NAME, eight times.
+ +With the fix at 1x1/1if the burst's 850 ms ends inside its first change's 1,000 ms window, so one save takes every name, 70.6 ms from its erase to durable, and the change in flight's save erases 19 steps after the first's verify, its capture and seal's.
+ +At 8x8/1if every name of the burst is durable within 1.4 s of its response, the saves chained a capture and seal apart, each 306 to 318 ms from its erase to durable, and the change in flight within 0.7 s; at the base the change in flight took 7.0 s there, at a step a centisecond.
+ +Each group's every pass is within the share and each channel's longest record within its bound: no budget miss, and none of `save-burst`'s and `save-flight`'s 2,754 and 2,994 work passes at 1x1/1if, or 3,318 and 2,945 at 8x8/1if, over the share.
+ +At 8x8/1if these groups print stated-cost lines, as every group there does on this base: one interface takes 1x1/1if's statements, `ctrl_loop.h`'s build of one and slice and `poll_grade.py`'s polls base, and SRP's build of one MRPDU is over them (`ctrl_loop.h` records it at 1,019 us), as is the polls base in the pass that delivers a name.
+ +They stand in the base's `save-flight` too, at 94,668 and 21,774 cycles; with this change they are 96,241 and 23,251 there, and the burst's longest build is 109,408, 1.8 s after its last save.
+ +[#914](https://github.com/kebag-logic/milan-fpga/issues/914) gives 8x8/1if its own statements, and these are within them.
+ +
+ +**A save's windows, staged again.**
+ +A save in flight now takes a step in every pass that takes nothing, so its phases are short: at 1x1/1if a save alone is durable 1,078.7 ms after its change, where it took 2,018.6 ms at the base, its window's 1,000 ms included, and 1,302.0 ms at 8x8/1if.
+ +`save_window.py` opens each phase's windows 2 ms into the phase, eight phases 0.125 ms apart across a read-back's pass in the blank check and the verify and 0.25 ms apart across a page's issue and its wait in the program phase, the SET_NAME 1.5 s into the window's wait for MAAP so the save's erase follows the window's set-up, and the verify 2 ms after the last page (`IDLE_MS`); `grade.save_phase` refuses a window outside its phase.
+ +The aged windows are staged as before: their flood holds every step to the age limit.
+ +
+ +Every window opened inside its phase at 1x1/1if and at 8x8/1if (`grade.save_phase` refused none), and in each every row the CPU decides is within its budget.
+ +The 48 aged windows at each point, opened with the step's age at its limit or one short of it, hold 16 and 21 aged steps among their records, the least margin 9.976 ms at 1x1/1if (`backlog-adp@verify-aged2-7`, SRP's last record at 10.024 ms) and 8.876 ms at 8x8/1if (`backlog-adp@blank-aged2-4`, at 11.124 ms).
+ +Over every group a pass that carries the store's step is at most 0.989 ms at 1x1/1if and 1.098 ms at 8x8/1if, within the 2.0 ms share, and a step at most 0.788 ms at both, within `NVM_STEP_US`.
+ +
+ +**A change's worst case, restated.**
+ +Under input that leaves no pass empty the store still steps once every three ticks, so the stated worst cases are the starved ones, at KLJ3's containers: 3,444 B at 1x1/1if, 102 steps for a SET_NAME of the entity, and 13,584 B at 8x8 with one interface or two, 382 steps.
+ +
+ +| Worst case, ms, on a flash with no busy time | 1x1/1if | 8x8 |
+ +|---|---:|---:|
+ +| A SET_NAME of the entity, no save in flight | 4,070 | 12,470 |
+ +| The same marked just after another's save in flight took its record | 6,070 | 22,870 |
+ +| A burst marking every name, no save in flight (39 and 107 records) | 5,180 | 15,620 |
+ +| On the product part at its datasheet maximum, the first two (tSE 3 s, tPP 5 ms; 14 and 54 pages) | 7,140; 12,210 | 15,740; 29,410 |
+ +
+ +The in-flight figure no longer takes the change's own window where that is longer, since its save waits for none; at these containers that window was never the longer.
+ +This page's records before KLJ3 give 12,110 and 22,150 ms at 8x8/2if, at KLJ2's 13,256-byte container and 370 steps, and 15,370 and 28,670 ms on the product part at its 52 pages; at KLJ3's 13,584 bytes they are the figures above.
+ +The starved worst cases and the product part's stay above 10 s at 8x8, stated and not gated (the ruling, item 1); the append-only design (#823) closes them.
+ +
+ +Ms from the change to durable against its stated worst case, measured at both points (steps; longest gap between flash steps, ms):
+ +
+ +| Group | 1x1/1if | 8x8/1if |
+ +|---|---:|---:|
+ +| `save` | 1,078.7 of 4,070 (102; 25.138) | 1,302.0 of 12,470 (382; 102.161) |
+ +| `save-held` | 1,087.5 of 4,070 (102; 19.338) | 1,353.3 of 12,470 (382; 34.228) |
+ +| `save-starved` | 4,048.2 of 4,070 (102; 31.217) | 12,447.1 of 12,470 (382; 33.594) |
+ +| `save-second` | 6,030.5 of 6,070 (102; 30.835) | 22,829.7 of 22,870 (382; 32.227) |
+ +
+ +Under input that leaves no pass empty, `save-starved` and `save-second`, a save still takes a step every three ticks and stays just inside its stated worst case; where a pass is empty it takes a step a pass.
+ +A save alone's longest gap between flash steps is its blank check, whose read-backs the grade merges into one read: 27 steps at 1x1/1if and 107 at 8x8/1if, a step a pass.
+ +
+ +**The images.**
+- The marks over layout 3's space and the store's join and step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
+- The target platform's 8x8 image with two interfaces then holds 131,224 B of `rom`, past the 131,072 B its 60.0 RAMB36 held, and its ledger entry is 60.5, the owner's cap, debt owed to S14 ([section 3](#3-named-refusals)).
+++On this branch's own base the marks over layout 3's space and the store's join and step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
+++Merged with `dev-soft-core` `70f4056f` they add 296 to 304 B of `rom` to every image over that tree's, and `ctrl_plat` is 17,664, 19,200, 18,304 and 20,480 B ([section 3](#3-named-refusals)).
+++On this branch alone the target platform's 8x8 image with two interfaces held 131,224 B of `rom`, past the 131,072 B its 60.0 RAMB36 held; merged with SRP's Talker declarations (#895), which took the entry to 60.5, the owner's cap, it holds 132,040 B there, debt owed to S14 ([section 3](#3-named-refusals)).
+ +
+  ### What is left
+  
+  - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
+@@@ -2616,10 -2727,10 +2829,10 @@@
+  - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's at `715589c` is merged here (PR #892), its hot-list runtime entry removed from both lists; lwSRP's with `ctrl_arms.LWSRP_REV`.
+  - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
+  - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
+ -- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,470 ms after it at 8x8/2if (382 steps of KLJ3's container) and 4,070 ms at 1x1 with no save in flight, and 22,870 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time (`save_window.bound_ms`, the harness README; 12,110 and 22,150 ms at 8x8/2if under KLJ2); on the product's flash part at its datasheet maximum, 15,370 and 28,670 ms at 8x8/2if and 7,140 and 12,210 ms at 1x1 by the 2026-11-04 record, derived at KLJ2's step counts and not derived again at KLJ3's ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.559 ms by the 2026-11-05 record (`65a56d02`, [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
+ +- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,470 ms after it at 8x8/2if (382 steps of KLJ3's container) and 4,070 ms at 1x1 with no save in flight, and 22,870 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time (`save_window.bound_ms`, the harness README; 12,110 and 22,150 ms at 8x8/2if under KLJ2); on the product's flash part at its datasheet maximum, 15,740 and 29,410 ms at 8x8 and 7,140 and 12,210 ms at 1x1, at KLJ3's 54 and 14 pages ([#920](#a-burst-of-names-and-a-change-in-flight-920); 15,370 and 28,670 ms at 8x8/2if by the 2026-11-04 record, at KLJ2's 52 pages, [above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). Since #920 a save in flight also takes a step in every pass that takes nothing, so wherever the input leaves passes empty it is far faster than its worst case, and a change marked during a capture joins it. The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.559 ms by the 2026-11-05 record (`65a56d02`, [above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
+  - **THE TIERS** ([above](#the-tiers)) replace the three bounds the loop held by construction before them, a change-notice retry's, THE TRANSMIT's (`CTRL_LOOP_TX_MS`) and SRP's (`CTRL_LOOP_SRP_MS`), each now a row by every source (THE TRANSMIT's at 240 ms less the armed join time and `T_egress`, 49 ms at 19 cs: #894's contingent ruling and [the egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1). The three bullets below record the loop before them.
+- - **A change-notice retry** was taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst held one. Before THE TIERS a notice whose port answered was committed within 18 ms of the answer under any input, inside its 20 ms (`aecp.h`): 12.30 to 13.51 ms at both points under input that left no pass empty ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). Under them the first queued notice is a tier row: 14.66 ms within 20 at 1x1/1if, and 20.93 ms at 8x8/2if, stated 22 and reported ([the table above](#the-queued-notices-at-stated-costs-and-the-first-notice)). Each notice owed ahead of it costs it its own round and the pass that sends it.
+- - **SRP's MRPDU build was a pass class of its own** (THE TRANSMIT in `ctrl_loop.h`), taken only in a pass that took no record, at most one event and no centisecond, or once held past its age in a pass of its own, within `CTRL_LOOP_TX_MS`, 44 ms before THE TIERS, so every participant's MRPDU was sent within the 200 ms JoinTime (under THE TIERS the tx row, 33.38 ms within 49 at 1x1/1if, which `CTRL_LOOP_TX_MS` states as 34 ms, and 99 at two interfaces). A pass that dispatches a centisecond takes one record of a channel (THE TICK's cap).
++ - **A change-notice retry** was taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst held one. Before THE TIERS a notice whose port answered was committed within 18 ms of the answer under any input, inside its 20 ms (`aecp.h`): 12.30 to 13.51 ms at both points under input that left no pass empty ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). Under them the first queued notice is a tier row: 14.72 ms within 20 at 1x1/1if, and 21.11 ms at 8x8/2if, stated 22 and reported, at this head (14.66 and 20.93 at #894's; [the table above](#the-queued-notices-at-stated-costs-and-the-first-notice)). Each notice owed ahead of it costs it its own round and the pass that sends it.
++ - **SRP's MRPDU build was a pass class of its own** (THE TRANSMIT in `ctrl_loop.h`), taken only in a pass that took no record, at most one event and no centisecond, or once held past its age in a pass of its own, within `CTRL_LOOP_TX_MS`, 44 ms before THE TIERS, so every participant's MRPDU was sent within the 200 ms JoinTime (under THE TIERS the tx row, 34.00 ms within 49 at 1x1/1if and 104.25 at two interfaces at this head, which `CTRL_LOOP_TX_MS` states as 34 and 105 ms; 33.38 ms, 34 and 99 at #894's head). A pass that dispatches a centisecond takes one record of a channel (THE TICK's cap).
+  - **SRP's 18 ms, `CTRL_LOOP_SRP_MS` (removed under THE TIERS), was THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if took sixteen:** that row fitted by the measured cost of its passes, which held no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
+  - **The margins in round 30's measurements** (round 30's legs, every group of arm A and of the `answering-every-port` arm, on the image that merged `dev-soft-core` `0fb66211`): arm A's least AECP-record margins in its windows opened at the age limit above, 8.162 ms at 8x8/2if and 9.992 ms at 1x1/1if; on the share, the heaviest work pass is 183,244 cycles at 8x8/2if (`notice-burst-2`, the `answering-every-port` arm), 16,756 under it, and 166,127 at 1x1/1if (`notice-every-6`, the same arm), 33,873 under (round 29's image: 186,522 and 168,216; round 28's: 192,237 and 160,618). Round 26's image gave 193,609 cycles at 8x8/2if, 99 cycles short of the 6,490 the round 16 ruling asks of every pass class ([issuecomment-6634982529](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529), item 2): the margin there moves with the image, so the round 28 ruling (item 3) defers it to the 8x8/2if flip under #890, whose owner decision of 2026-11-11 sets that point's flip ceiling to 0.75; 1x1/1if keeps it. The classes at the struct-ends layout were not measured again. A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
+  - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
+diff --cc sw/firmware/ctrl/aecp/aecp_nvm.h
+index 477bdbeeeb,cd10f0fa80..09f8c0eb23
+--- a/sw/firmware/ctrl/aecp/aecp_nvm.h
++++ b/sw/firmware/ctrl/aecp/aecp_nvm.h
+@@@ -2,18 -2,24 +2,29 @@@
+  #ifndef CTRL_AECP_NVM_H
+  #define CTRL_AECP_NVM_H
+  #include "aecp_state.h"
+ +#include "nvm_layout3.h"
+  #include "nvm_state.h"
+  
+ +// One pending bit per record id of layout 3's space (nvm_layout3.h), whatever block the id is in: the names follow
+ +// every other block, so their ids reach 260 at 1x1/1if and 328 at 8x8 (#920).
+ +#define AECP_NVM_WORDS ((NVM3_ID_SPACE + 31u) / 32u)
+ +
+- // Generated writable-name ordinals are the existing image's name table order.
++ // Generated writable-name ordinals are the existing image's name table order,
++ // held as its runs: ordinals ordinal to ordinal + count - 1 are the names of
++ // descriptor type's indexes index to index + count - 1 (name 0), or with name 1
++ // the one descriptor's second name. aecp_shape.py derives them from that table.
++ struct aecp_name_run {
++ 	uint16_t type;
++ 	uint16_t index;
++ 	uint16_t count;
++ 	uint16_t ordinal;
++ 	uint16_t name;
++ };
++ 
+  struct aecp_nvm {
+  	struct aecp *core;
+- 	const struct aecp_value *names;
+- 	size_t name_count;
++ 	const struct aecp_name_run *names;
++ 	size_t name_runs;
+  	struct aecp_mapping *scratch;
+  	size_t scratch_count;
+  	struct nvm_state port;
+diff --cc sw/litex/ctrl_memory.py
+index 25bb00ec79,08d591fc61..b8ef944d6d
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@@ -258,16 -260,19 +260,21 @@@ LEDGERED: dict[str, Ledgered] = 
+                                           "of the 58.0 allowance, one half tile, 528 B of sram past 55 granules "
+                                           "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
+                                           "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
+-                                          "cap raised to 59.0 as debt owed to S14, no hold"),
++                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
++                                          "declarations plan within it (#895)"),
+      "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
+ -                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
+++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_480)), 60.5,
+                                              "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                              "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                              "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+                                              "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
+-                                             "(#665 decision D3); 60.5, that cap, with the saved-state store's "
+-                                             "name marks over layout 3's id space and its step a pass (#920): "
+-                                             "131,224 B of rom past the 131,072 its 60.0 held, debt owed to S14"),
++                                             "(#665 decision D3); ctrl_plat 64 B more with SRP's Talker "
++                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
++                                             "declarations composed on the control loop's tiers, 184 B of rom past "
++                                             "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
+ -                                            "owed to the hybrid XIP work, the cap fully used"),
+++                                            "owed to the hybrid XIP work, the cap fully used; and within it the "
+++                                            "saved-state store's name marks over layout 3's id space and its step "
+++                                            "a pass (#920), ctrl_plat 128 B more and 296 B more rom"),
+  }
+  
+  
+diff --cc sw/litex/ctrl_memory_ledger.py
+index 67e92a867a,756fe88e24..9c0cf15ace
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@@ -5,10 -5,9 +5,9 @@@ planted ledgers that widen one, and th
+  
+  `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+  only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
+- platform's at 60.5 (the owner's decision of 2026-11-12 caps it there; #920 took it there), each refused half a
+- tile past. A `Case` here is what the
+- ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+- here takes, and grades what these return.
+ -platform's at 60.5 (the owner's decision of 2026-11-12, its cap), each refused half a tile past. A `Case` here is
+ -what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+ -function here takes, and grades what these return.
+++platform's at 60.5 (the owner's decision of 2026-11-12, its cap; #895 and #920 took it there), each refused half a
+++tile past. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through
+++the `write` callable every function here takes, and grades what these return.
+  syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+  (#665 S9); `mapper_arms` grades that override and plants three defects in it.
+  """
+@@@ -33,7 -32,7 +32,7 @@@ STAGE_1X1, STAGE_8X8 = 3454, 1359
+  FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
+  #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+  #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+- PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_600, 19_136, 18_240, 20_416
+ -PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
+++PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_200, 18_304, 20_480
+  
+  
+  class Case(NamedTuple):

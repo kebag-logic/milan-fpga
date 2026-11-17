@@ -1,0 +1,27 @@
+Note: Google Test filter = Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Nvm
+[ RUN      ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+$REVIEWS/r858-1-920/sw/firmware/ctrl/test/test_aecp.cpp:363: Failure
+Expected equality of these values:
+  owner.pending_count
+    Which is: 2
+  0u
+    Which is: 0
+the pending count follows its bits
+
+  [FAIL] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle: the pending count follows its bits
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle (2 ms)
+[----------] 1 test from Nvm (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

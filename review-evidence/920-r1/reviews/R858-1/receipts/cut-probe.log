@@ -1,0 +1,32 @@
+endstation_ax7101_1x1_tdm8 [==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmModel
+[ RUN      ] NvmModel.JoinedAndNextSaveCutAtEveryStep
+CUT RECEIPT port=model boundaries=845 distinct_snapshots=3 distinct_phases=9
+CUT RECEIPT port=--litespi boundaries=823 distinct_snapshots=3 distinct_phases=9
+[       OK ] NvmModel.JoinedAndNextSaveCutAtEveryStep (15077 ms)
+[----------] 1 test from NvmModel (15077 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 1 test from 1 test suite ran. (15077 ms total)
+[  PASSED  ] 1 test.
+== joined and chained save power cuts: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+endstation_ax7101_8x8 [==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmModel
+[ RUN      ] NvmModel.JoinedAndNextSaveCutAtEveryStep
+CUT RECEIPT port=model boundaries=2125 distinct_snapshots=3 distinct_phases=9
+CUT RECEIPT port=--litespi boundaries=2103 distinct_snapshots=3 distinct_phases=9
+[       OK ] NvmModel.JoinedAndNextSaveCutAtEveryStep (101200 ms)
+[----------] 1 test from NvmModel (101200 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 1 test from 1 test suite ran. (101200 ms total)
+[  PASSED  ] 1 test.
+== joined and chained save power cuts: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
