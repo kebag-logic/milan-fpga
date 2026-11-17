@@ -1,0 +1,7 @@
+acmp-cmd at 1x1/1if, run on 6ceed753 with the round-4 harness before its final comments (its code, sim_main.cpp, observers.py, build.py and the grader, differs from c10c549e only in comments; the README in prose), against round 2's log of the same group: the owner record at every MRP timer expiry, and the log line for line with it taken out
+HEAD 6ceed753 + the round-4 harness diff point 1x1 jobs 1 args --groups acmp-cmd start 2026-11-17T01:05:41
+END rc=0 2026-11-17T01:08:39
+log vs round 2, owner record out: {"lines": 69161, "differ": 0, "first_differing_line": null, "participant": 2, "owned": 5, "owner_named": 5, "owner_unresolved": 0, "owner_missing": 0}
+timer callbacks by recorded owner: {"on_join_timer": {"if0 MVRP": 2, "if0 MSRP": 3}}
+PARTICIPANT bindings (ms, timer_arg, owner): [[24.293, "10004ef0", "if0 MSRP"], [24.293, "100051f0", "if0 MVRP"]]
+MRPDU rows equal to round 2s: True

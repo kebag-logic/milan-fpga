@@ -1,0 +1,28 @@
+head d2da3159ea1e46196505e1cba39272ef2230cc24 (split8 ExtraPostPlacementOpt (integrated))
+command: paths3.py <route dir>
+---
+design worst setup, Slow_85C: slack -0.595 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[112]/C
+    Destination:            milan_datapath/amap_edit_oclaim_word_r_reg[230]/CE
+    Data Path Delay:        20.213ns  (logic 4.964ns (24.558%)  route 15.249ns (75.442%))
+    Logic Levels:           26  (CARRY4=5 LUT2=3 LUT3=3 LUT4=6 LUT5=4 LUT6=5)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack -0.170 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_evt/pend_r_reg[1]/C
+    Destination:            KL_mbx/u_evt/tick_cnt_r_reg[10]/R
+    Data Path Delay:        9.737ns  (logic 2.428ns (24.936%)  route 7.309ns (75.064%))
+    Logic Levels:           19  (LUT2=3 LUT3=5 LUT4=4 LUT5=4 LUT6=3)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack -0.595 ns, group milansoc_crg_clkout1
+    Source:                 KL_mbx_cdc/u_edit/rq_r_reg[112]/C
+    Destination:            milan_datapath/amap_edit_oclaim_word_r_reg[230]/CE
+    Data Path Delay:        20.213ns  (logic 4.964ns (24.558%)  route 15.249ns (75.442%))
+    Logic Levels:           26  (CARRY4=5 LUT2=3 LUT3=3 LUT4=6 LUT5=4 LUT6=5)
+worst setup at eth_clocks0_rx, Slow_85C: slack +0.341 ns, group eth_clocks0_rx
+    Source:                 milansoc_milanmac_phy_sink_ready_reg/C
+    Destination:            storage_2_reg_1/ADDRARDADDR[9]
+    Data Path Delay:        6.887ns  (logic 1.450ns (21.054%)  route 5.437ns (78.946%))
+    Logic Levels:           6  (LUT2=1 LUT3=2 LUT4=1 LUT5=2)
+design worst hold, Fast_85C: slack +0.036 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[22]/C
+    Destination:            milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_102_107/RAMA/I
+    Data Path Delay:        0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%))
+    Logic Levels:           0

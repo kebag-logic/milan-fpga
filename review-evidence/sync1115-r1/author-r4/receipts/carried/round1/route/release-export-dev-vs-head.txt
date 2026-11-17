@@ -1,0 +1,12 @@
+# The AX7101 1x1 release (all-fabric) gateware export, no Vivado, at dev 6b66f66d and at the head d2da3159 (release_export.sh: the launcher's preview, its milan_soc.py command without --build)
+files: dev 3876 head 3876 only dev 21 only head 21
+equal after normalisation: 3742 differ: 113
+  differs: csr.csv
+  differs: csr.json
+  differs: flashboot_layout.json
+  differs: gateware/alinx_ax7101.v
+  differs: litex.log
+gateware files differing: 1
+software/: object files differ by the build paths they embed (the 21 'only in one' are libc objects named after the output path)
+gateware/: every file equal after path normalisation; alinx_ax7101.v equal outside its comments (LiteX's comment-only hierarchy tree orders differently between runs)
+csr.csv, csr.json, flashboot_layout.json: the head adds this line's journal_klj3 flash reservation (constants milan_flash_journal_klj3_offset 14942208, _size 655360), dev-soft-core's KLJ3 journal, not the sync's

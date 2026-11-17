@@ -1,0 +1,10 @@
+twin rc=2
+[DIFF] ADP frame 1 differs at byte 34 (fabric 0000c58800024801, split ff00c58800024801): ADP message_type 0 at ms 6216
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+[DIFF] ADP frame 1 differs at byte 34 (fabric 0000c58800024801, split ff00c58800024801): ADP message_type 0 at ms 4455
+[DIFF] owed row split-talker-failed does not hold: the fabric sent [MSRP Talker Advertise stream_id 024b4c4b4c010000: New x2, JoinMt x15, Lv x1, Mt x5] (the row: Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws), the split [MSRP Talker Advertise stream_id 024b4c4b4c010000: New x2, JoinMt x19, Lv x1] (the row: Talker Failed for both sources' streams from boot, neve
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+[MRP] split MSRP Talker Advertise stream_id 024b4c4b4c010000: JoinMt at ms 5570 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5380
+[MRP] split MSRP Talker Advertise stream_id 024b4c4b4c010001: nothing at ms 14190 (a LeaveAll) is not an Applicant's message: from AN, Table 10-3's txLA! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5190
+plant srp-plus-k: ESCAPED by "MSRP Talker Failed stream_id 024b4c4b4c010001"
+twin-plants rc=2

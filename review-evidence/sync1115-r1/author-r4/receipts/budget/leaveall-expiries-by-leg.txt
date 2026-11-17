@@ -1,0 +1,7 @@
+Round 2's harness legs (10b2fe21's build, graded at 6ceed753 in round 3): the LeaveAll timer expiries (ENTRY ... on_la_timer) in each group's log. Only the groups listed with a count above 0 hold any; round 4 re-simulates each of them at c10c549e. Every other group's grading cannot move with the change, which grades LeaveAll expiries alone, and its build is refused at c10c549e (the testbench changed: REFUSED reused build is stale: checkout:tb/verilator/ctrl_service_budget/sim_main.cpp changed).
+2 b1x1-V/results/srp-talker.log
+3 b81/results-a0/save-second.log
+2 b81/results-a1/save-held.log
+2 b81/results-a2/save-starved.log
+2 b81-V/results/srp-talker.log
+215 group logs in the 13 legs; the rest hold 0

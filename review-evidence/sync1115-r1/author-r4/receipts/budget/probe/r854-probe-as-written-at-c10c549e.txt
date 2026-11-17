@@ -1,0 +1,70 @@
+PR #934's review packet's probe_leaveall.py (sha256 6fd5bcf53108a9f652363be77bcde3ddc8480b3581936bb0981eb6aa7702ddd2), unchanged, run against a clean clone of c10c549e: its ENTRY lines name no owner, so each LeaveAll expiry is unowned and fails the run, and its first assertion (the escape: two LeaveAlls sent, none failing) no longer holds; rc 1
+{
+  "case": "participant_swap",
+  "expected": "MSRP must fail: first opportunity 1180; first frame 1181 lacks LeaveAll; LeaveAll 1371",
+  "leavealls": [
+    {
+      "at": 105000100,
+      "outcome": "unowned",
+      "recorded": false
+    },
+    {
+      "at": 119000100,
+      "outcome": "unowned",
+      "recorded": false
+    }
+  ],
+  "joins": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": [],
+    "runs": {
+      "released": 5,
+      "empty": 0,
+      "late": 0,
+      "absent": 0,
+      "unresolved": 0
+    },
+    "failing": [],
+    "leave_all": {
+      "runs": {
+        "sent": 0,
+        "skipped": 0,
+        "late": 0,
+        "absent": 0,
+        "unresolved": 0,
+        "unowned": 2
+      },
+      "failing": [
+        {
+          "outcome": "unowned",
+          "who": null,
+          "at_ms": 1050.001,
+          "recorded": false
+        },
+        {
+          "outcome": "unowned",
+          "who": null,
+          "at_ms": 1190.001,
+          "recorded": false
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "probe": "participant_swap.mrpdu.join.if0",
+      "ms": 1.0
+    }
+  ],
+  "misses": [
+    "participant_swap: the LeaveAll timer's run-out at 1050.001 ms, no owner recorded at the expiry (LeaveAll owner unresolved)",
+    "participant_swap: the LeaveAll timer's run-out at 1190.001 ms, no owner recorded at the expiry (LeaveAll owner unresolved)"
+  ]
+}
+Traceback (most recent call last):
+  File "<scratch>/r4/probe/r854/probe_leaveall.py", line 49, in <module>
+    assert j["leave_all"]["runs"]["sent"] == 2 and not j["leave_all"]["failing"], j
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 5, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': [], 'leave_all': {'runs': {'sent': 0, 'skipped': 0, 'late': 0, 'absent': 0, 'unresolved': 0, 'unowned': 2}, 'failing': [{'outcome': 'unowned', 'who': None, 'at_ms': 1050.001, 'recorded': False}, {'outcome': 'unowned', 'who': None, 'at_ms': 1190.001, 'recorded': False}]}}

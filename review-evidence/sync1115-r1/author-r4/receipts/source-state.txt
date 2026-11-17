@@ -1,0 +1,30 @@
+head c10c549e21d4fd6a5dcc7c50437f1b5474f9e018
+tree c1db3c1722ef1ed7ce81d25deaf1b98c0b8a54f7
+git diff --check HEAD^ HEAD: rc 0
+
+git status --porcelain:
+
+Changed paths:
+M	docs/reference/FR_NFR.md
+M	tb/verilator/ctrl_service_budget/README.md
+M	tb/verilator/ctrl_service_budget/build.py
+M	tb/verilator/ctrl_service_budget/grade.py
+M	tb/verilator/ctrl_service_budget/join_grade.py
+M	tb/verilator/ctrl_service_budget/mrpdu_grade.py
+M	tb/verilator/ctrl_service_budget/observe.vlt
+A	tb/verilator/ctrl_service_budget/observers.py
+M	tb/verilator/ctrl_service_budget/run.py
+M	tb/verilator/ctrl_service_budget/selftest_leaveall.py
+M	tb/verilator/ctrl_service_budget/selftest_mutants.py
+M	tb/verilator/ctrl_service_budget/sim_main.cpp
+
+Parent gitlink entries:
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+
+Clean gate clone head:
+c10c549e21d4fd6a5dcc7c50437f1b5474f9e018
+
+Clean gate clone status:

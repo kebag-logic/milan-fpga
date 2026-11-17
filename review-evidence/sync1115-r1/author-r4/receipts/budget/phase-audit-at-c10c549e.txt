@@ -1,0 +1,21 @@
+PASS: 11 phases, 22 required loaded groups, 44 owned LeaveAlls sent; no skipped, late, absent, unresolved or unowned expiry.
+PASS: every completed rerun trace equals the earlier trace after removing only owner records; no missing/unresolved owner.
+PASS: required 1x1/1if valid-destinations leg rc 0; 8x8 legs retain rc 1 on the separately recorded STATED costs, not passing whole legs.
+Worst MRPDU rows (20 ms bound unchanged):
+{
+  "join.if0": {
+    "ms": 1.86217,
+    "leg": "s10592",
+    "group": "save-held"
+  },
+  "leaveall.if0": {
+    "ms": 1.6436,
+    "leg": "s12102",
+    "group": "save-starved"
+  },
+  "periodic.if0": {
+    "ms": 2.96879,
+    "leg": "s13602",
+    "group": "save-starved"
+  }
+}

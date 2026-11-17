@@ -1,0 +1,91 @@
+head 10b2fe213d4c2bf5ccd32e61fc466129c934e31e (split1 AltSpreadLogic_high)
+command: worst10.py <route dir>
+---
+## 10 worst setup, route report (alinx_ax7101_timing.rpt)
+ 1 +0.118 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[11]/C
+  -> KL_mbx/reg_rdata_r_reg[8]/D
+     delay 9.754ns, levels 15  (LUT4=5 LUT5=3 LUT6=7)
+ 2 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[3]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 3 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[5]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 4 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[6]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 5 +0.152 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[29]/CE
+     delay 7.539ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 6 +0.152 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[32]/CE
+     delay 7.539ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 7 +0.220 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[12]/CE
+     delay 7.438ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 8 +0.220 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[14]/CE
+     delay 7.438ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 9 +0.258 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[1]/CE
+     delay 7.409ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+10 +0.258 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[2]/CE
+     delay 7.409ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+## 5 worst setup, Slow_85C signoff
+ 1 +0.118 ns  group milansoc_crg_clkout0  (launch milansoc_crg_clkout0, req 10.000ns)
+     KL_mbx/rd_off_r_reg[11]/C
+  -> KL_mbx/reg_rdata_r_reg[8]/D
+     delay 9.754ns, levels 15  (LUT4=5 LUT5=3 LUT6=7)
+ 2 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[3]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 3 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[5]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 4 +0.139 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[6]/CE
+     delay 7.529ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+ 5 +0.152 ns  group eth_clocks0_rx  (launch eth_clocks0_rx, req 8.000ns)
+     FSM_sequential_subfragments_txdatapath_bufferizeendpoints_state_reg[0]/C
+  -> KL_gptp_gmii_launch/src_in_r_reg[29]/CE
+     delay 7.539ns, levels 7  (LUT2=2 LUT3=2 LUT4=2 LUT5=1)
+## 3 worst hold, Fast_85C signoff
+ 1 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/rxts_commit_r_reg[18]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_18_23/RAMA/I
+     delay 0.196ns, levels 0
+ 2 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[40]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_120_125/RAMA/I
+     delay 0.196ns, levels 0
+ 3 +0.036 ns  group milansoc_crg_clkout1  (launch milansoc_crg_clkout1, req 0.000ns)
+     milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/rxts_commit_r_reg[42]/C
+  -> milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_42_47/RAMA/I
+     delay 0.196ns, levels 0
+## utilisation (alinx_ax7101_utilization_place.rpt)
+Slice LUTs: 32050 / 63400 (50.55 %)
+LUT as Memory: 1119 / 19000 (5.89 %)
+Slice Registers: 42399 / 126800 (33.44 %)
+Slice: 14106 / 15850 (89.00 %)
+Block RAM Tile: 81 / 135 (60.00 %)
+RAMB36/FIFO: 63 / 135 (46.67 %)
+RAMB18: 36 / 270 (13.33 %)
+DSPs: 11 / 240 (4.58 %)
+CARRY4: 2450
+# of routable nets..................... :       72950 :
+# of fully routed nets............. :       72950 :
+# of nets with routing errors.......... :           0 :

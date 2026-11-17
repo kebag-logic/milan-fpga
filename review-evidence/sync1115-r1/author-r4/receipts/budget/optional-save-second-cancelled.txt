@@ -1,0 +1,6 @@
+The inherited product-MAC command selected save-held, save-starved and an additional save-second group.
+The first two native traces completed with RESULT: PASS. The extra save-second group was cancelled intentionally after its process arguments were verified and listed, using SIGTERM to that process alone. No other process was killed.
+This extra group is outside round 4's eleven-phase save-held/save-starved regrade. Its partial output is NOT RUN, never a pass or source of measurement.
+The completed required traces are regraded in a separate output directory with the exact-head harness and its build attestation. The superseded combined attempt is retained only as an interrupted attempt, not as gate evidence.
+
+Partial raw log (deleted after the combined attempt ended): 127389696 bytes; sha256 dbc95c4d16bfe6f9fa504de1fea48d8c8098743284f1cb85c87d4c8cbf7d1321.

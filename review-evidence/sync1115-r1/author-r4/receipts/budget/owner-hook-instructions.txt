@@ -1,0 +1,54 @@
+Source head: c10c549e
+Image: 8x8/1if service harness
+First instructions at observed entries; callback argument is a0, timer init callback a1 and argument a2.
+ELF sha256 89674de2234e238c195d37c34fb2a1a0e7b5711cd297073a77813d0462cb99db
+
+00017edc <on_la_timer>:
+   17edc:	00052783          	lw	a5,0(a0)
+   17ee0:	ff010113          	addi	sp,sp,-16
+   17ee4:	00112623          	sw	ra,12(sp)
+   17ee8:	00812423          	sw	s0,8(sp)
+   17eec:	00912223          	sw	s1,4(sp)
+
+000180fc <on_pt_timer>:
+   180fc:	fe010113          	addi	sp,sp,-32
+   18100:	00812c23          	sw	s0,24(sp)
+   18104:	00912a23          	sw	s1,20(sp)
+   18108:	01312623          	sw	s3,12(sp)
+   1810c:	01412423          	sw	s4,8(sp)
+
+00017e20 <on_join_timer>:
+   17e20:	00454703          	lbu	a4,4(a0)
+   17e24:	07000693          	li	a3,112
+   17e28:	00052783          	lw	a5,0(a0)
+   17e2c:	02d70733          	mul	a4,a4,a3
+   17e30:	0047a783          	lw	a5,4(a5)
+
+00009120 <shlan_timer_init>:
+    9120:	100167b7          	lui	a5,0x10016
+    9124:	8247a703          	lw	a4,-2012(a5) # 10015824 <g_head>
+    9128:	00b52023          	sw	a1,0(a0)
+    912c:	00c52223          	sw	a2,4(a0)
+    9130:	00052423          	sw	zero,8(a0)
+
+00009318 <mbx_pub_domain>:
+    9318:	02051863          	bnez	a0,9348 <mbx_pub_domain+0x30>
+    931c:	00767613          	andi	a2,a2,7
+    9320:	01469693          	slli	a3,a3,0x14
+    9324:	0146d693          	srli	a3,a3,0x14
+    9328:	01061613          	slli	a2,a2,0x10
+
+00008d24 <msrp_app_create>:
+    8d24:	fb010113          	addi	sp,sp,-80
+    8d28:	04812423          	sw	s0,72(sp)
+    8d2c:	04912223          	sw	s1,68(sp)
+    8d30:	00050413          	mv	s0,a0
+    8d34:	00058493          	mv	s1,a1
+
+00009184 <mvrp_app_create>:
+    9184:	fb010113          	addi	sp,sp,-80
+    9188:	04812423          	sw	s0,72(sp)
+    918c:	04912223          	sw	s1,68(sp)
+    9190:	00050413          	mv	s0,a0
+    9194:	00058493          	mv	s1,a1
+

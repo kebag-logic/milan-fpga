@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# vivado_run.sh <dir> <script.tcl>: one Vivado batch run in <dir>; writes route.start, route.end, route.rc.
+set -u
+export XILINXD_LICENSE_FILE=<home>/.Xilinx/Xilinx.lic
+source <home>/Xilinx/2026.1/Vivado/settings64.sh
+cd "$1" || exit 3
+date -Iseconds > route.start
+vivado -mode batch -source "$2" -nojournal -log baseline.log > vivado.out 2>&1
+echo $? > route.rc; date -Iseconds > route.end
+echo "$1 rc=$(cat route.rc)"; exit $(cat route.rc)
