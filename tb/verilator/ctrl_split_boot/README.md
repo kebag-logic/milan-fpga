@@ -94,13 +94,13 @@ Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz; 
 
 | Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 27.529 ms | 2,752,937 | 18 of 18 equal | 5.733 / 0.661 / 0.310 ms | 0.428 / 0.249 / 0.159 ms |
-| 8x8, one interface | 66.619 ms | 6,661,855 | 18 of 18 equal | 6.958 / 0.758 / 0.367 ms | 0.565 / 0.327 / 0.218 ms |
+| 1x1, one interface | 27.540 ms | 2,754,032 | 18 of 18 equal | 5.814 / 0.667 / 0.312 ms | 0.433 / 0.251 / 0.162 ms |
+| 8x8, one interface | 66.615 ms | 6,661,535 | 18 of 18 equal | 7.106 / 0.763 / 0.371 ms | 0.555 / 0.314 / 0.221 ms |
 
 The PHY at this head (#919, with #840's advertisement), both shapes:
 - 59 frames and 10 publications. The longest frame is 14,537 CPU cycles (145.37 us) at 1x1 and 14,545 (145.45 us) at 8x8, against the stated 155 us.
-- Seven polls, 125.046 to 125.441 ms apart before the loss.
-- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.3 and 126.5 ms after it.
+- Seven polls, 125.041 to 125.557 ms apart before the loss.
+- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.5 ms after it.
 - The advertisement's seven writes: the boot's register 9 0x0200, 4 0x0001 and 0 0x1200, then 9 and 4 after each loss, each group read back.
 - MDC at least 950 ns high, 1,120 ns low and 2,260 ns a period.
 

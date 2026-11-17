@@ -144,8 +144,8 @@ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head,
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
 The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
 The size fixture's entry holds its cap, 59.0, and its image is refused half a tile past it, at 59.5. The platform's entry held #895's cap, 60.5, refused at 61.0, until the PHY poll's merge.
-The platform's entry is 61.0 since the split's PHY poll and its 1000BASE-T-only advertisement (#919, #840) merged with SRP's Talker declarations (dev-soft-core `70f4056f`). The composed image plans 61.0, 588 B of `rom` past the 133,120 B that 60.5 holds, with `ctrl_plat` 64 B more. Its entry is raised to that measurement by the owner's rule of 2026-11-15, which supersedes the 60.5 cap until S14 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)). That is ROM debt of 5.0 RAMB36 owed to S14, and the image is refused at 61.5 ([section 5](#5-fit)).
-The platform's 8x8 image with one interface plans 56.5 by the same composition, 1,068 B of `rom` past the 131,072 B that 56.0 holds. A product entry ledgers it at 56.5, refused at 57.0, by the same rule: ROM debt of half a tile owed to S14, cold code to flash (decision D3).
+The platform's entry is 61.0 since the split's PHY poll and its 1000BASE-T-only advertisement (#919, #840) merged with SRP's Talker declarations (dev-soft-core `70f4056f`). The composed image plans 61.0, 652 B of `rom` past the 133,120 B that 60.5 holds, with `ctrl_plat` 64 B more. Its entry is raised to that measurement by the owner's rule of 2026-11-15, which supersedes the 60.5 cap until S14 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)). That is ROM debt of 5.0 RAMB36 owed to S14, and the image is refused at 61.5 ([section 5](#5-fit)).
+The platform's 8x8 image with one interface plans 56.5 by the same composition, 1,132 B of `rom` past the 131,072 B that 56.0 holds. A product entry ledgers it at 56.5, refused at 57.0, by the same rule: ROM debt of half a tile owed to S14, cold code to flash (decision D3).
 SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
 
 Each override recognises its image by the image's own symbols.
@@ -396,17 +396,17 @@ The size fixture's 8x8 image with two interfaces holds 125,792 B of `rom` in 126
 
 | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | `ctrl_plat`, B | Against its limit |
 |---|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 119,436 (117,488) / 56,288 (56,224) | 43.5 (43.0) | 17,600 (17,536) | within 56 |
-| 1x1, two interfaces | 121,020 (119,072) / 58,464 (58,400) | 44.5 (44.0) | 19,136 (19,072) | within 56 |
-| 8x8, one interface (shipping) | 132,140 (130,200) / 97,392 (97,328) | 56.5 (56.0) | 18,240 (18,240) | at its product entry's 56.5, S14's debt, 980 B of `rom` left |
-| 8x8, two interfaces (largest) | 133,708 (131,752) / 114,352 (114,224) | 61.0 (60.5) | 20,416 (20,352) | at its entry's 61.0, S14's debt, 1,460 B of `rom` left |
+| 1x1, one interface (shipping) | 119,500 (117,488) / 56,288 (56,224) | 43.5 (43.0) | 17,600 (17,536) | within 56 |
+| 1x1, two interfaces | 121,084 (119,072) / 58,464 (58,400) | 44.5 (44.0) | 19,136 (19,072) | within 56 |
+| 8x8, one interface (shipping) | 132,204 (130,200) / 97,392 (97,328) | 56.5 (56.0) | 18,240 (18,240) | at its product entry's 56.5, S14's debt, 916 B of `rom` left |
+| 8x8, two interfaces (largest) | 133,772 (131,752) / 114,352 (114,224) | 61.0 (60.5) | 20,416 (20,352) | at its entry's 61.0, S14's debt, 1,396 B of `rom` left |
 
 By file, from the two link maps, `rom` grows only in the platform's own objects:
-- `ctrl_plat_phy.o`, 1,875 B: the poll's 1,354 B and the advertisement's 521 B;
+- `ctrl_plat_phy.o`, 1,939 B: the poll's 1,354 B and the advertisement's 585 B, 64 of them the check of its restart's outcome;
 - `ctrl_plat.o`, 60 to 68 B: the poll's arm, its THE STEP binding and the refused stage's call;
 - `ctrl_plat_main.o`, 12 B: the bus map's three PHY addresses.
 
-That is 1,947 to 1,955 B an image. `struct ctrl_plat` takes the poll's state, which the 64-byte aligned struct's padding holds at 8x8 with one interface and which takes one more alignment unit, 64 B, at the other three points. The 8x8 one-interface image passes 56.0 with the poll alone, as #895's declarations merged with it. Its product entry is the owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)), as the two-interface entry's 61.0 is.
+That is 2,011 to 2,019 B an image. `struct ctrl_plat` takes the poll's state, which the 64-byte aligned struct's padding holds at 8x8 with one interface and which takes one more alignment unit, 64 B, at the other three points. The 8x8 one-interface image passes 56.0 with the poll alone, as #895's declarations merged with it. Its product entry is the owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)), as the two-interface entry's 61.0 is.
 
 Before #810's merge the size fixture's images were 40.5, 41.0, 53.5 and 58.0 RAMB36 and the platform's 42.0, 43.0, 55.5 and 59.5 with #904's checks and THE PACE, and 40.0, 41.0, 53.5 and 58.0 and 42.0, 43.0, 55.5 and 59.5 without them; before the slots grew and the queue was compiled out, 38.5, 41.0, 52.0 and 58.0 and 40.5, 43.0, 54.0 and 59.5.
 

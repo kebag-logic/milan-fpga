@@ -282,14 +282,14 @@ LEDGERED: dict[str, Ledgered] = {
                                             "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
                                             "owed to the hybrid XIP work, the cap fully used; 61.0 with the PHY "
                                             "poll and its 1000BASE-T-only advertisement on that image (#919, "
-                                            "#840), 588 B of rom past 60.5 and ctrl_plat 64 B more, by the "
+                                            "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
                                             "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
                                             "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_240)), 56.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a shipping image, with SRP's Talker declarations (#895) and the PHY "
-                                           "poll and its 1000BASE-T-only advertisement (#919, #840), 1,068 B of "
+                                           "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
                                            "rom past 56.0, by the owner's rule of 2026-11-15 (#923's ruling of "
                                            "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
                                            "S14", product=True),
