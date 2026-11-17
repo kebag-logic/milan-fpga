@@ -1,0 +1,54 @@
+Note: Google Test filter = App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+<packet>/scratch/tree/sw/firmware/ctrl/test/test_aecp.cpp:806: Failure
+Expected equality of these values:
+  notices(before,source,controller)
+    Which is: 0
+  1u
+    Which is: 1
+no pass is idle while a STREAM_OUTPUT's notice is owed
+
+  [FAIL] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed: no pass is idle while a STREAM_OUTPUT's notice is owed
+<packet>/scratch/tree/sw/firmware/ctrl/test/test_aecp.cpp:806: Failure
+Expected equality of these values:
+  notices(before,source,controller)
+    Which is: 0
+  1u
+    Which is: 1
+no pass is idle while a STREAM_OUTPUT's notice is owed
+
+  [FAIL] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed: no pass is idle while a STREAM_OUTPUT's notice is owed
+<packet>/scratch/tree/sw/firmware/ctrl/test/test_aecp.cpp:806: Failure
+Expected equality of these values:
+  notices(before,source,controller)
+    Which is: 0
+  1u
+    Which is: 1
+no pass is idle while a STREAM_OUTPUT's notice is owed
+
+  [FAIL] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed: no pass is idle while a STREAM_OUTPUT's notice is owed
+<packet>/scratch/tree/sw/firmware/ctrl/test/test_aecp.cpp:806: Failure
+Expected equality of these values:
+  notices(before,source,controller)
+    Which is: 0
+  1u
+    Which is: 1
+no pass is idle while a STREAM_OUTPUT's notice is owed
+
+  [FAIL] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed: no pass is idle while a STREAM_OUTPUT's notice is owed
+[  FAILED  ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed (2 ms)
+[----------] 1 test from App (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

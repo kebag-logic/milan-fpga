@@ -1,0 +1,11 @@
+1x1/1if: fixture rom +200 sram +16; platform rom +200 sram +0
+1x1/2if: fixture rom +232 sram +32; platform rom +232 sram +64
+8x8/1if: fixture rom +192 sram +16; platform rom +192 sram +0
+8x8/2if: fixture rom +224 sram +32; platform rom +224 sram +64
+rom growth range 192..232 (doc: 192 to 232, most at 1x1 two interfaces)
+59.0 holds 126976 ; 59.5 holds 129024
+answering-every-port: 127140 B, 164 B past 59.0, within 59.5: True
+valid-destinations: 126992 B, 16 B past 59.0, within 59.5: True
+talker-notices 8x8/2if: 127048 B, 72 B past 59.0, within 59.5: True
+fixture 8x8/2if spare at 59.0: 144 (doc 144)
+platform 8x8/2if left at 60.5: 1144 (doc 1,144); 8x8/1if at 56.0: 680 (doc 680)

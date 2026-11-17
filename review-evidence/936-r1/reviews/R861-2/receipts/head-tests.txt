@@ -1,0 +1,84 @@
+## aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from App
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+[       OK ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (22 ms)
+[ RUN      ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+[       OK ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed (0 ms)
+[----------] 2 tests from App (23 ms total)
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (23 ms total)
+[  PASSED  ] 2 tests.
+== AECP core: checks: 2   failures: 0 ==
+RESULT: PASS
+rc=0
+## aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from App
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+[       OK ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (25 ms)
+[ RUN      ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+[       OK ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed (0 ms)
+[----------] 2 tests from App (26 ms total)
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (26 ms total)
+[  PASSED  ] 2 tests.
+== AECP core: checks: 2   failures: 0 ==
+RESULT: PASS
+rc=0
+## srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+[==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[----------] 1 test from SrpBinding (0 ms total)
+[----------] 2 tests from SrpGate
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (50 ms)
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[       OK ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (74 ms)
+[----------] 2 tests from SrpGate (124 ms total)
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (125 ms total)
+[  PASSED  ] 3 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 3   failures: 0 ==
+RESULT: PASS
+## srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+[==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[----------] 1 test from SrpBinding (0 ms total)
+[----------] 2 tests from SrpGate
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (39 ms)
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[       OK ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (88 ms)
+[----------] 2 tests from SrpGate (127 ms total)
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (128 ms total)
+[  PASSED  ] 3 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 3   failures: 0 ==
+RESULT: PASS
+## srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+[==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[----------] 1 test from SrpBinding (0 ms total)
+[----------] 2 tests from SrpGate
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (29 ms)
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[       OK ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (115 ms)
+[----------] 2 tests from SrpGate (144 ms total)
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (145 ms total)
+[  PASSED  ] 3 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 3   failures: 0 ==
+RESULT: PASS
