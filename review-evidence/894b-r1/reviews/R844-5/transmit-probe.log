@@ -1,0 +1,26 @@
+tx row 74.26 ms; stated 75 ms; notices 40
+terms [('aecp', 7950), ('builds', 1475), ('datapath', 3410), ('edits', 3780), ('gm', 960), ('item.acmp', 2480), ('item.acmp_declined', 1890), ('item.aecp', 4495), ('item.reclaim', 240), ('item.walk', 960), ('notice', 420), ('others', 18725), ('passes', 9920), ('slice', 1475), ('steps', 2925), ('ticks', 4520), ('timers', 8630)]
+hold-off 2027 cs; remaining 20005.74 ms; minimum 20000 ms
+ROW R4 21.39
+ROW R5 136.64
+ROW R6 132.93
+ROW first 18.98
+ROW last 387.95
+ROW R4L 208.55
+ROW ACMP 52.76
+ROW ADP 52.64
+ROW MAAP 53.91
+ROW tx 74.26
+ROW txL 159.82
+CLI constant 75 exit 0
+CLI constant 60 exit 1
+OVER 8x8/1if: CTRL_LOOP_TX_MS states 60 ms, under the built design's tx row 74.26 ms
+CLI constant 69 exit 1
+OVER 8x8/1if: CTRL_LOOP_TX_MS states 69 ms, under the built design's tx row 74.26 ms
+CLI constant 70 exit 1
+OVER 8x8/1if: CTRL_LOOP_TX_MS states 70 ms, under the built design's tx row 74.26 ms
+CLI constant 74 exit 1
+OVER 8x8/1if: CTRL_LOOP_TX_MS states 74 ms, under the built design's tx row 74.26 ms
+CLI constant 76 exit 0
+poll base +100 us: tx row 78.99 ms
+RESULT: PASS

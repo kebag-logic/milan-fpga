@@ -1,0 +1,15 @@
+d0a2a1605d7acc691936a61f9afaa0e67f4b46f2 State each of section 13's 8x8/1if figures with the image or derivation it comes from, 8x8/1if's legs measured again on the 75 ms image, MAILBOX_SPLIT's 1x1/1if slice at 0.9 ms and the load table's donor column at the pin (#894)
+32a9242f36a8bbd62001af4dfacdaec8966e170a Restate 8x8/1if's CTRL_LOOP_TX_MS at 75 ms for its tx row's 74.26, so the withdrawn Talker's hold-off there is 2,027 cs and keeps two LeaveAllTime periods after the Leave's latest departure (#894)
+a840c14de7e268caa14587d233fc46bfb4afbf1f Derive 8x8/1if's rows in-tree at its own polls, notices and nearest costs, and hold THE TRANSMIT's figure there to its tx row in flip_grade --check apart from its reported rows, with understatement controls at 60, 69 and 74 ms (#894)
+ docs/design/MAILBOX_SPLIT.md                   |  2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md            | 25 ++++++++++-------
+ docs/reference/FR_NFR.md                       |  2 +-
+ sw/firmware/ctrl/loop/ctrl_loop.h              | 20 +++++++------
+ sw/firmware/ctrl/srp/README.md                 |  8 ++++--
+ sw/firmware/ctrl/srp/srp_mbx.c                 |  3 +-
+ tb/verilator/ctrl_service_budget/README.md     |  2 +-
+ tb/verilator/ctrl_service_budget/flip_grade.py | 39 ++++++++++++++++++++++++--
+ tb/verilator/ctrl_service_budget/load_grade.py |  6 ++--
+ tb/verilator/ctrl_service_budget/rows_grade.py | 19 +++++++++----
+ tb/verilator/ctrl_service_budget/rows_tiers.py |  6 ++--
+ 11 files changed, 92 insertions(+), 40 deletions(-)
