@@ -1,0 +1,24 @@
+{
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/925",
+  "title": "Split SRP: a Talker Advertise replacing a Talker Failed waits for the old registration to leave",
+  "issue_number": 925,
+  "body": "Part of #665 (Mark II split flip). Found by the in-house replica on the test machine (#665 issuecomment-6904803181, finding 18). The release passed the same scenario on Oct 31.\n\n**Defect.** When a talker replaces its Talker Failed with a Talker Advertise, the DUT's Listener stays Asking Failed until the old Talker Failed registration leaves (2.1 s on the bench, at the talker's next MRPDU); every other transition in the feature took 0.6 to 0.9 s, and the scenario wants Ready within 1 s. In `sw/firmware/ctrl/srp/srp_mbx.c` a registered Talker Failed sets the sink's desired state to Asking Failed, and a Talker Advertise sets Ready only when the desired state is not Asking Failed, so a still-registered Talker Failed outranks the newer Talker Advertise. IEEE 802.1Q-2018 35.2.4: a talker declares one of the two attributes for a stream.\n\n**Scope.** The most recently registered of Talker Advertise and Talker Failed decides the Listener declaration (or a Talker Advertise's New replaces the Talker Failed); firmware unit tests and the lwSRP receive tests, with planted defects caught by name; the SRP campaign and the service-budget rows within bound.\n\n**Acceptance.** All gates rc 0 on the final head; on the bench, the scenario reaches Listener Ready within 1 s of the Talker Advertise.\n",
+  "state": "open",
+  "user": {
+    "login": "Mister-M-alt",
+    "name": "Mister-M-alt",
+    "email": null,
+    "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+    "id": 161579364
+  },
+  "assignees": null,
+  "labels": null,
+  "milestone": null,
+  "state_reason": null,
+  "comments": 6,
+  "created_at": "2026-11-16T01:30:47Z",
+  "updated_at": "2026-11-17T05:24:18Z",
+  "closed_at": null,
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/925",
+  "display_title": "Split SRP: a Talker Advertise replacing a Talker Failed waits for the old registration to leave"
+}

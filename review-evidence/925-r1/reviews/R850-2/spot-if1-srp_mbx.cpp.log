@@ -1,0 +1,54 @@
+Note: Google Test filter = SrpTalkerKinds.*:*HeldRegistrations*
+[==========] Running 15 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep
+[       OK ] Srp.HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] 14 tests from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime
+[       OK ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[       OK ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding
+[       OK ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding (0 ms)
+[ RUN      ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder
+[       OK ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder (0 ms)
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[       OK ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (0 ms)
+[ RUN      ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered
+[       OK ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset
+[       OK ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset (1 ms)
+[ RUN      ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore
+[       OK ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore (0 ms)
+[ RUN      ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered
+[       OK ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime
+[       OK ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.ReviewQuiescentReplacementWithTrailingMessage
+[       OK ] SrpTalkerKinds.ReviewQuiescentReplacementWithTrailingMessage (52 ms)
+[ RUN      ] SrpTalkerKinds.ReviewAllThreeEventOrders
+[       OK ] SrpTalkerKinds.ReviewAllThreeEventOrders (17 ms)
+[ RUN      ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind
+OBS rebind registered=3 latest=2 desired=2 declared=2
+[       OK ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind (0 ms)
+[ RUN      ] SrpTalkerKinds.ReviewMinimalTrailingDomain
+OBS latest=2 trailing=0 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=2
+OBS first_matching_wire_ms=0
+OBS latest=2 trailing=1 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=2
+OBS first_matching_wire_ms=0
+OBS latest=1 trailing=0 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=1
+OBS first_matching_wire_ms=0
+OBS latest=1 trailing=1 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=1
+OBS first_matching_wire_ms=0
+[       OK ] SrpTalkerKinds.ReviewMinimalTrailingDomain (0 ms)
+[----------] 14 tests from SrpTalkerKinds (76 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 2 test suites ran. (77 ms total)
+[  PASSED  ] 15 tests.
+== ctrl SRP mailbox: checks: 15   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (15 tests, 0 failures, exit 0)

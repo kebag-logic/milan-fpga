@@ -1,0 +1,61 @@
+Note: Google Test filter = SrpFeedback.*
+[==========] Running 23 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 23 tests from SrpFeedback
+[ RUN      ] SrpFeedback.ReviewNewAndDomainExposeDifferentWireViews
+OBS start_ms=1400 now_ms=1590 ACMP_REGISTERING_FAILED=0 desired=2 declared=2
+[       OK ] SrpFeedback.ReviewNewAndDomainExposeDifferentWireViews (0 ms)
+[ RUN      ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView
+[       OK ] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView
+[       OK ] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView
+[       OK ] SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView (0 ms)
+[ RUN      ] SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind
+[       OK ] SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind (0 ms)
+[ RUN      ] SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews
+[       OK ] SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent (0 ms)
+[ RUN      ] SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes
+[       OK ] SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes (0 ms)
+[ RUN      ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal
+[       OK ] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal (0 ms)
+[ RUN      ] SrpFeedback.SinglePduKindReplacementsRemainContinuous
+[       OK ] SrpFeedback.SinglePduKindReplacementsRemainContinuous (0 ms)
+[ RUN      ] SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws
+[       OK ] SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws (0 ms)
+[ RUN      ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent
+[       OK ] SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent (1 ms)
+[ RUN      ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder
+[       OK ] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder (0 ms)
+[ RUN      ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream
+[       OK ] SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream (0 ms)
+[ RUN      ] SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv
+[       OK ] SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv (0 ms)
+[ RUN      ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration
+[       OK ] SrpFeedback.LinkResetWithdrawsTheSettledRegistration (0 ms)
+[ RUN      ] SrpFeedback.LaterKindAfterWithdrawalIsNotReported
+[       OK ] SrpFeedback.LaterKindAfterWithdrawalIsNotReported (0 ms)
+[ RUN      ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration
+[       OK ] SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration (0 ms)
+[ RUN      ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake
+[       OK ] SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake (0 ms)
+[ RUN      ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath
+feedback: IF=1 initial=0 sinks=2 accesses=7 allowance=14
+feedback: IF=1 initial=1 sinks=2 accesses=7 allowance=14
+[       OK ] SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath (0 ms)
+[----------] 23 tests from SrpFeedback (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 23 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 23   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (23 tests, 0 failures, exit 0)
