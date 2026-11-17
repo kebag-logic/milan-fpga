@@ -119,8 +119,9 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: 11,179, the reclaim 3,292 and a retained record's retry, an SRP record's apply, 42,449, 280, 120, 35 and 450 us by
 #: the rule, and at 1x1/1if that apply 26,925, 285 us. Once a Listener's change walks no registrar (#930) the apply,
 #: the one of these the cut moves, is 32,618 and 23,144 cycles, 345 and 245 us, so its own measurement states it:
-#: 345 at 8x8/1if and 280 at 1x1/1if, an SRP record's there.
-EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=35, retained=345, mrpdu=0, acmp=80, aecp=145,
+#: 345 at 8x8/1if and 280 at 1x1/1if, an SRP record's there. Measured on that image over every group of every arm,
+#: 8x8/1if's reclaim is 3,446 cycles in srp-talker-held, 40 us by the rule.
+EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=345, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
