@@ -61,8 +61,11 @@ static bool deliver(void *ctx)
         return false;
     }
     // The sources whose Talker declaration SRP changed since this delivery last ran, each its STREAM_OUTPUT's
-    // GET_STREAM_INFO notice, which the AECP bridge raises (#936; Milan v1.2 5.4.5.2, Table 5.22)
+    // GET_STREAM_INFO notice, which the AECP bridge raises in the next pass: so a pass that takes one owes output and
+    // is not the loop's idle pass (#936; ctrl_loop.h, the polls; Milan v1.2 5.4.5.2, Table 5.22)
+    bool noticed = false;
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+        noticed = noticed || app->srp->ifs[interface].noticed != 0u;
         app->srp_noticed |= app->srp->ifs[interface].noticed;
         app->srp->ifs[interface].noticed = 0u;
     }
@@ -71,7 +74,7 @@ static bool deliver(void *ctx)
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
         (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],app->maap.ifs[interface].core.base);
     }
-    bool pending = false;
+    bool pending = noticed;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
         unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];

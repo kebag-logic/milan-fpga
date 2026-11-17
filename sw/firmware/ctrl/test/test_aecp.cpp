@@ -781,6 +781,33 @@ TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
         EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
     }
 }
+
+// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps in mbx_hal_wait()): from the
+// pass that takes SRP's record to its STREAM_OUTPUT's notice committed to every registered controller, no pass
+// reports the loop idle. Each pass is stepped alone, from an idle loop, until one returns 0.
+TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
+{
+    aem(36);aem(36,{},CTLR+1);
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
+    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+    for(auto [interface,source]:{std::pair{0u,0u},std::pair{MBX_N_IF-1u,last}}){
+        const unsigned before=fabric.tx_sent;
+        reservation.ifs[interface].noticed=1u<<source;
+        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+        for(uint64_t controller:{CTLR,CTLR+1}){
+            EXPECT_EQ(notices(before,source,controller),1u)
+                <<"no pass is idle while a STREAM_OUTPUT's notice is owed";
+        }
+    }
+}
 #endif
 
 namespace {

@@ -549,6 +549,13 @@ DEFECTS = (
            '\t\t(void)c;\n',
            ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
             'the bridge raises every STREAM_OUTPUT the delivery took')),
+    # #936 (ctrl_loop.h, the polls): the SRP delivery's pass that takes the record reports nothing owed, so the loop
+    # may sleep with the STREAM_OUTPUT's notice unsent
+    defect('app-output-notice-owed-unreported', 'app/ctrl_app_srp.c',
+           '    bool pending = noticed;\n',
+           '    bool pending = false;\n    (void)noticed;\n',
+           ('App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed',
+            "no pass is idle while a STREAM_OUTPUT's notice is owed")),
     defect('mailbox-interface-crossed', 'aecp_mbx.c',
            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
            'aecp_rx(&m->core, 0, f->bytes, f->len);',

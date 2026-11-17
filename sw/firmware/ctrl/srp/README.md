@@ -258,15 +258,21 @@ source again records nothing, since the output shows the same. A failed
 creation returns before the record, so what it joined is recorded once it
 succeeds. A Talker Failed's code follows the source's allocation, which only a
 withdrawal changes. The composition's delivery poll takes `noticed` each pass
-into `ctrl_app.srp_noticed`, which an attach of SRP clears, so a recomposition keeps
-no earlier record. The AECP bridge raises each source's STREAM_OUTPUT
-GET_STREAM_INFO event (`aecp_changed`, type 6). The notice then takes AECP's
-own path and pacing to every registered controller (Milan v1.2 5.4.5.1).
+into `ctrl_app.srp_noticed`, which an attach of SRP clears, so a recomposition
+keeps no earlier record. A pass that takes a record reports output owed, so the
+loop does not sleep on it (`ctrl_loop.h`, the polls). In the next pass the AECP
+bridge raises each source's STREAM_OUTPUT GET_STREAM_INFO event
+(`aecp_changed`, type 6). The notice then takes AECP's own path and pacing to
+every registered controller (Milan v1.2 5.4.5.1). The CPU budget harness's
+`talker-notices` arm times it from the PROBE_TX or the range-losing ANNOUNCE to
+the last controller's commit ([`talker_notice.py`](../../../../tb/verilator/ctrl_service_budget/talker_notice.py)).
 Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
 `TypeSwapIsNoticed`, `AdoptedDomainVidIsNoticed`,
 `ResetNoticesNothingUnchanged`), `test_acmp_mbx.cpp`'s
-`F936AProbeAndItsExpiryEachNoticeTheSource` and `test_aecp.cpp`'s
-`SrpDeclarationChangeIsItsStreamOutputsNotice`; plants `talker-notice-*`
+`F936AProbeAndItsExpiryEachNoticeTheSource` and
+`F936BThePassThatTakesTheRecordOwesItsNotice`, and `test_aecp.cpp`'s
+`SrpDeclarationChangeIsItsStreamOutputsNotice` and
+`NoPassIsIdleWhileAStreamOutputsNoticeIsOwed`; plants `talker-notice-*`
 (`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_mutants.py`).
 
 A binding declares Ready for a matching Advertise, AskingFailed for a matching

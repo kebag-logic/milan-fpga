@@ -49,6 +49,7 @@ SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
 VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
 RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
 TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
+TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
 LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
 LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
@@ -93,8 +94,11 @@ ATTACH_CLEARS = ("        // a recomposed application keeps no record of the SRP
                  "        app->srp_noticed = 0u;\n")
 #: the SRP delivery's take of each interface's record (#936), as ctrl_app_srp.c holds it.
 TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n"
+        "        noticed = noticed || app->srp->ifs[interface].noticed != 0u;\n"
         "        app->srp_noticed |= app->srp->ifs[interface].noticed;\n"
         "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
+#: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
+OWED = "    bool pending = noticed;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -274,4 +278,6 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-notice-record-kept", TAKEN, TAKE,
           TAKE.replace("        app->srp->ifs[interface].noticed = 0u;\n", ""), "the SRP delivery takes SRP's record",
           path=APP),
+        d("talker-notice-owed-unreported", TAKEN_PASS, OWED, "    bool pending = false;\n    (void)noticed;\n",
+          "owes its notice", path=APP),
     )
