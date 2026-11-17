@@ -484,7 +484,8 @@ def step_yield_mutants(mutant: type) -> tuple:
           "B12 the yielding call leaves the store's step count unchanged"),
         m("plat-phy-frame-before-the-centisecond-step", PHY, YIELD, "\tif (owes(ctx)) {\n", "platboot1",
           "Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase", "L6 the save is durable while every probe misses"),
-        m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed()) {\n", "platboot1",
+        m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed() && (owes(ctx) || true)) {\n",
+          "platboot1",
           "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 a call with no frame owed takes the extra step"),
     )
 
