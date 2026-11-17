@@ -1,0 +1,11 @@
+All on disposable copies of the review clone (cp -a) under scratch/; PYTHONDONTWRITEBYTECODE=1.
+treeA (pristine copy):
+  python3 -I scripts/run_phy.py scratch/treeA scratch/outA --campaign plat-phy- --jobs 4   -> phy_arms_and_plants.log, rc 0
+     platboot arms at one and two interfaces (36 tests each, PASS) and the control campaign restricted to the 49
+     plants named plat-phy-*: 49 of 49 caught by their named test and words
+  (cd scratch/treeA && python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4)            -> fw_coverage_check.log, rc 0
+treeB (copy + scripts/reviewer_probes.cpp inserted by scripts/probe.sh):
+  python3 -I scripts/run_phy.py scratch/treeB scratch/outB2 --jobs 4                         -> reviewer_probes.log, rc 0
+Evidence archive d8bc5057 fetched into a bare repo under scratch/evidence and extracted there:
+  python3 -I scripts/verify_index.py <archive>/author-r4/receipts                            -> author_r4_index_verify.txt
+  python3 -I scripts/verify_manifest.py <archive>/MANIFEST.json <archive>                     -> archive_manifest_verify.txt

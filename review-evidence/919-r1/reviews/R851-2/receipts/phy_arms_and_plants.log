@@ -1,0 +1,293 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+wrote <packet>/scratch/outA/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/outA/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/outA/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+=== arm platboot rc 0
+[==========] Running 36 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (2 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+[----------] 10 tests from Boot (6 ms total)
+
+[----------] 6 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (6 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (3 ms)
+[----------] 6 tests from Phy (18 ms total)
+
+[----------] 20 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[----------] 20 tests from PlatPhy (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 3 test suites ran. (28 ms total)
+[  PASSED  ] 36 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 36   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (36 tests, 0 failures, exit 0)
+=== arm platboot rc 0
+[==========] Running 36 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (1 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+[----------] 10 tests from Boot (6 ms total)
+
+[----------] 6 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (8 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (4 ms)
+[----------] 6 tests from Phy (21 ms total)
+
+[----------] 20 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[----------] 20 tests from PlatPhy (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 3 test suites ran. (30 ms total)
+[  PASSED  ] 36 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 36   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (36 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 36   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (36 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 36   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (36 tests, 0 failures, exit 0)
+arms: PASS
+campaign over 49 mutants: ['plat-phy-never-armed', 'plat-phy-loss-not-latched', 'plat-phy-edge-not-counted', 'plat-phy-cease-not-ended', 'plat-phy-unguarded', 'plat-phy-refused-stage-unpolled', 'plat-phy-beside-a-save-step', 'plat-phy-store-owed-dropped', 'plat-phy-after-an-idle-step-refused', 'plat-phy-probe-scans', 'plat-phy-late-sample', 'plat-phy-unpaced', 'plat-phy-wrap-unsafe', 'plat-phy-common-mode-misread', 'plat-phy-fault-ignored', 'plat-phy-ack-ignored', 'plat-phy-turnaround-driven', 'plat-phy-no-deadline', 'plat-phy-not-owed', 'plat-phy-half-period-short', 'plat-phy-timed-run-ignored', 'plat-phy-timed-resolution-ignored', 'plat-phy-100base-tx-advertised', 'plat-phy-10base-t-advertised', 'plat-phy-reserved-kept', 'plat-phy-half-duplex-advertised', 'plat-phy-master-slave-dropped', 'plat-phy-test-mode-kept', 'plat-phy-not-restarted', 'plat-phy-reset-kept', 'plat-phy-boot-restart-dropped', 'plat-phy-write-released', 'plat-phy-mii-written', 'plat-phy-10-100-written', 'plat-phy-advertised-once', 'plat-phy-restart-every-loss', 'plat-phy-reset-phy-not-restarted', 'plat-phy-lost-local-not-restarted', 'plat-phy-lost-gig-not-restarted', 'plat-phy-restarted-before-verified', 'plat-phy-advertisement-unverified', 'plat-phy-written-before-read', 'plat-phy-outcome-unchecked', 'plat-phy-outcome-not-renegotiated', 'plat-phy-outcome-uncounted', 'plat-phy-outcome-count-wraps', 'plat-phy-outcome-at-gigabit', 'plat-phy-resolved-before-restart', 'plat-phy-outcome-on-unadvertised']
+[ok] mutant plat-phy-never-armed (platboot1): 15 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-loss-not-latched (platboot1, platboot1): 16 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 46 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-cease-not-ended (platboot1, platboot1): 24 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+[ok] mutant plat-phy-unguarded (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a foreign window's MDIO pins are never touched
+[ok] mutant plat-phy-refused-stage-unpolled (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-store-owed-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the store owes one
+[ok] mutant plat-phy-after-an-idle-step-refused (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store step is an idle one carries one PHY frame
+[ok] mutant plat-phy-probe-scans (platboot1): 11 check(s) failed
+    first: [FAIL] PlatPhy.P1OneAddressIsProbedACall: P1 one address an opportunity, no scan in one call
+[ok] mutant plat-phy-late-sample (platboot1): 109 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-unpaced (platboot1, platboot1): 14 check(s) failed
+    first: [FAIL] Phy.L1ReadyLoopPublishesTheLink: L1 a poll a period, each publishing the link
+[ok] mutant plat-phy-wrap-unsafe (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P10TheClockWraps: P10 a poll is not due again before the clock wraps
+[ok] mutant plat-phy-common-mode-misread (platboot1): 7 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 the highest common mode of 4 and 5, case 0
+[ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+[ok] mutant plat-phy-ack-ignored (platboot1): 7 check(s) failed
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 a NAKed register is link down: 0xffff would resolve 100 full
+[ok] mutant plat-phy-turnaround-driven (platboot1): 16 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: the turnaround or data driven by the STA
+[ok] mutant plat-phy-no-deadline (platboot1): 5 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-not-owed (platboot1): 166 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-half-period-short (platboot1): 4 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 the half period at the SoC's clock: 200 ns, a turn a cycle
+[ok] mutant plat-phy-timed-run-ignored (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 277 us: one turn holds 200 ns
+[ok] mutant plat-phy-timed-resolution-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20
+[ok] mutant plat-phy-100base-tx-advertised (platboot1): 48 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-10base-t-advertised (platboot1): 42 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-reserved-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reserved bit 14 cleared, first arm
+[ok] mutant plat-phy-half-duplex-advertised (platboot1): 39 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 MASTER-SLAVE kept, first arm
+[ok] mutant plat-phy-test-mode-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 the test mode cleared, first arm
+[ok] mutant plat-phy-not-restarted (platboot1): 48 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 autonegotiation restarted, first arm
+[ok] mutant plat-phy-reset-kept (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reset cleared, first arm
+[ok] mutant plat-phy-boot-restart-dropped (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 the boot restarts negotiation whatever the PHY holds
+[ok] mutant plat-phy-write-released (platboot1): 14 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: a write's turnaround or data not driven
+[ok] mutant plat-phy-mii-written (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 the register answering again resolves
+[ok] mutant plat-phy-10-100-written (platboot1): 10 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 an extended status without 1000BASE-T resolves from 4 and 5
+[ok] mutant plat-phy-advertised-once (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: Expected: (regs.size()) >= (10u), actual: 6 vs 10
+[ok] mutant plat-phy-restart-every-loss (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-reset-phy-not-restarted (platboot1): 21 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, both registers
+[ok] mutant plat-phy-lost-local-not-restarted (platboot1): 11 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 4 alone
+[ok] mutant plat-phy-lost-gig-not-restarted (platboot1): 9 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 9 alone
+[ok] mutant plat-phy-restarted-before-verified (platboot1, platboot1): 36 check(s) failed
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+[ok] mutant plat-phy-advertisement-unverified (platboot1): 22 check(s) failed
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+[ok] mutant plat-phy-written-before-read (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P16AnUnacknowledgedReadWritesNothing: P16 no write before its read: register 4 unacknowledged
+[ok] mutant plat-phy-outcome-unchecked (platboot1, platboot1): 42 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+[ok] mutant plat-phy-outcome-not-renegotiated (platboot1, platboot1): 32 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 one extra restart
+[ok] mutant plat-phy-outcome-uncounted (platboot1): 10 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+[ok] mutant plat-phy-outcome-count-wraps (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+[ok] mutant plat-phy-outcome-at-gigabit (platboot1): 22 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 1000BASE-T half duplex
+[ok] mutant plat-phy-resolved-before-restart (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce: P17 the repair restarts negotiation itself, THE OUTCOME owing none, at boot
+[ok] mutant plat-phy-outcome-on-unadvertised (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart: P18 a PHY the advertisement is not for owes no restart
+mutants: 49 of 49 caught

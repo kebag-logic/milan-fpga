@@ -1,0 +1,6 @@
+PROBE both-lost-at-boot: boot words=0 0 0 0 0 0 0 11 ; all words=0 0 0 0 0 0 0 11 0 0 0 0 0 0 0 0 0 0 ; restarts=1 renegotiations=0 active=0
+PROBE F1+lost-restart: boot below-gig publications=1 (of 8), total below-gig=1, restarts=2 renegotiations=2 active=0 anar=0001 adv=0 word=0
+PROBE forced-100: word=11 restarts=0 renegotiations=0 below_gig=6
+PROBE parallel-detect: boot restarts=1, 20 polls restarts=20 renegotiations=21 below_gig=0
+PROBE parallel-detect-timed: 90 polls (11.25 s): restarts=9 renegotiations=9 below_gig=0 word=0
+PROBE slow-restart: boot restarts=1 owed-at-boot=1, then restarts=1 renegotiations=1 active=0 word=0
