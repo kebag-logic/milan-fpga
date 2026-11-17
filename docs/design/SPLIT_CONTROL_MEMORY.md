@@ -3107,6 +3107,29 @@ Each accepted ADD or REMOVE_AUDIO_MAPPINGS commits the mappings that change the 
 - **THE SHARE** at 8x8/2if: 2 of 140 work passes of `aecp-largest-notice` are over 2 ms, the longest 240,969 cycles (2 of 140 at `16ba667d`, 233,702). At 8x8/1if, reported and not held, 2 of 107, the longest 228,776 (2 of 106, 223,194), where the largest legal command's record is 169,021 cycles (162,969). Every edit group of arm A and arm B at 1x1/1if has no pass over it.
 - **At two interfaces** the harness answered no edit before this head: its verdicts, one constant slice an interface, formed a block of constants that no event runs in the simulation, so each read 0 and each edit answered NOT_SUPPORTED with no notice. They are now a constant on the port, the same 1 that one interface reads.
 
+### The largest legal record on the composed flip train (#665)
+
+On the composed flip train ([#665's ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235), as [amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243)), with #923's commit and the train's other members on it, the largest legal command's record was 95,482 CPU cycles at 1x1/1if, 1,005 us by the rule, past `LONG_RECORD_US`'s 975 us. It is arm A's `aecp-largest-notice` REMOVE_AUDIO_MAPPINGS of 63 mappings at an input port.
+Its committed PCs, traced and split by function, put 16,135 of its 22,202 instructions in `aecp_maps.c`:
+
+- the command's own loops, 6,649;
+- `legal`, 5,418 (86 a mapping);
+- `wire_be32`, 2,772: four calls a mapping, two decoding its words and two reading its stream's format through `wire_be64` (819 more);
+- `mark`, 477.
+
+Two changes take work out of every mapping of every edit, whatever the mappings (`aecp_maps.c`). No check, result or response moves:
+
+- **The format by its three bytes.** Each mapping's stream format is checked by the three bytes its channel count reads (`format_channels`, which is `channels(wire_be64(p))` for every byte pattern), not by the whole 64-bit word.
+- **The geometry once an edit.** What `legal` reads of the port (its streams' descriptor type, its cluster count and its first cluster's index) is read once for all of an edit's mappings (`struct geometry`), not once a mapping. `valid`, the restore path, reads it at each call as `legal` did.
+
+| Arm A's `aecp-largest-notice`, 1x1/1if, the record | CPU cycles | Committed instructions | By the rule |
+|---|---:|---:|---:|
+| before the changes | 95,482 | 22,202 | 1,005 us |
+| with them, the rest of the code where it was | 84,389 | 18,577 | 890 us |
+
+By function, `legal` goes from 16,127 cycles to 11,469, `wire_be32` from 7,721 to 3,941 and `wire_be64` from 2,036 to none; `aecp_map_command` and `aecp_find` are unchanged.
+No statement moves: `LONG_RECORD_US` stays 975, 1,650 and 1,715 us. The train measures the record again at every point at the head the changes ship with, its hot list relearned on them ([section 11](#11-the-firmwares-work-on-the-record-paths)).
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
