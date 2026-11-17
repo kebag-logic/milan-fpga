@@ -243,16 +243,18 @@ class Ledgered:
 #: that struct refuses the override until the size is measured again here.
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
-#: 59.5, its entry at 59.0, the cap #894's ruling of 2026-11-13 raises the owner's 58.5 to for the composed image,
+#: 60.0, its entry at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before
+#: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image,
 #: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
-#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
-#: ledgered the size fixture's at its cap. The
+#: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
+#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
+#: size fixture's at its cap. The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   59.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   59.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -261,7 +263,12 @@ LEDGERED: dict[str, Ledgered] = {
                                          "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
-                                         "declarations plan within it (#895)"),
+                                         "declarations plan within it (#895); 59.5 with GET_AS_PATH's read "
+                                         "composed on them (#897): the CPU budget harness's arms on it, the size "
+                                         "fixture with their test ports, need 127,096 to 127,416 B of rom, past "
+                                         "the 126,976 B 59.0 holds, so the entry is raised to the next half tile "
+                                         "as named debt owed to S14 by the owner's decision of 2026-11-15 "
+                                         "(#665): an image past its entry raises it"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
@@ -271,8 +278,10 @@ LEDGERED: dict[str, Ledgered] = {
                                             "(#665 decision D3); ctrl_plat 64 B more with SRP's Talker "
                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
                                             "declarations composed on the control loop's tiers, 184 B of rom past "
-                                            "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
-                                            "owed to the hybrid XIP work, the cap fully used"),
+                                            "60.0, by #895's ruling of 2026-11-14, item 4, and with GET_AS_PATH's "
+                                            "read through the face composed on them, 992 B of rom past 60.0, "
+                                            "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
+                                            "RAMB36 owed to the hybrid XIP work, the cap fully used"),
 }
 
 

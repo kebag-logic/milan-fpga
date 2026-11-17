@@ -100,6 +100,10 @@ def check(expect: str, own: bytes | None) -> str:
 #: GET_AVB_INFO (IEEE 1722.1-2021 7.4.40; Milan v1.2 5.4.2.23) on AVB_INTERFACE 0: its command_type 0x0027 and its
 #: command, descriptor_type and descriptor_index (7.4.40.1), four bytes (#882).
 AVB_INFO = (0x0027, f.be(9, 2) + f.be(0, 2))
+#: GET_AS_PATH (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897) on AVB_INTERFACE 0, the one every image holds,
+#: on every interface as get_avb_info's: its command_type 0x0028, and its command, descriptor_index and reserved
+#: (7.4.41.1), four bytes.
+AS_PATH = (0x0028, f.be(0, 2) + f.be(0, 2))
 #: The aecp group's unknown command: a reserved command_type (IEEE 1722.1-2021 Table 7-126) under 0x4000, since
 #: aecp.c keeps the field's low 14 bits and so answers a command at or above 0x4000 under another command_type
 #: (#891, whose fix sends 0x7FF0 again).
@@ -112,9 +116,9 @@ TALKER = (('PROBE_TX', 'TALKER_DEST_MAC_FAIL'), ('GET_TX_STATE', 'SUCCESS'), ('D
 
 
 def aecp_statuses(build: dict) -> dict[str, str]:
-    """The aecp group's rows that are not answered SUCCESS, by row: the unknown command NOT_IMPLEMENTED; GET_AVB_INFO
-    and GET_COUNTERS, whose values the face reads through a window (aecp_face.c), SUCCESS only where the arm's
-    observation ports answer (answering-ports); on the image as linked the harness's datapath leaves the window
-    unanswered, so each is refused ENTITY_MISBEHAVING once the window read's bound has passed."""
+    """The aecp group's rows that are not answered SUCCESS, by row: the unknown command NOT_IMPLEMENTED; GET_AVB_INFO,
+    GET_AS_PATH and GET_COUNTERS, whose values the face reads through a window (aecp_face.c), SUCCESS only where
+    the arm's observation ports answer (answering-ports); on the image as linked the harness's datapath leaves the
+    window unanswered, so each is refused ENTITY_MISBEHAVING once the window read's bound has passed."""
     face = 'SUCCESS' if build.get('variant') == 'answering-ports' else 'ENTITY_MISBEHAVING'
-    return dict(get_avb_info=face, get_counters=face, unknown_command='NOT_IMPLEMENTED')
+    return dict(get_avb_info=face, get_as_path=face, get_counters=face, unknown_command='NOT_IMPLEMENTED')

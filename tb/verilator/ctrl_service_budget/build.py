@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Link the split image, export the test SoC and compile its native model.
 
-The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on
-the runtime ctrl_image_runtime.py builds (through runtime_ssp.py, #723).
-Its saved-state flash port is compiled against the split SoC's own map
-(flash_map(): gen_flash_port.py over the csr.csv milan_soc.py exports for the
-shape, #665), and the test SoC places the flash and timer0 there.
-Every input of the native model and of its run is hashed into build.json:
-the checkout's sources, the firmware source trees the image is compiled
-from, the image, its runtime archives and the ROM files the model reads at
-run time, the exported SoC Verilog and the CPU netlist. A reused or
-regraded build is refused when any of them changed, is missing, or is
-recorded under a key that does not resolve (reused()).
+The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on the runtime ctrl_image_runtime.py builds
+(through runtime_ssp.py, #723). Its saved-state flash port is compiled against the split SoC's own map (flash_map():
+gen_flash_port.py over the csr.csv milan_soc.py exports for the shape, #665), and the test SoC places the flash and
+timer0 there. Every input of the native model and of its run is hashed into build.json: the checkout's sources, the
+firmware source trees the image is compiled from, the image, its runtime archives and the ROM files the model reads at
+run time, the exported SoC Verilog and the CPU netlist. A reused or regraded build is refused when any of them
+changed, is missing, or is recorded under a key that does not resolve (reused()).
 """
 from __future__ import annotations
 
@@ -29,6 +25,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import arm_path
 import notice_window
 import talker_window
 import poll_items
@@ -121,10 +118,10 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never the formal measurement.
-#: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. Three are contract 2.3's
-#: face block (aecp_face.c: stream, avb and counters, each a bounded window read that the datapath, held idle here,
-#: never answers); the arm replaces those three in the face's ports, before the core takes them, and makes the fixture's
-#: own path port answer an empty sequence. With the unmodified fixture, AECP retries each pending change notice 1 ms
+#: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. All four are contract
+#: 2.3's face block (aecp_face.c: stream, avb, path and counters, each a bounded window read that the datapath, held
+#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core
+#: takes them, path with arm_path.py's. With the unmodified fixture, AECP retries each pending change notice 1 ms
 #: later forever (aecp.c, retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry:
 #: the linked image never disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the
 #: SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream
@@ -135,21 +132,21 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: the platform's does, so its group's probes open DA gates and SRP declares Talkers.
 VARIANTS = {
     'answering-ports': [
-        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
-        ('{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }',
-         '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; *count = 0; return true; }'),
+        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
         ('static struct aecp_face image_face;\n',
          'static struct aecp_face image_face;\n'
          'static bool b_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
          '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'
          'static bool b_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)\n'
          '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); return true; }\n'
+         + arm_path.B_PATH +
          'static bool b_counters(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_counters *v)\n'
          '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'),
         ('    aecp_face_init(&image_face,&image_platform);\n',
          '    aecp_face_init(&image_face,&image_platform);\n'
          '    image_face.ports.stream=b_stream;\n'
          '    image_face.ports.avb=b_avb;\n'
+         '    image_face.ports.path=b_path;\n'
          '    image_face.ports.counters=b_counters;\n'),
     ],
     'shutdown-entry': [
@@ -186,20 +183,19 @@ VARIANTS = {
          '    image_face.ports.stream=l_stream;\n'),
     ],
     'answering-every-port': [
-        ('static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n',
+        ('static struct aecp_face image_face;\n',
+         'static struct aecp_face image_face;\n'
          '// Every notice pending at once (#665, the amended notice bound): every observation port stays unanswered,\n'
          '// and the first notice to wait marks every notice the model holds. From the first attempt at or after\n'
          '// NOW_MS ANSWER_MS to fail, whose entry marks the moment, the ports answer once its round is over; each\n'
-         '// reader has zeroed what it reads, so an answer writes nothing.\n'
+         '// reader has zeroed what it reads, so an answer writes nothing. GET_AS_PATH is the face\'s too (#897), so\n'
+         '// a_path stands in its port as in GET_AVB_INFO\'s and GET_COUNTERS\'.\n'
          'static uint32_t answer_from = UINT32_MAX;\n'
          'static bool answering;\n'
          'void retry_port_answers(void);\n'
          '__attribute__((noinline)) void retry_port_answers(void) { __asm__ volatile(""); }\n'
-         'static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'),
-        ('{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }',
-         '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return answering; }'),
-        ('static struct aecp_face image_face;\n',
-         'static struct aecp_face image_face;\n'
+         'static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'
+         '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return answering; }\n'
          'static bool l_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
          '{\n'
          '    (void)ctx; (void)i; (void)t; (void)n; (void)v;\n'
@@ -225,6 +221,7 @@ VARIANTS = {
          '    aecp_face_init(&image_face,&image_platform);\n'
          '    image_face.ports.stream=l_stream;\n'
          '    image_face.ports.avb=(__typeof__(image_face.ports.avb))(void (*)(void))a_path;\n'
+         '    image_face.ports.path=a_path;\n'
          '    image_face.ports.counters=(__typeof__(image_face.ports.counters))(void (*)(void))a_path;\n'),
         ('    ctrl_loop_run(&image_app.loop);',
          '    (void)ctrl_loop_add_poll(&image_app.loop, every_notice, NULL);\n'

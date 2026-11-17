@@ -19,6 +19,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import answers
+import arm_path
 import build
 import flip_grade
 import grade
@@ -41,6 +42,11 @@ import share
 import whole_grade
 
 Patches = Callable[[], list]
+
+
+#: The answering-ports arm's path port before arm_path.py (#897): it read no window and answered an empty sequence.
+ARM_B_STUB_PATH = ('static bool b_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'
+                   '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; *count = 0; return true; }\n')
 
 
 def _from_last_erase(flash: list) -> list:
@@ -466,6 +472,11 @@ MUTANTS: dict[str, Patches] = {
         patch.object(answers, 'AVB_INFO', (0x0028, scenario.f.be(9, 2) + scenario.f.be(0, 2) + bytes(16)))],
     "scenario: the face's getters stated SUCCESS on the image as linked": lambda: [patch.object(
         answers, 'aecp_statuses', lambda build: dict(unknown_command='NOT_IMPLEMENTED'))],
+    'scenario: get_as_path sent on AVB_INTERFACE 9, a descriptor no image has': lambda: [patch.object(
+        answers, 'AS_PATH', (0x0028, scenario.f.be(9, 2) + scenario.f.be(0, 2)))],
+    'scenario: get_as_path stated SUCCESS on the image as linked': lambda: [patch.object(
+        answers, 'aecp_statuses', lambda build, s=answers.aecp_statuses: {**s(build), 'get_as_path': 'SUCCESS'})],
+    'scenario: get_as_path sent as GET_AVB_INFO': lambda: [patch.object(answers, 'AS_PATH', answers.AVB_INFO)],
     "scenario: the talker's refusals stated SUCCESS": lambda: [patch.object(
         answers, 'TALKER', tuple((msg, 'SUCCESS') for msg, _ in answers.TALKER))],
     'flip: an over-ceiling row passes': lambda: [patch.object(flip_grade, 'findings', lambda *a, **k: [])],
@@ -618,6 +629,9 @@ MUTANTS: dict[str, Patches] = {
         build.VARIANTS, {'answering-ports': [(
             '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
             '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb')]})],
+    "build: arm B's path port answers no entries at once, reading no window (earlier rule)": lambda: [patch.dict(
+        build.VARIANTS, {'answering-ports': [(old, new.replace(arm_path.B_PATH, ARM_B_STUB_PATH))
+                                             for old, new in build.VARIANTS['answering-ports']]})],
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],

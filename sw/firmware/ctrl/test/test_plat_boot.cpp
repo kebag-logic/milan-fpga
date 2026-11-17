@@ -32,6 +32,9 @@
 //   B10 a controller's bind after READY is written back to the flash by the
 //       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
 //       acmp_nvm.h's boot order)
+//   B11 GET_AS_PATH on every AVB_INTERFACE answers SUCCESS with the count and
+//       path_sequence its datapath serves through the GSI window, kind 2
+//       (IEEE 1722.1-2021 7.4.41, Milan v1.2 5.4.2.24; #897)
 
 #include <gtest/gtest.h>
 
@@ -99,9 +102,18 @@ int flash_erase(void* ctx, std::uint32_t addr) {
 struct Far {
     bool ack = true;
     std::vector<std::size_t> commits;   // the mailbox access count at each F_COMMIT
-    static mbx_model_reply answer(void*, unsigned, unsigned, const std::uint32_t*, std::uint64_t* data) {
+    std::vector<std::uint64_t> path;    // the path sequence the datapath serves (GSI kind 2)
+    // GSI kind 2 answers the processor face's words (selector 0 the count, 8 the entry at the
+    // ordinal); every other window is silent
+    static mbx_model_reply answer(void* p, unsigned, unsigned w, const std::uint32_t* r, std::uint64_t* data) {
+        const auto& f = *static_cast<const Far*>(p);
         *data = 0;
-        return MBX_MODEL_SILENT;
+        if (w != MBX_WIN_GSI || (r[1] & 3u) != 2u) return MBX_MODEL_SILENT;
+        const unsigned sel = (r[1] >> 4) & 15u;
+        const unsigned ord = (r[1] >> 8) & 255u;
+        if (sel == 0u) *data = f.path.size();
+        if (sel == 8u && ord < f.path.size()) *data = f.path[ord];
+        return MBX_MODEL_ANSWER;
     }
     static bool commit(void* p, unsigned, const std::uint32_t*) {
         auto& f = *static_cast<Far*>(p);
@@ -336,9 +348,6 @@ TEST_F(Boot, B8PlatformPortsAnswerAsDocumented) {
     ctrl_plat.acmp_env.persist(ctrl_plat.acmp_env.ctx, 0);
     ctrl_plat.acmp_env.changed(ctrl_plat.acmp_env.ctx, 0);
     EXPECT_EQ(ctrl_plat.aecp_platform.random(nullptr), mbx_now_ms()) << "B8 random is the loop's clock";
-    std::uint64_t path[4];
-    std::size_t count = 9;
-    EXPECT_FALSE(ctrl_plat.aecp_platform.path(nullptr, 0, 0, path, 4, &count)) << "B8 GET_AS_PATH unavailable";
     ctrl_plat.srp_config.licence(ctrl_plat.srp_config.ctx, 0, 1, true);
     EXPECT_EQ(ctrl_plat.licences[0], 2u) << "B8 a licence sets its source's bit";
     ctrl_plat.srp_config.licence(ctrl_plat.srp_config.ctx, 0, 1, false);
@@ -401,6 +410,63 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
     EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u)
         << "B10 the bind is written back by the store's service on the loop's tick";
     EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
+}
+
+TEST_F(Boot, B11GetAsPathAnswersTheDatapathsSequence) {
+    far.path = {0x001bc5fffe001122ull, 0x001bc5fffe334455ull, 0x0200fffe00000001ull};
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    // every AVB_INTERFACE the image holds on an interface the build has
+    std::vector<unsigned> interfaces;
+    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+    for (std::size_t n = 0; n < model->count; ++n) {
+        const aecp_descriptor& d = model->descriptors[n];
+        if (d.type == 9u && d.configuration == ctrl_plat.aecp.core.configuration && d.index < MBX_N_IF) {
+            interfaces.push_back(d.index);
+        }
+    }
+    ASSERT_FALSE(interfaces.empty()) << "B11 the image holds an AVB_INTERFACE";
+    for (const unsigned i : interfaces) {
+        // GET_AS_PATH (IEEE 1722.1-2021 7.4.41.1) to the entity, as the datapath delivers it
+        std::vector<std::uint8_t> frame(42, 0);
+        const auto be = [&](std::size_t at, std::uint64_t v, unsigned n) {
+            for (unsigned k = 0; k < n; ++k) frame[at + k] = static_cast<std::uint8_t>(v >> (8u * (n - 1u - k)));
+        };
+        be(0, ctrl_plat.config.entity->mac, 6);
+        be(6, 0x020000000081ull, 6);
+        be(12, 0x22f0u, 2);
+        frame[14] = 0xfbu;
+        be(16, 16u, 2);
+        be(18, ctrl_plat.config.entity->entity_id, 8);
+        be(26, 0x1020304050607080ull, 8);
+        be(34, 0x4321u + i, 2);
+        be(36, 0x0028u, 2);
+        be(38, i, 2);
+        const std::uint32_t before = fabric.tx_sent;
+        ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), i)) << "B11 the command reaches the mailbox";
+        const mbx_model_tx* response = nullptr;
+        for (unsigned k = 0; k < 200u && response == nullptr; ++k) {
+            ctrl_plat_step();
+            for (std::uint32_t n = before; n < fabric.tx_sent && response == nullptr; ++n) {
+                const auto* t = mbx_model_tx_frame(&fabric, n);
+                if (t != nullptr && t->len >= 42u && t->bytes[14] == 0xfbu && (t->bytes[15] & 0xfu) == 1u &&
+                    t->bytes[36] == 0x00u && t->bytes[37] == 0x28u) {
+                    response = t;
+                }
+            }
+        }
+        ASSERT_NE(response, nullptr) << "B11 GET_AS_PATH is answered";
+        const auto get = [&](std::size_t at, unsigned n) {
+            std::uint64_t v = 0;
+            for (unsigned k = 0; k < n; ++k) v = v << 8 | response->bytes[at + k];
+            return v;
+        };
+        EXPECT_EQ(get(16, 2) >> 11, 0u) << "B11 GET_AS_PATH answers SUCCESS on AVB interface " << i;
+        EXPECT_EQ(get(38, 2), i) << "B11 its descriptor_index";
+        ASSERT_EQ(get(40, 2), far.path.size()) << "B11 the count the datapath serves";
+        for (std::size_t k = 0; k < far.path.size(); ++k) {
+            EXPECT_EQ(get(42 + 8 * k, 8), far.path[k]) << "B11 path_sequence entry " << k << ", in order";
+        }
+    }
 }
 
 }  // namespace

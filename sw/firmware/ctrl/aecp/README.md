@@ -302,8 +302,10 @@ tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
 each source defect to fail its named assertion in a completed run; it appends the
 descriptor index's and the event and registration lists' defects from
-[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), and THE RETRY's from
-[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665). It plants into
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), THE RETRY's from
+[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665), and GET_AS_PATH's
+read through the face from [`aecp_face_mutants.py`](../test/aecp_face_mutants.py)
+(#897). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
@@ -425,7 +427,7 @@ call-chain stack bounds and physical timing remain integration obligations.
 F0-F5/F1 composition at shipping/largest shapes and one/two interfaces. The
 fixture retains saved-state restore and application service, and since
 contract 2.3 answers the physical observation and apply ports through the
-face (`aecp_face.c`); GET_AS_PATH stays an explicit unavailable observation.
+face (`aecp_face.c`), GET_AS_PATH's through the GSI window too (#897).
 It is a size/ABI fixture, not a board image. The revised F5 budget is 224 KB
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916)).
 The later default flip still requires routed memory fit and the owner's reserve.

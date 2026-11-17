@@ -120,14 +120,37 @@ def avb_info(groups: list[scenario.Group], variant: str) -> list[str]:
     return wrong if found else ['no get_avb_info row']
 
 
+def as_path(groups: list[scenario.Group], variant: str) -> list[str]:
+    """What is wrong with the aecp group's get_as_path rows (#897): each must send GET_AS_PATH (0x0028) on
+    AVB_INTERFACE 0 with its four-byte command (IEEE 1722.1-2021 7.4.41.1), and state SUCCESS where the
+    observation ports answer (answering-ports, whose path port reads the window: arm_path.py) and the face's
+    refusal, named, where they do not."""
+    want = 'SUCCESS' if variant == 'answering-ports' else 'ENTITY_MISBEHAVING'
+    wrong, found = [], 0
+    for g in groups:
+        for pr in g.probes:
+            if not pr.name.startswith('aecp.get_as_path.'):
+                continue
+            found += 1
+            frame = next(bytes.fromhex(s.split()[2]) for s in g.steps if s.startswith('frame ')
+                         and s.endswith(' ' + pr.name))
+            command, length = int.from_bytes(frame[36:38], 'big') & 0x7FFF, int.from_bytes(frame[16:18], 'big') & 0x7FF
+            if (command, frame[38:42], length) != (0x0028, f.be(0, 2) + f.be(0, 2), 16):
+                wrong.append(f'{pr.name}: command_type {command:04x}, {frame[38:42].hex()}, length {length}')
+            if (pr.expect, pr.row) != (answers.aem(0x0028, want), answers.refused('get_as_path', want)):
+                wrong.append(f'{pr.name}: states {pr.expect} as "{pr.row}"')
+    return wrong if found else ['no get_as_path row']
+
+
 def scenario_checks(h: ModuleType) -> list[Check]:
     """The real scenario's rows: each states its response, each refusal is named, the get_avb_info and talker rows."""
-    unstated, rows, talker = [], [], {}
+    unstated, rows, paths, talker = [], [], [], {}
     with tempfile.TemporaryDirectory() as tmp:
         elf = h.image_header(Path(tmp))
         for label, groups in scenario_groups(h, elf):
             unstated += [f'{label}: {line}' for g in groups for line in run.unstated(g)]
             rows += [f'{label}: {line}' for line in avb_info(groups, label.split(', ')[1])]
+            paths += [f'{label}: {line}' for line in as_path(groups, label.split(', ')[1])]
             talker.update({pr.name.split('.')[1].upper(): pr.expect.split(':')[2] for g in groups for pr in g.probes
                            if g.name == 'acmp-cmd' and pr.name.split('.')[1].upper() in TALKER})
     bare = scenario.Probe('g.bare.if0', 'GET_RX_STATE', 'acmp', 'rxc:0', ['resp:0:41'])
@@ -145,6 +168,8 @@ def scenario_checks(h: ModuleType) -> list[Check]:
          not unstated, '; '.join(unstated[:4])),
         ('the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer',
          not rows, '; '.join(rows[:4])),
+        ('the get_as_path row sends GET_AS_PATH on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer',
+         not paths, '; '.join(paths[:4])),
         ("the talker rows state the statuses Milan gives them, restated", talker == TALKER, str(talker)),
         ('a probe that ends at a response and states no type and status is named',
          any(line.startswith('g.bare.if0: ends at a response') for line in named), str(named)),

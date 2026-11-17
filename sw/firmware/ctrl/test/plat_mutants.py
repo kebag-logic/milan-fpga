@@ -26,6 +26,9 @@ SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp")
 CSR = "plat/ctrl_plat_csr.c"
 CONSOLE = "plat/ctrl_plat_console.c"
 PLAT = "plat/ctrl_plat.c"
+FACE = "aecp/aecp_face.c"
+#: GET_AS_PATH's count read, as aecp_face.c holds it (#897).
+AS_PATH_COUNT = "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {"
 C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
 
@@ -188,4 +191,8 @@ def boot_mutants(mutant: type) -> tuple:
           "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a revocation clears it"),
         m("plat-source-vid", PLAT, "\t\t\tv->vlan_id = (uint16_t)p->env->policy->sr_vid;\n", "",
           "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
+        # GET_AS_PATH is the datapath's sequence through the face (#897): the old stub's unavailable answer restored
+        m("plat-as-path-unavailable", FACE, AS_PATH_COUNT, AS_PATH_COUNT.replace("if (!gsi(", "if (f != NULL || !gsi("),
+          "platboot1", "Boot.B11GetAsPathAnswersTheDatapathsSequence", "B11 GET_AS_PATH answers SUCCESS",
+          also=(("platboot2", "Boot.B11GetAsPathAnswersTheDatapathsSequence", "B11 GET_AS_PATH answers SUCCESS"),)),
     )
