@@ -1,0 +1,1201 @@
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+PASS: fixture digest
+PASS: fixture row fixture.link_up.if0
+PASS: fixture row fixture.malformed.if0
+PASS: fixture row fixture.set_name.if0
+PASS: fixture row fixture.link_down.if0
+PASS: fixture row fixture.bind_rx.if0
+PASS: fixture row fixture.tmr_no_resp1.if0
+PASS: fixture row fixture.entity_departing.if0
+PASS: fixture row fixture.service.adp.first.if0
+PASS: fixture row fixture.service.adp.last.if0
+PASS: fixture row fixture.service.acmp.first.if0
+PASS: fixture row fixture.service.acmp.last.if0
+PASS: fixture row fixture.service.aecp.first.if0
+PASS: fixture row fixture.service.aecp.last.if0
+PASS: fixture row fixture.service.maap.first.if0
+PASS: fixture row fixture.service.maap.last.if0
+PASS: fixture row fixture.service.srp.first.if0
+PASS: fixture row fixture.service.srp.last.if0
+PASS: fixture passes: worst pass and composed maximum
+PASS: planted over-budget path is caught
+PASS: a composed load missing one channel is refused
+PASS: a window short of its defined load is refused although it declares it
+PASS: a composed window that committed more than its load is refused
+PASS: a starved channel is reported by name, and its window reports its load unreleased
+PASS: clock conversion
+PASS: T_svc and the ceilings pinned
+PASS: exact budget passes
+PASS: one cycle over misses
+PASS: an SRP instance at its 20 ms bound fits
+PASS: an SRP instance one cycle over 20 ms misses
+PASS: an SRP instance at 21 ms misses its 20 ms budget
+PASS: an AECP instance at 22 ms misses T_svc, within its ceiling
+PASS: a MAAP instance at 30 ms misses T_svc, within its ceiling
+PASS: each family's budget is min(T_svc, its ceiling)
+PASS: tagged start
+PASS: a receive commit belongs to the frame it follows
+PASS: a receive commit that follows no frame is refused
+PASS: sequence and interface
+PASS: last end decides
+PASS: the expected response is checked
+PASS: timer origin is the armed deadline
+PASS: an entry start is its own function's
+PASS: W + T_svc passes
+PASS: W + T_svc + 1 misses, within W + ceiling
+PASS: W + ceiling + 1 is over the ceiling
+PASS: W + SRP's ceiling passes, its budget
+PASS: W + SRP's ceiling + 1 misses its budget and its ceiling
+PASS: the pass bound runs from the running pass at the bus ratio
+PASS: two recipients across interfaces end at the last
+PASS: a late recipient misses its budget
+PASS: a missing recipient is refused
+PASS: a duplicate does not stand in for another recipient
+PASS: a notification to a controller outside the set is refused
+PASS: unrelated unsolicited responses do not end it
+PASS: a fan-out's cost a recipient is its first to last commit over the gaps between them
+PASS: records ahead of an input
+PASS: a served record's records ahead are those not yet released at its commit
+PASS: each path reports its worst instance
+PASS: misses are counted per path and per probe instance
+PASS: a starved instance is its path's worst
+PASS: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+PASS: the composed maximum is a lower bound while a window shorter than the longest left its load unreleased
+PASS: a run without every backlog row names the rows not run, and its composed maximum is partial
+PASS: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels
+PASS: the composed maximum is the window's longest pass, wherever it falls
+PASS: the worst pass includes the run's last pass
+PASS: the pass the script's end cuts is no idle pass
+PASS: the responses owed ahead are checked: ['31', '32']
+PASS: the responses owed ahead are checked: ['31']
+PASS: the responses owed ahead are checked: ['31', '32', '33']
+PASS: the responses owed ahead are checked: ['32', '31']
+PASS: a command never answered is reported, unbounded, where it may be dropped
+PASS: the defined loads, restated
+PASS: every composed window's stimulus is its defined load
+PASS: every composed window declares its defined load
+PASS: the owed row has seven responses owed ahead of its own
+PASS: every command behind the owed input is a path that reports a drop
+PASS: a control instance is its functional path
+PASS: repeated instances of one path: one path, its worst instance, every miss
+PASS: the fan-out group registers the firmware's capacity, every registration a recipient
+PASS: a budget miss fails the run unless recorded
+PASS: a refusal fails the run, recorded or not
+PASS: a clean run passes; a run of no group fails
+PASS: a regrade refuses each absent log or script, and a stale script, by name
+PASS: a CPU trap is refused
+PASS: the as-built control is caught by an instruction access fault (cause 1) and by a load access fault (cause 5)
+PASS: the as-built control escapes on a clean boot and on a trap of any other cause
+PASS: an unchanged build is reused
+PASS: reuse refuses the image
+PASS: reuse refuses a ROM file
+PASS: reuse refuses the flash port's map
+PASS: reuse refuses the SoC Verilog
+PASS: reuse refuses the CPU netlist
+PASS: reuse refuses a firmware source
+PASS: reuse refuses a deleted ROM file
+PASS: reuse refuses an unrecorded ROM file
+PASS: reuse refuses the native model
+PASS: reuse refuses a key that does not resolve
+PASS: the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it
+PASS: every labelled arm and control plant applies to the checkout's sources
+PASS: the fetch observers follow the CPU's fetch plugin
+PASS: a refill's beats are read off the netlist
+PASS: the load/store observers follow the data cache's IO bus, without ids
+PASS: an instruction cache without a data cache keeps the cacheless load/store observers
+PASS: a cached netlist with neither of the cacheless LSU and the data cache is refused
+PASS: a cached netlist with both of the cacheless LSU and the data cache is refused
+PASS: a cached netlist without its line-aligned refill address is refused
+PASS: the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash
+PASS: the run builds and records the fetch L1 and the arm it selected
+PASS: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless
+PASS: the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz
+PASS: a work pass at the share fits it and one a cycle over it does not
+PASS: a pass that writes nothing to the mailbox is held to the share too: a run of them whose longest is a cycle over it is a pass over it, and named
+PASS: the share is CPU time: at twice the CPU clock it is twice the cycles
+PASS: a pass over the share fails a run whose rows all fit, unless --record-share-findings records it; --record-budget-findings does not
+PASS: the planted store step is caught by a group with a pass over the share and every row of its own within its budget, and escapes with only a row over it there too, a refusal, or no pass over the share
+PASS: the table names the clock and each group against the share, and results.json keeps the passes over it
+PASS: a build of one MRPDU has a cost of its own, under a build of two's
+PASS: each point has its own stated costs
+PASS: a build pass at its stated cost fits it and one a cycle over it does not
+PASS: a build-one pass at its stated cost fits it and one a cycle over it does not
+PASS: a step pass at its stated cost fits it and one a cycle over it does not
+PASS: a pass whose round did something is not its work alone, and a pass that neither built nor stepped has no stated cost
+PASS: a round that found nothing to do leaves the pass its work alone
+PASS: an aged step in a pass that wrote nothing to the mailbox is held too
+PASS: a pass over its stated cost is named, with the cost it passed
+PASS: a pass over its stated cost fails a run whatever findings it records
+PASS: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32
+PASS: the testbench traces the round and the calls that count its notices and attempts
+PASS: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not
+PASS: calls outside a round count none of its notices or attempts
+PASS: a round at one interface is held to that point's costs
+PASS: a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's retry-cost ruling, item 1)
+PASS: a round over its stated cost is named, with its notices, its refused attempts and the cost it passed
+PASS: a round over its stated cost fails a run whatever findings it records
+PASS: each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if
+PASS: a slice at one interface is held to that point's length
+PASS: THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))
+PASS: a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))
+PASS: the testbench traces SRP's record handler and THE RETRY's round
+PASS: a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+PASS: 8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records and events at 8x8/2if's (load_grade.stated, NEAREST)
+PASS: a slice of SRP's records at the stated length fits it and one a cycle over does not
+PASS: a slice of THE TRANSMIT's build at the stated length fits it and one a cycle over does not
+PASS: a slice of THE RETRY's round at the stated length fits it and one a cycle over does not
+PASS: SRP's slice runs from its pass's start, not from its first record
+PASS: a round in a pass given whole to a build is that slice's, not one of its own
+PASS: a slice over the stated length is named, with what it held and the length it passed
+PASS: a slice over the stated length fails a run whatever findings it records
+PASS: a datapath change pulse's line, as the testbench prints it, is graded as a pad of its kind and interface, not refused
+PASS: the datapath-events group posts each kind on every interface eight times
+PASS: the table of shapes holds its rules at the tree
+PASS: the table of shapes refuses a shape the table does not list
+PASS: the table of shapes refuses a slice over the cap
+PASS: the table of shapes refuses a build of one over its slice
+PASS: the table of shapes refuses an SRP record over its slice
+PASS: the table of shapes refuses the table with no #error
+PASS: the table of shapes refuses a shape listed twice
+PASS: the table of shapes refuses a cost missing from a shape
+PASS: the table of shapes refuses the default streams not the shipping configuration's
+PASS: the table of shapes refuses a build of both at two builds of one
+PASS: the table of shapes refuses the slice cap not the ruling's 1,600 us
+PASS: the table of shapes refuses a model point built at another configuration than the harness's
+PASS: the table of shapes refuses a point whose shape is not listed
+PASS: the table of shapes refuses a listed shape whose polls are not stated
+PASS: the table of shapes refuses the notices most typed at the 1x1's 12 at one interface (earlier rule)
+PASS: the table of shapes refuses an AVB interface's notices counted as two
+PASS: the table of shapes refuses two interfaces' most under the 8x8's descriptors
+PASS: the table of shapes refuses the notices with no shape header not the shipping configuration's
+PASS: the table of shapes refuses a load point counting other descriptors with counters than the shape header states
+PASS: the table of shapes refuses the shape header not stating the map edits' key domain
+PASS: the table of shapes refuses aecp_entity_gen.h stating the key domain beside the shape header
+PASS: the table of shapes refuses the shape header's key domain not the image's
+PASS: the table of shapes refuses a round's cold start keyed on the interface count (earlier rule)
+PASS: the table of shapes refuses a refused attempt one figure at every shape (earlier rule)
+PASS: the table of shapes refuses a shape's round costs falling back to the interface count
+PASS: the table of shapes refuses the last queued notice's bound keyed on the interface count (earlier rule)
+PASS: the load gate refuses a cost over the ceiling
+PASS: the load gate refuses a held point not held
+PASS: the load gate refuses a rise at the pin alone
+PASS: the load gate refuses a stated cost missing
+PASS: the load gate refuses the retained retry counted once a record
+PASS: the load gate refuses a retry with nothing changed
+PASS: the load gate refuses a retry every pass
+PASS: the load gate refuses one owed-frame charge for every AECP source
+PASS: the load gate refuses a timer slot counted per pass
+PASS: the load gate refuses a term without a source
+PASS: the load gate refuses the graded column below the pin where tsn-c-stack#32 moves nothing
+PASS: the load gate refuses the SRP drain's record cost not the load gate's
+PASS: the load gate refuses 8x8/1if's own ADP record not stated
+PASS: the load gate refuses 8x8/1if's own ADP record not its measurement's by the rule
+PASS: the load gate refuses a column's name bound to the other's table
+PASS: the load gate refuses the period refill.aecp not read
+PASS: the load gate refuses the period refill.acmp not read
+PASS: the load gate refuses the period refill.adp not read
+PASS: the load gate refuses the period refill.maap not read
+PASS: the load gate refuses the period refill.srp not read
+PASS: the load gate refuses the period tick_ms not read
+PASS: the load gate refuses the period holdoff_ms not read
+PASS: the load gate refuses the period SRP_JOIN_CS not read
+PASS: the load gate refuses the period CTRL_LOOP_STEP_AGE not read
+PASS: the load gate refuses the period ACMP_TMR_NO_RESP_MS not read
+PASS: the load gate refuses the period MAAP_PROBE_BASE_MS not read
+PASS: the load gate refuses the period ADP_ADVERTISE_MS not read
+PASS: the load gate refuses the period probe not read
+PASS: the flip check refuses an over-ceiling row
+PASS: the flip check refuses a row within its ceiling
+PASS: the flip check refuses a cost raised over the ceiling
+PASS: the flip check refuses a stated cost missing
+PASS: the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if
+PASS: the flip check refuses the graded column read, not the pin
+PASS: the flip check refuses an over-ceiling row at 8x8/1if
+PASS: the flip check refuses a row within its ceiling at 8x8/1if
+PASS: the flip check refuses the table of shapes: a shape the table does not list
+PASS: the flip check refuses the table of shapes: a slice over the cap
+PASS: the flip check refuses the table of shapes: a build of one over its slice
+PASS: the flip check refuses the table of shapes: an SRP record over its slice
+PASS: the flip check refuses the table of shapes: the table with no #error
+PASS: the flip check refuses the table of shapes: a shape listed twice
+PASS: the flip check refuses the table of shapes: a cost missing from a shape
+PASS: the flip check refuses the table of shapes: the default streams not the shipping configuration's
+PASS: the flip check refuses the table of shapes: a build of both at two builds of one
+PASS: the flip check refuses the table of shapes: the slice cap not the ruling's 1,600 us
+PASS: the flip check refuses the table of shapes: a model point built at another configuration than the harness's
+PASS: the flip check refuses the table of shapes: a point whose shape is not listed
+PASS: the flip check refuses the table of shapes: a listed shape whose polls are not stated
+PASS: the flip check refuses the table of shapes: the notices most typed at the 1x1's 12 at one interface (earlier rule)
+PASS: the flip check refuses the table of shapes: an AVB interface's notices counted as two
+PASS: the flip check refuses the table of shapes: two interfaces' most under the 8x8's descriptors
+PASS: the flip check refuses the table of shapes: the notices with no shape header not the shipping configuration's
+PASS: the flip check refuses the table of shapes: a load point counting other descriptors with counters than the shape header states
+PASS: the flip check refuses the table of shapes: the shape header not stating the map edits' key domain
+PASS: the flip check refuses the table of shapes: aecp_entity_gen.h stating the key domain beside the shape header
+PASS: the flip check refuses the table of shapes: the shape header's key domain not the image's
+PASS: the flip check refuses the table of shapes: a round's cold start keyed on the interface count (earlier rule)
+PASS: the flip check refuses the table of shapes: a refused attempt one figure at every shape (earlier rule)
+PASS: the flip check refuses the table of shapes: a shape's round costs falling back to the interface count
+PASS: the flip check refuses the table of shapes: the last queued notice's bound keyed on the interface count (earlier rule)
+PASS: the flip check refuses 8x8/1if's CTRL_LOOP_TX_MS planted at 60 ms, under its tx row
+PASS: the flip check refuses 8x8/1if's CTRL_LOOP_TX_MS planted at 69 ms, under its tx row
+PASS: the flip check refuses 8x8/1if's CTRL_LOOP_TX_MS planted at 74 ms, under its tx row
+PASS: the flip check refuses 1x1/1if R4 over its bound
+PASS: the flip check refuses 1x1/1if R4 within its bound
+PASS: the flip check refuses 1x1/1if R5 over its bound
+PASS: the flip check refuses 1x1/1if R5 within its bound
+PASS: the flip check refuses 1x1/1if R6 over its bound
+PASS: the flip check refuses 1x1/1if R6 within its bound
+PASS: the flip check refuses 1x1/1if first over its bound
+PASS: the flip check refuses 1x1/1if first within its bound
+PASS: the flip check refuses 1x1/1if last over its bound
+PASS: the flip check refuses 1x1/1if last within its bound
+PASS: the flip check refuses 1x1/1if R4: the source ticks not counted
+PASS: the flip check refuses 1x1/1if R4: the source aecp not counted
+PASS: the flip check refuses 1x1/1if R4: the source srp not counted
+PASS: the flip check refuses 1x1/1if R4: the source timers not counted
+PASS: the flip check refuses 1x1/1if R4: the source others not counted
+PASS: the flip check refuses 1x1/1if R4: the source gm not counted
+PASS: the flip check refuses 1x1/1if R4: the source builds not counted
+PASS: the flip check refuses 1x1/1if R4: the source steps not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.walk not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.reclaim not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.retained not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.mrpdu not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.acmp not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.acmp_declined not counted
+PASS: the flip check refuses 1x1/1if R4: the source item.aecp not counted
+PASS: the flip check refuses 1x1/1if R4: the source passes not counted
+PASS: the flip check refuses 1x1/1if R4: the source rounds not counted
+PASS: the flip check refuses 1x1/1if R5: the source ticks not counted
+PASS: the flip check refuses 1x1/1if R5: the source srp not counted
+PASS: the flip check refuses 1x1/1if R5: the source timers not counted
+PASS: the flip check refuses 1x1/1if R5: the source others not counted
+PASS: the flip check refuses 1x1/1if R5: the source gm not counted
+PASS: the flip check refuses 1x1/1if R5: the source builds not counted
+PASS: the flip check refuses 1x1/1if R5: the source steps not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.walk not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.reclaim not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.mrpdu not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.acmp not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.acmp_declined not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.aecp not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.withdraw not counted
+PASS: the flip check refuses 1x1/1if R5: the source item.rebuild not counted
+PASS: the flip check refuses 1x1/1if R5: the source links not counted
+PASS: the flip check refuses 1x1/1if R5: the source passes not counted
+PASS: the flip check refuses 1x1/1if R5: the source rounds not counted
+PASS: the flip check refuses 1x1/1if R6: the source ticks not counted
+PASS: the flip check refuses 1x1/1if R6: the source srp not counted
+PASS: the flip check refuses 1x1/1if R6: the source timers not counted
+PASS: the flip check refuses 1x1/1if R6: the source others not counted
+PASS: the flip check refuses 1x1/1if R6: the source gm not counted
+PASS: the flip check refuses 1x1/1if R6: the source builds not counted
+PASS: the flip check refuses 1x1/1if R6: the source steps not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.walk not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.reclaim not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.mrpdu not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.acmp not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.acmp_declined not counted
+PASS: the flip check refuses 1x1/1if R6: the source item.aecp not counted
+PASS: the flip check refuses 1x1/1if R6: the source passes not counted
+PASS: the flip check refuses 1x1/1if R6: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R4 over its bound
+PASS: the flip check refuses 8x8/2if R4 within its bound
+PASS: the flip check refuses 8x8/2if R5 over its bound
+PASS: the flip check refuses 8x8/2if R5 within its bound
+PASS: the flip check refuses 8x8/2if R6 over its bound
+PASS: the flip check refuses 8x8/2if R6 within its bound
+PASS: the flip check refuses 8x8/2if first over its bound
+PASS: the flip check refuses 8x8/2if first within its bound
+PASS: the flip check refuses 8x8/2if last over its bound
+PASS: the flip check refuses 8x8/2if last within its bound
+PASS: the flip check refuses 8x8/2if R4: the source ticks not counted
+PASS: the flip check refuses 8x8/2if R4: the source aecp not counted
+PASS: the flip check refuses 8x8/2if R4: the source srp not counted
+PASS: the flip check refuses 8x8/2if R4: the source timers not counted
+PASS: the flip check refuses 8x8/2if R4: the source others not counted
+PASS: the flip check refuses 8x8/2if R4: the source gm not counted
+PASS: the flip check refuses 8x8/2if R4: the source builds not counted
+PASS: the flip check refuses 8x8/2if R4: the source steps not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.walk not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.reclaim not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.retained not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.mrpdu not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.acmp not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.acmp_declined not counted
+PASS: the flip check refuses 8x8/2if R4: the source item.aecp not counted
+PASS: the flip check refuses 8x8/2if R4: the source passes not counted
+PASS: the flip check refuses 8x8/2if R4: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R5: the source ticks not counted
+PASS: the flip check refuses 8x8/2if R5: the source srp not counted
+PASS: the flip check refuses 8x8/2if R5: the source timers not counted
+PASS: the flip check refuses 8x8/2if R5: the source others not counted
+PASS: the flip check refuses 8x8/2if R5: the source gm not counted
+PASS: the flip check refuses 8x8/2if R5: the source builds not counted
+PASS: the flip check refuses 8x8/2if R5: the source steps not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.walk not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.reclaim not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.mrpdu not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.acmp not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.acmp_declined not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.aecp not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.withdraw not counted
+PASS: the flip check refuses 8x8/2if R5: the source item.rebuild not counted
+PASS: the flip check refuses 8x8/2if R5: the source links not counted
+PASS: the flip check refuses 8x8/2if R5: the source passes not counted
+PASS: the flip check refuses 8x8/2if R5: the source rounds not counted
+PASS: the flip check refuses 8x8/2if R6: the source ticks not counted
+PASS: the flip check refuses 8x8/2if R6: the source srp not counted
+PASS: the flip check refuses 8x8/2if R6: the source timers not counted
+PASS: the flip check refuses 8x8/2if R6: the source others not counted
+PASS: the flip check refuses 8x8/2if R6: the source gm not counted
+PASS: the flip check refuses 8x8/2if R6: the source builds not counted
+PASS: the flip check refuses 8x8/2if R6: the source steps not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.walk not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.reclaim not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.mrpdu not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.acmp not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.acmp_declined not counted
+PASS: the flip check refuses 8x8/2if R6: the source item.aecp not counted
+PASS: the flip check refuses 8x8/2if R6: the source passes not counted
+PASS: the flip check refuses 8x8/2if R6: the source rounds not counted
+PASS: the flip check refuses a stated cost not read
+PASS: the flip check refuses the rows read on the column graded with tsn-c-stack#32
+PASS: the flip check refuses the last queued notice past its bound
+PASS: the flip check refuses a source the rows do not count
+PASS: the flip check refuses the tier bounds or the points not decision D's
+PASS: the flip check refuses the arrival rules not held at this head
+PASS: the flip check refuses the retained retry counted once a pass
+PASS: the flip check refuses SRP's arrivals cut by AECP's whole burst
+PASS: the flip check refuses SRP's arrivals cut by two records of AECP
+PASS: the flip check refuses ACMP's declined offers counted once a send
+PASS: the flip check refuses a retained retry in an SRP row
+PASS: the flip check refuses a retry rule the tree does not state
+PASS: the flip check refuses a datapath event neither counted nor excluded
+PASS: the flip check refuses built 1x1/1if R4 over its bound
+PASS: the flip check refuses built 1x1/1if R4 within its bound
+PASS: the flip check refuses built 1x1/1if R4: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if R4: the source notice not counted
+PASS: the flip check refuses built 1x1/1if R4: the source slice not counted
+PASS: the flip check refuses built 1x1/1if R4: the source timers not counted
+PASS: the flip check refuses built 1x1/1if R4: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if R4: the source others not counted
+PASS: the flip check refuses built 1x1/1if R4: the source edits not counted
+PASS: the flip check refuses built 1x1/1if R4: the source gm not counted
+PASS: the flip check refuses built 1x1/1if R4: the source steps not counted
+PASS: the flip check refuses built 1x1/1if R4: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if R4: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if R4: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if R4: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if R4: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if R4: the source passes not counted
+PASS: the flip check refuses built 1x1/1if R4: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if R5 over its bound
+PASS: the flip check refuses built 1x1/1if R5 within its bound
+PASS: the flip check refuses built 1x1/1if R5: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if R5: the source notice not counted
+PASS: the flip check refuses built 1x1/1if R5: the source slice not counted
+PASS: the flip check refuses built 1x1/1if R5: the source timers not counted
+PASS: the flip check refuses built 1x1/1if R5: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if R5: the source others not counted
+PASS: the flip check refuses built 1x1/1if R5: the source edits not counted
+PASS: the flip check refuses built 1x1/1if R5: the source srp not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.retained not counted
+PASS: the flip check refuses built 1x1/1if R5: the source builds not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.mrpdu not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.withdraw not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.rebuild not counted
+PASS: the flip check refuses built 1x1/1if R5: the source gm not counted
+PASS: the flip check refuses built 1x1/1if R5: the source steps not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if R5: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if R5: the source links not counted
+PASS: the flip check refuses built 1x1/1if R5: the source passes not counted
+PASS: the flip check refuses built 1x1/1if R5: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if R6 over its bound
+PASS: the flip check refuses built 1x1/1if R6 within its bound
+PASS: the flip check refuses built 1x1/1if R6: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if R6: the source notice not counted
+PASS: the flip check refuses built 1x1/1if R6: the source slice not counted
+PASS: the flip check refuses built 1x1/1if R6: the source timers not counted
+PASS: the flip check refuses built 1x1/1if R6: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if R6: the source others not counted
+PASS: the flip check refuses built 1x1/1if R6: the source edits not counted
+PASS: the flip check refuses built 1x1/1if R6: the source srp not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.retained not counted
+PASS: the flip check refuses built 1x1/1if R6: the source builds not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.mrpdu not counted
+PASS: the flip check refuses built 1x1/1if R6: the source gm not counted
+PASS: the flip check refuses built 1x1/1if R6: the source steps not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if R6: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if R6: the source passes not counted
+PASS: the flip check refuses built 1x1/1if R6: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if first over its bound
+PASS: the flip check refuses built 1x1/1if first within its bound
+PASS: the flip check refuses built 1x1/1if first: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if first: the source notice not counted
+PASS: the flip check refuses built 1x1/1if first: the source slice not counted
+PASS: the flip check refuses built 1x1/1if first: the source timers not counted
+PASS: the flip check refuses built 1x1/1if first: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if first: the source others not counted
+PASS: the flip check refuses built 1x1/1if first: the source edits not counted
+PASS: the flip check refuses built 1x1/1if first: the source gm not counted
+PASS: the flip check refuses built 1x1/1if first: the source steps not counted
+PASS: the flip check refuses built 1x1/1if first: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if first: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if first: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if first: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if first: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if first: the source passes not counted
+PASS: the flip check refuses built 1x1/1if first: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if first: the source spacing not counted
+PASS: the flip check refuses built 1x1/1if last over its bound
+PASS: the flip check refuses built 1x1/1if last within its bound
+PASS: the flip check refuses built 1x1/1if last: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if last: the source notice not counted
+PASS: the flip check refuses built 1x1/1if last: the source slice not counted
+PASS: the flip check refuses built 1x1/1if last: the source timers not counted
+PASS: the flip check refuses built 1x1/1if last: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if last: the source others not counted
+PASS: the flip check refuses built 1x1/1if last: the source edits not counted
+PASS: the flip check refuses built 1x1/1if last: the source srp not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.retained not counted
+PASS: the flip check refuses built 1x1/1if last: the source builds not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.mrpdu not counted
+PASS: the flip check refuses built 1x1/1if last: the source rounds not counted
+PASS: the flip check refuses built 1x1/1if last: the source gm not counted
+PASS: the flip check refuses built 1x1/1if last: the source steps not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if last: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if last: the source passes not counted
+PASS: the flip check refuses built 1x1/1if last: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if last: the source spacing not counted
+PASS: the flip check refuses built 1x1/1if R4L over its bound
+PASS: the flip check refuses built 1x1/1if R4L within its bound
+PASS: the flip check refuses built 1x1/1if R4L: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source notice not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source slice not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source timers not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source others not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source gm not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source steps not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source passes not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if R4L: the source pace not counted
+PASS: the flip check refuses built 1x1/1if ACMP over its bound
+PASS: the flip check refuses built 1x1/1if ACMP within its bound
+PASS: the flip check refuses built 1x1/1if ACMP: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source notice not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source slice not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source timers not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source own not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source others not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source edits not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source gm not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source steps not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source passes not counted
+PASS: the flip check refuses built 1x1/1if ACMP: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if ADP over its bound
+PASS: the flip check refuses built 1x1/1if ADP within its bound
+PASS: the flip check refuses built 1x1/1if ADP: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source notice not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source slice not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source timers not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source own not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source others not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source edits not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source gm not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source steps not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source passes not counted
+PASS: the flip check refuses built 1x1/1if ADP: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if MAAP over its bound
+PASS: the flip check refuses built 1x1/1if MAAP within its bound
+PASS: the flip check refuses built 1x1/1if MAAP: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source notice not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source slice not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source timers not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source own not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source others not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source edits not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source gm not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source steps not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source passes not counted
+PASS: the flip check refuses built 1x1/1if MAAP: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if tx over its bound
+PASS: the flip check refuses built 1x1/1if tx within its bound
+PASS: the flip check refuses built 1x1/1if tx: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if tx: the source notice not counted
+PASS: the flip check refuses built 1x1/1if tx: the source slice not counted
+PASS: the flip check refuses built 1x1/1if tx: the source timers not counted
+PASS: the flip check refuses built 1x1/1if tx: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if tx: the source others not counted
+PASS: the flip check refuses built 1x1/1if tx: the source builds not counted
+PASS: the flip check refuses built 1x1/1if tx: the source edits not counted
+PASS: the flip check refuses built 1x1/1if tx: the source gm not counted
+PASS: the flip check refuses built 1x1/1if tx: the source steps not counted
+PASS: the flip check refuses built 1x1/1if tx: the source item.walk not counted
+PASS: the flip check refuses built 1x1/1if tx: the source item.reclaim not counted
+PASS: the flip check refuses built 1x1/1if tx: the source item.acmp not counted
+PASS: the flip check refuses built 1x1/1if tx: the source item.acmp_declined not counted
+PASS: the flip check refuses built 1x1/1if tx: the source item.aecp not counted
+PASS: the flip check refuses built 1x1/1if tx: the source passes not counted
+PASS: the flip check refuses built 1x1/1if tx: the source datapath not counted
+PASS: the flip check refuses built 1x1/1if txL over its bound
+PASS: the flip check refuses built 1x1/1if txL within its bound
+PASS: the flip check refuses built 1x1/1if txL: the source ticks not counted
+PASS: the flip check refuses built 1x1/1if txL: the source notice not counted
+PASS: the flip check refuses built 1x1/1if txL: the source slice not counted
+PASS: the flip check refuses built 1x1/1if txL: the source timers not counted
+PASS: the flip check refuses built 1x1/1if txL: the source aecp not counted
+PASS: the flip check refuses built 1x1/1if txL: the source others not counted
+[... 4018 lines cut: the file is 5218 lines; the first and last 600 kept ...]
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: a run-out's builds sought within 100 ms of it (earlier rule): a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold ({1191: (1, [], []), 1239: (1, [], []), 1241: (1, [241.0], [('late', 51.0)]), 1289: (1, [289.0], [('late', 99.0)]), 1291: (0, [], []), 1500: (0, [], [])})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted: a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold ({'count': 2, 'shortest': 181.0, 'longest': 239.0, 'over': [], 'runs': {'released': 2, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: a late build taken for an on-time one: a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold ({1191: (1, [], []), 1239: (1, [], []), 1241: (1, [241.0], []), 1289: (1, [289.0], []), 1291: (1, [291.0], []), 1500: (1, [500.0], [])})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: a late build's run-out not failing the run: a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold ({1191: (1, [], []), 1239: (1, [], []), 1241: (1, [241.0], []), 1289: (1, [289.0], []), 1291: (1, [291.0], []), 1500: (1, [500.0], [])})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: an absent build taken for an unresolved one: no build after a run-out is absent and named where the log runs on past THE TRANSMIT's bound, and unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes nothing (({'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 0, 'late': 0, 'absent': 0, 'unresolved': 1}, 'failing': []}, {'cou)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: an unresolved build taken for one that owes nothing: no build after a run-out is absent and named where the log runs on past THE TRANSMIT's bound, and unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes nothing (({'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 0, 'late': 0, 'absent': 1, 'unresolved': 0}, 'failing': [{'kind': )
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: joins: a frame its build left owed not the build's: a frame its build left owed, which the poll sends a pass later, is that build's: the run-out released it and ends a join interval ({'count': 0, 'shortest': None, 'longest': None, 'over': [], 'runs': {'released': 0, 'empty': 1, 'late': 0, 'absent': 0, 'unresolved': 0}, 'failing': []})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: the declined offers held to three a send: declined ACMP offers over two a sent owed frame and one are refused, named with the sends ([])
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: one point's costs at both: each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if ([900, 1300])
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: in bus cycles, not CPU time: a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it (({'base': 280, 'withdraw': 110, 'rebuild': 590, 'walk': 120, 'reclaim': 40, 'retained': 345, 'mrpdu': 1475, 'acmp': 80, 'aecp': 145, 'aecp_long': 320, 'acmp_dec)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: a reference control held to no margin: the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with a margin of 5 % (('record', ['acmp-redelivered-every-poll', 'notice-fan-out-as-it-was', 'polls-rebuild-in-the-base', 'polls-rebuild-twice']))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: a reference control read against its own planted run: a reference control is caught by a planted record more than its margin dearer than the unplanted one, and escapes at the margin, at the same cost and cheaper ((1, 1, 1, 1))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: a reference control's refusals ignored: a reference control escapes with a refusal in either run, or without its group in either ((0, 0, 1, 1))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: a reference control's other run without its variant: a reference control's other run is its group alone on this point's unplanted image, at its variant and core, in the build directory's reference ([('build', PosixPath('/<tmp>/tmpxtmdtgnq/b/reference'), 'endstation_ax7101_8x8', 2, {'mutation': 'none', 'variant': 'none', 'core': Core(cpu_regions='cover', fetc)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: a reference control's other run in the planted build's place: a reference control's other run is its group alone on this point's unplanted image, at its variant and core, in the build directory's reference ([('build', PosixPath('/<tmp>/tmpol47gjsw/reference'), 'endstation_ax7101_8x8', 2, {'mutation': 'none', 'variant': 'answering-every-port', 'core': Core(cpu_regions)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: polls: the SRP record cut's control held to its stated cost: the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with a margin of 5 % ((None, ['acmp-redelivered-every-poll', 'notice-fan-out-as-it-was', 'polls-rebuild-in-the-base', 'polls-rebuild-twice', 'srp-compared-by-memcmp']))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: aged: one delay an aged window: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load (({('blank', 2): [5.0], ('blank', 1): [5.0], ('program', 2): [5.0], ('program', 1): [5.0], ('verify', 2): [5.0], ('verify', 1): [5.0]}, 0))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: aged: the delays across the tick's first 8.75 ms only: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load (({('blank', 2): [0.0, 1.25, 2.5, 3.75, 5.0, 6.25, 7.5, 8.75], ('blank', 1): [0.0, 1.25, 2.5, 3.75, 5.0, 6.25, 7.5, 8.75], ('program', 2): [0.0, 1.25, 2.5, 3.75,)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: aged: windows at the age limit only: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load (({('blank', 2): [0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375], ('program', 2): [0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375], ('verify', 2)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: aged: the program phase's window one step short of a page's issue: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load (({('blank', 2): [0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375], ('blank', 1): [0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375], ('program', 2))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: steps: a pass that carries a step and writes nothing to the mailbox is left out: every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike, with the longest of them and the longest step's own CPU time ({'passes': 1, 'cycles': 5000, 'ms': 0.1, 'start_sys': 1000, 'store_cycles': 3000, 'store_ms': 0.06, 'store_start_sys': 1000})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: steps: a work pass that carries a step is left out: every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike, with the longest of them and the longest step's own CPU time ({'passes': 2, 'cycles': 120000, 'ms': 2.4, 'start_sys': 9000, 'store_cycles': 95000, 'store_ms': 1.9, 'store_start_sys': 9000})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: the held AECP channel bursts with its change, the SET_NAME's token not yet back: the held AECP channel's first burst comes one refill period after the change, so the SET_NAME's token is back before it, and every other channel's at the change ({'adp': 0.0, 'acmp': 0.0, 'aecp': 0.0, 'maap': 0.0, 'srp': 0.0})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: the starved save without its grandmaster flood: save-starved adds a grandmaster change as every pass starts from its change, save-held does not, and both time their save against the point's container ((['mark save.change', 'frame 0 0000000000020a0b0c0d0e0122f0fb00005400000000000000010a0b0c0d0e0f00026f00001000000000000000007361766500000000000000000000000000000)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: four tick phases a flash phase: each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's period, the window opening after the save's own flash event ({'blank': ({'flash erase 1'}, 4, 1000000, True), 'program': ({'flash program 1'}, 4, 2000000, True), 'verify': ({'flash idle 3000000'}, 4, 1000000, True)})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: the program phase spread across one tick, not its step's two: each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's period, the window opening after the save's own flash event ({'blank': ({'flash erase 1'}, 8, 1000000, True), 'program': ({'flash program 1'}, 8, 1000000, True), 'verify': ({'flash idle 3000000'}, 8, 1000000, True)})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: the blank check staged after the first page program: each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's period, the window opening after the save's own flash event ({'blank': ({'flash program 1'}, 8, 1000000, True), 'program': ({'flash program 1'}, 8, 2000000, True), 'verify': ({'flash idle 3000000'}, 8, 1000000, True)})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: save: the verify staged while the pages are programmed: each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's period, the window opening after the save's own flash event ({'blank': ({'flash erase 1'}, 8, 1000000, True), 'program': ({'flash program 1'}, 8, 2000000, True), 'verify': ({'flash program 1'}, 8, 1000000, True)})
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: share: the rows option records the passes too: a pass over the share fails a run whose rows all fit, unless --record-share-findings records it; --record-budget-findings does not (([1, 0, 0, 0], ['g: 1 of 3 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 100,001 (2.000 ms)']))
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+MUTANT caught: share: a pass over it fails the run only beside a row miss: a pass over the share fails a run whose rows all fit, unless --record-share-findings records it; --record-budget-findings does not (([0, 0, 0, 0], ['g: 1 of 3 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 100,001 (2.000 ms)']))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: the CPU is built on the Milan clock: the run builds and records the fetch L1 and the arm it selected ({'xip': ("returned 1: REFUSED the split CPU is not on the bus clock: the CPU runs in the milan clock domain, not sys; the CPU's clock, 50000000 Hz, is not the b)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: build.json records the point's Milan clock as the CPU's: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless (xip --fetch-l1 64x1 --xip: returned 1: REFUSED reused build's split CPU is not on the bus clock: the CPU's clock, 50000000 Hz, is not the bus clock, 100000000 H)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: no CPU clock refusal: a build whose SoC puts the CPU on the Milan clock is refused and records nothing (reached)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: the CPU's domain is not checked: a build whose SoC puts the CPU on the Milan clock is refused and records nothing (returned 1: REFUSED the split CPU is not on the bus clock: the CPU's clock, 50000000 Hz, is not the bus clock, 100000000 Hz)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: the CPU's clock is not checked against the bus clock: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on sys at half the bus clock: reached)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)
+self-test: 0 failures
+harness self-test rc=0; clone after: 0 changed path(s)

@@ -1,0 +1,9 @@
+# planted: 355:#define CTRL_LOOP_TX_MS 60u
+shape_costs.py --check rc=0: RESULT: PASS 
+flip_grade.py --check --point 8x8/1if rc=1: OVER 8x8/1if: CTRL_LOOP_TX_MS states 60 ms, under the built design's tx row 74.26 ms RESULT: FAIL 
+flip_grade.py --check rc=1: OVER 8x8/1if: CTRL_LOOP_TX_MS states 60 ms, under the built design's tx row 74.26 ms RESULT: FAIL 
+load_grade.py --check rc=0: RESULT: PASS 
+rows_tiers.py --selftest rc=0: rows_tiers: 1033 of 1033 planted controls refused 
+63:REPORTED = ('8x8/1if',)
+433:    rowed = tuple(p for p in points if p not in REPORTED)
+453:        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \

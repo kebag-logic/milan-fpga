@@ -1,0 +1,42 @@
+# every grader (graders.sh) at 8883d499 (clean clone) against d0a2a160 (clean clone): diff -r of their outputs; rc.txt identical
+## rc at d0a2a160: flip_check rc=1 flip_1x1 rc=0 flip_8x8_2if rc=1 flip_8x8_1if rc=0 load_check rc=0 shape_costs rc=0 flip_selftest rc=0 rows_tiers_selftest rc=0 load_selftest rc=0 rows_tiers_report rc=1 
+## rc at 8883d499: flip_check rc=1 flip_1x1 rc=0 flip_8x8_2if rc=1 flip_8x8_1if rc=0 load_check rc=0 shape_costs rc=0 flip_selftest rc=0 rows_tiers_selftest rc=0 load_selftest rc=0 rows_tiers_report rc=1 
+diff -r $SCRATCH/r13/base/flip_1x1.txt $SCRATCH/fullR13/graders-F/flip_1x1.txt
+20c20
+< | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+---
+> | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 75 | 8x8/1if |
+diff -r $SCRATCH/r13/base/flip_8x8_1if.txt $SCRATCH/fullR13/graders-F/flip_8x8_1if.txt
+9c9
+< | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+---
+> | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 75 | 8x8/1if |
+13a14
+> HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 75 ms against its tx row by every source 74.26 ms (tx_held; the hold-off adds the figure)
+diff -r $SCRATCH/r13/base/flip_8x8_2if.txt $SCRATCH/fullR13/graders-F/flip_8x8_2if.txt
+25c25
+< | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+---
+> | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 75 | 8x8/1if |
+diff -r $SCRATCH/r13/base/flip_check.txt $SCRATCH/fullR13/graders-F/flip_check.txt
+37c37
+< | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+---
+> | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 75 | 8x8/1if |
+41a42
+> HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 75 ms against its tx row by every source 74.26 ms (tx_held; the hold-off adds the figure)
+diff -r $SCRATCH/r13/base/flip_selftest.txt $SCRATCH/fullR13/graders-F/flip_selftest.txt
+1c1
+< flip check: 612 of 612 planted controls refused
+---
+> flip check: 615 of 615 planted controls refused
+diff -r $SCRATCH/r13/base/load_check.txt $SCRATCH/fullR13/graders-F/load_check.txt
+1c1
+< | Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+---
+> | Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+diff -r $SCRATCH/r13/base/shape_costs.txt $SCRATCH/fullR13/graders-F/shape_costs.txt
+5c5
+< | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+---
+> | (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 75 | 8x8/1if |

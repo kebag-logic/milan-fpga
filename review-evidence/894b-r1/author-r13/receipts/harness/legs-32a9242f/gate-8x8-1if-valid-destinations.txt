@@ -1,0 +1,89 @@
+# 3 groups graded over 3 leg(s); 45 probe instances, 45 measured
+
+## The rows the CPU decides (the seven held-egress rows apart; the queued notices and the largest legal command below)
+
+| Family | Row | Instances | Worst, ms | Worst instance (group) | Its budget, ms | Ruling, ms | Over the ruling |
+|---|---|---:|---:|---|---:|---:|---:|
+| acmp | ACMP | 1 | 3.904 | `srp-talker-held.held.acmp.if0` (srp-talker-held) | 20.0 | 30 | 0 |
+| adp | ADP | 1 | 3.174 | `srp-talker-held.held.adp.if0` (srp-talker-held) | 20.0 | 30 | 0 |
+| aecp | AECP | 1 | 4.253 | `srp-talker-held.held.aecp.if0` (srp-talker-held) | 20.0 | 20 | 0 |
+| maap | MAAP | 1 | 3.510 | `srp-talker-held.held.maap.if0` (srp-talker-held) | 20.0 | 30 | 0 |
+| mrpdu | MRPDU (a timer-owed MRPDU) | 3 | 3.109 | `srp-talker-held.mrpdu.periodic.if0` (srp-talker-held) | 49.0 | 49 | 0 |
+| srp | SRP | 10 | 10.869 | `srp-talker-held.held.srp.if0` (srp-talker-held) | 20.0 | 90 | 0 |
+
+## SRP's Talker declaration rows (the valid-destinations arm, #901), each against its harness budget, a JoinTime's wait plus T_svc
+
+| Group | Instances | Worst, ms | Worst instance | Its budget, ms | Over it |
+|---|---:|---:|---|---:|---:|
+| srp-talker | 9 | 189.528 | `srp.talker_declare.s2.if0` | 220.0 | 0 |
+| srp-talker-held | 9 | 189.528 | `srp.talker_declare.s2.if0` | 220.0 | 0 |
+| srp-talker-loss | 10 | 189.638 | `srp.talker_loss.if0` | 220.0 | 0 |
+
+## The queued notices (the answering-every-port arm), from the port's answer: the first against 20 ms, the last against 130 ms
+
+none measured
+
+## The largest legal command's measured rows (aecp-largest-notice, the answering-ports arm), against paced R4L's 238 ms
+
+none measured
+
+## The held-egress rows (backlog-owed, the scenario's 60 ms egress hold): recorded misses, each held to its ledger figure (egress_ledger.py)
+
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | not measured | 63.86 | | no |
+| `backlog.owed_behind0.if0` | not measured | 64.1 | | no |
+| `backlog.owed_behind1.if0` | not measured | 64.36 | | no |
+| `backlog.owed_behind2.if0` | not measured | 64.61 | | no |
+| `backlog.owed_behind3.if0` | not measured | 64.86 | | no |
+| `backlog-owed.service.acmp.last.if0` | not measured | 62.62 | | no |
+| `backlog-owed.service.aecp.last.if0` | not measured | 62.16 | | no |
+
+For reference, 1x1/1if at 8a3791e4, ms: backlog.owed.if0 62.94, backlog.owed_behind0.if0 63.11, backlog.owed_behind1.if0 63.29, backlog.owed_behind2.if0 63.46, backlog.owed_behind3.if0 63.64, backlog-owed.service.acmp.last.if0 62.08, backlog-owed.service.aecp.last.if0 61.82
+
+Instances not measured: 0
+Instances over their budget: 0; the ledger's findings (a held-egress row over its figure or not measured, an instance not measured, a new miss): 7
+- backlog.owed.if0: no measured instance of the ledger row
+- backlog.owed_behind0.if0: no measured instance of the ledger row
+- backlog.owed_behind1.if0: no measured instance of the ledger row
+- backlog.owed_behind2.if0: no measured instance of the ledger row
+- backlog.owed_behind3.if0: no measured instance of the ledger row
+- backlog-owed.service.acmp.last.if0: no measured instance of the ledger row
+- backlog-owed.service.aecp.last.if0: no measured instance of the ledger row
+
+Join intervals: 46 in 3 groups, the shortest 187.576 ms (srp-talker), the longest 190.335 ms (srp-talker-held), against the commit-side gate 181.0 to 239.0
+
+The longest tier-2 slice of each kind, against the stated slice 147,500 CPU cycles:
+- build: 122,179 (srp-talker-held)
+- round: 2,194 (srp-talker-loss)
+- srp: 124,869 (srp-talker-held)
+The heaviest pass given whole of each kind, whose round found nothing to do, against its stated figure:
+- build: 0 (srp-talker-loss), stated 179,500
+- build-one: 122,179 (srp-talker-held), stated 147,500
+- step: 0 (srp-talker-loss), stated 97,500
+
+Groups with work passes over THE SHARE: 0
+
+THE RETRY's rounds: 195,416, held to attempt 25 us, cold 165 us, notice 255 us; the heaviest by notices built: 0: 2,194 (srp-talker-loss); over their stated cost: 0
+
+The legs' STATED lines, by kind: 0
+
+The legs' own lines (STATED lines above):
+HEAD 32a9242f36a8bbd62001af4dfacdaec8966e170a DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker-held --variant valid-destinations start 2026-11-17T08:06:20
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 3460 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T09:51:45
+HEAD 32a9242f36a8bbd62001af4dfacdaec8966e170a DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker --variant valid-destinations start 2026-11-17T08:06:26
+1 groups graded, 0 refusals, 0 budget misses (0 of 9 probe instances, 0 of 9 paths), 0 of 2169 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T10:13:27
+HEAD 32a9242f36a8bbd62001af4dfacdaec8966e170a DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --groups srp-talker-loss --variant valid-destinations start 2026-11-17T08:06:56
+1 groups graded, 0 refusals, 0 budget misses (0 of 10 probe instances, 0 of 10 paths), 0 of 816 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+END rc=0 2026-11-17T08:36:48
+
+RESULT: FAIL
+- the ledger: backlog.owed.if0: no measured instance of the ledger row
+- the ledger: backlog.owed_behind0.if0: no measured instance of the ledger row
+- the ledger: backlog.owed_behind1.if0: no measured instance of the ledger row
+- the ledger: backlog.owed_behind2.if0: no measured instance of the ledger row
+- the ledger: backlog.owed_behind3.if0: no measured instance of the ledger row
+- the ledger: backlog-owed.service.acmp.last.if0: no measured instance of the ledger row
+- the ledger: backlog-owed.service.aecp.last.if0: no measured instance of the ledger row

@@ -1,0 +1,18 @@
+# image identity against 8883d499: the six 1x1/1if and 8x8/2if images byte-identical, each 8x8/1if image one instruction apart
+fixture-1x1-1if: IDENTICAL elf 4cf0d0bd533d loadable 5a762bdbbecc
+fixture-1x1-2if: IDENTICAL elf 96540bda6b94 loadable a49bf7da00d8
+fixture-8x8-1if: elf c854f1679c41 -> cc31f5867342, loadable dec39f2af959 -> 20be7815aecb
+  - 9ef8:	7ea00693          	li	a3,2026
+  + 9ef8:	7eb00693          	li	a3,2027
+  disassembly: 25564 and 25564 lines, 1 differing
+  contents: 7835 and 7835 lines, differing lines by section {'.text': 1}
+fixture-8x8-2if: IDENTICAL elf b1cbbf19e809 loadable 2f5980a20615
+platform-1x1-1if: IDENTICAL elf 0bb9353a018e loadable fb0a2837895b
+platform-1x1-2if: IDENTICAL elf 5ab2b30aae8d loadable 4a1a2adb70c0
+platform-8x8-1if: elf 559f7e764130 -> 0e548aa2f5ab, loadable 4b2a7eb17037 -> d436186d389e
+  - 9ed4:	7ea00693          	li	a3,2026
+  + 9ed4:	7eb00693          	li	a3,2027
+  disassembly: 26636 and 26636 lines, 1 differing
+  contents: 8154 and 8154 lines, differing lines by section {'.text': 1}
+platform-8x8-2if: IDENTICAL elf 4f149b4201fb loadable 82accab4c87a
+RESULT: PASS
