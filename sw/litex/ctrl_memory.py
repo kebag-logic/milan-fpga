@@ -266,7 +266,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "declarations plan within it (#895); 59.5 by the owner's decision of "
                                          "2026-11-15 (#665, block RAM kept loose): with SRP's record of the "
                                          "STREAM_OUTPUT notices (#936) the CPU budget harness's answering-every-port "
-                                         "arm, the fixture with its test port, needs 127,132 B of rom, 156 B past "
+                                         "arm, the fixture with its test port, needs 127,140 B of rom, 164 B past "
                                          "the 126,976 B 59.0 holds, and its valid-destinations arm 126,992 B, 16 B "
                                          "past, debt owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
