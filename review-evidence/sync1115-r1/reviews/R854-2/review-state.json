@@ -1,0 +1,34 @@
+{
+  "head": "e2be92b0e0f9a8f0529dea252f23ed44a21e050a",
+  "tree": "54c1e870df27971db88de7ad664a0078ca2cf9cf",
+  "source_base": "659d7687",
+  "previous_review_head": "6ceed75374210935cff4f10d014b9a5ef137615e",
+  "source_diff_sha256": "ed33b801754a5b300df87ba268981cf0643b7176de6190787c7411b14920737e",
+  "delta_paths": [
+    "docs/reference/FR_NFR.md",
+    "tb/verilator/ctrl_service_budget/README.md",
+    "tb/verilator/ctrl_service_budget/build.py",
+    "tb/verilator/ctrl_service_budget/grade.py",
+    "tb/verilator/ctrl_service_budget/join_grade.py",
+    "tb/verilator/ctrl_service_budget/mrpdu_grade.py",
+    "tb/verilator/ctrl_service_budget/observe.vlt",
+    "tb/verilator/ctrl_service_budget/observers.py",
+    "tb/verilator/ctrl_service_budget/run.py",
+    "tb/verilator/ctrl_service_budget/selftest_leaveall.py",
+    "tb/verilator/ctrl_service_budget/selftest_mutants.py",
+    "tb/verilator/ctrl_service_budget/selftest_notice.py",
+    "tb/verilator/ctrl_service_budget/selftest_polls.py",
+    "tb/verilator/ctrl_service_budget/sim_main.cpp"
+  ],
+  "delta_history": [
+    "e2be92b0e0f9a8f0529dea252f23ed44a21e050a Fail an MRP timer's run-out whose owner the testbench did not record at the expiry, with no other participant's opportunity standing in (#665)",
+    "ccc98b11ffe73cbf510793252600fbc661a55fac Time a build that sends nothing from its timer's recorded owner's transmit opportunity, never another participant's join callback (#665)",
+    "c10c549e21d4fd6a5dcc7c50437f1b5474f9e018 Bind each LeaveAll timer's expiry to the participant the testbench records at the expiry and grade its LeaveAll on that owner alone (#665)"
+  ],
+  "optional_local_selftest": {
+    "rc": 143,
+    "pass_lines": 879,
+    "caught_mutant_lines": 147,
+    "status": "Stopped intentionally after focused evidence established the blocking defect; not a complete local PASS."
+  }
+}
