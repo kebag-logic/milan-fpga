@@ -248,7 +248,9 @@ class Ledgered:
 #: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
 #: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
 #: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
-#: size fixture's at its cap. The
+#: size fixture's at its cap, and AECP's REBOOT (#871) for its image on the tiers by the owner's decision of
+#: 2026-11-15 (#665): an image past its entry raises it to its measured size, at the next half tile, as debt
+#: owed to S14. The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
@@ -270,7 +272,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
                                          "(#665): an image past its entry raises it"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -281,7 +283,9 @@ LEDGERED: dict[str, Ledgered] = {
                                             "60.0, by #895's ruling of 2026-11-14, item 4, and with GET_AS_PATH's "
                                             "read through the face composed on them, 992 B of rom past 60.0, "
                                             "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
-                                            "RAMB36 owed to the hybrid XIP work, the cap fully used"),
+                                            "RAMB36 owed to the hybrid XIP work, the cap fully used; 60.5 with "
+                                            "AECP's REBOOT composed on the tiers (#871), by the "
+                                            "owner's decision of 2026-11-15"),
 }
 
 

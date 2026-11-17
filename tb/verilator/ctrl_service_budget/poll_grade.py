@@ -67,10 +67,11 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
-#: makes, stated at the SRP record's cost (280 and 365 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The SRP record's and AECP's item (a notice to the
-#: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
-#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
+#: makes, stated at the SRP record's cost (285 and 365 us; 280 at 1x1/1if before AECP's REBOOT, #871), and an owed
+#: MRPDU is a part of a build of one, stated at that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The
+#: SRP record's and AECP's item (a notice to the registered controllers) are measured on the image whose notice is
+#: built once and addressed per recipient and whose SRP comparisons are same()'s (#665: the notice and SRP record
+#: cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
 #: ACMP's item at 1x1/1if takes the adapter's redelivery of the kept command and the records behind it, which a poll
 #: that sends an owed frame now runs (acmp_mbx.c). On the merge of dev-soft-core 0fb66211 (#665), each cost, every item
@@ -96,7 +97,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
 #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
 #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
-STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,
                     aecp=210, aecp_long=365, acmp_declined=20),
              2: dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
                     aecp=275, aecp_long=700, acmp_declined=20)}

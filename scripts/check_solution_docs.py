@@ -178,9 +178,11 @@ PORT_GROUPS = (
         "Clear every `i_gptp_txrec_*` and `i_gptp_txseal_ack`; leave the seal outputs open",
         (r"i_gptp_txrec_.*", r"[io]_gptp_txseal_.*"),
     ),
-    PortGroup("End-station reset", "`o_reboot_phy_hold`, `o_icap_*`, `i_ethtxend_tgl`",
-              "Hold the PHY in reset, after the MAC's last frame, and drive ICAPE2 for an AECP REBOOT",
-              "Leave open, toggle 0: a REBOOT only goes offline", (r"o_reboot_phy_hold|i_ethtxend_tgl", r"o_icap_.*")),
+    PortGroup("End-station reset", "`o_reboot_phy_hold`, `o_icap_*`, `i_ethtxend_tgl`, `i_reboot_req`",
+              "Hold the PHY in reset, after the MAC's last frame, and drive ICAPE2 for an AECP REBOOT, the split's "
+              "on the firmware's request",
+              "Leave open, toggle and request 0: a REBOOT only goes offline",
+              (r"o_reboot_phy_hold|i_ethtxend_tgl|i_reboot_req", r"o_icap_.*")),
     PortGroup("Interrupt", "`o_irq_csr`", "Route the aggregate CSR interrupt",
               "Leave the output open during smoke tests", (r"o_irq_csr",)),
     PortGroup(

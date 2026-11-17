@@ -178,6 +178,14 @@ OUTSIDE = {
                                            "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
                                            "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "
                                            "its own compiles build the boot SoC's Verilator model",
+    "tb/verilator/ctrl_reboot/run.py": "the AECP REBOOT simulation (#871), which no hosted job can run (the CPU "
+                                       "budget harness's prerequisites): build.flash_map delegates map images to "
+                                       "ctrl_srp_image.py; through the split boot simulation's image() it delegates "
+                                       "every platform compile of the firmware to ctrl_plat_image.py, unchanged or "
+                                       "given a planted copy of the firmware's tree under --build-dir, outside the "
+                                       "checkout, and the runtime to runtime_ssp.py; its own compiles build the "
+                                       "REBOOT SoC's Verilator model, whose testbench reads the mailbox's register "
+                                       "offsets from mbx_contract.h and compiles no firmware or stack source",
     "tb/verilator/ctrl_split_boot/plat_ledger.py": "the platform image's ledger gate (#665), which no hosted job can "
                                                    "run (the CPU budget harness's prerequisites): build.flash_map "
                                                    "delegates map images to ctrl_srp_image.py; it delegates every "

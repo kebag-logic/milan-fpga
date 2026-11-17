@@ -284,7 +284,7 @@ extern "C" {
 // dearer of its two columns' (load_grade.py, which refuses any other figure):
 // the slice starts a record only while it has this left, so a record that
 // starts fits (#894).
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 365u)
+#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 285u : 365u)
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.

@@ -120,16 +120,17 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never the formal measurement.
 #: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. All four are contract
 #: 2.3's face block (aecp_face.c: stream, avb, path and counters, each a bounded window read that the datapath, held
-#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core
-#: takes them, path with arm_path.py's. With the unmodified fixture, AECP retries each pending change notice 1 ms
-#: later forever (aecp.c, retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry:
-#: the linked image never disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the
-#: SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream
-#: observation stays unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS
-#: notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and
-#: every later one answers zeroed values, so the port answers just after a retry failed: the retried notice's row
-#: (notice_window.py) starts there. valid-destinations (#895): the fixture's ACMP source port reports destinations as
-#: the platform's does, so its group's probes open DA gates and SRP declares Talkers.
+#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core takes
+#: them, path with arm_path.py's, and gives AECP a reset port, so a REBOOT is accepted as on the platform (ctrl_plat.c;
+#: #871). With the unmodified fixture, AECP retries each pending change notice 1 ms later forever (aecp.c, retry_at =
+#: now + 1), and this arm separates that retry from each path's cost. shutdown-entry: the linked image never disables
+#: ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the SHUTDOWN path
+#: (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream observation stays
+#: unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS notice_window.ANSWER_MS fails;
+#: that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and every later one answers zeroed
+#: values, so the port answers just after a retry failed: the retried notice's row (notice_window.py) starts there.
+#: valid-destinations (#895): the fixture's ACMP source port reports destinations as the platform's does, so its group's
+#: probes open DA gates and SRP declares Talkers.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
@@ -148,6 +149,8 @@ VARIANTS = {
          '    image_face.ports.avb=b_avb;\n'
          '    image_face.ports.path=b_path;\n'
          '    image_face.ports.counters=b_counters;\n'),
+        ('        .events=image_events,.latency=image_latency};\n',
+         '        .events=image_events,.latency=image_latency,.reboot=true};\n'),
     ],
     'shutdown-entry': [
         ('int main(void)\n{',

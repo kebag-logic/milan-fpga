@@ -65,9 +65,10 @@ extern "C" {
 // and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's bound: decision D's 125 ms, half of
 // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if by #894's amendment of
 // 2026-11-13 to its contingent ruling, item 2, the built design's row rounded up to the next 5 ms, never over
-// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, and 140 ms
-// at SRP's Talker declarations' composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling
-// of 2026-11-15 on that composition, item 1). The rows by every source hold both at
+// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, 135 ms on
+// AECP's REBOOT's merge on the tiers (#871), its row 134.74 ms, and 140 ms at SRP's Talker declarations'
+// composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
+// composition, item 1). The rows by every source hold both at
 // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
 // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
 // source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).

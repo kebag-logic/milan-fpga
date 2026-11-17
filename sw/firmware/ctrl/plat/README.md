@@ -82,13 +82,22 @@ A command's name is compared only as far as its terminator, so a received NUL (a
   GET_AS_PATH reads its AVB interface's GSI window, kind 2: the count, then each ClockIdentity of the path sequence by its ordinal, at most `AECP_PATH_ITEMS`, so it answers SUCCESS with the sequence the datapath serves (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897).
   A window that does not answer, or a count past `AECP_PATH_ITEMS`, fails that port, and the core answers as for GET_AVB_INFO's.
   AS_PATH_CHANGED leads to the unsolicited GET_AS_PATH response, which reads the window again (Milan v1.2 Table 5.22).
+- **The REBOOT's reset port** (#871). `env.reboot` is the split SoC's `ctrl_reboot_req` CSR (`milan_soc.CtrlReboot`), which reaches `KL_reboot_ctrl` through a `MultiReg` ([REBOOT_RESET.md](../../../../docs/design/REBOOT_RESET.md#8-the-split-placement)). With it AECP answers a REBOOT of the ENTITY (IEEE 1722.1-2021 7.4.43); with 0 it answers NOT_IMPLEMENTED.
+  The window from the SUCCESS to the port behaves as the processor's (REQ-FWX-001; the processor's `06_aecp_engine.md` section 6.11):
+  - From the SUCCESS no received frame of any channel is taken. Every channel's take is behind a gate on `aecp_reboot_accepted`, set at boot with the channel's own binding behind it, so a frame stays in its ring and the mailbox drops whole one that finds no room.
+  - Once the SUCCESS and its notifications have left the mailbox (`aecp_reboot_due`), `ctrl_plat_step` no longer services the loop, so no channel starts another transmission.
+  - Once every other channel's ring has drained, ADP shuts down, so each advertising interface sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3) and no other frame follows it.
+  - Once ADP's ring has drained too, the platform writes 1 to the port.
+
+  From the loop's last pass the platform services the saved-state store on its own centisecond and its F_NVM, and, once every other ring has drained, ADP's poll until the port fires. So a journal write in progress completes and the drain sees it, and no frame is taken that could start another write during the PHY hold.
+  The sequence has no deadline: a ring the datapath never drains holds the port back, as the processor's MAC holds its request.
 
 ## Generated inputs
 
 [`ctrl_plat_gen.py`](ctrl_plat_gen.py) writes both headers; they are never hand-written:
 
 - `policy CONFIG` writes `ctrl_plat_policy_gen.h`: the identity and boot words from `boot_policy.fabric_constants()`, the one derivation `milan_soc.py` and builder gate 35 use; and each talker source's stream from the lwSRP table, the CRF output last at the builder's `CRF_SRP_MAXFRAME_B`.
-- `map CSR_CSV` writes `ctrl_plat_map_gen.h`: the `milan_csr` and `ctrl_mbx` regions and the UART's four registers, from the SoC's own `csr.csv`. The map does not depend on the image, so an export with any image gives it. A UART that pops on its `RXTX` read is refused.
+- `map CSR_CSV` writes `ctrl_plat_map_gen.h`: the `milan_csr` and `ctrl_mbx` regions, the UART's four registers and the REBOOT's `ctrl_reboot_req`, from the SoC's own `csr.csv`. The map does not depend on the image, so an export with any image gives it. A UART that pops on its `RXTX` read is refused.
 
 `sw/firmware/ctrl/test/ctrl_plat_image.py` links the image with both, through `ctrl_srp_image.py`'s link, audits and bank plan.
 It also takes the flash map, which puts the saved-state flash port on the split SoC's addresses.
@@ -119,14 +128,16 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
 `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
 
 - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; and GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B11, #897);
+- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
 - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
 - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
 
-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 42 defects, each caught by a named test on its own words.
+The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 64 defects, each caught by a named test on its own words.
 They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
+The REBOOT's twenty-two include the port fired before the response or the DEPARTING has left, an owed DEPARTING ignored, the request ignored, the store stopped once the loop stops, the loop serviced after the port, frames taken after the SUCCESS on all channels or on any one of the five, acceptance only once the SUCCESS has passed to the mailbox, transmissions after the DEPARTING, and a DEPARTING sent before the other rings drain or past any one of the ACMP, MAAP and SRP rings.
 
 The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
+The [REBOOT simulation](../../../../tb/verilator/ctrl_reboot/README.md) runs the same image through a REBOOT, the reset and the boot after it, with the flash kept.
 
 The split boot simulation generates F1's flash map from the split SoC's `csr.csv` and passes it to both platform links and boot exports.
 Each export checks the placement against that map.

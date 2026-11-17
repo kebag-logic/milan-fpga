@@ -36,7 +36,8 @@ if TYPE_CHECKING:
 #: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
 #: rule (33,724 at 9606b3a9, 355), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py),
 #: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
-#: 595 (78,332, 825), and 55,631 with that port.
+#: 595 (78,332, 825), and 55,631 with that port; with AECP's REBOOT merged on the tiers (#871), whose image moves the
+#: hot code, at 1x1/1if 28,750, 305.
 PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
 #: The paced class's record at each point: the dearest of its members'.

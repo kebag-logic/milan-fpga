@@ -16,6 +16,7 @@ import aecp_map_mutants
 import aecp_face_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
+import aecp_reboot_mutants
 import aecp_retry_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
@@ -870,7 +871,8 @@ DEFECTS = (
            'if (!aecp_face_open(c->face)) return false;', '(void)aecp_face_open(c->face);',
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
-) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+) + tuple(defect(*row) for row in aecp_reboot_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)

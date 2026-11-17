@@ -5,7 +5,8 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 
 `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
 only by its own name, under #665's documented memory exceptions: the size fixture's at 59.5 RAMB36 and the target
-platform's at 60.5 (the owner's decision of 2026-11-12, its cap), each refused half a tile past. A `Case` here is
+platform's at 60.5 (the owner's decision of 2026-11-12, its cap, and of 2026-11-15: an image past its entry raises it
+to its measured size, at the next half tile, as debt owed to S14), each refused half a tile past. A `Case` here is
 what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
 function here takes, and grades what these return.
 syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
@@ -32,7 +33,7 @@ STAGE_1X1, STAGE_8X8 = 3454, 13594
 FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_136, 18_304, 20_416
 
 
 class Case(NamedTuple):

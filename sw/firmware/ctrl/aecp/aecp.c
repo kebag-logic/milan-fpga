@@ -279,10 +279,21 @@ void aecp_open(struct aecp *a)
 // Ready for a record while no response is owed, no notice waits in the response buffer and the owed-notice queue has
 // a slot: a command's notice owed in the queue does not hold the next record (#894, the ruling of 2026-11-12: no clause
 // orders a notice ahead of the next command or its response, IEEE 1722.1-2021 9.3.5.4 and 7.5.2, Milan v1.2 5.4.5.2).
+// No command is taken after a REBOOT's SUCCESS (#871).
 bool aecp_ready(struct aecp *a)
 {
 	return aecp_enter(a) && a->open && !a->response_owed && !a->notify &&
-	       (a->owed_count == 0u || a->owed_count < a->cfg.owed_slots);
+	       (a->owed_count == 0u || a->owed_count < a->cfg.owed_slots) && a->reboot == 0u;
+}
+
+bool aecp_reboot_due(struct aecp *a)
+{
+	return aecp_enter(a) && a->reboot == 2u && (uint32_t)(a->tx_done - a->reboot_end) < 0x80000000u;
+}
+
+bool aecp_reboot_accepted(const struct aecp *a)
+{
+	return a->reboot != 0u;
 }
 
 bool aecp_locked(struct aecp *a, uint64_t *owner)
@@ -501,6 +512,11 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 			swap(a);
 			refuse(a, AECP_IN_PROGRESS);
 		}
+		if (cmd == 42u && status == AECP_SUCCESS) {
+			// IEEE 1722.1-2021 7.4.43: accepted at its SUCCESS; nothing else is
+			// taken until the reset (#871)
+			a->reboot = 1u;
+		}
 		if (a->start_pending) {
 			/* Reserve service time and millisecond quantization within T_svc. */
 			a->start_deadline = a->now + 8u;
@@ -575,6 +591,11 @@ void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 {
 	if (!aecp_enter(a)) {
 		return;
+	}
+	// the cookie after the last completed, which an accepted REBOOT's reset waits for (#871)
+	uint32_t ahead = cookie + 1u - a->tx_done;
+	if (ahead != 0u && ahead < 0x80000000u) {
+		a->tx_done = cookie + 1u;
 	}
 	// a round's completions come together, in the pass after it: only the notices that wait are walked (#665)
 	for (uint16_t *link = &a->awaited; *link != 0u; link = &a->cfg.events[*link - 1u].awaited_next) {
@@ -928,15 +949,26 @@ bool aecp_poll(struct aecp *a)
 		}
 		return true;
 	}
+	if (a->reboot != 0u) {
+		// Every frame owed is handed over, the REBOOT's last; its completion
+		// releases the reset (aecp_reboot_due). The entity departs, so no
+		// probe or notification is started (Milan v1.2 5.6.3.3; #871)
+		if (a->reboot == 1u) {
+			a->reboot_end = a->tx_cookie;
+			a->reboot = 2u;
+		}
+		return false;
+	}
 	bool pending = asynchronous(a);
 	arm(a);
 	return pending || a->retry_held;
 }
 
-// What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it.
+// What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it. An accepted REBOOT starts no
+// round: the entity departs, so no probe or notification is started after its SUCCESS (Milan v1.2 5.6.3.3; #871).
 static bool round_waits(const struct aecp *a)
 {
-	return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;
+	return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u || a->reboot != 0u;
 }
 
 bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)

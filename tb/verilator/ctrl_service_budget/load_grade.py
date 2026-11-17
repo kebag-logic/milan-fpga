@@ -155,16 +155,23 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: the answering-every-port arm and arm B's legs on #894's tiers (234bc149), an AECP record at 1x1/1if 235 to 245, both
 #: columns, 23,051 CPU cycles, that arm's SET_NAME in each of its sixteen groups (22,236 at 234bc149, the same work,
 #: its fetches moved by the read's code), and on its merge of dev-soft-core 70f4056f (#901) each cost the one of the
-#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897).
+#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897);
+#: and on the merge of #894's tiers into AECP's REBOOT (#871), whose image moves the hot code, over every 1x1/1if
+#: leg (all of arm A, the answering-every-port arm and arm B), both columns, each the larger of that and this
+#: table's: SRP's record 285 us (26,865 CPU cycles in arm A's backlog-adp@blank-aged1-2), AECP's 240 (22,531, a
+#: SET_NAME in the answering-every-port arm's notice-burst-0), a pass's events' fixed part 40 (3,627 in its
+#: notice-burst-1), and a retained record's retry at SRP's record cost, 285; on that lane's merge of dev-soft-core
+#: cb96336d (#898) each cost the one of the side that moved it from their merge base 41ca9f87, the larger where
+#: both did: an AECP record at 1x1/1if #897's 245, a pass's events' fixed part #871's 40 (#871).
 #: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the
 #: save groups, each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry,
 #: an owed MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build
 #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
 #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 55,
@@ -212,10 +219,10 @@ STATED_US = {
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
 #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,
+                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
