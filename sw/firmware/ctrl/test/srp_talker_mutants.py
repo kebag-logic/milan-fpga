@@ -84,7 +84,7 @@ LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_AD
 FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],"
         "app->maap.ifs[interface].core.base);\n")
 #: what declare_sources notices of each source's declaration (#936), as srp_mbx.c holds it.
-MOVED = "    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);\n"
+NOTICE_MOVED = "    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);\n"
 VID_MOVED = "    if (i->domain.vid != i->shown_vid) {\n        moved |= kept;\n    }\n"
 ADVERTISE = ("        if (i->admitted[n]) {\n            used += slope;\n            advertise |= bit;\n"
              "        }\n")
@@ -246,15 +246,15 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
     (srp_mbx.c), and the SRP delivery's take of it (ctrl_app_srp.c)."""
     d = planter(kind)
     return (
-        d("talker-notice-declaration-missed", NOTICED, MOVED,
-          MOVED.replace("(i->talkers ^ i->shown)", "(i->shown & ~i->talkers)"), "a declaration is noticed"),
-        d("talker-notice-withdrawal-missed", NOTICED, MOVED,
-          MOVED.replace("(i->talkers ^ i->shown)", "(i->talkers & ~i->shown)"), "a withdrawal is noticed"),
+        d("talker-notice-declaration-missed", NOTICED, NOTICE_MOVED,
+          NOTICE_MOVED.replace("(i->talkers ^ i->shown)", "(i->shown & ~i->talkers)"), "a declaration is noticed"),
+        d("talker-notice-withdrawal-missed", NOTICED, NOTICE_MOVED,
+          NOTICE_MOVED.replace("(i->talkers ^ i->shown)", "(i->talkers & ~i->shown)"), "a withdrawal is noticed"),
         d("talker-notice-record-dropped", NOTICED, "    i->noticed |= moved;\n", "    (void)moved;\n",
           "a declaration is noticed"),
         d("talker-notice-every-declared-source", SWAP_NOTICED, "    i->noticed |= moved;\n",
           "    i->noticed |= moved | i->talkers;\n", "a Talker Failed withdrawn is noticed"),
-        d("talker-notice-swap-missed", SWAP_NOTICED, MOVED, "    uint32_t moved = (i->talkers ^ i->shown);\n",
+        d("talker-notice-swap-missed", SWAP_NOTICED, NOTICE_MOVED, "    uint32_t moved = (i->talkers ^ i->shown);\n",
           "a type swapped in place is noticed"),
         d("talker-notice-refused-swap-noticed", SWAP_NOTICED, ADVERTISE,
           "        if (i->admitted[n]) {\n            used += slope;\n        }\n"
