@@ -1,0 +1,174 @@
+wrote $REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = R849Probe.*:SrpTalkerKinds.*
+[==========] Running 23 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime
+[       OK ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1880: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+a Failed New replaces the registered Advertise, both registered
+
+  [FAIL] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime: a Failed New replaces the registered Advertise, both registered
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1881: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+a Failed New replaces the registered Advertise, both registered
+
+  [FAIL] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime: a Failed New replaces the registered Advertise, both registered
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1887: Failure
+Value of: sent
+  Actual: false
+Expected: true
+a Failed New replaces the registered Advertise, both registered: on the wire within a JoinTime
+
+  [FAIL] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime: a Failed New replaces the registered Advertise, both registered: on the wire within a JoinTime
+[  FAILED  ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding
+[       OK ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding (0 ms)
+[ RUN      ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder
+[       OK ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder (0 ms)
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[       OK ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (0 ms)
+[ RUN      ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered
+[       OK ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset
+[       OK ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset (2 ms)
+[ RUN      ] SrpTalkerKinds.AStreamIsHeldForItsOwnInterface
+[       OK ] SrpTalkerKinds.AStreamIsHeldForItsOwnInterface (0 ms)
+[ RUN      ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore
+[       OK ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore (0 ms)
+[ RUN      ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1880: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+a Failed New beside the Advertise decides again
+
+  [FAIL] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered: a Failed New beside the Advertise decides again
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1881: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+a Failed New beside the Advertise decides again
+
+  [FAIL] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered: a Failed New beside the Advertise decides again
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1887: Failure
+Value of: sent
+  Actual: false
+Expected: true
+a Failed New beside the Advertise decides again: on the wire within a JoinTime
+
+  [FAIL] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered: a Failed New beside the Advertise decides again: on the wire within a JoinTime
+[  FAILED  ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime
+[       OK ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime (1 ms)
+[----------] 11 tests from SrpTalkerKinds (7 ms total)
+
+[----------] 12 tests from R849Probe
+[ RUN      ] R849Probe.P1AdvertiseJoinInAfterNewKeepsReadyWithoutFlap
+[       OK ] R849Probe.P1AdvertiseJoinInAfterNewKeepsReadyWithoutFlap (0 ms)
+[ RUN      ] R849Probe.P2FailedJoinInAfterNewKeepsAskingFailedWithoutFlap
+[       OK ] R849Probe.P2FailedJoinInAfterNewKeepsAskingFailedWithoutFlap (0 ms)
+[ RUN      ] R849Probe.P3EachNewInTurnDecides
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1880: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+P3 Failed New again
+
+  [FAIL] R849Probe.P3EachNewInTurnDecides: P3 Failed New again
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1881: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+P3 Failed New again
+
+  [FAIL] R849Probe.P3EachNewInTurnDecides: P3 Failed New again
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1887: Failure
+Value of: sent
+  Actual: false
+Expected: true
+P3 Failed New again: on the wire within a JoinTime
+
+  [FAIL] R849Probe.P3EachNewInTurnDecides: P3 Failed New again: on the wire within a JoinTime
+[  FAILED  ] R849Probe.P3EachNewInTurnDecides (0 ms)
+[ RUN      ] R849Probe.P4FailedJoinInRevertsAnAdvertiseLatest
+[       OK ] R849Probe.P4FailedJoinInRevertsAnAdvertiseLatest (0 ms)
+[ RUN      ] R849Probe.P5AdvertiseJoinMtReplacesFailed
+[       OK ] R849Probe.P5AdvertiseJoinMtReplacesFailed (0 ms)
+[ RUN      ] R849Probe.P6OlderFailedLeaveIsQuiet
+[       OK ] R849Probe.P6OlderFailedLeaveIsQuiet (0 ms)
+[ RUN      ] R849Probe.P7NewThenReplacingJoinInInOneMrpdu
+[       OK ] R849Probe.P7NewThenReplacingJoinInInOneMrpdu (0 ms)
+[ RUN      ] R849Probe.P8TwoBindingsBeforeRegistrationsShareTheLatest
+[       OK ] R849Probe.P8TwoBindingsBeforeRegistrationsShareTheLatest (0 ms)
+[ RUN      ] R849Probe.P9LatestLeavesAndReturns
+[       OK ] R849Probe.P9LatestLeavesAndReturns (0 ms)
+[ RUN      ] R849Probe.P10RebindInPlaceKeepsLatest
+[       OK ] R849Probe.P10RebindInPlaceKeepsLatest (0 ms)
+[ RUN      ] R849Probe.P11NonDomainVidObservation
+P11 path=New desired=2 declared=2 kinds=3: [+170ms ev=0 sub=2] [+360ms ev=0 sub=2] [+550ms ev=3 sub=2]
+P11 path=JoinIn desired=2 declared=2 kinds=2: [+190ms ev=0 sub=2] [+380ms ev=0 sub=2] [+570ms ev=3 sub=2]
+[       OK ] R849Probe.P11NonDomainVidObservation (0 ms)
+[ RUN      ] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1880: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+P12 after the reset a Failed New decides
+
+  [FAIL] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest: P12 after the reset a Failed New decides
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1881: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\x2' (2)
+  subtype
+    Which is: 1
+P12 after the reset a Failed New decides
+
+  [FAIL] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest: P12 after the reset a Failed New decides
+$REVIEWS/925-r849-2-packet/scratch/r849-out/renew-if2/ctrl/test/srp_mbx.cpp:1887: Failure
+Value of: sent
+  Actual: false
+Expected: true
+P12 after the reset a Failed New decides: on the wire within a JoinTime
+
+  [FAIL] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest: P12 after the reset a Failed New decides: on the wire within a JoinTime
+[  FAILED  ] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest (0 ms)
+[----------] 12 tests from R849Probe (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 2 test suites ran. (10 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[  FAILED  ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered
+[  FAILED  ] R849Probe.P3EachNewInTurnDecides
+[  FAILED  ] R849Probe.P12ResetDuringConflictLeavesNoStaleLatest
+
+ 4 FAILED TESTS
+== ctrl SRP mailbox: checks: 23   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 23 checks, exit 1)
+probe rc=1 interfaces=2 plant=r849-renew-not-recorded

@@ -1,0 +1,37 @@
+Note: Google Test filter = SrpTalkerKinds.ReviewMinimal*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ReviewMinimalTrailingDomain
+OBS latest=2 trailing=0 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=2
+OBS first_matching_wire_ms=0
+OBS latest=2 trailing=1 start_ms=1400 desired=2 feedback=2 declared_after_JoinTime=2
+OBS first_matching_wire_ms=0
+OBS latest=1 trailing=0 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=1
+OBS first_matching_wire_ms=0
+OBS latest=1 trailing=1 start_ms=1400 desired=1 feedback=1 declared_after_JoinTime=1
+OBS first_matching_wire_ms=0
+[       OK ] SrpTalkerKinds.ReviewMinimalTrailingDomain (1 ms)
+[----------] 1 test from SrpTalkerKinds (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = SrpFeedback.ReviewNew*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpFeedback
+[ RUN      ] SrpFeedback.ReviewNewAndDomainExposeDifferentWireViews
+OBS start_ms=1400 now_ms=1590 ACMP_REGISTERING_FAILED=0 desired=2 declared=2
+[       OK ] SrpFeedback.ReviewNewAndDomainExposeDifferentWireViews (0 ms)
+[----------] 1 test from SrpFeedback (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)

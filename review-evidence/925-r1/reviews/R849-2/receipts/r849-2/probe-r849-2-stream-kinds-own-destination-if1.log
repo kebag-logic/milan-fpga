@@ -1,0 +1,86 @@
+Note: Google Test filter = SrpTalkerKinds.R8492*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.R8492WithdrawalBeforeAMessageThatChangesNothingIsSentWithinAJoinTime
+[       OK ] SrpTalkerKinds.R8492WithdrawalBeforeAMessageThatChangesNothingIsSentWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2148: Failure
+Expected equality of these values:
+  adapter.held_count
+    Which is: '\0'
+  1u
+    Which is: 1
+held whatever its last binding's destination
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: held whatever its last binding's destination
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2151: Failure
+Expected equality of these values:
+  sink(0).desired
+    Which is: '\x1' (1)
+  latest
+    Which is: 2
+the latest decides again
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: the latest decides again
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2152: Failure
+Expected equality of these values:
+  sink(0).declared
+    Which is: '\x1' (1)
+  latest
+    Which is: 2
+the latest decides again
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: the latest decides again
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2153: Failure
+Expected equality of these values:
+  sink(0).feedback_kind
+    Which is: '\x1' (1)
+  latest
+    Which is: 2
+ACMP sees the latest
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: ACMP sees the latest
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2154: Failure
+Expected equality of these values:
+  d.subtype
+    Which is: 1
+  latest
+    Which is: 2
+the latest on the wire
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: the latest on the wire
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2154: Failure
+Expected equality of these values:
+  d.subtype
+    Which is: 1
+  latest
+    Which is: 2
+the latest on the wire
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: the latest on the wire
+$REVIEWS/925-r849-2-packet/scratch/probe-r849-2-stream-kinds-own-destination-if1/ctrl/test/srp_mbx.cpp:2148: Failure
+Expected equality of these values:
+  adapter.held_count
+    Which is: '\0'
+  1u
+    Which is: 1
+held whatever its last binding's destination
+
+  [FAIL] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest: held whatever its last binding's destination
+[  FAILED  ] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest (0 ms)
+[ RUN      ] SrpTalkerKinds.R8492AResetEndsEveryHoldOfItsInterface
+[       OK ] SrpTalkerKinds.R8492AResetEndsEveryHoldOfItsInterface (0 ms)
+[----------] 3 tests from SrpTalkerKinds (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpTalkerKinds.R8492FinalUnbindingOfAnotherDestinationKeepsTheLatest
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)
+probe rc=1 interfaces=1 plant=r849-2-stream-kinds-own-destination

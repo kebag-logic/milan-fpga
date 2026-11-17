@@ -1,0 +1,18 @@
+wrote $REVIEWS/925-r849-2-packet/scratch/r850-run/scratch/rebind-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/925-r849-2-packet/scratch/r850-run/scratch/rebind-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/925-r849-2-packet/scratch/r850-run/scratch/rebind-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = SrpTalkerKinds.ReviewRebinding*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind
+OBS rebind registered=3 latest=2 desired=2 declared=2
+[       OK ] SrpTalkerKinds.ReviewRebindingDoesNotChangeTheRegisteredKind (0 ms)
+[----------] 1 test from SrpTalkerKinds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
