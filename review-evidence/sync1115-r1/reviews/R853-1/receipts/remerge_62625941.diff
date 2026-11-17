@@ -1,0 +1,270 @@
+62625941277104981a1b117eaaf32f6da54f271b 659d76871221847cfcdaad0ff01e860c2583fd56 6b66f66d89cf25d2717687bcc2c3bf617685a99a
+
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+remerge CONFLICT (content): Merge conflict in docs/design/MAILBOX_SPLIT.md
+index 64a8f6d712..65601d00ff 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -1,24 +1,6 @@
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
+ 
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-Status: **F0 implemented behind a default-off build switch.** The all-fabric
+-build is unchanged and remains the shipping image. This page is the design
+-of the contract between the fabric and the bare-metal control-plane firmware.
+-The split integrates before P3; milestone 13 retains the hard-core port.
+-Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
+-tests and the co-simulation build; no image links that firmware yet.
+-Lane F-INT adds the [publication block](#the-publication-block) (contract
+-2.2), where the firmware owner writes the class-D state the split placement's
+-datapath reads; nothing reads it until the placement switch lands.
+-Lane S1 adds [the processor's other faces](#the-processors-other-faces)
+-(contract 2.3): every port of the processor wrapper in one class, and the face
+-block, windows and events that carry what the split datapath still reads.
+-Lane S6 adds [the placement switch](#the-placement-switch): `CTRL_SPLIT_P`
+-builds the datapath without the processor, and the `--ctrl-mailbox` SoC
+-connects the mailbox to it.
+-The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+-=======
+ Status: **F0 implemented behind a default-off build switch.**
+ The all-fabric build is unchanged and remains the shipping image.
+ 
+@@ -37,8 +19,16 @@ There the firmware owner writes the class-D state.
+ The split placement's datapath reads that state.
+ Nothing reads it until the placement switch lands.
+ 
++Lane S1 adds [the processor's other faces](#the-processors-other-faces), contract 2.3.
++Every port of the processor wrapper is in one class.
++
++The face block, windows and events carry what the split datapath still reads.
++Lane S6 adds [the placement switch](#the-placement-switch).
++
++`CTRL_SPLIT_P` builds the datapath without the processor.
++The `--ctrl-mailbox` SoC connects the mailbox to it.
++
+ The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ All-fabric stays the shipping default until F2 to F5 acceptance.
+ 
+ That acceptance covers all streams, counters and the audio soak.
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+remerge CONFLICT (content): Merge conflict in docs/design/MARK_II_AREA_PLAN.md
+index 7d0826a58e..34baaf33ca 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -33,33 +33,13 @@ This page changes documentation only.
+ 
+ ## Summary
+ 
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-- **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
+-  The [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) record already includes the third processor adoption.
+-  Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
+-- **Default split:** ADP, ACMP, MAAP, SRP and AECP move to firmware.
+-  F1 supplies saved-state read, apply and write-back.
+-  Shipping defaults wait for F2-F5 suites and bench acceptance.
+-- **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
+-  This includes the measured 3,102-LUT mailbox cost.
+-  The [integrated split route](#m8a-2-the-integrated-split-route) measures 29,377 LUTs at the shipping shape after its third round of mailbox timing cuts, and meets the timing floor: +0.274 ns at the recipe's directive.
+-- **Estimated finish:** the [ledger](#ledger) reaches 31,667 LUTs centrally.
+-  Its conservative combined estimate is 35,867, below 38,040.
+-  These arithmetic scenarios are not fit or timing evidence.
+-- **No double counting:** M3/M10 receive zero default-image credit.
+-  Their AECP hardware leaves with F5.
+-  M4 is replaced by the split; diagnostics remain enabled.
+-- **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 54 at the largest shape, and M8a-2 maps the target platform's 57.5, owed to lane S14.
+-  The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
+-  Its reuse and packing assumptions require routed confirmation.
+-- **Qualification risk:** F5, target service timing and bench acceptance remain.
+-  M8's smaller core must pass capture, boot and split-load bounds.
+-  Every function lacking qualification retains its fabric placement.
+-=======
+ - **Target:** under 20,000 LUTs at 32x32.
+   Below 20,000 is a ceiling, not the goal ([D10](#mark-ii-decisions)).
+ - **Measured basis:** 52,008 LUTs, 87.5 tiles, 13 DSP.
+   Placed and routed at the 1x1 shipping shape, 2026-10-31.
++- **Measured split route:** 29,377 LUTs at the 1x1 shipping shape ([M8a-2](#m8a-2-the-integrated-split-route)).
++  It meets the timing floor: +0.274 ns at the recipe's directive.
++  Its firmware maps 57.5 tiles at the largest shape, owed to lane S14.
+ - **Start estimate:** about 31.0k LUTs once the processor leaves.
+   The owner's 34.2k counted the CPU twice ([lever 4](#lever-4-accounting)).
+ - **The six owner levers** then reach about 21.0k centrally.
+@@ -72,7 +52,6 @@ This page changes documentation only.
+   The usable ceiling is 121.5 tiles.
+ - **No fabric fallback.** The processor and fabric gPTP are deleted.
+   Each goes at its own switch-over ([split](../ARCHITECTURE_HW_SW_SPLIT.md#transition-and-deletion)).
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ 
+ ## Target
+ 
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+remerge CONFLICT (content): Merge conflict in docs/diagrams/PNG_MANIFEST.json
+index 02269de2f4..e490c2f8e7 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,15 +9,9 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1936,
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-      "raster_sha256": "4caf73b4760ae3012b3d5c76b53719d495fa62c505db59582fbc071c98de2999",
++      "raster_sha256": "0e8b21e6551ff4a207bad5b3376fc4d23cc09e2a0d866053212ea5703e58c92f",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "6ee29bfbdcdffc0eb237761986aa0942725d71a1983170ba419529a6cf200156",
+-=======
+-      "raster_sha256": "d5fda4ee2d08916e09c5e2a9dd56c5c9cfec4162393486201d2f2347480d6fed",
+-      "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "d8a9b1869cd5d6b2727130c979f7939b6a49c88a6d6f52bb5f3d505407a75128",
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
++      "source_sha256": "348cd17defb1d5630aca39f7d5b86d42c645eb97c67c63f76d7ac4a9d2352a5f",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+diff --git a/docs/diagrams/flash_layout.png b/docs/diagrams/flash_layout.png
+remerge warning: Cannot merge binary files: docs/diagrams/flash_layout.png (659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894)) vs. 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide))
+remerge CONFLICT (content): Merge conflict in docs/diagrams/flash_layout.png
+index ff2a37b7cc..010948d0d5 100644
+Binary files a/docs/diagrams/flash_layout.png and b/docs/diagrams/flash_layout.png differ
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+remerge CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.drawio
+index 33a33af79a..4ba5096652 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1,5 +1 @@
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin a9e84b66d4cd&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 135afd043309&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="290" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-tsn-c-stack" value="&lt;b&gt;CORE STACK&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/tsn-c-stack&lt;/b&gt;&lt;br&gt;Portable ADP, ACMP and MAAP cores&lt;br&gt;&lt;br&gt;pin 715589c1db7c&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/acmp/&lt;br&gt;acmp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E0F2F1;strokeColor=#00695C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="790" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge6" value="C cores" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-tsn-c-stack" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1110" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+-=======
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 801ef2283ec7&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 1616fc8f062f&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="290" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-tsn-c-stack" value="&lt;b&gt;CORE STACK&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/tsn-c-stack&lt;/b&gt;&lt;br&gt;Portable ADP, ACMP and MAAP cores&lt;br&gt;&lt;br&gt;pin 70936b77dc41&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/acmp/&lt;br&gt;acmp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E0F2F1;strokeColor=#00695C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="790" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge6" value="C cores" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-tsn-c-stack" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1110" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 801ef2283ec7&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 1616fc8f062f&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="290" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-tsn-c-stack" value="&lt;b&gt;CORE STACK&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/tsn-c-stack&lt;/b&gt;&lt;br&gt;Portable ADP, ACMP and MAAP cores&lt;br&gt;&lt;br&gt;pin 715589c1db7c&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/acmp/&lt;br&gt;acmp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E0F2F1;strokeColor=#00695C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="790" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge6" value="C cores" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-tsn-c-stack" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1110" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+remerge warning: Cannot merge binary files: docs/diagrams/submodule_boundaries.png (659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894)) vs. 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide))
+remerge CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.png
+index ac8911191f..e4bb2fb307 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+remerge CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+index f6ab8785cb..915be260fb 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -325,15 +325,9 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
+ ### 3.4 Fabric scale-out and future ports
+ | ID | Requirement | Pri | Ver |
+ |----|-------------|-----|-----|
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-| NFR-SCOUT-01 | The release architecture MUST use one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+-| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+-| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 20 ms, approved by the owner on 2026-10-29, or its family's normative 10 % ceiling where that is tighter: its bound is min(T_svc, ceiling), under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
+-=======
+-| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement (firmware only after the switch-over). Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
++| NFR-SCOUT-01 | The release architecture MUST use one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement (firmware only after the switch-over). Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+ | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the end state ([owner decision on #665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321), 2026-10-31). Until that firmware passes its suites and the bench qualification for all streams, counters and audio soak, a build switch keeps the all-fabric processor as the shipping default; at the switch-over the processor is deleted, with no dual maintenance. Each function MUST have one state owner. Framing, timestamps on both ports, ingress filtering and media MUST remain fabric-owned. Lever 5 of the [area plan](../design/MARK_II_AREA_PLAN.md#open-owner-decisions) (the MMCM servo in firmware) would move media-clock control to firmware; that conflicts with this row and with NFR-SCOUT-03's audio rule, and it is an open owner decision. gPTP moves to firmware under #665 F6 ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255)), as `flexptpd` ([17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658)); the fabric gPTP plane stays its owner until F6 passes the gPTP qualification, and then leaves. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+-| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. gPTP deadlines MUST do so while the fabric plane owns gPTP; under #665 F6 each gPTP path MUST state and test its firmware service bound, with the hardware timestamps kept in fabric. | M | A,T |
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
++| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 20 ms, approved by the owner on 2026-10-29, or its family's normative 10 % ceiling where that is tighter: its bound is min(T_svc, ceiling), under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. gPTP deadlines MUST do so while the fabric plane owns gPTP; under #665 F6 each gPTP path MUST state and test its firmware service bound, with the hardware timestamps kept in fabric. | M | A,T |
+ | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
+ | NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for the current release (#394, FR-MVU-03). Mark II adopts Section 8 redundancy at the 32x32 shape: one entity with a Primary and a Secondary AVB interface, each logical stream a redundant pair ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753), 2026-10-31). Its design is the [stream-engine page](../design/MARK_II_STREAM_ENGINES.md#redundancy-pairing-and-listener-merge), approved before any RTL lane opens; FR-MVU-03 holds until that implementation lands. | S | A,D |
+ | NFR-SCOUT-06 | Increasing stream or endpoint instance counts MUST NOT change the CSR register definitions or end-station configuration schema. | M | I |
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+remerge CONFLICT (content): Merge conflict in sw/builder/endstation_builder.py
+index a2aa44f61f..c14939c481 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -6293,11 +6293,8 @@ def build(config_path: str, outdir: str | None = None,
+                 adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
+                 aem_rom_unsupported=art.aem_rom_why,
+                 interface_params=art.iparams, platform=art.shape,
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-                nvm_split=art.nvm_split, paths=paths)
+-=======
++                nvm_split=art.nvm_split,
+                 warnings=identity_warnings(cfg), paths=paths)
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ 
+ 
+ def main() -> None:
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/Makefile
+index f32106b097..93c3887392 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -754,11 +754,7 @@ ax1x1gptp-extended: ax1x1gptp
+ # One inventory owns default execution and CI selection.
+ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+ PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split
+-=======
+-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 bootsa
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
++ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
+ SUFFIX_CASES = render-mutants
+ CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+ $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+@@ -781,11 +777,8 @@ CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipp
+ CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
+ CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
+ CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+ CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
+-=======
+ CASE_OPTIONS_bootsa = --banner "---- \#839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----" ./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ 
+ # Keep the original ordered build and bounded simulation phases.
+ # Each selected CI invocation prepares shared inputs before building cases.
+@@ -1225,8 +1218,4 @@ counters-mutants: | stack-pin
+ 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
+ 
+ clean:
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+-=======
+-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
++	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/README.md
+index 37259c57b9..11c6d1797e 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -108,13 +108,10 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+ - **[The #858 ENTITY available_index (the AIDX section of obj_notify)](#the-858-entity-available_index-the-aidx-section-of-obj_notify)** -- READ_DESCRIPTOR(ENTITY)'s available_index against the last ENTITY_AVAILABLE on the wire, through advertisements, a departure and a re-enable, with its four planted arms
+ - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+ - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
+ - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
+ - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-six plants, four controls, two off-grid controls and twelve code mutants
+-=======
+ - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -1168,7 +1165,6 @@ reference boot over the format record alone. At 8x8 the three stages held
+ the faces about 13,700 clocks, past the processor's 4,096-clock gather
+ watchdog; that stays open with the other 8x8 obligations (D3 18.4).
+ 
+-<<<<<<< 659d768712 (Merge PR #902: Serve the split's control loop in tiers so 1x1/1if rows hold by every source (#894))
+ ## The split placement's control path (`obj_split`, #665)
+ 
+ `make split` builds `tb_split_top.sv` and runs `sim_split.cpp`. The top
+@@ -1787,7 +1783,7 @@ make -C tb/verilator/milan_dp srptx
+ make -C tb/verilator/milan_dp srptx-plants
+ make -C tb/verilator/milan_dp srptx-mutants
+ ```
+-=======
++
+ ## The #839 station MAC from reset (`obj_bootsa`)
+ 
+ The defect: the processor's SRP engine runs from reset. The firmware writes
+@@ -1914,7 +1910,6 @@ frame's source. The others:
+   own check.
+ 
+ What it does not grade: `nvm_boot()`'s own CSR traffic.
+->>>>>>> 6b66f66d89 (Merge PR #913: XC7A200T variant of the ALINX board: build, flash layout and JTAG flashing guide)
+ 
+ ## GM step re-base leg (#387)
+ 

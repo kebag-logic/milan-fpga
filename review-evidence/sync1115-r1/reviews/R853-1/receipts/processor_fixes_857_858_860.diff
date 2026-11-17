@@ -1,0 +1,1748 @@
+# processor fixing changes a9e84b66..801ef228 for #857/#858/#860
+== db131cb2bb24dae34c21aea7aafb5ca8d8b026b4 Serve the last ENTITY_AVAILABLE's available_index in READ_DESCRIPTOR(ENTITY) from ADP, per the command's interface (issue #217)
+
+diff --git a/hdl/adp/KL_adp_engine.sv b/hdl/adp/KL_adp_engine.sv
+index 021d1b1..0d6fd28 100644
+--- a/hdl/adp/KL_adp_engine.sv
++++ b/hdl/adp/KL_adp_engine.sv
+@@ -175,6 +175,11 @@ module KL_adp_engine
+     //! txreq_valid_o (the top's REBOOT sequence waits on it after
+     //! SHUTDOWN, issue #203)
+     output logic                       tx_busy_o,
++    //! per interface, the available_index the last ENTITY_AVAILABLE handed to
++    //! txreq_valid_o carried: 0 from reset and from each ENTITY_DEPARTING
++    //! (IEEE 1722.1-2021 6.2.2.15). The ENTITY descriptor serves it
++    //! (Table 7-2, issue #217); interface 0 in the low word
++    output logic [N_IF_P*32-1:0]       last_avail_index_o,
+ 
+     // ---- ACMP binding view (07 §4 sink records; plain face) ---------------
+     input  wire  [N_SINK_P-1:0]        bound_i,            //! sink is bound (discovery SM armed)
+@@ -960,6 +965,27 @@ module KL_adp_engine
+   assign bld_done_dep_w   = (bld_st_r == B_REQ) && bld_dep_r;
+   assign bld_done_if_w    = bld_if_r;
+ 
++  //! The value the ENTITY descriptor reports (IEEE 1722.1-2021 Table 7-2:
++  //! "the same as the available_index field in ATDECC Discovery Protocol";
++  //! issue #217): what the last ENTITY_AVAILABLE put on the wire, so 0 after
++  //! the first and N-1 after N. aidx_r is the NEXT frame's value and cannot
++  //! stand in for it: it reads 1 after the first frame and 0 after a
++  //! DEPARTING. Taken from the builder's own sample (bld_aidx_r, the wire
++  //! field) on the cycle the frame is handed to TX, and cleared with the
++  //! index on the cycle a DEPARTING is (6.2.2.15: reset to zero when
++  //! transmitting an ENTITY_DEPARTING). Nothing on the wire reads it.
++  logic [31:0] last_aidx_r [N_IF_P];
++
++  always_ff @(posedge clk_i) begin : last_avail_index
++    if (!rst_n) begin
++      for (int unsigned i = 0; i < N_IF_P; i++) last_aidx_r[i] <= 32'd0;
++    end else if (bld_done_avail_w) begin
++      last_aidx_r[bld_done_if_w] <= bld_aidx_r;
++    end else if (bld_done_dep_w) begin
++      last_aidx_r[bld_done_if_w] <= 32'd0;
++    end
++  end
++
+   // ==================================================== timer-port muxing
+   // Single arm/cancel port toward KL_pp_timer_service. Priority: the
+   // discovery iteration (must never stall) > unbind NOADP cancels >
+@@ -1091,6 +1117,11 @@ module KL_adp_engine
+     end
+   end
+ 
++  always_comb begin : last_avail_flatten
++    for (int unsigned i = 0; i < N_IF_P; i++)
++      last_avail_index_o[32*i +: 32] = last_aidx_r[i];
++  end
++
+   // -------------------------------------------------------- observability
+   always_comb begin : dbg_flatten
+     for (int unsigned i = 0; i < N_IF_P; i++) begin
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 0e811a1..2e92286 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -578,6 +578,14 @@ module KL_aecp_engine
+     input  wire [N_STREAM_IN_P-1:0]  strm_bound_i,
+     input  wire [N_STREAM_IN_P-1:0]  strm_started_i,
+ 
++    //! ---- the ENTITY descriptor's available_index (issue #217) ----------
++    //! IEEE 1722.1-2021 Table 7-2: "the same as the available_index field in
++    //! ATDECC Discovery Protocol" (6.2.2.15), so not the image's constant: the
++    //! value the last ENTITY_AVAILABLE carried on the running command's
++    //! interface (KL_adp_engine last_avail_index_o, selected at the top).
++    //! E_RDESCENT gathers it into descriptor octet 36.
++    input  wire  [31:0] adp_avail_index_i,
++
+     //! ---- started/stopped request out (Milan §5.4.2.19 / §5.4.2.20) -----
+     //! One held request per START/STOP_STREAMING, aimed at the ACMP binding
+     //! record that owns the bit. Completion means the record has committed
+@@ -1073,6 +1081,9 @@ module KL_aecp_engine
+   logic        stop_r;                   // ... a STOP_STREAMING
+   logic        strm_r;                   // ... either of the two
+   logic        rboot_r;                  // ... a REBOOT
++  //! ... a READ_DESCRIPTOR(ENTITY) re-dispatched to E_RDESCENT: its one
++  //! gather is ADP's available_index (issue #217)
++  logic        rdent_r;
+   //! issue #203: a REBOOT's SUCCESS response reached its TX grant; set until
+   //! reset, it keeps every later command in its queue (A_IDLE, txn_ready_o)
+   logic        rbt_hold_r;
+@@ -2248,8 +2259,11 @@ module KL_aecp_engine
+   assign gsi_any_w = gstri_r | gavb_r | gasp_r | gsfmt_r | ssfmt_r | ssinfo_r;
+   assign rgy_any_w = regun_r | lockc_r | eavl_r;
+   assign strm_state_w = (strt_r || stop_r) && (gx_sel_w[7:4] == 4'hD);
++  //! READ_DESCRIPTOR(ENTITY)'s one gather is ADP's available_index (issue
++  //! #217), the engine's own input like strm_state_w's bits: E_RDESCENT is
++  //! the only program run with rdent_r set, so the flag alone routes it
+   assign gx_alt_w  = amap_r | amap_edit_r | sname_r | rgy_any_w | gsi_any_w
+-                     | strm_state_w;
++                     | strm_state_w | rdent_r;
+ 
+   assign ctr_req_o        = gx_req_w && !gx_alt_w;
+   assign ctr_desc_type_o  = cfg_ix_r;
+@@ -2464,6 +2478,7 @@ module KL_aecp_engine
+                                                          >> desc_ix_r)}
+                                               : 64'd0)
+                    : gsi_any_w            ? (gsi_missing_w ? 64'd0 : gsi_data_i)
++                   : rdent_r              ? {32'd0, adp_avail_index_i}
+                                           : {32'd0, ctr_data_i};
+     end
+   end
+@@ -2801,6 +2816,7 @@ module KL_aecp_engine
+       stop_r       <= 1'b0;
+       strm_r       <= 1'b0;
+       rboot_r      <= 1'b0;
++      rdent_r      <= 1'b0;
+       rbt_hold_r   <= 1'b0;
+       setc_r       <= 1'b0;
+       gdi_r        <= 1'b0;
+@@ -2895,6 +2911,7 @@ module KL_aecp_engine
+               stop_r     <= stop_w;
+               strm_r     <= strm_w;
+               rboot_r    <= rboot_w;
++              rdent_r    <= 1'b0;
+               setc_r     <= setc_w;
+               gdi_r      <= gdi_w;
+               setval_r   <= 64'd0;
+@@ -2995,6 +3012,7 @@ module KL_aecp_engine
+             stop_r     <= (uns_kind_i == PP_UNS_STRM_C) && uns_arg0_i[0];
+             strm_r     <= (uns_kind_i == PP_UNS_STRM_C);
+             rboot_r    <= 1'b0;
++            rdent_r    <= 1'b0;
+             setc_r     <= 1'b0;
+             gdi_r      <= 1'b0;
+             g_shape_fault_r <= 1'b0;
+@@ -3336,8 +3354,9 @@ module KL_aecp_engine
+                 && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
+                 && (cmd_r.cdl >= 11'd20)
+                 && (desc_ty_r == DT_ENTITY_C)) begin
+-              upc_r  <= UPC_RDESCENT_C;
+-              echo_r <= 1'b0;
++              upc_r   <= UPC_RDESCENT_C;
++              echo_r  <= 1'b0;
++              rdent_r <= 1'b1;
+             end
+             //! READ_DESCRIPTOR(CONTROL) carries the IDENTIFY value (issue
+             //! #185): E_RDESCCT puts what GET_CONTROL reads in value_details'
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index 8e97aad..320979f 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -379,6 +379,14 @@ DT_STREAM_PORT_OUTPUT = 0x000F
+ #                                     reachable into a register)
+ ENT_CURCFG_LANE = 304     # ENTITY: gen_aem_store.py d_entity, total 312 B
+ ENT_DESC_LEN = 312        # IEEE 1722.1-2021 §7.2.1 ENTITY descriptor size
++ENT_AIDX_OFF = 36         # IEEE 1722.1-2021 Table 7-2 available_index, 4 B
++ENT_AIDX_TAIL = 40        # its lane ends: association_id opens lane 40..47
++#! READ_DESCRIPTOR(ENTITY)'s available_index (issue #217): ADP's, the index the
++#! last ENTITY_AVAILABLE carried (Table 7-2: "the same as the available_index
++#! field in ATDECC Discovery Protocol", 6.2.2.15), as {32'd0, index}. The
++#! engine routes the gather by command (its rdent_r), so the selector names
++#! the face for the reader alone, as 0xD names the started bit's.
++GX_ADP_AIDX = dict(cnd=0xE, imm=0)   # -> sel 0xE0
+ AU_RATE_OFF = 136         # AUDIO_UNIT: `assert len(b) == 144` after the count
+ CD_SRCIDX_LANE = 64       # CLOCK_DOMAIN: wb["CLOCK_SRC_IDX"] = base + 70
+ CD_SRCCNT_LANE = 72       # CLOCK_DOMAIN: clock_sources_offset @72, count @74
+@@ -773,11 +781,20 @@ place(E_RDSTUB, [
+ #
+ # The overlay is deliberately an assembly operation, not a write into the
+ # descriptor image: the image remains read-only, other descriptor reads remain
+-# byte-exact, and a failed SET cannot leak its rejected argument. COPY_BUF
+-# accepts the 310-byte residual exactly; its final partial lane writes bytes
+-# beyond resp_len, which are never emitted. A noncanonical ENTITY length falls
+-# back to E_RDESC so this overlay cannot truncate an image it does not
+-# understand.
++# byte-exact, and a failed SET cannot leak its rejected argument. A
++# noncanonical ENTITY length falls back to E_RDESC so this overlay cannot
++# truncate an image it does not understand.
++#
++# The same assembly carries available_index (issue #217): IEEE 1722.1-2021
++# Table 7-2 makes it "the same as the available_index field in ATDECC
++# Discovery Protocol", which 6.2.2.15 increments after each ENTITY_AVAILABLE
++# and resets when ENTITY_DEPARTING is sent, so the image's 0 is right only
++# until the second advertisement. The engine gathers the value the last
++# ENTITY_AVAILABLE carried (GX_ADP_AIDX). COPY_BUF lays bytes 0..35, its
++# partial final lane overwritten by the 4-byte index at 36; COPY_BUF TAIL
++# copies 40..309 from the next lane boundary, 270 bytes of the 310 in r8,
++# its final partial lane overwritten by current_configuration and the rest
++# beyond resp_len, never emitted.
+ place(E_RDESCENT, [
+     u('MOVE', rd=12, ra=0, imm=0),               # reserved @26
+     u('READ_ST', rd=9, imm=RGN_NCFG),            # configurations_count
+@@ -797,15 +814,20 @@ place(E_RDESCENT, [
+     u('BRANCH', imm=E_RDESCENT + 17),
+     u('READ_ST', rd=1, imm=RGN_DATA + ENT_CURCFG_LANE),
+     u('NOP', imm=1),                             # image-read writeback seam
++    u('GATHER_EXT', rd=2, **GX_ADP_AIDX),        # E_RDESCENT + 17: ADP's index
++    u('MOVE', rd=7, ra=0, imm=ENT_AIDX_OFF),     # prefix length 36
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+     u('BUILD_FLD', ra=14, fmt=FMT_W),            # configuration_index @24
+     u('BUILD_FLD', ra=12, fmt=FMT_W),            # reserved @26
+-    u('COPY_BUF', ra=8, imm=RGN_DATA),           # ENTITY bytes 0..309
++    u('COPY_BUF', ra=7, imm=RGN_DATA),           # ENTITY bytes 0..35
++    u('BUILD_FLD', ra=2, fmt=FMT_D),             # available_index 36..39
++    u('COPY_BUF', ra=8, cnd=TAIL, imm=RGN_DATA + ENT_AIDX_TAIL),  # 40..309
+     u('BUILD_FLD', ra=1, fmt=FMT_W),             # current_configuration
+     u('SEND_RESP'),
+     u('END'),
+ ])
++assert rom[E_RDESCENT + 17] == u('GATHER_EXT', rd=2, **GX_ADP_AIDX)
+ 
+ # --- BAD_ARGUMENTS with the command echoed (IEEE §7.4.39.2) ------------------
+ # IDENTIFY_NOTIFICATION as a COMMAND, and a truncated READ_DESCRIPTOR. The
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 1489be6..775f474 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1088,6 +1088,12 @@ module protocol_processor_top
+   //! wants to publish. Full width: see the port comment. The port carries
+   //! interface 0's whatever P-N-AVB-INTERFACES is (see the banner).
+   assign adp_next_avail_index_o = adp_dbg_aidx_nc_w[31:0];
++  //! The available_index each interface's last ENTITY_AVAILABLE carried, 0
++  //! from reset and from an ENTITY_DEPARTING (IEEE 1722.1-2021 6.2.2.15),
++  //! interface 0 in the low word; and the one the ENTITY descriptor serves
++  //! (Table 7-2, issue #217), selected below for the command being run.
++  logic [N_AVB_IF_P*32-1:0] adp_last_aidx_w;
++  logic [31:0]              aecp_adp_aidx_w;
+ 
+   logic        prng_req_w;
+   logic [2:0]  prng_kind_w;
+@@ -2109,6 +2115,7 @@ module protocol_processor_top
+       .txreq_slot_o          (adp_txreq_slot_w),
+       .txreq_if_o            (adp_txreq_if_nc_w),
+       .tx_busy_o             (adp_tx_busy_w),
++      .last_avail_index_o    (adp_last_aidx_w),
+       .bound_i               (bound_r),
+       .bound_talker_eid_i    (bound_eid_r),
+       .evt_valid_o           (adp_evt_valid_w),
+@@ -4043,6 +4050,7 @@ module protocol_processor_top
+       .gsi_wait_i         (aecp_gsi_wait_w),
+       .strm_bound_i       (bound_hold_r),
+       .strm_started_i     (aecp_strm_started_o),
++      .adp_avail_index_i  (aecp_adp_aidx_w),
+       .strm_streaming_i   (aecp_streaming_w),
+       .lock_held_i        (ntfy_lock_held_w),
+       .lock_ctlr_i        (ntfy_lock_ctlr_w),
+@@ -4137,6 +4145,20 @@ module protocol_processor_top
+     end
+   end
+ 
++  //! READ_DESCRIPTOR(ENTITY)'s available_index (issue #217): the index the
++  //! last ENTITY_AVAILABLE carried on the interface the command came in on,
++  //! the same latch as the registry port, so a controller reads the value of
++  //! the advertisements it receives (Milan v1.2 5.6.3 runs one advertise
++  //! machine per interface). One interface, or an index past the last, reads
++  //! interface 0's.
++  if (N_AVB_IF_P > 1) begin : gen_aecp_aidx_cmd_if
++    assign aecp_adp_aidx_w = (32'(aecp_cmd_if_r) < N_AVB_IF_P)
++                             ? adp_last_aidx_w[32*aecp_cmd_if_r +: 32]
++                             : adp_last_aidx_w[31:0];
++  end else begin : gen_aecp_aidx_one_if
++    assign aecp_adp_aidx_w = adp_last_aidx_w[31:0];
++  end
++
+   // =========================================================================
+   // AECP notifications: the registered-controller list + ENTITY lock (06)
+   // =========================================================================
+== f24753337cb8544471673fa9aa5175de87cd613c Give the Domain and each VID a Table 10-3 Applicant decided at tx!, a Registrar per VID and an MVRP LeaveAll with nothing declared, graded end to end and per unit (issue #216)
+
+diff --git a/hdl/srp/KL_srp_domain.sv b/hdl/srp/KL_srp_domain.sv
+index 806a932..8076b26 100644
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -13,7 +13,7 @@
+ //                VID 2} at startup and on every LINK_UP; a received Class A
+ //                Domain declaration with differing parameters is ADOPTED —
+ //                the old declaration is withdrawn (Lv) and the adopted one
+-//                re-declared (New) — with a one-cycle DOMAIN_CHANGE strobe
++//                declared (New!) — with a one-cycle DOMAIN_CHANGE strobe
+ //                and updated class-D levels {class_a_prio, class_a_vid};
+ //                reverts to the defaults on LINK_DOWN ONLY (F10.2: periodic
+ //                and LeaveAll cycles re-join, never revert). Received
+@@ -23,38 +23,40 @@
+ //                so the certified two-class bridge shape (FirstValue
+ //                {5, 2, VID}, NumberOfValues 2) adopts correctly; equality
+ //                matching on FirstValue alone is a wire defect.
+-//                The re-join (periodic and LeaveAll) is the applicant's sJ
+-//                (802.1Q-2018 §10.7.6.3): JoinIn only while the Registrar
+-//                of the declared value is IN, JoinMt in MT or LV. That
+-//                one-bit Registrar follows Table 10-4 with the Milan
+-//                §4.2.7.2.2 cell: a registering event (New, JoinIn,
+-//                JoinMt) of the declared value sets IN; its Lv clears IN at
+-//                once; a LeaveAll (received on the Domain lane, or the own
+-//                sLA) clears IN to LV, and LV encodes as MT so no
+-//                leavetimer is kept; LINK_UP and LINK_DOWN clear it. An
+-//                adoption takes the adopted value's Registrar along. A
+-//                re-join is made pending at once for periodic! and for a
+-//                LeaveAll on a tx! clock (tx_tick_i), as the own sLA is; a
+-//                LeaveAll outside one is a received one and waits for the
+-//                next tx!, so a peer's Domain declaration later in its
+-//                MRPDU normally registers first. Servicing a pending
+-//                re-join snapshots the previously registered state into
+-//                the event queue; the queued code keeps its encoding until
+-//                the encoder accepts it, and backpressure can extend the
+-//                drain (issue #184).
++//                The declared value has an 802.1Q-2018 Table 10-3
++//                Applicant (issue #216): LINK_UP (Begin!, New!) and an
++//                adoption (New!) put it in VN, and every message is the
++//                one its state gives at a tx! opportunity (tx_tick_i; the
++//                txLA! row when it is the own sLA's, leaveall_own_i): New
++//                from VN and again from AN, then sJ from AA, nothing from
++//                QA until periodic! (QA -> AA) or a received message or
++//                LeaveAll moves it. sJ is JoinIn only while the Registrar
++//                of the declared value is IN, JoinMt in MT or LV
++//                (§10.7.6.3). That one-bit Registrar follows Table 10-4
++//                with the Milan §4.2.7.2.2 cell: a registering event (New,
++//                JoinIn, JoinMt) of the declared value sets IN; its Lv
++//                clears IN at once; a LeaveAll (received on the Domain
++//                lane, or the own sLA) clears IN to LV, and LV encodes as
++//                MT so no leavetimer is kept; LINK_UP and LINK_DOWN clear
++//                it. An adoption takes the adopted value's Registrar
++//                along. A tx! is served once its message fits the queue,
++//                and tx_done_o strobes when the queue has handed every
++//                message to the encoder, so the round's MRPDU carries it.
+ //
+ //  Decision    : the design decision that matters — Domain transmission is
+ //                independent of gPTP port state STRUCTURALLY: this module
+ //                has no gPTP input to get it wrong (Milan §4.2.7.2.1). The
+-//                Lv-then-New adoption pair rides a two-deep event queue
+-//                toward the encoder so withdrawal and re-declaration stay
+-//                ordered across encoder backpressure; a newer received
+-//                Domain simply overwrites the one-deep adoption-pending
+-//                latch (newest wins) and is applied when the queue drains.
++//                Lv of an adoption and the messages of tx! ride a two-deep
++//                event queue toward the encoder so the order holds across
++//                encoder backpressure; a newer received Domain simply
++//                overwrites the one-deep adoption-pending latch (newest
++//                wins) and is applied when the queue drains.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+-module KL_srp_domain #(
++module KL_srp_domain
++  import srp_pkg::*;
++#(
+     //! default SR class A priority (Milan §4.2.7.2.1 default = 3)
+     parameter logic [7:0]  DEF_PRIO_P = 8'd3,
+     //! default SR class A VID (Milan §4.2.7.2.1 default = 2)
+@@ -64,6 +66,7 @@ module KL_srp_domain #(
+     input  wire         rst_n,               //! synchronous active-low reset
+ 
+     input  wire         link_up_i,           //! link status level (2FF-synced upstream)
++    input  wire         p2p_i,               //! operPointToPointMAC (Table 10-3 notes 4/5); Milan ties 1
+ 
+     // ---- received Domain vector (decoder not yet landed: plain ports) ----
+     input  wire         rxdom_valid_i,       //! one-cycle strobe: Domain vector registered
+@@ -72,11 +75,15 @@ module KL_srp_domain #(
+     input  wire  [15:0] rxdom_vid_i,         //! FirstValue SRclassVID (pinned across the vector)
+     input  wire  [12:0] rxdom_nov_i,         //! NumberOfValues of the vector
+     input  wire         rxdom_lv_i,          //! one-cycle strobe: Domain vector withdrawn (rLv!)
++    input  wire         rxdom_any_i,         //! one-cycle strobe: any attribute event of a Class A Domain value
++    input  wire  [2:0]  rxdom_ev_i,          //! that event (srp_event_e), valid with rxdom_any_i
+ 
+     // ---- MSRP participant cadence (timer expiries via the event router) ---
+-    input  wire         periodic_tick_i,     //! T-MRP-PERIODIC: re-join the declaration
+-    input  wire         leaveall_tick_i,     //! MSRP LeaveAll cycle (own or received): re-declare
++    input  wire         periodic_tick_i,     //! T-MRP-PERIODIC: periodic! (QA -> AA)
++    input  wire         leaveall_tick_i,     //! MSRP LeaveAll (own or received): Registrar to LV, rLA! unless own
++    input  wire         leaveall_own_i,      //! the own sLA, with its tx_tick_i: that tx! takes the txLA! row
+     input  wire         tx_tick_i,           //! MSRP tx! opportunity (join round, own sLA round)
++    output logic        tx_done_o,           //! one-cycle strobe: the tx! is served and its message accepted
+ 
+     // ---- declaration events toward KL_srp_encoder -------------------------
+     output logic        dom_ev_valid_o,      //! event pending, held until ready
+@@ -90,13 +97,13 @@ module KL_srp_domain #(
+     // ---- class-D levels (F02.10) ------------------------------------------
+     output logic [2:0]  class_a_prio_o,      //! operating Class A priority
+     output logic [11:0] class_a_vid_o,       //! operating Class A default VID
+-    output logic        adopted_o            //! 0 = DEFAULTS, 1 = ADOPTED (F10.2 state)
++    output logic        adopted_o,           //! 0 = DEFAULTS, 1 = ADOPTED (F10.2 state)
++
++    // ---- observability ----------------------------------------------------
++    output logic [3:0]  dbg_app_state_o      //! Table 10-3 Applicant state of the declared value
+ );
+ 
+   localparam logic [7:0] CLASS_A_ID_C = 8'd6;
+-  localparam logic [2:0] EV_NEW_C     = 3'd0;
+-  localparam logic [2:0] EV_JOININ_C  = 3'd1;
+-  localparam logic [2:0] EV_JOINMT_C  = 3'd3;
+   localparam logic [2:0] EV_LV_C      = 3'd5;
+ 
+   // ------------------------------------------------------- operating state
+@@ -115,8 +122,14 @@ module KL_srp_domain #(
+   logic        rx_pend_v_r;
+   logic [7:0]  rx_pend_prio_r;
+   logic [15:0] rx_pend_vid_r;
+-  logic        rejoin_pend_r;
+-  logic        rxla_pend_r;   // a received LeaveAll's re-join, held for tx!
++
++  // the declared value's Applicant (Table 10-3), the tx! it owes (served
++  // when its message fits the queue) and the tx! waiting for the queue to
++  // hand its message to the encoder
++  logic [3:0]  app_r;
++  logic        txp_r;
++  logic        txp_la_r;
++  logic        txw_r;
+ 
+   // Registrar of the declared value, and of the pending adoption's value
+   // (1 = IN; 0 = MT or LV, which sJ encodes alike)
+@@ -161,6 +174,33 @@ module KL_srp_domain #(
+     if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
+   end
+ 
++  // Table 10-3 for the declared value, the events of one clock in turn: a
++  // received message of the value, a received LeaveAll (rLA!; the own sLA
++  // is the txLA! row instead), periodic!, then the tx! served this clock,
++  // whose sJ, s and note 8 read the Registrar after the clock's events
++  // (an own LeaveAll's message reads it aged to LV, as Table 10-4 txLA!).
++  logic        tx_serve_w;
++  logic        tx_la_w;
++  logic [3:0]  app_rx_w, app_la_w, app_per_w, app_tx_w, app_nx_w;
++  logic [3:0]  tx_msg_w;
++
++  assign tx_serve_w = (txp_r || tx_tick_i) && !q1_valid_r
++                   && !link_fall_w && !link_rise_w;
++
++  always_comb begin : applicant_next
++    app_rx_w  = (rxdom_any_i && rx_is_decl_w)
++              ? srp_app_rx_next(app_r, rxdom_ev_i, p2p_i) : app_r;
++    app_la_w  = (leaveall_tick_i && !leaveall_own_i && declared_r)
++              ? srp_app_next(app_rx_w, SRP_AE_RLA_C, reg_in_r, p2p_i) : app_rx_w;
++    app_per_w = (periodic_tick_i && declared_r)
++              ? srp_app_next(app_la_w, SRP_AE_PER_C, reg_in_r, p2p_i) : app_la_w;
++    tx_la_w   = txp_la_r || leaveall_own_i;
++    tx_msg_w  = srp_app_msg(app_per_w, tx_la_w, reg_in_nx_w);
++    app_tx_w  = tx_la_w ? srp_app_next(app_per_w, SRP_AE_TXLA_C, reg_in_nx_w, p2p_i)
++                        : srp_app_next(app_per_w, SRP_AE_TX_C, reg_in_nx_w, p2p_i);
++    app_nx_w  = (tx_serve_w && declared_r) ? app_tx_w : app_per_w;
++  end
++
+   always_ff @(posedge clk_i) begin : domain_sm
+     if (!rst_n) begin
+       decl_prio_r         <= DEF_PRIO_P;
+@@ -177,16 +217,21 @@ module KL_srp_domain #(
+       rx_pend_v_r         <= 1'b0;
+       rx_pend_prio_r      <= 8'd0;
+       rx_pend_vid_r       <= 16'd0;
+-      rejoin_pend_r       <= 1'b0;
+-      rxla_pend_r         <= 1'b0;
++      app_r               <= SRP_AP_VO_C;   // Begin!
++      txp_r               <= 1'b0;
++      txp_la_r            <= 1'b0;
++      txw_r               <= 1'b0;
++      tx_done_o           <= 1'b0;
+       reg_in_r            <= 1'b0;
+       pend_in_r           <= 1'b0;
+       evt_domain_change_o <= 1'b0;
+     end else begin
+       evt_domain_change_o <= 1'b0;
++      tx_done_o           <= 1'b0;
+       link_q_r            <= link_up_i;
+       reg_in_r            <= reg_in_nx_w;
+       pend_in_r           <= pend_in_nx_w;
++      app_r               <= app_nx_w;
+ 
+       // ---- queue pop toward the encoder ---------------------------------
+       if (q0_valid_r && dom_ev_ready_i) begin
+@@ -196,7 +241,37 @@ module KL_srp_domain #(
+         q1_valid_r <= 1'b0;
+       end
+ 
+-      // ---- adoption / re-join request capture ---------------------------
++      // ---- tx!: owed until its message fits the queue, then done once the
++      // queue has handed every message to the encoder ---------------------
++      if (tx_tick_i && !tx_serve_w) begin
++        txp_r    <= 1'b1;
++        txp_la_r <= txp_la_r || leaveall_own_i;
++      end
++      if (tx_serve_w) begin
++        txp_r    <= 1'b0;
++        txp_la_r <= 1'b0;
++        txw_r    <= 1'b1;
++        if (declared_r && tx_msg_w[3]) begin
++          // the message goes behind whatever the queue holds (an
++          // adoption's Lv): into q0 when q0 is free or pops this clock (q1
++          // is free whenever a tx! is served)
++          if (!q0_valid_r || dom_ev_ready_i) begin
++            q0_valid_r <= 1'b1;
++            q0_ev_r    <= tx_msg_w[2:0];
++            q0_val_r   <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
++          end else begin
++            q1_valid_r <= 1'b1;
++            q1_ev_r    <= tx_msg_w[2:0];
++            q1_val_r   <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
++          end
++        end
++      end
++      if (txw_r && !tx_serve_w && q_empty_w) begin
++        txw_r     <= 1'b0;
++        tx_done_o <= 1'b1;
++      end
++
++      // ---- adoption request capture -------------------------------------
+       if (rxdom_valid_i && declared_r && covers6_w
+           && ({surf_prio_w, rxdom_vid_i} != {decl_prio_r, decl_vid_r})) begin
+         rx_pend_prio_r <= surf_prio_w;    // newest received Domain wins
+@@ -204,16 +279,6 @@ module KL_srp_domain #(
+         rx_pend_v_r    <= 1'b1;
+         pend_in_r      <= 1'b1;           // registered by this very event
+       end
+-      if ((periodic_tick_i || (leaveall_tick_i && tx_tick_i)) && declared_r) begin
+-        rejoin_pend_r <= 1'b1;            // periodic!, or a LeaveAll on a tx! clock (own sLA)
+-      end
+-      if (leaveall_tick_i && !tx_tick_i && declared_r) begin
+-        rxla_pend_r <= 1'b1;              // a received LeaveAll: wait for tx!
+-      end
+-      if (tx_tick_i && rxla_pend_r) begin
+-        rxla_pend_r   <= 1'b0;
+-        rejoin_pend_r <= 1'b1;
+-      end
+ 
+       // ---- link transitions own the state (F10.2 revert rule) -----------
+       if (link_fall_w) begin
+@@ -226,50 +291,39 @@ module KL_srp_domain #(
+         q0_valid_r    <= 1'b0;
+         q1_valid_r    <= 1'b0;
+         rx_pend_v_r   <= 1'b0;
+-        rejoin_pend_r <= 1'b0;
+-        rxla_pend_r   <= 1'b0;
++        app_r         <= SRP_AP_VO_C;      // the declaration is gone with the link
+         reg_in_r      <= 1'b0;             // Flush!: every Registrar to MT
+         pend_in_r     <= 1'b0;
+       end else if (link_rise_w) begin
+-        // declare the defaults (New) — startup lands here too
+-        q0_valid_r <= 1'b1;
+-        q0_ev_r    <= EV_NEW_C;
+-        q0_val_r   <= {CLASS_A_ID_C, DEF_PRIO_P, DEF_VID_P};
++        // declare the defaults: Begin! then New! (VN) — startup lands here too
++        app_r      <= SRP_AP_VN_C;
+         declared_r <= 1'b1;
+         reg_in_r   <= 1'b0;                // Begin!: nothing registered yet
+         pend_in_r  <= 1'b0;
+-      end else if (rx_pend_v_r && q_empty_w) begin
+-        // adopt: withdraw the old declaration, re-declare the adopted one
++      end else if (rx_pend_v_r && q_empty_w && !tx_serve_w) begin
++        // adopt: withdraw the old declaration, declare the adopted one
+         q0_valid_r          <= 1'b1;
+         q0_ev_r             <= EV_LV_C;
+         q0_val_r            <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
+-        q1_valid_r          <= 1'b1;
+-        q1_ev_r             <= EV_NEW_C;
+-        q1_val_r            <= {CLASS_A_ID_C, rx_pend_prio_r, rx_pend_vid_r};
++        app_r               <= SRP_AP_VN_C;   // New! on the adopted value
+         decl_prio_r         <= rx_pend_prio_r;
+         decl_vid_r          <= rx_pend_vid_r;
+         reg_in_r            <= pend_in_nx_w;  // the adopted value's Registrar
+         adopted_r           <= 1'b1;
+         rx_pend_v_r         <= 1'b0;
+         evt_domain_change_o <= 1'b1;
+-      end else if (rejoin_pend_r && declared_r && q_empty_w) begin
+-        // periodic / LeaveAll re-join of the standing declaration: sJ
+-        // against the Registrar state (802.1Q §10.7.6.3)
+-        q0_valid_r    <= 1'b1;
+-        q0_ev_r       <= reg_in_r ? EV_JOININ_C : EV_JOINMT_C;
+-        q0_val_r      <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
+-        rejoin_pend_r <= 1'b0;
+       end
+     end
+   end
+ 
+   // -------------------------------------------------------------- outputs
+-  assign dom_ev_valid_o = q0_valid_r;
+-  assign dom_ev_event_o = q0_ev_r;
+-  assign dom_ev_value_o = q0_val_r;
+-  assign class_a_prio_o = decl_prio_r[2:0];
+-  assign class_a_vid_o  = decl_vid_r[11:0];
+-  assign adopted_o      = adopted_r;
++  assign dom_ev_valid_o  = q0_valid_r;
++  assign dom_ev_event_o  = q0_ev_r;
++  assign dom_ev_value_o  = q0_val_r;
++  assign class_a_prio_o  = decl_prio_r[2:0];
++  assign class_a_vid_o   = decl_vid_r[11:0];
++  assign adopted_o       = adopted_r;
++  assign dbg_app_state_o = app_r;
+ 
+ endmodule : KL_srp_domain
+ `default_nettype wire
+diff --git a/hdl/srp/KL_srp_encoder.sv b/hdl/srp/KL_srp_encoder.sv
+index 13ba854..13abea0 100644
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -403,7 +403,11 @@ module KL_srp_encoder #(
+   assign go0_w    = join_tick_i[0] || join_pend_r[0];
+   assign go1_w    = join_tick_i[1] || join_pend_r[1];
+   assign start0_w = (st_r == E_IDLE) && !la_prepare_i && go0_w && (cnt_msrp_r != '0);
+-  assign start1_w = (st_r == E_IDLE) && !la_prepare_i && !start0_w && go1_w && (cnt_mvrp_r != '0);
++  // an MVRP drain also starts for its LeaveAll alone: the MVRP participant's
++  // sLA goes out whether or not it declares anything (802.1Q-2018 10.7.9,
++  // Table 10-5; issue #216), as the LeaveAll-only MVRPDU
++  assign start1_w = (st_r == E_IDLE) && !la_prepare_i && !start0_w && go1_w
++                 && ((cnt_mvrp_r != '0) || la_pend_r[1] || leaveall_i[1]);
+ 
+   // the drain owns its application's table: pushes to it wait
+   assign busy_app_w  = (st_r != E_IDLE) && (st_r != E_COLLECT)
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index cc93a7a..96e4721 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -47,12 +47,16 @@
+ //                the encoder drain only after both txop_done strobes (plus
+ //                a high-water interim drain when the pending table fills
+ //                mid-walk), so a cadence's messages ride that cadence's
+-//                MRPDU instead of waiting a full T-MRP-JOIN. Own MSRP
++//                MRPDU instead of waiting a full T-MRP-JOIN. The Domain's
++//                tx! is part of that round: the drain also waits for its
++//                tx_done (issue #216). Own MSRP
+ //                expiry only retains intent: the encoder reserves a slot
+ //                before sLA ages the registrars and starts both txLA!
+-//                walks (issue #127). Own MVRP expiry re-joins every held
+-//                VID and retains its LeaveAll flag for the next MVRP drain
+-//                that has content. A received LeaveAll of an application
++//                walks (issue #127). An MVRP join expiry ticks the VID
++//                walk and drains at its done; own MVRP expiry makes the
++//                next such tx! the sLA, whose drain carries the LeaveAll
++//                whether or not it carries a VID (802.1Q-2018 10.7.9,
++//                issue #216). A received LeaveAll of an application
+ //                restarts that application's leavealltimer and supersedes
+ //                its unaccepted own action (Table 10-5 rLA!, issue #108).
+ //                The streaming licence waits for the MVRP join of the
+@@ -327,11 +331,15 @@ module KL_srp_top
+   logic       p_join_fsm_r;    // T-MRP-JOIN (MSRP): tick the FSM walks
+   logic       p_periodic_r;    // T-MRP-PERIODIC: all four participants
+   logic       p_la_msrp_w;     // accepted own MSRP sLA action
+-  logic       p_la_mvrp_r;     // own MVRP leavealltimer expiry
++  logic       p_tx_mvrp_r;     // T-MRP-JOIN (MVRP): tick the VID walk (tx!)
++  logic       p_tx_mvrp_la_r;  // ...and that tx! is the own MVRP sLA (txLA!)
+   logic [1:0] enc_join_r;      // encoder drain ticks {MVRP, MSRP}
+   logic       la_msrp_pend_r;  // timer intent, not a registrar event
+-  logic       la_mvrp_pend_r;  // MVRP LeaveAll flag waiting for a drain
++  logic       la_mvrp_pend_r;  // MVRP LeaveAll state machine Active: sLA at the next tx!
+   logic       join_msrp_pend_r;
++  logic       join_mvrp_pend_r;
++  logic       mrnd_act_r;      // an MVRP tx! round is running (the VID walk first)
++  logic       mla_r;           // that round is the own sLA's: its drain carries the LeaveAll
+   logic       la_wait_r;
+   logic       la_cancel_r;
+   logic       la_done_w;
+@@ -352,6 +360,9 @@ module KL_srp_top
+   logic        dom_ev_ready_w;
+   logic [2:0]  dom_prio_w;
+   logic [11:0] dom_vid_w;
++  logic        dom_rx_any_w;
++  logic        dom_tx_done_w;
++  logic [3:0]  dom_dbg_app_w;
+ 
+   assign dom_rx_reg_w = (dec_evt_mrp_event_w == 3'(SRP_EV_NEW))
+                      || (dec_evt_mrp_event_w == 3'(SRP_EV_JOININ))
+@@ -364,6 +375,10 @@ module KL_srp_top
+                     && (dec_evt_attr_type_w == SRP_MSRP_ATTR_DOMAIN_C)
+                     && dec_evt_class_a_w
+                     && (dec_evt_mrp_event_w == 3'(SRP_EV_LV));
++  // every event of a Class A Domain value, for its Applicant (Table 10-3)
++  assign dom_rx_any_w = dec_evt_valid_w && dec_evt_msrp_w
++                     && (dec_evt_attr_type_w == SRP_MSRP_ATTR_DOMAIN_C)
++                     && dec_evt_class_a_w;
+ 
+   KL_srp_domain #(
+       .DEF_PRIO_P (DOM_DEF_PRIO_P),
+@@ -372,15 +387,20 @@ module KL_srp_top
+       .clk_i               (clk_i),
+       .rst_n               (rst_n),
+       .link_up_i           (link_up_i),
++      .p2p_i               (p2p_i),
+       .rxdom_valid_i       (dom_rx_valid_w),
+       .rxdom_class_id_i    (dec_evt_class_id_w),
+       .rxdom_prio_i        (dec_evt_priority_w),
+       .rxdom_vid_i         (dec_evt_vid_w),
+       .rxdom_nov_i         (13'd1),
+       .rxdom_lv_i          (dom_rx_lv_w),
++      .rxdom_any_i         (dom_rx_any_w),
++      .rxdom_ev_i          (dec_evt_mrp_event_w),
+       .periodic_tick_i     (p_periodic_r),
+       .leaveall_tick_i     (dec_la_msrp_w[SRP_LA_DOMAIN_C] || p_la_msrp_w),
++      .leaveall_own_i      (p_la_msrp_w),
+       .tx_tick_i           (join_fsm_w),
++      .tx_done_o           (dom_tx_done_w),
+       .dom_ev_valid_o      (dom_ev_valid_w),
+       .dom_ev_event_o      (dom_ev_event_w),
+       .dom_ev_value_o      (dom_ev_value_w),
+@@ -388,7 +408,8 @@ module KL_srp_top
+       .evt_domain_change_o (evt_domain_change_o),
+       .class_a_prio_o      (dom_prio_w),
+       .class_a_vid_o       (dom_vid_w),
+-      .adopted_o           (domain_adopted_o)
++      .adopted_o           (domain_adopted_o),
++      .dbg_app_state_o     (dom_dbg_app_w)
+   );
+ 
+   assign class_a_prio_o = dom_prio_w;
+@@ -408,6 +429,13 @@ module KL_srp_top
+   logic        enc_tx_mvrp_w;   // an MVRP MRPDU left through the TX arbiter
+   logic [N_VIDS_P-1:0]       vlan_sent_w;
+   logic [N_VIDS_P-1:0][11:0] vlan_vid_w;
++  logic                      vlan_rx_w;       // a received MVRP VID value
++  logic                      vlan_tx_done_w;  // the VID walk of an MVRP tx! is done
++  logic [N_VIDS_P-1:0][3:0]  vlan_dbg_app_w;
++  logic [N_VIDS_P-1:0]       vlan_dbg_reg_w;
++
++  assign vlan_rx_w = dec_evt_valid_w && !dec_evt_msrp_w
++                  && (dec_evt_attr_type_w == SRP_MVRP_ATTR_VID_C);
+ 
+   logic        tk_user_valid_w, tk_user_join_w;
+   logic [11:0] tk_user_vid_w;
+@@ -435,13 +463,20 @@ module KL_srp_top
+   ) u_vlan (
+       .clk_i           (clk_i),
+       .rst_n           (rst_n),
++      .p2p_i           (p2p_i),
+       .user_valid_i    (vlan_user_valid_w),
+       .user_join_i     (vlan_user_join_w),
+       .user_vid_i      (vlan_user_vid_w),
+       .user_ready_o    (vlan_user_ready_w),
+       .user_err_o      (dbg_vlan_err_o),
++      .rx_valid_i      (vlan_rx_w),
++      .rx_vid_i        (dec_evt_vid_w),
++      .rx_ev_i         (dec_evt_mrp_event_w),
+       .periodic_tick_i (p_periodic_r),
+-      .leaveall_tick_i (dec_la_mvrp_w || p_la_mvrp_r),
++      .leaveall_tick_i (dec_la_mvrp_w),
++      .tx_tick_i       (p_tx_mvrp_r),
++      .tx_la_i         (p_tx_mvrp_la_r),
++      .tx_done_o       (vlan_tx_done_w),
+       .vlan_ev_valid_o (vlan_ev_valid_w),
+       .vlan_ev_event_o (vlan_ev_event_w),
+       .vlan_ev_vid_o   (vlan_ev_vid_w),
+@@ -449,7 +484,9 @@ module KL_srp_top
+       .mvrp_tx_i       (enc_tx_mvrp_w),
+       .vid_sent_o      (vlan_sent_w),
+       .vid_val_o       (vlan_vid_w),
+-      .vid_active_o    (dbg_vid_active_o)
++      .vid_active_o    (dbg_vid_active_o),
++      .dbg_app_state_o (vlan_dbg_app_w),
++      .dbg_reg_in_o    (vlan_dbg_reg_w)
+   );
+ 
+   // ========================================================================
+@@ -1013,10 +1050,12 @@ module KL_srp_top
+   logic       rnd_act_r;    // an MSRP join round is running (walks first)
+   logic       td_tk_r;
+   logic       td_ls_r;
++  logic       td_dom_r;     // the Domain's tx! of the round is served (issue #216)
+   logic       hw_full_q_r;
+   logic       enc_msrp_full_w;
+   logic       cad_hit_w;
+   logic       join_due_w;
++  logic       mvrp_join_due_w;
+   logic [31:0] cad_exp_ix_w;
+ 
+   // lowest pending cadence index
+@@ -1031,6 +1070,7 @@ module KL_srp_top
+   assign cad_exp_ix_w    = 32'(exp_slot_i) - CAD_SLOT_BASE_P;
+   assign cad_hit_w       = exp_valid_i && (cad_exp_ix_w < N_CAD_C);
+   assign join_due_w = cad_hit_w && (cad_exp_ix_w == CAD_JOIN_MSRP_C);
++  assign mvrp_join_due_w = cad_hit_w && (cad_exp_ix_w == CAD_JOIN_MVRP_C);
+   assign enc_msrp_full_w = (32'(enc_cnt_msrp_w) == ENC_DEPTH_P);
+ 
+   // A leavealltimer restarted by rLA! re-arms through a fresh draw. Until
+@@ -1080,6 +1120,7 @@ module KL_srp_top
+       rnd_act_r         <= 1'b0;
+       td_tk_r           <= 1'b0;
+       td_ls_r           <= 1'b0;
++      td_dom_r          <= 1'b0;
+       hw_full_q_r       <= 1'b0;
+       p_join_fsm_r      <= 1'b0;
+       p_periodic_r      <= 1'b0;
+@@ -1088,7 +1129,11 @@ module KL_srp_top
+       join_msrp_pend_r  <= 1'b0;
+       la_wait_r         <= 1'b0;
+       la_cancel_r       <= 1'b0;
+-      p_la_mvrp_r       <= 1'b0;
++      p_tx_mvrp_r       <= 1'b0;
++      p_tx_mvrp_la_r    <= 1'b0;
++      join_mvrp_pend_r  <= 1'b0;
++      mrnd_act_r        <= 1'b0;
++      mla_r             <= 1'b0;
+       enc_join_r        <= 2'b00;
+       enc_la_r          <= 2'b00;
+     end else begin
+@@ -1097,7 +1142,8 @@ module KL_srp_top
+       draw_req_o   <= 1'b0;
+       p_join_fsm_r <= 1'b0;
+       p_periodic_r <= 1'b0;
+-      p_la_mvrp_r  <= 1'b0;
++      p_tx_mvrp_r  <= 1'b0;
++      p_tx_mvrp_la_r <= 1'b0;
+       enc_join_r   <= 2'b00;
+       enc_la_r     <= 2'b00;
+ 
+@@ -1149,6 +1195,7 @@ module KL_srp_top
+           rnd_act_r   <= 1'b1;
+           td_tk_r     <= 1'b0;
+           td_ls_r     <= 1'b0;
++          td_dom_r    <= 1'b0;
+         end
+       end
+       if (la_done_w) begin
+@@ -1159,13 +1206,36 @@ module KL_srp_top
+         rnd_act_r   <= 1'b1;
+         td_tk_r     <= 1'b0;
+         td_ls_r     <= 1'b0;
++        td_dom_r    <= 1'b0;
++      end
++
++      // ---- MVRP tx! round (issue #216): the VID walk first, the drain at
++      // its done, as the MSRP round waits for its walks. A pending own
++      // LeaveAll (Table 10-5 Active) is this tx!'s sLA: the walk takes the
++      // txLA! row and the drain carries the LeaveAll whether or not it
++      // carries a VID (802.1Q-2018 10.7.9); a peer LeaveAll on this edge
++      // wins (rLA!: Passive), as it does for MSRP. --------------------------
++      if (!mrnd_act_r && (join_mvrp_pend_r || mvrp_join_due_w)) begin
++        join_mvrp_pend_r <= 1'b0;
++        p_tx_mvrp_r      <= 1'b1;
++        p_tx_mvrp_la_r   <= la_mvrp_pend_r && !dec_la_mvrp_w;
++        mla_r            <= la_mvrp_pend_r && !dec_la_mvrp_w;
++        la_mvrp_pend_r   <= 1'b0;
++        mrnd_act_r       <= 1'b1;
++      end
++      if (mrnd_act_r && vlan_tx_done_w) begin
++        enc_join_r[1] <= 1'b1;   // the tx!'s messages ride its MRPDU
++        enc_la_r[1]   <= mla_r;
++        mrnd_act_r    <= 1'b0;
+       end
+ 
+       // ---- MSRP round completion + high-water interim drain -------------
+       if (rnd_act_r && tk_txop_done_w) td_tk_r <= 1'b1;
+       if (rnd_act_r && ls_txop_done_w) td_ls_r <= 1'b1;
++      if (rnd_act_r && dom_tx_done_w) td_dom_r <= 1'b1;
+       if (rnd_act_r && (td_tk_r || tk_txop_done_w)
+-          && (td_ls_r || ls_txop_done_w)) begin
++          && (td_ls_r || ls_txop_done_w)
++          && (td_dom_r || dom_tx_done_w)) begin
+         enc_join_r[0] <= 1'b1;   // the cadence's messages ride its MRPDU
+         rnd_act_r     <= 1'b0;
+       end
+@@ -1216,14 +1286,7 @@ module KL_srp_top
+             cad_dl_r[CAD_JOIN_MSRP_C]   <= now_ms_i + JOIN_MS_P;
+           end
+           3'(CAD_JOIN_MVRP_C): begin
+-            enc_join_r[1] <= 1'b1;   // event-driven pushes: drain directly
+-            // tx! for the pending MVRP LeaveAll: the flag rides a drain with
+-            // content (an MVRP drain has no LeaveAll-only form); a peer
+-            // LeaveAll on this edge wins, as it does for MSRP
+-            if (la_mvrp_pend_r && (enc_cnt_mvrp_w != '0) && !dec_la_mvrp_w) begin
+-              enc_la_r[1]    <= 1'b1;
+-              la_mvrp_pend_r <= 1'b0;
+-            end
++            if (mrnd_act_r) join_mvrp_pend_r <= 1'b1;   // coalesce while a round runs
+             cad_pend_r[CAD_JOIN_MVRP_C] <= 1'b1;
+             cad_dl_r[CAD_JOIN_MVRP_C]   <= now_ms_i + JOIN_MS_P;
+           end
+@@ -1240,8 +1303,7 @@ module KL_srp_top
+           end
+           default: begin             // CAD_LA_MVRP_C
+             if (!la_rearm_w[1]) begin
+-              p_la_mvrp_r    <= 1'b1;  // VLAN re-joins every held VID
+-              la_mvrp_pend_r <= 1'b1;  // the flag waits for the next drain
++              la_mvrp_pend_r <= 1'b1;  // Active: sLA at the next MVRP tx!
+               need_draw_r[1] <= 1'b1;
+             end
+           end
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 5091a12..435c0ae 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -12,38 +12,53 @@
+ //  Description : The single MVRP participant: one FSM over a small
+ //                refcounted per-VID membership table. Users (talker and
+ //                listener stream FSMs) register with THEIR OWN stream VID —
+-//                the first user of a VID declares it (New, then JoinIn on
+-//                the join/periodic cadence), later users of the same VID
+-//                only increment the count, and the LAST user leaving emits
+-//                Lv. Because the table is keyed by the VID each user
+-//                brought, a Domain default-VID change never moves an
+-//                existing membership: a declaring talker's VID stays frozen
+-//                until its last user deregisters (Milan Table 5.3 /
+-//                §4.3.2), and across the F05.12 withdraw -> re-declare flow
+-//                two VIDs are briefly live — the steady state is one.
+-//                LeaveAll or periodic ticks re-join EVERY VID that still
+-//                has users (F10.3). Each live VID also records whether its
+-//                declaration has left in an MVRP MRPDU the TX arbiter
+-//                accepted since the VID was allocated (vid_sent_o): the
+-//                talker's streaming licence waits for it, because a Talker
+-//                PAAD "shall join the relevant VLAN via MVRP prior to
+-//                sending any Stream frames" (Milan §4.3.2, 10 §6.3).
++//                the first user of a VID declares it (New!), later users of
++//                the same VID only increment the count, and the LAST user
++//                leaving withdraws it (Lv!). Because the table is keyed by
++//                the VID each user brought, a Domain default-VID change
++//                never moves an existing membership: a declaring talker's
++//                VID stays frozen until its last user deregisters (Milan
++//                Table 5.3 / §4.3.2), and across the F05.12 withdraw ->
++//                re-declare flow two VIDs are briefly live — the steady
++//                state is one. Each entry carries the value's 802.1Q-2018
++//                Table 10-3 Applicant and a one-bit Table 10-4 Registrar
++//                (IN, or MT and LV, which sJ encodes alike) that received
++//                MVRP events of its VID move (issue #216). Every message is
++//                the one an entry's state gives at a tx! opportunity: a
++//                tx_tick_i walks the entries (the txLA! row when it is the
++//                own sLA's, tx_la_i, which also ages every Registrar to
++//                LV), and tx_done_o strobes once each message it made is in
++//                the encoder, so that tx!'s MVRPDU carries them. New! takes
++//                a VID to VN: New from VN and again from AN, then sJ from
++//                AA, JoinIn only with the Registrar IN (§10.7.6.3). Lv!
++//                takes it to LA, and the entry stays until its tx! sends
++//                the Lv (or, after a txLA!, the s it then owes). periodic!
++//                and a received LeaveAll (rLA!) move every entry by their
++//                rows. Each live VID also records whether its declaration
++//                has left in an MVRP MRPDU the TX arbiter accepted since
++//                the VID was allocated (vid_sent_o): the talker's streaming
++//                licence waits for it, because a Talker PAAD "shall join
++//                the relevant VLAN via MVRP prior to sending any Stream
++//                frames" (Milan §4.3.2, 10 §6.3).
+ //
+ //  Decision    : the design decision that matters — the membership store
+ //                follows the KL_pp_timer_service split: {vid, refcount}
+ //                lives in a 1W1R sync-read RAM walked one entry per cycle
+ //                (lookup is a serial scan — membership ops are protocol-
+-//                rate, never wire-rate), while the per-entry ACTIVE bits
+-//                live in a flop vector so scan qualification and the
+-//                re-join walk never need a second RAM port or a flop
+-//                mirror behind a wide read mux. The one flop copy is the
+-//                VID written at allocation (vid_val_o): the talker FSM
+-//                compares every source's VID with every entry in the same
+-//                cycle, which a serial RAM lookup cannot serve.
++//                rate, never wire-rate), while the per-entry bits, the
++//                Applicant and the Registrar live in flops so received
++//                values, LeaveAll and periodic! reach every entry in their
++//                cycle with no second RAM port. The one flop copy of the
++//                VID is the one written at allocation (vid_val_o): the
++//                talker FSM and the received-event match compare it with
++//                every entry in the same cycle, which a serial RAM lookup
++//                cannot serve, and the tx! walk reads it.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+-module KL_srp_vlan #(
++module KL_srp_vlan
++  import srp_pkg::*;
++#(
+     //! membership table entries; steady state is ONE live VID and a Domain
+     //! VID change adds one more (10 §6.2) — 4 leaves margin for overlap
+     parameter int unsigned N_VIDS_P   = 4,
+@@ -52,6 +67,7 @@ module KL_srp_vlan #(
+ ) (
+     input  wire         clk_i,            //! core clock (P-CLK-HZ domain)
+     input  wire         rst_n,            //! synchronous active-low reset
++    input  wire         p2p_i,            //! operPointToPointMAC (Table 10-3 notes 4/5); Milan ties 1
+ 
+     // ---- user registration face (stream FSMs not yet landed) -------------
+     input  wire         user_valid_i,     //! op offered, held until ready
+@@ -60,13 +76,21 @@ module KL_srp_vlan #(
+     output logic        user_ready_o,     //! op accepted this cycle
+     output logic        user_err_o,       //! strobe: join with a full table / leave of an unknown VID
+ 
++    // ---- received MVRP values (KL_srp_decoder, one per cycle) ------------
++    input  wire         rx_valid_i,       //! one-cycle strobe: an attribute event of one MVRP VID value
++    input  wire  [15:0] rx_vid_i,         //! that value (FirstValue + k)
++    input  wire  [2:0]  rx_ev_i,          //! its event (srp_event_e)
++
+     // ---- MVRP participant cadence (timer expiries via the event router) ---
+-    input  wire         periodic_tick_i,  //! T-MRP-PERIODIC: re-join every held VID
+-    input  wire         leaveall_tick_i,  //! MVRP LeaveAll cycle: re-join every held VID
++    input  wire         periodic_tick_i,  //! T-MRP-PERIODIC: periodic! on every entry
++    input  wire         leaveall_tick_i,  //! received MVRP LeaveAll: rLA! on every entry
++    input  wire         tx_tick_i,        //! MVRP tx! opportunity: walk every entry
++    input  wire         tx_la_i,          //! with tx_tick_i: the own sLA, so the walk takes the txLA! row
++    output logic        tx_done_o,        //! one-cycle strobe: the walk is done and its messages accepted
+ 
+     // ---- declaration events toward KL_srp_encoder -------------------------
+     output logic        vlan_ev_valid_o,  //! event pending, held until ready
+-    output logic [2:0]  vlan_ev_event_o,  //! attribute event (0 New, 1 JoinIn, 5 Lv)
++    output logic [2:0]  vlan_ev_event_o,  //! attribute event (0 New, 1 JoinIn, 2 In, 3 JoinMt, 4 Mt, 5 Lv)
+     output logic [15:0] vlan_ev_vid_o,    //! MVRP FirstValue (VID)
+     input  wire         vlan_ev_ready_i,  //! encoder accepts the event
+     input  wire         mvrp_tx_i,        //! strobe: the TX arbiter accepted an MVRP MRPDU
+@@ -76,7 +100,9 @@ module KL_srp_vlan #(
+     output logic [N_VIDS_P-1:0][11:0]  vid_val_o,  //! per entry: the VID it holds (valid with vid_sent_o)
+ 
+     // ---- observability ----------------------------------------------------
+-    output logic [N_VIDS_P-1:0] vid_active_o //! per-entry membership-live bits
++    output logic [N_VIDS_P-1:0]        vid_active_o,    //! per-entry membership-live bits
++    output logic [N_VIDS_P-1:0][3:0]   dbg_app_state_o, //! per-entry Table 10-3 Applicant state
++    output logic [N_VIDS_P-1:0]        dbg_reg_in_o     //! per-entry Registrar IN
+ );
+ 
+   localparam int unsigned IDX_W_C  = (N_VIDS_P > 1) ? $clog2(N_VIDS_P) : 1;
+@@ -84,21 +110,22 @@ module KL_srp_vlan #(
+   localparam logic [REFCNT_W_P-1:0] CNT_ONE_C = REFCNT_W_P'(1);
+   localparam logic [REFCNT_W_P-1:0] CNT_MAX_C = '1;
+ 
+-  localparam logic [2:0] EV_NEW_C    = 3'd0;
+-  localparam logic [2:0] EV_JOININ_C = 3'd1;
+-  localparam logic [2:0] EV_LV_C     = 3'd5;
+-
+   // ----------------------------------------------------- membership store
+-  // {vid, refcount} in a 1W1R sync-read RAM; ACTIVE bits in flops (banner)
++  // {vid, refcount} in a 1W1R sync-read RAM; the per-entry state in flops
+   logic [ENT_W_C-1:0] tbl_r [0:N_VIDS_P-1];
+   logic [ENT_W_C-1:0] tbl_q_r;
+-  logic [N_VIDS_P-1:0] active_r;
+-  // declaration-on-the-wire state: a join of the entry was handed to the
+-  // encoder since the last MVRP transmission (queued), and one has been
+-  // transmitted since the entry was allocated (sent); VID copy (banner)
++  // alloc: the entry holds a VID's Applicant (declared, or a Leave owed);
++  // active: the VID has users. Declaration-on-the-wire state: a declaring
++  // message of the entry was handed to the encoder since the last MVRP
++  // transmission (queued), and one has been transmitted since the entry was
++  // allocated (sent); VID copy (banner)
++  logic [N_VIDS_P-1:0]       alloc_r;
++  logic [N_VIDS_P-1:0]       active_r;
+   logic [N_VIDS_P-1:0]       queued_r;
+   logic [N_VIDS_P-1:0]       sent_r;
+   logic [N_VIDS_P-1:0][11:0] vid_q_r;
++  logic [N_VIDS_P-1:0][3:0]  app_r;
++  logic [N_VIDS_P-1:0]       reg_r;
+ 
+   logic [IDX_W_C-1:0] rd_addr_w;
+   logic               tbl_we_w;
+@@ -114,15 +141,13 @@ module KL_srp_vlan #(
+   end
+ 
+   // ------------------------------------------------------------ FSM state
+-  typedef enum logic [3:0] {
+-    V_IDLE  = 4'd0,   // accept a user op or start a re-join walk
+-    V_SCAN  = 4'd1,   // serial lookup of the op's VID (+ first free slot)
+-    V_APPLY = 4'd2,   // refcount update / allocate / retire
+-    V_EV    = 4'd3,   // push New or Lv toward the encoder
+-    R_SEL   = 4'd4,   // re-join walk: find the next ACTIVE entry
+-    R_RD    = 4'd5,   // issue its RAM read
+-    R_CAP   = 4'd6,   // capture the VID
+-    R_EV    = 4'd7    // push JoinIn toward the encoder
++  typedef enum logic [2:0] {
++    V_IDLE  = 3'd0,   // start a tx! walk, or accept a user op
++    V_SCAN  = 3'd1,   // serial lookup of the op's VID (+ first free slot)
++    V_APPLY = 3'd2,   // refcount update / allocate (New!) / last user (Lv!)
++    W_EVAL  = 3'd3,   // tx! walk: one entry's tx! (or txLA!)
++    W_PUSH  = 3'd4,   // hold its message on the encoder intake
++    W_DONE  = 3'd5    // strobe tx_done_o
+   } vlan_st_e;
+ 
+   vlan_st_e            st_r;
+@@ -136,19 +161,24 @@ module KL_srp_vlan #(
+   logic [REFCNT_W_P-1:0] found_cnt_r;
+   logic                free_v_r;
+   logic [IDX_W_C-1:0]  free_ix_r;
+-  logic [IDX_W_C-1:0]  ridx_r;         // re-join walk index
+-  logic                rejoin_pend_r;
++  logic [IDX_W_C-1:0]  widx_r;         // tx! walk index
++  logic                txp_r;          // a tx! owed, the walk not started
++  logic                txp_la_r;       // ...and it is the own sLA's
++  logic                wla_r;          // the running walk takes the txLA! row
+   logic [2:0]          ev_code_r;
+   logic [15:0]         ev_vid_r;
++  logic                ev_decl_r;      // the pushed message declares (New, JoinIn, JoinMt)
+ 
+   logic [11:0]           q_vid_w;
+   logic [REFCNT_W_P-1:0] q_cnt_w;
+   logic                  scan_done_w;
++  logic                  walk_start_w;
+ 
+   assign {q_vid_w, q_cnt_w} = tbl_q_r;
+   assign scan_done_w = chk_v_r && (chk_ix_r == IDX_W_C'(N_VIDS_P - 1));
++  assign walk_start_w = (st_r == V_IDLE) && (txp_r || tx_tick_i);
+ 
+-  assign rd_addr_w = (st_r == V_SCAN) ? scan_ix_r : ridx_r;
++  assign rd_addr_w = scan_ix_r;
+ 
+   // ----------------------------------------------------- table write mux
+   always_comb begin : tbl_wmux
+@@ -156,19 +186,25 @@ module KL_srp_vlan #(
+     tbl_wix_w  = '0;
+     tbl_wdat_w = '0;
+     if (st_r == V_APPLY) begin
+-      if (op_join_r && found_v_r) begin
++      if (op_join_r && found_v_r && active_r[found_ix_r]) begin
+         // another user of a live VID: count up, no wire action (F10.3)
+         tbl_we_w   = 1'b1;
+         tbl_wix_w  = found_ix_r;
+         tbl_wdat_w = {op_vid_r, (found_cnt_r == CNT_MAX_C)
+                                 ? CNT_MAX_C
+                                 : found_cnt_r + CNT_ONE_C};
++      end else if (op_join_r && found_v_r) begin
++        // the first user of a VID whose Leave is still owed: declare again
++        tbl_we_w   = 1'b1;
++        tbl_wix_w  = found_ix_r;
++        tbl_wdat_w = {op_vid_r, CNT_ONE_C};
+       end else if (op_join_r && free_v_r) begin
+         // first user of a VID: allocate and declare it
+         tbl_we_w   = 1'b1;
+         tbl_wix_w  = free_ix_r;
+         tbl_wdat_w = {op_vid_r, CNT_ONE_C};
+-      end else if (!op_join_r && found_v_r && (found_cnt_r != CNT_ONE_C)) begin
++      end else if (!op_join_r && found_v_r && active_r[found_ix_r]
++                   && (found_cnt_r != CNT_ONE_C)) begin
+         tbl_we_w   = 1'b1;
+         tbl_wix_w  = found_ix_r;
+         tbl_wdat_w = {op_vid_r, found_cnt_r - CNT_ONE_C};
+@@ -176,14 +212,92 @@ module KL_srp_vlan #(
+     end
+   end
+ 
++  // ------------------------------------------------- Applicant + Registrar
++  // Each entry takes the events of one clock in turn: a received value of
++  // its VID, a received LeaveAll (rLA!), periodic!, then the one MAD request
++  // (New!, Lv!) or the one tx!/txLA! this clock's state gives it. A received
++  // event of the clock wins over the LeaveAll of that clock in the
++  // Registrar, as on the MSRP registrars (10 §6.5); tx_la_i ages every
++  // Registrar to LV at the walk's start (Table 10-4 txLA!), and each
++  // message's sJ, s and note 8 read its Registrar after the clock's events.
++  // A received value hits at most one entry (each VID is in one entry), and
++  // one MAD request or one tx! moves one entry a clock, so each of those two
++  // rows is one transition shared by the entries, on the moved entry's state.
++  logic [N_VIDS_P-1:0]       rx_hit_w;
++  logic [N_VIDS_P-1:0]       reg_nx_w;
++  logic [N_VIDS_P-1:0][3:0]  app_ev_w;   // after the received events
++  logic [N_VIDS_P-1:0][3:0]  app_nx_w;
++  logic [3:0]                wmsg_w;
++  logic                      apply_new_w, apply_lv_w;
++  logic [IDX_W_C-1:0]        apply_ix_w;
++  logic [IDX_W_C-1:0]        rx_ix_w;    // the entry a received value hits
++  logic [3:0]                rx_nx_w;
++  logic                      one_v_w;    // a MAD request or a tx! moves one entry
++  logic [IDX_W_C-1:0]        one_ix_w;
++  logic [1:0]                one_k_w;    // its row: 0 New!, 1 Lv!, 2 tx!, 3 txLA!
++  logic [3:0]                one_st_w, one_nx_w;
++
++  assign apply_new_w = (st_r == V_APPLY) && op_join_r
++                    && ((found_v_r && !active_r[found_ix_r]) || (!found_v_r && free_v_r));
++  assign apply_lv_w  = (st_r == V_APPLY) && !op_join_r && found_v_r
++                    && active_r[found_ix_r] && (found_cnt_r == CNT_ONE_C);
++  assign apply_ix_w  = (op_join_r && !found_v_r) ? free_ix_r : found_ix_r;
++  assign one_v_w     = apply_new_w || apply_lv_w || ((st_r == W_EVAL) && alloc_r[widx_r]);
++  assign one_ix_w    = (st_r == W_EVAL) ? widx_r : apply_ix_w;
++  assign one_k_w     = (st_r == W_EVAL) ? (wla_r ? 2'd3 : 2'd2) : apply_new_w ? 2'd0 : 2'd1;
++
++  always_comb begin : entry_next
++    rx_ix_w = '0;
++    for (int unsigned i = 0; i < N_VIDS_P; i++) begin
++      rx_hit_w[i] = rx_valid_i && alloc_r[i] && (rx_vid_i == {4'd0, vid_q_r[i]});
++      if (rx_hit_w[i]) rx_ix_w = IDX_W_C'(i);
++      reg_nx_w[i] = reg_r[i];
++      if (leaveall_tick_i || (walk_start_w && (txp_la_r || tx_la_i)))
++        reg_nx_w[i] = 1'b0;                               // rLA! / txLA!: IN -> LV
++      if (rx_hit_w[i] && ((rx_ev_i == SRP_EV_NEW) || (rx_ev_i == SRP_EV_JOININ)
++                          || (rx_ev_i == SRP_EV_JOINMT)))
++        reg_nx_w[i] = 1'b1;                               // rNew / rJoinIn / rJoinMt
++      if (rx_hit_w[i] && (rx_ev_i == SRP_EV_LV))
++        reg_nx_w[i] = 1'b0;                               // rLv!: IN -> LV
++    end
++    rx_nx_w = srp_app_rx_next(app_r[rx_ix_w], rx_ev_i, p2p_i);
++    for (int unsigned i = 0; i < N_VIDS_P; i++) begin
++      app_ev_w[i] = rx_hit_w[i] ? rx_nx_w : app_r[i];
++      if (leaveall_tick_i && alloc_r[i])
++        app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_RLA_C, reg_r[i], p2p_i);
++      if (periodic_tick_i && alloc_r[i])
++        app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);
++    end
++    // a new entry's Applicant starts in VO (Begin!)
++    one_st_w = (apply_new_w && !alloc_r[one_ix_w]) ? SRP_AP_VO_C : app_ev_w[one_ix_w];
++    case (one_k_w)          // a choice between rows maps smaller than one function of both
++      2'd0:    one_nx_w = srp_app_next(one_st_w, SRP_AE_NEW_C, reg_nx_w[one_ix_w], p2p_i);
++      2'd1:    one_nx_w = srp_app_next(one_st_w, SRP_AE_LV_C, reg_nx_w[one_ix_w], p2p_i);
++      2'd2:    one_nx_w = srp_app_next(one_st_w, SRP_AE_TX_C, reg_nx_w[one_ix_w], p2p_i);
++      default: one_nx_w = srp_app_next(one_st_w, SRP_AE_TXLA_C, reg_nx_w[one_ix_w], p2p_i);
++    endcase
++    for (int unsigned i = 0; i < N_VIDS_P; i++)
++      app_nx_w[i] = (one_v_w && (one_ix_w == IDX_W_C'(i))) ? one_nx_w : app_ev_w[i];
++    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, reg_nx_w[widx_r]);
++  end
++
++  //! an observer state with nothing owed: the entry can be discarded (Table
++  //! 10-3 note 11)
++  function automatic logic app_idle_f(input logic [3:0] st);
++    return st inside {SRP_AP_VO_C, SRP_AP_AO_C, SRP_AP_QO_C};
++  endfunction
++
+   // -------------------------------------------------------------- main SM
+   always_ff @(posedge clk_i) begin : vlan_sm
+     if (!rst_n) begin
+       st_r          <= V_IDLE;
++      alloc_r       <= '0;
+       active_r      <= '0;
+       queued_r      <= '0;
+       sent_r        <= '0;
+       vid_q_r       <= '0;
++      app_r         <= '0;               // Begin! = VO everywhere
++      reg_r         <= '0;
+       op_join_r     <= 1'b0;
+       op_vid_r      <= 12'd0;
+       scan_ix_r     <= '0;
+@@ -194,16 +308,27 @@ module KL_srp_vlan #(
+       found_cnt_r   <= '0;
+       free_v_r      <= 1'b0;
+       free_ix_r     <= '0;
+-      ridx_r        <= '0;
+-      rejoin_pend_r <= 1'b0;
++      widx_r        <= '0;
++      txp_r         <= 1'b0;
++      txp_la_r      <= 1'b0;
++      wla_r         <= 1'b0;
+       ev_code_r     <= 3'd0;
+       ev_vid_r      <= 16'd0;
++      ev_decl_r     <= 1'b0;
++      tx_done_o     <= 1'b0;
+       user_err_o    <= 1'b0;
+     end else begin
+       user_err_o <= 1'b0;
+-      if (periodic_tick_i || leaveall_tick_i) rejoin_pend_r <= 1'b1;
+-      // An accepted MVRP MRPDU carries every join queued before its drain
+-      // started (the encoder holds MVRP pushes while that drain runs);
++      tx_done_o  <= 1'b0;
++      app_r      <= app_nx_w;
++      reg_r      <= reg_nx_w;
++      // a tx! that cannot start its walk this clock is owed
++      if (tx_tick_i && !walk_start_w) begin
++        txp_r    <= 1'b1;
++        txp_la_r <= txp_la_r || tx_la_i;
++      end
++      // An accepted MVRP MRPDU carries every declaration queued before its
++      // drain started (the encoder holds MVRP pushes while that drain runs);
+       // per-entry writes below land after this and win.
+       if (mvrp_tx_i) begin
+         sent_r   <= sent_r | queued_r;
+@@ -213,19 +338,19 @@ module KL_srp_vlan #(
+       unique case (st_r)
+         V_IDLE: begin
+           chk_v_r <= 1'b0;
+-          if (user_valid_i) begin
++          if (walk_start_w) begin
++            txp_r    <= 1'b0;
++            txp_la_r <= 1'b0;
++            wla_r    <= txp_la_r || tx_la_i;
++            widx_r   <= '0;
++            st_r     <= W_EVAL;
++          end else if (user_valid_i) begin
+             op_join_r   <= user_join_i;
+             op_vid_r    <= user_vid_i;
+             scan_ix_r   <= '0;
+             found_v_r   <= 1'b0;
+             free_v_r    <= 1'b0;
+             st_r        <= V_SCAN;
+-          end else if (rejoin_pend_r) begin
+-            rejoin_pend_r <= 1'b0;
+-            if (active_r != '0) begin
+-              ridx_r <= '0;
+-              st_r   <= R_SEL;
+-            end
+           end
+         end
+         V_SCAN: begin
+@@ -236,12 +361,12 @@ module KL_srp_vlan #(
+             scan_ix_r <= scan_ix_r + IDX_W_C'(1);
+           end
+           if (chk_v_r) begin
+-            if (active_r[chk_ix_r] && (q_vid_w == op_vid_r)) begin
++            if (alloc_r[chk_ix_r] && (vid_q_r[chk_ix_r] == op_vid_r)) begin
+               found_v_r   <= 1'b1;
+               found_ix_r  <= chk_ix_r;
+               found_cnt_r <= q_cnt_w;
+             end
+-            if (!active_r[chk_ix_r] && !free_v_r) begin
++            if (!alloc_r[chk_ix_r] && !free_v_r) begin
+               free_v_r  <= 1'b1;
+               free_ix_r <= chk_ix_r;
+             end
+@@ -249,85 +374,83 @@ module KL_srp_vlan #(
+           if (scan_done_w) st_r <= V_APPLY;
+         end
+         V_APPLY: begin
++          st_r <= V_IDLE;
+           if (op_join_r) begin
+-            if (found_v_r) begin
+-              st_r <= V_IDLE;                      // count up, silent
+-            end else if (free_v_r) begin
++            if (found_v_r && active_r[found_ix_r]) begin
++              // another user of a live VID: the count goes up (tbl_wmux), silent
++            end else if (found_v_r) begin
++              active_r[found_ix_r] <= 1'b1;        // New! on the VID's Applicant
++              queued_r[found_ix_r] <= 1'b0;
++              sent_r[found_ix_r]   <= 1'b0;
++            end else if (!found_v_r && free_v_r) begin
++              alloc_r[free_ix_r]  <= 1'b1;
+               active_r[free_ix_r] <= 1'b1;
+               queued_r[free_ix_r] <= 1'b0;         // nothing of this VID has left yet
+               sent_r[free_ix_r]   <= 1'b0;
+               vid_q_r[free_ix_r]  <= op_vid_r;
+-              ev_code_r <= EV_NEW_C;               // New, then JoinIn on cadence
+-              ev_vid_r  <= {4'd0, op_vid_r};
+-              st_r      <= V_EV;
+-            end else begin
++              reg_r[free_ix_r]    <= 1'b0;         // a new Registrar: MT (Begin!)
++            end else if (!found_v_r) begin
+               user_err_o <= 1'b1;                  // table full
+-              st_r       <= V_IDLE;
+             end
+           end else begin
+-            if (found_v_r && (found_cnt_r == CNT_ONE_C)) begin
+-              active_r[found_ix_r] <= 1'b0;
++            if (found_v_r && active_r[found_ix_r] && (found_cnt_r == CNT_ONE_C)) begin
++              active_r[found_ix_r] <= 1'b0;        // last user gone: Lv! (F10.3)
+               queued_r[found_ix_r] <= 1'b0;
+               sent_r[found_ix_r]   <= 1'b0;
+-              ev_code_r <= EV_LV_C;                // last user gone: Lv (F10.3)
+-              ev_vid_r  <= {4'd0, op_vid_r};
+-              st_r      <= V_EV;
+-            end else if (found_v_r) begin
+-              st_r <= V_IDLE;                      // count down, silent
+-            end else begin
++              // nothing owed (Lv! from VP): the entry is free at once
++              if (app_idle_f(app_nx_w[found_ix_r])) alloc_r[found_ix_r] <= 1'b0;
++            end else if (!found_v_r || !active_r[found_ix_r]) begin
+               user_err_o <= 1'b1;                  // unknown VID
+-              st_r       <= V_IDLE;
+             end
+           end
+         end
+-        V_EV: begin
+-          if (vlan_ev_ready_i) begin
+-            // the New of a fresh entry is now in the encoder's MVRP table
+-            if (ev_code_r == EV_NEW_C) queued_r[free_ix_r] <= 1'b1;
+-            st_r <= V_IDLE;
+-          end
+-        end
+-        R_SEL: begin
+-          if (active_r[ridx_r]) begin
+-            st_r <= R_RD;
+-          end else if (ridx_r == IDX_W_C'(N_VIDS_P - 1)) begin
+-            st_r <= V_IDLE;
++        W_EVAL: begin
++          // the entry's tx!: its message, if any, then the next entry; an
++          // entry with no user and nothing owed afterwards is discarded
++          if (alloc_r[widx_r] && !active_r[widx_r] && app_idle_f(app_nx_w[widx_r]))
++            alloc_r[widx_r] <= 1'b0;
++          if (alloc_r[widx_r] && wmsg_w[3]) begin
++            ev_code_r <= wmsg_w[2:0];
++            ev_vid_r  <= {4'd0, vid_q_r[widx_r]};
++            ev_decl_r <= active_r[widx_r]
++                      && ((wmsg_w[2:0] == SRP_EV_NEW) || (wmsg_w[2:0] == SRP_EV_JOININ)
++                          || (wmsg_w[2:0] == SRP_EV_JOINMT));
++            st_r      <= W_PUSH;
++          end else if (widx_r == IDX_W_C'(N_VIDS_P - 1)) begin
++            st_r <= W_DONE;
+           end else begin
+-            ridx_r <= ridx_r + IDX_W_C'(1);
++            widx_r <= widx_r + IDX_W_C'(1);
+           end
+         end
+-        R_RD: begin
+-          st_r <= R_CAP;                           // sync read lands next cycle
+-        end
+-        R_CAP: begin
+-          ev_code_r <= EV_JOININ_C;                // re-join every held VID
+-          ev_vid_r  <= {4'd0, q_vid_w};
+-          st_r      <= R_EV;
+-        end
+-        R_EV: begin
++        W_PUSH: begin
+           if (vlan_ev_ready_i) begin
+-            queued_r[ridx_r] <= 1'b1;             // re-join JoinIn handed over
+-            if (ridx_r == IDX_W_C'(N_VIDS_P - 1)) begin
+-              st_r <= V_IDLE;
++            if (ev_decl_r) queued_r[widx_r] <= 1'b1;   // its declaration handed over
++            if (widx_r == IDX_W_C'(N_VIDS_P - 1)) begin
++              st_r <= W_DONE;
+             end else begin
+-              ridx_r <= ridx_r + IDX_W_C'(1);
+-              st_r   <= R_SEL;
++              widx_r <= widx_r + IDX_W_C'(1);
++              st_r   <= W_EVAL;
+             end
+           end
+         end
+-        default: st_r <= V_IDLE;
++        default: begin   // W_DONE
++          tx_done_o <= 1'b1;
++          st_r      <= V_IDLE;
++        end
+       endcase
+     end
+   end
+ 
+   // -------------------------------------------------------------- outputs
+-  assign user_ready_o    = (st_r == V_IDLE);
+-  assign vlan_ev_valid_o = (st_r == V_EV) || (st_r == R_EV);
++  assign user_ready_o    = (st_r == V_IDLE) && !walk_start_w;
++  assign vlan_ev_valid_o = (st_r == W_PUSH);
+   assign vlan_ev_event_o = ev_code_r;
+   assign vlan_ev_vid_o   = ev_vid_r;
+   assign vid_active_o    = active_r;
+   assign vid_sent_o      = active_r & sent_r;
+   assign vid_val_o       = vid_q_r;
++  assign dbg_app_state_o = app_r;
++  assign dbg_reg_in_o    = reg_r;
+ 
+ endmodule : KL_srp_vlan
+ `default_nettype wire
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index 62eae4d..de8cdf1 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -11,9 +11,11 @@
+ //                alphabet (802.1Q §35.2.2.7, encoded (((e1*6)+e2)*6)+e3),
+ //                the Listener four-packed declaration codes, the
+ //                VectorHeader LeaveAllEvent code (802.1Q §10.8.2.6), the
+-//                per-AttributeType received-LeaveAll lane indices, and
+-//                the class-A identity the 10 §3 vector-value-k rule keys on
+-//                (SRclassID 6 = SR class A, 802.1Q Table 35-7).
++//                per-AttributeType received-LeaveAll lane indices, the
++//                class-A identity the 10 §3 vector-value-k rule keys on
++//                (SRclassID 6 = SR class A, 802.1Q Table 35-7), and the
++//                802.1Q-2018 Table 10-3 Applicant the Domain and VID
++//                participants run (issue #216).
+ //
+ //                The one decision that matters: the F10.8 FirstValue
+ //                lengths are the framing truth for vector walking — the
+@@ -75,6 +77,186 @@ package srp_pkg;
+   localparam int unsigned SRP_LA_LISTENER_C      = 2;
+   localparam int unsigned SRP_LA_DOMAIN_C        = 3;
+ 
++  // ---- Applicant state machine (802.1Q-2018 10.7.7, Table 10-3) ----------
++  // The Domain and VID participants' Applicants (issue #216). States in the
++  // order the table prints them; events by its rows (a received event's row
++  // through srp_app_rx_next).
++  localparam logic [3:0] SRP_AP_VO_C = 4'd0;
++  localparam logic [3:0] SRP_AP_VP_C = 4'd1;
++  localparam logic [3:0] SRP_AP_VN_C = 4'd2;
++  localparam logic [3:0] SRP_AP_AN_C = 4'd3;
++  localparam logic [3:0] SRP_AP_AA_C = 4'd4;
++  localparam logic [3:0] SRP_AP_QA_C = 4'd5;
++  localparam logic [3:0] SRP_AP_LA_C = 4'd6;
++  localparam logic [3:0] SRP_AP_AO_C = 4'd7;
++  localparam logic [3:0] SRP_AP_QO_C = 4'd8;
++  localparam logic [3:0] SRP_AP_AP_C = 4'd9;
++  localparam logic [3:0] SRP_AP_QP_C = 4'd10;
++  localparam logic [3:0] SRP_AP_LO_C = 4'd11;
++
++  localparam logic [3:0] SRP_AE_NEW_C     = 4'd0;   // New!
++  localparam logic [3:0] SRP_AE_JOIN_C    = 4'd1;   // Join!
++  localparam logic [3:0] SRP_AE_LV_C      = 4'd2;   // Lv!
++  localparam logic [3:0] SRP_AE_RNEW_C    = 4'd3;   // rNew!
++  localparam logic [3:0] SRP_AE_RJOININ_C = 4'd4;   // rJoinIn!
++  localparam logic [3:0] SRP_AE_RIN_C     = 4'd5;   // rIn!
++  localparam logic [3:0] SRP_AE_RJOINMT_C = 4'd6;   // rJoinMt!
++  localparam logic [3:0] SRP_AE_RMT_C     = 4'd7;   // rMt!
++  localparam logic [3:0] SRP_AE_RLV_C     = 4'd8;   // rLv!
++  localparam logic [3:0] SRP_AE_RLA_C     = 4'd9;   // rLA!
++  localparam logic [3:0] SRP_AE_PER_C     = 4'd10;  // periodic!
++  localparam logic [3:0] SRP_AE_TX_C      = 4'd11;  // tx!
++  localparam logic [3:0] SRP_AE_TXLA_C    = 4'd12;  // txLA!
++
++  //! Table 10-3 next state, row by row; a cell not named holds ("-"). reg_in
++  //! is note 8 (tx! in AN: QA with the Registrar IN, AA otherwise); p2p is
++  //! operPointToPointMAC for notes 4 and 5 (rJoinIn! ignored in VO and VP,
++  //! rIn! acts in AA only when point-to-point)
++  function automatic logic [3:0] srp_app_next(input logic [3:0] st,
++                                              input logic [3:0] ev,
++                                              input logic       reg_in,
++                                              input logic       p2p);
++    logic [3:0] nx;
++    nx = st;
++    case (ev)
++      SRP_AE_NEW_C:  if (!(st inside {SRP_AP_VN_C, SRP_AP_AN_C})) nx = SRP_AP_VN_C;
++      SRP_AE_JOIN_C: begin
++        case (st)
++          SRP_AP_VO_C: nx = SRP_AP_VP_C;
++          SRP_AP_LA_C: nx = SRP_AP_AA_C;
++          SRP_AP_AO_C: nx = SRP_AP_AP_C;
++          SRP_AP_QO_C: nx = SRP_AP_QP_C;
++          SRP_AP_LO_C: nx = SRP_AP_VP_C;
++          default:     nx = st;
++        endcase
++      end
++      SRP_AE_LV_C: begin
++        case (st)
++          SRP_AP_VP_C: nx = SRP_AP_VO_C;
++          SRP_AP_VN_C, SRP_AP_AN_C, SRP_AP_AA_C, SRP_AP_QA_C: nx = SRP_AP_LA_C;
++          SRP_AP_AP_C: nx = SRP_AP_AO_C;
++          SRP_AP_QP_C: nx = SRP_AP_QO_C;
++          default:     nx = st;
++        endcase
++      end
++      SRP_AE_RJOININ_C: begin
++        case (st)
++          SRP_AP_VO_C: nx = p2p ? st : SRP_AP_AO_C;   // note 4
++          SRP_AP_VP_C: nx = p2p ? st : SRP_AP_AP_C;   // note 4
++          SRP_AP_AA_C: nx = SRP_AP_QA_C;
++          SRP_AP_AO_C: nx = SRP_AP_QO_C;
++          SRP_AP_AP_C: nx = SRP_AP_QP_C;
++          default:     nx = st;
++        endcase
++      end
++      SRP_AE_RIN_C: if (p2p && (st == SRP_AP_AA_C)) nx = SRP_AP_QA_C;   // note 5
++      SRP_AE_RJOINMT_C, SRP_AE_RMT_C: begin
++        case (st)
++          SRP_AP_QA_C: nx = SRP_AP_AA_C;
++          SRP_AP_QO_C: nx = SRP_AP_AO_C;
++          SRP_AP_QP_C: nx = SRP_AP_AP_C;
++          SRP_AP_LO_C: nx = SRP_AP_VO_C;
++          default:     nx = st;
++        endcase
++      end
++      SRP_AE_RLV_C, SRP_AE_RLA_C: begin
++        case (st)
++          SRP_AP_VO_C, SRP_AP_AO_C, SRP_AP_QO_C: nx = SRP_AP_LO_C;
++          SRP_AP_AN_C: nx = SRP_AP_VN_C;
++          SRP_AP_AA_C, SRP_AP_QA_C, SRP_AP_AP_C, SRP_AP_QP_C: nx = SRP_AP_VP_C;   // note 9
++          default:     nx = st;                // VP, VN, LA (note 10), LO
++        endcase
++      end
++      SRP_AE_PER_C: begin
++        case (st)
++          SRP_AP_QA_C: nx = SRP_AP_AA_C;
++          SRP_AP_QP_C: nx = SRP_AP_AP_C;
++          default:     nx = st;
++        endcase
++      end
++      SRP_AE_TX_C: begin
++        case (st)
++          SRP_AP_VP_C: nx = SRP_AP_AA_C;
++          SRP_AP_VN_C: nx = SRP_AP_AN_C;
++          SRP_AP_AN_C: nx = reg_in ? SRP_AP_QA_C : SRP_AP_AA_C;   // note 8
++          SRP_AP_AA_C: nx = SRP_AP_QA_C;
++          SRP_AP_LA_C: nx = SRP_AP_VO_C;
++          SRP_AP_AP_C: nx = SRP_AP_QA_C;
++          SRP_AP_LO_C: nx = SRP_AP_VO_C;
++          default:     nx = st;                // VO, QA, AO, QO, QP
++        endcase
++      end
++      SRP_AE_TXLA_C: begin
++        case (st)
++          SRP_AP_VO_C, SRP_AP_LA_C, SRP_AP_AO_C, SRP_AP_QO_C: nx = SRP_AP_LO_C;
++          SRP_AP_VP_C: nx = SRP_AP_AA_C;
++          SRP_AP_VN_C: nx = SRP_AP_AN_C;
++          SRP_AP_AN_C, SRP_AP_AA_C, SRP_AP_AP_C, SRP_AP_QP_C: nx = SRP_AP_QA_C;
++          default:     nx = st;                // QA, LO
++        endcase
++      end
++      default: nx = st;                        // rNew!: every cell "-"
++    endcase
++    return nx;
++  endfunction
++
++  //! Table 10-3 next state on a received attribute event (10.7.5.14 to
++  //! 10.7.5.19; e an srp_event_e, New .. Lv for rNew! .. rLv!), as a choice
++  //! between the rows: each row is a small function of the state, where one
++  //! function of the state and the event together maps several times larger
++  function automatic logic [3:0] srp_app_rx_next(input logic [3:0] st,
++                                                 input logic [2:0] e,
++                                                 input logic       p2p);
++    logic [3:0] nx;
++    case (e)
++      SRP_EV_JOININ: nx = srp_app_next(st, SRP_AE_RJOININ_C, 1'b0, p2p);
++      SRP_EV_IN:     nx = srp_app_next(st, SRP_AE_RIN_C, 1'b0, p2p);
++      SRP_EV_JOINMT: nx = srp_app_next(st, SRP_AE_RJOINMT_C, 1'b0, p2p);
++      SRP_EV_MT:     nx = srp_app_next(st, SRP_AE_RMT_C, 1'b0, p2p);
++      SRP_EV_LV:     nx = srp_app_next(st, SRP_AE_RLV_C, 1'b0, p2p);
++      default:       nx = st;                      // rNew!: every cell "-"
++    endcase
++    return nx;
++  endfunction
++
++  //! Table 10-3 action of a transmit opportunity: [3] send, [2:0] the
++  //! srp_event_e it encodes. sJ and s encode against reg_in (10.7.6.3,
++  //! 10.7.6.5); the bracketed [s], [sJ] are optional and not sent
++  function automatic logic [3:0] srp_app_msg(input logic [3:0] st,
++                                             input logic       txla,
++                                             input logic       reg_in);
++    logic [2:0] sj;
++    logic [2:0] s;
++    logic [3:0] m;
++    sj = reg_in ? SRP_EV_JOININ : SRP_EV_JOINMT;
++    s  = reg_in ? SRP_EV_IN : SRP_EV_MT;
++    m  = 4'd0;
++    if (!txla) begin
++      case (st)
++        SRP_AP_VP_C, SRP_AP_AA_C, SRP_AP_AP_C: m = {1'b1, sj};
++        SRP_AP_VN_C, SRP_AP_AN_C:             m = {1'b1, SRP_EV_NEW};
++        SRP_AP_LA_C:                          m = {1'b1, SRP_EV_LV};
++        SRP_AP_LO_C:                          m = {1'b1, s};
++        default:                              m = 4'd0;   // VO, QA, AO, QO, QP
++      endcase
++    end else begin
++      case (st)
++        SRP_AP_VP_C:                          m = {1'b1, s};
++        SRP_AP_VN_C, SRP_AP_AN_C:             m = {1'b1, SRP_EV_NEW};
++        SRP_AP_AA_C, SRP_AP_QA_C, SRP_AP_AP_C, SRP_AP_QP_C: m = {1'b1, sj};
++        default:                              m = 4'd0;   // VO, LA, AO, QO, LO
++      endcase
++    end
++    return m;
++  endfunction
++
++  //! the Applicant states that declare the attribute: every state but the
++  //! observers (VO, AO, QO), LA and LO
++  function automatic logic srp_app_declaring(input logic [3:0] st);
++    return st inside {SRP_AP_VP_C, SRP_AP_VN_C, SRP_AP_AN_C, SRP_AP_AA_C,
++                      SRP_AP_QA_C, SRP_AP_AP_C, SRP_AP_QP_C};
++  endfunction
++
+   //! three-packed digit extract — idx 0 = first value (b / 36),
+   //! idx 1 = (b / 6) % 6, idx 2 = b % 6. A digit > 5 (reachable only at
+   //! idx 0, for b > 215) is outside the event alphabet and is the
+== b655100cf7efd53f0bc29ad76961ae1d1f24cae1 Take every VID Registrar to MT at LINK_DOWN and LINK_UP, restart each VID's Applicant at LINK_UP, and grade it and the Table 10-3 VP rows with AP8, DA6, DA7 and VR12 to VR18 and ten arms (issue #216)
+
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 96e4721..59ae6af 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -463,6 +463,7 @@ module KL_srp_top
+   ) u_vlan (
+       .clk_i           (clk_i),
+       .rst_n           (rst_n),
++      .link_up_i       (link_up_i),
+       .p2p_i           (p2p_i),
+       .user_valid_i    (vlan_user_valid_w),
+       .user_join_i     (vlan_user_join_w),
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 435c0ae..89cf618 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -34,12 +34,17 @@
+ //                takes it to LA, and the entry stays until its tx! sends
+ //                the Lv (or, after a txLA!, the s it then owes). periodic!
+ //                and a received LeaveAll (rLA!) move every entry by their
+-//                rows. Each live VID also records whether its declaration
+-//                has left in an MVRP MRPDU the TX arbiter accepted since
+-//                the VID was allocated (vid_sent_o): the talker's streaming
+-//                licence waits for it, because a Talker PAAD "shall join
+-//                the relevant VLAN via MVRP prior to sending any Stream
+-//                frames" (Milan §4.3.2, 10 §6.3).
++//                rows. LINK_DOWN (Flush!) and LINK_UP (Begin!) take every
++//                Registrar to MT (Table 10-4), and LINK_UP is Begin! on
++//                every Applicant too, then New! on each VID with users,
++//                so the new link partner gets New, New, then the Join;
++//                a VID with no user left is VO there and is discarded
++//                (Table 10-3 note 11). Each live VID also records whether
++//                its declaration has left in an MVRP MRPDU the TX arbiter
++//                accepted since the VID was allocated (vid_sent_o): the
++//                talker's streaming licence waits for it, because a
++//                Talker PAAD "shall join the relevant VLAN via MVRP prior
++//                to sending any Stream frames" (Milan §4.3.2, 10 §6.3).
+ //
+ //  Decision    : the design decision that matters — the membership store
+ //                follows the KL_pp_timer_service split: {vid, refcount}
+@@ -67,6 +72,7 @@ module KL_srp_vlan
+ ) (
+     input  wire         clk_i,            //! core clock (P-CLK-HZ domain)
+     input  wire         rst_n,            //! synchronous active-low reset
++    input  wire         link_up_i,        //! link status level (2FF-synced upstream): its edges are Flush! and Begin!
+     input  wire         p2p_i,            //! operPointToPointMAC (Table 10-3 notes 4/5); Milan ties 1
+ 
+     // ---- user registration face (stream FSMs not yet landed) -------------
+@@ -168,13 +174,18 @@ module KL_srp_vlan
+   logic [2:0]          ev_code_r;
+   logic [15:0]         ev_vid_r;
+   logic                ev_decl_r;      // the pushed message declares (New, JoinIn, JoinMt)
++  logic                link_q_r;       // the link level of the previous clock
+ 
+   logic [11:0]           q_vid_w;
+   logic [REFCNT_W_P-1:0] q_cnt_w;
+   logic                  scan_done_w;
+   logic                  walk_start_w;
++  logic                  link_ev_w;     // LINK_DOWN (Flush!) or LINK_UP (Begin!) this clock
++  logic                  link_rise_w;   // LINK_UP
+ 
+   assign {q_vid_w, q_cnt_w} = tbl_q_r;
++  assign link_ev_w   = link_up_i != link_q_r;
++  assign link_rise_w = link_up_i && !link_q_r;
+   assign scan_done_w = chk_v_r && (chk_ix_r == IDX_W_C'(N_VIDS_P - 1));
+   assign walk_start_w = (st_r == V_IDLE) && (txp_r || tx_tick_i);
+ 
+@@ -220,6 +231,12 @@ module KL_srp_vlan
+   // Registrar, as on the MSRP registrars (10 §6.5); tx_la_i ages every
+   // Registrar to LV at the walk's start (Table 10-4 txLA!), and each
+   // message's sJ, s and note 8 read its Registrar after the clock's events.
++  // A link change wins over the clock's received events, LeaveAll and
++  // periodic!, as on the Domain and the listener registrars, and comes
++  // before its MAD request or tx!: LINK_DOWN (Flush!) and LINK_UP (Begin!)
++  // take every Registrar to MT (Table 10-4), and LINK_UP is Begin! on every
++  // Applicant (Table 10-3: VO), then New! on each entry with users (VN), so
++  // that clock's MAD request or tx! moves the restarted state (issue #216).
+   // A received value hits at most one entry (each VID is in one entry), and
+   // one MAD request or one tx! moves one entry a clock, so each of those two
+   // rows is one transition shared by the entries, on the moved entry's state.
+@@ -259,6 +276,8 @@ module KL_srp_vlan
+         reg_nx_w[i] = 1'b1;                               // rNew / rJoinIn / rJoinMt
+       if (rx_hit_w[i] && (rx_ev_i == SRP_EV_LV))
+         reg_nx_w[i] = 1'b0;                               // rLv!: IN -> LV
++      if (link_ev_w)
++        reg_nx_w[i] = 1'b0;                               // Flush! / Begin!: MT
+     end
+     rx_nx_w = srp_app_rx_next(app_r[rx_ix_w], rx_ev_i, p2p_i);
+     for (int unsigned i = 0; i < N_VIDS_P; i++) begin
+@@ -267,6 +286,8 @@ module KL_srp_vlan
+         app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_RLA_C, reg_r[i], p2p_i);
+       if (periodic_tick_i && alloc_r[i])
+         app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);
++      if (link_rise_w)                                    // Begin! (VO), then New! (VN)
++        app_ev_w[i] = active_r[i] ? SRP_AP_VN_C : SRP_AP_VO_C;
+     end
+     // a new entry's Applicant starts in VO (Begin!)
+     one_st_w = (apply_new_w && !alloc_r[one_ix_w]) ? SRP_AP_VO_C : app_ev_w[one_ix_w];
+@@ -315,11 +336,13 @@ module KL_srp_vlan
+       ev_code_r     <= 3'd0;
+       ev_vid_r      <= 16'd0;
+       ev_decl_r     <= 1'b0;
++      link_q_r      <= 1'b0;
+       tx_done_o     <= 1'b0;
+       user_err_o    <= 1'b0;
+     end else begin
+       user_err_o <= 1'b0;
+       tx_done_o  <= 1'b0;
++      link_q_r   <= link_up_i;
+       app_r      <= app_nx_w;
+       reg_r      <= reg_nx_w;
+       // a tx! that cannot start its walk this clock is owed
+@@ -423,7 +446,12 @@ module KL_srp_vlan
+           end
+         end
+         W_PUSH: begin
+-          if (vlan_ev_ready_i) begin
++          // the held message was decided before LINK_UP: it is withdrawn
++          // (vlan_ev_valid_o), and the entry takes this walk's tx! in its
++          // restarted state
++          if (link_rise_w) begin
++            st_r <= W_EVAL;
++          end else if (vlan_ev_ready_i) begin
+             if (ev_decl_r) queued_r[widx_r] <= 1'b1;   // its declaration handed over
+             if (widx_r == IDX_W_C'(N_VIDS_P - 1)) begin
+               st_r <= W_DONE;
+@@ -443,7 +471,7 @@ module KL_srp_vlan
+ 
+   // -------------------------------------------------------------- outputs
+   assign user_ready_o    = (st_r == V_IDLE) && !walk_start_w;
+-  assign vlan_ev_valid_o = (st_r == W_PUSH);
++  assign vlan_ev_valid_o = (st_r == W_PUSH) && !link_rise_w;
+   assign vlan_ev_event_o = ev_code_r;
+   assign vlan_ev_vid_o   = ev_vid_r;
+   assign vid_active_o    = active_r;
