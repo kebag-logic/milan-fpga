@@ -1,0 +1,15 @@
+== docs/design/SPLIT_CONTROL_MEMORY.md at head
+145:Until #925 the caps were 59.0 for the size fixture's point and 60.5 for the platform's, which their entries held, each image refused half a tile past its entry, at 59.5 and 61.0. Since the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the caps are no longer stop conditions for the flip lanes: an image past its entry raises it to its measured size at the next half tile. The entries now stand at 59.0 for the size fixture's point and 61.0 for the platform's (below), each image refused half a tile past its entry, at 59.5 and 61.5.
+173:The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.5.
+174:The fixture's loses `image_allocation`, or plans the platform's 61.0.
+== ctrl_memory.LEDGERED tiles
+257:                                   59.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+268:                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_248)), 61.0,
+== ctrl_memory_ledger planted() tiles and REFUSED half-tile rows
+54:#: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+58:    ("its own image at 59.5 RAMB36, half a tile past its 59.0", FIXTURE, OWN[FIXTURE]._replace(tiles=59.5)),
+65:    ("its own image at 61.5 RAMB36, half a tile past its 61.0", PLATFORM, OWN[PLATFORM]._replace(tiles=61.5)),
+128:             ("the platform's entry at 61.5 RAMB36", PLATFORM, {"tiles": 61.5}),
+130:             ("the size fixture's entry at the platform's 61.0", FIXTURE, {"tiles": 61.0}))
+== lane/round tokens in # comments of ctrl_memory.py at head
+none
