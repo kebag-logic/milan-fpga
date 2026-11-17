@@ -1,0 +1,39 @@
+Scope integrity at 5f625090 against the reviewed round-2 head 09a948d4.
+Six one-line commits, no body or trailer; source tree clean.
+
+5f625090 Record srp_mbx.c's coverage as measured, 768 of 768 lines and 695 of 695 branches (#925)
+7a2def7c Wrap the planted defects' summary to the 120 columns the Python idiom gate allows (#925)
+0b1f57b3 Test the Failed New over an Advertise registered New beside the Failed, and plant a withdrawal for both kinds with no latest known past the held table's bound (#925)
+eccfe556 Test a Failed New beside a registered Advertise again in the replacement's own test, and build the test of another interface's hold at two interfaces alone (#925)
+44265574 Record ctrl_plat as 17,728, 19,392, 18,624 and 21,248 B with the StreamIDs held, and the platform's 8x8/2if entry at 61.0 RAMB36, its sram a 57th granule, by the owner's decision of 2026-11-15 (#925)
+6e4d9c1a Owe the declaration the receive filter's copy changes whatever follows in the MRPDU, hold a StreamID's latest Talker kind while both kinds stay registered with no binding, and test each New in turn, a binding replaced in place and the clauses of the rule, with planted defects for each (#925)
+
+Changed files:
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/srp/srp_mbx.c
+sw/firmware/ctrl/srp/srp_mbx.h
+sw/firmware/ctrl/test/srp_feedback.hpp
+sw/firmware/ctrl/test/srp_kind_mutants.py
+sw/firmware/ctrl/test/srp_mbx.cpp
+sw/firmware/gtest/coverage.ratchet
+sw/litex/ctrl_memory.py
+sw/litex/ctrl_memory_ledger.py
+sw/litex/test_ctrl_memory.py
+
+Protected scope unchanged:
+hdl
+third_party/lwSRP
+third_party/tsn-c-stack
+protocol-processor
+gptp-processor
+sw/mailbox
+sw/firmware/ctrl/mbx
+sw/firmware/ctrl/loop
+sw/firmware/ctrl/srp/srp_bounds.h
+tb/verilator/ctrl_service_budget
+
+No timer, approved CPU bound, mailbox contract, RTL or submodule change.
+git diff --check: rc 0
+RESULT: PASS

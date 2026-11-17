@@ -1,0 +1,44 @@
+Source and receipt provenance, resumed at 5f625090.
+No interrupted run without an rc is counted as passed.
+
+lane: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+h7: head 7a2def7c, tracked tree clean; processor root/origin verified, processor clean.
+fw0: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+fw1: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+fw2: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+fw3: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+cov: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+b1: head 7a2def7c, tracked tree clean; processor root/origin verified, processor clean.
+b8: head 7a2def7c, tracked tree clean; processor root/origin verified, processor clean.
+release: head 5f625090, tracked tree clean; processor root/origin verified, processor clean.
+
+7a2def7c..5f625090 changes only: sw/firmware/gtest/coverage.ratchet.
+Compiled sources, tests and image recipes at those heads are identical.
+r3-fw0.rc: rc 0; raw log 80834 B sha256 6c84ddcf7698215cbe602f4656c786c23fcb341a23ffc90684b7ba7d40b6ad2c
+r3-fw1.rc: rc 0; raw log 135781 B sha256 4dd1dbdd9ddc98295d2d82134033ddee368b57ca256e85dae59b7faff095ea0a
+r3-fw2.rc: rc 0; raw log 164992 B sha256 9c1d966fc08acd301f95793f5c0a09055db9d796be79182ab442d3d80e65abde
+r3-fw3.rc: rc 0; raw log 215736 B sha256 d81098e64423d2bfc95bd28a75564020b80896690156fcc51649d4dd484bb9a1
+r3-covc.rc: rc 0; raw log 5323 B sha256 a02593d3b0bac2135656fad4455bdd4ba8c16d176038ab7faf62127c932778f5
+r3-wfdocs.rc: rc 0; raw log 3879 B sha256 4764c1d41f19bf14772e1556692c5afb2e7d09be76bc37858bb09c0be71e983e
+r3-wfunit.rc: rc 0; raw log 571 B sha256 449f15d7184fff22b74af31711dc4bad215bc7f3fb87a0473d8dae819f2193f2
+r3-release.rc: rc 0; raw log 0 B sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+R850-1 probes-if1.rc: rc 0
+R850-1 probes-if2.rc: rc 0
+R850-1 rebind-if1.rc: rc 0
+R850-1 rebind-if2.rc: rc 0
+R850-1 reproduce-if1-srp_mbx.cpp.rc: rc 0
+R850-1 reproduce-if1-test_acmp_mbx.cpp.rc: rc 0
+R850-1 reproduce-if2-srp_mbx.cpp.rc: rc 0
+R850-1 reproduce-if2-test_acmp_mbx.cpp.rc: rc 0
+
+RESULT: PASS
+
+Public log copies scrub host paths and shorten commit IDs to eight characters. Raw-log sizes and full SHA-256 hashes above identify the unmodified scratch logs.
+
+Final-head elaborate replay: clean per-job clones at 5f625090, rc 0; 10 executed steps, 36 setup/hosted-only with reasons, 0 bad. Unit peak 5.9 GiB, runtime 42m23s.
+r3-wfelab.log: 1271 B, sha256 9c9c8c686b8f72b54441670bac29cb1d8a07dc233bd518f315111dc96acb232f
+r3-wfelab-verify.md: 8428 B, sha256 85009e5008dc10611153e0701a5269a68e8cb70c9711dbb4a92ad979c71cbd7e
+r3-b1.log: 50968 B, sha256 fa8772340c0109f18b6ff779fc845f1013591a084ae1aa3a8c4a2725e10dad49
+
+CPU-budget completion: 1x1 rc 0; 8x8/1if rc 1 for the three #914 statement categories only. Both images measured at 7a2def7c are byte-identical when relinked at final head 5f625090. Both runs have 0 refusals, no new missed path, and no share or SRP/transmit overrun. No active lane units remain.
+r3-b8.log: 59002 B sha256 637d22644143123670ab6577e717a8880bc54d69f3db8db0a27481d355b7eb1c

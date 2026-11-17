@@ -1,0 +1,38 @@
+head 7a2def7c (clean clone); R849-1's r849_drive.py mutants, 1 interface(s)
+author plants selected: 22; reviewer plants: 5
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-renew-not-recorded: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+[ok] feedback-latest-unknown-withdraws: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+[ok] feedback-latest-not-carried-in-place: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+[ok] feedback-latest-filter-holds-nothing: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+[ok] feedback-latest-filter-holds-nothing-acmp: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+[ok] feedback-latest-not-held: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-not-taken: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-for-another-stream: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+[ok] feedback-latest-held-with-one-kind: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+[ok] feedback-latest-held-past-a-leave: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-held-past-a-reset: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-stream-kinds-kept: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] feedback-latest-filter-failed-first: SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind / the latest kind precedes the withdrawal
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] r849-bind-copy-same-destination: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] r849-walk-kinds-swapped: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / a first registration declares within a JoinTime
+[ESCAPED] r849-unknown-withdraws: SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst / neither registration seen: Failed first
+Note: Google Test filter = SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+== ctrl SRP mailbox: checks: 0   failures: 0 ==
+RESULT: PASS
+WARNING: filter "SrpTalkerKinds.ABindingThatSawNeitherRegistrationTakesFailedFirst" did not match any test; no tests were run
+  verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 0)
+[ok] r849-renew-not-recorded: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] r849-bind-copy-skipped-for-self: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+campaign interfaces=1: ESCAPED

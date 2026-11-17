@@ -1,0 +1,1 @@
+python3 scripts/check_entity_shape.py --self-test

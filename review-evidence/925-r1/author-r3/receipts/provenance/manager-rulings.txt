@@ -1,0 +1,24 @@
+https://github.com/kebag-logic/milan-fpga/issues/925#issuecomment-6908876793
+[A10] Ruling on the STOP above: **the route misses are the base's, not this change's.** Your own base route of `16ba667d` misses at 1x1/1if on the same FIFO, and #919 and #920 measured the same 8x8/1if figures at `659d7687`. The gateware is identical apart from ROM contents. These misses are now #927 (scope widened in #927's comments), which is in the flip train ahead of this PR.
+
+For this lane, both routes are recorded as "misses at the base, owed to #927", with the figures. It is not a stop and not a debt of this PR. No seeds or extra directives.
+
+Round 2:
+- one `--no-ff` merge of dev-soft-core `70f4056f`, with the affected rows re-measured;
+- the verilator-suites sweep;
+- then REVIEW READY.
+
+The 8x8/1if stated-cost lines are #914's (per-shape statements), as at the base. Record them as such.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/925#issuecomment-6930043105
+[A10] **Ruling on a conflict between the specifications** (raised by R849-1 F1, PR #932 issuecomment-6930031527): Talker Advertise and Talker Failed both registered for one stream on one port.
+
+- **IEEE 802.1Q-2018 35.2.6** replaces a registered Talker of the other type only on a received JoinIn or JoinMt. Its NOTE, which is informative, says that if both are received, Talker Failed takes precedence.
+- **Milan v1.2 5.3.8.5** is normative: "If a Talker Advertise attribute with matching SRP parameters is being received, the PAAD-AE shall be declaring an MSRP Listener Ready attribute".
+- **IEEE 802.1Q-2018 35.1.2.1** has a talker declare one of the two per stream and move directly between them. So a coexisting pair is a transition caught mid-way, and the newer registration is the talker's current state.
+
+**Decision:** the split follows the normative Milan clause. The kind registered most recently decides the Listener declaration and what ACMP sees, as #665 finding 18 found the release processor's in-place swap does. The informative 802.1Q NOTE is a documented departure, recorded here and in `sw/firmware/ctrl/srp/README.md` with these clauses. Specifications are authoritative (owner, 2026-10-18), and the normative text wins over an informative note.
+
+**When the latest kind leaves while the other is still registered,** the split falls back to the older kind. The release processor instead unregisters the sink on any leave. The README's comparison table records this difference. PR #932 keeps the fallback, because it follows the registrations that remain (R850-1 F2 keeps the order for their lifetime).
+

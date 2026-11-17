@@ -1,0 +1,21 @@
+Release firmware comparison, 16ba667d vs 5f625090 (clean clone rebuild, both configurations rc 0).
+Recipe: release_image.sh <clone> <output> endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8.
+All-fabric builder arguments; release BIOS and stripped ELF compared byte for byte.
+
+endstation_ax7101_1x1_tdm8 bios.bin
+  base: 55044 B sha256 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f
+  head: 55044 B sha256 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f
+  byte-identical: True
+endstation_ax7101_1x1_tdm8 bios.elf (debug stripped)
+  base: 69456 B sha256 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719
+  head: 69456 B sha256 8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719
+  byte-identical: True
+endstation_ax7101_8x8 bios.bin
+  base: 55204 B sha256 d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99
+  head: 55204 B sha256 d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99
+  byte-identical: True
+endstation_ax7101_8x8 bios.elf (debug stripped)
+  base: 69616 B sha256 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb
+  head: 69616 B sha256 733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb
+  byte-identical: True
+RESULT: PASS

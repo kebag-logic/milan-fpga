@@ -1,0 +1,19 @@
+round 2 (a9f0dbc0, whose images 09a948d4 relinks byte-identical) vs round 3 (7a2def7c) split exports through S9's recipe
+(rt/tools/route_image.sh, same stand-in inputs); alinx_ax7101.v with the clone and output paths normalised
+
+== 1x1/1if
+netlist: 4 differing lines, 0 outside the generated comment tree (dates and the tree's sibling order)
+alinx_ax7101_mem.init: round 2 55 words, round 3 55 words, same
+alinx_ax7101_rom_bank0.init: round 2 16384 words, round 3 16384 words, contents differ
+alinx_ax7101_rom_bank1.init: round 2 8192 words, round 3 8192 words, contents differ
+alinx_ax7101_rom_bank2.init: round 2 4096 words, round 3 4096 words, contents differ
+alinx_ax7101_rom_bank3.init: round 2 722 words, round 3 860 words, contents differ
+integrated script: identical
+image identity gate (round 3): 1 pass line
+
+== 8x8/1if
+netlist: 16 differing lines, 0 outside the generated comment tree (dates and the tree's sibling order)
+alinx_ax7101_mem.init: round 2 55 words, round 3 55 words, same
+alinx_ax7101_rom_bank0.init: round 2 32558 words, round 3 32688 words, contents differ
+integrated script: identical
+image identity gate (round 3): 1 pass line

@@ -1,0 +1,185 @@
+[A790]
+
+## Contents
+
+- **[Status](#status)** -- Green/WIP/blocked, test tally, and `branch` -> base.
+- **[Linked Issue / roles](#linked-issue--roles)** -- Public task, executor, and independent reviewers.
+- **[Description](#description)** -- What changed and why.
+- **[Authoritative references](#authoritative-references)** -- Requirements/specification clauses and docs.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** -- Copy-pasteable checkout/dependency/environment commands.
+- **[How to validate](#how-to-validate)** -- Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** -- What this deliberately does not do, and why.
+- **[Definition of Done](#definition-of-done)** -- The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Status
+
+Round 3 implementation at `5f625090`; firmware, documentation and elaboration gates PASS. Both CPU-budget runs are complete: 1x1 rc 0; 8x8 rc 1 for the three statement categories assigned to #914 below. SRP and THE TRANSMIT rows remain within bounds.
+`925-srp-ta-tf` -> `dev-soft-core` (PR #932). Six commits since reviewed head `09a948d4`; nothing pushed in this round.
+Both negative reviews are answered by the changes below; corrected-head review is still required.
+
+## Linked Issue / roles
+
+Closes #925
+Relates to #665
+Relates to #927
+Relates to #914
+
+Executor: `[A790]`
+Internal cleared-context reviewer: `[R849]` (round R849-1, NEGATIVE at `09a948d4`, answered in round 3)
+External reviewer: `[R850]` (round R850-1, NEGATIVE at `09a948d4`, answered in round 3)
+
+## Description
+
+**The defect (#925, finding 18 of #665's replica report).** When a talker replaces its Talker Failed with a Talker
+Advertise, it sends the Advertise as New. lwSRP withdraws a registered Talker of the other type only for a received
+JoinIn or JoinMt (`mrp_mad.c` `rx_on_attr`, `msrp_attr_replaces`) and registers a New beside it, so both stay
+registered until the talker's next MRPDU. The split SRP adapter resolved both registered as Failed first, so the
+Listener stayed Asking Failed until that next MRPDU (2.1 s on the bench, where the scenario wants 1 s).
+
+**The rule and its clauses.** A talker declares one of the two Talker attributes for a stream and moves directly
+between them (IEEE 802.1Q-2018 35.1.2.1). 35.2.6 replaces a registered Talker of the other type only on a received
+JoinIn or JoinMt, and its informative NOTE gives the Talker Failed precedence when both are received. Milan v1.2
+5.3.8.5 is normative: a Listener declares Ready while a matching Talker Advertise is received. The
+[ruling on #925](https://github.com/kebag-logic/milan-fpga/issues/925#issuecomment-6930043105) follows the Milan
+clause, and the NOTE is a documented departure: while both kinds are registered, the kind registered latest (the
+talker's current state) decides the Listener declaration (Ready for an Advertise, AskingFailed for a Failed,
+35.2.2.7.2) and the kind ACMP sees. Once it leaves, the other one decides. Each New in turn decides, also a New of a
+kind already registered beside the other. The release processor reaches the same result through its in-place type
+swap, but it unregisters a sink on a leave of either type; the split falls back to the older kind still registered
+(`srp/README.md`'s comparison, D3).
+
+**Round 3** answers R850-1 (two MAJOR) and R849-1 (two MINOR, one SUGGESTION, one RESIDUE):
+
+| Finding | Change |
+|---|---|
+| R850-1 F1: a replacement followed in its MRPDU by a message that changes nothing (an unchanged Domain JoinIn, an ignored Talker) waited about 600 ms | The receive filter's copy moved `desired` and the walk after the receive then saw no change. `interested_msrp` now owes the declaration's transmission (`hold`) when its copy changes it. `hold` calls no lwSRP function. The host-model tests observe the replacement on the wire within one JoinTime, including at an idle join timer and across the reviewer phase sweep. Atomic replacement, retained withdrawal ordering and final-state-only declarations within one MRPDU are preserved. |
+| R850-1 F2: a final unbind then rebind with both registrations still present lost the order and presented Failed | The order is kept per StreamID for the lifetime of the registrations. `srp_sink.stream_kinds` holds the StreamID's registered kinds, whatever the destination and VID, as the walk copies them. A StreamID whose last binding ends (by unbinding or by binding another identity) while both kinds stay registered is held with its latest kind (`srp_held`) for its interface's next binding of it. Either kind's leave (its leave timer's expiry included: lwSRP indicates it whatever the filter answers) or the interface's reset ends the hold. Each registration is one lwSRP attribute in a medium or large pool block, so half those blocks bound the StreamIDs held (16, 32, 40 and 81 entries by point). The table does not fill; a white-box test covers its guard. The fallback test and its plant are replaced. |
+| R849-1 F1: clause record | The citations above, in `srp_mbx.c`, the README, `srp_kind_mutants.py`, `srp_mbx.cpp`, `srp_feedback.hpp` and here; the README's comparison table gains D3 (the processor's leave). The ruling on #925 records the departure. |
+| R849-1 F2: the latest decides only from a one-kind state was tested | `EachNewInTurnDecidesWhileBothAreRegistered`, and the Failed New over an Advertise registered New beside the Failed in `AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime`: R849-1's plant `r849-renew-not-recorded` is caught by name, by R849-1's own drive too. |
+| R849-1 F3: an in-place rebind | `ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream` replaces the StreamID's only binding in place and back; R849-1's `r849-bind-copy-skipped-for-self` is caught by name. |
+| R849-1 F4 | The source comment's report-local label is now `#925`. |
+
+| Piece | Change |
+|---|---|
+| `sw/firmware/ctrl/srp/srp_mbx.h` | `srp_sink.stream_kinds`; `struct srp_held`, `SRP_HELD_STREAMS`, `srp_mbx.held_count` and `held` (the table last, after the frame buffers); the pool counts moved above `struct srp_mbx` |
+| `sw/firmware/ctrl/srp/srp_mbx.c` | the filter's `hold`; `held_stream` and `release_held`; the hold taken at bind, stored at a final unbinding, released by a leave and by a reset; the walk's `stream_kinds`; the rule's clauses |
+| `sw/firmware/ctrl/srp/README.md` | the rule, its clauses and the departure; the hold and its bound; D3 |
+| `sw/firmware/ctrl/test/srp_mbx.cpp` (`SrpTalkerKinds`), `srp_feedback.hpp` | the regressions below; the walk reference model copies `stream_kinds` too |
+| `sw/firmware/ctrl/test/srp_kind_mutants.py` | 23 planted defects of the rule (21 at both interface counts, 2 at two interfaces) |
+| `sw/litex/ctrl_memory_ledger.py`, `ctrl_memory.py`, `test_ctrl_memory.py`, `docs/design/SPLIT_CONTROL_MEMORY.md`, `sw/firmware/ctrl/plat/README.md` | `ctrl_plat` 17,728, 19,392, 18,624 and 21,248 B; the platform's 8x8/2if entry 61.0 RAMB36 (below) |
+| `sw/firmware/gtest/coverage.ratchet` | `srp_mbx.c` 768/768 lines, 695/695 branches, as measured |
+
+New and changed tests (`SrpTalkerKinds` unless named):
+
+- `AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime`: both directions, each before an unchanged
+  Domain JoinIn and before an ignored Talker, offered at an idle join timer; the declaration and the Listener
+  declaration on the wire within a JoinTime; then a New and its own Leave in one MRPDU before a Domain message, with
+  only the final state on the wire.
+- `SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews`: the same at an idle join timer through the
+  composition: the Listener Ready on the wire within a JoinTime, and ACMP's GET_RX_STATE reporting no Failed.
+- `EachNewInTurnDecidesWhileBothAreRegistered`, and `AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime` extended.
+- `AFinalUnbindingKeepsTheLatestWhileBothStayRegistered`, for either latest kind. A final unbinding then a rebinding:
+  the latest decides in the declaration, on the wire and in ACMP's copy. A binding of another StreamID in the sink's
+  place, or made while the StreamID is held, takes none of it.
+- `AHeldStreamEndsWithEitherRegistrationOrAReset`: a LeaveAll of either kind lets it expire, or a link reset; the
+  hold ends and a later binding follows what is left; an unbinding with one kind holds nothing.
+- `AStreamIsHeldForItsOwnInterface` (two interfaces): another interface's binding and reset leave it.
+- `AFullHeldTableHoldsNothingMore` (white-box): the guard.
+- `ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream` extended to an in-place replacement.
+- `ABindingThatSawNeitherRegistrationTakesFailedFirst` removed: it enforced the exception R850-1 F2 removes.
+
+**ROM, RAM, area and timing.** Platform image (`plat_ledger.py`, against round 2's head):
+
+| Point | `rom`, B | `sram`, B | `ctrl_plat`, B | RAMB36 |
+|---|---:|---:|---:|---:|
+| 1x1/1if | 118,128 (+552) | 56,416 (+192) | 17,728 (+192) | 43.0, unchanged |
+| 1x1/2if | 119,712 (+552) | 58,720 (+320) | 19,392 (+320) | 44.0, unchanged |
+| 8x8/1if | 130,752 (+520) | 97,712 (+384) | 18,624 (+384) | 56.0, unchanged, 320 B of `rom` to its next granule |
+| 8x8/2if | 132,304 (+520) | 115,120 (+832) | 21,248 (+832) | 61.0, from 60.5: its `sram` takes a 57th granule, 432 B past 56 |
+
+The RAM is the held table (16, 32, 40 and 81 entries of 10 B). The ROM is the filter's hold and the table's code.
+8x8/2if is past its 60.5 entry, so by the owner's
+[decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) its entry
+is raised to the measured size at the next half tile, 61.0 RAMB36, as debt owed to S14 (`ctrl_memory.LEDGERED`, its
+controls moved half a tile, `SPLIT_CONTROL_MEMORY.md`). No smaller provable bound exists: the StreamIDs held are bounded
+only by the registrations the pool can hold.
+
+The routed shapes' exports (S9's recipe) equal round 2's apart from ROM contents: the netlists differ only in their
+dates and the generated comment tree, and the integrated scripts are identical. So, by the ruling on the lane's STOP (#925
+issuecomment-6908876793), both shapes' routes remain **misses at the base, owed to #927**, with round 1's figures on
+`a9f0dbc0`'s images (Slow WNS / Fast WHS, ns). No route was run in this round. The table above gives the RAMB36 delta; no new routed LUT/FF area is claimed.
+
+Release firmware rebuilt at `5f625090` remains byte-identical to `16ba667d` at both shapes (`bios.bin` and the debug-stripped ELF). Both budget firmware ELFs also relink byte-identical at `5f625090` to the measured `7a2def7c` images; the only change between those heads is the coverage-count record.
+
+| Shape | ExtraPostPlacementOpt (recipe) | ExtraTimingOpt | AltSpreadLogic_high |
+|---|---|---|---|
+| 1x1/1if | +0.024 / +0.036 | +0.008 / +0.023 | +0.177 / +0.023 |
+| 8x8/1if | +0.011 / +0.034 | +0.171 / +0.014 | +0.215 / +0.014 |
+| 1x1/1if at `16ba667d` (the base, comparison) | +0.208 / +0.014 | +0.260 / +0.014 | not run |
+
+## Authoritative references
+
+- #925 and its [ruling on the specification conflict](https://github.com/kebag-logic/milan-fpga/issues/925#issuecomment-6930043105); #665 issuecomment-6904803181 (finding 18) and issuecomment-6904832963 (the decision); the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) (block RAM).
+- IEEE 802.1Q-2018 35.1.2.1, 35.2.6 (and its informative NOTE), 35.2.2.7.2, 35.2.2.8; Milan v1.2 5.3.8.5; Milan v1.2 4.2.7.2.2 (rapid leave, unchanged).
+- `sw/firmware/ctrl/srp/README.md` (the Listener rules and the processor comparison); `third_party/lwSRP` `mrp_mad.c` (`rx_on_attr`, `reg_event`, `on_leave_timer`, `rx_on_leaveall`); `protocol-processor/hdl/srp/KL_srp_listener_fsm.sv` (the release's registrar swap and its leave).
+- `docs/design/SPLIT_CONTROL_MEMORY.md` sections 3 and 5 (the ledger); FR_NFR 3.4.1 (the service budget, unchanged bounds).
+
+## How to get into the same state
+
+```sh
+git fetch origin 925-srp-ta-tf && git checkout --detach 5f625090
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+```
+
+## How to validate
+
+```sh
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4   # and 1/4, 2/4, 3/4
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir <dir>
+python3 -B sw/litex/test_ctrl_memory.py
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <dir> --record-budget-findings --record-share-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <dir> --record-budget-findings --record-share-findings
+python3 -I tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+python3 -I tb/verilator/ctrl_service_budget/load_grade.py --check
+```
+
+Expected result / pass criteria:
+
+- Firmware suites: PASS, 79 arms; control mutants 716/716; AECP mutants 299 caught; SRP mutants 465 caught, zero escaped.
+- Coverage: PASS across 39 files; `srp_mbx.c` 768/768 lines and 695/695 counted branches, with the three standing exclusions unchanged.
+- Reviewer drivers: R850-1 reproductions, 200 phase/direction cases and 216 ordered-event traces per interface count, and final-unbind probes PASS at one and two interfaces. R849-1 probes PASS; `r849-renew-not-recorded` and `r849-bind-copy-skipped-for-self` are caught by name at both counts. Reproduction drivers are included in the packet.
+- Scoped workflow replays: all executable docs steps (61), firmware-unit/changes steps (6 + 2), and elaborate steps (10) rc 0. Setup/upload/hosted recording steps are marked not run with reasons; these local receipts do not claim hosted acceptance.
+- Platform memory ledger and its controls: PASS on a clean clone at `5f625090`, with the four measured points above. Release firmware: byte-identical at both shapes.
+- The 1x1 statement-row and load graders pass unchanged. CPU measurements and comparison: `python3 -B tb/verilator/ctrl_service_budget/run.py --point <point> --build-dir <dir> --record-budget-findings --record-share-findings --jobs 7`, at `1x1` and `8x8-1if`: 96/95 groups, zero refusals and zero share overruns in 137530/247150 work passes. All SRP and THE TRANSMIT rows are within bounds; SRP record apply peaks 237.99/222.20 us against 280 us, and timer-driven MRPDU response peaks 1.87123/2.62353 ms against the measured row's 20 ms bound. No late, absent or unresolved timer work; join intervals 189.053–190.070 / 188.316–190.122 ms against 181–239 ms. Both shapes retain the same seven pre-existing backlog-owed misses, with no new missed path.
+
+The 1x1 run is rc 0. The 8x8 run is rc 1 only for #914's per-shape statements under #925 issuecomment-6908876793: 81 polls-base, two ACMP-item and four declined-offer records, versus 77/3/4 in round 2. Their peaks changed from 244.99/66.56/25.22 us to 270.00/63.91/21.96 us; measurement + 5%, rounded upward to 5 us, gives 285/70/25 us, against the existing 225/55/20 us statements. These remain #914's statement work; no approved bound or source cost statement is changed here. Every measured cost delta and its rounded value is recorded in the packet's two budget summaries, including decreases and costs not directly staged by these groups.
+
+The round 3 packet contains the exact commands, recorded return codes, named failing words for every new check, and a generated receipt index. The manager archives the packet with the PR. The earlier 65-suite sweep is round 2 evidence at `09a948d4`; no new full sweep or routed timing result is claimed in round 3.
+
+## Known limitations / out of scope
+
+- The 8x8/1if run retains #914's per-shape statement failures (87 records in the same three categories); both budget runs retain the seven pre-existing backlog-owed misses, all listed in the packet. No new missed path or SRP/transmit failure was observed.
+- R849-1's unchanged legacy mutant driver still selects the removed fallback test for `r849-unknown-withdraws` and calls that selection an escape. Its identical production mutation is caught by `feedback-latest-unknown-withdraws` against the unreachable full-table guard; the exact renewal and in-place plants requested by the review are caught at both interface counts.
+
+- The bench acceptance (the scenario reaches Listener Ready within 1 s of the Talker Advertise) is the gating run's.
+- The full-table fallback (both kinds registered, no latest known: Failed) is reached only past `SRP_HELD_STREAMS`,
+  which the pool bound rules out; it is tested white-box.
+- `srp_mbx.cpp` at the 8x8 entity, a shape no gate runs that suite at, fails two startup tests at `16ba667d` too
+  (`StartupDeclaresTalkersDomainAndVlan`, `OneLoopOwnsTheGlobalCentisecondDispatch`); not changed here.
+- lwSRP, the mailbox contract and RTL are unchanged.
+
+## Definition of Done
+
+- [ ] Linked Issue acceptance criteria are satisfied (desk gates here; the bench acceptance is the gating run's)
+- [x] New or changed behavior has self-checking tests
+- [x] Required scoped local verification is complete, with #914/#927 dispositions recorded above
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done

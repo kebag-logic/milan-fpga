@@ -1,0 +1,102 @@
+Workflow step, final head 5f625090; recorded rc 0. Raw log 350371 B; sha256 cb0d022dba0d16089f9c8c2679a3e97f84e1abdb28814ef2e109f9df16606ec5.
+Raw log exceeds 200 KB; retained in scratch. Result excerpt follows.
+  ok   caught: #406 firmware-aecp-mutants inserted third-party action breaks the sequence
+  ok   caught: #406 firmware-aecp-mutants inserted step of benign content breaks the sequence
+  ok   caught: #406 firmware-aecp-mutants recorded step removed
+  ok   caught: #406 firmware-aecp-mutants step appended after the recorded list
+  ok   caught: #406 firmware-aecp-mutants step gains a `shell`
+  ok   caught: #406 firmware-aecp-mutants recorded steps swapped
+  ok   caught: #406 firmware-aecp-mutants recorded step renamed
+  ok   caught: #406 firmware-aecp-mutants action step swapped under its recorded name
+  ok   caught: #406 firmware-aecp-mutants step given an env binding
+  ok   caught: #406 firmware-aecp-mutants ungated step given if: false
+  ok   caught: #406 firmware-aecp-mutants action step `with` rewritten
+  ok   caught: #406 firmware-srp-mutants inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 firmware-srp-mutants inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 firmware-srp-mutants inserted third-party action breaks the sequence
+  ok   caught: #406 firmware-srp-mutants inserted step of benign content breaks the sequence
+  ok   caught: #406 firmware-srp-mutants recorded step removed
+  ok   caught: #406 firmware-srp-mutants step appended after the recorded list
+  ok   caught: #406 firmware-srp-mutants step gains a `shell`
+  ok   caught: #406 firmware-srp-mutants recorded steps swapped
+  ok   caught: #406 firmware-srp-mutants recorded step renamed
+  ok   caught: #406 firmware-srp-mutants action step swapped under its recorded name
+  ok   caught: #406 firmware-srp-mutants step given an env binding
+  ok   caught: #406 firmware-srp-mutants ungated step given if: false
+  ok   caught: #406 firmware-srp-mutants action step `with` rewritten
+  ok   caught: #406 firmware-boundary inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 firmware-boundary inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 firmware-boundary inserted third-party action breaks the sequence
+  ok   caught: #406 firmware-boundary inserted step of benign content breaks the sequence
+  ok   caught: #406 firmware-boundary recorded step removed
+  ok   caught: #406 firmware-boundary step appended after the recorded list
+  ok   caught: #406 firmware-boundary step gains a `shell`
+  ok   caught: #406 firmware-boundary recorded steps swapped
+  ok   caught: #406 firmware-boundary recorded step renamed
+  ok   caught: #406 firmware-boundary action step swapped under its recorded name
+  ok   caught: #406 firmware-boundary step given an env binding
+  ok   caught: #406 firmware-boundary ungated step given if: false
+  ok   caught: #406 firmware-boundary action step `with` rewritten
+  ok   caught: #406 firmware-verilator inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 firmware-verilator inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 firmware-verilator inserted third-party action breaks the sequence
+  ok   caught: #406 firmware-verilator inserted step of benign content breaks the sequence
+  ok   caught: #406 firmware-verilator recorded step removed
+  ok   caught: #406 firmware-verilator step appended after the recorded list
+  ok   caught: #406 firmware-verilator step gains a `shell`
+  ok   caught: #406 firmware-verilator recorded steps swapped
+  ok   caught: #406 firmware-verilator recorded step renamed
+  ok   caught: #406 firmware-verilator action step swapped under its recorded name
+  ok   caught: #406 firmware-verilator step given an env binding
+  ok   caught: #406 firmware-verilator gated step `if` dropped
+  ok   caught: #406 firmware-verilator action step `with` rewritten
+  ok   caught: #406 firmware-verilator recorded `id` changed
+  ok   caught: #406 rtl-fast inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 rtl-fast inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 rtl-fast inserted third-party action breaks the sequence
+  ok   caught: #406 rtl-fast inserted step of benign content breaks the sequence
+  ok   caught: #406 rtl-fast recorded step removed
+  ok   caught: #406 rtl-fast step appended after the recorded list
+  ok   caught: #406 rtl-fast step gains a `shell`
+  ok   caught: #406 rtl-fast recorded step renamed
+  ok   caught: #406 rtl-fast recorded env binding rebound
+  ok   caught: #406 rtl-fast ungated step given if: false
+  ok   caught: #406 rtl-fast run step given a `with`
+  ok   caught: #406 job appended to rtl.yml is recorded by no step list
+  ok   caught: #406 job appended to rtl-fast.yml is recorded by no step list
+  ok   caught: #406 step-pinned job respelt in its file
+  ok   caught: #406 step-pinned job also publishes the verdict's required name
+  ok   caught: #350 result cache restore step removed
+  ok   caught: #350 result cache path moved
+  ok   caught: #350 save key without the head SHA
+  ok   caught: #350 restore prefix wider than this worker's lineage
+  ok   caught: #350 restore step after the run step
+  ok   caught: #350 run step without --cache
+  ok   caught: #350 run step adds a second seed directory
+  ok   caught: #350 policy page silent on the result cache
+  ok   caught: physical job removed
+  ok   caught: physical job changed if ${{ false }}
+  ok   caught: physical job changed if ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+  ok   caught: physical job changed needs []
+  ok   caught: physical job changed timeout-minutes 180
+  ok   caught: physical job changed runs-on self-hosted
+  ok   caught: physical job changed continue-on-error True
+  ok   caught: physical step 0 changed with
+  ok   caught: physical step 1 changed run
+  ok   caught: physical step 2 changed run
+  ok   caught: physical step 4 changed run
+  ok   caught: physical step 5 changed run
+  ok   caught: physical step 6 changed run
+  ok   caught: physical step 7 changed if
+  ok   caught: physical step 7 changed run
+  ok   caught: physical step 7 changed env
+  ok   caught: physical step 8 changed with
+  ok   caught: physical version check loses pipefail
+  ok   caught: physical selection leaked into default shards
+  ok   caught: physical runs cancelled by pushes
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yml) carries docs-check
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yaml) carries docs-check
+  ok   caught: #295 duplicate `wire-accountability:` mapping ON DISK in .github/workflows/docs.yml (last one wins)
+  ok   caught: #295 duplicate `elaborate:` mapping ON DISK in .github/workflows/elaborate.yml (last one wins)
+  ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborate scope step; carrier-script-407 every carrier body)
+selftest: PASS (2271 contract items, 5467 arms)

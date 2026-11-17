@@ -1,0 +1,13 @@
+5f625090 clean clone; both budget images relinked against their recorded flash maps; rc 0
+Final head 5f625090 vs measured 7a2def7c: exact budget ELF comparison
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/r3/release/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/r3/final-b1/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/r3/release/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/r3/release/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/r3/final-b1/image --flash-map <scratch>/r3/b1-out/split-soc/flash-map --libc <scratch>/r3/final-b1/runtime/libc.a --compiler-runtime <scratch>/r3/final-b1/runtime/libcompiler_rt.a
+b1 old 144808 b43f2fe8b1ac0cda7b1bc5e0f1a2c46f3eed12bb51c97f320b37c59694fbef1e
+b1 new 144808 b43f2fe8b1ac0cda7b1bc5e0f1a2c46f3eed12bb51c97f320b37c59694fbef1e
+b1 byte-identical True
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/r3/release/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/r3/final-b8/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/r3/release/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/r3/release/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/r3/final-b8/image --flash-map <scratch>/r3/b8-out/split-soc/flash-map --libc <scratch>/r3/final-b8/runtime/libc.a --compiler-runtime <scratch>/r3/final-b8/runtime/libcompiler_rt.a
+b8 old 157488 5a4b4d38b43a186dad16d048a0073a5715b4f8215f6ccebb636b4bf6ad1e2f0c
+b8 new 157488 5a4b4d38b43a186dad16d048a0073a5715b4f8215f6ccebb636b4bf6ad1e2f0c
+b8 byte-identical True
+RESULT: PASS
