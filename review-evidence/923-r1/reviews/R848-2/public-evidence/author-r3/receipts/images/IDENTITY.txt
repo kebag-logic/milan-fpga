@@ -1,0 +1,31 @@
+The final head d06ded5a against round 2's 70c100da, each a clean clone, S9's recipe up to milan_soc.py's export (round1/scripts/export_only.sh, no Vivado), and the release recipe (round1/scripts/release_image.sh). (63c60ad9, round 3's first head, gave the same hashes.)
+
+== platform images (ctrl_app.elf, sha256)
+1x1/1if  d06ded5a caec0abc5d730cbeeb4c82a628406ed51161a2ccb783523afc90d20004c0587d
+1x1/1if  70c100da caec0abc5d730cbeeb4c82a628406ed51161a2ccb783523afc90d20004c0587d
+1x1/1if  routed (6abb6cc6, round2/receipts/route/head-1x1-*/bitstream.sha256) caec0abc5d730cbeeb4c82a628406ed51161a2ccb783523afc90d20004c0587d
+8x8/1if  d06ded5a 59b9b736f410e2b2de2f8e7bd27d21f3ee16870081c778fa296e6cf3149c84cd
+8x8/1if  70c100da 59b9b736f410e2b2de2f8e7bd27d21f3ee16870081c778fa296e6cf3149c84cd
+8x8/1if  routed (6abb6cc6, round2/receipts/route/head-8x8-*/bitstream.sha256) 59b9b736f410e2b2de2f8e7bd27d21f3ee16870081c778fa296e6cf3149c84cd
+
+== exports: rom/ram init files identical at both shapes; alinx_ax7101.v identical outside its comments (the hierarchy comment lists black boxes in another order); alinx_ax7101.xdc the same constraints (at 1x1 two asynchronous clock-group pairs name their clocks in the other order)
+1x1 d06ded5a 1419f6c025ea524df88b47ba56bc561f894db4307efc586c8a1dc43b1990cbda  alinx_ax7101_mem.init
+1x1 d06ded5a 1124392fbc482ea360aee4722ebadb1e5134ae5554869e9a853addede12d3310  alinx_ax7101_rom_bank0.init
+1x1 d06ded5a 93713cfe23ce00a591f9d3536732e45acf1d59c605ee6926fcaf8d3995c5341d  alinx_ax7101_rom_bank1.init
+1x1 d06ded5a d428b83cfc166a0db0f5bd74f0ec924406b81b31295653f1fddf7d53b5e0f058  alinx_ax7101_rom_bank2.init
+1x1 d06ded5a b107871b68ec4ffbb9f5a9040257a75a9c9f80378d2e6213bfee58f9106b7318  alinx_ax7101_rom_bank3.init
+1x1 d06ded5a 72c99c949e11f033f481957eb87be6aef8151cc5520ce684355ba7106ed37fed  alinx_ax7101_rom_bank4.init
+8x8 d06ded5a 1419f6c025ea524df88b47ba56bc561f894db4307efc586c8a1dc43b1990cbda  alinx_ax7101_mem.init
+8x8 d06ded5a 63b579598ea1f8b7e09ba9ac0843e0ffca008afd70b4f2c234de456daec44e2d  alinx_ax7101_rom_bank0.init
+8x8 d06ded5a 9d58ada0ee5d91efd5259ccb8e2ee09f8b79e0f5afcc5421cc8845ae2141aa18  alinx_ax7101_rom_bank1.init
+
+== release image (bios.bin and the bios.elf disassembly)
+d06ded5a 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+d06ded5a d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99  ./endstation_ax7101_8x8/software/bios/bios.bin
+d06ded5a 3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+d06ded5a 51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+679b4a44 860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+679b4a44 d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99  ./endstation_ax7101_8x8/software/bios/bios.bin
+679b4a44 3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+679b4a44 51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+(identical; 679b4a44's are the base's, round2/receipts/release/)
