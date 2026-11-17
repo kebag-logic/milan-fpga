@@ -403,19 +403,7 @@ def phy_mutants(mutant: type) -> tuple:
         m("plat-phy-after-an-idle-step-refused", PHY, "saving && s->steps != steps ? 0 :",
           "(saving || true) && s->steps != steps ? 0 :", "platboot1", "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
           "B12 a call whose store step is an idle one carries one PHY frame"),
-        # a call owing no centisecond step: the PHY's owed frame, never the save's extra step beside it or before it
-        # (#919, #920; #665's ruling of 2026-11-17)
-        m("plat-phy-frame-yields-to-the-extra-step", PHY, YIELD,
-          "\tif (false && !nvm_store_owed() && owes(ctx)) {\n", "platboot1", "Phy.L5ASaveKeepsThePollItsPeriod",
-          "L5 a loss during a save is published within one poll period"),
-        m("plat-phy-frame-beside-the-extra-step", PHY, FRAME,
-          FRAME.replace("NULL)));", "NULL))) | nvm_store_step(NULL, deadline);"), "platboot1",
-          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
-          "B12 the yielding call leaves the store's step count unchanged"),
-        m("plat-phy-frame-before-the-centisecond-step", PHY, YIELD, "\tif (owes(ctx)) {\n", "platboot1",
-          "Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase", "L6 the save is durable while every probe misses"),
-        m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed()) {\n", "platboot1",
-          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 a call with no frame owed takes the extra step"),
+        *step_yield_mutants(mutant),
         # the poll's rules
         m("plat-phy-probe-scans", PHY, "\t\tphy->polled = false;\n\t\tnext = CTRL_PLAT_PHY_IDLE;\n",
           "\t\tphy->polled = false;\n\t\tif (phy->address != 0u) {\n\t\t\tphy->stage = CTRL_PLAT_PHY_PROBE;\n"
@@ -481,6 +469,24 @@ READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COM
 P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
 P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
 
+
+def step_yield_mutants(mutant: type) -> tuple:
+    """THE STEP's client in a call owing no centisecond step: the PHY's owed frame, never the save's extra step
+    beside it or before it, and that step where no frame is owed (#919, #920; #665's ruling of 2026-11-17)."""
+    m = mutant
+    return (
+        m("plat-phy-frame-yields-to-the-extra-step", PHY, YIELD,
+          "\tif (false && !nvm_store_owed() && owes(ctx)) {\n", "platboot1", "Phy.L5ASaveKeepsThePollItsPeriod",
+          "L5 a loss during a save is published within one poll period"),
+        m("plat-phy-frame-beside-the-extra-step", PHY, FRAME,
+          FRAME.replace("NULL)));", "NULL))) | nvm_store_step(NULL, deadline);"), "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame",
+          "B12 the yielding call leaves the store's step count unchanged"),
+        m("plat-phy-frame-before-the-centisecond-step", PHY, YIELD, "\tif (owes(ctx)) {\n", "platboot1",
+          "Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase", "L6 the save is durable while every probe misses"),
+        m("plat-phy-extra-step-never-taken", PHY, YIELD, "\tif (!nvm_store_owed()) {\n", "platboot1",
+          "Phy.B12StepCarriesTheStoresSaveOrAPhyFrame", "B12 a call with no frame owed takes the extra step"),
+    )
 
 def advertisement_mutants(mutant: type) -> tuple:
     """THE ADVERTISEMENT's: the release's PHY init's writes, each property its own defect, and the split's rules,
