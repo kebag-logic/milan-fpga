@@ -52,12 +52,13 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
     """The synthetic logs' grader; tx_record is selftest.py's, the ring writes and commit of one TX record."""
     ms, ratio, srp = sys_hz // 1000, sys_hz // cpu_hz, scenario.CH['srp']
 
-    def graded(sends: tuple, timers: tuple, ordinary: tuple = ()) -> tuple[list[dict], dict]:
+    def graded(sends: tuple, timers: tuple, ordinary: tuple = (), empty: tuple = ()) -> tuple[list[dict], dict]:
         """A held group's log with a TICK every centisecond from 900 ms to 1,500 ms: its MRPDUs (ms, EtherType,
         LeaveAll, interface), each committed at its ms after its build, in a pass of its own; its timers' entries
         (ms, callback, owner) just after their ms's TICK, the owner as the testbench records it at the expiry (a
-        participant, `unresolved`, or None for no record); and passes with no build at the ms in ordinary. Its timer
-        rows and its join intervals and run-outs (join_grade.held)."""
+        participant, `unresolved`, or None for no record); passes with no build at the ms in ordinary; and builds
+        that send nothing, each in a pass of its own, at the ms in empty. Its timer rows and its join intervals and
+        run-outs (join_grade.held)."""
         lines, word = ['MARK 1000 save.change'], 0
         for at in range(900, 1_501, 10):
             lines += [f'EVW {at * ms} {n} {w:08x}' for n, w in enumerate((mrpdu_grade.TICK, 1, 0, 0))]
@@ -65,9 +66,9 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
             frame = mrpdu(kind, leave)
             lines += tx_record(srp, interface, frame, word, at * ms)
             word += 2 + (len(frame) + 3) // 4
-        lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at, _, _, _ in sends]
+        lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at in sorted([s[0] for s in sends] + list(empty))]
         lines += [f'PASS {at} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
-                  for at in sorted({at for at, _, _, _ in sends} | set(ordinary))]
+                  for at in sorted({at for at, _, _, _ in sends} | set(ordinary) | set(empty))]
         lines += [f'ENTRY {at * ms + 100} {name}' + (f' {who}' if who else '') for at, name, who in timers]
         log = grade.parse(synthetic(lines), sys_hz, cpu_hz)
         group = scenario.Group('leaveall', save=dict(loaded=True, origin='save.change'))
@@ -97,7 +98,7 @@ def leave_all_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz:
     commit of one TX record."""
     graded = harness(synthetic, sys_hz, cpu_hz, tx_record)
     single, one = single_checks(graded)
-    return single + overlap_checks(graded) + record_checks(graded, one)
+    return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded)
 
 
 def single_checks(graded: Graded) -> tuple[list[Check], list[str]]:
@@ -220,3 +221,53 @@ def record_checks(graded: Graded, one: list[str]) -> list[Check]:
                 run.verdict(args, [scenario.Group('s')], [], [], [], skip) == 1 and
                 run.verdict(args, [scenario.Group('r')], [], [], [], unowned) == 1, str((skip, unowned))))
     return out
+
+
+def anchor_checks(graded: Graded) -> list[Check]:
+    """A LeaveAll timer's run-out inside another participant's join interval (PR #934), and where a build that sends
+    nothing counts its lateness from (mrpdu_grade.anchor): its timer's owner's first transmit opportunity, from the
+    posted TICKs."""
+    la, join, pt = LA, JOIN, 'on_pt_timer'
+    # MVRP's LeaveAll timer runs out after MSRP's skipped opportunity, inside MSRP's join interval, and goes first
+    _, inside = graded(((1_000, MSRP, False, 0), (1_010, MVRP, False, 0), (1_181, MSRP, False, 0),
+                        (1_191, MVRP, True, 0), (1_371, MSRP, True, 0)),
+                       ((1_050, la, 'if0 MSRP'), (1_180, join, 'if0 MSRP'), (1_185, la, 'if0 MVRP'),
+                        (1_190, join, 'if0 MVRP'), (1_370, join, 'if0 MSRP')))
+    out = [("a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, "
+            "whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent",
+            by(inside) == {'sent': 1, 'skipped': 1} and named(b=inside) == [
+                "b: the LeaveAll timer's run-out at 1050.001 ms (if0 MSRP): its first transmit opportunity at "
+                "1180.000 ms sent an MRPDU without the LeaveAll at 1181.000 ms, and the LeaveAll went at 1371.000 ms, "
+                "191.000 ms after it (LeaveAll past its first transmit opportunity)"], str(inside))]
+    # the periodic timer's run-out at 1,300 ms; MSRP's join timer ran out at 1,180 ms, and a commit at 1,250 ms arms one
+    # to the 1,430 ms TICK; each build at 1,360 or 1,460 ms sends nothing
+    cases = dict(
+        alone=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'),), (1_400,), (1_360,)),
+        callback=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'), (1_330, join, 'if0 MVRP')), (1_400,),
+                        (1_360,)),
+        own=graded(((1_000, MSRP, False, 0), (1_250, MSRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)),
+        other=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)),
+        unowned=graded(((1_000, MSRP, False, 0), (1_040, MVRP, False, 0)),
+                       ((1_300, pt, None), (1_330, join, 'if0 MVRP')), (1_400,), (1_360,)),
+        latest=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, None),), (), (1_460,)))
+    late = {k: ([(f['kind'], f['from_ms'], f['after_ms']) for f in h['failing']], h['runs']['empty'])
+            for k, (_, h) in cases.items()}
+    said = named_late(cases['callback'][1])
+    out.append(("a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit "
+                "opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, "
+                "a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it; and "
+                "with no owner recorded, the latest of the participants'", late == {
+                    'alone': ([('periodic', 1300.001, 59.979)], 0),
+                    'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
+                    'other': ([('periodic', 1300.001, 159.979)], 0),
+                    'unowned': ([('periodic', 1300.001, 59.979)], 1), 'latest': ([], 1)} and said == [
+                    "c: the periodic timer's run-out at 1300.001 ms, its first frame or build 59.979 ms after its "
+                    "participant's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms (late)"],
+                str((late, said))))
+    return out
+
+
+def named_late(held: dict) -> list[str]:
+    """A log's late or absent builds as a run names them."""
+    return [m for m in run.stated_misses([dict(group='c', passes=dict(joins=held))])
+            if m.endswith(('(late)', '(absent)'))]

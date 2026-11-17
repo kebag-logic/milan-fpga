@@ -14,11 +14,12 @@ no frame shows it. So a timer's run-out is resolved by the builds that follow it
 interface owes one too, the next, at most one ordinary or idle pass standing between two (ctrl_loop.c, whole_runs), each
 build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). The
 run-out is `released` where they send frames, `empty` where the first sends none, `late` where its first frame comes
-past THE TRANSMIT's bound after its participant's transmit opportunity, or its first build where it sends none past the
-bound after the last join timer's run-out between the two (LATE_MS), `absent` where no build follows it in a log that
-runs on past the bound after every participant's opportunity, and `unresolved` where the log ends first. A late or
-absent build fails the run (join_grade.held); an unresolved one is counted and named, never taken for one that owes
-nothing.
+past THE TRANSMIT's bound (LATE_MS) after its participant's transmit opportunity, or where its first build sends none
+and comes past the bound after the transmit opportunity of the timer's owner, the participant the testbench recorded
+at the expiry, or with none recorded the latest of the log's participants' (anchor), `absent` where no build follows
+it in a log that runs on past the bound after every participant's opportunity, and `unresolved` where the log ends
+first. A late or absent build fails the run (join_grade.held); an unresolved one is counted and named, never taken for
+one that owes nothing.
 
 A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
 at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
@@ -231,8 +232,25 @@ def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
         whose = sends(log)[1].get(frames[0], ())
         late = min([opportunity(log, who, entry) for who in whose] or [entry]) + bound
         return ('late' if frames[0][0] > late else 'released'), frames
-    joined = [c for c, name in log.entries if name == 'on_join_timer' and entry < c <= run[0]]
-    return ('late' if run[0] > max([entry] + joined) + bound else 'empty'), frames
+    return ('late' if run[0] > anchor(log, entry) + bound else 'empty'), frames
+
+
+def recorded_owner(log: grade.Log, entry: int) -> str | None:
+    """The participant the testbench recorded at the MRP timer's expiry at entry (grade.Log.owners), whichever of the
+    timers it was, or None where it recorded none or recorded the owner unresolved."""
+    return next((log.owners[(entry, name)] for name in TIMERS if log.owners.get((entry, name))), None)
+
+
+def anchor(log: grade.Log, entry: int) -> int:
+    """Where the lateness of the timer's first build after its run-out at entry counts from, where that build sends no
+    frame (resolve): the first transmit opportunity of the timer's owner, the participant the testbench recorded at
+    the expiry, as opportunity derives it from the posted TICKs; where none is recorded, the latest of every
+    participant's in the log, one interface's at a one-interface point. Never a join timer's callback, which may be
+    another participant's (PR #934)."""
+    who = recorded_owner(log, entry)
+    if who:
+        return opportunity(log, who, entry)
+    return max([entry] + [opportunity(log, other, entry) for other in sends(log)[0]])
 
 
 def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:

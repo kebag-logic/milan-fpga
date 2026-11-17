@@ -66,9 +66,10 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
     MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
-    with its timer, its time, its participant's transmit opportunity and how far its first frame or build, or the log's
-    end, lies past that; and every LeaveAll timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each
-    skipped, late, absent or unowned one named."""
+    with its timer, its time, its participant's transmit opportunity (a build that sends nothing, its timer's owner's:
+    mrpdu_grade.anchor) and how far its first frame or build, or the log's end, lies past that; and every LeaveAll
+    timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
+    named."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
     builds, _, sent, last = mrpdu_grade.index(log)
@@ -81,6 +82,9 @@ def held(log: grade.Log) -> dict:
             after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
             whose = mrpdu_grade.sends(log)[1].get(frames[0], ()) if frames else ()
             start = min([mrpdu_grade.opportunity(log, who, entry) for who in whose] or [entry])
+            if outcome == 'late' and not frames:
+                # a build that sends nothing: from its timer's owner's transmit opportunity (mrpdu_grade.anchor)
+                start = mrpdu_grade.anchor(log, entry)
             failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
                                 after_ms=round((after - start) * 1000 / log.sys_hz, 3)))
     alls = mrpdu_grade.leave_alls(log)
