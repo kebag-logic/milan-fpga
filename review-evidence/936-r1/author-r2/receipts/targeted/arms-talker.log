@@ -1,0 +1,33 @@
+Original file: <scratch>/r2/logs/arms-talker.log
+Original size: 1905 bytes
+Original sha256: 5647b6ce87d1ee6a40c32379f4b73782451288464d0f43c5b0c44ca6b80be988
+
+wrote <scratch>/r2/arms-talker/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r2/arms-talker/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r2/arms-talker/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote <scratch>/r2/arms-talker/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r2/arms-talker/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r2/arms-talker/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+== srp-srp_talker-if1-endstation_ax7101_1x1_tdm8: rc 0
+   [==========] Running 16 tests from 1 test suite.
+   [==========] 16 tests from 1 test suite ran. (33 ms total)
+   [  PASSED  ] 16 tests.
+== srp-srp_talker-if2-endstation_ax7101_8x8: rc 0
+   [==========] Running 16 tests from 1 test suite.
+   [==========] 16 tests from 1 test suite ran. (30 ms total)
+   [  PASSED  ] 16 tests.
+== srp-test_acmp_mbx-if2-endstation_ax7101_8x8: rc 1
+   [==========] Running 9 tests from 1 test suite.
+   [  FAILED  ] SrpGate.F936BTheDeclaringPassTakesItsRecord (7 ms)
+   [==========] 9 tests from 1 test suite ran. (62 ms total)
+   [  PASSED  ] 8 tests.
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] SrpGate.F936BTheDeclaringPassTakesItsRecord
+   | <lane>/sw/firmware/ctrl/test/srp_gate.hpp:384: Failure
+   | Expected equality of these values:
+   |     Which is: 0
+   |     Which is: 2
+   | <lane>/sw/firmware/ctrl/test/srp_gate.hpp:396: Failure
+   | Expected equality of these values:
+   |     Which is: 0
+   |     Which is: 2

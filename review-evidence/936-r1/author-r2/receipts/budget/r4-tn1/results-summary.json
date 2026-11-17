@@ -1,0 +1,114 @@
+Original file: <scratch>/r4/budget/r4-tn1/results/results.json
+Original size: 90163 bytes
+Original sha256: d361b15f0b982c1805deb3df068f704d1380f655bb574e5128c6676c96ba9d56
+A summary of the file; the original is kept in scratch.
+
+{
+ "point": "1x1",
+ "build": "18d9768144d47ce7dc9236463a50e2851a33d24d970542934275dae20320582c",
+ "counts": {
+  "paths": 2,
+  "path_misses": 0,
+  "instances": 16,
+  "instance_misses": 0
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 16,
+  "within_budget": 16,
+  "longest": {
+   "probe": "talker-notice-1.declared.if0",
+   "row": "a Talker declared, from its PROBE_TX's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.declared",
+    0
+   ],
+   "start_sys": 300100141,
+   "end_sys": 300788856,
+   "sys_cycles": 688715,
+   "cpu_cycles": 688715,
+   "ms": 6.88715,
+   "wait_ms": 0.0,
+   "passes": 8,
+   "ring": "acmp",
+   "ahead": 0,
+   "budget_ms": 20.0,
+   "ceiling_ms": 24.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 300776071,
+    "last_sys": 300788856,
+    "per_recipient_cpu_cycles": 852
+   },
+   "bound_cpu_cycles": 738321,
+   "bound_ms": 7.38321,
+   "bound_within_budget": true,
+   "pass_cycles": 28228,
+   "pass_instr": 5398,
+   "pass_mbx_accesses": 52,
+   "pass_fetch_share": 0.485,
+   "pass_fetch_wait_share": 0.3327,
+   "pass_regions": {
+    "rom": [
+     113,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     4,
+     48
+    ],
+    "csr": [
+     0,
+     18,
+     50
+    ]
+   },
+   "pass_modules": {
+    "aecp": 11951,
+    "mbx": 8271,
+    "aecp_commands": 2498,
+    "ctrl_mem": 1519,
+    "ctrl_loop": 1513,
+    "aecp_mbx": 1278
+   },
+   "status": "measured",
+   "group": "talker-notice-1"
+  }
+ },
+ "paths": [
+  {
+   "path": "notice.declared",
+   "row": "a Talker declared, from its PROBE_TX's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "talker-notice-1.declared.if0",
+   "worst_ms": 6.88715,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "notice.withdrawn",
+   "row": "a Talker withdrawn as MAAP loses its range, from the ANNOUNCE's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "talker-notice-0.withdrawn.if0",
+   "worst_ms": 5.58531,
+   "budget_ms": 20.0
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+Original file: <scratch>/superseded-57a10c8d/r2g-docs.log
+Original size: 1849 bytes
+Original sha256: fe6f788e28ac23066df2fb170bb70ff3399acbd95b76fd80497f6ed6b8dbd8ef
+
+19:13:07 start docs.yml wire-accountability  
+docs__wire-accountability__ci_step_1	rc=0
+docs__wire-accountability__ci_step_3	rc=0
+docs__wire-accountability__ci_step_4	rc=0
+docs.yml wire-accountability done, failed 0
+19:13:09 end docs.yml wire-accountability   rc=0
+19:13:09 start docs.yml docs-check-no-git  
+docs__docs-check-no-git__ci_step_1	rc=0
+docs__docs-check-no-git__ci_step_2	rc=0
+docs__docs-check-no-git__ci_step_3	rc=1
+Traceback (most recent call last):
+  File "<scratch>/wf/run_wf.py", line 137, in <module>
+    status = run("git", "status", "--porcelain", cwd=wt)
+  File "<scratch>/wf/run_wf.py", line 36, in <lambda>
+    run = lambda *a, cwd=None: subprocess.run(a, cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
+                               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '('git', 'status', '--porcelain')' returned non-zero exit status 128.
+19:13:23 end docs.yml docs-check-no-git   rc=0
+19:13:23 start docs.yml docs-gates-0  
+docs__docs-gates-0__ci_step_1	rc=0
+docs__docs-gates-0__gate_1	rc=0
+docs__docs-gates-0__ci_step_5	rc=0
+docs__docs-gates-0__ci_step_7	rc=0
+docs__docs-gates-0__gate_7	rc=1
+docs__docs-gates-0__gate_8	rc=0
+docs__docs-gates-0__gate_9	rc=0
+docs__docs-gates-0__gate_10	rc=0
+docs__docs-gates-0__gate_11	rc=0
+docs__docs-gates-0__gate_12	rc=0
+docs__docs-gates-0__gate_13	rc=0
+docs__docs-gates-0__gate_14	rc=0
+docs__docs-gates-0__gate_15	rc=0
+docs__docs-gates-0__gate_16	rc=0
+docs__docs-gates-0__ci_step_21	rc=0
+docs__docs-gates-0__gate_18	rc=0
+docs__docs-gates-0__gate_19	rc=0
+docs__docs-gates-0__gate_21	rc=0

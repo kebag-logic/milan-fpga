@@ -1,0 +1,37 @@
+Original file: <scratch>/tools/qrun.sh
+Original size: 2097 bytes
+Original sha256: f4de6291f2c035cfbd0f851a9d55abf2b9a603a42d7dd71f84c956d5b5bad76a
+
+#!/usr/bin/env bash
+# qrun.sh [seconds]: for at most <seconds> (default 520) in the foreground, start the queue's next job whenever
+# cpu_ranges.py pick finds a free range, fewer than CAP (8) of this lane's units are active, the 1-minute load is
+# under LOAD (104, the CPU count and one booking) and MemAvailable is above 20 GB. The queue is queue.txt, one job a line: name|memmax|dir|command; a started
+# job's line moves to started.txt with its range.
+# The cap: since 2026-11-17 08:12 the owner's pool-spill widens every pinned process to all CPUs each minute ("use all
+# processors"), so cpu_ranges.py's busy() sees no booking and pick always answers; the lane keeps itself to the eight
+# 8-CPU bookings 0-63 holds.
+set -u
+Q=<scratch>/queue.txt; S=<scratch>/started.txt; L=<scratch>/logs
+CAP=${CAP:-8}; LOAD=${LOAD:-104}
+end=$(( $(date +%s) + ${1:-520} ))
+while [ "$(date +%s)" -lt "$end" ]; do
+  line=$(grep -v '^\s*$' "$Q" 2>/dev/null | head -1)
+  [ -z "$line" ] && { echo "queue empty"; exit 0; }
+  mem=$(awk '/MemAvailable/{print int($2/1048576)}' /proc/meminfo)
+  load=$(awk '{print int($1)}' /proc/loadavg)
+  mine=$(systemctl --user list-units 'milan-936a793-*' --no-legend --plain --state=active | grep -c '\.service')
+  R=""
+  if [ "$mine" -lt "$CAP" ] && [ "$load" -lt "$LOAD" ] && [ "$mem" -gt 20 ]; then
+    R=$(python3 -I <home>/milan-fpga-management/2026-09-23/cpu_ranges.py pick 2>/dev/null)
+  fi
+  if [ -n "$R" ]; then
+    IFS='|' read -r name memmax dir cmd <<< "$line"
+    (cd "$dir" && <scratch>/tools/unit.sh "$name" "$R" "$memmax" "$L/$name.log" bash -c "$cmd") >/dev/null
+    echo "$(date +%T) started $name on $R (lane units $((mine+1)), load $load, mem ${mem}G)" | tee -a "$S"
+    grep -vxF "$line" "$Q" > "$Q.tmp"; mv "$Q.tmp" "$Q"
+    sleep 60  # the load average catches up with a start before the next
+  else
+    sleep 20
+  fi
+done
+echo "$(date +%T) $(grep -c . "$Q") queued, lane units $(systemctl --user list-units 'milan-936a793-*' --no-legend --plain --state=active | grep -c '\.service')"

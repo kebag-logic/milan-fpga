@@ -1,0 +1,1 @@
+- r2 18:35-18:43: qrun.sh counted only j-*/k-* units, so the eight r2-* starts each read 1; exactly eight were queued, so eight ran. The count now takes every milan-936a793-* unit.

@@ -1,0 +1,28 @@
+Original file: <scratch>/tools/plants.py
+Original size: 1032 bytes
+Original sha256: c1f45d476402afb2322c685afbf79d48304b14657a0539c4e4982926a20673ad
+
+#!/usr/bin/env python3
+"""plants.py <tree-root> <out> <srp1|srp2|aecp> <name> ...: the named defects only, through their campaign's own recipe
+(srp_mutants.campaign at one or two interfaces, aecp_mutants.campaign); rc 1 when any escaped."""
+import sys
+from pathlib import Path
+root, out, which = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3]
+names = sys.argv[4:]
+sys.path.insert(0, str(root / "sw/firmware/ctrl/test"))
+sys.path.insert(0, str(root / "sw/firmware/gtest"))
+if which.startswith("srp"):
+    import srp_mutants as m
+else:
+    import aecp_mutants as m
+table = {d.name: d for d in m.DEFECTS}
+missing = [x for x in names if x not in table]
+assert not missing, missing
+m.DEFECTS = tuple(table[x] for x in names)
+if which == "aecp":
+    m.controls = lambda: None  # the table-drift control needs the whole table; the full campaign runs it
+if which == "aecp":
+    failed = m.campaign(out, 4)
+else:
+    failed = m.campaign(out, root / "third_party/lwSRP", 4, int(which[3:]))
+sys.exit(1 if failed else 0)

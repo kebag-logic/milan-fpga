@@ -1,0 +1,54 @@
+Original file: <scratch>/tools/arms.py
+Original size: 2334 bytes
+Original sha256: fa0bac26d1ca65829a6b4168bcf5ef68c815066a2c70902d011801f23a90928b
+
+#!/usr/bin/env python3
+"""arms.py <tree-root> <build-dir> <which> [filter]: run one set of firmware arms through their own recipes and print
+each arm's gtest tally and failing tests; rc 1 when any arm failed.
+
+which: talker  srp_arms.talker_arms (srp_talker.cpp at 1x1/1if and 8x8/2if, test_acmp_mbx.cpp's SrpGate at 8x8/2if)
+       app     aecp_arms.core_arm mode app at the shipping 1x1 entity, one and two interfaces (test_aecp.cpp App*)
+       srp     srp_arms.arm_srp srp_mbx.cpp at both entities and both interface counts
+"""
+import sys
+from pathlib import Path
+
+root, out, which = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3]
+selected = sys.argv[4] if len(sys.argv) > 4 else "*"
+sys.path.insert(0, str(root / "sw/firmware/ctrl/test"))
+sys.path.insert(0, str(root / "sw/firmware/gtest"))
+import fw_gtest  # noqa: E402
+from ctrl_build import Tree, CTRL, STACK  # noqa: E402
+from ctrl_reuse import cut_reuse  # noqa: E402
+import srp_arms  # noqa: E402
+import aecp_arms  # noqa: E402
+
+tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=4), STACK)
+cut_reuse(tree.reuse)
+lw = root / "third_party/lwSRP"
+if which == "talker":
+    outcomes = srp_arms.talker_arms(tree, lw)
+elif which == "app":
+    shipping = root / "configs/endstation_ax7101_1x1_tdm8.yaml"
+    outcomes = [aecp_arms.core_arm(tree, shipping, i, mode="app", selected=selected) for i in (1, 2)]
+elif which == "acmp":
+    outcomes = [srp_arms.arm_srp(tree, lw, i, test="test_acmp_mbx.cpp") for i in (1, 2)]
+elif which == "srp":
+    outcomes = [srp_arms.arm_srp(tree, lw, i, test="srp_mbx.cpp", config=root / "configs" / c)
+                for c in ("endstation_ax7101_1x1_tdm8.yaml", "endstation_ax7101_8x8.yaml") for i in (1, 2)]
+else:
+    raise SystemExit(f"unknown set {which}")
+bad = 0
+for o in outcomes:
+    lines = o.log.splitlines()
+    tally = [l for l in lines if l.startswith(("[==========]", "[  PASSED  ]", "[  FAILED  ]"))]
+    print(f"== {o.arm}: rc {o.rc}")
+    for l in tally:
+        print("   " + l)
+    if o.rc:
+        fails = [l for l in lines if "Failure" in l or l.startswith("Expected") or "Which is" in l
+                 or l.strip().startswith("Value of") or l.strip().startswith("Actual")]
+        for l in fails[:60]:
+            print("   | " + l)
+    bad |= bool(o.rc)
+sys.exit(1 if bad else 0)

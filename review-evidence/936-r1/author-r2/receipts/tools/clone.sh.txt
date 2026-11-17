@@ -1,0 +1,19 @@
+Original file: <scratch>/tools/clone.sh
+Original size: 1104 bytes
+Original sha256: 1c3ccbcfbef7b5888fb03cc31163f50d2e36a3c4af8fdf9d119efdc2746b21d7
+
+#!/usr/bin/env bash
+# clone.sh <dest> <commit>: a clean clone of the lane's repository at <commit>, its submodules at the commit's pins,
+# fetched from the lane's own module stores (offline); origin set back to the public URL.
+set -euo pipefail
+LANE=<lane>; D=$1; C=$2
+git clone -q --no-checkout "$LANE" "$D"
+git -C "$D" remote set-url origin https://github.com/kebag-logic/milan-fpga.git
+git -C "$D" checkout -q --detach "$C"
+for p in $(git -C "$D" config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}'); do
+  n=$(git -C "$D" config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk -v p="$p" '$2==p{print $1}' | sed 's/^submodule\.//; s/\.path$//')
+  [ "$n" = external ] && continue
+  git -C "$D" config "submodule.$n.url" "$LANE/.git/modules/$n"
+done
+git -C "$D" -c protocol.file.allow=always submodule update --init -q third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+git -C "$D" rev-parse HEAD; git -C "$D" submodule status; echo "porcelain $(git -C "$D" status --porcelain | wc -l)"

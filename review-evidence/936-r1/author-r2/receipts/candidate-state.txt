@@ -1,0 +1,60 @@
+Branch: 936-stream-notice
+HEAD: d1aa4c44
+Status: clean
+Round 2 commits:
+d1aa4c4430 Keep round 2's Python within Rule 12: the AECP notice plants in their own module, the talker arms' registrations in talker_notice.py, run.py's new branches as functions; link FR_NFR.md (#936)
+83f1785fa6 SRP plants: binding-poll-adds-access anchors on the delivery's pending, which now starts at the owed record (#936)
+57a10c8d0a Ledger: state #936's head figures from its image with the owed record report, 8 B more at the two-interface points and 8x8/1if's platform, and the talker-notices arm (#936)
+33f24ca388 Report SRP's taken STREAM_OUTPUT record as owed output, so no pass is idle while its notice is unsent (#936)
+bc921e68e7 CPU budget harness: time a declared and a withdrawn Talker's STREAM_OUTPUT notice from its event to its last registration, under load, with dropped and delayed plants (#936)
+343dfe43af Name #943 as the dest-MAC owed row's owner, and the ledger comment's debt by its work, not a lane (#936)
+Round 2 change:
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  14 +-
+ sw/firmware/ctrl/aecp/README.md                    |   1 +
+ sw/firmware/ctrl/app/ctrl_app_srp.c                |   7 +-
+ sw/firmware/ctrl/srp/README.md                     |  20 ++-
+ sw/firmware/ctrl/test/aecp_mutants.py              |  25 +--
+ sw/firmware/ctrl/test/aecp_notice_mutants.py       |  38 +++++
+ sw/firmware/ctrl/test/srp_gate.hpp                 |  34 ++++
+ sw/firmware/ctrl/test/srp_mutants.py               |   2 +-
+ sw/firmware/ctrl/test/srp_talker_mutants.py        |   6 +
+ sw/firmware/ctrl/test/test_aecp.cpp                |  27 ++++
+ sw/litex/ctrl_memory.py                            |   7 +-
+ tb/verilator/ctrl_service_budget/README.md         |  25 +++
+ tb/verilator/ctrl_service_budget/build.py          |   6 +-
+ tb/verilator/ctrl_service_budget/run.py            |  88 +++++++++--
+ .../ctrl_service_budget/selftest_notice.py         |  60 +++++++
+ tb/verilator/ctrl_service_budget/talker_notice.py  | 172 +++++++++++++++++++++
+ tb/verilator/milan_dp/README.md                    |   2 +-
+ tb/verilator/milan_dp/twin_compare.py              |   2 +-
+ 18 files changed, 477 insertions(+), 59 deletions(-)
+Whole change:
+ docs/design/MARK_II_AREA_PLAN.md                   |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  28 +++-
+ sw/firmware/ctrl/aecp/README.md                    |   5 +
+ sw/firmware/ctrl/app/ctrl_app.h                    |   3 +
+ sw/firmware/ctrl/app/ctrl_app_aecp.c               |  12 ++
+ sw/firmware/ctrl/app/ctrl_app_srp.c                |  13 +-
+ sw/firmware/ctrl/srp/README.md                     |  34 ++++
+ sw/firmware/ctrl/srp/srp_mbx.c                     |  16 ++
+ sw/firmware/ctrl/srp/srp_mbx.h                     |   9 ++
+ sw/firmware/ctrl/test/aecp_mutants.py              |   3 +-
+ sw/firmware/ctrl/test/aecp_notice_mutants.py       |  38 +++++
+ sw/firmware/ctrl/test/srp_gate.hpp                 |  59 +++++++
+ sw/firmware/ctrl/test/srp_mutants.py               |   2 +-
+ sw/firmware/ctrl/test/srp_talker.cpp               | 107 +++++++++++++
+ sw/firmware/ctrl/test/srp_talker_mutants.py        |  68 +++++++-
+ sw/firmware/ctrl/test/test_aecp.cpp                |  62 ++++++++
+ sw/litex/ctrl_memory.py                            |  21 ++-
+ sw/litex/ctrl_memory_ledger.py                     |  20 +--
+ sw/litex/test_ctrl_memory.py                       |   4 +-
+ tb/verilator/ctrl_service_budget/README.md         |  27 +++-
+ tb/verilator/ctrl_service_budget/build.py          |   6 +-
+ tb/verilator/ctrl_service_budget/run.py            |  88 +++++++++--
+ .../ctrl_service_budget/selftest_notice.py         |  60 +++++++
+ tb/verilator/ctrl_service_budget/talker_notice.py  | 172 +++++++++++++++++++++
+ tb/verilator/milan_dp/Makefile                     |   6 +-
+ tb/verilator/milan_dp/README.md                    |  21 ++-
+ tb/verilator/milan_dp/twin_compare.py              |  26 +++-
+ tb/verilator/milan_dp/twin_plants.py               |  34 +++-
+ 28 files changed, 878 insertions(+), 68 deletions(-)

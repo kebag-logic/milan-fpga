@@ -1,0 +1,36 @@
+Original file: <scratch>/tools/r2_fixture_sizes.py
+Original size: 2276 bytes
+Original sha256: 54f99cce57e25fa6c16bf5434edf9f37942517a092eae9aafe2f4cc7b1b9ae9e
+
+#!/usr/bin/env python3
+"""r2_fixture_sizes.py <clone> <ledger-out> <out>: the size fixture's split image at each point, its two labelled
+harness arms (answering-every-port, valid-destinations) at 8x8/2if, and the talker-notices arm (#936 round 2) at
+1x1/1if and 8x8/1if, where the harness runs it, and at 8x8/2if, linked through the CPU budget harness's own
+build.firmware() on each shape's split export's flash map (ledger.sh's), with the ledgered point where build.py names
+one; print each image's rom/sram need and planned RAMB36 from its link report."""
+import json, sys
+from pathlib import Path
+clone, ledger, out = (Path(a).resolve() for a in sys.argv[1:4])
+sys.path.insert(0, str(clone / "tb/verilator/ctrl_service_budget"))
+import build as builder  # noqa: E402
+rows = []
+for shape, n_if, variant in (("endstation_ax7101_1x1_tdm8", 1, "none"), ("endstation_ax7101_1x1_tdm8", 2, "none"),
+                             ("endstation_ax7101_8x8", 1, "none"), ("endstation_ax7101_8x8", 2, "none"),
+                             ("endstation_ax7101_8x8", 2, "answering-every-port"),
+                             ("endstation_ax7101_8x8", 2, "valid-destinations"),
+                             ("endstation_ax7101_1x1_tdm8", 1, "talker-notices"),
+                             ("endstation_ax7101_8x8", 1, "talker-notices"),
+                             ("endstation_ax7101_8x8", 2, "talker-notices")):
+    where = out / f"{shape}-if{n_if}-{variant}"
+    fmap = ledger / shape / "split-soc/flash-map"
+    try:
+        builder.firmware(where, shape, n_if, variant=variant, flash_map=fmap)
+        text = (where / "image.log").read_text()
+        log = json.loads(text[text.index("{"):])  # a two-interface link writes its contract first
+        s = log["split"]
+        rows.append(f"{shape} if{n_if} {variant}: rom {s['rom']['bytes']:,} B in {sum(s['rom']['banks']):,}, "
+                    f"sram {s['sram']['bytes']:,} B, {s['tiles']} RAMB36 (budget {s['budget_tiles']})")
+    except Exception as e:  # report and go on: a refused plan is a result too
+        tail = (where / "image.log").read_text()[-600:] if (where / "image.log").exists() else ""
+        rows.append(f"{shape} if{n_if} {variant}: REFUSED {type(e).__name__}: {e} | {tail}")
+    print(rows[-1], flush=True)

@@ -1,0 +1,19 @@
+Original file: <scratch>/tools/wf_batch.sh
+Original size: 902 bytes
+Original sha256: 3bc110f16ee2942d8f6c70ac918bf86f84bc2420fbbf6be390d9715a32c47717
+
+#!/usr/bin/env bash
+# wf_batch.sh <head> <root> <workflow:job[:key=value...]>...: each job through run_wf.py on its own fresh clone, one
+# after another; its logs stay in <root>/logs, its clone is removed after it (scratch stays small)
+set -u
+head=$1; root=$2; shift 2
+for spec in "$@"; do
+  IFS=: read -r wf job m1 m2 <<< "$spec"
+  echo "$(date +%T) start $wf $job $m1 $m2"
+  <tmp>/895-a775/gates/venv/bin/python3 <scratch>/wf/run_wf.py "$wf" "$head" "$job" "$root" $m1 $m2
+  echo "$(date +%T) end $wf $job $m1 $m2 rc=$?"
+  # this job's own clone only (run_wf.py's tag: the matrix values but `total`), never a concurrent shard's
+  tag=""; for kv in $(printf '%s\n' $m1 $m2 | sort); do [ "${kv%%=*}" = total ] || tag="$tag-${kv#*=}"; done
+  case "$root" in <scratch>/*) rm -rf "$root/${wf%.yml}__${job}${tag}/wt" ;; esac
+done
+echo "$(date +%T) BATCH DONE"

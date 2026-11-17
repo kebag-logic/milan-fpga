@@ -1,0 +1,32 @@
+Original file: <scratch>/tools/r2_img.sh
+Original size: 1789 bytes
+Original sha256: 674441c70c39e0131cc4a226895d1d8607f6fbc54cc8bb4c36c092b96aa1c381
+
+#!/usr/bin/env bash
+# r2_img.sh <commit> <tag>: on a fresh clone of <commit>, the release image (release_image.sh) against the base's
+# (bios.bin, disassembly, debug-stripped ELF; the whole ELF's debug sections carry the clone's path), the split
+# platform image at every point (ledger.sh: plat_ledger.py) and the size fixture with its harness arms
+# (r2_fixture_sizes.py); each image's sha256 listed. rc 0 only when the release image matches and the ledger passes.
+set -u
+S=<scratch>; H=$1; T=$2; C=$S/clones/r2-img-$T; O=$S/out/r2-$T; bad=0
+rm -rf "$C" "$O"; mkdir -p "$O"
+"$S/tools/clone.sh" "$C" "$H" || exit 3
+"$S/tools/release_image.sh" "$C" "$O/rel" endstation_ax7101_1x1_tdm8 endstation_ax7101_8x8
+cat "$O/rel/RUN.txt"
+grep -q ' rc=[1-9]' "$O/rel/RUN.txt" && bad=1
+grep -v -E 'bios\.elf$' "$S/out/rel-base/IMAGES.sha256" > "$O/rel-base.cmp"
+grep -v -E 'bios\.elf$' "$O/rel/IMAGES.sha256" > "$O/rel.cmp"
+echo "== release image against the base 70f4056f's (bios.bin, disassembly, debug-stripped ELF)"
+if diff "$O/rel-base.cmp" "$O/rel.cmp"; then echo "release: $(wc -l < "$O/rel.cmp") hashes identical to the base"; else bad=1; fi
+echo "== plat_ledger"
+"$S/tools/ledger.sh" "$C" "$O/led"; rc=$?; echo "ledger.sh rc=$rc"; [ $rc -eq 0 ] || bad=1
+echo "== size fixture"
+(. "$S/tools/env.sh"; cd "$C/tb/verilator/ctrl_service_budget" && PYTHONPATH=. python3 -B "$S/tools/r2_fixture_sizes.py" \
+  "$C" "$O/led" "$O/fix") 2>&1 | grep -v '^COMMAND' | tee "$O/fix.txt"
+grep -q REFUSED "$O/fix.txt" && bad=1
+for d in led fix; do
+  (cd "$O/$d" && find . -name 'ctrl_app.elf' | grep -v '/runtime/' | LC_ALL=C sort | xargs -r sha256sum) > "$O/$d.sha256"
+done
+echo "porcelain-after $(git -C "$C" status --porcelain --untracked-files=no | wc -l)"
+echo "r2_img bad=$bad"
+exit $bad

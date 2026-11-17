@@ -1,0 +1,856 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index d586c3388f..2573f860e8 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -142,7 +142,7 @@ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision o
+ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+-The size fixture's entry is 59.5 since #936, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), which keeps block RAM loose: an image past its entry raises it to its measured size at the next half tile, as named debt owed to S14. With SRP's record of the STREAM_OUTPUT notices, the CPU budget harness's `answering-every-port` arm, the fixture with its test port, needs 127,132 B of `rom`, 156 B past the 126,976 B that 59.0 holds, and its `valid-destinations` arm 126,992 B, 16 B past ([section 5](#5-fit)).
++The size fixture's entry is 59.5 since #936, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), which keeps block RAM loose: an image past its entry raises it to its measured size at the next half tile, as named debt owed to S14. With SRP's record of the STREAM_OUTPUT notices, the CPU budget harness's `answering-every-port` arm, the fixture with its test port, needs 127,140 B of `rom`, 164 B past the 126,976 B that 59.0 holds, its `valid-destinations` arm 126,992 B, 16 B past, and its `talker-notices` arm, run at one interface, 127,048 B there, 72 B past ([section 5](#5-fit)).
+ The entries are 59.5 for the size fixture's point and 60.5 for the platform's; each image is refused half a tile past its entry, at 60.0 and 61.0.
+ SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit). SRP's record of the STREAM_OUTPUT notices (#936) adds 64 B at both two-interface points and none at one: 17,536, 19,136, 18,240 and 20,416 B.
+ 
+@@ -546,13 +546,13 @@ The platform's 8x8 image with two interfaces holds 131,752 B of `rom` in 133,120
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+ |---|---:|---:|---:|---:|---:|
+ | 1x1, one interface (shipping) | 112,624 / 55,216 | 41.0 | 117,688 / 56,224 | 43.0 | 17,536 |
+-| 1x1, two interfaces | 114,208 / 57,408 | 42.5 | 119,296 / 58,464 | 44.0 | 19,136 |
+-| 8x8, one interface | 125,280 / 96,320 | 55.0 | 130,384 / 97,328 | 56.0, accepted | 18,240 |
+-| 8x8, two interfaces (largest) | 126,824 / 113,280 | 59.0, within its 59.5 | 131,968 / 114,288 | 60.5, its ledger's | 20,416 |
++| 1x1, two interfaces | 114,216 / 57,408 | 42.5 | 119,304 / 58,464 | 44.0 | 19,136 |
++| 8x8, one interface | 125,280 / 96,320 | 55.0 | 130,392 / 97,328 | 56.0, accepted | 18,240 |
++| 8x8, two interfaces (largest) | 126,832 / 113,280 | 59.0, within its 59.5 | 131,976 / 114,288 | 60.5, its ledger's | 20,416 |
+ 
+-SRP's record of the STREAM_OUTPUT notices adds 184 to 224 B of `rom` an image, the most at the 1x1 two-interface points, and 0 to 64 B of `sram`: 16 or 32 B in the fixture's images, none in the platform's one-interface images and 64 B in its two-interface images, its `ctrl_plat`.
+-The harness's `answering-every-port` arm at 8x8 with two interfaces needs 127,132 B in 129,024, 59.5, and its `valid-destinations` arm 126,992 B in 129,024, 59.5: each past the 59.0 entry, which the owner's decision of 2026-11-15 raises to 59.5 as debt owed to S14 ([section 3](#3-named-refusals)). The fixture needs 126,824 B (152 B to spare at 59.0).
+-The platform's 8x8 image with two interfaces holds 131,968 B of `rom` in 133,120, 1,152 B left at its 60.5. Its 8x8 one-interface image holds 130,384 B in 131,072 at 56.0 (688 B), and its 1x1 one-interface image 117,688 B at 43.0. Both product images keep their banks: 64, 32, 16 and 4 KiB at 1x1/1if and one 128 KiB bank at 8x8/1if.
++SRP's record of the STREAM_OUTPUT notices and its report as owed output add 192 to 232 B of `rom` an image, the most at the 1x1 two-interface points, and 0 to 64 B of `sram`: 16 or 32 B in the fixture's images, none in the platform's one-interface images and 64 B in its two-interface images, its `ctrl_plat`.
++The harness's `answering-every-port` arm at 8x8 with two interfaces needs 127,140 B in 129,024, 59.5, its `valid-destinations` arm 126,992 B and its `talker-notices` arm 127,048 B, each in 129,024, 59.5: each past the 59.0 entry, which the owner's decision of 2026-11-15 raises to 59.5 as debt owed to S14 ([section 3](#3-named-refusals)). The `talker-notices` arm runs at one interface, where it needs 112,808 B at 1x1 (41.5) and 125,464 B at 8x8 (55.0). The fixture needs 126,832 B (144 B to spare at 59.0).
++The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120, 1,144 B left at its 60.5. Its 8x8 one-interface image holds 130,392 B in 131,072 at 56.0 (680 B), and its 1x1 one-interface image 117,688 B at 43.0. Both product images keep their banks: 64, 32, 16 and 4 KiB at 1x1/1if and one 128 KiB bank at 8x8/1if.
+ 
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+diff --git a/sw/firmware/ctrl/aecp/README.md b/sw/firmware/ctrl/aecp/README.md
+index 261b394672..8d12ac2d79 100644
+--- a/sw/firmware/ctrl/aecp/README.md
++++ b/sw/firmware/ctrl/aecp/README.md
+@@ -98,6 +98,7 @@ Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
+ A STREAM_OUTPUT's GET_STREAM_INFO event (STREAM_INFO, bit 0) comes from SRP on the split (#936).
+ SRP records each change of a source's Talker declaration: a declaration, a withdrawal,
+ a type swapped in place, or another VID. The application bridge (`ctrl_app_aecp.c`) raises it.
++Its planted defects are [`aecp_notice_mutants.py`](../test/aecp_notice_mutants.py)'s.
+ The [SRP README](../srp/README.md) states the rule, as Table 5.22 and IEEE 7.5.2 require it.
+ Controller probes use a 30-60 s monitor interval,
+ 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
+diff --git a/sw/firmware/ctrl/app/ctrl_app_srp.c b/sw/firmware/ctrl/app/ctrl_app_srp.c
+index 4b25d09ae4..516bad6ff6 100644
+--- a/sw/firmware/ctrl/app/ctrl_app_srp.c
++++ b/sw/firmware/ctrl/app/ctrl_app_srp.c
+@@ -61,8 +61,11 @@ static bool deliver(void *ctx)
+         return false;
+     }
+     // The sources whose Talker declaration SRP changed since this delivery last ran, each its STREAM_OUTPUT's
+-    // GET_STREAM_INFO notice, which the AECP bridge raises (#936; Milan v1.2 5.4.5.2, Table 5.22)
++    // GET_STREAM_INFO notice, which the AECP bridge raises in the next pass: so a pass that takes one owes output and
++    // is not the loop's idle pass (#936; ctrl_loop.h, the polls; Milan v1.2 5.4.5.2, Table 5.22)
++    bool noticed = false;
+     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
++        noticed = noticed || app->srp->ifs[interface].noticed != 0u;
+         app->srp_noticed |= app->srp->ifs[interface].noticed;
+         app->srp->ifs[interface].noticed = 0u;
+     }
+@@ -71,7 +74,7 @@ static bool deliver(void *ctx)
+     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+         (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],app->maap.ifs[interface].core.base);
+     }
+-    bool pending = false;
++    bool pending = noticed;
+     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
+         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
+         unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index f075c02df9..640f2a9091 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -258,16 +258,22 @@ source again records nothing, since the output shows the same. A failed
+ creation returns before the record, so what it joined is recorded once it
+ succeeds. A Talker Failed's code follows the source's allocation, which only a
+ withdrawal changes. The composition's delivery poll takes `noticed` each pass
+-into `ctrl_app.srp_noticed`, which an attach of SRP clears, so a recomposition keeps
+-no earlier record. The AECP bridge raises each source's STREAM_OUTPUT
+-GET_STREAM_INFO event (`aecp_changed`, type 6). The notice then takes AECP's
+-own path and pacing to every registered controller (Milan v1.2 5.4.5.1).
++into `ctrl_app.srp_noticed`, which an attach of SRP clears, so a recomposition
++keeps no earlier record. A pass that takes a record reports output owed, so the
++loop does not sleep on it (`ctrl_loop.h`, the polls). In the next pass the AECP
++bridge raises each source's STREAM_OUTPUT GET_STREAM_INFO event
++(`aecp_changed`, type 6). The notice then takes AECP's own path and pacing to
++every registered controller (Milan v1.2 5.4.5.1). The CPU budget harness's
++`talker-notices` arm times it from the PROBE_TX or the range-losing ANNOUNCE to
++the last controller's commit ([`talker_notice.py`](../../../../tb/verilator/ctrl_service_budget/talker_notice.py)).
+ Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
+ `TypeSwapIsNoticed`, `AdoptedDomainVidIsNoticed`,
+ `ResetNoticesNothingUnchanged`), `test_acmp_mbx.cpp`'s
+-`F936AProbeAndItsExpiryEachNoticeTheSource` and `test_aecp.cpp`'s
+-`SrpDeclarationChangeIsItsStreamOutputsNotice`; plants `talker-notice-*`
+-(`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_mutants.py`).
++`F936AProbeAndItsExpiryEachNoticeTheSource` and
++`F936BThePassThatTakesTheRecordOwesItsNotice`, and `test_aecp.cpp`'s
++`SrpDeclarationChangeIsItsStreamOutputsNotice` and
++`NoPassIsIdleWhileAStreamOutputsNoticeIsOwed`; plants `talker-notice-*`
++(`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_notice_mutants.py`).
+ 
+ A binding declares Ready for a matching Advertise, AskingFailed for a matching
+ Failed, and withdraws when its retained registration expires.
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+index 77586d476f..f656056967 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -13,6 +13,7 @@ import aecp_arms
+ import aecp_configuration_mutants
+ import aecp_index_mutants
+ import aecp_map_mutants
++import aecp_notice_mutants
+ import aecp_fan_mutants
+ import aecp_owed_mutants
+ import aecp_retry_mutants
+@@ -527,28 +528,6 @@ DEFECTS = (
+            '\t\t\t(void)(ok && old.bound && acmp_set_started(a, c->start_index, c->start_value));\n',
+            ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+             'BINDING.STARTED is published before the response is committed')),
+-    # #936: SRP's record of a changed Talker declaration is its STREAM_OUTPUT's GET_STREAM_INFO notice (Milan v1.2
+-    # 5.4.5.2, Table 5.22): dropped, raised for a STREAM_INPUT, raised for the next source, or never cleared
+-    defect('app-output-notice-dropped', 'app/ctrl_app_aecp.c',
+-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
+-           '\t\t\t\t(void)n;\n',
+-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
+-            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
+-    defect('app-output-notice-as-an-input', 'app/ctrl_app_aecp.c',
+-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
+-           '\t\t\t\taecp_changed(&c->aecp->core, 5, n, 1u);\n',
+-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
+-            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
+-    defect('app-output-notice-next-source', 'app/ctrl_app_aecp.c',
+-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
+-           '\t\t\t\taecp_changed(&c->aecp->core, 6, (uint16_t)(n + 1u), 1u);\n',
+-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
+-            'a source the record does not name is notified nothing')),
+-    defect('app-output-notice-kept', 'app/ctrl_app_aecp.c',
+-           '\t\tc->app->srp_noticed = 0u;\n',
+-           '\t\t(void)c;\n',
+-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
+-            'the bridge raises every STREAM_OUTPUT the delivery took')),
+     defect('mailbox-interface-crossed', 'aecp_mbx.c',
+            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
+            'aecp_rx(&m->core, 0, f->bytes, f->len);',
+@@ -893,7 +872,7 @@ DEFECTS = (
+             'AECP opens only once the initial publication is acknowledged')),
+ ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
+-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) \
++    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
+ 
+ 
+diff --git a/sw/firmware/ctrl/test/aecp_notice_mutants.py b/sw/firmware/ctrl/test/aecp_notice_mutants.py
+new file mode 100644
+index 0000000000..d618f50fed
+--- /dev/null
++++ b/sw/firmware/ctrl/test/aecp_notice_mutants.py
+@@ -0,0 +1,38 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""aecp_notice_mutants.py - the AECP campaign's planted defects in a STREAM_OUTPUT's GET_STREAM_INFO notice from SRP's
++record of a changed Talker declaration (#936; Milan v1.2 5.4.5.2, Table 5.22): the composition's AECP bridge
++(ctrl_app_aecp.c) and the SRP delivery's owed report (ctrl_app_srp.c; ctrl_loop.h, the polls). aecp_mutants.py
++plants each row; every named check must fail on its own words."""
++
++ROWS = (
++    # #936: SRP's record of a changed Talker declaration is its STREAM_OUTPUT's GET_STREAM_INFO notice (Milan v1.2
++    # 5.4.5.2, Table 5.22): dropped, raised for a STREAM_INPUT, raised for the next source, or never cleared
++    ('app-output-notice-dropped', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\t(void)n;\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
++    ('app-output-notice-as-an-input', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\taecp_changed(&c->aecp->core, 5, n, 1u);\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
++    ('app-output-notice-next-source', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, (uint16_t)(n + 1u), 1u);\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            'a source the record does not name is notified nothing')),
++    ('app-output-notice-kept', 'app/ctrl_app_aecp.c',
++           '\t\tc->app->srp_noticed = 0u;\n',
++           '\t\t(void)c;\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            'the bridge raises every STREAM_OUTPUT the delivery took')),
++    # #936 (ctrl_loop.h, the polls): the SRP delivery's pass that takes the record reports nothing owed, so the loop
++    # may sleep with the STREAM_OUTPUT's notice unsent
++    ('app-output-notice-owed-unreported', 'app/ctrl_app_srp.c',
++           '    bool pending = noticed;\n',
++           '    bool pending = false;\n    (void)noticed;\n',
++           ('App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed',
++            "no pass is idle while a STREAM_OUTPUT's notice is owed")),
++)
+diff --git a/sw/firmware/ctrl/test/srp_gate.hpp b/sw/firmware/ctrl/test/srp_gate.hpp
+index a747cf9c7e..d49c246fcf 100644
+--- a/sw/firmware/ctrl/test/srp_gate.hpp
++++ b/sw/firmware/ctrl/test/srp_gate.hpp
+@@ -367,4 +367,38 @@ TEST_F(SrpGate, F936AProbeAndItsExpiryEachNoticeTheSource) {
+     EXPECT_EQ(core()->reentries, 0u);
+ }
+ 
++// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps): the pass that takes SRP's
++// record of a probed source's declaration, and the one that takes its expiry's withdrawal, report output owed, since
++// the source's STREAM_OUTPUT notice is still to be raised. Each pass is stepped alone and checked as it ends.
++TEST_F(SrpGate, F936BThePassThatTakesTheRecordOwesItsNotice) {
++    compose();
++    // Each pass up to the one that takes the record; that pass's return value.
++    auto take = [&] {
++        unsigned work = 0;
++        for (unsigned k = 0; k < 256u && app.srp_noticed == 0u; ++k) work = ctrl_loop_service(&app.loop);
++        return work;
++    };
++    Pdu request;
++    request.msg = 0u;
++    request.talker = kOwn;
++    request.talker_uid = static_cast<std::uint16_t>(source);
++    ASSERT_TRUE(offer(request, spec::MULTICAST_MAC, interface));
++    const unsigned declaring = take();
++    ASSERT_EQ(app.srp_noticed, 1u << source) << "a probe's declaration notices its source";
++    EXPECT_NE(declaring, 0u) << "the pass that takes SRP's record of a declaration owes its notice";
++    settle();
++    app.srp_noticed = 0u;
++    run(14500u);
++    ASSERT_TRUE(declared(interface)) << "the probe window holds the declaration";
++    unsigned withdrawing = 0;
++    for (unsigned ms = 0; ms < 1000u && app.srp_noticed == 0u; ++ms) {
++        mbx_model_advance_ms(&model, 1u);
++        withdrawing = take();
++    }
++    ASSERT_EQ(app.srp_noticed, 1u << source) << "the probe's expiry notices its source";
++    EXPECT_FALSE(declared(interface)) << "the probe's 15 s expiry withdraws the Talker";
++    EXPECT_NE(withdrawing, 0u) << "the pass that takes SRP's record of a withdrawal owes its notice";
++    EXPECT_EQ(core()->reentries, 0u);
++}
++
+ }  // namespace
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index 2005953409..40f91baaa7 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -682,7 +682,7 @@ DEFECTS = (
+            'r->pending = true;', 'r->pending = true; (void)deliver(app);',
+            'callback only queues the binding', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+     Defect('binding-poll-adds-access','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
+-           'bool pending = false;', 'bool pending = false; (void)mbx_irq_status();',
++           'bool pending = noticed;', 'bool pending = noticed; (void)mbx_irq_status();',
+            'binding poll makes no mailbox access', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+     Defect('binding-interface-lost','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
+            'app->srp,interface,sink,r->bound',
+diff --git a/sw/firmware/ctrl/test/srp_talker_mutants.py b/sw/firmware/ctrl/test/srp_talker_mutants.py
+index 05447d2f0e..1860e97c4e 100644
+--- a/sw/firmware/ctrl/test/srp_talker_mutants.py
++++ b/sw/firmware/ctrl/test/srp_talker_mutants.py
+@@ -49,6 +49,7 @@ SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
+ VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
+ RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
+ TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
++TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
+ PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
+ LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
+ LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
+@@ -93,8 +94,11 @@ ATTACH_CLEARS = ("        // a recomposed application keeps no record of the SRP
+                  "        app->srp_noticed = 0u;\n")
+ #: the SRP delivery's take of each interface's record (#936), as ctrl_app_srp.c holds it.
+ TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n"
++        "        noticed = noticed || app->srp->ifs[interface].noticed != 0u;\n"
+         "        app->srp_noticed |= app->srp->ifs[interface].noticed;\n"
+         "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
++#: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
++OWED = "    bool pending = noticed;\n"
+ 
+ 
+ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+@@ -274,4 +278,6 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+         d("talker-notice-record-kept", TAKEN, TAKE,
+           TAKE.replace("        app->srp->ifs[interface].noticed = 0u;\n", ""), "the SRP delivery takes SRP's record",
+           path=APP),
++        d("talker-notice-owed-unreported", TAKEN_PASS, OWED, "    bool pending = false;\n    (void)noticed;\n",
++          "owes its notice", path=APP),
+     )
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index fd2fe8c043..9920a2649c 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -781,6 +781,33 @@ TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
+         EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
+     }
+ }
++
++// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps in mbx_hal_wait()): from the
++// pass that takes SRP's record to its STREAM_OUTPUT's notice committed to every registered controller, no pass
++// reports the loop idle. Each pass is stepped alone, from an idle loop, until one returns 0.
++TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
++{
++    aem(36);aem(36,{},CTLR+1);
++    const unsigned last=connection.n_sources-1u;
++    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
++        unsigned n=0;
++        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
++            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
++               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
++        return n;
++    };
++    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
++    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
++    for(auto [interface,source]:{std::pair{0u,0u},std::pair{MBX_N_IF-1u,last}}){
++        const unsigned before=fabric.tx_sent;
++        reservation.ifs[interface].noticed=1u<<source;
++        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
++        for(uint64_t controller:{CTLR,CTLR+1}){
++            EXPECT_EQ(notices(before,source,controller),1u)
++                <<"no pass is idle while a STREAM_OUTPUT's notice is owed";
++        }
++    }
++}
+ #endif
+ 
+ namespace {
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 1fb902abfd..b274b62633 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -244,8 +244,9 @@ class Ledgered:
+ #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+ #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
+ #: 60.0, its entry at 59.5, which the owner's decision of 2026-11-15 (#665, block RAM kept loose: an image past its
+-#: entry raises it at the next half tile as debt owed to S14) raises #894's 59.0 to for the harness's arm (#936),
+-#: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
++#: entry raises it at the next half tile as debt owed to the cold-code and descriptor move to QSPI (#665 decision
++#: D3)) raises #894's 59.0 to for the harness's arm (#936), and the platform's at 61.0, its entry at 60.5, the
++#: owner's decision's cap (#665), which #895's ruling of
+ #: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
+ #: ledgered the size fixture's at its cap. The
+ #: platform's image is linked at every point with the override its point takes, against this ledger, by
+@@ -265,7 +266,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                          "declarations plan within it (#895); 59.5 by the owner's decision of "
+                                          "2026-11-15 (#665, block RAM kept loose): with SRP's record of the "
+                                          "STREAM_OUTPUT notices (#936) the CPU budget harness's answering-every-port "
+-                                         "arm, the fixture with its test port, needs 127,132 B of rom, 156 B past "
++                                         "arm, the fixture with its test port, needs 127,140 B of rom, 164 B past "
+                                          "the 126,976 B 59.0 holds, and its valid-destinations arm 126,992 B, 16 B "
+                                          "past, debt owed to S14"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index e507204d0f..38b859925d 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -268,6 +268,19 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+   Its second group, `srp-talker-loss`, probes every source the same way, then makes each interface lose its range: a peer ANNOUNCEs it from a MAC for which `compare_MAC` is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), so MAAP restarts on a new range, its DA gate closes, and SRP withdraws that interface's Talkers, the row `srp.talker_loss` from the ANNOUNCE's commit to MAAP's new PROBE and SRP's Leave, with the same wait.
+   The new range waits two LeaveAllTime periods, so no Advertise follows within the group.
+   Those declaration and withdrawal passes are given whole to THE TRANSMIT, so `whole_grade.py` holds them to its stated build cost and `share.py` to the share; arm A's fixture reports no destination, so no arm A group declares a Talker.
++- `talker-notices` (#936) is `valid-destinations` with the face block's stream observation answering zeroed values at every attempt, as `answering-ports`' does, so a STREAM_OUTPUT's GET_STREAM_INFO notice is built at its first attempt.
++  Its groups, `talker-notice-<k>` ([`talker_notice.py`](talker_notice.py)), register 16 controllers on every interface and start a save, as `notice-retried-<k>` does. Then each times two events on source 0's interface against the asynchronous notifications' 20 ms ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)), from the event's commit to the last registration's notice:
++  - the declaration, a PROBE_TX for source 0 once MAAP holds the ranges, to the later of its response and the notice (`notice.declared`): its DA gate opens, SRP declares the Talker and records the source, the SRP delivery takes the record, the AECP bridge raises the notice and THE RETRY sends it;
++  - the withdrawal, a peer ANNOUNCE that takes the range, as in `srp-talker-loss`, to the notice (`notice.withdrawn`).
++  Each event comes `k` ms into 130 ms of `notice-retried`'s load: every receive channel at its refill rate with its bursts, the event's own channel from one refill period after it, so its bucket admits the burst whole, and a grandmaster change as every pass starts. SRP's channel carries a Listener Ready for another entity's stream: one for source 0's own would open its DA gate by itself.
++  A row over its bound, or with no notice, fails the run whatever its options record (`run.notice_misses`, the row's refusal), and the run prints a `NOTICE` line for each with its event's and its last recipient's commit.
++
++```sh
++python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
++  --build-dir /tmp/budget-1x1-talker-notices --variant talker-notices --record-budget-findings --record-share-findings
++python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8-1if \
++  --build-dir /tmp/budget-8x8-talker-notices --variant talker-notices --record-budget-findings --record-share-findings
++```
+ 
+ As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
+ With `--fetch-l1 none` they are S2's arms in [Results](#results).
+@@ -1464,6 +1477,18 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+ 
+ Every group's timer-driven MRPDU must then be over its 20 ms, with no refusal: it prints `CONTROL transmit-aged caught`, naming the groups; any group within its bound, a miss in another row, or a refusal is `ESCAPED`.
+ 
++The declared or withdrawn Talker's notice (#936, [`talker_notice.py`](talker_notice.py)) has two planted defects, each run on every `talker-notice-<k>` group of the `talker-notices` arm.
++The first drops the notice: the AECP bridge raises no STREAM_OUTPUT GET_STREAM_INFO from SRP's record. The second delays it: the bridge holds the record 25 ms from the pass that first sees it, past the row's 20 ms:
++
++```sh
++python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
++  --build-dir /tmp/budget-declared-dropped --variant talker-notices --mutation declared-notice-dropped
++python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
++  --build-dir /tmp/budget-declared-delayed --variant talker-notices --mutation declared-notice-delayed
++```
++
++Both rows of every group must then fail for the plant's reason, each named by its row, with no other refusal: no notification to any registration for the dropped notice, a notice committed later than its bound after its event's commit for the delayed one. It prints `CONTROL declared-notice-dropped caught` or `CONTROL declared-notice-delayed caught`; a row within its bound, a row failing for the other reason, or another refusal is `ESCAPED`.
++
+ The polls by source have two planted defects, each run on the `backlog` group, whose link change makes SRP withdraw and rebuild each interface.
+ The first rebuilds through the participants' creation itself, not as the rebuild item (`open_interface` stays in the image, never taken, so its code layout and hot list hold), so the pass that rebuilds carries the rebuild in its base; the second creates the participants twice, so the rebuild item is heavier than its stated cost:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 9a838e0c44..5ea4a4846b 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -30,7 +30,7 @@ import sys
+ from pathlib import Path
+ 
+ import notice_window
+-import talker_window
++import talker_notice
+ import poll_items
+ import save_window
+ 
+@@ -101,7 +101,7 @@ MUTATIONS = {
+     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
+                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
+                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+-    **poll_items.PLANTS,
++    **poll_items.PLANTS, **talker_notice.PLANTS,
+ }
+ #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
+ SHARE_CONTROLS = ('store-step-unbounded',)
+@@ -231,7 +231,7 @@ VARIANTS = {
+          '    ctrl_loop_run(&image_app.loop);'),
+     ],
+ }
+-VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
++VARIANTS.update(talker_notice.VARIANTS)
+ #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
+ VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
+ 
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index ae20c6a0e3..a1367cafce 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -259,10 +259,19 @@ def save_misses(results: list[dict]) -> list[str]:
+ 
+ 
+ def notices(results: list[dict]) -> list[dict]:
+-    """Every retried notice's row (notice_window.py), measured, with its group."""
++    """Every retried notice's row (notice_window.py) and every declared or withdrawn Talker's (talker_notice.py),
++    measured, with its group."""
+     import notice_window
++    import talker_notice
++    paths = (notice_window.PATH, notice_window.QUEUED, *talker_notice.PATHS)
+     return [dict(r, group=g['group']) for g in results for r in g['probes']
+-            if r.get('status') == 'measured' and r['path'][0] in (notice_window.PATH, notice_window.QUEUED)]
++            if r.get('status') == 'measured' and r['path'][0] in paths]
++
++
++def talker_row(n: dict) -> bool:
++    """Whether a notice row is a declared or withdrawn Talker's, timed from its event (talker_notice.py)."""
++    import talker_notice
++    return n['path'][0] in talker_notice.PATHS
+ 
+ 
+ def notice_misses(results: list[dict], interfaces: int) -> list[str]:
+@@ -272,7 +281,9 @@ def notice_misses(results: list[dict], interfaces: int) -> list[str]:
+     import notice_window
+     import scenario
+     rows = notices(results)
+-    late = [f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
++    late = [f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit, over its bound "
++            f"{n['budget_ms']:g} ms" if talker_row(n) else
++            f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
+             for n in rows if not n['within_budget']]
+     # a group that holds its load across the timers times an MRPDU they owe (mrpdu_grade.py)
+     for g in results:
+@@ -288,11 +299,43 @@ def notice_misses(results: list[dict], interfaces: int) -> list[str]:
+     return late
+ 
+ 
++def talker_table(results: list[dict]) -> list[str]:
++    """The declared and withdrawn Talkers' section of the table: each from its event's commit to its last recipient's
++    commit (talker_notice.py)."""
++    rows = [n for n in notices(results) if talker_row(n)]
++    if not rows:
++        return []
++    lines = ['', "A declared or withdrawn Talker's STREAM_OUTPUT notice, from its event's commit to the last "
++             "recipient's commit (talker_notice.py; FR_NFR.md 3.4.1):", '',
++             '| Row | Event committed, sys | Last recipient committed, sys | Recipients | ms | Bound ms | Verdict |',
++             '|---|---:|---:|---:|---:|---:|---|']
++    for n in rows:
++        lines.append(f"| `{n['probe']}` | {n['start_sys']} | {n['end_sys']} | {n['fanout']['recipients']} | "
++                     f"{n['ms']:.3f} | {n['budget_ms']:g} | {'within' if n['within_budget'] else 'OVER'} |")
++    worst = max(rows, key=lambda n: n['ms'])
++    lines += ['', f"Latest: {worst['ms']:.3f} ms, {worst['probe']}."]
++    return lines
++
++
++def print_notices(results: list[dict]) -> None:
++    """A NOTICE line for each notice row: a retried notice from its port's answer, a declared or withdrawn Talker's
++    from its event's commit (talker_notice.py), each to its last recipient's commit."""
++    for n in notices(results):
++        if talker_row(n):
++            print('NOTICE', f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit at sys "
++                  f"{n['start_sys']}, the last of {n['fanout']['recipients']} recipients at sys {n['end_sys']} "
++                  f"(bound {n['budget_ms']:g} ms)", 'within' if n['within_budget'] else 'OVER')
++            continue
++        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
++              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
++              'within' if n['within_budget'] else 'OVER')
++
++
+ def notice_table(results: list[dict]) -> list[str]:
+     """The retried notices' section of the table: each from its port's answer to its last recipient's commit."""
+-    rows = notices(results)
++    rows = [n for n in notices(results) if not talker_row(n)]
+     if not rows:
+-        return []
++        return talker_table(results)
+     lines = ['', "Retried notices, from the port's answer to the last recipient's commit (notice_window.py; "
+              'ctrl_loop.h, THE RETRY):', '', '| Group | ms | Bound ms | Recipients | Events held at the answer | '
+              'Verdict |', '|---|---:|---:|---:|---:|---|']
+@@ -301,7 +344,7 @@ def notice_table(results: list[dict]) -> list[str]:
+                      f"{n['ahead']} | {'within' if n['within_budget'] else 'OVER'} |")
+     worst = max(rows, key=lambda n: n['ms'])
+     lines += ['', f"Latest: {worst['ms']:.3f} ms, {worst['group']}."]
+-    return lines
++    return lines + talker_table(results)
+ 
+ 
+ def save_table(results: list[dict]) -> list[str]:
+@@ -461,7 +504,8 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
+                         "path's test-only input), answering-later (the face block's stream observation answers "
+                         "from NOW_MS notice_window.ANSWER_MS: the retried notice's row) or valid-destinations "
+                         "(the fixture's ACMP source port valid once MAAP holds the range: SRP's Talker "
+-                        "declarations, #895)")
++                        "declarations, #895) or talker-notices (valid-destinations with the stream observation "
++                        "answering: a declared or withdrawn Talker's STREAM_OUTPUT notice, #936)")
+     parser.add_argument('--regrade', action='store_true',
+                         help='grade the logs already in --out; a selected group whose script or log is '
+                         'absent, or whose script the scenario no longer makes, is refused by name')
+@@ -557,6 +601,25 @@ def mrpdu_groups(misses: list[str]) -> set[str]:
+     return {m.partition(':')[0].partition('.')[0] for m in misses if '.mrpdu.' in m.partition(':')[0]}
+ 
+ 
++def declared_verdict(args: argparse.Namespace, groups: list, refusals: list, late: list) -> int:
++    """A talker-notice plant's exit status (talker_notice.PLANTS): caught where both rows of every group fail their
++    check for the plant's reason, each named by its row: no notice to end at for the dropped notice, a notice later
++    than its bound for the delayed one."""
++    import talker_notice
++    want = sorted(p.name for g in groups for p in g.probes if p.path in talker_notice.PATHS)
++    if talker_notice.CONTROLS[args.mutation] == 'missing':
++        named = sorted(r.partition(':')[0] for r in refusals if ': no end: no notification to ' in r)
++        caught = named == want and len(named) == len(refusals)
++        reason = 'with no notice'
++    else:
++        named = sorted(m.partition(':')[0] for m in late if " after its event's commit, over its bound " in m)
++        caught = named == want and not refusals
++        reason = 'with their notice later than its bound'
++    print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} '
++          f'talker-notice row(s) {reason} ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
++    return 0 if caught else 1
++
++
+ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
+             late: list = ()) -> int:
+     """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
+@@ -611,6 +674,9 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
+               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
+               f'refusal(s)')
+         return 0 if caught else 1
++    import talker_notice
++    if args.mutation in talker_notice.CONTROLS:
++        return declared_verdict(args, groups, refusals, late)
+     if args.mutation in builder.SRP_CONTROLS:
+         # caught where every group's longest timer-driven MRPDU is over its bound, each named by its group
+         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
+@@ -708,6 +774,9 @@ def all_groups(point: object, spec: dict) -> list:
+     if spec.get('variant') == 'valid-destinations':
+         import talker_window
+         return talker_window.groups(point)
++    if spec.get('variant') == 'talker-notices':
++        import talker_notice
++        return talker_notice.groups(point)
+     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
+ 
+ 
+@@ -799,10 +868,7 @@ def main() -> int:
+               f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",
+               f"{s['steps']} steps, longest gap between flash steps {s['longest_gap_ms']} ms)",
+               'within' if s['within'] else 'OVER')
+-    for n in notices(results):
+-        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
+-              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
+-              'within' if n['within_budget'] else 'OVER')
++    print_notices(results)
+     tally = counts(results)
+     passes = sum(g['passes']['share']['passes'] for g in results)
+     idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
+diff --git a/tb/verilator/ctrl_service_budget/selftest_notice.py b/tb/verilator/ctrl_service_budget/selftest_notice.py
+index 32f8c8ab4e..0ced7831c8 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_notice.py
++++ b/tb/verilator/ctrl_service_budget/selftest_notice.py
+@@ -150,4 +150,64 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
+                 wrong.append(group.name)
+     out.append(('every retried notice group binds before its load, floods and holds every channel across the '
+                 "port's answer, and grades its held records from the load's mark", not wrong, str(wrong)))
++    return out + talker_checks(points)
++
++
++def talker_checks(points: list[scenario.Point]) -> list[Check]:
++    """The declared and withdrawn Talker's notice rows (#936, talker_notice.py): each timed from its event's commit to
++    its last registration's notice against 20 ms, inside its load; a row later than that, or with no notice, fails the
++    run; and the dropped and delayed plants are caught only when both rows of every group fail for their reason."""
++    import talker_notice
++    names = talker_notice.names()
++    wrong = []
++    for p in points:
++        everyone = scenario.registrations() * p.interfaces
++        own = scenario.listener_ready(p).hex()
++        for group in talker_notice.groups(p):
++            rows = {probe.path: probe for probe in group.probes}
++            steps = group.steps
++            ok = set(rows) == set(talker_notice.PATHS) and all(
++                probe.family == 'notify' and grade.budget_ms(probe) == scenario.T_SVC_MS and
++                len(probe.recipients) == everyone and probe.ends[-1] == f'notify:{AECP}:000f:6:{talker_notice.SOURCE}'
++                for probe in rows.values())
++            for probe in rows.values():
++                mark, event = steps.index(f'mark {probe.name}'), next(
++                    n for n, s in enumerate(steps) if s.endswith(probe.name) and not s.startswith('mark '))
++                flood = steps.index('flood gm 1', mark)
++                ok = ok and mark < flood < event < steps.index('flood gm 0', event) < steps.index(f'mark {probe.until}')
++            ok = ok and rows[talker_notice.DECLARED].start == f"rxc:{scenario.CH['acmp']}" and \
++                rows[talker_notice.WITHDRAWN].start == f"rxc:{scenario.CH['maap']}" and \
++                not any(own in s for s in steps)
++            if not ok:
++                wrong.append(f'{p.label} {group.name}')
++    out = [("every talker-notice group times its declaration from the PROBE_TX's commit and its withdrawal from the "
++            "ANNOUNCE's to source 0's STREAM_OUTPUT notice to every registration against 20 ms, each event inside its "
++            "load, with no Listener Ready for the entity's own stream", not wrong, str(wrong))]
++    groups = talker_notice.groups(points[0])
++    rows = [probe.name for g in groups for probe in g.probes]
++    measured = lambda name, ms: dict(probe=name, path=[talker_notice.DECLARED if '.declared.' in name else
++                                                       talker_notice.WITHDRAWN, 0], status='measured', ms=ms,
++                                     budget_ms=20.0, within_budget=ms <= 20.0, fanout=dict(recipients=16))
++    results = lambda ms: [dict(group=g.name, probes=[measured(probe.name, ms) for probe in g.probes]) for g in groups]
++    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
++                              record_share_findings=True)
++    verdicts = tuple(quietly(lambda ms=ms: run.verdict(args, groups, [], [], [], run.notice_misses(results(ms), 1)))
++                     for ms in (12.0, 21.0))
++    out.append(("a declared or withdrawn Talker's notice later than its bound fails the run whatever the options "
++                'record, and one within it passes', verdicts == (0, 1), str(verdicts)))
++    dropped = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-dropped', record_budget_findings=True,
++                                 record_share_findings=True)
++    delayed = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-delayed', record_budget_findings=True,
++                                 record_share_findings=True)
++    never = [f'{name}: no end: no notification to [x]' for name in rows]
++    late = run.notice_misses(results(25.0), 1)
++    caught = tuple(quietly(lambda c=c, r=r, m=m: run.verdict(c, groups, r, [], [], m)) for c, r, m in (
++        (dropped, never, []), (dropped, never[1:], []), (dropped, [*never, 'x.held.srp.if0: refused'], []),
++        (dropped, [], late), (delayed, [], late), (delayed, [], late[1:]), (delayed, never, [])))
++    out.append(("the dropped notice's plant is caught only when both rows of every group have no notice, with no other "
++                "refusal, and the delayed one's only when both are later than their bound", caught == (0, 1, 1, 1, 0, 1,
++                                                                                                      1), str(caught)))
++    out.append(("both plants run every group of the talker-notices arm, and that arm's run takes them alone",
++                all(build.MUTATIONS[m][3:] == (','.join(names), 'talker-notices') for m in talker_notice.CONTROLS)
++                and [x.name for x in run.all_groups(points[0], dict(variant='talker-notices'))] == names, ''))
+     return out
+diff --git a/tb/verilator/ctrl_service_budget/talker_notice.py b/tb/verilator/ctrl_service_budget/talker_notice.py
+new file mode 100644
+index 0000000000..e9e1b93262
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/talker_notice.py
+@@ -0,0 +1,172 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""A STREAM_OUTPUT's GET_STREAM_INFO notice when SRP declares or withdraws its Talker (#936; Milan v1.2 5.4.5.2,
++Table 5.22; IEEE 1722.1-2021 7.5.2), timed from the event to its last recipient's commit against the asynchronous
++notifications' row, 20 ms (FR_NFR.md 3.4.1: an immediate path runs from mailbox RX commitment, and the last required
++recipient's commit ends a notification fan-out; backlog and TX-ring backpressure consume the budget).
++
++build.py's talker-notices variant (a scratch copy of the size fixture, never the formal image) is valid-destinations'
++fixture, the ACMP source port valid once MAAP holds the range (talker_window.py), with the face block's stream
++observation answering zeroed values at every attempt, as answering-ports' does: so the notice is built at its first
++attempt, and the row times the declaration's path to it.
++
++Each group registers AECP_REGISTRATIONS controllers on every interface and starts a save, as notice_window's groups do,
++then times two events, each a row on source 0's interface:
++- the declaration: once MAAP holds the ranges, a PROBE_TX for source 0, answered SUCCESS. Its DA gate opens, the SRP
++  delivery hands the gate to SRP, which declares the source's Talker and records it, the delivery takes the record,
++  the AECP bridge raises its STREAM_OUTPUT's GET_STREAM_INFO and THE RETRY sends it to every registration. The row
++  runs from the PROBE_TX's commit, the event, to the later of its response and its last recipient's notice (path
++  notice.declared; Milan v1.2 5.4.5.2: a response precedes its notification).
++- the withdrawal: a peer ANNOUNCEs the interface's range from a MAC for which compare_MAC is FALSE (talker_window), so
++  MAAP restarts on a new range, its DA gate closes and SRP withdraws the Talker, recorded and noticed the same way. The
++  row runs from the ANNOUNCE's commit to the last recipient's notice (path notice.withdrawn). The new range waits two
++  LeaveAllTime periods, so no Advertise follows within the group.
++Each event comes k ms into a load of RUN_MS, group talker-notice-<k>: every receive channel at its contract refill rate
++with its bursts (save_window.arrivals), the event's own channel from one refill period after the event, so its bucket
++admits the burst whole, and a grandmaster change as every pass starts (sim_main.cpp's flood), as notice_window's load.
++SRP's channel carries a Listener Ready for another entity's stream, the same size as the one save_window sends: a
++Listener Ready for source 0's own stream would hold its DA gate open by itself (Milan v1.2 4.3.3.1) and declare it
++before the event. There are PHASES groups, one a millisecond, so the event meets the bursts at a different phase in
++each.
++
++A row over its 20 ms fails the run whatever its options record, and so does a row with no notice (run.notice_misses,
++the probe's refusal). build.py's declared-notice-dropped and declared-notice-delayed plants must put every group's two
++rows there, each by its reason.
++"""
++from __future__ import annotations
++
++import answers
++import frames as f
++import notice_window
++import save_window
++import scenario
++import talker_window
++
++#: The fixture's edits: valid-destinations' ACMP source port, and the face block's stream observation answering.
++FIXTURE_EDITS = (*talker_window.FIXTURE_EDITS,
++                 ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
++                 ('static struct aecp_face image_face;\n',
++                  'static struct aecp_face image_face;\n'
++                  "// A declared or withdrawn Talker's notice (#936): the stream observation answers every attempt.\n"
++                  'static bool n_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
++                  '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'),
++                 ('    aecp_face_init(&image_face,&image_platform);\n',
++                  '    aecp_face_init(&image_face,&image_platform);\n    image_face.ports.stream=n_stream;\n'))
++#: NOW_MS of the SET_NAME, the declaration's load and the withdrawal's.
++SET_MS, DECLARE_MS, WITHDRAW_MS = 1700, 3000, 3600
++#: How long each load runs past its start, in ms: notice_window's, past the bound with room for the row to show it.
++RUN_MS = notice_window.RUN_MS
++#: The groups, one a millisecond into the load.
++PHASES = 8
++#: The source whose Talker is declared and withdrawn, and the rows' paths, which run.notice_misses holds.
++SOURCE = 0
++DECLARED, WITHDRAWN = 'notice.declared', 'notice.withdrawn'
++PATHS = (DECLARED, WITHDRAWN)
++#: The PROBE_TX's sequence_id.
++SEQ = 0x5e00
++#: The stream SRP's channel carries Listener Ready for under the load: another entity's, BRIDGE_MAC's first.
++OTHER_STREAM = scenario.BRIDGE_MAC << 16
++
++
++def names() -> list[str]:
++    """The groups' names, at any point: the plants run them all."""
++    return [f'talker-notice-{k}' for k in range(PHASES)]
++
++
++#: The talker arms build.py builds (scratch copies of the size fixture, never the formal image): valid-destinations
++#: (#895, talker_window.py) and talker-notices (#936), valid-destinations with the stream observation answering.
++VARIANTS = {'valid-destinations': list(talker_window.FIXTURE_EDITS), 'talker-notices': list(FIXTURE_EDITS)}
++#: The planted defects build.py builds for this arm, as its MUTATIONS: (file under sw/firmware/ctrl, anchor,
++#: replacement, control groups, variant). The dropped notice: the AECP bridge raises no STREAM_OUTPUT's GET_STREAM_INFO
++#: from SRP's record, so neither row of a group has a notice to end at. The late notice: the bridge holds SRP's record
++#: 25 ms from the pass that first sees it, so both rows of every group are committed past their 20 ms.
++PLANTS = {
++    'declared-notice-dropped': ('app/ctrl_app_aecp.c', '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++                                '\t\t\t\t(void)n;\n', ','.join(names()), 'talker-notices'),
++    'declared-notice-delayed': ('app/ctrl_app_aecp.c', '\tuint32_t noticed = c->app->srp_noticed;\n',
++                                '\tstatic uint32_t held_since;\n\tstatic bool holding;\n'
++                                '\tuint32_t noticed = c->app->srp_noticed;\n'
++                                '\tif (noticed != 0u && !holding) {\n\t\tholding = true;\n'
++                                '\t\theld_since = c->aecp->core.now;\n\t}\n'
++                                '\tif (noticed != 0u && c->aecp->core.now - held_since < 25u) {\n'
++                                '\t\tnoticed = 0u;\n\t}\n'
++                                '\tholding = holding && noticed == 0u;\n',
++                                ','.join(names()), 'talker-notices'),
++}
++#: Each plant's finding, which run.verdict requires of both rows of every group: no notice to end at, or a notice
++#: later than its bound.
++CONTROLS = {'declared-notice-dropped': 'missing', 'declared-notice-delayed': 'late'}
++
++
++def other_listener() -> bytes:
++    """A bridge's Listener Ready for another entity's stream (IEEE 802.1Q-2018 35.2.2.8), as listener_ready's."""
++    return f.msrp(scenario.BRIDGE_MAC, [f.mrp_message(3, f.be(OTHER_STREAM, 8), [1], four_packed=[2])])
++
++
++def loaded(g: scenario.Group, p: scenario.Point, probe: scenario.Probe, channel: str, event: str, k: int) -> None:
++    """The event k ms into a load of RUN_MS, its own channel's load from one refill period after it, and the end mark
++    that bounds the row's search."""
++    ms = scenario.MS
++    own = scenario.listener_ready(p).hex()
++    other = other_listener().hex()
++    if len(own) != len(other):
++        raise ValueError("the other stream's Listener Ready is not the size of the load's")
++    refill = scenario.CONTRACT.channels[scenario.CH[channel]].refill_ms
++    timeline = [(when, step.replace(own, other) if name == 'srp' else step)
++                for when, name, step in save_window.arrivals(p, RUN_MS) if name != channel]
++    timeline += [(k + refill + when, step) for when, name, step in save_window.arrivals(p, RUN_MS - k - refill)
++                 if name == channel]
++    timeline.append((k, scenario.tagged(event, probe.name)))
++    g.probes.append(probe)
++    g.add(f'mark {probe.name}', 'flood gm 1')
++    at = 0
++    for when, step in sorted(timeline, key=lambda a: a[0]):
++        cycles = round(when * ms)
++        if cycles > at:
++            g.add(f'wait cycles {cycles - at}')
++            at = cycles
++        g.add(step)
++    g.add(f'wait cycles {round(RUN_MS * ms) - at}', 'flood gm 0', 'wait quiet 3 within 2000000',
++          f'mark {probe.until}')
++
++
++def group(p: scenario.Point, k: int) -> scenario.Group:
++    """talker-notice-<k>: the registrations, a save, then the declaration and the withdrawal, each k ms into a load."""
++    ms, aecp, acmp, maap = scenario.MS, scenario.CH['aecp'], scenario.CH['acmp'], scenario.CH['maap']
++    if talker_window.reversed_mac(talker_window.PEER_MAC) >= talker_window.reversed_mac(p.mac):
++        raise ValueError(f'the peer {talker_window.PEER_MAC:012x} does not take the range of {p.mac:012x} (B.3.6.4)')
++    paced = f'wait cycles {scenario.CONTRACT.channels[aecp].refill_ms * ms}'
++    g = scenario.Group(f'talker-notice-{k}', sim_ms=WITHDRAW_MS + RUN_MS + 400)
++    scenario.ready(g, p)
++    controllers = [scenario.FANOUT_CONTROLLER + n for n in range(scenario.registrations())]
++    seq = notice_window.SEQ
++    for i in range(p.interfaces):
++        for ctl in controllers:
++            frame = f.aem_command(f.Aem(p.entity_id, ctl, scenario.CTL_MAC, p.mac, seq), 0x0024, bytes(4))
++            g.add(paced, f'frame {i} {frame.hex()}', f'wait tx {aecp} 1 within {50 * ms}',
++                  'wait quiet 3 within 2000000')
++            seq += 1
++    everyone = tuple((ctl, i) for i in range(p.interfaces) for ctl in controllers)
++    g.add(notice_window.wait_ms(SET_MS), f'frame 0 {save_window.set_name(p).hex()}',
++          f'wait tx {aecp} {1 + len(everyone)} within {200 * ms}', 'wait quiet 3 within 2000000')
++    i = SOURCE % p.interfaces
++    notice = f'notify:{aecp}:000f:6:{SOURCE}'
++    declared = scenario.Probe(f'{g.name}.declared.if{i}', "a Talker declared, from its PROBE_TX's commit to its "
++                              "STREAM_OUTPUT's notice to every registration (#936)", 'notify', f'rxc:{acmp}',
++                              [f'resp:{acmp}:{SEQ:x}', notice], expect=answers.acmp('PROBE_TX_RESPONSE', 'SUCCESS'),
++                              recipients=everyone, until=f'{g.name}.declared.end', path=DECLARED)
++    g.add(notice_window.wait_ms(DECLARE_MS))
++    loaded(g, p, declared, 'acmp', f'frame {i} {scenario.talker_cmd(p, "PROBE_TX", SOURCE, SEQ).hex()}', k)
++    withdrawn = scenario.Probe(f'{g.name}.withdrawn.if{i}', "a Talker withdrawn as MAAP loses its range, from the "
++                               "ANNOUNCE's commit to its STREAM_OUTPUT's notice to every registration (#936)",
++                               'notify', f'rxc:{maap}', [notice], recipients=everyone,
++                               until=f'{g.name}.withdrawn.end', path=WITHDRAWN)
++    g.add(notice_window.wait_ms(WITHDRAW_MS))
++    loaded(g, p, withdrawn, 'maap',
++           f'reply {i} {maap} 15:{f.MAAP_ANNOUNCE:02x} on={i} 6={talker_window.PEER_MAC:012x}', k)
++    return g
++
++
++def groups(p: scenario.Point) -> list[scenario.Group]:
++    """Every phase's group."""
++    return [group(p, k) for k in range(PHASES)]
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 425e1c3785..18eb9c36de 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1379,7 +1379,7 @@ a finding too: the lane that fixes it deletes the row.
+ 
+ | Row | Fabric | Split | Owed to |
+ |---|---|---|---|
+-| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #665 (no issue owns it yet) |
++| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #943 |
+ | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+ | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
+ 
+diff --git a/tb/verilator/milan_dp/twin_compare.py b/tb/verilator/milan_dp/twin_compare.py
+index 1f57e8adad..d5b07d91b5 100644
+--- a/tb/verilator/milan_dp/twin_compare.py
++++ b/tb/verilator/milan_dp/twin_compare.py
+@@ -485,7 +485,7 @@ OWED = (
+         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
+         "PROBE_TX, stream_dest_mac 91e0f0000100, and as it withdraws",
+         "the same notices at the same changes, the declared ones with stream_dest_mac 000000000000", shown_aecp,
+-        SPLIT_DEST_MAC, "#665 (a split datapath defect; no issue owns it yet)"),
++        SPLIT_DEST_MAC, "#943"),
+     Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
+         lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
+         lambda h, sel: [(k, td.run_length(v)) for k, v in sel]

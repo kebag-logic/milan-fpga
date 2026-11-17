@@ -1,0 +1,37 @@
+# Image identity, #936 round 2, at the final head d1aa4c44
+
+## The split platform's images (plat_ledger.py's build), ctrl_app.elf: d1aa4c44 against 33f24ca3, the firmware fix
+identical: 8
+a1a625750fe9590760e1b6acd3f51b762910ee8dea87023086192c553628bd8c  ./1x1-if1/ctrl_app.elf
+152c2729976a54ffd5ec0969bc18fee6d9872231e1793febc4436ce3ce30d181  ./1x1-if2/ctrl_app.elf
+a0e8dd3b184aafec9d9d7baccf6abfa1f44ee2f96daaff6b97c95a6de7f89cb4  ./8x8-if1/ctrl_app.elf
+de26c5dfcdd275017afec666f2cc3ae8c067cb43149b8b0b5a830952c17562d4  ./8x8-if2/ctrl_app.elf
+e0c102caaf3b26909365dc652e4247ccff3e8899ff681691f82977fdba888a38  ./endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf
+c711b6118276ec38986a12065576586418f6ab8bd2b56f3a977c83794994801e  ./endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image/ctrl_app.elf
+c597a72069cf2430da8ff12766b0908f83002a16af32113b2359306f974417fd  ./endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf
+c229ad936db48f2faac7404d254c0b9ed9ca897394b098fae2fee537de4d78d0  ./endstation_ax7101_8x8/split-soc/stand-ins/image/ctrl_app.elf
+
+## The size fixture's images and its harness arms (build.firmware()), ctrl_app.elf
+identical: 9
+e0c102caaf3b26909365dc652e4247ccff3e8899ff681691f82977fdba888a38  ./endstation_ax7101_1x1_tdm8-if1-none/image/ctrl_app.elf
+ec6f006694a16da74dc87b435f5094fb2286990d066f7515761b942abbbca963  ./endstation_ax7101_1x1_tdm8-if1-talker-notices/image/ctrl_app.elf
+97f7c290ad60125644797faa1dae72b7a38f8584d867ffec9b1e333b85afb64a  ./endstation_ax7101_1x1_tdm8-if2-none/image/ctrl_app.elf
+c597a72069cf2430da8ff12766b0908f83002a16af32113b2359306f974417fd  ./endstation_ax7101_8x8-if1-none/image/ctrl_app.elf
+b8d11ef552b38ffbefad312e8c767ec1f3b840b86b5ef463240bd86c0e4233f1  ./endstation_ax7101_8x8-if1-talker-notices/image/ctrl_app.elf
+8f0ebe6b3c9a9c4c26f3a3a89faac575ac673f750cef99f39a4153c10c283edf  ./endstation_ax7101_8x8-if2-answering-every-port/image/ctrl_app.elf
+2da8f7a1f2153e7a5219db1ba128fdabdaae274342277cfc3352a9cb19a5cc04  ./endstation_ax7101_8x8-if2-none/image/ctrl_app.elf
+1d1509f95a1698ff3c8214815c5324a0630552e8ab75293f11534a83221adbde  ./endstation_ax7101_8x8-if2-talker-notices/image/ctrl_app.elf
+2d588706c6159c888d0bb0bc646977e88bfc9c713577b9335f5119dcbdafdd3a  ./endstation_ax7101_8x8-if2-valid-destinations/image/ctrl_app.elf
+
+## The talker-notices harness legs' own images against d1aa4c44's fixture arm images
+r4-tn1 ctrl_app.elf ec6f006694a16da74dc87b435f5094fb2286990d066f7515761b942abbbca963; fixture endstation_ax7101_1x1_tdm8-if1-talker-notices ec6f006694a16da74dc87b435f5094fb2286990d066f7515761b942abbbca963: identical
+r4-tn8 ctrl_app.elf b8d11ef552b38ffbefad312e8c767ec1f3b840b86b5ef463240bd86c0e4233f1; fixture endstation_ax7101_8x8-if1-talker-notices b8d11ef552b38ffbefad312e8c767ec1f3b840b86b5ef463240bd86c0e4233f1: identical
+
+## The release (all-fabric) image against the base 70f4056f: bios.bin, disassembly, debug-stripped ELF
+identical: 6
+860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99  ./endstation_ax7101_8x8/software/bios/bios.bin
+3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf.stripped (debug sections stripped)
+51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb  ./endstation_ax7101_8x8/software/bios/bios.elf.stripped (debug sections stripped)

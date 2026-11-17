@@ -1,0 +1,148 @@
+Original file: <scratch>/r4/budget/r4-de1/results/results.json
+Original size: 93217 bytes
+Original sha256: 585a1dbbcb0e8050c36f1a216d191d5c1592876f0310a6129a189dd54483dd57
+A summary of the file; the original is kept in scratch.
+
+{
+ "point": "1x1",
+ "build": "b33307a2e16db70d8e14d3ee30570bca82d121b47653e7350455ce9c0ca72f1e",
+ "counts": {
+  "paths": 2,
+  "path_misses": 2,
+  "instances": 16,
+  "instance_misses": 16
+ },
+ "refusals": [],
+ "misses": [
+  "talker-notice-0.declared.if0: 29.662 ms over its budget 20 ms",
+  "talker-notice-0.withdrawn.if0: 29.573 ms over its budget 20 ms",
+  "talker-notice-1.declared.if0: 30.568 ms over its budget 20 ms",
+  "talker-notice-1.withdrawn.if0: 28.623 ms over its budget 20 ms",
+  "talker-notice-2.declared.if0: 29.732 ms over its budget 20 ms",
+  "talker-notice-2.withdrawn.if0: 29.594 ms over its budget 20 ms",
+  "talker-notice-3.declared.if0: 28.722 ms over its budget 20 ms",
+  "talker-notice-3.withdrawn.if0: 27.614 ms over its budget 20 ms",
+  "talker-notice-4.declared.if0: 28.657 ms over its budget 20 ms",
+  "talker-notice-4.withdrawn.if0: 28.572 ms over its budget 20 ms",
+  "talker-notice-5.declared.if0: 27.624 ms over its budget 20 ms",
+  "talker-notice-5.withdrawn.if0: 28.644 ms over its budget 20 ms",
+  "talker-notice-6.declared.if0: 27.571 ms over its budget 20 ms",
+  "talker-notice-6.withdrawn.if0: 27.661 ms over its budget 20 ms",
+  "talker-notice-7.declared.if0: 26.741 ms over its budget 20 ms",
+  "talker-notice-7.withdrawn.if0: 26.641 ms over its budget 20 ms"
+ ],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [
+  "talker-notice-0.declared.if0: committed 29.662 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-0.withdrawn.if0: committed 29.573 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-1.declared.if0: committed 30.568 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-1.withdrawn.if0: committed 28.623 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-2.declared.if0: committed 29.732 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-2.withdrawn.if0: committed 29.594 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-3.declared.if0: committed 28.722 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-3.withdrawn.if0: committed 27.614 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-4.declared.if0: committed 28.657 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-4.withdrawn.if0: committed 28.572 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-5.declared.if0: committed 27.624 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-5.withdrawn.if0: committed 28.644 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-6.declared.if0: committed 27.571 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-6.withdrawn.if0: committed 27.661 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-7.declared.if0: committed 26.741 ms after its event's commit, over its bound 20 ms",
+  "talker-notice-7.withdrawn.if0: committed 26.641 ms after its event's commit, over its bound 20 ms"
+ ],
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 16,
+  "within_budget": 0,
+  "longest": {
+   "probe": "talker-notice-1.declared.if0",
+   "row": "a Talker declared, from its PROBE_TX's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.declared",
+    0
+   ],
+   "start_sys": 300100141,
+   "end_sys": 303156918,
+   "sys_cycles": 3056777,
+   "cpu_cycles": 3056777,
+   "ms": 30.56777,
+   "wait_ms": 0.0,
+   "passes": 120,
+   "ring": "acmp",
+   "ahead": 0,
+   "budget_ms": 20.0,
+   "ceiling_ms": 24.0,
+   "within_budget": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 303144185,
+    "last_sys": 303156918,
+    "per_recipient_cpu_cycles": 848
+   },
+   "bound_cpu_cycles": 3106229,
+   "bound_ms": 31.06229,
+   "bound_within_budget": false,
+   "pass_cycles": 28868,
+   "pass_instr": 5442,
+   "pass_mbx_accesses": 52,
+   "pass_fetch_share": 0.4958,
+   "pass_fetch_wait_share": 0.341,
+   "pass_regions": {
+    "rom": [
+     118,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     4,
+     48
+    ],
+    "csr": [
+     0,
+     18,
+     50
+    ]
+   },
+   "pass_modules": {
+    "aecp": 12089,
+    "mbx": 8451,
+    "aecp_commands": 2594,
+    "ctrl_mem": 1980,
+    "ctrl_loop": 1378,
+    "aecp_mbx": 1366
+   },
+   "status": "measured",
+   "group": "talker-notice-1"
+  }
+ },
+ "paths": [
+  {
+   "path": "notice.declared",
+   "row": "a Talker declared, from its PROBE_TX's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "instances": 8,
+   "misses": 8,
+   "worst_probe": "talker-notice-1.declared.if0",
+   "worst_ms": 30.56777,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "notice.withdrawn",
+   "row": "a Talker withdrawn as MAAP loses its range, from the ANNOUNCE's commit to its STREAM_OUTPUT's notice to every registration (#936)",
+   "instances": 8,
+   "misses": 8,
+   "worst_probe": "talker-notice-2.withdrawn.if0",
+   "worst_ms": 29.59372,
+   "budget_ms": 20.0
+  }
+ ]
+}
