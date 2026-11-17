@@ -36,10 +36,10 @@ import slice_grade
 import rows_grade
 import rows_tiers
 import run
-import save_burst
 import save_grade
 import save_window
 import scenario
+import selftest_mutants_burst
 import shape_costs
 import share
 import whole_grade
@@ -465,26 +465,8 @@ def _reuse_unchecked() -> Patches:
     return lambda: [patch.object(build, 'reused', reused)]
 
 
-def _burst_cut_any_slot(path: Path, image: int, base: int) -> tuple:
-    """save_burst.journal reading slot A whatever the two slots' sequences."""
-    data = path.read_bytes()
-    seq = save_burst.accepted(data[:image], image)
-    return seq, save_burst.held_names(data[:image], image, base) if seq is not None else {}
-
-
 MUTANTS: dict[str, Patches] = {
-    # #920: a burst's and a change in flight's grade (save_burst.py)
-    'burst: a container is accepted whatever its CRC': lambda: [patch.object(
-        save_burst, 'accepted', lambda blob, image: int.from_bytes(blob[8:12], 'little'))],
-    'burst: the cut is not read': lambda: [patch.object(
-        save_burst, 'journal', lambda path, image, base: (1, dict(enumerate([b'burst 000'.ljust(64, b'\0'),
-                                                                             b'burst 001'.ljust(64, b'\0')]))))],
-    'burst: the cut reads slot A whatever the sequences': lambda: [patch.object(
-        save_burst, 'journal', _burst_cut_any_slot)],
-    "burst: a SET_NAME's status is not read": lambda: [patch.object(
-        save_burst, 'responses', lambda log, _r=save_burst.responses: {k: (c, 0) for k, (c, _) in _r(log).items()})],
-    "flight: the next save's steps are not counted": lambda: [patch.object(
-        save_burst, 'next_steps', lambda log, done, spec, image: dict(steps=0, want=0, gap_ms=0))],
+    **selftest_mutants_burst.MUTANTS,
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
     'marker: a timer path starts one millisecond after its deadline': _start_with(_timer_late),

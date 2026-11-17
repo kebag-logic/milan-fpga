@@ -72,8 +72,8 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                   for n in range(outside)]
         lines += [f'CALL {2 * (start - 2 - n)} {start - 2 - n} {BUILT}' for n in range(outside)]
         shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
-                           shape)['passes']['rounds']
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
+                           shape or shape_costs.interfaces(interfaces))['passes']['rounds']
 
     got = round_grade.stated_us(1), round_grade.stated_us(2)
     out = [("each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32",
@@ -137,8 +137,8 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                  'round': [f'PASS 1 {2 * start - 100} {start - 50} {cycles + 100} instr=10 store_mbx=1 '
                            f'W {2 * start}:1:0', f'SPAN {2 * start} {start} {cycles} 00001000 {ROUND}']}[kind]
         shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
-                           shape)['passes']['slices']
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
+                           shape or shape_costs.interfaces(interfaces))['passes']['slices']
 
     kinds = lambda s: [o['kind'] for o in s['over']]
     one = us[0] * cpu_hz // 1_000_000
@@ -201,8 +201,9 @@ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: i
         lines = [f'PASS 1 {ratio * (start - 10)} {start - 10} {base + 600} instr=10 store_mbx=1 W {ratio * start}:1:0',
                  f'SPAN {ratio * start} {start} 50 00002000 {poll_grade.FIRST}',
                  f'SPAN {ratio * (start + base - 40)} {start + base - 40} 40 00002000 {poll_grade.LAST}']
-        polls = grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(given),
-                            given if isinstance(given, shape_costs.Shape) else None)['passes']['polls']
+        polls = grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
+                            given if isinstance(given, shape_costs.Shape)
+                            else shape_costs.interfaces(given))['passes']['polls']
         return [(o['kind'], o['cycles']) for o in polls['over']]
     own, count = poll_grade.stated_us(shape), poll_grade.stated_us(shape.interfaces)
     limit = own['base'] * cpu_hz // 1_000_000

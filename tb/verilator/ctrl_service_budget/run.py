@@ -595,7 +595,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     for group, log in zip(groups, logs):
         refusals += unstated(group)
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape,
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], shape or spec['interfaces'],
                                  journal_of(out, group) if group.save.get('journal') else None)
         except grade.Refusal as error:
             refusals.append(str(error))

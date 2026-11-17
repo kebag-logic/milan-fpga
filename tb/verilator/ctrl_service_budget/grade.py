@@ -940,12 +940,12 @@ def programmed(text: str) -> list[tuple[int, int, bytes]]:
             for m in re.finditer(r'^FLASHDATA (\d+) ([0-9a-fA-F]+) ([0-9a-fA-F]*)$', text, re.M)]
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2,
-          shape: shape_costs.Shape | None = None, journal: Path | None = None) -> dict:
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
+          at: int | shape_costs.Shape = 2, journal: Path | None = None) -> dict:
     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish. The passes given
-    whole, the polls and the slices are held to the costs stated at the image's shape (shape_costs.py, THE SHAPES), or
-    with none given at that many interfaces at the shipping shape's streams."""
-    stated_at = shape or interfaces
+    whole, the polls and the slices are held to the costs stated at `at`, the image's shape (shape_costs.py, THE
+    SHAPES), or an interface count, that many interfaces at the shipping shape's streams."""
+    stated_at = at
     log = parse(text, sys_hz, cpu_hz)
     log.programmed = programmed(text)
     refuse_run(log, group)

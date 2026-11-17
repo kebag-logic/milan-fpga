@@ -685,10 +685,8 @@ DEFECTS = (
            '\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n', '',
            ('AppFace.FaceEventsDriveTheirTable522Notifications',
             'a counter change notifies GET_COUNTERS')),
-    # acknowledged state is the only truth a controller sees (#665): a change
-    # the face has not taken waits undone behind IN_PROGRESS, then one final
-    # response; no other change is taken meanwhile; an expiry is notified once
-    # applied
+    # acknowledged state is the only truth a controller sees (#665): a change the face has not taken waits undone behind
+    # IN_PROGRESS, then one final response; no other change is taken meanwhile; an expiry is notified once applied
     defect('unapplied-change-not-refused', 'aecp_commands.c',
            'return a->refusing || aecp_other_lock(a);',
            'return aecp_other_lock(a);',
