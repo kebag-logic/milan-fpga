@@ -2,31 +2,24 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Read a group's observation log and grade every probe against its budget and its ceiling.
 
-Each rule a figure rests on lives in one place, so the self-test can mutate
-it and require a named failure:
+Each rule a figure rests on lives in one place, so the self-test can mutate it and require a named failure:
 
-  the clock ratio   Grader.cpu_cycles, Grader.ms, Grader.bus_cycles and
-                    Grader.cpu_ms: every conversion between the bus and the
-                    CPU clock, and to milliseconds, goes through them
-  the markers       Grader.start and Grader.end; owner(), the frame a receive
-                    commit belongs to; Grader.recipients and fanout_end(), a
-                    notification's required recipients and its end
+  the clock ratio   Grader.cpu_cycles, Grader.ms, Grader.bus_cycles and Grader.cpu_ms: every conversion between the bus
+                    and the CPU clock, and to milliseconds, goes through them
+  the markers       Grader.start and Grader.end; owner(), the frame a receive commit belongs to; Grader.recipients and
+                    fanout_end(), a notification's required recipients and its end
   the pass bound    Grader.pass_end and Grader.pass_origin
-  the fan-out cost  grade_probe's fanout: the last recipient's commit less the
-                    first's, over the gaps between the recipients
-  the composition   composed() and population(), checked against defined_load(),
-                    which derives each row's population from the contract alone;
-                    run.composed_maximum() takes the longest pass over every
-                    backlog row's window
-  the service       releases() and service(): each loaded channel's first and
-                    last record to the end of the pass that released it, a
-                    record never released reported as starved, and the records
-                    ahead of each: its channel's earlier records not yet
-                    released at its commit
+  the fan-out cost  grade_probe's fanout: the last recipient's commit less the first's, over the gaps between the
+                    recipients
+  the composition   composed() and population(), checked against defined_load(), which derives each row's population
+                    from the contract alone; run.composed_maximum() takes the longest pass over every backlog row's
+                    window
+  the service       releases() and service(): each loaded channel's first and last record to the end of the pass that
+                    released it, a record never released reported as starved, and the records ahead of each: its
+                    channel's earlier records not yet released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS, budget_ms() and verdicts()
-  the pass share    pass_share(): every work pass against share.py's share, apart from
-                    the rows
+  the pass share    pass_share(): every work pass against share.py's share, apart from the rows
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
@@ -162,11 +155,9 @@ def last_frame(pending: list[tuple[int, str, int, int]], cycle: int, refused: li
                what: str = 'receive commit') -> tuple[int, str, int, int]:
     """The frame a verdict acting at cycle belongs to: (interface, tag, bytes, last byte).
 
-    KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so
-    the verdict belongs to the frame whose last byte passed last; every older
-    frame still pending got none, so the filter or the bucket refused it. A
-    verdict with no frame ended within COMMIT_LATENCY_MAX cycles before it is
-    refused.
+    KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so the verdict belongs to the frame whose
+    last byte passed last; every older frame still pending got none, so the filter or the bucket refused it. A verdict
+    with no frame ended within COMMIT_LATENCY_MAX cycles before it is refused.
     """
     if not pending or not cycle - COMMIT_LATENCY_MAX <= pending[-1][3] <= cycle:
         raise Refusal(f'the {what} at {cycle} follows no frame')
@@ -298,8 +289,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
 def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int, int]]) -> list[tuple]:
     """Each committed TX record's cycle, channel, interface and length, off its header word.
 
-    A TX_HEAD write commits every record between the previous head and the
-    new one; each record's word 0 holds its length and interface.
+    A TX_HEAD write commits every record between the previous head and the new one; each record's word 0 holds its
+    length and interface.
     """
     ring: dict[int, dict[int, int]] = {ch: {} for ch in TX_RING}
     head = {ch: 0 for ch in TX_RING}
@@ -486,9 +477,8 @@ class Grader:
     def pass_bound(self, start: int, taking: Pass) -> int:
         """Bus cycles from the start of the pass running at start to the end of the taking pass.
 
-        Whatever the input's phase in the pass running when it arrives, it is
-        taken no later than the following pass, so with the same passes the
-        interval cannot exceed this.
+        Whatever the input's phase in the pass running when it arrives, it is taken no later than the following pass, so
+        with the same passes the interval cannot exceed this.
         """
         return self.pass_end(taking) - self.pass_origin(start)
 
@@ -746,15 +736,14 @@ def room(channel: str) -> int:
 
 
 def defined_load(name: str) -> dict[str, int]:
-    """The population a composed row's window must commit, from the contract alone and never
-    from the stimulus's declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
+    """The population a composed row's window must commit, from the contract alone and never from the stimulus's
+    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
 
-    Every receive channel carries what one instant admits: its token bucket's burst, unless
-    its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
-    the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
-    'backlog' is the LINK change; each commits only into a ring the core has drained, so a backlog
-    window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a channel
-    and two changes. A save's window is its backlog row's (save_window.row).
+    Every receive channel carries what one instant admits: its token bucket's burst, unless its ring holds fewer records
+    of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills the ring's room. Grandmaster changes fill the event
+    ring but the row's own event, which in 'backlog' is the LINK change; each commits only into a ring the core has
+    drained, so a backlog window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a
+    channel and two changes. A save's window is its backlog row's (save_window.row).
     """
     name = save_window.row(name)
     if name not in COMPOSED_ROWS:
@@ -875,13 +864,12 @@ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
 
 
 def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
-    """The longest pass that starts inside the composed window, whose committed population must
-    be the row's defined load exactly (MAAP and SRP included).
+    """The longest pass that starts inside the composed window, whose committed population must be the row's defined
+    load exactly (MAAP and SRP included).
 
-    serviced says whether the window released every record of that load: a window that
-    closed on a starved channel measured passes without that channel's work, so its longest
-    pass is a lower bound, and unreleased names the records. The composed maximum is the
-    longest over every backlog row's window, a lower bound while one is not serviced
+    serviced says whether the window released every record of that load: a window that closed on a starved channel
+    measured passes without that channel's work, so its longest pass is a lower bound, and unreleased names the records.
+    The composed maximum is the longest over every backlog row's window, a lower bound while one is not serviced
     (run.composed_maximum).
     """
     if 'composed' not in marks or 'composed_end' not in marks:
@@ -936,11 +924,11 @@ def save_phase(log: Log, name: str, start: int) -> None:
 
 
 def pass_share(log: Log) -> dict:
-    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share
-    in ms and in CPU cycles at the log's CPU clock, the work passes, and each pass over it. A pass
-    that writes nothing to the mailbox is printed only as its run's longest (sim_main.cpp's IDLE),
-    and the store's step can be all such a pass does (ctrl_loop.h, THE STEP): a run whose longest
-    is over the share is one pass over it, idle_over counts them."""
+    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share in ms and in CPU cycles
+    at the log's CPU clock, the work passes, and each pass over it. A pass that writes nothing to the mailbox is
+    printed only as its run's longest (sim_main.cpp's IDLE), and the store's step can be all such a pass does
+    (ctrl_loop.h, THE STEP): a run whose longest is over the share is one pass over it, idle_over counts them.
+    """
     limit = share.share_cycles(log.cpu_hz)
     over = [dict(start_sys=p.start_sys, cycles=p.cycles) for p in log.passes if p.cycles > limit]
     idle = [dict(idle_run=n, cycles=longest) for n, (_, _, longest) in enumerate(log.idle) if longest > limit]
