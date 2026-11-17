@@ -1,0 +1,13 @@
+HEAD 10b2fe213d4c2bf5ccd32e61fc466129c934e31e PORCELAIN 11 harness = ccc98b11 leg s13102 point 8x8-1if args --groups save-held,save-starved start 2026-11-17T06:07:23
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2260 passes carry the store's step; the longest 100,944 CPU cycles (1.009 ms), save-held; the longest step 77,943 (0.779 ms), save-starved
+SLICES 87691 tier-2 slices; the longest SRP's records 70,611, THE TRANSMIT's build 31,498, THE RETRY's round 2,173 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS save-held: 6 join interval(s), the shortest 188.663 ms and the longest 190.001 ms, against 181.0 to 239.0; MRP timers' run-outs: 42 released, 30 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS save-starved: 6 join interval(s), the shortest 188.663 ms and the longest 190.016 ms, against 181.0 to 239.0; MRP timers' run-outs: 42 released, 30 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE save-held: durable 4818.120 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 15.236 ms) within
+SAVE save-starved: durable 12447.943 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 32.435 ms) within
+2 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 6 paths), 0 of 61516 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED save-held: a pass's polls base of 24,100 CPU cycles, over its stated 22,500
+STATED save-starved: a pass's polls base of 24,100 CPU cycles, over its stated 22,500
+END rc=1 2026-11-17T06:08:36

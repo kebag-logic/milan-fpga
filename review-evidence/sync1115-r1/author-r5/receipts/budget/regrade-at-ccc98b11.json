@@ -1,0 +1,1449 @@
+{
+ "note": "r5_compare.py at ccc98b11: each leg regraded (--reuse-build --regrade) against round 4; every build that sends nothing summarised (the full per-build list is in the full JSON, kept in scratch)",
+ "full_json": {
+  "sha256": "c883b20cfffa970445b088c10ad0cf8607525b2cd14d02e6fa3f293473db9e83",
+  "bytes": 227474
+ },
+ "legs": [
+  {
+   "leg": "s10092",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.91378,
+       "leaveall.if0": 0.57276,
+       "periodic.if0": 1.44926
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.005,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.82521,
+       "leaveall.if0": 0.59129,
+       "periodic.if0": 1.75255
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.821,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.005,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s10592",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.86217,
+       "leaveall.if0": 0.53814,
+       "periodic.if0": 2.51484
+      },
+      "runs": {
+       "released": 41,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.823,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.52226,
+       "leaveall.if0": 0.59686,
+       "periodic.if0": 2.61022
+      },
+      "runs": {
+       "released": 41,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.822,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.005,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11102",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.64485,
+       "leaveall.if0": 0.53935,
+       "periodic.if0": 1.78428
+      },
+      "runs": {
+       "released": 44,
+       "empty": 29,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 29,
+      "owners": {
+       "recorded": 29,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.806,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.61128,
+       "leaveall.if0": 0.49453,
+       "periodic.if0": 1.79733
+      },
+      "runs": {
+       "released": 44,
+       "empty": 29,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 29,
+      "owners": {
+       "recorded": 29,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.822,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11602",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.62167,
+       "leaveall.if0": 0.64805,
+       "periodic.if0": 1.62015
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.58134,
+       "leaveall.if0": 0.58134,
+       "periodic.if0": 1.67001
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.821,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12102",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.36218,
+       "leaveall.if0": 1.36218,
+       "periodic.if0": 1.4512
+      },
+      "runs": {
+       "released": 44,
+       "empty": 29,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 29,
+      "owners": {
+       "recorded": 29,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.6436,
+       "leaveall.if0": 1.6436,
+       "periodic.if0": 1.56627
+      },
+      "runs": {
+       "released": 44,
+       "empty": 29,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 29,
+      "owners": {
+       "recorded": 29,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.821,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12602",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.59673,
+       "leaveall.if0": 0.64304,
+       "periodic.if0": 1.55649
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.63039,
+       "leaveall.if0": 0.51433,
+       "periodic.if0": 1.6669
+      },
+      "runs": {
+       "released": 43,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.821,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13102",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.58146,
+       "leaveall.if0": 0.63978,
+       "periodic.if0": 1.7817
+      },
+      "runs": {
+       "released": 42,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.806,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.66078,
+       "leaveall.if0": 0.58403,
+       "periodic.if0": 1.96235
+      },
+      "runs": {
+       "released": 42,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.822,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13602",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.23903,
+       "leaveall.if0": 1.23093,
+       "periodic.if0": 2.80509
+      },
+      "runs": {
+       "released": 42,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.222,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 1.78595,
+       "leaveall.if0": 1.33392,
+       "periodic.if0": 2.96879
+      },
+      "runs": {
+       "released": 42,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.832,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s14602",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.63731,
+       "leaveall.if0": 0.6228,
+       "periodic.if0": 1.61493
+      },
+      "runs": {
+       "released": 42,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.60038,
+       "leaveall.if0": 0.64521,
+       "periodic.if0": 1.7683
+      },
+      "runs": {
+       "released": 42,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.822,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "s15032",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.6135,
+       "leaveall.if0": 0.47942,
+       "periodic.if0": 1.61757
+      },
+      "runs": {
+       "released": 41,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.806,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.80727,
+       "leaveall.if0": 0.53212,
+       "periodic.if0": 1.7357
+      },
+      "runs": {
+       "released": 41,
+       "empty": 31,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 31,
+      "owners": {
+       "recorded": 31,
+       "none": 0
+      },
+      "moved": 14,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.822,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 14,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "p81",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.55717,
+       "leaveall.if0": 0.55717,
+       "periodic.if0": 1.79045
+      },
+      "runs": {
+       "released": 42,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.805,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {
+       "join.if0": 0.50646,
+       "leaveall.if0": 0.57549,
+       "periodic.if0": 1.81841
+      },
+      "runs": {
+       "released": 42,
+       "empty": 30,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 30,
+      "owners": {
+       "recorded": 30,
+       "none": 0
+      },
+      "moved": 13,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.821,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.005,
+      "moved_by_timer": {
+       "join": 13,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "v1",
+   "rc": "0",
+   "rc_round4": "0",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {},
+      "runs": {
+       "released": 18,
+       "empty": 12,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 12,
+      "owners": {
+       "recorded": 12,
+       "none": 0
+      },
+      "moved": 5,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.215,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.002,
+      "moved_by_timer": {
+       "join": 5,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "srp-talker": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {},
+      "runs": {
+       "released": 55,
+       "empty": 39,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 39,
+      "owners": {
+       "recorded": 39,
+       "none": 0
+      },
+      "moved": 16,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.214,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.001,
+      "moved_by_timer": {
+       "join": 16,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  },
+  {
+   "leg": "v81",
+   "rc": "1",
+   "rc_round4": "1",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {},
+      "runs": {
+       "released": 26,
+       "empty": 15,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 15,
+      "owners": {
+       "recorded": 15,
+       "none": 0
+      },
+      "moved": 6,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.255,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 6,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    },
+    "srp-talker": {
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round5": {
+      "rows": {},
+      "runs": {
+       "released": 69,
+       "empty": 39,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0
+      },
+      "failing": [],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "empty_builds": {
+      "count": 39,
+      "owners": {
+       "recorded": 39,
+       "none": 0
+      },
+      "moved": 15,
+      "outcome_changed": [],
+      "worst_after_anchor_ms": 0.259,
+      "late_ms": 49,
+      "largest_anchor_shift_ms": 0.004,
+      "moved_by_timer": {
+       "join": 15,
+       "periodic": 0,
+       "leaveall": 0
+      }
+     }
+    }
+   }
+  }
+ ]
+}

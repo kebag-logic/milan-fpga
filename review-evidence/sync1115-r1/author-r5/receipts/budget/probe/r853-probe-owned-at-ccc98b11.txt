@@ -1,0 +1,23 @@
+probe_owned.py (receipts/tools): the same probe with each timer callback's ENTRY line naming its owner, as the testbench of c10c549e prints it (A, B: MSRP's and MVRP's own; C, C0: the periodic timer's if0 MSRP, the join callback's if0 MVRP), run against a clean clone at ccc98b11.
+JOIN_CS 19 LATE_MS 49
+== A control: MSRP skips its LeaveAll (the self-test case)
+leave_alls: [{"at": 105000100, "outcome": "skipped", "who": "if0 MSRP", "opportunity": 118000000, "first": 118100000, "sent": 137100000}]
+held.leave_all: {"runs": {"sent": 0, "skipped": 1, "late": 0, "absent": 0, "unresolved": 0, "unowned": 0}, "failing": [{"outcome": "skipped", "who": "if0 MSRP", "at_ms": 1050.001, "recorded": true, "opportunity_ms": 1180.0, "first_ms": 1181.0, "sent_ms": 1371.0}]}
+held.runs: {"released": 3, "empty": 0, "late": 0, "absent": 0, "unresolved": 0} held.failing: []
+rows: [["probe.mrpdu.join.if0", 1.0], ["probe.mrpdu.leaveall.if0", 191.0]]
+== B probe: MSRP skips its LeaveAll while MVRP's LeaveAll timer runs out within its join time
+leave_alls: [{"at": 105000100, "outcome": "skipped", "who": "if0 MSRP", "opportunity": 118000000, "first": 118100000, "sent": 137100000}, {"at": 118500100, "outcome": "sent", "who": "if0 MVRP", "opportunity": 119000000, "first": 119100000, "sent": 119100000}]
+held.leave_all: {"runs": {"sent": 1, "skipped": 1, "late": 0, "absent": 0, "unresolved": 0, "unowned": 0}, "failing": [{"outcome": "skipped", "who": "if0 MSRP", "at_ms": 1050.001, "recorded": true, "opportunity_ms": 1180.0, "first_ms": 1181.0, "sent_ms": 1371.0}]}
+held.runs: {"released": 5, "empty": 0, "late": 0, "absent": 0, "unresolved": 0} held.failing: []
+rows: [["probe.mrpdu.join.if0", 1.0], ["probe.mrpdu.leaveall.if0", 191.0]]
+== C probe: an empty build 60 ms after a periodic run-out, another join run-out 30 ms after it
+leave_alls: []
+held.leave_all: {"runs": {"sent": 0, "skipped": 0, "late": 0, "absent": 0, "unresolved": 0, "unowned": 0}, "failing": []}
+held.runs: {"released": 0, "empty": 1, "late": 1, "absent": 0, "unresolved": 0} held.failing: [{'kind': 'periodic', 'outcome': 'late', 'at_ms': 1300.001, 'from_ms': 1300.001, 'after_ms': 59.979}]
+rows: []
+== C0 control: the same empty build with no join run-out between
+leave_alls: []
+held.leave_all: {"runs": {"sent": 0, "skipped": 0, "late": 0, "absent": 0, "unresolved": 0, "unowned": 0}, "failing": []}
+held.runs: {"released": 0, "empty": 0, "late": 1, "absent": 0, "unresolved": 0} held.failing: [{'kind': 'periodic', 'outcome': 'late', 'at_ms': 1300.001, 'from_ms': 1300.001, 'after_ms': 59.979}]
+rows: []
+VERDICTS {"A_control_skip_fails": true, "B_skip_with_other_participant_runout_fails": true, "C0_control_empty_late_fails": true, "C_empty_late_with_other_join_fails": true}

@@ -1,0 +1,12 @@
+The ten seed clones (10b2fe21 with their 8x8 config's MAC; round 4's harness copied in) given round 5's harness diff, seeds/r5-harness.patch = git diff c10c549e ccc98b11 -- tb/verilator/ctrl_service_budget (sha256 b355ae96da473e74c644aa2c21f5e6fe7cc1e31a8b939d197e1661d241975996, 23843 B). Each clone's harness directory against the clean clone of ccc98b11 (diff -rq, __pycache__ excluded), and its MAC:
+sync-10092: 0 files differ; mac_address: "02:4b:4c:00:01:51"
+sync-10592: 0 files differ; mac_address: "02:4b:4c:00:01:5f"
+sync-11102: 0 files differ; mac_address: "02:4b:4c:00:00:06"
+sync-11602: 0 files differ; mac_address: "02:4b:4c:00:00:14"
+sync-12102: 0 files differ; mac_address: "02:4b:4c:00:00:22"
+sync-12602: 0 files differ; mac_address: "02:4b:4c:00:00:30"
+sync-13102: 0 files differ; mac_address: "02:4b:4c:00:00:3e"
+sync-13602: 0 files differ; mac_address: "02:4b:4c:00:00:4c"
+sync-14602: 0 files differ; mac_address: "02:4b:4c:00:00:68"
+sync-15032: 0 files differ; mac_address: "02:4b:4c:00:00:88"
+The product and valid-destinations legs regrade from r4/c-head, the checkout that built them (a build attests its inputs under its own checkout), moved to ccc98b11: HEAD ccc98b11ffe73cbf510793252600fbc661a55fac, porcelain 0.

@@ -1,0 +1,23 @@
+The lane at the round-5b handoff:
+HEAD e2be92b0e0f9a8f0529dea252f23ed44a21e050a, branch sync-dev-6b66f66d-into-dev-soft-core, porcelain 0 lines
+commits since round 4 (c10c549e):
+  e2be92b0e0f9a8f0529dea252f23ed44a21e050a Fail an MRP timer's run-out whose owner the testbench did not record at the expiry, with no other participant's opportunity standing in (#665)
+  ccc98b11ffe73cbf510793252600fbc661a55fac Time a build that sends nothing from its timer's recorded owner's transmit opportunity, never another participant's join callback (#665)
+files changed by e2be92b0 against ccc98b11:
+   docs/reference/FR_NFR.md                           |  2 +-
+   tb/verilator/ctrl_service_budget/README.md         | 13 +++---
+   tb/verilator/ctrl_service_budget/join_grade.py     | 11 +++--
+   tb/verilator/ctrl_service_budget/mrpdu_grade.py    | 36 +++++++++-------
+   tb/verilator/ctrl_service_budget/run.py            | 25 +++++++----
+   .../ctrl_service_budget/selftest_leaveall.py       | 50 ++++++++++++++++------
+   .../ctrl_service_budget/selftest_mutants.py        |  8 +++-
+   .../ctrl_service_budget/selftest_notice.py         |  2 +-
+   tb/verilator/ctrl_service_budget/selftest_polls.py |  7 +--
+   9 files changed, 101 insertions(+), 53 deletions(-)
+submodules:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor
+  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis

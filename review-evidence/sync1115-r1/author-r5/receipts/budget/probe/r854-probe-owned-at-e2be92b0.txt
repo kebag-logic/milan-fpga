@@ -1,0 +1,212 @@
+probe_owned.py (round 4's receipts/tools): the same probe with each timer's owner on its ENTRY line, run against a clean clone at e2be92b0; its assertions are the expected outcome; rc 0
+{
+  "case": "participant_swap",
+  "expected": "MSRP must fail: first opportunity 1180; first frame 1181 lacks LeaveAll; LeaveAll 1371",
+  "leavealls": [
+    {
+      "at": 105000100,
+      "outcome": "skipped",
+      "who": "if0 MSRP",
+      "opportunity": 118000000,
+      "first": 118100000,
+      "sent": 137100000
+    },
+    {
+      "at": 119000100,
+      "outcome": "sent",
+      "who": "if0 MVRP",
+      "opportunity": 122000000,
+      "first": 122100000,
+      "sent": 122100000
+    }
+  ],
+  "joins": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": [],
+    "runs": {
+      "released": 5,
+      "empty": 0,
+      "late": 0,
+      "absent": 0,
+      "unresolved": 0,
+      "unowned": 0
+    },
+    "failing": [],
+    "leave_all": {
+      "runs": {
+        "sent": 1,
+        "skipped": 1,
+        "late": 0,
+        "absent": 0,
+        "unresolved": 0,
+        "unowned": 0
+      },
+      "failing": [
+        {
+          "outcome": "skipped",
+          "who": "if0 MSRP",
+          "at_ms": 1050.001,
+          "recorded": true,
+          "opportunity_ms": 1180.0,
+          "first_ms": 1181.0,
+          "sent_ms": 1371.0
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "probe": "participant_swap.mrpdu.join.if0",
+      "ms": 1.0
+    },
+    {
+      "probe": "participant_swap.mrpdu.leaveall.if0",
+      "ms": 191.0
+    }
+  ],
+  "misses": [
+    "participant_swap: the LeaveAll timer's run-out at 1050.001 ms (if0 MSRP): its first transmit opportunity at 1180.000 ms sent an MRPDU without the LeaveAll at 1181.000 ms, and the LeaveAll went at 1371.000 ms, 191.000 ms after it (LeaveAll past its first transmit opportunity)"
+  ]
+}
+{
+  "case": "clean_overlap",
+  "expected": "Must pass: each participant sends LeaveAll at its own first opportunity",
+  "leavealls": [
+    {
+      "at": 105000100,
+      "outcome": "sent",
+      "who": "if0 MSRP",
+      "opportunity": 118000000,
+      "first": 118100000,
+      "sent": 118100000
+    },
+    {
+      "at": 119000100,
+      "outcome": "sent",
+      "who": "if0 MVRP",
+      "opportunity": 122000000,
+      "first": 122100000,
+      "sent": 122100000
+    }
+  ],
+  "joins": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": [],
+    "runs": {
+      "released": 4,
+      "empty": 0,
+      "late": 0,
+      "absent": 0,
+      "unresolved": 0,
+      "unowned": 0
+    },
+    "failing": [],
+    "leave_all": {
+      "runs": {
+        "sent": 2,
+        "skipped": 0,
+        "late": 0,
+        "absent": 0,
+        "unresolved": 0,
+        "unowned": 0
+      },
+      "failing": []
+    }
+  },
+  "rows": [
+    {
+      "probe": "clean_overlap.mrpdu.join.if0",
+      "ms": 1.0
+    },
+    {
+      "probe": "clean_overlap.mrpdu.leaveall.if0",
+      "ms": 1.0
+    }
+  ],
+  "misses": []
+}
+{
+  "case": "late_control",
+  "expected": "Must fail: LeaveAll 60 ms after opportunity 1180",
+  "leavealls": [
+    {
+      "at": 105000100,
+      "outcome": "late",
+      "who": "if0 MSRP",
+      "opportunity": 118000000,
+      "first": 124000000,
+      "sent": 124000000
+    }
+  ],
+  "joins": {
+    "count": 0,
+    "shortest": null,
+    "longest": null,
+    "over": [],
+    "runs": {
+      "released": 0,
+      "empty": 0,
+      "late": 2,
+      "absent": 0,
+      "unresolved": 0,
+      "unowned": 0
+    },
+    "failing": [
+      {
+        "kind": "leaveall",
+        "outcome": "late",
+        "at_ms": 1050.001,
+        "from_ms": 1180.0,
+        "after_ms": 60.0
+      },
+      {
+        "kind": "join",
+        "outcome": "late",
+        "at_ms": 1180.001,
+        "from_ms": 1180.001,
+        "after_ms": 59.999
+      }
+    ],
+    "leave_all": {
+      "runs": {
+        "sent": 0,
+        "skipped": 0,
+        "late": 1,
+        "absent": 0,
+        "unresolved": 0,
+        "unowned": 0
+      },
+      "failing": [
+        {
+          "outcome": "late",
+          "who": "if0 MSRP",
+          "at_ms": 1050.001,
+          "recorded": true,
+          "opportunity_ms": 1180.0,
+          "first_ms": 1240.0,
+          "sent_ms": 1240.0
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "probe": "late_control.mrpdu.join.if0",
+      "ms": 60.0
+    },
+    {
+      "probe": "late_control.mrpdu.leaveall.if0",
+      "ms": 60.0
+    }
+  ],
+  "misses": [
+    "late_control: the leaveall timer's run-out at 1050.001 ms, its first frame or build 60.000 ms after its participant's transmit opportunity at 1180.000 ms, past THE TRANSMIT's 49 ms (late)",
+    "late_control: the join timer's run-out at 1180.001 ms, its first frame or build 59.999 ms after its participant's transmit opportunity at 1180.001 ms, past THE TRANSMIT's 49 ms (late)",
+    "late_control: the LeaveAll timer's run-out at 1050.001 ms (if0 MSRP): its LeaveAll at 1240.000 ms, 60.000 ms after its first transmit opportunity at 1180.000 ms, past THE TRANSMIT's 49 ms (LeaveAll late)"
+  ]
+}
+AT THE HEAD: the swap fails on MSRP (skipped at its first opportunity); the clean overlap passes; the late control fails
