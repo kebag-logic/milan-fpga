@@ -3,7 +3,8 @@
 """The self-test's checks of the retried notice's row (#665, notice_window.py): it is timed from the port's answer to
 its last recipient's commit, a row later than its 20 ms fails the run whatever its options record, build.py's age-less
 plant is caught only when every group's row is late, its aged build's plant only when every group's timer-driven MRPDU
-is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's.
+is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's, held
+to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's held-egress ruling, item (b)(i)).
 
 selftest.py passes its synthetic-log helpers in, so this module imports nothing of it.
 """
@@ -12,12 +13,14 @@ from __future__ import annotations
 import argparse
 import contextlib
 import io
+import re
 from collections.abc import Callable
 
 import build
 import grade
 import mrpdu_grade
 import notice_window
+import rows_grade
 import run
 import scenario
 
@@ -62,20 +65,43 @@ def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: b
     return mrpdu_grade.rows(grade.Grader(log), group)
 
 
+def header_bound() -> int:
+    """CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h's text derives it, apart from mrpdu_grade's reader: each name its body reads
+    replaced by that name's own #define, and the arithmetic evaluated (rows_grade.arithmetic)."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
+    defines = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
+
+    def value(name: str) -> int:
+        """A constant's value, every name in its body expanded."""
+        body = re.sub(r'[A-Z][A-Z0-9_]+', lambda m: str(value(m[0])), re.sub(r'(\d+)u\b', r'\1', defines[name]))
+        return rows_grade.arithmetic(body)
+    return value('CTRL_LOOP_TX_BOUND_MS')
+
+
 def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
-    """THE TRANSMIT's row: from the TICK that ran the timer out to the commit, against T_svc, and none for no frame."""
-    within = timer_rows(synthetic, tx_sequence, TICK_AT + 1_900_000)
-    late = timer_rows(synthetic, tx_sequence, TICK_AT + 2_100_000)
-    none = timer_rows(synthetic, tx_sequence, TICK_AT + 1_900_000, built=False)
-    return [("a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms",
-             len(within) == 1 and within[0]['ms'] == 19.0 and within[0]['within_budget'] is True, str(within)),
-            ('one at 21 ms is over its bound', len(late) == 1 and late[0]['within_budget'] is False, str(late)),
+    """THE TRANSMIT's row: from the TICK that ran the timer out to the commit, against THE TRANSMIT's bound as
+    ctrl_loop.h derives it (mrpdu_grade.BUDGET_MS), one at it within it and one 1 ms over it a miss, and none for no
+    frame."""
+    bound, ms = header_bound(), SYS_HZ // 1000
+    within = timer_rows(synthetic, tx_sequence, TICK_AT + bound * ms)
+    late = timer_rows(synthetic, tx_sequence, TICK_AT + (bound + 1) * ms)
+    none = timer_rows(synthetic, tx_sequence, TICK_AT + (bound - 1) * ms, built=False)
+    return [("THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure "
+             "(#894's held-egress ruling, item (b)(i))",
+             mrpdu_grade.BUDGET_MS == bound and [r['budget_ms'] for r in within] == [float(bound)],
+             str((mrpdu_grade.BUDGET_MS, bound, [r['budget_ms'] for r in within]))),
+            (f"a timer's MRPDU is timed from its TICK to its commit, at its bound, {bound} ms, within it",
+             len(within) == 1 and within[0]['ms'] == float(bound) and within[0]['within_budget'] is True, str(within)),
+            (f'one 1 ms over its bound, at {bound + 1} ms, misses it',
+             len(late) == 1 and late[0]['ms'] == float(bound + 1) and late[0]['within_budget'] is False, str(late)),
             ('a timer that ends with nothing to send, whose build sends no frame, has no row', none == [], str(none))]
 
 
 def queue_checks() -> list[Check]:
     """The queued notices' bounds: read from the headers, each point's own, the first of a queue held to its own."""
-    got = notice_window.queued_ms(1), notice_window.queued_ms(2)
+    import shape_costs
+    got = (notice_window.queued_ms(1), notice_window.queued_ms(shape_costs.of_point('8x8/1if', scenario.ROOT)),
+           notice_window.queued_ms(2))
     first = notice_window.queued_first_ms(1), notice_window.queued_first_ms(2)
     rows = lambda first, last, bound: [dict(group='g', probes=[
         dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=bound, within_budget=True),
@@ -84,9 +110,9 @@ def queue_checks() -> list[Check]:
     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
                      ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
                       (19.5, 141.0, 1)))
-    return [("a queued notice's bound is the constants', the last queued notice's 140 ms at one interface (its row "
-             "rounded up by the queued rule, #895's ruling of 2026-11-15, item 1; 130 by #894's amendment of "
-             "2026-11-13 to decision D's 125) and 62 ms at two", got == (140, 62), str(got)),
+    return [("a queued notice's bound is the constants' for each shape, the last queued notice's 140 ms at 1x1/1if "
+             "(its row rounded up by the queued rule, #895's ruling of 2026-11-15, item 1; 130 by #894's amendment of "
+             "2026-11-13 to decision D's 125), 8x8/1if's own 130 and 62 ms at two", got == (140, 130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
              first == (20, 22), str(first)),
             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",
@@ -128,7 +154,8 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
                 and [x.name for x in run.all_groups(points[0], dict(variant='answering-later'))] == names, ''))
     srp = argparse.Namespace(cpu_regions='cover', mutation='transmit-aged', record_budget_findings=True,
                              record_share_findings=True)
-    held = lambda n, row='mrpdu.join': [f'{name}.{row}.if1: 21.000 ms over its budget 20 ms' for name in n]
+    over = header_bound() + 1
+    held = lambda n, row='mrpdu.join': [f'{name}.{row}.if1: {over:.3f} ms over its budget {over - 1} ms' for name in n]
     built = tuple(quietly(lambda m=m: run.verdict(srp, [g], [], m, [], []))
                   for m in (held(names), held(names[1:]), held(names, 'held.srp')))
     out.append(("the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not "

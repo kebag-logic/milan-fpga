@@ -49,6 +49,7 @@ import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import edit_rows  # noqa: E402
+import shape_costs  # noqa: E402
 import poll_grade  # noqa: E402
 from tier1_rows import (CHANNEL_BOUNDS, LONG_NOTICE_BYTES, QUOTA_ORDERS, TIER1, TX_ROWS, aecp_passes,  # noqa: E402
                         built_value, channel_passes, channel_row, quota_fits, tier1_busy, tier1_records, tx_budget_ms,
@@ -122,15 +123,16 @@ LONG_RULES = ('buffer', 'slot-552')
 #: of an AECP poll item that commits a notice longer than AECP_FAN_BYTES (poll_grade.STATED_US, aecp_long), the most
 #: measured over the aecp-largest-notice group, a 550 B notice to every registration but the requester's (15 and 31;
 #: long_notice.py), plus 5 %, rounded up to 5 us (#894's slice ruling of 2026-11-13: the measured cost replaces the
-#: stated 665 us).
-LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
+#: stated 665 us). Each point's at its shape (THE SHAPES), 8x8/1if's its own.
+LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if')}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
 #: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
 #: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
 #: at 1x1/1if under #894's bounded map work (a REMOVE of 63), 91,625 with each key at its position in the key domain
-#: (965 us; refused 23,883 to 75,892), and 156,716 on the 8x8 shape in the answering-ports arm, whose output map it
-#: edits (147,843 before); #904: one decode, one pass, where 742,470 and 959,647 were. record.aecp is shorter ones'.
-LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650}
+#: (965 us; refused 23,883 to 75,892), 156,716 at 8x8/2if in the answering-ports arm, whose output map it edits (147,843
+#: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
+#: 1,510 us), 1,715 us (#904: one decode, one pass). record.aecp is shorter ones'.
+LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1715}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -169,22 +171,22 @@ BUILT_NAMES = {'CTRL_LOOP_SLICE_US': 'sw/firmware/ctrl/loop/ctrl_loop.h',
                'AECP_PACE_MS': 'sw/firmware/ctrl/aecp/aecp_mbx.h'}
 
 
-def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) -> tuple[int, ...]:
-    """BUILT_NAMES' constants at that many interfaces, in its order, each `(MBX_N_IF == 1u ? a : b)` or a number, the
-    burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST, mailbox.yaml)."""
-    burst, out = rows_grade.contract(root)[0]['aecp'][0], []
-    for name, path in BUILT_NAMES.items():
-        out.append(built_value((texts or {}).get(path) or (root / path).read_text(), name, n_if, burst))
-    return tuple(out)
+def built_constants(root: Path, point: str, texts: dict[str, str] | None = None) -> tuple[int, ...]:
+    """BUILT_NAMES' constants at the point's shape, in its order: the slice as THE SHAPES list it (shape_costs.at), each
+    other `(MBX_N_IF == 1u ? a : b)` or a number, the burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST)."""
+    shape = shape_costs.of_point(point, root)
+    burst, listed = rows_grade.contract(root)[0]['aecp'][0], shape_costs.at(shape, root, texts)
+    return tuple(listed.get(name) or built_value((texts or {}).get(path) or (root / path).read_text(), name,
+                                                 shape.interfaces, burst) for name, path in BUILT_NAMES.items())
 
 
 def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) -> Inputs:
     """A point's inputs, rows_grade's read from the tree, the retry spacing and the built design's constants."""
     spacing = re.search(r'^#define AECP_RETRY_MAX_MS (\d+)u', (root / 'sw/firmware/ctrl/aecp/aecp.h').read_text(), re.M)
     base = rows_grade.point_inputs(root, point)
-    costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
+    costs = {**base.c, **{f'event.{k}': us for k, us in DATAPATH_US[load_grade.NEAREST.get(point, point)].items()},
              'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
-    return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, base.s['n_if'], texts))
+    return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, point, texts))
 
 
 def as_tiers(base: rows_grade.Inputs) -> Inputs:
@@ -876,11 +878,10 @@ def tree_controls(root: Path) -> list[str]:
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    stated = re.search(r'^#define CTRL_LOOP_SLICE_US .+$', (root / loop).read_text(), re.M)[0]
-    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 600u : 1300u)')
-    tree = built_constants(root, 1)[0]
-    if ruled(root) != tree or built_constants(root, 1, {loop: other})[0] == tree or \
-            'MBX_N_IF == 1u ?' not in stated:
+    tree, text = built_constants(root, '1x1/1if')[0], (root / loop).read_text()
+    stated = f'#define CTRL_LOOP_SLICE_US {tree}u\n'
+    other = text.replace(stated, '#define CTRL_LOOP_SLICE_US 600u\n')
+    if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] == tree or text.count(stated) != 1:
         escaped.append("the built design's slice not the rule's")
     escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
@@ -929,10 +930,9 @@ def channel_controls(root: Path) -> list[str]:
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row at each point, and its bound at the timer budget's
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     header = (root / loop).read_text()
-    figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 35u : 105u)'
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
-    under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 104u)')}
-    if figure not in header or tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
+    under = {loop: shape_costs.planted_under(header, [shape_costs.of_point(p, root) for p in POINTS], shape_costs.TX)}
+    if tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)
     if bound not in header or not all(tx_statements(root, one, {loop: header.replace(bound, typed)}) for typed in (

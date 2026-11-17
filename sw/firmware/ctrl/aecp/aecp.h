@@ -55,17 +55,40 @@ extern "C" {
 #define AECP_LINE _Alignas(64)
 #endif
 // What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
-// CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
-// is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
-#define AECP_ATTEMPT_US 34u
+// CPU cycles past its first attempt's cold misses at 8x8/2if, the walk of the events included. So a round spends at
+// most what it is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+// It is stated for each shape an image is built at, with the round's cold start (THE SHAPES, ctrl_loop.h:
+// CTRL_LOOP_RETRY_ATTEMPT_US; #894's retry-cost ruling, item 1): 34 us, and 25 us at 8x8/1if, the line
+// over its rounds measured there. aecp.c, which charges it, reads the shape's table, a header of constants and
+// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's. Most
+// units include this header before the table and charge nothing, so the unit that charges one states it
+// (AECP_CHARGES_ATTEMPTS) with the table already in force, and one that states it without the table fails here, in
+// THE SHAPES' words, not at the charge with an undeclared name (#894's retry-cost ruling, item 1).
+#if defined(AECP_CHARGES_ATTEMPTS) && !defined(CTRL_LOOP_RETRY_ATTEMPT_US)
+#error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+#endif
+#define AECP_ATTEMPT_US CTRL_LOOP_RETRY_ATTEMPT_US
 // The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
 // first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
 // read, which answers for all it serves or for none (#665).
 #define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
-// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
-// each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each
-// clock domain's GET_COUNTERS, at the fixture's two shapes. The CPU budget harness holds the model to it.
-#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)
+// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one
+// (aecp_changed's kinds): each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO,
+// GET_AS_PATH and GET_COUNTERS, each clock domain's GET_COUNTERS. Each is kept in its descriptor's event
+// (aecp_config.events), so none is dropped at any count: this is what a round may take and what the bound on queued
+// notices counts. At one interface it is the image's own descriptors', which the shape header states
+// (CTRL_AEM_STREAM_INPUTS and the rest, srp_entity.py; THE SHAPES, ctrl_loop.h; #894's held-egress
+// ruling, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
+// shipping 1x1's descriptors. At two interfaces it is 40, the 8x8's, which no two-interface shape's descriptors pass.
+// The CPU budget harness holds the model to it.
+#ifdef CTRL_AEM_STREAM_INPUTS
+#define AECP_NOTICE_STREAMS (CTRL_AEM_STREAM_INPUTS + CTRL_AEM_STREAM_OUTPUTS)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * CTRL_AEM_AVB_INTERFACES + CTRL_AEM_CLOCK_DOMAINS)
+#else
+#define AECP_NOTICE_STREAMS (2u + 2u)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * 1u + 1u)
+#endif
+#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? AECP_NOTICES_HELD : 40u)
 // A notification's bound, min(T_svc, the 24 ms notification ceiling), of
 // FR_NFR.md 3.4.1: from a retried notice's port answer to its last
 // recipient's commit, no extra budget at a retry.

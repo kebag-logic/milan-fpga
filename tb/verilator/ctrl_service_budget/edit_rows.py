@@ -38,8 +38,13 @@ if TYPE_CHECKING:
 #: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
 #: 595 (78,332, 825), and 55,631 with that port; with AECP's REBOOT merged on the tiers (#871), whose image moves the
 #: hot code, at 1x1/1if 28,750, 305.
+#: At 8x8/1if, one interface's 8x8 streams, on the image that merges #902's 234bc149 (#894's shape ruling, item (b);
+#: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
+#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
+#: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
 PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
-         '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
+         '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595},
+         '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.
 EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
 #: The planted defects controls() plants (rows_tiers.CONTROLS names them).
@@ -47,8 +52,13 @@ CONTROLS = ("an unpaced edit charged at the non-edit record", "an unpaced SET_CO
 
 
 def point_of(i: Inputs) -> str:
-    """The point whose stated costs the inputs are: one interface's 1x1/1if's, two 8x8/2if's."""
-    return '1x1/1if' if i.s['n_if'] == 1 else '8x8/2if'
+    """The point whose stated costs the inputs are, by its shape, its interfaces and its sinks (load_grade.POINTS),
+    never by its interface count alone (THE SHAPES): 1x1/1if, 8x8/1if or 8x8/2if; a point the class is not measured at
+    takes the measured one of its interface count."""
+    import load_grade
+    own = [p for p in PACED if (load_grade.POINTS[p]['n_if'], load_grade.POINTS[p]['sinks_per_if']) ==
+           (i.s['n_if'], i.s['sinks_per_if'])]
+    return own[0] if own else '1x1/1if' if i.s['n_if'] == 1 else '8x8/2if'
 
 
 def edits_in(i: Inputs, w_ms: float, records: int) -> int:

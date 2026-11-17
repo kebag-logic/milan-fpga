@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
 periodic or LeaveAll timer made owed, timed from the deadline, the centisecond whose TICK ran the timer out, to the TX
-commit of the frame that answers it.
+commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives
+it (BUDGET_MS; #894's held-egress ruling, item (b)(i)), where the family's T_svc held it before THE TIERS.
 
 A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
 no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
@@ -30,9 +31,12 @@ BUILD = 'build_mrpdu'
 #: MBX_EV_TYPE_TICK (mbx_contract.h): a TICK event's type, the low byte of its first word.
 TICK = 4
 PATH = 'mrpdu'
-#: THE TRANSMIT's bound in ms as ctrl_loop.h derives it (CTRL_LOOP_TX_BOUND_MS, tier1_rows.tx_budget_ms): a run-out's
-#: build past it is late, and a log that runs on past it with no build after a run-out has none.
+#: THE TRANSMIT's bound in ms as ctrl_loop.h derives it (CTRL_LOOP_TX_BOUND_MS, tier1_rows.tx_budget_ms), never typed:
+#: a run-out's build past it is late, and a log that runs on past it with no build after a run-out has none.
 LATE_MS = tx_budget_ms((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
+#: The row's harness budget in ms: that bound, read once (LATE_MS), where the family's T_svc held it before THE TIERS
+#: (#894's held-egress ruling, item (b)(i): the MRP timer budget's lateness).
+BUDGET_MS = LATE_MS
 #: The outcomes of a timer's run-out (resolve), and those that fail a run.
 OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved')
 FAILING = ('late', 'absent')
@@ -116,8 +120,15 @@ def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:
     return [(entry, TIMERS[name], resolve(log, entry)[0]) for entry, name in log.entries if name in TIMERS]
 
 
+def wait_ms() -> float:
+    """The row's normative wait W (FR_NFR.md 3.4.1): what brings its family's budget, min(T_svc, the srp ceiling), to
+    BUDGET_MS (grade.budget_ms)."""
+    return BUDGET_MS - min(scenario.T_SVC_MS, scenario.CEILING_MS['srp'])
+
+
 def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
-    """A held group's timer rows: for each timer and interface the longest, each a row of its own."""
+    """A held group's timer rows: for each timer and interface the longest, each a row of its own, held to
+    BUDGET_MS."""
     if not group.save or not group.save.get('loaded'):
         return []
     log = grader.log
@@ -137,10 +148,12 @@ def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
     out = []
     for (kind, interface), (deadline, end) in sorted(worst.items()):
         probe = scenario.Probe(f'{group.name}.mrpdu.{kind}.if{interface}',
-                               f'an MRPDU its {kind} timer owes, the longest', 'srp', 'tick', [], path=PATH)
+                               f'an MRPDU its {kind} timer owes, the longest', 'srp', 'tick', [], path=PATH,
+                               wait_ms=wait_ms())
         ms = grader.ms(end - deadline)
         out.append(dict(probe=probe.name, row=probe.row, family=probe.family, interface=interface,
-                        path=list(probe.path_key()), start_sys=deadline, end_sys=end, wait_ms=0.0, ring='srp', ahead=0,
+                        path=list(probe.path_key()), start_sys=deadline, end_sys=end, wait_ms=probe.wait_ms, ring='srp',
+                        ahead=0,
                         sys_cycles=end - deadline, cpu_cycles=grader.cpu_cycles(end - deadline), ms=round(ms, 5),
                         passes=len(grader.window_passes(deadline, end)), status='measured',
                         **grade.verdicts(ms, probe)))

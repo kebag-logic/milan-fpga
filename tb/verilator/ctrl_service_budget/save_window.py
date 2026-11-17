@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 import frames as f
@@ -248,18 +249,23 @@ def held_arrivals(p: scenario.Point, run_ms: float) -> list[tuple[float, str, st
                   key=lambda a: a[0])
 
 
-def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Group:
+def loaded(p: scenario.Point, name: str, flood: bool, image: int,
+           prelude: tuple[Callable[[scenario.Group, scenario.Point], None], int] | None = None) -> scenario.Group:
     """A save of a container of image bytes from its change, every receive channel at its refill rate with its
     bursts (held_arrivals) until its stated worst case has passed, and with flood a grandmaster change as every
-    pass starts, so no pass takes nothing."""
+    pass starts, so no pass takes nothing. A prelude, a step writer and its simulated time in ms, stands in for the
+    boot and MAAP's ranges (talker_window.held: the Talkers declared and a Listener Ready for each)."""
     run_ms = bound_ms(image, CHANGED) + 500
     load = held_arrivals(p, run_ms)
     # every record the group's receive channels must commit from its change on: the load and the SET_NAME
     offered = {name: sum(1 for _, channel, _ in load if channel == name) + (name == 'aecp') for name in scenario.CH}
-    g = scenario.Group(name, sim_ms=int(run_ms) + 2700,
+    g = scenario.Group(name, sim_ms=int(run_ms) + (2700 if prelude is None else prelude[1]),
                        save=dict(image=image, records=CHANGED, loaded=True, offered=offered))
-    scenario.ready(g, p)
-    scenario.announced(g)
+    if prelude is None:
+        scenario.ready(g, p)
+        scenario.announced(g)
+    else:
+        prelude[0](g, p)
     ms = scenario.MS
     g.add('mark save.change', f'frame 0 {set_name(p).hex()}', *(['flood gm 1'] if flood else []))
     at = 0

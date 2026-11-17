@@ -34,7 +34,13 @@ extern "C" {
 #include "acmp_nvm.h"
 #include "srp_mbx.h"
 #endif
+#include "mbx_contract.h"
 }
+// The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
+// so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
+// item 1). aecp_arms.core_arm gives each arm its interfaces' own contract; one at another's fails here.
+static_assert(MBX_N_IF==AECP_TEST_INTERFACES,
+              "THE SHAPES: the host arm's mailbox contract (MBX_N_IF) is not at its interfaces (AECP_TEST_INTERFACES)");
 #ifdef AECP_TEST_APP
 #include "acmp_fake.hpp"
 #endif
@@ -3478,6 +3484,53 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_NE(first,0u);
     EXPECT_LE(first,AECP_QUEUED_FIRST_MS)<<"the first queued notice within its own bound";
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
+}
+
+// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's held-egress
+// ruling, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
+// exactly the most its shape header's descriptors derive, and each is built and sent once as its port answers.
+TEST_F(Mailbox, EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce)
+{
+    bool answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return answers;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return answers;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return answers;});
+    receive(36);
+    unsigned held=0;
+    for(const auto &d:descriptors){
+        held+=d.type==5u||d.type==6u?2u:d.type==9u?3u:d.type==36u?1u:0u;
+        aecp_changed(&adapter.core,d.type,d.index,15u);
+    }
+    const auto pending=[&]{
+        unsigned n=0;
+        for(const auto &e:events)n+=static_cast<unsigned>(__builtin_popcount(e.pending));
+        return n;
+    };
+    EXPECT_EQ(pending(),held)<<"every notice the descriptors hold is kept at once";
+    if(MBX_N_IF==1u){
+        EXPECT_EQ(AECP_NOTICES_MOST,held)<<"one interface's most is its descriptors' own";
+    }
+    EXPECT_LE(held,AECP_NOTICES_MOST)<<"no more than the most a reset leaves";
+    std::map<std::array<uint64_t,3>,unsigned> sent;
+    uint32_t seen=fabric.tx_sent;
+    answers=true;
+    for(unsigned k=0;k<2000u&&pending()!=0u;++k){
+        mbx_model_advance_ms(&fabric,2);
+        service(1);
+        for(;seen<fabric.tx_sent;++seen){
+            const mbx_model_tx *p=mbx_model_tx_frame(&fabric,seen);
+            ASSERT_NE(p,nullptr)<<"every frame read before the capture wraps";
+            if(p->channel==MBX_CH_AECP&&p->len>41u&&(get(p->bytes+36,2)&0x8000u)!=0u){
+                ++sent[{get(p->bytes+36,2)&0x7fffu,get(p->bytes+38,2),get(p->bytes+40,2)}];
+            }
+        }
+    }
+    EXPECT_EQ(pending(),0u)<<"every kept notice is built";
+    unsigned once=0;
+    for(const auto &[notice,count]:sent)once+=count==1u?1u:0u;
+    EXPECT_EQ(sent.size(),held)<<"every notice the descriptors hold is sent, none dropped";
+    EXPECT_EQ(once,held)<<"each once";
 }
 
 // THE TIERS (#894): beside held tier-1 or THE DRAIN's work, THE RETRY's round is a queue's first notice alone, tier

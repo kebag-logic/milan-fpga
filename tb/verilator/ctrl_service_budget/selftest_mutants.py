@@ -38,6 +38,7 @@ import run
 import save_grade
 import save_window
 import scenario
+import shape_costs
 import share
 import whole_grade
 
@@ -77,6 +78,16 @@ def _work_steps_unaged(log: grade.Log) -> grade.Log:
     work = {p.index for p in log.passes}
     log.stepped = [(i, s, c, st, aged and i not in work) for i, s, c, st, aged in log.stepped]
     return log
+
+
+def _load_polls_nearest(root: Path, point: str, table: dict | None = None, f: Callable = load_grade.stated) -> dict:
+    """load_grade.stated with a NEAREST point's polls at its nearest point's, as before they were keyed on the shape."""
+    c, near = f(root, point, table), load_grade.NEAREST.get(point, point)
+    if near != point:
+        polls, own = poll_grade.stated_us(load_grade.POINTS[near]['n_if']), (table or load_grade.GRADED)[near]
+        c.update({key: own.get(key, polls[k]) for k in load_grade.ITEMS
+                  for key in ('base' if k == 'base' else f'item.{k}',) if k != 'mrpdu'})
+    return c
 
 
 def _first_pass_only() -> list:
@@ -226,6 +237,18 @@ def _start_with(rule: Callable) -> Patches:
         hit = rule(self, probe, after, before)
         return original(self, probe, interface, after, before) if hit == 'unchanged' else hit
     return lambda: [patch.object(grade.Grader, 'start', start)]
+
+
+def _flip_check_without_tx_held() -> list:
+    """flip_grade.main as if its --check findings left out tx_held's: while main runs, and only then, tx_held finds
+    nothing; every other caller of tx_held, the self-test's own controls among them, keeps it."""
+    original = flip_grade.main
+
+    def main() -> int:
+        """The mutant main: the original, with tx_held returning nothing for its duration."""
+        with patch.object(flip_grade, 'tx_held', lambda *a, **k: []):
+            return original()
+    return [patch.object(flip_grade, 'main', main)]
 
 
 def _tag_ignored(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
@@ -483,6 +506,26 @@ MUTANTS: dict[str, Patches] = {
     'flip: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         flip_grade, 'COLUMN', load_grade.STATED_US_DONOR)],
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
+    'flip: 8x8/1if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP',
+                                                                    {'8x8/2if': 0.70, '8x8/1if': 0.80})],
+    "flip: --check does not call tx_held, so 8x8/1if's THE TRANSMIT figure goes unheld": _flip_check_without_tx_held,
+    'shapes: the slice and builds keyed on the interface count alone (earlier rule)': lambda: [patch.object(
+        shape_costs, 'of_config', lambda config, n_if, root=shape_costs.ROOT: shape_costs.shape(n_if, root))],
+    "shapes: a shape not listed taken at the shipping shape's costs": lambda: [patch.object(
+        shape_costs, 'at', lambda given, root=shape_costs.ROOT, texts=None, f=shape_costs.at:
+        f(given if shape_costs.shape(given, root, texts) in shape_costs.listed(shape_costs.text_of(root, texts))
+          else shape_costs.interfaces(given), root, texts))],
+    'shapes: the slice held at the interface count (earlier rule)': lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: a pass given whole held to its builds at the interface count (earlier rule)': lambda: [patch.object(
+        whole_grade, 'stated_us', lambda interfaces, f=whole_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    "shapes: an owed MRPDU held to the interface count's build of one (earlier rule)": lambda: [patch.object(
+        poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: the slice cap not held': lambda: [patch.object(shape_costs, 'SLICE_MOST_US', 10_000)],
+    "shapes: 8x8/1if's polls held at the interface count's (earlier rule)": lambda: [patch.dict(
+        poll_grade.STATED_US, {shape_costs.of_point('8x8/1if'): poll_grade.ONE})],
+    "load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule)": lambda: [patch.object(
+        load_grade, 'stated', _load_polls_nearest)],
     'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
         load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
@@ -775,6 +818,10 @@ MUTANTS: dict[str, Patches] = {
         mrpdu_grade, 'commits', lambda grader, entry: [])],
     "transmit: a timer's row starts at its entry, not at the deadline": lambda: [patch.object(
         mrpdu_grade, 'ticks', lambda log: [c for c, _ in log.entries])],
+    "transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS": lambda: [patch.object(
+        mrpdu_grade, 'BUDGET_MS', mrpdu_grade.BUDGET_MS + 1)],
+    "transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule)": lambda: [patch.object(
+        mrpdu_grade, 'wait_ms', lambda: 0.0)],
     "notice: a queued notice's bound is the first's": lambda: [patch.object(
         notice_window, 'queued_ms', lambda interfaces: scenario.T_SVC_MS)],
     "notice: the first of a queue is held to the queue's bound": lambda: [patch.object(
@@ -787,6 +834,10 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: dict(f(interfaces), attempt=0))],
     "round: one point's costs at both": lambda: [patch.object(
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: f(2))],
+    "round: 8x8/1if's round costs at the interface count's (earlier rule)": lambda: [patch.object(
+        round_grade, 'stated_us', lambda given, f=round_grade.stated_us: f(shape_costs.interfaces(given)))],
+    "round: a round held at its point's interface count, not the image's shape (earlier rule)": lambda: [patch.object(
+        round_grade, 'held', lambda log, given, f=round_grade.held: f(log, shape_costs.interfaces(given)))],
     'round: the notices it built are not counted': lambda: [patch.object(round_grade, 'BUILT', 'aecp:none')],
     'round: calls outside it are counted': lambda: [patch.object(
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],

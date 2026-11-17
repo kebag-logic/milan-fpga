@@ -61,17 +61,22 @@ from bisect import bisect_left
 import grade
 import poll_items
 import scenario
+import shape_costs
 
 #: A pass's first and last firmware poll, and each item's traced function and its sending channel (poll_items).
 FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
-#: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
-#: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
+#: The stated costs in microseconds at each shape ctrl_loop.h lists (THE SHAPES, shape_costs.Shape: MBX_N_IF,
+#: CTRL_SRP_SOURCES, CTRL_SRP_SINKS; #894's held-egress ruling, item (b)(iii)), at 1x1/1if and 8x8/2if each
+#: the most measured over every group of arm A and the answering-every-port arm at its point plus 5 %, rounded up to
+#: 5 us, and the two-interface shapes both 8x8/2if's. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
 #: makes, stated at the SRP record's cost (285 and 365 us; 280 at 1x1/1if before AECP's REBOOT, #871), and an owed
-#: MRPDU is a part of a build of one, stated at that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 735 and 1,215 us). The
-#: SRP record's and AECP's item (a notice to the registered controllers) are measured on the image whose notice is
-#: built once and addressed per recipient and whose SRP comparisons are same()'s (#665: the notice and SRP record
-#: cuts), over every group of both arms. On the merge
+#: MRPDU is a part of a build of one, stated at that pass's cost at the image's shape, CTRL_LOOP_BUILD_ONE_PASS_US as
+#: THE SHAPES list it (735 us at 1x1/1if and 1,215 at 8x8/2if; #894's shape ruling, item (b)), which stated_us reads
+#: where the table holds 0.
+#: The SRP record's and AECP's item (a notice to the
+#: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
+#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. On the merge
 #: of the TSN stack pin move to 715589c (#665), each cost is the larger of its measurement there and this table's:
 #: ACMP's item at 1x1/1if takes the adapter's redelivery of the kept command and the records behind it, which a poll
 #: that sends an owed frame now runs (acmp_mbx.c). On the merge of dev-soft-core 0fb66211 (#665), each cost, every item
@@ -97,10 +102,31 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
 #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
 #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
-STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,
-                    aecp=210, aecp_long=365, acmp_declined=20),
-             2: dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
-                    aecp=275, aecp_long=700, acmp_declined=20)}
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=210,
+           aecp_long=365, acmp_declined=20)
+TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
+           aecp_long=700, acmp_declined=20)
+#: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the
+#: answering-every-port arm and the answering-ports arm's aecp-largest-notice on the tree that merges #902 (#894's
+#: held-egress ruling, item (b)(iii)) plus 5 %, rounded up to 5 us: the base 21,995 CPU cycles,
+#: the withdrawal 10,317, the rebuild 55,813, the walk 4,701, the reclaim 2,604, ACMP's owed frame 6,813 and a declined
+#: offer 2,542, a notice 13,297 (the answering-every-port arm) and a long one 30,097; a retained record's retry at the
+#: SRP record's measured cost there, 32,421 cycles, 345 us. On the image that merges #902's 234bc149 the walk is 4,905
+#: (the srp group) and a notice 13,572 (the answering-every-port arm's notice-every-0), 55 and 145 us by the rule. On
+#: the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), over every group of arm A, the
+#: answering-every-port, valid-destinations and answering-ports arms, the base is 23,756 (save-held and save-starved)
+#: and ACMP's owed frame 7,450 (backlog-owed), 250 and 80 us by the rule, as #901 found the base grown at 1x1/1if.
+#: With every Talker declared beside a Listener Ready (srp-talker-held, #930): at 8x8/1if the base 26,255, the walk
+#: 11,179, the reclaim 3,292 and a retained record's retry, an SRP record's apply, 42,449, 280, 120, 35 and 450 us by
+#: the rule, and at 1x1/1if that apply 26,925, 285 us. Once a Listener's change walks no registrar (#930) the apply,
+#: the one of these the cut moves, is 32,618 and 23,144 cycles, 345 and 245 us, so its own measurement states it:
+#: 345 at 8x8/1if and 280 at 1x1/1if, an SRP record's there, 285 since AECP's REBOOT merged on the tiers (#871),
+#: which 1x1/1if's states (ONE). Measured on that image over every group of every arm,
+#: 8x8/1if's reclaim is 3,446 cycles in srp-talker-held, 40 us by the rule.
+EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=345, mrpdu=0, acmp=80, aecp=145,
+                 aecp_long=320, acmp_declined=30)
+STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
+             shape_costs.Shape(2, 9, 9): TWO}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
@@ -128,17 +154,24 @@ def long_notices(log: grade.Log) -> list[int]:
                   if c == ch and len(frame) > fan_bytes() and frame[15] & 0x0F == 1 and frame[36] & 0x80)
 
 
-def stated_us(interfaces: int) -> dict[str, int]:
-    """The base's and each item's stated cost in microseconds at that many interfaces."""
-    return dict(STATED_US[interfaces])
+def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
+    """The base's and each item's stated cost in microseconds at a shape, or at that many interfaces at the shipping
+    shape's streams (shape_costs.shape); an owed MRPDU's a build of one's at the shape (shape_costs.at). A shape
+    STATED_US does not state is refused."""
+    shape = shape_costs.shape(interfaces, scenario.ROOT)
+    if shape not in STATED_US:
+        raise ValueError(f'poll_grade.py states no polls at the shape {tuple(shape)}')
+    out = dict(STATED_US[shape])
+    out['mrpdu'] = shape_costs.at(shape, scenario.ROOT)[shape_costs.BUILD_ONE]
+    return out
 
 
-def record_us(interfaces: int) -> int:
+def record_us(interfaces: int | shape_costs.Shape) -> int:
     """An ACMP record's stated cost in microseconds at that many interfaces, the point's at the pin
     (load_grade.STATED_US, the column the rows read), which the kept record's accepted re-offer is held to (KEPT,
     #908)."""
     import load_grade
-    return load_grade.STATED_US['1x1/1if' if interfaces == 1 else '8x8/2if']['record.acmp']
+    return load_grade.STATED_US['1x1/1if' if shape_costs.interfaces(interfaces) == 1 else '8x8/2if']['record.acmp']
 
 
 def spans(log: grade.Log) -> dict[str, list[tuple[int, int, int]]]:
@@ -248,7 +281,7 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
-def held(log: grade.Log, interfaces: int) -> dict:
+def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
     one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}

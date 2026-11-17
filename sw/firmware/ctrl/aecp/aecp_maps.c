@@ -2,7 +2,7 @@
 // Atomic dynamic map edits and fixed partitions, Milan v1.2 5.4.2.26-.28.
 #include "aecp_internal.h"
 #include "aecp_state.h"
-#define AECP_ENTITY_SHAPE_ONLY // the build's shape constants, not its tables (aecp_shape.py)
+#define AECP_ENTITY_SHAPE_ONLY // the image's constants, not its tables (aecp_shape.py)
 #include "aecp_entity_gen.h"
 #include <stddef.h>
 
@@ -140,7 +140,9 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 // key domain (#894's ruling of 2026-11-14, item 1): its stream or cluster
 // times the most channels a key's stream or cluster has, plus its channel, so
 // no two keys share one, at every geometry the builder accepts. The domain is
-// the build's shape (aecp_shape.py, key_domain): at an output port a
+// the build's shape, which the shape header states in every unit an image
+// compiles (srp_entity.py, through aecp_shape.py's key_domain; a host arm given
+// none takes aecp_entity_gen.h's, the same derivation): at an output port a
 // STREAM_OUTPUT and a channel of a format it advertises, at an input port one
 // of its clusters and a channel of it. A mapping is refused at its turn where
 // its port's geometry refuses it, as before, and also where its key lies

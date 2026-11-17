@@ -31,7 +31,8 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 // support a changed FirstValue on a StreamID: at least two LeaveAllTime periods pass between the Leave and the new
 // declaration (IEEE 802.1Q-2018 35.2.2.8; Table 10-7, the 1000 cs create_participants configures). The count starts
 // at the Leave's request, which leaves at most a JoinTime and THE TRANSMIT's MRPDU by every source later (hold,
-// CTRL_LOOP_TX_MS, the built design's, which rows_tiers.py holds), so it adds both.
+// CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by flip_grade.py --check:
+// rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
 #define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
@@ -172,12 +173,14 @@ static struct srp_interface *from_ctx(struct msrp_ctx *ctx)
     return (struct srp_interface *)((uint8_t *)ctx - offsetof(struct srp_interface, msrp_ctx));
 }
 
+// A Listener's indication copies its declaration where it is reported, so it owes no registrar walk (#930): lwSRP
+// indicates a Listener whose stored declaration changed while it registers, and every Registrar change that starts or
+// ends a registration, which the observer copies too (listener_moved).
 static void listener(struct msrp_ctx *ctx, uint8_t port,
                       const struct msrp_stream_id *identity, enum msrp_listener_decl declaration, bool is_new)
 {
     (void)port; (void)is_new;
     struct srp_interface *i = from_ctx(ctx);
-    i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         if (same(i->sources[n].value.stream_id.bytes,identity->bytes,8)) {
             i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||
@@ -389,18 +392,36 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
     return false;
 }
 
+// One Listener's Registrar change, copied as the walk copies that Listener's presence (registrations): present while
+// it registers (#930). Whether what it registers is Ready is its indication's (listener).
+static void listener_moved(struct srp_interface *i, const struct mrp_transition *t)
+{
+    for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+        if (same(i->sources[n].value.stream_id.bytes,t->attr_val,8)) {
+            i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;
+        }
+    }
+}
+
 // lwSRP reports every Applicant or Registrar state change of a participant
 // here.
-// A Registrar change is a change of what snapshot copies; any change can leave an attribute mrp_reclaim frees (#665).
+// The walk copies whether each MSRP Talker and Listener registers and what it registers. Each change of that comes
+// with an indication: every Registrar change into or out of MT (IEEE 802.1Q-2018 Table 10-4) and, in lwSRP, a value
+// changed while it registers. A Talker's indication marks the walk owed (talker_changed) and a Listener's copies its
+// declaration (listener), so a Registrar change owes no walk; a Listener's is copied here for its presence (#930). Any
+// change can leave an attribute mrp_reclaim frees (#665).
 // An Applicant that moves may request a transmit (Table 10-3 note 6), owed now when its participant's join timer is
 // idle: a build arms that timer, so this owes a participant one pass a JoinTime, and one that moves in the build that
-// sent it owes nothing past that pass, whose end clears its interface.
-static void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
+// sent it owes nothing past that pass, whose end clears its interface. A function of its own, both participants'
+// observers calling it, as the split link script's hot list places it (plat/ctrl_split_hot.txt).
+static CTRL_CC_NOINLINE void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
 {
     struct srp_mbx *m = i->owner;
     i->reclaim = true;
     i->moved = true;
-    i->stale |= t->reg_from != t->reg_to;
+    if (slot == 0u && t->attr_type == MSRP_ATTR_TYPE_LISTENER && t->reg_from != t->reg_to) {
+        listener_moved(i,t);
+    }
     if (t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u) {
         m->tx_due |= (uint8_t)(1u << i->index);
     }

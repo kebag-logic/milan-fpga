@@ -77,7 +77,9 @@ This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/bl
 and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
-Such a change is a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+Such a change is a Talker's indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+A Registrar state change owes no walk (#930): each change of what the walk copies, whether a Talker or a Listener registers and what it registers, comes with an indication, since every Registrar change into or out of MT does (IEEE 802.1Q-2018 Table 10-4) and lwSRP indicates a value changed while it registers.
+A Listener's change is copied where lwSRP reports it, as the walk copies that Listener, so it owes no walk either: its indication copies its declaration, and lwSRP's transition observer its presence.
 Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
 The receive filter, the indications and the walk compare each StreamID and destination MAC with `same`, an equality test that stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2), so a record's comparisons no longer pay `memcmp`'s alignment checks and the byte loop that orders a difference (#665).
 The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.
@@ -222,8 +224,11 @@ Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
 the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
 THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
-departs: 2,023 cs at one interface and 2,030 at two, where the figure is 105 ms
-for the tx row's 104.25,
+departs: 2,023 cs at 1x1/1if, 2,027 at 8x8/1if, whose figure is its own tx row's
+74.26 ms rounded up, 75 ms, and 2,030 at two, where the figure is 105 ms for the
+tx row's 104.25, each stated for its shape (THE SHAPES, `ctrl_loop.h`) and held
+to its row by `flip_grade.py --check` (`rows_tiers.tx_statements`, and at 8x8/1if
+`tx_held`, apart from that point's reported rows);
 [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
 items 1 and 2; 35.2.2.8 sets only the least, 2,000 cs); a destination that
 changes while valid withdraws the old one first. Two LeaveAllTime periods are
@@ -280,14 +285,14 @@ An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop giv
 What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
 lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
 The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
-A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at both points (a 900 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
+A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 900 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 34.00 ms there at the slice rule's 900 us, the last queued notice's bound at 140 ms, at the Talker declarations' costs composed with #894's SET_CONFIGURATION cut and measured again, which `CTRL_LOOP_TX_MS` states as 34 ms, and 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897) (34.05 at 950 us after the one cut, 33.88 at the composed tables, 33.69 before that cut, 33.64 at 900 us, 33.39 at the edit cut's composed tables, 33.20 before that cut, 33.01 at its own; `rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 35 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 Where a slice holds both MRPDUs (`CTRL_LOOP_BUILD_MOST` 2, a slice of at least `CTRL_LOOP_BUILD_PASS_US`; no point's at this tree), a Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit.
-Where a slice holds one (both points), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
+Where a slice holds one (every point), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
 No declaration is made while a retained receive waits, so none takes the room it waits for, and a refused or waiting one is tried again when the join count ends.
 A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and no pass goes to a build until it is sent.
 The poll reclaims the attributes lwSRP may free, so a record the next pass takes finds the room.
-SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, and a record follows only the events posted before it, by ring position.
+SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, stated for each shape (THE SHAPES; at 8x8/1if 345 us, its heaviest record plus 5 %), and a record follows only the events posted before it, by ring position.
 The composed burst's last record is a row by every source against SRP's 90 ms (R5, R6; decision D, [`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)).
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
@@ -343,8 +348,9 @@ The report separates text, read-only data, initialized data, BSS, reserved stack
 and alignment; the arena is already in BSS and must not be added twice.
 The reserved 8192-byte stack is a measurement assumption, not a call-chain proof.
 
-GoogleTest/GoogleMock exercise one and two interfaces, every shipped entity shape,
-allocation failures, malformed inputs, declaration changes, reset, reentry,
+GoogleTest/GoogleMock exercise one and two interfaces, every shipped entity shape
+`ctrl_loop.h` lists (THE SHAPES; at every other the build must be refused in its
+`#error`'s words, `srp_arms.all_shapes`), allocation failures, malformed inputs, declaration changes, reset, reentry,
 backpressure and timer ordering. The adapter has no coverage exclusions.
 `srp_mutants.py` ties each named case to a defect and its failed observable;
 build failures do not count as catches.

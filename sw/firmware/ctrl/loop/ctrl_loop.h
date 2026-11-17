@@ -259,7 +259,8 @@ extern "C" {
 // to take another past CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
-// THE TIERS: tier 2's slice, in microseconds (#894; #665, the decision of 2026-11-09). At 1x1/1if,
+// THE TIERS: tier 2's slice, CTRL_LOOP_SLICE_US, in microseconds (#894; #665, the
+// decision of 2026-11-09), stated for each shape below (THE SHAPES). At 1x1/1if,
 // #894's slice ruling of 2026-11-13: 800 us, or the slice rule's choice within 650
 // to 1,100 us once every row by every source holds there (rows_tiers.py, ruled),
 // as it does with the join timer at CTRL_LOOP_JOIN_CS and the pace at
@@ -275,16 +276,106 @@ extern "C" {
 // their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both,
 // CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
-// CTRL_LOOP_BUILD_ONE_PASS_US. A one-interface image takes this slice at every
-// shape, 8x8/1if's too (#894's slice ruling), though one MRPDU's build there was
-// measured at 1,019 us, over this slice and over CTRL_LOOP_BUILD_ONE_PASS_US,
-// which states 1x1/1if's (#894).
-#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 900u : 1300u)
-// An SRP record's stated cost, the load gate's record.srp at each point, the
-// dearer of its two columns' (load_grade.py, which refuses any other figure):
-// the slice starts a record only while it has this left, so a record that
-// starts fits (#894).
-#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 285u : 365u)
+// CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
+// there plus 5 %, at most 1,600 us (#894's shape ruling, item (b): a design
+// parameter, the rows and the load the owner's gate): 1,475 us,
+// CTRL_LOOP_BUILD_ONE_PASS_US there, which the build measures again at that slice.
+//
+// THE SHAPES (#894's shape ruling, item (b)). The slice and
+// THE TRANSMIT's builds' stated costs depend on the static shape an image is
+// built at, which its builder states: the interfaces, MBX_N_IF (the mailbox
+// contract it compiles against), and the talker sources and listener sinks ADP
+// advertises, CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes
+// from the configuration into the shape header srp_arms.prepared force-includes
+// into every unit an image compiles. A compile given no shape header composes
+// no SRP and builds no image (the host arms): it is at the shipping shape's
+// streams (srp_arms.DEFAULT_ENTITY), as the tracked contract is at one
+// interface. Each shape listed states, in microseconds, its slice, its build of
+// both of an interface's MRPDUs and its build of one (CTRL_LOOP_BUILD_PASS_US,
+// CTRL_LOOP_BUILD_ONE_PASS_US, their measurement below), and an SRP record's
+// stated cost, CTRL_LOOP_SRP_UNIT_US: the slice starts a record only while it
+// has this left, so a unit under the record's measurement lets the slice run
+// past its length (#894's held-egress ruling, item (b)(ii)); it is the load
+// gate's record.srp at each point, the dearer of its two columns'
+// (load_grade.py, which refuses any other figure), so a record that starts
+// fits (#894). And
+// THE RETRY's round costs, which AECP's adapter admits a round at and its core
+// charges a refused attempt at: a round's cold start, CTRL_LOOP_RETRY_COLD_US
+// (aecp_mbx.h, AECP_ROUND_COLD_US), and a refused attempt's,
+// CTRL_LOOP_RETRY_ATTEMPT_US (aecp.h, AECP_ATTEMPT_US), each keyed on the shape
+// and never on the interface count (#894's retry-cost ruling,
+// item 1). A shape not listed fails the build. Both two-interface shapes keep
+// the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
+// the load gate's record.srp there, 8x8/2if's 365 us, whose records that point
+// takes (load_grade.py, NEAREST), over 8x8/1if's heaviest, a Listener Ready
+// that licenses a declared Talker, 32,936 CPU cycles once a Listener's change
+// walks no registrar (#930; 42,663 before); and at 1x1/1if 285 us, the load
+// gate's record.srp there since AECP's REBOOT merged on the tiers (#871), over
+// that group's 23,503 cycles (#930; 27,170 before).
+// THE RETRY's costs there are the line over its rounds measured on that tree,
+// the dearest at each count of refused attempts with notices charged at
+// AECP_NOTICE_US, that holds a round of every port refused (AECP_ROUND_PORTS)
+// at its cost with the least cold start (#665's definition of the attempt: what
+// such a round costs past its cold start, a refusal): 15,309 CPU cycles once
+// and 2,009 a refused attempt, through the dearest rounds of two and of four
+// refused attempts, 19,326 and 23,343 cycles; plus 5 %, rounded up to 5 us,
+// 165 and 25 us.
+// And two bounds in milliseconds that differ by shape, so that one shape's figure
+// is never another's: the last queued notice's, CTRL_LOOP_QUEUED_MS (aecp_mbx.h,
+// AECP_QUEUED_MS, its comment says how each is set), and THE TRANSMIT's MRPDU by
+// every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
+// bound): 1x1/1if's, 140 and 35 ms, are #895's (its rulings of 2026-11-15) and
+// #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them),
+// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row's 74.26 ms
+// rounded up, 75 ms, and both two-interface shapes 8x8/2if's, 62 and 105 ms.
+#ifdef CTRL_SRP_SOURCES
+#define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
+#define CTRL_LOOP_SINKS CTRL_SRP_SINKS
+#else
+#define CTRL_LOOP_SOURCES 2u
+#define CTRL_LOOP_SINKS 2u
+#endif
+#define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
+	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
+#define CTRL_LOOP_SLICE_US 900u
+#define CTRL_LOOP_BUILD_PASS_US 1010u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+#define CTRL_LOOP_SRP_UNIT_US 285u
+#define CTRL_LOOP_RETRY_COLD_US 85u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 140u
+#define CTRL_LOOP_TX_MS 35u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
+#define CTRL_LOOP_SLICE_US 1475u
+#define CTRL_LOOP_BUILD_PASS_US 1795u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 165u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_TX_MS 75u
+#elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
+#elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
+#else
+#error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#endif
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
@@ -325,10 +416,15 @@ extern "C" {
 // cut, measured at fe0cef5b, the same build moved by the cut's code, so a build
 // of one is 735 us there (#894, #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
 // 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
-// refuted, with its rows (#894, owed to #872).
+// refuted, with its rows (#894, owed to #872, #910). The builds are stated for
+// each shape (THE SHAPES, above). At 8x8/1if, one interface's 8x8 streams, the
+// srp group's build after its Listener Ready is 140,273 cycles at both the 900
+// and the 1,475 us slice, so a build of one is 1,475 us. No pass makes both
+// MRPDUs there, since its slice holds one build, so a build of both is made in
+// two slices: it is stated at the heaviest sum of one build's two passes, 140,273
+// and 30,613 cycles, plus 5 %, 1,795 us, which is over the slice
+// (CTRL_LOOP_BUILD_MOST 1) and under two builds of one (#894).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 735u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.
@@ -367,16 +463,19 @@ extern "C" {
 // would reach 281 ms.
 #define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
 // THE TRANSMIT's MRPDU by every source at the built design, in ms rounded up
-// (tb/verilator/ctrl_service_budget/rows_tiers.py, the tx row, which refuses a
-// tree whose row passes this): 105 ms at 8x8/2if for its 104.25 there (#895's
-// ruling of 2026-11-15 on that figure, item 1), and 35 at 1x1/1if for its
-// 34.20 with GET_AS_PATH's read composed on SRP's Talker declarations (#897;
-// 34 before, its 34.00). A withdrawn Talker's hold-off
-// adds it (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
-// 8x8/2if, whose rows by every source are reported and not held (#894, the
-// owner's decision of 2026-11-12, owed to #872), it is over the bound, and
-// ctrl_loop.c holds 1x1/1if alone to it.
-#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 35u : 105u)
+// (tb/verilator/ctrl_service_budget/rows_tiers.py, tx_statements, the tx row,
+// which refuses a tree whose row passes this; flip_grade.py --check runs it at
+// 1x1/1if and 8x8/2if with their rows and at 8x8/1if apart from its reported
+// rows, tx_held), CTRL_LOOP_TX_MS, stated for each shape in THE SHAPES above:
+// 35 ms at 1x1/1if for its 34.20 with GET_AS_PATH's read composed on SRP's
+// Talker declarations (#897; 34 before, its 34.00), 75 ms at 8x8/1if for its
+// 74.26 (its own polls since #930's
+// measurement), and 105 ms at 8x8/2if for its 104.25 there (#895's ruling of
+// 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off adds it
+// (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
+// 8x8/2if and at 8x8/1if, whose rows by every source are reported and not held
+// (#894, the owner's decision of 2026-11-12, owed to #872), it is over the bound,
+// and ctrl_loop.c holds 1x1/1if alone to it.
 #define CTRL_LOOP_TICK_US 430u
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

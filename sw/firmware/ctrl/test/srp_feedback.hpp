@@ -40,6 +40,18 @@ TEST_F(AcmpMailbox, F3bListenerRegistrationControlsItsOwnGate) {
     };
     listener(1); // JoinIn registers Asking Failed.
     gate(1u);
+    // A binding owes the registrar walk, which copies the Listener again while it registers (#930: its record
+    // copied it with no walk).
+    const msrp_stream_id other{{2,1,2,3,4,5,6,7}};
+    const std::array<uint8_t, 6> other_da{0x91, 0xe0, 0xf0, 0, 0, 9};
+    const uint32_t walks = srp_adapter.walks;
+    ASSERT_TRUE(srp_mbx_bind(&srp_adapter, interface, 0, &other, other_da.data(), 2));
+    for (unsigned ms = 0; ms < 10u; ++ms) {
+        mbx_model_advance_ms(&model, 1);
+        settle();
+    }
+    ASSERT_GT(srp_adapter.walks, walks);
+    gate(1u);
     listener(5); // Leave withdraws it immediately under this registrar policy.
     gate(0u);
     listener(1);
