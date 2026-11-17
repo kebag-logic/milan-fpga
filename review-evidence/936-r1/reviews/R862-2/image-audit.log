@@ -1,0 +1,19 @@
+platform 1x1-if1: ROM 117688 -> 117688 (+0); SRAM and ctrl_plat unchanged
+platform 1x1-if2: ROM 119296 -> 119304 (+8); SRAM and ctrl_plat unchanged
+platform 8x8-if1: ROM 130384 -> 130392 (+8); SRAM and ctrl_plat unchanged
+platform 8x8-if2: ROM 131968 -> 131976 (+8); SRAM and ctrl_plat unchanged
+fixture endstation_ax7101_1x1_tdm8 if1 none: ROM 112624 -> 112624 (+0); SRAM and ctrl_plat unchanged
+fixture endstation_ax7101_1x1_tdm8 if2 none: ROM 114208 -> 114216 (+8); SRAM and ctrl_plat unchanged
+fixture endstation_ax7101_8x8 if1 none: ROM 125280 -> 125280 (+0); SRAM and ctrl_plat unchanged
+fixture endstation_ax7101_8x8 if2 none: ROM 126824 -> 126832 (+8); SRAM and ctrl_plat unchanged
+PASS: published final-head platform ledger; five existing split images grow by 8 bytes
+PASS: fix.sha256: 9 full image hashes identical between firmware fix and final refactor
+PASS: led.sha256: 8 full image hashes identical between firmware fix and final refactor
+PASS: six release comparison hashes match both base and final image lists
+3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb ./endstation_ax7101_8x8/software/bios/bios.elf.stripped (debug sections stripped)
+860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719 ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf.stripped (debug sections stripped)
+d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99 ./endstation_ax7101_8x8/software/bios/bios.bin
+Image bytes were not rebuilt here; these are hash and numeric consistency checks of published author receipts.

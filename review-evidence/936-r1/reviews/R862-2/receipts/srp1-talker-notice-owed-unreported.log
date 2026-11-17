@@ -1,0 +1,28 @@
+Note: Google Test filter = SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpGate
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+<checkout>/sw/firmware/ctrl/test/srp_gate.hpp:388: Failure
+Expected: (declaring) != (0u), actual: 0 vs 0
+the pass that takes SRP's record of a declaration owes its notice
+
+  [FAIL] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice: the pass that takes SRP's record of a declaration owes its notice
+<checkout>/sw/firmware/ctrl/test/srp_gate.hpp:400: Failure
+Expected: (withdrawing) != (0u), actual: 0 vs 0
+the pass that takes SRP's record of a withdrawal owes its notice
+
+  [FAIL] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice: the pass that takes SRP's record of a withdrawal owes its notice
+[  FAILED  ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (26 ms)
+[----------] 1 test from SrpGate (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (26 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
