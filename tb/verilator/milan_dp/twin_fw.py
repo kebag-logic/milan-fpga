@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "sw/firmware/ctrl/test"))
 from aecp_arms import AECP_SOURCES  # noqa: E402
 from ctrl_arms import lwsrp_pin  # noqa: E402
 from ctrl_build import C_FLAGS, CTRL, NVM_DIR, PORTABLE, STACK, Tree, source  # noqa: E402
-from plat_arms import CSR_CONSOLE, generated  # noqa: E402
+from plat_arms import CSR_CONSOLE, PHY, generated  # noqa: E402
 from srp_arms import LWSRP_SOURCES, prepared  # noqa: E402
 
 LWSRP = ROOT / "third_party/lwSRP"
@@ -54,7 +54,7 @@ def firmware_sources() -> list[Path]:
     names = [source(CTRL, STACK, n) for n in PORTABLE]
     names += [CTRL / "aecp" / n for n in (*AECP_SOURCES, "aecp_mbx.c", "aecp_face.c", "aecp_nvm.c")]
     names += [CTRL / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c",
-                                 "plat/ctrl_plat.c", *CSR_CONSOLE)]
+                                 "plat/ctrl_plat.c", *CSR_CONSOLE, PHY)]
     return names + [NVM_DIR / "nvm_klj2.c", NVM_DIR / "nvm_store.c", NVM_DIR / "host/nvm_fmodel.c"]
 
 

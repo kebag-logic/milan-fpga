@@ -250,6 +250,8 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 		return reach(p, CTRL_PLAT_IDENTITY, "Milan split: CSR identity mismatch; fabric remains disabled\r\n");
 	}
 	ctrl_plat_csr_policy(env->csr, env->policy);
+	// past the identity check: the PHY's link is published on every path from here (ctrl_plat.h, THE PHY)
+	ctrl_plat_phy_arm(&p->phy, &env->phy, env->flash->now_us, env->flash->ctx);
 	if (!maap_owner(p)) {
 		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: MAAP port refused; entity disabled\r\n");
 	}
@@ -269,12 +271,13 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// store's tick is the loop's first centisecond consumer, bound before the
 	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
 	// step it owes is THE STEP, taken in a pass that took no input and has
-	// room (ctrl_loop.h)
+	// room (ctrl_loop.h); the PHY poll's frames are that step's too, in a call whose
+	// store takes no step of its save (ctrl_plat_phy.h)
 	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAME_RUNS, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
 	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);
-	(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);
+	(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);
 	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}
@@ -297,5 +300,7 @@ void ctrl_plat_step(void)
 		ctrl_loop_step(&ctrl_plat.app.loop);
 	} else {
 		(void)ctrl_plat_console_poll(&ctrl_plat.console);
+		// a refused stage's turn has no loop and no store step: a frame has the turn's share (THE PHY)
+		(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);
 	}
 }
