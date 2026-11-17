@@ -1,0 +1,18 @@
+The lane at the round-7 handoff:
+HEAD 544fd72cefbd27379ae756c6ce02ae8b7ba15f2c, branch sync-dev-6b66f66d-into-dev-soft-core, porcelain 0 lines
+commits since round 6 (9aa55d3b, published):
+  544fd72cefbd27379ae756c6ce02ae8b7ba15f2c List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665)
+  38d89bb0884dedab6cc05d3418ce5d4969abd8cb Record each MRPDU build's participant in the trace at the build and settle an owned run-out only on a build that can be its owner's (#665)
+files changed against 9aa55d3b:
+   docs/reference/FR_NFR.md                           |   2 +-
+   tb/verilator/ctrl_service_budget/README.md         |  29 +++---
+   tb/verilator/ctrl_service_budget/join_grade.py     |  11 ++-
+   tb/verilator/ctrl_service_budget/mrpdu_grade.py    | 102 ++++++++++++++++-----
+   tb/verilator/ctrl_service_budget/observers.py      |   5 +-
+   tb/verilator/ctrl_service_budget/run.py            |   7 +-
+   .../ctrl_service_budget/selftest_leaveall.py       |  98 ++++++++++++++++----
+   .../ctrl_service_budget/selftest_mutants.py        |   9 ++
+   tb/verilator/ctrl_service_budget/selftest_polls.py |  31 ++++---
+   tb/verilator/ctrl_service_budget/sim_main.cpp      |  16 +++-
+   10 files changed, 233 insertions(+), 77 deletions(-)
+product sources: 0 files outside the harness and docs changed

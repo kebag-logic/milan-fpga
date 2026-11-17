@@ -1,0 +1,12 @@
+The ten seed clones given round 7's harness diff in two steps: seeds/r7-harness.patch = git diff 9aa55d3b 38d89bb0 -- tb/verilator/ctrl_service_budget (sha256 83605f533b0002250166bd1b1b8bd86d45474548291940b19ab028cb359896fa), before their re-simulation, and seeds/r7-final.patch = git diff 38d89bb0 544fd72c (the README alone; sha256 888c485742436d3c7393a34c2221434ded02c12c245859915c176aedd22b74fd), before their regrade. Each clone's harness directory against the clean clone of 544fd72c (diff -rq, __pycache__ excluded), and its MAC:
+sync-10092: 0 files differ; mac_address: "02:4b:4c:00:01:51"
+sync-10592: 0 files differ; mac_address: "02:4b:4c:00:01:5f"
+sync-11102: 0 files differ; mac_address: "02:4b:4c:00:00:06"
+sync-11602: 0 files differ; mac_address: "02:4b:4c:00:00:14"
+sync-12102: 0 files differ; mac_address: "02:4b:4c:00:00:22"
+sync-12602: 0 files differ; mac_address: "02:4b:4c:00:00:30"
+sync-13102: 0 files differ; mac_address: "02:4b:4c:00:00:3e"
+sync-13602: 0 files differ; mac_address: "02:4b:4c:00:00:4c"
+sync-14602: 0 files differ; mac_address: "02:4b:4c:00:00:68"
+sync-15032: 0 files differ; mac_address: "02:4b:4c:00:00:88"
+The product and valid-destinations legs were built and simulated from r7/c-head at 38d89bb0 and regraded from it moved to 544fd72c: HEAD 544fd72cefbd27379ae756c6ce02ae8b7ba15f2c, porcelain 0.

@@ -1,0 +1,2149 @@
+{
+ "note": "r7_compare.py at 544fd72c: round 4's thirteen legs re-simulated with the build record at 38d89bb0, regraded at 544fd72c, against round 4's traces and round 6's grading; every run-out whose outcome moves from round 6's rule, with the build that settled it under each",
+ "full_json": {
+  "sha256": "756ed4139fc0a04f19c93efc82d7afda7661abbd40e108f21cce5ee946a89dc6",
+  "bytes": 44183
+ },
+ "legs": [
+  {
+   "leg": "s10092",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1336784,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.91378,
+       "leaveall.if0": 0.57276,
+       "periodic.if0": 1.44926
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.774,
+       190.126
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.671,
+      "every": []
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1869819,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.82521,
+       "leaveall.if0": 0.59129,
+       "periodic.if0": 1.75255
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.774,
+       190.059
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.653,
+      "every": []
+     }
+    }
+   }
+  },
+  {
+   "leg": "s10592",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1336153,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.86217,
+       "leaveall.if0": 0.53814,
+       "periodic.if0": 2.51484
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       187.842,
+       191.1
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.686,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 11061.043,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -19.764,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.301,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.485
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1869623,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.52226,
+       "leaveall.if0": 0.59686,
+       "periodic.if0": 2.61022
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       187.842,
+       190.925
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 11061.1,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -19.599,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.277,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.464
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11102",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337480,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.64485,
+       "leaveall.if0": 0.53935,
+       "periodic.if0": 1.78428
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.151
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.673,
+      "every": []
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870985,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.61128,
+       "leaveall.if0": 0.49453,
+       "periodic.if0": 1.79733
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.086
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": []
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11602",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337572,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.62167,
+       "leaveall.if0": 0.64805,
+       "periodic.if0": 1.62015
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.065
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 84,
+      "builds_by_participant": {
+       "if0 MSRP": 42,
+       "if0 MVRP": 42
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.67,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 12062.502,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -108.848,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.274,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.473
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870935,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.58134,
+       "leaveall.if0": 0.58134,
+       "periodic.if0": 1.67001
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.025
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 84,
+      "builds_by_participant": {
+       "if0 MSRP": 42,
+       "if0 MVRP": 42
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.655,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 12062.578,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -108.671,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.358,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.556
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12102",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337587,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.36218,
+       "leaveall.if0": 1.36218,
+       "periodic.if0": 1.4512
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.097
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.955,
+      "every": []
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870912,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.6436,
+       "leaveall.if0": 1.6436,
+       "periodic.if0": 1.56627
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.01
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 80,
+      "builds_by_participant": {
+       "if0 MSRP": 40,
+       "if0 MVRP": 40
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.932,
+      "every": []
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12602",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337552,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.59673,
+       "leaveall.if0": 0.64304,
+       "periodic.if0": 1.55649
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.157
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 84,
+      "builds_by_participant": {
+       "if0 MSRP": 42,
+       "if0 MVRP": 42
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.67,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 13062.183,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.558,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.278,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.476
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870922,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.63039,
+       "leaveall.if0": 0.51433,
+       "periodic.if0": 1.6669
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.182
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 84,
+      "builds_by_participant": {
+       "if0 MSRP": 42,
+       "if0 MVRP": 42
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 13062.172,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.557,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.359,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.559
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13102",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337426,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.58146,
+       "leaveall.if0": 0.63978,
+       "periodic.if0": 1.7817
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.001
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.672,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 11062.149,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -39.562,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 1.397,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 1.581
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870997,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.66078,
+       "leaveall.if0": 0.58403,
+       "periodic.if0": 1.96235
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.016
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 11062.093,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -39.602,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 1.475,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 1.661
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13602",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337207,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.23903,
+       "leaveall.if0": 1.23093,
+       "periodic.if0": 2.80509
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       187.678,
+       190.612
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 88,
+      "builds_by_participant": {
+       "if0 MSRP": 44,
+       "if0 MVRP": 44
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 2,
+      "by_change": {
+       "empty->released": 2
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.11,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 12061.688,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -158.47,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.273,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.46
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 14061.115,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.624,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 1.019,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 1.215
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870926,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 1.78595,
+       "leaveall.if0": 1.33392,
+       "periodic.if0": 2.96879
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       187.678,
+       190.796
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 88,
+      "builds_by_participant": {
+       "if0 MSRP": 44,
+       "if0 MVRP": 44
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 2,
+      "by_change": {
+       "empty->released": 2
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.059,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 12061.023,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -159.144,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.276,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.461
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 14061.207,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.521,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.992,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 1.189
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s14602",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337660,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.63731,
+       "leaveall.if0": 0.6228,
+       "periodic.if0": 1.61493
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.087
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 88,
+      "builds_by_participant": {
+       "if0 MSRP": 44,
+       "if0 MVRP": 44
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 2,
+      "by_change": {
+       "empty->released": 2
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.67,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 13062.12,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -159.59,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.443,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.63
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.058,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.683,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.26,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.458
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1871023,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.60038,
+       "leaveall.if0": 0.64521,
+       "periodic.if0": 1.7683
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.072
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 73,
+      "builds": 88,
+      "builds_by_participant": {
+       "if0 MSRP": 44,
+       "if0 MVRP": 44
+      },
+      "frame_bearing_builds_agreeing": 41,
+      "disagreeing": 0,
+      "moved": 2,
+      "by_change": {
+       "empty->released": 2
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 13062.178,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -159.52,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.291,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.479
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.145,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -109.585,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.37,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.569
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s15032",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337561,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.6135,
+       "leaveall.if0": 0.47942,
+       "periodic.if0": 1.61757
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.134
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.673,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 15062.126,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -19.7,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.329,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.535
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870883,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.80727,
+       "leaveall.if0": 0.53212,
+       "periodic.if0": 1.7357
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.033
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.656,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 15062.073,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -19.42,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.337,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.54
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "p81",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "trace": {
+      "lines": 1337530,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.55717,
+       "leaveall.if0": 0.55717,
+       "periodic.if0": 1.79045
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.071
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.67,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 15062.05,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -49.662,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.325,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.511
+        }
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "trace": {
+      "lines": 1870918,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {
+       "join.if0": 0.50646,
+       "leaveall.if0": 0.57549,
+       "periodic.if0": 1.81841
+      },
+      "runs": {
+       "released": 40,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       189.985
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 72,
+      "builds": 82,
+      "builds_by_participant": {
+       "if0 MSRP": 41,
+       "if0 MVRP": 41
+      },
+      "frame_bearing_builds_agreeing": 40,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 32,
+      "latest_owner_empty_build_ms": 1.655,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 15062.032,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -49.663,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.298,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.484
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "v1",
+   "rc": "0",
+   "rc_round6": "0",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "trace": {
+      "lines": 616654,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": true,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {},
+      "runs": {
+       "released": 17,
+       "empty": 13
+      },
+      "failing": [],
+      "intervals": [
+       5,
+       188.262,
+       189.973
+      ],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 30,
+      "builds": 46,
+      "builds_by_participant": {
+       "if0 MSRP": 23,
+       "if0 MVRP": 23
+      },
+      "frame_bearing_builds_agreeing": 20,
+      "disagreeing": 0,
+      "moved": 0,
+      "by_change": {},
+      "empties": 13,
+      "latest_owner_empty_build_ms": 0.477,
+      "every": []
+     }
+    },
+    "srp-talker": {
+     "trace": {
+      "lines": 1924178,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {},
+      "runs": {
+       "released": 53,
+       "empty": 41
+      },
+      "failing": [],
+      "intervals": [
+       10,
+       188.262,
+       190.028
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 94,
+      "builds": 120,
+      "builds_by_participant": {
+       "if0 MSRP": 60,
+       "if0 MVRP": 60
+      },
+      "frame_bearing_builds_agreeing": 54,
+      "disagreeing": 0,
+      "moved": 2,
+      "by_change": {
+       "empty->released": 2
+      },
+      "empties": 41,
+      "latest_owner_empty_build_ms": 0.675,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 4024.055,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -9.669,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.278,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.545
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15024.132,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -49.57,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.424,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.613
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "v81",
+   "rc": "1",
+   "rc_round6": "1",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "trace": {
+      "lines": 563457,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {},
+      "runs": {
+       "released": 25,
+       "empty": 16
+      },
+      "failing": [],
+      "intervals": [
+       10,
+       187.536,
+       190.379
+      ],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 41,
+      "builds": 92,
+      "builds_by_participant": {
+       "if0 MSRP": 46,
+       "if0 MVRP": 46
+      },
+      "frame_bearing_builds_agreeing": 27,
+      "disagreeing": 0,
+      "moved": 1,
+      "by_change": {
+       "empty->released": 1
+      },
+      "empties": 16,
+      "latest_owner_empty_build_ms": 0.489,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 4062.197,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -9.474,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.349,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.819
+        }
+       }
+      ]
+     }
+    },
+    "srp-talker": {
+     "trace": {
+      "lines": 1558177,
+      "differ": 0
+     },
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true,
+      "probes": true
+     },
+     "round7": {
+      "rows": {},
+      "runs": {
+       "released": 67,
+       "empty": 41
+      },
+      "failing": [],
+      "intervals": [
+       20,
+       187.536,
+       190.071
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "probes_differ": {},
+     "moves": {
+      "run_outs": 108,
+      "builds": 176,
+      "builds_by_participant": {
+       "if0 MSRP": 88,
+       "if0 MVRP": 88
+      },
+      "frame_bearing_builds_agreeing": 66,
+      "disagreeing": 0,
+      "moved": 4,
+      "by_change": {
+       "empty->released": 4
+      },
+      "empties": 41,
+      "latest_owner_empty_build_ms": 1.181,
+      "every": [
+       {
+        "timer": "periodic",
+        "at_ms": 4062.197,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -9.474,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.349,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.819
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 5062.207,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -149.417,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.29,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.95
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.121,
+        "owner": "if0 MVRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -49.479,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.508,
+         "builder": "if0 MVRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.692
+        }
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 19062.087,
+        "owner": "if0 MSRP",
+        "round6": "empty",
+        "round7": "released",
+        "round6_settled_by": {
+         "build_after_opportunity_ms": -9.587,
+         "builder": "if0 MSRP",
+         "on_owner_frame": false,
+         "frame_after_opportunity_ms": null
+        },
+        "round7_settled_by": {
+         "build_after_opportunity_ms": 0.326,
+         "builder": "if0 MSRP",
+         "on_owner_frame": true,
+         "frame_after_opportunity_ms": 0.684
+        }
+       }
+      ]
+     }
+    }
+   }
+  }
+ ]
+}
