@@ -564,9 +564,9 @@ def report(root: Path, table: dict | None = None) -> list[str]:
     """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, the compute the
     graded load would need for TARGET (its load over TARGET, at least 1), its pass's own cost and every graded term by
     share."""
-    lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | '
-             f'Compute for {TARGET:.2f} (with tsn-c-stack#32) | A pass\'s own cost, us | Terms by share (with '
-             'tsn-c-stack#32) |',
+    lines = ["| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | "
+             f'Ceiling | Compute for {TARGET:.2f} (with tsn-c-stack#32) | A pass\'s own cost, us | Terms by share '
+             '(with tsn-c-stack#32) |',
              '|---|---:|---:|---:|---:|---:|---|']
     for point in POINTS:
         try:
