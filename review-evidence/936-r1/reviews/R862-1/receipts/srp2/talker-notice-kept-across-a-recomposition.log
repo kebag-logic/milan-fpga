@@ -1,0 +1,36 @@
+Note: Google Test filter = SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpGate
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/srp_gate.hpp:352: Failure
+Expected equality of these values:
+  app.srp_noticed
+    Which is: 4294967295
+  0u
+    Which is: 0
+an attached SRP instance starts with no record, and no source is noticed before its Talker is declared
+
+  [FAIL] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource: an attached SRP instance starts with no record, and no source is noticed before its Talker is declared
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/srp_gate.hpp:357: Failure
+Expected equality of these values:
+  app.srp_noticed
+    Which is: 4294967295
+  1u << source
+    Which is: 2
+a probe's declaration notices its source
+
+  [FAIL] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource: a probe's declaration notices its source
+[  FAILED  ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (14 ms)
+[----------] 1 test from SrpGate (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (14 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

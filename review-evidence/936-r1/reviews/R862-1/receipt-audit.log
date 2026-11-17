@@ -1,0 +1,15 @@
+Release base/final published hashes match: 6
+b496c99e/final published led hashes match: 24
+b496c99e/final published fix hashes match: 6
+{"counts": {"instance_misses": 7, "instances": 950, "path_misses": 4, "paths": 92}, "group": "1x1", "misses": ["backlog.owed.if0: 63.041 ms over its budget 20 ms", "backlog.owed_behind0.if0: 63.228 ms over its budget 20 ms", "backlog.owed_behind1.if0: 63.413 ms over its budget 20 ms", "backlog.owed_behind2.if0: 63.599 ms over its budget 20 ms", "backlog.owed_behind3.if0: 63.784 ms over its budget 20 ms", "backlog-owed.service.acmp.last.if0: 62.145 ms over its budget 20 ms", "backlog-owed.service.aecp.last.if0: 61.887 ms over its budget 20 ms"], "notice_max_ms": null, "notice_misses": [], "notices": 0, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 7, "instances": 947, "path_misses": 4, "paths": 85}, "group": "8x8-1if", "misses": ["backlog.owed.if0: 63.546 ms over its budget 20 ms", "backlog.owed_behind0.if0: 63.837 ms over its budget 20 ms", "backlog.owed_behind1.if0: 64.071 ms over its budget 20 ms", "backlog.owed_behind2.if0: 64.330 ms over its budget 20 ms", "backlog.owed_behind3.if0: 64.578 ms over its budget 20 ms", "backlog-owed.service.acmp.last.if0: 62.389 ms over its budget 20 ms", "backlog-owed.service.aecp.last.if0: 62.024 ms over its budget 20 ms"], "notice_max_ms": null, "notice_misses": [], "notices": 0, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 0, "instances": 5, "path_misses": 0, "paths": 3}, "group": "vd-1x1", "misses": [], "notice_max_ms": null, "notice_misses": [], "notices": 0, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 0, "instances": 19, "path_misses": 0, "paths": 10}, "group": "vd-8x8-1if", "misses": [], "notice_max_ms": null, "notice_misses": [], "notices": 0, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 0, "instances": 56, "path_misses": 0, "paths": 7}, "group": "later-1x1", "misses": [], "notice_max_ms": 8.30084, "notice_misses": [], "notices": 8, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 0, "instances": 56, "path_misses": 0, "paths": 7}, "group": "later-8x8-1if", "misses": [], "notice_max_ms": 8.24574, "notice_misses": [], "notices": 8, "refusals": [], "share_misses": []}
+{"counts": {"instance_misses": 0, "instances": 280, "path_misses": 0, "paths": 7}, "group": "every-1x1", "misses": [], "notice_max_ms": 27.07272, "notice_misses": [], "notices": 192, "refusals": [], "share_misses": []}
+Published twin receipt contains: plant output-notice-dropped: REFUSED by "the fabric sent and the split did not:
+Published twin receipt contains: plant output-notice-dropped: REFUSED by "owed row stream-output-0-dest-mac does not hold"
+Published twin receipt contains: plant vanished-owed: REFUSED by "owed row stream-output-0-dest-mac: the difference has gone"
+Published twin receipt contains: TWIN-PLANTS-BUT-SRP-PLUS-K rc=0
+PASS: receipt consistency; no target simulation executed by this audit

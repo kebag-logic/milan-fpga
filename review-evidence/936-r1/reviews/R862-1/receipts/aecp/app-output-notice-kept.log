@@ -1,0 +1,90 @@
+Note: Google Test filter = App.SrpDeclarationChangeIsItsStreamOutputsNotice
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:768: Failure
+Expected equality of these values:
+  application.srp_noticed
+    Which is: 1
+  0u
+    Which is: 0
+the bridge raises every STREAM_OUTPUT the delivery took
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: the bridge raises every STREAM_OUTPUT the delivery took
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 19
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 19
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:775: Failure
+Expected equality of these values:
+  notices(before,0,CTLR)+notices(before,last,CTLR)
+    Which is: 32
+  0u
+    Which is: 0
+a pass with no record notifies nothing
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a pass with no record notifies nothing
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 16
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:781: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 16
+  0u
+    Which is: 0
+a source the record does not name is notified nothing
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a source the record does not name is notified nothing
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 16
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+$REVIEWS/r862-1-936/sw/firmware/ctrl/test/test_aecp.cpp:781: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 16
+  0u
+    Which is: 0
+a source the record does not name is notified nothing
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a source the record does not name is notified nothing
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (4 ms)
+[----------] 1 test from App (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
