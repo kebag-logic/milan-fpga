@@ -959,8 +959,8 @@ twin: build-twin
 # out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
 # for the #860 rows' exact traces
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
-TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
-  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
+TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed output-notice-dropped command-byte command-sequence \
+  response-sequence table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
 TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
   vanished-vid2-join-in vid2-registrar-in
 twin-plants: build-twin

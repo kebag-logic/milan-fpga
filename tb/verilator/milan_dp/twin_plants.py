@@ -10,6 +10,8 @@ the all-fabric half's: an owed defect of the fabric gone is planted where the fi
 
 Each plant names the grade or row it is the plant of:
   * uncovered-field, vanished-owed: a difference no row covers, and an owed difference gone (OWED);
+  * output-notice-dropped: the split's STREAM_OUTPUT 0 notices dropped (#936), which the owed row's exact values
+    refuse;
   * command-byte: the entity's own commands are still byte-compared, sequence_id aside;
   * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
   * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
@@ -87,15 +89,32 @@ def plant_uncovered_field(fabric: dict, split: dict) -> dict:
     raise SystemExit("plant uncovered-field: no GET_STREAM_INFO notice of STREAM_INPUT 0 to plant")
 
 
-def plant_vanished_owed(fabric: dict, split: dict) -> dict:
-    """An owed difference gone: the split capture carries the fabric's GET_STREAM_INFO notices of
-    STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
-    owed = [e for e in fabric["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
+def output_notices(doc: dict) -> list[dict]:
+    """A capture's GET_STREAM_INFO notices of STREAM_OUTPUT 0, in send order."""
+    return [e for e in doc["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
             and (f.command, f.descriptor) == (0x000F, (6, 0))]
-    if not owed:
-        raise SystemExit("plant vanished-owed: the fabric capture has no STREAM_OUTPUT 0 notice to copy")
-    split["frames"] = sorted(split["frames"] + owed, key=lambda e: e["ms"])
+
+
+def plant_vanished_owed(fabric: dict, split: dict) -> dict:
+    """An owed difference gone: the split capture's GET_STREAM_INFO notices of STREAM_OUTPUT 0 replaced by the
+    fabric's, each at its own millisecond, as the lane that fixes the split's stream_dest_mac would send them."""
+    owed = output_notices(fabric)
+    if not owed or not output_notices(split):
+        raise SystemExit("plant vanished-owed: a capture has no STREAM_OUTPUT 0 notice to replace")
+    kept = [e for e in split["frames"] if not any(e is x for x in output_notices(split))]
+    split["frames"] = sorted(kept + owed, key=lambda e: e["ms"])
     return planted(split, "vanished-owed")
+
+
+def plant_output_notice_dropped(fabric: dict, split: dict) -> dict:
+    """#936's defect back: the split capture with no GET_STREAM_INFO notice of STREAM_OUTPUT 0, as the split sent
+    none when its Talker declared and withdrew."""
+    del fabric
+    dropped = output_notices(split)
+    if not dropped:
+        raise SystemExit("plant output-notice-dropped: the split capture has no STREAM_OUTPUT 0 notice to drop")
+    split["frames"] = [e for e in split["frames"] if not any(e is x for x in dropped)]
+    return planted(split, "output-notice-dropped")
 
 
 def controller_available(doc: dict, to: int) -> list[dict]:
@@ -372,6 +391,7 @@ Plant = Callable[[dict, dict], dict]
 #: the plants of the split half's capture (--make-plant writes the planted split capture)
 SPLIT_PLANTS: dict[str, Plant] = {
     "uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed,
+    "output-notice-dropped": plant_output_notice_dropped,
     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
