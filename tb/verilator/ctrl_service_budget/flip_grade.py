@@ -27,6 +27,9 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
 (load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
 measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
 within its bound and its join intervals in range); its rows by every source are reported, not held, owed to #872.
+THE TRANSMIT's figure there is held all the same (tx_held): a withdrawn Talker's hold-off adds CTRL_LOOP_TX_MS
+(srp_mbx.c, SRP_REDECLARE_CS; IEEE 802.1Q-2018 35.2.2.8), so the check fails when ctrl_loop.h states it under the
+point's tx row by every source, the row rows_tiers derives at 8x8/1if's own polls, notices and builds.
 
 usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--selftest]
   --check     print the 8x8/2if row at the pin and the rows by every source, and exit 1 if a load is over its ceiling
@@ -58,10 +61,35 @@ FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
 POINTS = (*rows_grade.POINTS, '8x8/1if')
 REPORTED = ('8x8/1if',)
+#: The understated figures planted at a reported point, each refused by name (TX_HELD_CONTROLS): two of the review's
+#: and one a millisecond under the head's figure.
+TX_UNDER_MS = (60, 69, 74)
+TX_HELD_CONTROLS = tuple(f"8x8/1if's CTRL_LOOP_TX_MS planted at {ms} ms, under its tx row" for ms in TX_UNDER_MS)
 #: The column it reads: the stated costs at this tree's pin.
 COLUMN = load_grade.STATED_US
 #: The designs the rows are held by: the built design's tier model first, the default; THE DRAIN before the tiers.
 DESIGNS = ('built', 'as-built')
+
+
+def tx_held(root: Path, points: tuple[str, ...], texts: dict[str, str] | None = None) -> list[str]:
+    """At each reported point, the ways ctrl_loop.h's statement of THE TRANSMIT's MRPDU is not the model's
+    (rows_tiers.tx_statements): its figure under the point's tx row by every source rounded up, or its bound not the
+    timer budget's. The point's other rows stay reported (#872); this one is held, the hold-off adding it."""
+    return rows_tiers.tx_statements(root, tuple(p for p in points if p in REPORTED), texts)
+
+
+def tx_held_controls(root: Path) -> list[str]:
+    """Each understated figure planted at 8x8/1if (TX_UNDER_MS) that tx_held does not refuse by its figure."""
+    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+    text = (root / loop).read_text()
+    at = shape_costs.of_point('8x8/1if', root)
+    escaped = []
+    for ms, name in zip(TX_UNDER_MS, TX_HELD_CONTROLS):
+        under = {loop: shape_costs.planted_at(text, at, shape_costs.TX, ms)}
+        found = tx_held(root, ('8x8/1if',), under)
+        if not any(f.startswith(f'8x8/1if: CTRL_LOOP_TX_MS states {ms} ms') for f in found):
+            escaped.append(name)
+    return escaped
 
 
 def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
@@ -142,7 +170,7 @@ def controls(root: Path) -> list[str]:
     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
     # item (b): the slice at most 1,600 us, a shape not listed failing the build)
     escaped += [f'the table of shapes: {name}' for name in shape_costs.controls(root)]
-    return escaped + row_controls(root) + built_controls(root)
+    return escaped + tx_held_controls(root) + row_controls(root) + built_controls(root)
 
 
 def built_controls(root: Path) -> list[str]:
@@ -356,7 +384,8 @@ def rule_controls(root: Path) -> list[str]:
 CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
             'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if',
             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
-            'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS))
+            'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
+            *TX_HELD_CONTROLS)
 
 
 def row_control_names(root: Path) -> tuple[str, ...]:
@@ -417,8 +446,12 @@ def main() -> int:
         for point in (p for p in points if p in REPORTED):
             print(f'REPORTED {point}: its rows by every source are reported, not held, owed to #872; its measured '
                   'rows are the CPU budget harness\'s on its built image (run.py --point 8x8-1if)')
+            i = rows_tiers.point_inputs(ROOT, point)
+            w = rows_tiers.solve('tx', i, rows_tiers.BUILT)[0]
+            print(f'HELD {point}: THE TRANSMIT\'s figure CTRL_LOOP_TX_MS {i.tx_stated} ms against its tx row by every '
+                  f'source {"none" if w is None else f"{w:.2f}"} ms (tx_held; the hold-off adds the figure)')
         found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \
-            rows_grade.rule_findings(ROOT, rowed) + shape_costs.findings(ROOT)
+            rows_grade.rule_findings(ROOT, rowed) + tx_held(ROOT, points) + shape_costs.findings(ROOT)
         for line in found:
             print('OVER', line)
         print('RESULT: FAIL' if found else 'RESULT: PASS')

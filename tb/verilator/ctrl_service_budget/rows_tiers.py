@@ -123,8 +123,8 @@ LONG_RULES = ('buffer', 'slot-552')
 #: of an AECP poll item that commits a notice longer than AECP_FAN_BYTES (poll_grade.STATED_US, aecp_long), the most
 #: measured over the aecp-largest-notice group, a 550 B notice to every registration but the requester's (15 and 31;
 #: long_notice.py), plus 5 %, rounded up to 5 us (#894's slice ruling of 2026-11-13: the measured cost replaces the
-#: stated 665 us).
-LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[poll_grade.LONG] for point in POINTS}
+#: stated 665 us). Each point's at its shape (THE SHAPES), 8x8/1if's its own.
+LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if')}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
 #: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
 #: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
@@ -184,7 +184,7 @@ def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) ->
     """A point's inputs, rows_grade's read from the tree, the retry spacing and the built design's constants."""
     spacing = re.search(r'^#define AECP_RETRY_MAX_MS (\d+)u', (root / 'sw/firmware/ctrl/aecp/aecp.h').read_text(), re.M)
     base = rows_grade.point_inputs(root, point)
-    costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
+    costs = {**base.c, **{f'event.{k}': us for k, us in DATAPATH_US[load_grade.NEAREST.get(point, point)].items()},
              'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
     return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, point, texts))
 
