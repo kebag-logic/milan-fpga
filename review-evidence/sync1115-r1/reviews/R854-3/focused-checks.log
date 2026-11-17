@@ -1,0 +1,501 @@
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+BASELINE: 882 checks, 0 failures
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: the aged build's plant is judged as a budget control
+  CHECK: the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: any row over its bound catches the aged build's plant
+  CHECK: the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a timer's row ends at the first build, with no frame
+  CHECK: a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+  CHECK: a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms
+  CHECK: one at 21 ms is over its bound
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a timer's row starts at its entry, not at the deadline
+  CHECK: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+  CHECK: a LeaveAll whose owner's join timer has run out is timed from the run-out's own TICK and sent at once
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+  CHECK: a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+  CHECK: a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier rule)
+  CHECK: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: the LeaveAll is its owner's: another application's MRPDU before it skips nothing
+  CHECK: no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+  CHECK: a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier rule)
+  CHECK: overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+  CHECK: a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback restored)
+  CHECK: an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds'
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: an unowned run-out not failing the run
+  CHECK: an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds'
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule)
+  CHECK: a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit opportunity, though another participant's join timer runs on, for either application on either interface; a log that ends first leaves it unresolved
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's opportunity (earlier rule)
+  CHECK: a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: another participant's MRPDU credited to a run-out, timed from its owner
+  CHECK: a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: transmit: the participant's join timer run out a centisecond early
+  CHECK: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: a LeaveAll past its first transmit opportunity not failing the run
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+  CHECK: a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: a late LeaveAll not failing the run
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: any MRPDU taken for the LeaveAll
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: an MRPDU's LeaveAll is read from its VectorHeaders, MSRP's past its AttributeListLength and a Listener vector's FourPackedEvents
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: the participants' applications not told apart
+  CHECK: a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold
+  CHECK: a join interval under 181.0 ms or over 239.0 ms is named with its participant
+  CHECK: a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no join timer, between them are none
+  CHECK: a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold
+  CHECK: a frame its build left owed, which the poll sends a pass later, is that build's: the run-out released it and ends a join interval
+  CHECK: a join interval outside its range fails a run whatever findings it records
+  CHECK: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+  CHECK: a LeaveAll whose owner's join timer has run out is timed from the run-out's own TICK and sent at once
+  CHECK: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+  CHECK: the LeaveAll is its owner's: another application's MRPDU before it skips nothing
+  CHECK: no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+  CHECK: a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+  CHECK: a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms
+  CHECK: one at 21 ms is over its bound
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: a Listener vector's FourPackedEvents not skipped
+  CHECK: an MRPDU's LeaveAll is read from its VectorHeaders, MSRP's past its AttributeListLength and a Listener vector's FourPackedEvents
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner (earlier rule)
+  CHECK: no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+  CHECK: two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+  CHECK: a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+  CHECK: a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP
+  CHECK: a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: the participants' interfaces not told apart
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+  CHECK: the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+  CHECK: a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+  CHECK: a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: an unowned LeaveAll not failing the run
+  CHECK: a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+  CHECK: a skipped or unowned LeaveAll fails a run whatever findings it records
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+CAUGHT: leaveall: an absent LeaveAll taken for an unresolved one
+  CHECK: no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+  CHECK: skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+PASS: 23 focused mutants caught by controls, no exception catches

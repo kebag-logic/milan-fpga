@@ -1,0 +1,423 @@
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index adeff569d2..943b403cc6 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -385,7 +385,7 @@ ACMP's, ADP's and MAAP's take 30 ms, by the [ruling of 2026-11-13 on the owner's
+ 
+ The largest legal notice is counted in AECP's R4L row and in THE TRANSMIT's MRPDU row with every AECP notice the largest legal one (txL), whose bound the specs set (below; IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3; [#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391)); every other row counts an AECP notice at its stated cost.
+ THE TRANSMIT's MRPDU rows, tx and txL, take the bound the specs leave after the join time the split arms: Milan v1.2 Table 4.3's 240 ms JoinTime maximum less that time and the 1 ms egress allowance below, since IEEE 802.1Q-2018 10.7.11's requested opportunity is on the wire (10.7.11 lets an implementation modify the timer values). The split arms it at 19 cs, 190 ms, within Table 4.3's 180 to 240 ms, so those rows take 49 ms, derived in the code as 240 ms less the armed value and `T_egress` and never typed (`CTRL_LOOP_JOIN_CS`, `CTRL_LOOP_T_EGRESS_MS`, `CTRL_LOOP_TX_BOUND_MS`, `sw/firmware/ctrl/loop/ctrl_loop.h`); by [#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, since at 20 cs, and its 40 ms, txL was over at every pace that holds R4L within 240 ms, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1, which counts `T_egress`. #908 stays open until the join time is 20 cs again with txL within 40 ms. The CPU budget harness holds every join interval it sees, commit to commit, to 181.0 to 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end (`join_grade.py`; the contingent ruling's item 4 and the egress ruling's item 1); the bench capture holds the wire to 180.0 to 240.0 ms.
+-The CPU budget harness times THE TRANSMIT's MRPDU row from its participant's transmit opportunity, not from the expiry of the timer that requested it: where the participant's join timer still runs, that timer's expiry, at which IEEE 802.1Q-2018 10.7.4.1 sends the requested MRPDU. In a simulated log it passes, it proves three things for each LeaveAll timer's expiry (`mrpdu_grade.py`; [#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1; [PR #934's review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6932841237)): the testbench recorded the participant that owns it at the expiry itself (its interface and MRP application, from the timer callback's own argument bound at the participant's creation); that owner's next committed MRPDU carries the LeaveAll; and that MRPDU is committed within 49 ms of the owner's first transmit opportunity. The second and third hold where the log runs on past that opportunity and the bound; an expiry the log ends before proves nothing. For every MRP timer's expiry, a join, periodic or LeaveAll timer's, it proves that the testbench recorded its owner at the expiry, and where its first build sends nothing, that the build runs within 49 ms of the first transmit opportunity of that owner, derived from the posted TICKs as above; never of a join timer's callback, nor of another participant's opportunity ([PR #934's internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6938623769)). An expiry with no recorded owner fails the run (#665). The bound is unchanged.
++The CPU budget harness times THE TRANSMIT's MRPDU row from its participant's transmit opportunity, not from the expiry of the timer that requested it: where the participant's join timer still runs, that timer's expiry, at which IEEE 802.1Q-2018 10.7.4.1 sends the requested MRPDU. In a simulated log it passes, it proves three things for each LeaveAll timer's expiry (`mrpdu_grade.py`; [#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1; [PR #934's review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6932841237)): the testbench recorded the participant that owns it at the expiry itself (its interface and MRP application, from the timer callback's own argument bound at the participant's creation); that owner's next committed MRPDU carries the LeaveAll; and that MRPDU is committed within 49 ms of the owner's first transmit opportunity. The second and third hold where the log runs on past that opportunity and the bound; an expiry the log ends before proves nothing. For every MRP timer's expiry, a join, periodic or LeaveAll timer's, it proves that the testbench recorded its owner at the expiry, and against that owner's first transmit opportunity, derived from the posted TICKs as above: that the owner's first frame after the expiry is committed within 49 ms of it, or where the builds after it send none of the owner's frames, that the first runs within 49 ms of it, or where no build follows, that the log ends within 49 ms of it. Another participant's callback, running join timer or frame never defers the deadline, answers the expiry or times its row; the row runs from the owner's opportunity to the commit of the owner's frame ([PR #934's internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6938623769); [its second external review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6942847358)). An expiry with no recorded owner fails the run (#665). The bound is unchanged.
+ In those two rows every AECP command is one that the largest legal notice answers, at the costs the CPU budget harness measures for it ([#894's slice ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512); `long_notice.py`): its record, and the poll that sends its notice.
+ Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 300 us at 1x1/1if (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION and its SET_STREAM_INFO (`tb/verilator/ctrl_service_budget/record_classes.py`).
+ The rows cover legal notices only: a control_data_length of at most 524 (IEEE 1722.1-2021 9.2.2.6). A command past it is [#903](https://github.com/kebag-logic/milan-fpga/issues/903)'s, and its behaviour is unchanged.
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 12b910cdd7..06152abdd7 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -143,9 +143,13 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+ - **A participant** is an interface and an MRP application, told by its MRPDU's EtherType.
+ - **A join interval** is the time from one of its MRPDUs' commit to the next, where that next is a frame a join timer's run-out between them released (lwSRP's `on_join_timer`; the frames of the builds after it, `mrpdu_grade.released`, as THE TRANSMIT's row reads them, wherever they come, with no horizon: [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 4) and neither the periodic nor the LeaveAll timer ran out between them. lwSRP arms the join timer at a commit alone (`mrp_mad.c`), so that is the timer the first commit armed.
+ - **A run-out with nothing to send** releases nothing, its builds sending no frame, and the MRPDU a later request then sends at once, its join timer idle, ends no interval: the `srp` group's after its Listener Ready, 714.82 ms after the one before at 1x1, is that.
+-- **Every MRP timer's run-out** is resolved by its builds (`mrpdu_grade.resolve`): released, empty where its first build sends nothing, late where its first frame comes past THE TRANSMIT's 49 ms after its participant's transmit opportunity, or, where its first build sends nothing, that build past 49 ms after the transmit opportunity of the timer's owner (`mrpdu_grade.anchor`; [PR #934's internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6938623769)), absent where no build follows it in a log that runs on past that after every participant's opportunity, and unresolved where the log ends first; and, whatever its builds sent, unowned where the testbench recorded no owner at the expiry or recorded it unresolved. A build's frames include what it left owed, which the poll sends before the next build.
+-  - The owner is the participant the testbench recorded at the expiry (below), and its opportunity is derived from the posted TICKs as above. It is never a join timer's callback, which may be another participant's, nor another participant's opportunity.
++- **Every MRP timer's run-out** is resolved by its builds (`mrpdu_grade.resolve`), judged on its owner alone: the participant the testbench recorded at the expiry (below), with its opportunity derived from the posted TICKs as above ([PR #934's internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6938623769); [its second external review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6942847358)). A build's frames include what it left owed, which the poll sends before the next build.
++  - Only the owner's frames answer the run-out (`mrpdu_grade.served`). It is released where its builds send them, and late where the owner's first frame comes past THE TRANSMIT's 49 ms after the owner's opportunity.
++  - A build that sends none of the owner's frames, nothing or only another participant's, is empty within 49 ms of the owner's opportunity and late past it (`mrpdu_grade.anchor`).
++  - With no build after it, the run-out is absent in a log that runs on past 49 ms after the owner's opportunity (`mrpdu_grade.horizon`), and unresolved where the log ends first.
++  - Another participant's callback, running join timer or frame never defers a run-out's deadline, answers it or times its row.
+   - A run-out whose owner the testbench did not record at the expiry, or recorded unresolved, is `unowned` whatever its builds sent (`mrpdu_grade.resolve`, #665): it prints `STATED`, named "(owner unresolved)", and fails the run, as an unowned LeaveAll does. No other participant's opportunity stands in for its owner's. A log written before the testbench recorded owners therefore fails.
++  - A late or absent run-out is named with its owner and the owner's opportunity, and fails the run.
+ - **A participant's transmit opportunity** after a timer's run-out is where its join timer runs out, if the timer its last commit armed still runs at the run-out: the `CTRL_LOOP_JOIN_CS`-th TICK after that commit's build. Otherwise it is the run-out itself. An MRPDU a timer requests goes out at that opportunity, the join timer's expiry (IEEE 802.1Q-2018 10.7.4.1; [#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1).
+ - **Every LeaveAll timer's run-out has an owner** recorded at the expiry itself ([PR #934's review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6932841237)). `sim_main.cpp` reads the CPU's register file at the callback's entry: its argument is its participant's `timer_arg`. That argument was bound to its interface and application when the participant was created, by `observers.py` and `sim_main.cpp`'s `note_owner`:
+   - at the `shlan_timer_init` that registered the LeaveAll timer inside `msrp_app_create` or `mvrp_app_create`;
+@@ -164,7 +168,7 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+   - and it is committed within 49 ms of the owner's first transmit opportunity, as the harness derives it from the owner's commits and the TICKs.
+   - An expiry the log ends before is counted `unresolved` and proves nothing. A participant created otherwise than as one MSRP and one MVRP before its interface's Domain is published is left unbound, so its expiries are `unowned`.
+   - It holds at commit, not on the wire, which `T_egress` covers.
+-  - For every MRP timer's run-out, a join, periodic or LeaveAll timer's: the testbench recorded its owner at the expiry; its first frame is committed within 49 ms of that frame's participant's first transmit opportunity; and where its first build sends nothing, that build runs within 49 ms of the timer's owner's.
++  - For every MRP timer's run-out, a join, periodic or LeaveAll timer's: the testbench recorded its owner at the expiry; where its builds send the owner's frames, the owner's first is committed within 49 ms of the owner's first transmit opportunity; where they send none of the owner's, the first build runs within 49 ms of it; and where none follows, the log ends within 49 ms of it (unresolved) or the run fails (absent).
+ - **Each group's shortest and longest**, and its run-outs by outcome, print on a `JOINS` line. An interval under 181.0 ms or over 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end since the harness sees commits (the egress ruling's item 1), or a late or absent build, prints `STATED` and fails the run whatever findings it records.
+ [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+ Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+@@ -226,7 +230,7 @@ python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest
+ ```
+ 
+ 
+-[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, against T_svc. The row runs from its participant's transmit opportunity to the commit of the frames of the builds after the run-out. The opportunity is the TICK that ran the timer out, or, where the participant's join timer still runs then, the TICK that runs that out ([#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1: a protocol-mandated wait is not CPU service time; the bound is unchanged). A timer that ends with nothing to send has a build that sends no frame, and no row.
++[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, against T_svc. The row runs from its owner's transmit opportunity to the commit of the owner's frames of the builds after the run-out; another participant's frame in the same builds, or in the same commit, neither times nor ends it. The opportunity is the TICK that ran the timer out, or, where the owner's join timer still runs then, the TICK that runs that out ([#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1: a protocol-mandated wait is not CPU service time; the bound is unchanged). A timer that ends with nothing to send has a build that sends no frame, and no row.
+ A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
+ They run in the labelled `answering-later` arm, at each point:
+ 
+@@ -1378,17 +1382,21 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | notice: the port answers before the load | every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark |
+ | transmit: the aged build's plant is judged as a budget control | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+ | transmit: any row over its bound catches the aged build's plant | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+-| transmit: a timer's row ends at the first build, with no frame | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
++| transmit: a timer's row ends at the first build, with no frame | a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row |
+ | transmit: a timer's row starts at its entry, not at the deadline | a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there |
+ | transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier rule) | a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there |
+-| transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier rule) | a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it |
++| transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier rule) | overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out) |
+ | transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback restored) | an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds' |
+ | transmit: an unowned run-out not failing the run | an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds' |
++| transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule) | a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit opportunity, though another participant's join timer runs on, for either application on either interface; a log that ends first leaves it unresolved |
++| transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's opportunity (earlier rule) | a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row |
++| transmit: another participant's MRPDU credited to a run-out, timed from its owner | a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row |
++| transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule) | a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier |
+ | transmit: the participant's join timer run out a centisecond early | a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there |
+ | leaveall: a LeaveAll past its first transmit opportunity not failing the run | a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late |
+ | leaveall: a late LeaveAll not failing the run | a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late |
+ | leaveall: any MRPDU taken for the LeaveAll | a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late |
+-| leaveall: the participants' applications not told apart | a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there |
++| leaveall: the participants' applications not told apart | a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold |
+ | leaveall: a Listener vector's FourPackedEvents not skipped | an MRPDU's LeaveAll is read from its VectorHeaders, MSRP's past its AttributeListLength and a Listener vector's FourPackedEvents |
+ | leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner (earlier rule) | no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first |
+ | leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP | a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first |
+diff --git a/tb/verilator/ctrl_service_budget/join_grade.py b/tb/verilator/ctrl_service_budget/join_grade.py
+index 8b7bc1a0e7..7fe1d01c4e 100644
+--- a/tb/verilator/ctrl_service_budget/join_grade.py
++++ b/tb/verilator/ctrl_service_budget/join_grade.py
+@@ -66,8 +66,8 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
+ def held(log: grade.Log) -> dict:
+     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
+     MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
+-    with its timer, its time, its participant's transmit opportunity (a build that sends nothing, its timer's owner's:
+-    mrpdu_grade.anchor) and how far its first frame or build, or the log's end, lies past that, and each unowned one
++    with its timer, its time, its owner, the owner's transmit opportunity (mrpdu_grade.anchor) and how far the owner's
++    first frame or the first build, or the log's end, lies past that, and each unowned one
+     with whether the testbench recorded its owner unresolved or recorded none; and every LeaveAll
+     timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
+     named."""
+@@ -81,12 +81,10 @@ def held(log: grade.Log) -> dict:
+         if outcome in mrpdu_grade.FAILING:
+             frames = mrpdu_grade.released(log, entry)
+             after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
+-            whose = mrpdu_grade.sends(log)[1].get(frames[0], ()) if frames else ()
+-            start = min([mrpdu_grade.opportunity(log, who, entry) for who in whose] or [entry])
+-            if outcome == 'late' and not frames:
+-                # a build that sends nothing: from its timer's owner's transmit opportunity (mrpdu_grade.anchor)
+-                start = mrpdu_grade.anchor(log, entry)
+-            failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
++            # from its owner's first transmit opportunity, the owner's frames alone (mrpdu_grade.served, anchor)
++            start = mrpdu_grade.anchor(log, entry)
++            failing.append(dict(kind=kind, outcome=outcome, who=mrpdu_grade.recorded_owner(log, entry),
++                                at_ms=ms(entry), from_ms=ms(start),
+                                 after_ms=round((after - start) * 1000 / log.sys_hz, 3),
+                                 **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
+                                    if outcome == 'unowned' else {})))
+diff --git a/tb/verilator/ctrl_service_budget/mrpdu_grade.py b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+index 66d41bcf83..8c80d7823b 100644
+--- a/tb/verilator/ctrl_service_budget/mrpdu_grade.py
++++ b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+@@ -1,7 +1,7 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
+-periodic or LeaveAll timer made owed, timed from its participant's transmit opportunity to the TX commit of the frame
++periodic or LeaveAll timer made owed, timed from its owner's transmit opportunity to the TX commit of the owner's frame
+ that answers it. The opportunity is the deadline, the centisecond whose TICK ran the timer out, where the participant's
+ join timer has run out by then; and where it still runs, the centisecond whose TICK runs it out, since an MRPDU a timer
+ requests goes out at the participant's next transmit opportunity, the join timer's expiry (IEEE 802.1Q-2018 10.7.4.1;
+@@ -12,15 +12,17 @@ A timer that runs out with nothing to send owes nothing, and lwSRP reports no su
+ no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
+ (#894's egress ruling of 2026-11-13, item 4; resolve): the first after it and, where the other participant or
+ interface owes one too, the next, at most one ordinary or idle pass standing between two (ctrl_loop.c, whole_runs), each
+-build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). The
+-run-out is `released` where they send frames, `empty` where the first sends none, `late` where its first frame comes
+-past THE TRANSMIT's bound (LATE_MS) after its participant's transmit opportunity, or where its first build sends none
+-and comes past the bound after the transmit opportunity of the timer's owner, the participant the testbench recorded
+-at the expiry (anchor), `absent` where no build follows it in a log that runs on past the bound after every
+-participant's opportunity, and `unresolved` where the log ends first; and whatever its builds sent, `unowned` where the
+-testbench recorded no owner at the expiry, or recorded it unresolved (recorded_owner). A late, absent or unowned
+-run-out fails the run (join_grade.held); an unresolved one is counted and named, never taken for one that owes
+-nothing.
++build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). Each
++run-out is judged on its owner alone, the participant the testbench recorded at the expiry (recorded_owner; PR #934):
++the frames that answer it are the owner's (served), and its lateness counts from the owner's first transmit
++opportunity. The run-out is `released` where its builds send the owner's frames; `empty` where they send none of the
++owner's; `late` where the owner's first frame comes past THE TRANSMIT's bound (LATE_MS) after the owner's opportunity,
++or where the first build sends none of the owner's and comes past the bound after it (anchor); `absent` where no build
++follows it in a log that runs on past the bound after the owner's opportunity (horizon), and `unresolved` where the log
++ends first; and whatever its builds sent, `unowned` where the testbench recorded no owner at the expiry, or recorded it
++unresolved. Another participant's callback, running join timer or frame never defers a run-out's deadline nor answers
++it. A late, absent or unowned run-out fails the run (join_grade.held); an unresolved one is counted and named, never
++taken for one that owes nothing.
+ 
+ A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
+ at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
+@@ -155,13 +157,23 @@ def opportunity(log: grade.Log, who: str, entry: int) -> int:
+ 
+ def begin(log: grade.Log, entry: int, cycle: int, interface: int) -> int:
+     """Where THE TRANSMIT's row of the frame committed at that cycle on that interface, answering the timer that ran
+-    out at entry, starts: the deadline of its participant's transmit opportunity, the centisecond whose TICK ran the
+-    timer out or runs its join timer out (the earliest, where the commit carries two participants' MRPDUs; the
+-    deadline of the run-out itself, for a frame of neither application)."""
++    out at entry, starts: the deadline of its owner's transmit opportunity (start_of), the centisecond whose TICK ran
++    the timer out or runs the owner's join timer out."""
+     _, at, posted = sends(log)
+-    starts = [opportunity(log, who, entry) for who in at.get((cycle, interface), ())] or [entry]
+-    k = bisect_right(posted, min(starts))
+-    return posted[k - 1] if k else min(starts)
++    start = start_of(log, entry, at.get((cycle, interface), ()))
++    k = bisect_right(posted, start)
++    return posted[k - 1] if k else start
++
++
++def start_of(log: grade.Log, entry: int, whose: tuple | list) -> int:
++    """Where a timer's row starts, the commit it ends at carrying the MRPDUs of the participants in whose: its owner's
++    first transmit opportunity, the owner the testbench recorded at the expiry, though the commit carries another
++    participant's MRPDU too (PR #934); with none recorded, an unowned run-out that fails the run (resolve), the earliest
++    of the commit's participants' (the run-out itself for a frame of neither application)."""
++    who = recorded_owner(log, entry)
++    if who:
++        return opportunity(log, who, entry)
++    return min([opportunity(log, other, entry) for other in whose] or [entry])
+ 
+ 
+ def commits(grader: grade.Grader, entry: int) -> list[tuple[int, int]]:
+@@ -200,20 +212,52 @@ def index(log: grade.Log) -> tuple[list[int], list[grade.Pass], list[tuple[int,
+ def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
+     """The outcome (OUTCOMES) of the timer that ran out at entry, and the (cycle, interface) of the frames its builds
+     sent, as the module docstring says: `unowned` where the testbench recorded no owner at the expiry, whatever its
+-    builds sent, since no transmit opportunity is the run-out's without its owner (PR #934)."""
+-    outcome, frames = built(log, entry)
+-    return ('unowned' if recorded_owner(log, entry) is None else outcome), frames
++    builds sent, since no transmit opportunity is the run-out's without its owner (PR #934). An unowned run-out's frames
++    are every participant's its builds committed, so that the failing log still shows them."""
++    who = recorded_owner(log, entry)
++    if who is None:
++        return 'unowned', window(log, entry)[1]
++    return built(log, entry, who)
+ 
+ 
+-def built(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
+-    """What the builds after the timer's run-out at entry did (resolve), its owner aside."""
+-    builds, passes, sent, last = index(log)
++def built(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, int]]]:
++    """What the builds after the timer's run-out at entry did for its owner who (resolve): each judged on the owner
++    alone, its frames the owner's and its lateness from the owner's first transmit opportunity. Another participant's
++    callback, running join timer or frame neither defers the run-out's deadline nor answers it (PR #934)."""
++    last, bound = index(log)[3], int(LATE_MS * log.sys_hz / 1000)
++    first, frames = window(log, entry)
++    if first is None:
++        return ('absent' if last > horizon(log, entry, who) + bound else 'unresolved'), []
++    mine, start = served(log, entry, who, frames)
++    if mine:
++        return ('late' if mine[0][0] > start + bound else 'released'), mine
++    return ('late' if first > anchor(log, entry) + bound else 'empty'), []
++
++
++def horizon(log: grade.Log, entry: int, who: str) -> int:
++    """Where a run-out with no build after it counts from: its owner's first transmit opportunity. It is absent where
++    the log runs on past THE TRANSMIT's bound after that, unresolved where the log ends first; another participant's
++    running join timer never defers it (PR #934)."""
++    return opportunity(log, who, entry)
++
++
++def served(log: grade.Log, entry: int, who: str, frames: list[tuple[int, int]]) -> tuple[list[tuple[int, int]], int]:
++    """The frames of the builds after a run-out that answer it, its owner's alone (a commit that carries the owner's
++    MRPDU), and where their lateness counts from, the owner's first transmit opportunity: another participant's frame
++    neither answers the run-out nor times it (PR #934). With none of the owner's, the first build is judged as one that
++    sends nothing (anchor)."""
++    at = sends(log)[1]
++    return [f for f in frames if who in at.get(f, ())], opportunity(log, who, entry)
++
++
++def window(log: grade.Log, entry: int) -> tuple[int | None, list[tuple[int, int]]]:
++    """The first build after the timer's run-out at entry, or None for none, and the (cycle, interface) of every
++    participant's frames its builds committed, as the module docstring says."""
++    builds, passes, sent, _ = index(log)
+     starts = [p.start_sys for p in passes]
+-    bound = int(LATE_MS * log.sys_hz / 1000)
+     k = bisect_right(builds, entry)
+     if k == len(builds):
+-        latest = max([entry] + [opportunity(log, who, entry) for who in sends(log)[0]])
+-        return ('absent' if last > latest + bound else 'unresolved'), []
++        return None, []
+ 
+     def pass_at(cycle: int) -> int:
+         """The index of the pass a build at that cycle ran in."""
+@@ -236,11 +280,7 @@ def built(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
+             break
+         frames.append((cycle, interface))
+         interfaces.add(interface)
+-    if frames:
+-        whose = sends(log)[1].get(frames[0], ())
+-        late = min([opportunity(log, who, entry) for who in whose] or [entry]) + bound
+-        return ('late' if frames[0][0] > late else 'released'), frames
+-    return ('late' if run[0] > anchor(log, entry) + bound else 'empty'), frames
++    return run[0], frames
+ 
+ 
+ def recorded_owner(log: grade.Log, entry: int) -> str | None:
+@@ -303,8 +343,8 @@ def tick_at(log: grade.Log, at: int) -> int:
+ 
+ 
+ def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
+-    """A held group's timer rows: for each timer and interface the longest, each a row of its own, from its
+-    participant's transmit opportunity (begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
++    """A held group's timer rows: for each timer and interface the longest, each a row of its own, on its owner's
++    frames from its owner's transmit opportunity (served, begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
+     if not group.save or not group.save.get('loaded'):
+         return []
+     log = grader.log
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 2eab9e2133..ced2c040cc 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -179,17 +179,20 @@ def stated_misses(results: list[dict]) -> list[str]:
+ 
+ 
+ def run_out_miss(group: str, o: dict) -> str:
+-    """An MRP timer's run-out whose build is late past its participant's transmit opportunity, or absent, or whose
+-    owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names it."""
++    """An MRP timer's run-out whose owner's frame or build is late past the owner's transmit opportunity, or absent, or
++    whose owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names
++    it, with its owner and the owner's opportunity."""
+     import mrpdu_grade
+-    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, "
+-    if o['outcome'] == 'late':
+-        return (at + f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity "
+-                f"at {o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
++    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms"
+     if o['outcome'] == 'unowned':
+-        return at + ('its owner recorded unresolved' if o.get('recorded') else 'no owner recorded') + \
++        return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
+             ' at the expiry (owner unresolved)'
+-    return at + f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)"
++    opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
++    if o['outcome'] == 'late':
++        return (at + f" ({o.get('who')}): its owner's first frame, or first build, {o['after_ms']:.3f} ms after {opp}, "
++                f"past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
++    return at + f" ({o.get('who')}): no build after it though the log runs on {o['after_ms']:.3f} ms past {opp} " \
++        '(absent)'
+ 
+ 
+ def leave_all_miss(group: str, o: dict) -> str:
+diff --git a/tb/verilator/ctrl_service_budget/selftest_leaveall.py b/tb/verilator/ctrl_service_budget/selftest_leaveall.py
+index 8470c8c169..bd0da751ec 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_leaveall.py
++++ b/tb/verilator/ctrl_service_budget/selftest_leaveall.py
+@@ -98,7 +98,8 @@ def leave_all_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz:
+     commit of one TX record."""
+     graded = harness(synthetic, sys_hz, cpu_hz, tx_record)
+     single, one = single_checks(graded)
+-    return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded)
++    return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded) + \
++        foreign_checks(graded)
+ 
+ 
+ def single_checks(graded: Graded) -> tuple[list[Check], list[str]]:
+@@ -256,8 +257,9 @@ def anchor_checks(graded: Graded) -> list[Check]:
+                 late == {'alone': ([('periodic', 1300.001, 59.979)], 0),
+                          'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
+                          'other': ([('periodic', 1300.001, 159.979)], 0)} and said == [
+-                    "c: the periodic timer's run-out at 1300.001 ms, its first frame or build 59.979 ms after its "
+-                    "participant's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms (late)"],
++                    "c: the periodic timer's run-out at 1300.001 ms (if0 MSRP): its owner's first frame, or first "
++                    "build, 59.979 ms after the owner's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms "
++                    "(late)"],
+                 str((late, said))))
+     return out + unowned_checks(graded)
+ 
+@@ -295,3 +297,48 @@ def named_late(held: dict) -> list[str]:
+     """A log's late, absent or unowned run-outs as a run names them."""
+     return [m for m in run.stated_misses([dict(group='c', passes=dict(joins=held))])
+             if m.endswith(('(late)', '(absent)', '(owner unresolved)')) and 'LeaveAll' not in m]
++
++
++def foreign_checks(graded: Graded) -> list[Check]:
++    """A run-out judged on its owner alone (mrpdu_grade.horizon, served, start_of; PR #934): another participant's
++    running join timer never defers its deadline, another participant's MRPDU never answers or times it, and its row
++    starts at its owner's opportunity. Each for either application on either interface, the other participant the
++    other application on the other interface, its last commit at 1,250 ms arming its join timer to the 1,430 ms TICK."""
++    pt = 'on_pt_timer'
++    combos = [(i, app, MVRP if app == MSRP else MSRP) for i in (0, 1) for app in (MSRP, MVRP)]
++    missing, frames, starts = {}, {}, {}
++    for i, app, other in combos:
++        who = f'if{i} {mrpdu_grade.APPLICATIONS[app]}'
++        prior = ((1_000, app, False, i), (1_250, other, False, 1 - i))
++        timer = ((1_300, pt, who),)
++        failing = lambda h: [(f['kind'], f['outcome'], f['who'], f['from_ms']) for f in h['failing']]
++        _, peer = graded(prior, timer, (1_400,))
++        _, short = graded(prior, timer, (1_340,))
++        missing[who] = (failing(peer), failing(short), short['runs']['unresolved'])
++        out = {}
++        for case, extra in (('late', (1_431, other, False, 1 - i)), ('within', (1_311, other, False, 1 - i)),
++                            ('own', (1_311, app, False, i))):
++            rows, held = graded(prior + (extra,), timer, (1_500,))
++            out[case] = ([o for o, n in held['runs'].items() if n], failing(held),
++                         {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows})
++        frames[who] = out
++        # the owner's join timer, armed at 1,250 ms, runs to the 1,430 ms TICK; the other participant's ran out at
++        # 1,180 ms; one TX_HEAD write at 1,440 ms commits both participants' MRPDUs on the owner's interface
++        rows, _ = graded(((1_000, other, False, i), (1_250, app, False, i), (1_440, app, False, i),
++                          (1_440, other, False, i)), timer)
++        starts[who] = {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows}
++    name = {i_a: f'if{i_a[0]} {mrpdu_grade.APPLICATIONS[i_a[1]]}' for i_a in ((i, a) for i, a, _ in combos)}
++    want_missing = {who: ([('periodic', 'absent', who, 1300.001)], [], 1) for who in name.values()}
++    want_frames = {who: dict(late=(['late'], [('periodic', 'late', who, 1300.001)], {}), within=(['empty'], [], {}),
++                             own=(['released'], [], {f'periodic.if{i}': 11.0})) for (i, _), who in name.items()}
++    want_starts = {who: {f'periodic.if{i}': 10.0} for (i, _), who in name.items()}
++    return [("a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit "
++             "opportunity, though another participant's join timer runs on, for either application on either "
++             "interface; a log that ends first leaves it unresolved", missing == want_missing, str(missing)),
++            ("a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound "
++             "after its owner's opportunity, empty within it, no row for either interface, for either application on "
++             "either interface; the owner's own MRPDU on time is released and times the owner's row",
++             frames == want_frames, str(frames)),
++            ("a timer's row starts at its owner's first transmit opportunity, for either application on either "
++             "interface, though its commit carries another participant's MRPDU whose opportunity came earlier",
++             starts == want_starts, str(starts))]
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 0f9fae8e10..9cf1d37bba 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -878,6 +878,18 @@ MUTANTS: dict[str, Patches] = {
+                              default=None)))],
+     "transmit: an unowned run-out not failing the run": lambda: [patch.object(
+         mrpdu_grade, 'FAILING', ('late', 'absent'))],
++    "transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule)":
++        lambda: [patch.object(mrpdu_grade, 'horizon', lambda log, entry, who: max([entry] + [
++            mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[0]]))],
++    "transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's "
++    "opportunity (earlier rule)": lambda: [patch.object(mrpdu_grade, 'served', lambda log, entry, who, frames: (
++        frames, min([mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[1].get(
++            frames[0], ())] or [entry]) if frames else entry))],
++    "transmit: another participant's MRPDU credited to a run-out, timed from its owner": lambda: [patch.object(
++        mrpdu_grade, 'served', lambda log, entry, who, frames: (frames, mrpdu_grade.opportunity(log, who, entry)))],
++    "transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)":
++        lambda: [patch.object(mrpdu_grade, 'start_of', lambda log, entry, whose: min([
++            mrpdu_grade.opportunity(log, other, entry) for other in whose] or [entry]))],
+     "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
+         mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
+     'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(
+diff --git a/tb/verilator/ctrl_service_budget/selftest_notice.py b/tb/verilator/ctrl_service_budget/selftest_notice.py
+index 42101a153e..46dd5e1345 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_notice.py
++++ b/tb/verilator/ctrl_service_budget/selftest_notice.py
+@@ -51,7 +51,7 @@ def quietly(action: Callable[[], int]) -> int:
+ def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: bool = True) -> list[dict]:
+     """A held group's timer rows: a TICK posted at TICK_AT, its join timer's end, a pass with its build and a commit."""
+     srp = scenario.CH['srp']
+-    frame = bytes(60)
++    frame = bytes(12) + (0x22EA).to_bytes(2, 'big') + bytes(46)   # an MSRP MRPDU, its timer's owner's
+     sent = tx_sequence(srp, [(0, frame, commit)]) if built else []
+     lines = ['MARK 1000 load', f'EVW {TICK_AT} 0 {mrpdu_grade.TICK:08x}', f'EVW {TICK_AT} 1 00000001',
+              f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer if0 MSRP',
+diff --git a/tb/verilator/ctrl_service_budget/selftest_polls.py b/tb/verilator/ctrl_service_budget/selftest_polls.py
+index 132b387da3..dcf5df1d07 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_polls.py
++++ b/tb/verilator/ctrl_service_budget/selftest_polls.py
+@@ -330,8 +330,8 @@ def horizon_checks(joins: Callable[..., dict], msrp: int) -> list[Check]:
+                 'unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes '
+                 'nothing', absent['runs']['absent'] == 1 and pending['runs']['unresolved'] == 1 and
+                 not pending['failing'] and absent['runs']['empty'] == pending['runs']['empty'] == 0 and len(named) == 1
+-                and named[0].startswith("a: the join timer's run-out at 1190.000 ms, no build after it though the log "
+-                                        'runs on 110.0') and named[0].endswith(' ms (absent)'),
++                and named[0].startswith("a: the join timer's run-out at 1190.000 ms (if0 MSRP): no build after it "
++                                        'though the log runs on 110.0') and named[0].endswith(' ms (absent)'),
+                 str((absent, pending, named))))
+     owed = joins(((1_000, 0, msrp), (1_200, 0, msrp)), ((1_190, 'on_join_timer'),), owed=(1_200,))
+     out.append(("a frame its build left owed, which the poll sends a pass later, is that build's: the run-out "

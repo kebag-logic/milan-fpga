@@ -1,0 +1,28 @@
+git rev-parse HEAD HEAD^{tree}
+9aa55d3b382750353709c3ba9ff6f6416938e83b
+fc52e64fd482c3185620b6d00048c2b2608f7d06
+rc=0
+
+git log --format=%H %s e2be92b0..HEAD
+9aa55d3b382750353709c3ba9ff6f6416938e83b List the four owner-association mutants in the harness README's mutant table with the checks that catch them (#665)
+1238a3eecd90a560088f06db6d9e1f3e2053ac42 Judge every owned MRP timer run-out on its owner alone: its deadline, the frames that answer it and its row start (#665)
+rc=0
+
+git diff --name-status e2be92b0..HEAD
+M	docs/reference/FR_NFR.md
+M	tb/verilator/ctrl_service_budget/README.md
+M	tb/verilator/ctrl_service_budget/join_grade.py
+M	tb/verilator/ctrl_service_budget/mrpdu_grade.py
+M	tb/verilator/ctrl_service_budget/run.py
+M	tb/verilator/ctrl_service_budget/selftest_leaveall.py
+M	tb/verilator/ctrl_service_budget/selftest_mutants.py
+M	tb/verilator/ctrl_service_budget/selftest_notice.py
+M	tb/verilator/ctrl_service_budget/selftest_polls.py
+rc=0
+
+git diff --shortstat 659d7687..HEAD
+ 496 files changed, 49150 insertions(+), 6078 deletions(-)
+rc=0
+
+git diff --check e2be92b0..HEAD
+rc=0
