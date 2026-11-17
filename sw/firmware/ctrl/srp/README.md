@@ -273,7 +273,7 @@ Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
 `F936BThePassThatTakesTheRecordOwesItsNotice`, and `test_aecp.cpp`'s
 `SrpDeclarationChangeIsItsStreamOutputsNotice` and
 `NoPassIsIdleWhileAStreamOutputsNoticeIsOwed`; plants `talker-notice-*`
-(`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_mutants.py`).
+(`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_notice_mutants.py`).
 
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.

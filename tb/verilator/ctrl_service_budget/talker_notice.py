@@ -73,6 +73,31 @@ def names() -> list[str]:
     return [f'talker-notice-{k}' for k in range(PHASES)]
 
 
+#: The talker arms build.py builds (scratch copies of the size fixture, never the formal image): valid-destinations
+#: (#895, talker_window.py) and talker-notices (#936), valid-destinations with the stream observation answering.
+VARIANTS = {'valid-destinations': list(talker_window.FIXTURE_EDITS), 'talker-notices': list(FIXTURE_EDITS)}
+#: The planted defects build.py builds for this arm, as its MUTATIONS: (file under sw/firmware/ctrl, anchor,
+#: replacement, control groups, variant). The dropped notice: the AECP bridge raises no STREAM_OUTPUT's GET_STREAM_INFO
+#: from SRP's record, so neither row of a group has a notice to end at. The late notice: the bridge holds SRP's record
+#: 25 ms from the pass that first sees it, so both rows of every group are committed past their 20 ms.
+PLANTS = {
+    'declared-notice-dropped': ('app/ctrl_app_aecp.c', '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
+                                '\t\t\t\t(void)n;\n', ','.join(names()), 'talker-notices'),
+    'declared-notice-delayed': ('app/ctrl_app_aecp.c', '\tuint32_t noticed = c->app->srp_noticed;\n',
+                                '\tstatic uint32_t held_since;\n\tstatic bool holding;\n'
+                                '\tuint32_t noticed = c->app->srp_noticed;\n'
+                                '\tif (noticed != 0u && !holding) {\n\t\tholding = true;\n'
+                                '\t\theld_since = c->aecp->core.now;\n\t}\n'
+                                '\tif (noticed != 0u && c->aecp->core.now - held_since < 25u) {\n'
+                                '\t\tnoticed = 0u;\n\t}\n'
+                                '\tholding = holding && noticed == 0u;\n',
+                                ','.join(names()), 'talker-notices'),
+}
+#: Each plant's finding, which run.verdict requires of both rows of every group: no notice to end at, or a notice
+#: later than its bound.
+CONTROLS = {'declared-notice-dropped': 'missing', 'declared-notice-delayed': 'late'}
+
+
 def other_listener() -> bytes:
     """A bridge's Listener Ready for another entity's stream (IEEE 802.1Q-2018 35.2.2.8), as listener_ready's."""
     return f.msrp(scenario.BRIDGE_MAC, [f.mrp_message(3, f.be(OTHER_STREAM, 8), [1], four_packed=[2])])

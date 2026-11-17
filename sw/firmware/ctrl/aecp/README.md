@@ -98,6 +98,7 @@ Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
 A STREAM_OUTPUT's GET_STREAM_INFO event (STREAM_INFO, bit 0) comes from SRP on the split (#936).
 SRP records each change of a source's Talker declaration: a declaration, a withdrawal,
 a type swapped in place, or another VID. The application bridge (`ctrl_app_aecp.c`) raises it.
+Its planted defects are [`aecp_notice_mutants.py`](../test/aecp_notice_mutants.py)'s.
 The [SRP README](../srp/README.md) states the rule, as Table 5.22 and IEEE 7.5.2 require it.
 Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.

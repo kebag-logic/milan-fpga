@@ -13,6 +13,7 @@ import aecp_arms
 import aecp_configuration_mutants
 import aecp_index_mutants
 import aecp_map_mutants
+import aecp_notice_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
 import aecp_retry_mutants
@@ -527,35 +528,6 @@ DEFECTS = (
            '\t\t\t(void)(ok && old.bound && acmp_set_started(a, c->start_index, c->start_value));\n',
            ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
             'BINDING.STARTED is published before the response is committed')),
-    # #936: SRP's record of a changed Talker declaration is its STREAM_OUTPUT's GET_STREAM_INFO notice (Milan v1.2
-    # 5.4.5.2, Table 5.22): dropped, raised for a STREAM_INPUT, raised for the next source, or never cleared
-    defect('app-output-notice-dropped', 'app/ctrl_app_aecp.c',
-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
-           '\t\t\t\t(void)n;\n',
-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
-            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
-    defect('app-output-notice-as-an-input', 'app/ctrl_app_aecp.c',
-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
-           '\t\t\t\taecp_changed(&c->aecp->core, 5, n, 1u);\n',
-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
-            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
-    defect('app-output-notice-next-source', 'app/ctrl_app_aecp.c',
-           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
-           '\t\t\t\taecp_changed(&c->aecp->core, 6, (uint16_t)(n + 1u), 1u);\n',
-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
-            'a source the record does not name is notified nothing')),
-    defect('app-output-notice-kept', 'app/ctrl_app_aecp.c',
-           '\t\tc->app->srp_noticed = 0u;\n',
-           '\t\t(void)c;\n',
-           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
-            'the bridge raises every STREAM_OUTPUT the delivery took')),
-    # #936 (ctrl_loop.h, the polls): the SRP delivery's pass that takes the record reports nothing owed, so the loop
-    # may sleep with the STREAM_OUTPUT's notice unsent
-    defect('app-output-notice-owed-unreported', 'app/ctrl_app_srp.c',
-           '    bool pending = noticed;\n',
-           '    bool pending = false;\n    (void)noticed;\n',
-           ('App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed',
-            "no pass is idle while a STREAM_OUTPUT's notice is owed")),
     defect('mailbox-interface-crossed', 'aecp_mbx.c',
            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
            'aecp_rx(&m->core, 0, f->bytes, f->len);',
@@ -900,7 +872,7 @@ DEFECTS = (
             'AECP opens only once the initial publication is acknowledged')),
 ) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 

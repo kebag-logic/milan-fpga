@@ -208,6 +208,6 @@ def talker_checks(points: list[scenario.Point]) -> list[Check]:
                 "refusal, and the delayed one's only when both are later than their bound", caught == (0, 1, 1, 1, 0, 1,
                                                                                                       1), str(caught)))
     out.append(("both plants run every group of the talker-notices arm, and that arm's run takes them alone",
-                all(build.MUTATIONS[m][3:] == (','.join(names), 'talker-notices') for m in build.DECLARED_CONTROLS)
+                all(build.MUTATIONS[m][3:] == (','.join(names), 'talker-notices') for m in talker_notice.CONTROLS)
                 and [x.name for x in run.all_groups(points[0], dict(variant='talker-notices'))] == names, ''))
     return out

@@ -317,6 +317,20 @@ def talker_table(results: list[dict]) -> list[str]:
     return lines
 
 
+def print_notices(results: list[dict]) -> None:
+    """A NOTICE line for each notice row: a retried notice from its port's answer, a declared or withdrawn Talker's
+    from its event's commit (talker_notice.py), each to its last recipient's commit."""
+    for n in notices(results):
+        if talker_row(n):
+            print('NOTICE', f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit at sys "
+                  f"{n['start_sys']}, the last of {n['fanout']['recipients']} recipients at sys {n['end_sys']} "
+                  f"(bound {n['budget_ms']:g} ms)", 'within' if n['within_budget'] else 'OVER')
+            continue
+        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
+              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
+              'within' if n['within_budget'] else 'OVER')
+
+
 def notice_table(results: list[dict]) -> list[str]:
     """The retried notices' section of the table: each from its port's answer to its last recipient's commit."""
     rows = [n for n in notices(results) if not talker_row(n)]
@@ -587,6 +601,25 @@ def mrpdu_groups(misses: list[str]) -> set[str]:
     return {m.partition(':')[0].partition('.')[0] for m in misses if '.mrpdu.' in m.partition(':')[0]}
 
 
+def declared_verdict(args: argparse.Namespace, groups: list, refusals: list, late: list) -> int:
+    """A talker-notice plant's exit status (talker_notice.PLANTS): caught where both rows of every group fail their
+    check for the plant's reason, each named by its row: no notice to end at for the dropped notice, a notice later
+    than its bound for the delayed one."""
+    import talker_notice
+    want = sorted(p.name for g in groups for p in g.probes if p.path in talker_notice.PATHS)
+    if talker_notice.CONTROLS[args.mutation] == 'missing':
+        named = sorted(r.partition(':')[0] for r in refusals if ': no end: no notification to ' in r)
+        caught = named == want and len(named) == len(refusals)
+        reason = 'with no notice'
+    else:
+        named = sorted(m.partition(':')[0] for m in late if " after its event's commit, over its bound " in m)
+        caught = named == want and not refusals
+        reason = 'with their notice later than its bound'
+    print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} '
+          f'talker-notice row(s) {reason} ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
+    return 0 if caught else 1
+
+
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
             late: list = ()) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
@@ -641,22 +674,9 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
               f'refusal(s)')
         return 0 if caught else 1
-    if args.mutation in builder.DECLARED_CONTROLS:
-        # caught where both rows of every talker-notice group fail their check for the plant's reason, each named by
-        # its row: no notice to end at for the dropped notice, a notice later than its bound for the delayed one
-        import talker_notice
-        want = sorted(p.name for g in groups for p in g.probes if p.path in talker_notice.PATHS)
-        if builder.DECLARED_CONTROLS[args.mutation] == 'missing':
-            named = sorted(r.partition(':')[0] for r in refusals if ': no end: no notification to ' in r)
-            caught = named == want and len(named) == len(refusals)
-            reason = 'with no notice'
-        else:
-            named = sorted(m.partition(':')[0] for m in late if " after its event's commit, over its bound " in m)
-            caught = named == want and not refusals
-            reason = 'with their notice later than its bound'
-        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} '
-              f'talker-notice row(s) {reason} ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
-        return 0 if caught else 1
+    import talker_notice
+    if args.mutation in talker_notice.CONTROLS:
+        return declared_verdict(args, groups, refusals, late)
     if args.mutation in builder.SRP_CONTROLS:
         # caught where every group's longest timer-driven MRPDU is over its bound, each named by its group
         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
@@ -848,15 +868,7 @@ def main() -> int:
               f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",
               f"{s['steps']} steps, longest gap between flash steps {s['longest_gap_ms']} ms)",
               'within' if s['within'] else 'OVER')
-    for n in notices(results):
-        if talker_row(n):
-            print('NOTICE', f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit at sys "
-                  f"{n['start_sys']}, the last of {n['fanout']['recipients']} recipients at sys {n['end_sys']} "
-                  f"(bound {n['budget_ms']:g} ms)", 'within' if n['within_budget'] else 'OVER')
-            continue
-        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
-              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
-              'within' if n['within_budget'] else 'OVER')
+    print_notices(results)
     tally = counts(results)
     passes = sum(g['passes']['share']['passes'] for g in results)
     idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
