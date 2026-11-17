@@ -1085,7 +1085,7 @@ Mapped out of context by `ctrl_memory_ooc.py`, Vivado 2026.1, `xc7a100t-fgg484-2
 At the shipping point the route maps the banks exactly so: 25 / 1 and 12 / 0.
 Vivado trims constant ROM bit columns, so every point maps below its plan.
 The largest point is 1.5 tiles over the allocation as mapped, and 3.0 as planned.
-It is ledgered at 59.0, owed to lane S14 (#665, ruling 6505997821); every other point fits.
+It is ledgered at 59.0, owed to lane S14 (#665, ruling 6505997821), and at 59.5 since #936 by the owner's decision of 2026-11-15 to keep block RAM loose; every other point fits.
 
 **The five largest BSS consumers**, at the largest point, each with a reduction option (none measured):
 

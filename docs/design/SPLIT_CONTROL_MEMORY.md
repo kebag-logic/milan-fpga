@@ -134,16 +134,17 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
 The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
 It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
 The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
-The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
-SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
+The size fixture's entry is 59.5 since #936, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), which keeps block RAM loose: an image past its entry raises it to its measured size at the next half tile, as named debt owed to S14. The CPU budget harness's `answering-every-port` arm, the fixture with its test port, needs 127,124 B of `rom` with SRP's record of the STREAM_OUTPUT notices, 148 B past the 126,976 B that 59.0 holds ([section 5](#5-fit)).
+The entries are 59.5 for the size fixture's point and 60.5 for the platform's; each image is refused half a tile past its entry, at 60.0 and 61.0.
+SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit). SRP's record of the STREAM_OUTPUT notices (#936) adds 64 B at both two-interface points and none at one: 17,536, 19,136, 18,240 and 20,416 B.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -268,11 +269,11 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
 The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
 
 - the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: a debt of 4.5 RAMB36, the cap fully used;
-- the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
+- the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and since #936 59.5, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) to keep block RAM loose;
 - every other point, including every 1x1/1if point, stays at or under 56.
 
 S14 is the first lane after the flip.
-`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.5 since #936, by the owner's decision of 2026-11-15, 59.0 since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
@@ -540,6 +541,19 @@ The size fixture's 8x8 image with two interfaces held 126,320 B in 126,976 there
 
 The platform's 8x8 image with two interfaces holds 131,752 B of `rom` in 133,120, 1,368 B left at 60.5 RAMB36, its debt of 4.5 RAMB36 owed to S14. The size fixture's 8x8 image with two interfaces holds 126,608 B in 126,976 (368 B to spare), the harness's `answering-every-port` arm 126,916 B (60 B) and its `valid-destinations` arm 126,776 B (200 B), each 59.0. The platform's 8x8 one-interface image holds 130,200 B in 131,072 at 56.0 (872 B), its `ctrl_plat` 18,240 B since the gate's kept gate and base (#895's one cut). Every other point of both images is within 56.
 
+**At #936's head**, each image linked from the same inputs as at its base `70f4056f`, the fixture and its two harness arms by the CPU budget harness's `build.firmware()` on each shape's split export's flash map, the platform's by `plat_ledger.py` (which passes at every point):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 112,616 / 55,216 | 41.0 | 117,680 / 56,224 | 43.0 | 17,536 |
+| 1x1, two interfaces | 114,200 / 57,408 | 42.5 | 119,288 / 58,464 | 44.0 | 19,136 |
+| 8x8, one interface | 125,272 / 96,320 | 55.0 | 130,384 / 97,328 | 56.0, accepted | 18,240 |
+| 8x8, two interfaces (largest) | 126,816 / 113,280 | 59.0, within its 59.5 | 131,960 / 114,288 | 60.5, its ledger's | 20,416 |
+
+SRP's record of the STREAM_OUTPUT notices adds 184 to 216 B of `rom` an image, the most at the 1x1 two-interface points, and 16 to 64 B of `sram`, 64 B in the platform's two-interface images, its `ctrl_plat`.
+The harness's `answering-every-port` arm at 8x8 with two interfaces needs 127,124 B in 129,024, 59.5, past the 59.0 entry, which the owner's decision of 2026-11-15 raises to 59.5 as debt owed to S14 ([section 3](#3-named-refusals)); its `valid-destinations` arm needs 126,976 B, all of 126,976 (59.0), and the fixture 126,816 B (160 B to spare).
+The platform's 8x8 image with two interfaces holds 131,960 B of `rom` in 133,120, 1,160 B left at its 60.5. Its 8x8 one-interface image holds 130,384 B in 131,072 at 56.0 (688 B), and its 1x1 one-interface image 117,680 B at 43.0. Both product images keep their banks: 64, 32, 16 and 4 KiB at 1x1/1if and one 128 KiB bank at 8x8/1if.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
@@ -558,7 +572,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
 
 This is the ledgered point, so both commands name its override.
 Without `--ledgered-point`, both refuse it, past the 56-RAMB36 budget.
-At this branch's head the image plans 59.0 RAMB36, its entry's tiles and its cap ([section 5](#5-fit)); half a tile more is refused under its override too.
+At #936's head the image plans 59.0 RAMB36, within its entry's 59.5, and its harness arm `answering-every-port` plans 59.5 ([section 5](#5-fit)); half a tile past the entry is refused under its override too.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
