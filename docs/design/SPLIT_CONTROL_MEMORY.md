@@ -134,7 +134,7 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,504 B | 62.5 |
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 57.5 |
 
@@ -155,9 +155,10 @@ At #923's head the size fixture's was 59.5, the platform's two-interface image's
 Each binding's latest Talker kind (#925, `srp_mbx.h`'s `latest_kind`) adds 64 B at 8x8 with two interfaces, 20,416 B, its `sram` 114,288 B and its plan still 60.5 RAMB36, and none at the other three, where it takes the padding (`plat_ledger.py` at #925's head: 17,536, 19,072, 18,240 and 20,416 B; `rom` 88 B more at 1x1 and 32 B more at 8x8, the 8x8 one-interface image's plan still 56.0).
 The StreamIDs held with their latest Talker kind (#925, `srp_mbx.h`'s `srp_held`: half the SRP pool's medium and large blocks, 16, 32, 40 and 81 entries of 10 B) add 192, 320, 384 and 832 B: 17,728, 19,392, 18,624 and 21,248 B. At 8x8 with two interfaces the image's `sram` is then 115,120 B, 432 B past 56 granules, so it plans 61.0 RAMB36, and its entry is 61.0 by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745): an image past its entry raises it to its measured size, at the next half tile, as debt owed to S14. With the receive filter's hold of a changed declaration, `rom` is 552 B more at 1x1 and 520 B more at 8x8 (`plat_ledger.py` at #925's round-3 head: 118,128, 119,712, 130,752 and 132,304 B); the other three points plan 43.0, 44.0 and 56.0 as before, the 8x8 one-interface image with 320 B of `rom` before its next granule.
 In the composed flip train (#665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235)), measured by `plat_ledger.py` and the CPU budget harness's builds ([section 5](#5-fit)), the size fixture's entry is 60.0: with the map edits' commit (#923) every arm's image needs 129,920 to 130,424 B of `rom`, past the 129,024 B that 59.5 holds, and with #925's changes on them 130,472 to 130,968 B, within the 131,072 B that 60.0 holds.
+With the largest legal record's cut ([section 13](#the-largest-legal-record-on-the-composed-flip-train-665)) the entry is 60.5, by the same rule and #665's [ruling of 2026-11-17, amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243): the harness's `answering-ports` arm needs 131,128 B of `rom`, 56 B past the 131,072 B that 60.0 holds, and the other five arms 130,624 to 130,948 B, within it; ROM debt of 4.5 RAMB36 owed to S14.
 The platform's two-interface entry is 62.5, with `ctrl_plat` at 21,504 B: its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
 Its one-interface entry is 57.5, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
-Each image is refused half a tile past its entry, at 60.5, 63.0 and 58.0.
+Each image is refused half a tile past its entry, at 61.0, 63.0 and 58.0.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -300,7 +301,7 @@ At #923's head the entries are:
 In the composed flip train (measured [below](#5-fit)) the entries are:
 
 - the target platform's 8x8 image with two interfaces, 62.5 RAMB36, a debt of 6.5, 26,624 B of cold code to move;
-- the size fixture's 8x8 image with two interfaces, 60.0, a debt of 4.0;
+- the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
 - the target platform's 8x8 image with one interface, a product image, 57.5, a debt of 1.5, 6,144 B, its own entry, which the product SoC build plans it at by its symbols;
 - every other point stays at or under 56.
 

@@ -243,7 +243,8 @@ class Ledgered:
 #: stays within 56. Each entry is its image's measured tiles, under the owner's rule of 2026-11-15 that the control
 #: memory's ROM may overflow as debt owed to the cold-code-to-flash work (S14), which supersedes the 60.5 cap of
 #: 2026-11-12 until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past. The size
-#: fixture's is refused at 60.5, its entry at 60.0 with the map edits' commit through the EDIT window (#923) composed
+#: fixture's is refused at 61.0, its entry at 60.5 with the largest legal record's cut on the composed train (#665),
+#: 60.0 with the map edits' commit through the EDIT window (#923) composed
 #: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
 #: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
 #: image is refused at 63.0, its entry at 62.5 with the StreamIDs held with their latest Talker kind (#925) composed
@@ -258,7 +259,7 @@ class Ledgered:
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   60.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   60.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -276,7 +277,11 @@ LEDGERED: dict[str, Ledgered] = {
                                          "commit through the EDIT window composed on them (#923): every arm's "
                                          "fixture needs 129,920 to 130,424 B of rom, past the 129,024 B 59.5 "
                                          "holds, by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
-                                         "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to S14"),
+                                         "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to S14; 60.5 with "
+                                         "the largest legal record's cut on that train (#665): the harness's "
+                                         "answering-ports arm needs 131,128 B of rom, 56 B past the 131,072 B "
+                                         "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
+                                         "ROM debt of 4.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_504)), 62.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
