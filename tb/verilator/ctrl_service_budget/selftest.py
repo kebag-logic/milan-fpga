@@ -2,30 +2,22 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The budget grader's portable self-test (#665; the method of #397).
 
-It needs Python and PyYAML (the mailbox contract) and nothing built. It
-regrades the committed trace fixture.log, which the 'fixture' group
-recorded on the test SoC, against oracle.json: every probe's row, its pass
-bound and backlog, each loaded channel's service, the worst pass, the
-composed maximum and the composed window's population. Synthetic traces
-check each marker, the notification fan-out and its cost a recipient, the
-owed responses, the records ahead of a served record, the clock
-conversion, the pass bound, the deadlines and the composition, and a
-retried notice timed from its port's answer (selftest_notice.py); synthetic
-windows check the composed maximum over the backlog rows, its lower bound,
-the rows a run did not include, and the record results.json carries and
-the table renders. The real scenario's composed windows are counted
-against the defined loads restated here, its fan-out against the
-firmware's registration capacity read here, and its controls against
-their paths. The run's exit status, the regrade's refusal of an absent
-log, the reuse attestation, the instruction cache's observers and XIP link
-script, and the fetch L1 and arm the run builds, records and reuses run on
-temporary files.
-Then each rule is mutated in turn, and a named check must fail; a mutant of
-a headline figure (the worst pass, the composed maximum, a pass bound)
-fails on that figure.
+It needs Python and PyYAML (the mailbox contract) and nothing built. It regrades the committed trace fixture.log,
+which the 'fixture' group recorded on the test SoC, against oracle.json: every probe's row, its pass bound and
+backlog, each loaded channel's service, the worst pass, the composed maximum and the composed window's population.
+Synthetic traces check each marker, the notification fan-out and its cost a recipient, the owed responses, the
+records ahead of a served record, the clock conversion, the pass bound, the deadlines and the composition, a retried
+notice timed from its port's answer (selftest_notice.py), and a record its channel's bucket held, credited with its
+own commit (selftest_held.py, #917); synthetic windows check the composed maximum over the backlog rows, its lower
+bound, the rows a run did not include, and the record results.json carries and the table renders. The real
+scenario's composed windows are counted against the defined loads restated here, its fan-out against the firmware's
+registration capacity read here, and its controls against their paths. The run's exit status, the regrade's refusal
+of an absent log, the reuse attestation, the instruction cache's observers and XIP link script, and the fetch L1 and
+arm the run builds, records and reuses run on temporary files. Then each rule is mutated in turn, and a named check
+must fail; a mutant of a headline figure (the worst pass, the composed maximum, a pass bound) fails on that figure.
 
-Regenerate the fixture only through its generator, from a fresh 'fixture'
-group run at 1x1 on the cacheless core it was recorded on (--fetch-l1 none):
+Regenerate the fixture only through its generator, from a fresh 'fixture' group run at 1x1 on the cacheless core it
+was recorded on (--fetch-l1 none):
 
     python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
 """
@@ -57,6 +49,7 @@ from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # 
 from selftest_notice import notice_checks  # noqa: E402
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
+from selftest_held import held_checks  # noqa: E402
 from selftest_round import round_checks  # noqa: E402
 from selftest_share import (clock_checks, held_load_checks, save_checks, save_time_checks,  # noqa: E402
                             share_checks, stated_checks, step_checks)
@@ -266,6 +259,7 @@ def marker_checks() -> list[Check]:
     except grade.Refusal:
         orphan = True
     out.append(('a receive commit that follows no frame is refused', orphan, ''))
+    out += held_checks(sys.modules[__name__])
     # Sequence and interface: an earlier response to another command, or on the other interface, is not the end.
     lines = frame_lines + tx_record(ACMP, 1, acmp_response(0x41), 0, 2000) + \
         tx_record(ACMP, 0, acmp_response(0x40), 20, 3000) + tx_record(ACMP, 0, acmp_response(0x41), 40, 4000)

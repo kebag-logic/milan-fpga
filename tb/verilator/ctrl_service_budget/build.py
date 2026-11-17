@@ -575,6 +575,7 @@ ACCESSORS = (
     ('lsu_rsp_error', 'bool', 'VexiiRiscv', 'LsuCachelessPlugin_logic_bus_rsp_payload_error'),
     ('rx_commit', 'bool', 'KL_mbx_rx', 'commit_w'),
     ('rx_channel', 'unsigned', 'KL_mbx_rx', 'ch_r'),
+    ('rx_hold', 'bool', 'KL_mbx_rx', 'hold_w'),
     ('evt_write', 'bool', 'KL_mbx_evt', 'wr_en_o'),
     ('evt_addr', 'unsigned', 'KL_mbx_evt', 'wr_addr_o'),
     ('evt_data', 'std::uint32_t', 'KL_mbx_evt', 'wr_data_o'),
@@ -734,6 +735,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
         path, prefix = paths[module]
         mask = ' & 1u' if name.endswith('_id') else ''
         lines.append(f'inline {ctype} {name}(const Vsim& dut) {{ return {path}->{prefix}{var}{mask}; }}')
+    path, prefix = paths['KL_mbx_rx']   # a held record's commit (#917): rel_w[c], a bit for each channel
+    lines.append(f'inline unsigned rx_release(const Vsim& dut) {{ unsigned h = 0; for (unsigned c = 0; c < n_ch; ++c) '
+                 f'h |= static_cast<unsigned>({path}->{prefix}rel_w[c] & 1u) << c; return h; }}')
     if beats > 1:
         lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']

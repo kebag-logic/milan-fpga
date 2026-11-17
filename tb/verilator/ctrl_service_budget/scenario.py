@@ -7,6 +7,7 @@ a `mark` line names it, then its stimulus, then a bounded wait for its completio
 the end of each probe off the observation log by the probe's rules:
 
   start  rxc:<ch>         the fabric's receive commit (RX_HEAD) on the channel
+         rxh:<ch>         the last byte of a frame the channel's bucket held, then committed (#917, held.py)
          pad:LINK:<if>    the link level changing at the mailbox input
          pad:GM:<if>      the grandmaster-change pulse at the mailbox input
          deadline:<slot>  the armed deadline of the slot's next TIMER record
@@ -16,14 +17,13 @@ the end of each probe off the observation log by the probe's rules:
          tmr:<slot>       any TMR_CMD write of the slot
          resp:<ch>:<seq>  the TX record on the channel answering sequence_id seq
          notify:<ch>:<command_type>:<descriptor_type>:<descriptor_index>
-                          the unsolicited AECP responses that command's change causes,
-                          one to each of the probe's recipients (IEEE 1722.1-2021 7.5.2);
-                          the last recipient's commit ends it (FR_NFR.md 3.4.1)
+                          the unsolicited AECP responses that command's change causes, one to each of the
+                          probe's recipients (IEEE 1722.1-2021 7.5.2); the last recipient's commit ends it (3.4.1)
          acmp_cmd:<ch>:<type>  an ACMP command the firmware originates, e.g. PROBE_TX
          maap:<ch>:<type>  a MAAP frame of that message type; adp:<ch>:<type> an ADPDU
          rxtail:<ch>      the RX_TAIL write that releases the record
-         pass_end:<ch>    the end of the pass that took the record: its handler runs
-                          after the release, inside that pass (ctrl_loop.c service_rx)
+         pass_end:<ch>    the end of the pass that took the record: its handler runs after the release,
+                          inside that pass (ctrl_loop.c service_rx)
          pub:<word>       a write of that publication word
 
 A probe's frames carry its name as their tag, so its start is the commit of its own frame even when other frames
@@ -433,8 +433,7 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
     ready(g, p)
     seq, statuses = [0x6100], answers.aecp_statuses(build)
 
-    def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1,
-            notices: int = 0) -> None:
+    def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1, notices: int = 0) -> None:
         """One AEM command probe, ending at its response, with its row's status; its wait lets its notices leave."""
         frame = f.aem_command(f.Aem(p.entity_id, controller, CTL_MAC, p.mac, seq[0]), command_type, payload)
         ends, status = [f'resp:{aecp}:{seq[0]:x}'], statuses.get(name, 'SUCCESS')
@@ -991,9 +990,10 @@ def fixture_groups(p: Point) -> list[Group]:
 
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
+    import held   # #917's held record: held.py imports this module
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
-              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build)]
+              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

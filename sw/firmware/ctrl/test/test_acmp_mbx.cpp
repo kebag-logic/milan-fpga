@@ -1406,14 +1406,17 @@ TEST_F(AcmpMailbox, K7TheRedeliveryTakesAFullRingInThePassThatSends) {
     ASSERT_NE(app.acmp.kept.len, 0u);
     auto f = acmpdu(talker_command(spec::MSG_GET_TX_STATE_COMMAND));
     const std::size_t smallest = MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES;
-    unsigned stored = 0;
+    const std::uint16_t pass0 = model.ch[MBX_CH_ACMP].rx_pass;
     for (unsigned j = 0; j < 100000u && model.ch[MBX_CH_ACMP].rx_drop == 0u; ++j) {
-        if (mbx_model_rx(&model, f.data(), smallest, 0)) {
-            stored++;
-        } else if (model.ch[MBX_CH_ACMP].rx_drop == 0u) {
+        if (!mbx_model_rx(&model, f.data(), smallest, 0) && model.ch[MBX_CH_ACMP].rx_drop == 0u) {
             mbx_model_advance_ms(&model, 1);
         }
     }
+    // a frame the bucket had no token for is held, and committed by the next refill (#917)
+    while (model.ch[MBX_CH_ACMP].rx_held_words != 0u) {
+        mbx_model_advance_ms(&model, 1);
+    }
+    const unsigned stored = static_cast<std::uint16_t>(model.ch[MBX_CH_ACMP].rx_pass - pass0);
     ASSERT_EQ(stored, ACMP_MBX_REDELIVER_RECORDS);
     const std::uint32_t malformed = core()->rx_malformed;
     const std::uint32_t records = app.loop.stats.rx_records;
@@ -1509,14 +1512,17 @@ TEST_F(AcmpMailbox, F4TheSmallestRecordsTheFilterPassesFillTheRing) {
     const std::size_t smallest = MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES;
     EXPECT_FALSE(mbx_model_rx(&model, f.data(), smallest - 1u, 0))
         << "F4 a frame that ends inside talker_entity_id holds no identity term and is not passed";
-    unsigned stored = 0;
+    const std::uint16_t pass0 = model.ch[MBX_CH_ACMP].rx_pass;
     for (unsigned j = 0; j < 100000u && model.ch[MBX_CH_ACMP].rx_drop == 0u; ++j) {
-        if (mbx_model_rx(&model, f.data(), smallest, 0)) {
-            stored++;
-        } else if (model.ch[MBX_CH_ACMP].rx_drop == 0u) {
+        if (!mbx_model_rx(&model, f.data(), smallest, 0) && model.ch[MBX_CH_ACMP].rx_drop == 0u) {
             mbx_model_advance_ms(&model, 1);
         }
     }
+    // a frame the bucket had no token for is held, and committed by the next refill (#917)
+    while (model.ch[MBX_CH_ACMP].rx_held_words != 0u) {
+        mbx_model_advance_ms(&model, 1);
+    }
+    const unsigned stored = static_cast<std::uint16_t>(model.ch[MBX_CH_ACMP].rx_pass - pass0);
     EXPECT_EQ(stored, ACMP_MBX_RX_BACKLOG) << "F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame";
     std::uint32_t rx0 = app.loop.stats.rx_records;
     unsigned at = 0;
@@ -1542,21 +1548,31 @@ TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
     auto discover = adpdu(d);
     const unsigned available_words = MBX_RX_HDR_WORDS + (spec::ADPDU_FRAME_BYTES + 3u) / 4u;
     const unsigned discover_words = MBX_RX_HDR_WORDS + (26u + 3u) / 4u;
+    // the room past a frame the bucket had no token for, which is held and
+    // committed by the next refill (#917)
     auto room = [] {
         const mbx_model_channel& ch = model.ch[MBX_CH_ADP];
-        return MBX_CH_ADP_RX_WORDS - static_cast<std::uint16_t>(ch.rx_head - ch.rx_tail);
+        return MBX_CH_ADP_RX_WORDS - static_cast<std::uint16_t>(ch.rx_head + ch.rx_held_words - ch.rx_tail);
     };
-    unsigned stored = 0;
+    auto commit_held = [] {
+        while (model.ch[MBX_CH_ADP].rx_held_words != 0u) {
+            mbx_model_advance_ms(&model, 1);
+        }
+    };
+    const std::uint16_t pass0 = model.ch[MBX_CH_ADP].rx_pass;
     for (unsigned j = 0; j < 100000u && room() >= available_words + discover_words; ++j) {
-        if (mbx_model_rx(&model, discover.data(), 26u, 0)) {
-            stored++;
-        } else {
+        if (!mbx_model_rx(&model, discover.data(), 26u, 0)) {
             mbx_model_advance_ms(&model, 1);
         }
     }
+    commit_held();
+    unsigned stored = static_cast<std::uint16_t>(model.ch[MBX_CH_ADP].rx_pass - pass0);
     bool committed = false;
     for (unsigned j = 0; j < 1000u && !committed; ++j) {
+        const std::uint16_t before = model.ch[MBX_CH_ADP].rx_pass;
         committed = available(Adp{});
+        commit_held();
+        committed = committed || model.ch[MBX_CH_ADP].rx_pass != before;
         if (!committed) {
             mbx_model_advance_ms(&model, 1);
         }

@@ -35,6 +35,7 @@ import re
 from dataclasses import dataclass, field
 
 import answers
+import held
 import join_grade
 import mrpdu_grade
 import poll_grade
@@ -53,7 +54,8 @@ EVENT = {e.value: e.name for e in scenario.CONTRACT.event_types}
 EV_TIMER = next(v for v, name in EVENT.items() if name == 'TIMER')
 RX_HEADER_WORDS = len(scenario.CONTRACT.rx_header)
 #: A receive commit follows its own frame's last byte: KL_mbx_rx takes no byte of the next
-#: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only).
+#: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only). So does the hold of a
+#: frame its channel's bucket had no token for (#917): an RXH line in the commit's place.
 COMMIT_LATENCY_MAX = 64
 CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not the stimulus
 #: The size of each receive channel's record in a defined composed load, from its clause and
@@ -104,6 +106,10 @@ class Log:
     marks: list[tuple[int, str]] = field(default_factory=list)
     rxc: list[tuple[int, int, int, str, int]] = field(default_factory=list)  # cycle, channel, interface, tag, bytes
     refused: list[tuple[int, int, str, int]] = field(default_factory=list)   # last byte, interface, tag, bytes
+    #: each record its channel's bucket held (#917, held.py): last byte, hold, commit (-1 never), channel, interface,
+    #: tag, bytes; and the frame each channel holds now
+    held: list[tuple[int, int, int, int, int, str, int]] = field(default_factory=list)
+    holding: dict[int, tuple[int, str, int, int, int]] = field(default_factory=dict)
     entries: list[tuple[int, str]] = field(default_factory=list)            # cycle, function entered
     traced: list[tuple[str, ...]] = field(default_factory=list)              # SPAN and CALL lines' fields
     pads: list[tuple[int, str, int]] = field(default_factory=list)
@@ -143,20 +149,28 @@ class Log:
         return sys_cycles * 1000 / self.sys_hz
 
 
-def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
-    """The frame a receive commit at cycle belongs to: (interface, tag, bytes).
+def last_frame(pending: list[tuple[int, str, int, int]], cycle: int, refused: list,
+               what: str = 'receive commit') -> tuple[int, str, int, int]:
+    """The frame a verdict acting at cycle belongs to: (interface, tag, bytes, last byte).
 
     KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so
-    the commit belongs to the frame whose last byte passed last; every older
-    frame still pending got no commit, so the filter refused it. A commit
-    with no frame ended within COMMIT_LATENCY_MAX cycles before it is refused.
+    the verdict belongs to the frame whose last byte passed last; every older
+    frame still pending got none, so the filter or the bucket refused it. A
+    verdict with no frame ended within COMMIT_LATENCY_MAX cycles before it is
+    refused.
     """
     if not pending or not cycle - COMMIT_LATENCY_MAX <= pending[-1][3] <= cycle:
-        raise Refusal(f'the receive commit at {cycle} follows no frame')
+        raise Refusal(f'the {what} at {cycle} follows no frame')
     frame = pending.pop()
     refused.extend((end, interface, tag, size) for interface, tag, size, end in pending)
     pending.clear()
-    return frame[:3]
+    return frame
+
+
+def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
+    """The frame a receive commit at cycle belongs to: (interface, tag, bytes), the frame its
+    verdict follows (last_frame)."""
+    return last_frame(pending, cycle, refused)[:3]
 
 
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
@@ -182,8 +196,9 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'RXE':
             pending_rx.append((*rxs, int(rest[0])))
         elif kind == 'RXC':
-            cycle = int(rest[0])
-            log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
+            log.rxc.append(held.commit(log, pending_rx, int(rest[0]), int(rest[1])))
+        elif kind in ('RXH', 'RXR'):
+            held.observe(kind, rest, pending_rx, log)
         elif kind == 'ENTRY':
             log.entries.append((int(rest[0]), rest[1]))
         elif kind in ('SPAN', 'CALL'):
@@ -253,7 +268,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.errors.append(line)
         else:
             raise Refusal(f'unknown observation line: {line[:80]}')
-    log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
+    held.unserved(pending_rx, log)
     log.writes.sort()
     log.reads.sort()
     log.tx = tx_records(log.writes, commits)
@@ -349,6 +364,9 @@ class Grader:
             # A probe's own frames carry its name; any other frame on the ring is not its input.
             hits = [c for c, k, i, tag, _ in self.log.rxc if after <= c < before and k == ch
                     and i in (interface, -1) and tag == probe.name]
+        elif kind == 'rxh':
+            # the probe's own frame, held by its channel's bucket (#917): its path starts at the frame's last byte
+            hits = held.starts(self.log, probe, int(args[0]), interface, after, before)
         elif kind == 'pad':
             hits = [c for c, k, i in self.log.pads if after <= c < before and k == args[0] and i == interface]
         elif kind == 'entry':
@@ -464,7 +482,7 @@ class Grader:
         """The ring the probe's input joined and how many records were ahead of it there:
         committed (or posted) before it and not yet released by the core."""
         kind, *args = probe.start.split(':')
-        if kind == 'rxc':
+        if kind in ('rxc', 'rxh'):
             ch = int(args[0])
             sizes = [RX_HEADER_WORDS + (size + 3) // 4 for c, k, _, _, size in self.log.rxc if k == ch and c < start]
             tail = [v for c, w, v in self.log.writes if w == scenario.ch_word(ch, 'RX_TAIL') and c < start]
@@ -601,6 +619,8 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
                                  // max(1, len(cycles) - 1)) if cycles else dict(recipients=0)
     if probe.owed:
         row['owed_ahead'] = [f'{s:x}' if s is not None else '-' for s in owed_ahead(grader, probe, i, start, end)]
+    if probe.start.startswith('rxh:'):
+        row.update(held.ingress(grader, probe, start))
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),

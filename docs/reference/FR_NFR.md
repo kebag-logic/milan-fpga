@@ -441,17 +441,29 @@ Publish each measured allowance and the remaining positive margin.
 A mailbox commit alone cannot prove the wire deadline.
 Dropped or unserved accepted records fail, rather than disappearing from measurements.
 
-At the approved budget it holds for each numeric response deadline, with this margin:
+`T_ingress` is per path (#917).
+A record that finds its channel's token is published within 64 mailbox cycles of its last byte, and its allowance is 1 ms.
+A record its channel's bucket holds (#917; [the held frame](../design/MAILBOX_SPLIT.md#the-held-frame)) is published at the channel's next refill: its allowance is one refill period of its channel plus that 1 ms.
+The [channel table](MAILBOX_CONTRACT.md#channels-and-the-ingress-filter) states each channel's held allowance, generated from its `refill_ms`.
 
-| Response deadline | Timeout | `T_ingress` | Bound | `T_egress` | Left for `T_network`: the margin | At the 10 ms proposal |
-|---|---:|---:|---:|---:|---:|---:|
-| ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26) | 200 ms | 1 ms | 20 ms | 1 ms | 178 ms | 188 ms |
-| AECP command to its response (IEEE 1722.1-2021 9.3.2.6) | 240 ms | 1 ms | 20 ms | 1 ms | 218 ms | 228 ms |
-| AECP command to its response, the controller's transaction timeout (9.3.2.6) | 250 ms | 1 ms | 20 ms | 1 ms | 228 ms | 238 ms |
-| AECP MVU command to its response (Milan v1.2 5.4.3.4) | 240 ms | 1 ms | 20 ms | 1 ms | 218 ms | 228 ms |
+At the approved budget it holds for each numeric response deadline, with this margin, for a record that finds a token and for a held one.
+Each row states its deadline, the channel its command arrives on, its timeout, its bound and `T_egress`, and the header states the proposal's bound.
+[`gen_mailbox.py`](../../sw/mailbox/gen_mailbox.py) writes the other six columns from [`mailbox.yaml`](../../sw/mailbox/mailbox.yaml): `T_ingress` and both margins for a token, then the same for a held record, whose `T_ingress` is the row's channel's `refill_ms` plus 1 ms.
+`gen_mailbox.py --check` fails, naming the row, when a written cell differs from what the contract gives or a margin is not positive; `--write` rewrites the cells, so a change to a channel's `refill_ms` moves its rows.
+
+<!-- response-margins:start -->
+| Response deadline | Channel | Timeout | Bound | `T_egress` | `T_ingress`, a token | Left for `T_network`: the margin | At the 10 ms proposal | `T_ingress`, held | The margin, held | At the 10 ms proposal, held |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26) | `acmp` | 200 ms | 20 ms | 1 ms | 1 ms | 178 ms | 188 ms | 6 ms | 173 ms | 183 ms |
+| AECP command to its response (IEEE 1722.1-2021 9.3.2.6) | `aecp` | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 6 ms | 213 ms | 223 ms |
+| AECP command to its response, the controller's transaction timeout (9.3.2.6) | `aecp` | 250 ms | 20 ms | 1 ms | 1 ms | 228 ms | 238 ms | 6 ms | 223 ms | 233 ms |
+| AECP MVU command to its response (Milan v1.2 5.4.3.4) | `aecp` | 240 ms | 20 ms | 1 ms | 1 ms | 218 ms | 228 ms | 6 ms | 213 ms | 223 ms |
+<!-- response-margins:end -->
 
 The two fabric allowances are bounds the design gives, not yet measurements:
-- `T_ingress`, 1 ms: `KL_mbx_rx` commits a received frame's record within 64 mailbox cycles of its last byte, 0.64 us at 100 MHz, as the CPU budget harness requires of every commit; the receive chain ahead of it is 656 ns in the board's configuration.
+- `T_ingress`, 1 ms for a record that finds a token: `KL_mbx_rx` commits it within 64 mailbox cycles of its last byte, 0.64 us at 100 MHz, as the CPU budget harness requires of such a commit; the receive chain ahead of it is 656 ns in the board's configuration.
+  A held record's commit comes at its channel's next refill, at most one refill period after its last byte, so its allowance is that period plus the same 1 ms; the harness requires it of every held record and measures the held path from the frame's last byte (`grade.py`, group `aecp-held`).
+  That measurement already contains the held delay, and it is graded against the bound; the held margins above subtract the held `T_ingress` again on top of the bound, which counts the delay twice and is conservative.
 - `T_egress`, 1 ms: `KL_mbx_tx` sends one record at a time in commit order across the channels, so a response waits at most for the records committed ahead of it.
   The five transmit rings hold 6,144 bytes, at most 256 records of the 14-byte minimum frame; padded, with FCS, preamble and gap, that is 21,504 bytes on the wire.
   At 250 Mb/s, the quarter of the 1000BASE-T link that IEEE 802.1Q-2018 34.3's default 75 % `deltaBandwidth` leaves to unreserved traffic, they leave in under 0.7 ms.

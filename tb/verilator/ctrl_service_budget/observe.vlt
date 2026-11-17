@@ -1,7 +1,9 @@
 `verilator_config
 // Passive observation only: committed PCs, the CPU's fetch bus (cacheless,
 // or the instruction cache's refills) and data bus (cacheless, or the data
-// cache's IO bus), the mailbox's receive commit and its event-ring writes.
+// cache's IO bus), the mailbox's receive commit, the hold of a record its bucket
+// had no token for and that record's commit at the refill (#917), and its
+// event-ring writes.
 // No source changes.
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
@@ -36,6 +38,8 @@ public_flat_rd -module "VexiiRiscv" -var "LsuPlugin_logic_bus_rsp_valid"
 public_flat_rd -module "VexiiRiscv" -var "LsuPlugin_logic_bus_rsp_payload_error"
 public_flat_rd -module "KL_mbx_rx" -var "commit_w"
 public_flat_rd -module "KL_mbx_rx" -var "ch_r"
+public_flat_rd -module "KL_mbx_rx" -var "hold_w"
+public_flat_rd -module "KL_mbx_rx" -var "rel_w"
 public_flat_rd -module "KL_mbx_evt" -var "wr_en_o"
 public_flat_rd -module "KL_mbx_evt" -var "wr_addr_o"
 public_flat_rd -module "KL_mbx_evt" -var "wr_data_o"

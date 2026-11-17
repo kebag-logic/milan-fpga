@@ -213,14 +213,24 @@ def _tuple_rows(contract: Contract) -> list[str]:
     return out + [""]
 
 
+#: FR_NFR.md 3.4.1's T_ingress for a record that finds a token: published within 64 mailbox cycles of
+#: its last byte. A held record (#917) waits up to one refill period of its channel more.
+T_INGRESS_MS = 1
+
+
 def _channel_rows(contract: Contract) -> list[str]:
     """The channel table, the tuple table and one rule table per channel."""
-    out = ["| Channel | id | receive ring | transmit ring | Max frame | Rate |",
-           "|---|---:|---|---|---:|---|"]
+    out = ["| Channel | id | receive ring | transmit ring | Max frame | Rate | Ingress allowance, held record |",
+           "|---|---:|---|---|---:|---|---|"]
     for ch in contract.channels:
         out.append(f"| `{ch.name}` | {ch.ident} | `0x{ch.rx_base:04X}`, {ch.rx_words} words "
                    f"| `0x{ch.tx_base:04X}`, {ch.tx_words} words | {ch.max_frame_bytes} "
-                   f"| burst {ch.burst}, one token per {ch.refill_ms} ms |")
+                   f"| burst {ch.burst}, one token per {ch.refill_ms} ms "
+                   f"| {ch.refill_ms + T_INGRESS_MS} ms: one refill period and `T_ingress` |")
+    out += ["", f"A record that finds a token is published within 64 mailbox cycles of its last byte: its ingress "
+                f"allowance, `T_ingress`, is {T_INGRESS_MS} ms (FR_NFR.md 3.4.1). A held record is published at its "
+                f"channel's next refill, so its allowance is one refill period more, derived above from each "
+                f"channel's `refill_ms`."]
     out.append("")
     out += _tuple_rows(contract)
     for ch in contract.channels:
@@ -348,7 +358,10 @@ def emit_doc(contract: Contract) -> str:
               f"at byte {contract.subtype_byte}) is one of the tuple's where it names some.",
               "The frame passes when its channel is open and one accept term (the identity term) holds.",
               "It must also fit max_frame_bytes and the free ring space.",
-              "Then the channel's token bucket must hold a token.", "",
+              "Then it is committed while the channel's token bucket holds a token, which it spends.",
+              "Otherwise it is held past `RX_HEAD`, and committed at the channel's next refill,",
+              "whose token it spends (#917). A channel holds one frame: a frame that finds the bucket",
+              "empty while one is held is refused and counts in `RATE_DROP`.", "",
               f"Untagged frames only, by construction: a VLAN tag's TPID ({tpids}) sits where the",
               "EtherType is read, and no tuple names one, so a tagged frame reaches no channel",
               "and no counter. An untagged frame whose EtherType some tuple names, matching no tuple,",

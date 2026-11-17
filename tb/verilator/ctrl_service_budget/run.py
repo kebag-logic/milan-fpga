@@ -37,6 +37,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+#: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
           '8x8-1if': ('endstation_ax7101_8x8', 1)}
 

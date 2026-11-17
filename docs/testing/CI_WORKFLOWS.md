@@ -204,7 +204,11 @@ Its reader is absent from `DOCS_JOB_PY`.
 `sw/mailbox/gen_mailbox.py --check --crosscheck` compares
 [MAILBOX_CONTRACT.md](../reference/MAILBOX_CONTRACT.md) with the page it
 generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
-(#665). No `docs-check` step runs it.
+(#665).
+It also compares the response-margin table of
+[FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+with the ingress allowances and margins the contract gives (#917).
+No `docs-check` step runs it.
 `sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
 requires the rule table in section 3 of
 [SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
