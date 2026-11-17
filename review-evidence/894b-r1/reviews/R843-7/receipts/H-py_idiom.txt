@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/check_py_idiom.py", line 786, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/check_py_idiom.py", line 732, in main
+    paths = sources()
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/check_py_idiom.py", line 249, in sources
+    return sorted(tracked("*.py"))
+                  ~~~~~~~^^^^^^^^
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/code_quality_scope.py", line 79, in tracked
+    return tracked_exact(*scoped_pathspecs(*patterns))
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/code_quality_scope.py", line 86, in tracked_exact
+    _assert_pinned_submodules()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/894b-r843-7-packet/scratch/H/scripts/code_quality_scope.py", line 35, in _assert_pinned_submodules
+    run = subprocess.run(
+        ["git", "submodule", "status", "--", *PROJECT_SUBMODULES],
+        cwd=REPO, capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit status 128.
+rc=1

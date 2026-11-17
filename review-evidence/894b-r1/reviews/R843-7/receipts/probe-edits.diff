@@ -1,0 +1,35 @@
+# M (source mutation + 70 ms plant)
+--- head:tb/verilator/ctrl_service_budget/flip_grade.py	2026-11-17 12:25:17.819391051 +0100
++++ M/tb/verilator/ctrl_service_budget/flip_grade.py	2026-11-17 12:28:14.022395393 +0100
+@@ -470,7 +470,7 @@
+             print(f'HELD {point}: THE TRANSMIT\'s figure CTRL_LOOP_TX_MS {i.tx_stated} ms against its tx row by every '
+                   f'source {"none" if w is None else f"{w:.2f}"} ms (tx_held; the hold-off adds the figure)')
+         found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \
+-            rows_grade.rule_findings(ROOT, rowed) + tx_held(ROOT, points) + shape_costs.findings(ROOT)
++            rows_grade.rule_findings(ROOT, rowed) + shape_costs.findings(ROOT)
+         for line in found:
+             print('OVER', line)
+         print('RESULT: FAIL' if found else 'RESULT: PASS')
+--- head:sw/firmware/ctrl/loop/ctrl_loop.h	2026-11-17 12:25:17.763857985 +0100
++++ M/sw/firmware/ctrl/loop/ctrl_loop.h	2026-11-17 12:40:20.877413302 +0100
+@@ -352,7 +352,7 @@
+ #define CTRL_LOOP_RETRY_COLD_US 165u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+ #define CTRL_LOOP_QUEUED_MS 130u
+-#define CTRL_LOOP_TX_MS 75u
++#define CTRL_LOOP_TX_MS 70u
+ #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
+ #define CTRL_LOOP_SLICE_US 1300u
+ #define CTRL_LOOP_BUILD_PASS_US 1995u
+# P (70 ms plant only)
+--- head:sw/firmware/ctrl/loop/ctrl_loop.h	2026-11-17 12:25:17.763857985 +0100
++++ P/sw/firmware/ctrl/loop/ctrl_loop.h	2026-11-17 12:40:26.820413448 +0100
+@@ -352,7 +352,7 @@
+ #define CTRL_LOOP_RETRY_COLD_US 165u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+ #define CTRL_LOOP_QUEUED_MS 130u
+-#define CTRL_LOOP_TX_MS 75u
++#define CTRL_LOOP_TX_MS 70u
+ #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
+ #define CTRL_LOOP_SLICE_US 1300u
+ #define CTRL_LOOP_BUILD_PASS_US 1995u
