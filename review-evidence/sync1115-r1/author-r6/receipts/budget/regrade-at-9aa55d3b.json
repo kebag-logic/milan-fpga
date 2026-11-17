@@ -1,0 +1,2070 @@
+{
+ "note": "r6_compare.py at 9aa55d3b: round 4's re-simulated legs regraded, against round 5b's grading (r5b/legs); each MRP run-out whose outcome moves, resolved both ways on the same log (round 5b's rules restored by its three earlier-rule plants)",
+ "full_json": {
+  "sha256": "1e51ea865f8b2e1865dad589f73407ef509b1f05c0b460b5c1fb7c46284b7161",
+  "bytes": 51097
+ },
+ "legs": [
+  {
+   "leg": "s10092",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.91378,
+       "leaveall.if0": 0.57276,
+       "periodic.if0": 1.44926
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.774,
+       190.126
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.135,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.125,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.82521,
+       "leaveall.if0": 0.59129,
+       "periodic.if0": 1.75255
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.774,
+       190.059
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.135,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.033,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s10592",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.86217,
+       "leaveall.if0": 0.53814,
+       "periodic.if0": 2.51484
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       187.842,
+       191.1
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 491.19,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 11061.043,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.52226,
+       "leaveall.if0": 0.59686,
+       "periodic.if0": 2.61022
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       187.842,
+       190.925
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 491.19,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 11061.1,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11102",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.64485,
+       "leaveall.if0": 0.53935,
+       "periodic.if0": 1.78428
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.151
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.078,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 11252.012,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.091,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.61128,
+       "leaveall.if0": 0.49453,
+       "periodic.if0": 1.79733
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.086
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.078,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 11252.031,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.04,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s11602",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.62167,
+       "leaveall.if0": 0.64805,
+       "periodic.if0": 1.62015
+      },
+      "runs": {
+       "released": 40,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.065
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.064,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 12062.502,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.174,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.58134,
+       "leaveall.if0": 0.58134,
+       "periodic.if0": 1.67001
+      },
+      "runs": {
+       "released": 40,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.025
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.064,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 12062.578,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.126,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12102",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.36218,
+       "leaveall.if0": 1.36218,
+       "periodic.if0": 1.4512
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.097
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.072,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.02,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 12252.33,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.6436,
+       "leaveall.if0": 1.6436,
+       "periodic.if0": 1.56627
+      },
+      "runs": {
+       "released": 41,
+       "empty": 32
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.01
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.072,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.144,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 12252.596,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s12602",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.59673,
+       "leaveall.if0": 0.64304,
+       "periodic.if0": 1.55649
+      },
+      "runs": {
+       "released": 40,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.157
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.061,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.114,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 13062.183,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.63039,
+       "leaveall.if0": 0.51433,
+       "periodic.if0": 1.6669
+      },
+      "runs": {
+       "released": 40,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.182
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.061,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 10252.057,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 13062.172,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13102",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.58146,
+       "leaveall.if0": 0.63978,
+       "periodic.if0": 1.7817
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.001
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.062,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 11062.149,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 13252.018,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.66078,
+       "leaveall.if0": 0.58403,
+       "periodic.if0": 1.96235
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.016
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.062,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 11062.093,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 13252.042,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s13602",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.23903,
+       "leaveall.if0": 1.23093,
+       "periodic.if0": 2.80509
+      },
+      "runs": {
+       "released": 39,
+       "empty": 34
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       187.678,
+       190.612
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 491.182,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 12061.688,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 14061.115,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 1.78595,
+       "leaveall.if0": 1.33392,
+       "periodic.if0": 2.96879
+      },
+      "runs": {
+       "released": 39,
+       "empty": 34
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       187.678,
+       190.796
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 491.182,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 12061.023,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 14061.207,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s14602",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.63731,
+       "leaveall.if0": 0.6228,
+       "periodic.if0": 1.61493
+      },
+      "runs": {
+       "released": 39,
+       "empty": 34
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.087
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.08,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 13062.12,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.058,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.60038,
+       "leaveall.if0": 0.64521,
+       "periodic.if0": 1.7683
+      },
+      "runs": {
+       "released": 39,
+       "empty": 34
+      },
+      "failing": [],
+      "intervals": [
+       7,
+       188.663,
+       190.072
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 73,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.08,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 13062.178,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.145,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "s15032",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.6135,
+       "leaveall.if0": 0.47942,
+       "periodic.if0": 1.61757
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.134
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.077,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.126,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.80727,
+       "leaveall.if0": 0.53212,
+       "periodic.if0": 1.7357
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.033
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.077,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.073,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "p81",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "save-held": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.55717,
+       "leaveall.if0": 0.55717,
+       "periodic.if0": 1.79045
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       190.071
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.075,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.108,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.05,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "save-starved": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {
+       "join.if0": 0.50646,
+       "leaveall.if0": 0.57549,
+       "periodic.if0": 1.81841
+      },
+      "runs": {
+       "released": 39,
+       "empty": 33
+      },
+      "failing": [],
+      "intervals": [
+       6,
+       188.663,
+       189.985
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 72,
+      "moved": 3,
+      "by_change": {
+       "released->empty": 3
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.075,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.05,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.032,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "v1",
+   "rc": "0",
+   "rc_round5b": "0",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {},
+      "runs": {
+       "released": 17,
+       "empty": 13
+      },
+      "failing": [],
+      "intervals": [
+       5,
+       188.262,
+       189.973
+      ],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 30,
+      "moved": 1,
+      "by_change": {
+       "released->empty": 1
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 454.053,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "srp-talker": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {},
+      "runs": {
+       "released": 51,
+       "empty": 43
+      },
+      "failing": [],
+      "intervals": [
+       10,
+       188.262,
+       190.028
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 94,
+      "moved": 4,
+      "by_change": {
+       "released->empty": 4
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 454.053,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 4024.055,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14214.054,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15024.132,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "leg": "v81",
+   "rc": "1",
+   "rc_round5b": "1",
+   "table_same": true,
+   "groups": {
+    "srp-talker-loss": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {},
+      "runs": {
+       "released": 24,
+       "empty": 17
+      },
+      "failing": [],
+      "intervals": [
+       10,
+       187.536,
+       190.379
+      ],
+      "leave_all": {
+       "sent": 0,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 41,
+      "moved": 2,
+      "by_change": {
+       "released->empty": 2
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.09,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 4062.197,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    },
+    "srp-talker": {
+     "same": {
+      "rows": true,
+      "runs": false,
+      "failing": true,
+      "intervals": true,
+      "leave_all": true,
+      "leave_all_failing": true
+     },
+     "round6": {
+      "rows": {},
+      "runs": {
+       "released": 63,
+       "empty": 45
+      },
+      "failing": [],
+      "intervals": [
+       20,
+       187.536,
+       190.071
+      ],
+      "leave_all": {
+       "sent": 2,
+       "skipped": 0,
+       "late": 0,
+       "absent": 0,
+       "unresolved": 0,
+       "unowned": 0
+      },
+      "leave_all_failing": []
+     },
+     "moves": {
+      "run_outs": 108,
+      "moved": 6,
+      "by_change": {
+       "released->empty": 6
+      },
+      "every": [
+       {
+        "timer": "join",
+        "at_ms": 492.09,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 4062.197,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 5062.207,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "join",
+        "at_ms": 14252.112,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 15062.121,
+        "owner": "if0 MVRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MSRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       },
+       {
+        "timer": "periodic",
+        "at_ms": 19062.087,
+        "owner": "if0 MSRP",
+        "round5b": "released",
+        "round6": "empty",
+        "answered_by": [
+         "if0 MVRP"
+        ],
+        "owner_frame_after_opportunity_ms": null
+       }
+      ]
+     }
+    }
+   }
+  }
+ ]
+}

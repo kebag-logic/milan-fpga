@@ -1,0 +1,23 @@
+The lane at the round-6 handoff:
+HEAD 9aa55d3b382750353709c3ba9ff6f6416938e83b, branch sync-dev-6b66f66d-into-dev-soft-core, porcelain 0 lines
+commits since rounds 4 and 5 (e2be92b0, published):
+  9aa55d3b382750353709c3ba9ff6f6416938e83b List the four owner-association mutants in the harness README's mutant table with the checks that catch them (#665)
+  1238a3eecd90a560088f06db6d9e1f3e2053ac42 Judge every owned MRP timer run-out on its owner alone: its deadline, the frames that answer it and its row start (#665)
+files changed against e2be92b0:
+   docs/reference/FR_NFR.md                           |   2 +-
+   tb/verilator/ctrl_service_budget/README.md         |  22 +++--
+   tb/verilator/ctrl_service_budget/join_grade.py     |  14 ++-
+   tb/verilator/ctrl_service_budget/mrpdu_grade.py    | 104 ++++++++++++++-------
+   tb/verilator/ctrl_service_budget/run.py            |  19 ++--
+   .../ctrl_service_budget/selftest_leaveall.py       |  53 ++++++++++-
+   .../ctrl_service_budget/selftest_mutants.py        |  12 +++
+   .../ctrl_service_budget/selftest_notice.py         |   2 +-
+   tb/verilator/ctrl_service_budget/selftest_polls.py |   4 +-
+   9 files changed, 170 insertions(+), 62 deletions(-)
+submodules:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor
+  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis

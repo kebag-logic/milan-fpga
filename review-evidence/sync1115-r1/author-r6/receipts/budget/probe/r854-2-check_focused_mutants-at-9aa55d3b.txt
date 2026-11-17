@@ -1,0 +1,83 @@
+PR #934's second external review packet's check_focused_mutants.py (sha256 5223036a52f3c80fce2b073e3343b7d9dd650da456b13da5706beb98ee0e2316), unchanged, run against a clean clone of 9aa55d3b; rc 0
+CAUGHT transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier rule)
+   a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   the LeaveAll is its owner's: another application's MRPDU before it skips nothing
+   no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+   a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+   a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CAUGHT transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier rule)
+   overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+   a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+CAUGHT transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback restored)
+   an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds'
+CAUGHT transmit: an unowned run-out not failing the run
+   an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds'
+CAUGHT transmit: the participant's join timer run out a centisecond early
+   a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+   a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CAUGHT leaveall: a LeaveAll past its first transmit opportunity not failing the run
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+   a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CAUGHT leaveall: a late LeaveAll not failing the run
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+CAUGHT leaveall: any MRPDU taken for the LeaveAll
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   an MRPDU's LeaveAll is read from its VectorHeaders, MSRP's past its AttributeListLength and a Listener vector's FourPackedEvents
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CAUGHT leaveall: the participants' applications not told apart
+   a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+   a LeaveAll whose owner's join timer has run out is timed from the run-out's own TICK and sent at once
+   a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+   the LeaveAll is its owner's: another application's MRPDU before it skips nothing
+   no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   overlapping timers whose owners each send their LeaveAll at their own first opportunity pass, the LeaveAlls in the expiries' order or in the reverse one (MVRP's at once, MSRP's at its join timer's run-out)
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+   a build that sends nothing is late past THE TRANSMIT's bound after its timer's owner's first transmit opportunity, from the posted TICKs: not after another participant's join callback (late at 59.979 ms, a callback at 1,330 ms or not) nor its running join timer; the owner's own running one holds it
+CAUGHT leaveall: a Listener vector's FourPackedEvents not skipped
+   an MRPDU's LeaveAll is read from its VectorHeaders, MSRP's past its AttributeListLength and a Listener vector's FourPackedEvents
+CAUGHT leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner (earlier rule)
+   no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+   two participants' timers overlapping: the MSRP owner's LeaveAll, which MVRP's at 1,221 ms precedes, skipped MSRP's first opportunity at 1,180 ms and is named there, 191 ms late; MVRP's is sent
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+   a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+   a LeaveAll timer's run-out inside another participant's join interval, after its skipped opportunity, whose LeaveAll goes first: MSRP's is named skipped at its 1,180 ms opportunity, MVRP's is sent
+CAUGHT leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP
+   a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+CAUGHT leaveall: the participants' interfaces not told apart
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+   the owner is its interface's too: interface 1's MSRP LeaveAll does not answer interface 0's MSRP run-out, whose own skipped its first opportunity
+   a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound after its owner's opportunity, empty within it, no row for either interface, for either application on either interface; the owner's own MRPDU on time is released and times the owner's row
+   a timer's row starts at its owner's first transmit opportunity, for either application on either interface, though its commit carries another participant's MRPDU whose opportunity came earlier
+CAUGHT leaveall: an unowned LeaveAll not failing the run
+   a LeaveAll timer's run-out with its owner recorded unresolved, or with no owner recorded, is unowned and named, never bound to the LeaveAll that comes first
+   a skipped or unowned LeaveAll fails a run whatever findings it records
+CAUGHT leaveall: an absent LeaveAll taken for an unresolved one
+   no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+   skipped, late and absent LeaveAlls are named for either application on either interface: MVRP's skipped on interface 1, MSRP's late on interface 1, MVRP's absent on interface 0
+15 mutations caught, including all eight original controls; clean controls pass
