@@ -1,0 +1,11 @@
+HEAD d66b4045529fbba7b483aadbbea15ad75bd1ccf9 DIRTY 0 point 1x1 jobs 2 args --groups save-burst,save-flight start 13:36:18
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BURST save-flight: 1 name(s), the latest durable 165.045 ms after its response (name 0; target 5,000 ms), 2 save(s), 19 steps to the next save's erase (want 19) within
+BURST save-burst: 39 name(s), the latest durable 1107.785 ms after its response (name 0; target 5,000 ms), 1 save(s), the cut's container sequence 1, 0 name(s) missing within
+STEPS 3031 passes carry the store's step; the longest 94,464 CPU cycles (0.945 ms), save-flight; the longest step 78,131 (0.781 ms), save-flight
+SLICES 150040 tier-2 slices; the longest SRP's records 78,943, THE TRANSMIT's build 33,500, THE RETRY's round 1,647 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS save-flight: 5 join interval(s), the shortest 188.996 ms and the longest 189.990 ms, against 181.0 to 239.0; MRP timers' run-outs: 33 released, 28 empty
+JOINS save-burst: 4 join interval(s), the shortest 188.238 ms and the longest 189.852 ms, against 181.0 to 239.0; MRP timers' run-outs: 31 released, 30 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 15 probe instances, 0 of 6 paths), 0 of 6047 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=6611s rc=0 end 15:26:29 DIRTY-after 0

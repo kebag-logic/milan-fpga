@@ -1,0 +1,5 @@
+The store suite self-test caught both registered reset-removal plants.
+Its printer limits the first failure to 110 characters.
+
+  self-test OK: next_now_not_reset         caught by first_change_after_flight; first: [FAIL] Ports/NvmBoth.first_change_after_flight/model: first change after an immediate save must wait its full 
+  self-test OK: rewound_not_reset          caught by retry_after_rewind; first: [FAIL] Ports/NvmBoth.retry_after_rewind/model: retry after a rewind must capture the backoff change: {'abandon

@@ -1,0 +1,23 @@
+image endstation_ax7101_8x8, placement directive ExtraPostPlacementOpt
+head 659d76871221847cfcdaad0ff01e860c2583fd56 status:  2026-11-16T03:54:04+01:00
+51ddbe8e692022b4908910fbf63b5406ebcebd17e183c0982d186770d5626b61  <scratch>/image-base/endstation_ax7101_8x8/image/ctrl_app.elf
+51ddbe8e692022b4908910fbf63b5406ebcebd17e183c0982d186770d5626b61  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b  configs/endstation_ax7101_8x8.yaml
+41d188e6b6952c2b085c55383ac93422866cc4f50f2cd3564ea9dae094a030f7  sw/builder/out/endstation_ax7101_8x8/soc_params.json
+== BUILD rc=0 2026-11-16T05:32:08+01:00
+signoff rc=1
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity rc=0
+
+Slow_85C: WNS +0.011 ns (0 failing), WHS +0.070 ns (0 failing)
+Slow_0C: WNS +0.011 ns (0 failing), WHS +0.070 ns (0 failing)
+Fast_85C: WNS +1.370 ns (0 failing), WHS +0.034 ns (0 failing)
+Fast_0C: WNS +1.370 ns (0 failing), WHS +0.034 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff.py rc=1
+
+worst setup, Slow_85C, +0.011 ns: KL_mbx_cdc/u_edit/rq_r_reg[80]/C -> milan_datapath/amap_edit_oclaim_expect_r_reg[599]/CE (milansoc_crg_clkout1)
+worst hold, Slow_85C, +0.070 ns: milansoc_milanmac_liteethmaccore_rx_converter_converter_source_payload_data_reg[11]/C -> storage_4_reg_0/DIADI[9] (eth_clocks0_rx)
+worst setup, Fast_85C, +1.370 ns: FDPE_14/C -> FDPE_15/D (milansoc_crg_clkout0)
+worst hold, Fast_85C, +0.034 ns: milansoc_milanmac_liteethmaccore_rx_converter_converter_source_payload_data_reg[11]/C -> storage_4_reg_0/DIADI[9] (eth_clocks0_rx)

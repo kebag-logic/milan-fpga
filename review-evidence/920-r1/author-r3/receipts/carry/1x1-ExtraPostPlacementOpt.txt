@@ -1,0 +1,23 @@
+image endstation_ax7101_1x1_tdm8, placement directive ExtraPostPlacementOpt
+head 11860de216d2c211b02c6ddcc33e99bdf20e8594 status:  2026-11-15T23:28:29+01:00
+cbb923db6706f6ec0254ba6b9b2a5e8188dc1d0de84d028a19dfbe61afe1f37a  <scratch>/image/endstation_ax7101_1x1_tdm8/image/ctrl_app.elf
+cbb923db6706f6ec0254ba6b9b2a5e8188dc1d0de84d028a19dfbe61afe1f37a  sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf
+6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1  configs/endstation_ax7101_1x1_tdm8.yaml
+f5a2382570765b882a4394bad1b42eb097f09ab3bb73bfaa8b555b5ad0dfa010  sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json
+== BUILD rc=0 2026-11-16T00:20:45+01:00
+signoff rc=1
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity rc=0
+
+Slow_85C: WNS +0.135 ns (0 failing), WHS +0.054 ns (0 failing)
+Slow_0C: WNS +0.135 ns (0 failing), WHS +0.054 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+
+worst setup, Slow_85C, +0.135 ns: KL_mbx/rd_off_r_reg[9]/C -> KL_mbx/reg_rdata_r_reg[6]/D (milansoc_crg_clkout0)
+worst hold, Slow_85C, +0.054 ns: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[2][7]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0/DIBDI[23] (milansoc_crg_clkout1)
+worst setup, Fast_85C, +1.660 ns: FDPE_8/C -> FDPE_9/D (eth_clocks0_rx)
+worst hold, Fast_85C, +0.014 ns: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[2][7]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0/DIBDI[23] (milansoc_crg_clkout1)
