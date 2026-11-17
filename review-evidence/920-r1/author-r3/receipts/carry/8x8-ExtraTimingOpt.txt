@@ -1,0 +1,23 @@
+image endstation_ax7101_8x8, placement directive ExtraTimingOpt
+head 11860de216d2c211b02c6ddcc33e99bdf20e8594 status:  2026-11-16T02:32:30+01:00
+e4543a2aa3e352ba5192ac88dd254370fe92a2e77bdc881629a5034f85484ff5  <scratch>/image/endstation_ax7101_8x8/image/ctrl_app.elf
+e4543a2aa3e352ba5192ac88dd254370fe92a2e77bdc881629a5034f85484ff5  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b  configs/endstation_ax7101_8x8.yaml
+41d188e6b6952c2b085c55383ac93422866cc4f50f2cd3564ea9dae094a030f7  sw/builder/out/endstation_ax7101_8x8/soc_params.json
+== BUILD rc=0 2026-11-16T03:09:20+01:00
+signoff rc=1
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity rc=0
+
+Slow_85C: WNS +0.171 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.171 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff.py rc=1
+
+worst setup, Slow_85C, +0.171 ns: FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C -> KL_mbx/u_evt/tag_r_reg[7][15]/CE (milansoc_crg_clkout0)
+worst hold, Slow_85C, +0.102 ns: milan_datapath/g_gptp_plane.u_gptp_shadow/ts_arr_r_reg[0]/C -> milan_datapath/g_gptp_plane.u_gptp_shadow/tsf_r_reg_0_31_0_5/RAMA/I (milansoc_crg_clkout1)
+worst setup, Fast_85C, +1.636 ns: FDPE_20/C -> FDPE_21/D (milansoc_crg_clkout1)
+worst hold, Fast_85C, +0.014 ns: milan_datapath/g_aaf_meter.aaf_clock_meter/s2_ts_r_reg[6]/C -> milan_datapath/g_aaf_meter.aaf_clock_meter/grp_ts0_r_reg[6]/D (milansoc_crg_clkout1)
