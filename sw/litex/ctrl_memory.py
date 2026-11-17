@@ -20,8 +20,9 @@ not built. This file is the one statement of that memory map. The SoC reads it
   so a region wastes less than one granule;
 - the allocation is held to the owner's 224 KB: 56 RAMB36 at 4,096 usable
   bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
-  names the images allowed past it, each only when its measurement asks for
-  it by name (#665); the SoC build asks for none.
+  names the images allowed past it (#665): a measurement asks for its point
+  by name, and the SoC build plans an image at the entry whose symbols it
+  carries (`own_point`, #923), every other image at the budget.
 
 Every refusal names its check: `reset entry`, `memory map`, `memory-map
 overlap`, `allocation over budget` and `staging buffer`. RULES lists each
@@ -226,44 +227,37 @@ class Ledgered:
     symbols: tuple[tuple[str, int], ...]    # (symbol, size): what makes an image that point
     tiles: float                            # what it may plan
     owed: str                               # the lane that recovers the tiles, and the ruling
-    product: bool = False                   # the product SoC build plans its image here by its symbols
 
 
-#: The only images `plan` may let past BUDGET_TILES, each only when its own
-#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py,
-#: ctrl_plat_image.py). The product SoC build (milan_soc.add_ctrl_memory) and
-#: the platform image's link without --ledgered-point name a point only where
-#: an entry is a product entry and the image carries its symbols
-#: (`product_point`, #919 and #923): the target platform's
-#: 8x8 image with one interface, a shipping image; every unledgered image stays
-#: refused past 56 RAMB36. The measurement harness names the size
-#: fixture's for that point only (its image and SoC plan,
-#: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
-#: point when it carries every listed symbol at its listed size: the 8x8 shape's
-#: staging buffer, and the image's own object sized by two interfaces. The size
-#: fixture's is its per-interface table (ctrl_aecp_image.c,
-#: `uint64_t image_allocation[MBX_N_IF]`). The target platform's is its one
-#: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
-#: MBX_N_IF and the shape's streams) at its size in that image, so a change to
-#: that struct refuses the override until the size is measured again here.
-#: All are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
-#: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
-#: 60.0, its entry at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before
-#: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image;
-#: the platform's two-interface image at 61.5, its entry at 61.0: 60.5, the owner's decision's cap (#665), which
-#: #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, #897's ruling of
-#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, and the owner's decision of 2026-11-15 for AECP's
-#: REBOOT on them (#871), as #665's ruling of 2026-11-12 ledgered the size fixture's at its cap, then 61.0 with the
-#: PHY poll (#919) on that image, by the owner's rule of 2026-11-15 (an image past its entry raises it to its
-#: measured size, at the next half tile, as debt owed to S14), which supersedes the cap until the hybrid XIP work
-#: (#665 decision D3); and the platform's one-interface image at 57.0, its entry at 56.5, by the same rule (#919:
-#: #895's declarations and the PHY poll). The
-#: platform's image is linked at every point with the override its point takes, against this ledger, by
-#: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
-#: where it happens.
+#: The only images `plan` may let past BUDGET_TILES. A measurement names its point (`plan --ledgered-point`,
+#: ctrl_srp_image.py, ctrl_plat_image.py); the product SoC build (milan_soc.add_ctrl_memory) and the platform image's
+#: link without --ledgered-point plan an image at the entry whose symbols it carries (`own_point`, #923's ruling of
+#: 2026-11-16, kept for the composed train by #665's ruling of 2026-11-17), so every unledgered image is still held
+#: to 56 RAMB36; the measurement harness names the size fixture's for that point only (its image and SoC plan,
+#: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the point when it carries every listed
+#: symbol at its listed size: the 8x8 shape's staging buffer, and the image's own object. The size fixture's is its
+#: per-interface table (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The target platform's is its one
+#: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by MBX_N_IF and the shape's streams) at its
+#: size in that image, so a change to that struct refuses the override until the size is measured again here. Each
+#: is owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5; every other point
+#: stays within 56. Each entry is its image's measured tiles, under the owner's rule of 2026-11-15 that the control
+#: memory's ROM may overflow as debt owed to the cold-code-to-flash work (S14), which supersedes the 60.5 cap of
+#: 2026-11-12 until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past. The size
+#: fixture's is refused at 60.5, its entry at 60.0 with the map edits' commit through the EDIT window (#923) composed
+#: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
+#: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
+#: image is refused at 62.5, its entry at 62.0 with the map edits' commit composed on the flip train's other changes:
+#: 60.5, the owner's decision's cap (#665), which #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker
+#: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
+#: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
+#: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
+#: 58.0, its entry at 57.5 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
+#: composed train before the commit, 57.5 with it. The platform's image is linked at
+#: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
+#: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   59.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   60.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -277,9 +271,13 @@ LEDGERED: dict[str, Ledgered] = {
                                          "fixture with their test ports, need 127,096 to 127,416 B of rom, past "
                                          "the 126,976 B 59.0 holds, so the entry is raised to the next half tile "
                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
-                                         "(#665): an image past its entry raises it"),
+                                         "(#665): an image past its entry raises it; 60.0 with the map edits' "
+                                         "commit through the EDIT window composed on them (#923): every arm's "
+                                         "fixture needs 129,920 to 130,424 B of rom, past the 129,024 B 59.5 "
+                                         "holds, by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
+                                         "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_480)), 61.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_672)), 62.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -296,28 +294,38 @@ LEDGERED: dict[str, Ledgered] = {
                                             "poll and its 1000BASE-T-only advertisement on that image (#919, "
                                             "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
                                             "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
-                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; and the "
-
+                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; the "
                                             "saved-state store's name marks over layout 3's id space and its step "
-                                            "a pass (#920), ctrl_plat 128 B more and 296 B more rom"),
+                                            "a pass (#920), 296 B more rom; 61.5 measured on the composed flip train "
+                                            "before the commit below (#665), 135,720 B of rom; and 62.0 with "
+                                            "the map edits' commit through the EDIT window (#923) on that train, "
+                                            "137,888 B of "
+                                            "rom, 672 B past the 137,216 B 61.5 holds, ctrl_plat at its measured "
+                                            "20,672 B, by the owner's rule of 2026-11-15 (#923's ruling of "
+                                            "2026-11-16, #665's of 2026-11-17): ROM debt of 6.0 RAMB36 owed to "
+                                            "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_304)), 56.5,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_496)), 57.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
-                                           "a shipping image, with SRP's Talker declarations (#895) and the PHY "
+                                           "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
                                            "rom past 56.0, by the owner's rule of 2026-11-15 (#923's ruling of "
                                            "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
-                                           "S14", product=True),
+                                           "S14; 57.0 measured on the composed flip train before the commit below "
+                                           "(#665), 134,136 B of rom; and 57.5 with "
+                                           "the map edits' commit through the EDIT window (#923) on that train, "
+                                           "136,304 B of rom, 1,136 B past the 135,168 B 57.0 holds, ctrl_plat "
+                                           "at its measured 18,496 B, by the same rule (#923's ruling of "
+                                           "2026-11-16, #665's of 2026-11-17): ROM debt of 1.5 RAMB36 owed to "
+                                           "S14"),
 }
 
 
-def product_point(image: Image) -> str | None:
-    """The product entry whose symbols `image` carries at their sizes, the point the product SoC build plans it
-    as; None for every other image, which the build holds to BUDGET_TILES."""
-    for name, point in LEDGERED.items():
-        if point.product and all(image.symbols.get(s, (0, None))[1] == size for s, size in point.symbols):
-            return name
-    return None
+def own_point(image: Image) -> str | None:
+    """The LEDGERED point whose every symbol `image` carries at its listed size, or None: the entry the product SoC
+    build plans it at (add_ctrl_memory, #923's ruling of 2026-11-16), every other image staying at the budget."""
+    return next((name for name, point in LEDGERED.items()
+                 if all(image.symbols.get(symbol, (0, None))[1] == size for symbol, size in point.symbols)), None)
 
 
 def ledgered_tiles(image: Image, name: str) -> float:

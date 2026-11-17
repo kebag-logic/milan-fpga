@@ -130,7 +130,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 61.0 RAMB36. The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers 61.0, owed to lane S14. The 8x8 image with one interface plans 56.5, its product entry's, which the product SoC build plans by the image's symbols.
+The 8x8 image with two interfaces plans 62.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and the map edits' commit through the `EDIT` window (#923) on the composed train to 62.0. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 57.5, at its own entry, which the product SoC build plans by the image's symbols.
 At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
 
 The smoke grader's verdicts on the simulated UART:
@@ -161,7 +161,7 @@ At this branch's head each boot reaches ready, at 26.370 ms (1x1, one interface)
 
 [`plat_ledger.py`](plat_ledger.py) links the platform image at the ledger's four points, 1x1 and 8x8 each with one and two interfaces, and grades each against `ctrl_memory.LEDGERED` ([SPLIT_CONTROL_MEMORY.md section 5](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 Each shape's `csr.csv` and flash map are its split SoC export's, from the CPU budget harness's `build.flash_map`, and the runtime archives are this simulation's.
-The 8x8 image with two interfaces is linked with `--ledgered-point platform-8x8-two-interfaces`, and every other image with no override.
+Each 8x8 image is linked with its own override, `--ledgered-point platform-8x8-two-interfaces` and `--ledgered-point platform-8x8-one-interface` (#923), and every 1x1 image with no override.
 Each image is graded on four checks, each apart, so that one finding does not hide another:
 
 - `LINK`: `ctrl_plat_image.py` exits 0, and the image's plan with its point's override is accepted;
@@ -170,7 +170,7 @@ Each image is graded on four checks, each apart, so that one finding does not hi
 - `LEDGER`: every override of the platform's image is linked at a point.
 
 A stale `ctrl_plat` key refused that image by its key for three rounds of #665, and hid that its plan had passed the tiles its override then held.
-So `--self-test` grades seven planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 8x8 one-interface plan (`TILES` there), the override not taken (`LINK`, `TILES`, `LEDGER`) and an override no point links (`LEDGER`).
+So `--self-test` grades nine planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 1x1 two-interface plan (`TILES` there), the override not taken at the 8x8 image with two interfaces and at the one with one (`LINK`, `TILES`, `LEDGER`), and an override no point links, at a point's own `ctrl_plat` and at a size no image has (`LEDGER`).
 
 ```sh
 python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir /tmp/plat-ledger --self-test

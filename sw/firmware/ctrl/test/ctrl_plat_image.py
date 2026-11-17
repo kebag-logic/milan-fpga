@@ -197,8 +197,8 @@ def main() -> int:
         if any(name not in sections for name in (".text", ".rodata", ".bss", ".stack")):
             raise Refusal("missing measured sections")
         linked = image.ctrl_memory.read_elf(elf)
-        # the point named, else a product entry's by the image's symbols, as the product SoC build plans it
-        plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.product_point(linked))
+        # the point named, else the entry whose symbols the image carries, as the product SoC build plans it
+        plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.own_point(linked))
         report = {"shape": args.config.stem, "interfaces": args.interfaces, "entry": "plat/ctrl_plat_main.c",
                   "sections": {name: length for name, (_, length) in sections.items()},
                   "largest_bss": largest_bss(symbols, sections, members), "ctrl_plat_members": members,

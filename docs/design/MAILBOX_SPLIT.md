@@ -1548,9 +1548,14 @@ them:
 - A STREAM_OUTPUT streams while the SRP owner holds its licence
   (`LICENCE.ACTIVE`; Milan v1.2 5.3.7.3).
 - `AMAP_LIVE_WRITE` is counted, not acted on: the core owns the maps.
-- The core holds the audio maps and does not apply a map change through the
-  `EDIT` window; a map change sets `DYN_DIRTY` only. Applying the maps to the
-  datapath is the placement switch's (see [Open items](#open-items)).
+- The core holds the audio maps and applies each accepted ADD or
+  REMOVE_AUDIO_MAPPINGS to the datapath's store through interface 0's `EDIT`
+  window before its own map moves, the release processor's transaction (begin,
+  validate each record, begin the commit, commit each, finish, or abort); a
+  refusal there is the command's answer and changes nothing (#923). The
+  restored maps reach the store the same way when AECP opens, after the
+  publication that carries the restore's terminal. A map change also sets
+  `DYN_DIRTY`.
 
 ## The placement switch
 
@@ -1594,8 +1599,8 @@ the FIFO's own overflow indication, since a FIFO that drops when full never
 lowers its ready.
 
 The map writer goes because the firmware's AECP owner holds the maps
-(#665). Its registers rest at reset, but the restore's
-hold, which is 0.
+(#665) and applies them through the `EDIT` window (#923). Its registers rest
+at reset, but the restore's hold, which is 0.
 
 ### The split's control face
 
@@ -2211,7 +2216,6 @@ report_timing_summary -delay_type max
   all-fabric exclusion ([Every port, one class](#every-port-one-class)), and
   the split census holds the net to that one port. The firmware's sequence
   is in [REBOOT_RESET.md](REBOOT_RESET.md#8-the-split-placement).
-- **The audio maps on the datapath.** The AECP owner holds the maps and does
-  not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
-  the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
-  placement switch's.
+- **The live map writes on the datapath.** The AECP owner applies every map
+  change to the datapath's store through the `EDIT` window (#923); the live
+  map writes `AMAP_LIVE_WRITE` counts are still counted only.

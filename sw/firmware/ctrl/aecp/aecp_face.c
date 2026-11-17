@@ -243,6 +243,76 @@ static bool counters(void *ctx, unsigned interface, uint16_t type, uint16_t inde
 	return true;
 }
 
+// The EDIT window's beats (the processor's amap_edit_phase_o): begin validation, begin the commit, finish, abort,
+// validate a record, commit a record. EDIT_REQ is request word 0, EDIT_BEAT 1, EDIT_RECORD_LO 2 and _HI 3.
+enum { BEGIN = 0u, COMMIT = 1u, FINISH = 2u, ABORT = 3u, VALIDATE = 4u, APPLY = 5u };
+
+// One beat: its phase and record into EDIT_BEAT, request words from .. to - 1 written; *accepted the verdict's bit
+// 0. False when the datapath gave no answer within the window's bound.
+static bool beat(struct aecp_face *f, uint32_t *request, unsigned phase, size_t rec, unsigned from, unsigned to,
+		 bool *accepted)
+{
+	request[1] = (request[1] & ~(mbx_place(0xFFu, MBX_EDIT_BEAT_PHASE_LSB, MBX_EDIT_BEAT_PHASE_WIDTH) |
+				     mbx_place(0xFFu, MBX_EDIT_BEAT_REC_LSB, MBX_EDIT_BEAT_REC_WIDTH))) |
+		     mbx_place(phase, MBX_EDIT_BEAT_PHASE_LSB, MBX_EDIT_BEAT_PHASE_WIDTH) |
+		     mbx_place((uint32_t)rec, MBX_EDIT_BEAT_REC_LSB, MBX_EDIT_BEAT_REC_WIDTH);
+	uint64_t verdict = 0;
+	if (mbx_win_ask(0u, MBX_WIN_EDIT, request, from, to, &verdict) != MBX_STATUS_OK) {
+		++f->unanswered;
+		return false;
+	}
+	*accepted = (verdict & 1u) != 0u;
+	return true;
+}
+
+// A record beat: the k-th record's two wire quadlets into EDIT_RECORD_HI:LO, {stream_index, stream_channel} and
+// {cluster_offset, cluster_channel}.
+static bool record(struct aecp_face *f, uint32_t *request, unsigned phase, const uint8_t *records, const uint8_t *pick,
+		   size_t k, bool *accepted)
+{
+	const uint8_t *r = records + 8u * (pick != NULL ? pick[k] : k);
+	request[3] = (uint32_t)wire_be32(r);
+	request[2] = (uint32_t)wire_be32(r + 4);
+	return beat(f, request, phase, k, 1u, 4u, accepted);
+}
+
+// ADD and REMOVE_AUDIO_MAPPINGS on the datapath's map store through interface 0's EDIT window, the one store its
+// render reads, as the release's processor edited it (KL_aecp_engine's transaction face): begin, each record
+// validated, the commit begun, each record committed, finished; a refused begin (no dynamic map there), record or
+// commit-begin aborts (#923; Milan v1.2 5.4.2.27, 5.4.2.28). An accepted commit-begin reserves the commit, so no
+// later beat refuses. The store's edit face waits from reset until the restore's terminal and its boot sweep after
+// it, so a begin with no answer is asked once more.
+static unsigned edit(void *ctx, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+		     size_t count)
+{
+	struct aecp_face *f = ctx;
+	uint32_t request[MBX_WIN_REQUEST_WORDS] = {
+		mbx_place(type, MBX_EDIT_REQ_TYPE_LSB, MBX_EDIT_REQ_TYPE_WIDTH) |
+			mbx_place(index, MBX_EDIT_REQ_INDEX_LSB, MBX_EDIT_REQ_INDEX_WIDTH),
+		mbx_place(remove ? 1u : 0u, MBX_EDIT_BEAT_REMOVE_LSB, MBX_EDIT_BEAT_REMOVE_WIDTH) |
+			mbx_place((uint32_t)count, MBX_EDIT_BEAT_COUNT_LSB, MBX_EDIT_BEAT_COUNT_WIDTH)};
+	bool ok = false;
+	unsigned status = beat(f, request, BEGIN, 0u, 0u, 2u, &ok) || beat(f, request, BEGIN, 0u, 0u, 2u, &ok)
+		? (ok ? AECP_SUCCESS : AECP_NOT_SUPPORTED) : AECP_ENTITY_MISBEHAVING;
+	for (size_t k = 0; status == AECP_SUCCESS && k < count; ++k) {
+		status = !record(f, request, VALIDATE, records, pick, k, &ok) ? AECP_ENTITY_MISBEHAVING
+			: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;
+	}
+	if (status == AECP_SUCCESS) {
+		status = !beat(f, request, COMMIT, 0u, 1u, 2u, &ok) ? AECP_ENTITY_MISBEHAVING
+			: ok ? AECP_SUCCESS : AECP_BAD_ARGUMENTS;
+	}
+	if (status != AECP_SUCCESS) {
+		(void)beat(f, request, ABORT, 0u, 1u, 2u, &ok);
+		return status;
+	}
+	for (size_t k = 0; k < count; ++k) {
+		(void)record(f, request, APPLY, records, pick, k, &ok);
+	}
+	(void)beat(f, request, FINISH, 0u, 1u, 2u, &ok);
+	return AECP_SUCCESS;
+}
+
 static uint32_t random_value(void *ctx)
 {
 	struct aecp_face *f = ctx;
@@ -276,7 +346,7 @@ void aecp_face_init(struct aecp_face *f, const struct aecp_ports *platform)
 	memset(f, 0, sizeof *f);
 	f->platform = platform;
 	f->ports = (struct aecp_ports){.ctx = f, .random = random_value, .stream = stream, .avb = avb, .path = path,
-		.counters = counters, .changed = changed, .format = format, .applied = applied};
+		.counters = counters, .changed = changed, .format = format, .applied = applied, .edit = edit};
 }
 
 void aecp_face_attach(struct aecp_face *f, struct aecp *core)
