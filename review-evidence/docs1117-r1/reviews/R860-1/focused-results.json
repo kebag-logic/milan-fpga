@@ -1,0 +1,81 @@
+[
+  {
+    "name": "docs_check",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc_style",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "em_dash",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6b66f66d"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "contents",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc_paths",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "inventory",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "feature_status",
+    "command": [
+      "$REVIEWS/docs1117-r860-1-packet/scratch/venv/bin/python",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diff_check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "6b66f66d..HEAD"
+    ],
+    "rc": 0
+  }
+]

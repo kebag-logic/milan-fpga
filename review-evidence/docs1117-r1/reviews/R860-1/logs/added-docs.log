@@ -1,0 +1,18 @@
+RESOLVES CONTRIBUTING.md 189 #23-batched-merges
+RESOLVES AGENTS.md 299 CONTRIBUTING.md#23-batched-merges
+RESOLVES AGENTS.md 434 CONTRIBUTING.md#23-batched-merges
+RESOLVES docs/testing/CI_WORKFLOWS.md 277 ../../CONTRIBUTING.md#23-batched-merges
+Negative fragment control: rejected 23-batched-mergez
+CONTRIBUTING.md:189-190: 22 words: A PR merged through a batch uses the batch's candidate.    That candidate gates the composed tree, not each member's own merge result.
+CONTRIBUTING.md:425-427: 16 words: Issue #665's decision replaces repeated sync rounds with one composition. It builds on the one-candidate decision.
+CONTRIBUTING.md:429-430: 24 words: Section 2.1 still governs every PR up to its two positive reviews. This section governs how reviewed PRs reach the base branch together.
+AGENTS.md:298-300: 29 words: A frozen PR is not re-reviewed because its base moved. CONTRIBUTING.md section 2.3 freezes a PR at two positives. Re-review it only when its own change changes.
+AGENTS.md:302-303: 19 words: A composition review has a narrow diff. It covers the conflict resolutions, the composition fixes and the composed measurements.
+AGENTS.md:305-306: 21 words: State lens coverage as usual, at the composition head. Cover a lens that no resolution touches by naming the clean merges.
+AGENTS.md:401-402: 23 words: In a composed batch, each member's ledger stays banked at its frozen head.   Another member's commits are covered by that member's own ledger.
+AGENTS.md:404-405: 21 words: Only the conflict resolutions and the composition fixes are new change.   The composition review's ledger covers those, at the composition head.
+AGENTS.md:407-408: 19 words: Interactions that merge without conflict are checked by the batch candidate, not by review.   Issue #665's decision records this.
+docs/testing/CI_WORKFLOWS.md:273-274: 24 words: Merge validation gates the composed tree before every merge into the base. Its candidate on the live base runs builder and full native banks.
+docs/testing/CI_WORKFLOWS.md:276-277: 19 words: A batch merges once, so one candidate covers all its members. CONTRIBUTING.md section 2.3 defines that path.
+docs/testing/CI_WORKFLOWS.md:279-281: 27 words: Those banks catch interactions with intervening base changes. Scope selection therefore need not charge those changes to PRs. The hosted required contexts and merge validation remain mandatory.
+Second commit: whitespace-only change confirmed.

@@ -1,0 +1,31 @@
+Use a clean detached checkout at ee5c6f922a5863e25cef5bbc5f37289acf4e4777.
+Pass its path as REPO, and an absolute output directory as PACKET.
+All disposable environments and extracted files belong under PACKET/scratch.
+
+Prerequisites: Python, PyYAML, Git, and the diagram renderer available as mmdc.
+Install the hash-pinned tools/markdown/requirements.txt into a private environment.
+Set DOC_PYTHON to that environment's Python executable.
+The original run used Python 3.14 and diagram renderer 11.16.0.
+
+Foreground commands:
+  python3 run_focused.py "$REPO" "$PACKET" "$DOC_PYTHON"
+  "$DOC_PYTHON" -B check_added_docs.py "$REPO"
+  python3 render_diagrams.py "$REPO" "$PACKET"
+  python3 verify_checkout.py "$REPO"
+
+The focused runner joins at most four checks before it exits.
+The diagram runner joins at most two single-job renderers.
+No source files are mutated by these scripts.
+
+Public receipt audit, after fetching the immutable archive commit into REPO:
+  git -C "$REPO" fetch --no-tags origin fd6e25a49ad62d606d972c7eeb7ffe5ed7b9f4a0
+  python3 extract_public_receipts.py "$REPO" "$PACKET"
+  python3 audit_evidence.py "$REPO" "$PACKET/scratch/archive/review-evidence/docs1117-r1"
+
+Expected: every command exits zero. The receipt audit verifies 174 hashes and
+71 successful run-step records. It explicitly reports the digest-only raw log
+and excluded hosted plumbing. It does not execute the author's replay script.
+
+Host API snapshots are point-in-time public readbacks, not reproduction targets.
+Publication excludes scratch/. Check published bytes from this directory with:
+  sha256sum -c MANIFEST.sha256
