@@ -1,0 +1,9 @@
+all-fabric Talker FirstValues: [(1, '020000000001000091e0f00001000002004900017000000000')]
+MSRP Talker Advertise stream_id 0200000000010000: New x2 from ms 5200, JoinMt x15 from ms 5600, Lv x1 from ms 20000, Mt x5 from ms 21000; received no MSRPDU, its Registrar MT throughout
+LeaveAll declarations: [('{Talker Advertise stream_id 0200000000010000; Domain value 06030002}', 1), ('{Domain value 06030002}', 5)]
+split Talker FirstValues: [(1, '020000000001000091e0f0000100000200d900017000000000')]
+MSRP Talker Advertise stream_id 0200000000010000: New x2 from ms 5190, JoinMt x19 from ms 5570, Lv x1 from ms 20190; received no MSRPDU, its Registrar MT throughout
+LeaveAll declarations: [('{Talker Advertise stream_id 0200000000010000; Domain value 06030002}', 1), ('{Domain value 06030002}', 4)]
+Head comparator: zero findings on local captures
+Base comparator on identical local captures:
+[DIFF] owed row split-talker-failed does not hold: the fabric sent [MSRP Talker Advertise stream_id 0200000000010000: New x2, JoinMt x15, Lv x1, Mt x5] (the row: Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws), the split [MSRP Talker Advertise stream_id 0200000000010000: New x2, JoinMt x19, Lv x1] (the row: Talker Failed for both sources' streams from boot, never withdrawn)

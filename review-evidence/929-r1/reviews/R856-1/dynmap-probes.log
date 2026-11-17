@@ -1,0 +1,24 @@
+[FAIL] the dynmap leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex (make rc 0: ) - its mutant results are meaningless
+probe: mutant execution stubbed
+
+2 checks: 1 PASS, 1 FAIL
+[FAIL] the maprec8 leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex (make rc 0: ) - its mutant results are meaningless
+probe: mutant execution stubbed
+
+2 checks: 1 PASS, 1 FAIL
+[FAIL] the maprec4 leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex (make rc 0: ) - its mutant results are meaningless
+probe: mutant execution stubbed
+
+2 checks: 1 PASS, 1 FAIL
+[FAIL] the listener leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex, tdm8r_aemi.bin (make rc 0: ) - its mutant results are meaningless
+probe: mutant execution stubbed
+
+2 checks: 1 PASS, 1 FAIL
+[FAIL] the talker leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex (make rc 0: ) - its mutant results are meaningless
+probe: mutant execution stubbed
+
+2 checks: 1 PASS, 1 FAIL
+listener: actual input recipe PASS; ltn_rom.hex=6138, ucode.hex=26624, tdm8r_aemi.bin=7512
+talker: actual input recipe PASS; ltn_rom.hex=6138, ucode.hex=26624
+COMMAND ['/usr/bin/python3', '-B', '<packet>/scratch/dynmap/tb/verilator/milan_dp/dynmap_mutants.py', '--jobs', '4', '36', '37']
+focused campaign rc 0

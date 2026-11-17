@@ -1,0 +1,18 @@
+Verilator 5.050 2026-07-01 rev v5.050
+Changed files:
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/test/srp_arms.py
+sw/firmware/ctrl/test/srp_mbx.cpp
+sw/firmware/ctrl/test/srp_mutants.py
+sw/firmware/ctrl/test/test_ctrl_firmware.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/dynmap_mutants.py
+tb/verilator/milan_dp/twin_compare.py
+tb/verilator/milan_dp/twin_plants.py
+Diff whitespace check PASS; no production firmware/RTL/gitlink delta
+Scheduled source mutants: 2 interface(s), 306 defects
+New #929 mutants: ['startup-8x8-sources-past-two-undeclared', 'startup-8x8-failure-code-past-two', 'duplicate-tick-owner-8x8']
+Scheduled source mutants: 1 interface(s), 116 defects
+New #929 mutants: []
+Dispatcher also invokes the two lwsrp_pin_arms refusal controls; full campaigns NOT RUN here
