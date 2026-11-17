@@ -188,9 +188,12 @@ def run_out_miss(group: str, o: dict) -> str:
         return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
             ' at the expiry (owner unresolved)'
     opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
+    if o['outcome'] == 'late' and o.get('by') == 'bound':
+        return (at + f" ({o.get('who')}): no frame or build of its owner's within THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+                f"ms of {opp}, a build {o['after_ms']:.3f} ms after it (late)")
     if o['outcome'] == 'late':
-        return (at + f" ({o.get('who')}): its owner's first frame, or first build, {o['after_ms']:.3f} ms after {opp}, "
-                f"past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+        return (at + f" ({o.get('who')}): its owner's first frame or build {o['after_ms']:.3f} ms after {opp}, past "
+                f"THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
     return at + f" ({o.get('who')}): no build after it though the log runs on {o['after_ms']:.3f} ms past {opp} " \
         '(absent)'
 

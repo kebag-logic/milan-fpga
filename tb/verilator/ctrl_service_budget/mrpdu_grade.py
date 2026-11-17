@@ -13,16 +13,20 @@ no frame shows it. So a timer's run-out is resolved by the builds that follow it
 (#894's egress ruling of 2026-11-13, item 4; resolve): the first after it and, where the other participant or
 interface owes one too, the next, at most one ordinary or idle pass standing between two (ctrl_loop.c, whole_runs), each
 build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). Each
-run-out is judged on its owner alone, the participant the testbench recorded at the expiry (recorded_owner; PR #934):
-the frames that answer it are the owner's (served), and its lateness counts from the owner's first transmit
-opportunity. The run-out is `released` where its builds send the owner's frames; `empty` where they send none of the
-owner's; `late` where the owner's first frame comes past THE TRANSMIT's bound (LATE_MS) after the owner's opportunity,
-or where the first build sends none of the owner's and comes past the bound after it (anchor); `absent` where no build
-follows it in a log that runs on past the bound after the owner's opportunity (horizon), and `unresolved` where the log
-ends first; and whatever its builds sent, `unowned` where the testbench recorded no owner at the expiry, or recorded it
-unresolved. Another participant's callback, running join timer or frame never defers a run-out's deadline nor answers
-it. A late, absent or unowned run-out fails the run (join_grade.held); an unresolved one is counted and named, never
-taken for one that owes nothing.
+run-out is judged on its owner alone, the participant the testbench recorded at the expiry (recorded_owner; PR #934),
+and on the owner's first transmit opportunity. Only a build that can be the owner's settles it (settle, candidate):
+the testbench records each build's participant at the build itself (builder; srp_mbx.c's build_mrpdu builds one
+participant's MRPDU), and a build recorded as another participant's, or any build before the owner's opportunity,
+never settles it. The run-out is `released` where the settling build's run sends the owner's frames (served); `empty`
+where the owner's own build sends none of them; `late` where the owner's first frame, or the owner's build that sends
+nothing, comes past THE TRANSMIT's bound (LATE_MS) after the owner's opportunity (anchor), or where no build settles it
+by then and a build comes past the bound; `absent` where no build follows it in a log that runs on past the bound after
+the owner's opportunity (horizon), and `unresolved` where the log ends first; and whatever its builds sent, `unowned`
+where the testbench recorded no owner at the expiry, or recorded it unresolved. A build with no participant recorded
+settles a run-out only on the owner's frames: it is never taken for the owner's build that sends nothing. Another
+participant's callback, running join timer, build or frame never defers a run-out's deadline nor settles it. A late,
+absent or unowned run-out fails the run (join_grade.held); an unresolved one is counted and named, never taken for one
+that owes nothing.
 
 A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
 at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
@@ -223,15 +227,64 @@ def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
 def built(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, int]]]:
     """What the builds after the timer's run-out at entry did for its owner who (resolve): each judged on the owner
     alone, its frames the owner's and its lateness from the owner's first transmit opportunity. Another participant's
-    callback, running join timer or frame neither defers the run-out's deadline nor answers it (PR #934)."""
-    last, bound = index(log)[3], int(LATE_MS * log.sys_hz / 1000)
-    first, frames = window(log, entry)
-    if first is None:
-        return ('absent' if last > horizon(log, entry, who) + bound else 'unresolved'), []
-    mine, start = served(log, entry, who, frames)
-    if mine:
-        return ('late' if mine[0][0] > start + bound else 'released'), mine
-    return ('late' if first > anchor(log, entry) + bound else 'empty'), []
+    callback, running join timer, build or frame neither defers the run-out's deadline nor answers it (PR #934)."""
+    outcome, frames, _, _ = settle(log, entry, who)
+    return outcome, frames
+
+
+def settle(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, int]], int | None, str]:
+    """The owned run-out's outcome, the owner's frames that answer it, the cycle a late one rests on, and on what:
+    `owner` its owner's frame or build, `bound` the first build past THE TRANSMIT's bound with none of the owner's.
+
+    The builds after the run-out are taken in turn (candidate): the first that can be the owner's settles it. A build
+    the testbench recorded as the owner's settles it on the owner's frames of its builds (served), or as the owner's
+    own build that sends nothing (anchor). One it recorded no participant for settles it only on the owner's frames:
+    it is never taken for the owner's empty build. A build before the owner's opportunity, or another participant's,
+    never settles it. With none settling by the bound, the first build past it makes the run-out late; with no build
+    after it at all, the log's end decides absent or unresolved (horizon)."""
+    builds, _, _, last = index(log)
+    bound = int(LATE_MS * log.sys_hz / 1000)
+    start = opportunity(log, who, entry)
+    past = None
+    for k in range(bisect_right(builds, entry), len(builds)):
+        b = builds[k]
+        kind = candidate(log, b, who, start)
+        if kind is not None:
+            mine, since = served(log, entry, who, run_from(log, k)[1])
+            if mine:
+                late = mine[0][0] > since + bound
+                return ('late' if late else 'released'), mine, mine[0][0] if late else None, 'owner'
+            if kind == 'own':
+                late = b > anchor(log, entry) + bound
+                return ('late' if late else 'empty'), [], b if late else None, 'owner'
+        if past is None and b > start + bound:
+            past = b
+    if past is not None:
+        return 'late', [], past, 'bound'
+    return ('absent' if last > horizon(log, entry, who) + bound else 'unresolved'), [], None, 'owner'
+
+
+def candidate(log: grade.Log, b: int, who: str, start: int) -> str | None:
+    """Whether the build at bus cycle b can settle the run-out its owner who answers from its opportunity start
+    (settle): `own` where the testbench recorded it as the owner's build (builder), `unattributed` where it recorded
+    none, and None where it recorded another participant's, or the build comes before the owner's opportunity."""
+    if b < start:
+        return None
+    whose = builder(log, b)
+    return 'own' if whose == who else 'unattributed' if whose is None else None
+
+
+def builder(log: grade.Log, b: int) -> str | None:
+    """The participant whose MRPDU the build at bus cycle b made, as the testbench recorded it at the build's entry
+    (srp_mbx.c's build_mrpdu, one participant's MRPDU a build; sim_main.cpp, builder_of), or None where it recorded none
+    or recorded it unresolved."""
+    return log.owners.get((b, BUILD))
+
+
+def late_at(log: grade.Log, entry: int) -> tuple[int | None, str]:
+    """The cycle a late run-out's judgement rests on, and on what (settle), for its finding (join_grade.held)."""
+    who = recorded_owner(log, entry)
+    return settle(log, entry, who)[2:] if who else (None, 'owner')
 
 
 def horizon(log: grade.Log, entry: int, who: str) -> int:
@@ -253,11 +306,16 @@ def served(log: grade.Log, entry: int, who: str, frames: list[tuple[int, int]]) 
 def window(log: grade.Log, entry: int) -> tuple[int | None, list[tuple[int, int]]]:
     """The first build after the timer's run-out at entry, or None for none, and the (cycle, interface) of every
     participant's frames its builds committed, as the module docstring says."""
+    k = bisect_right(index(log)[0], entry)
+    return run_from(log, k) if k < len(index(log)[0]) else (None, [])
+
+
+def run_from(log: grade.Log, k: int) -> tuple[int, list[tuple[int, int]]]:
+    """The build at index k of the log's builds and the (cycle, interface) of every participant's frames its run of
+    builds committed: it and the builds after it with at most one ordinary or idle pass between two, each build's frames
+    those it commits and those it leaves owed (the module docstring)."""
     builds, passes, sent, _ = index(log)
     starts = [p.start_sys for p in passes]
-    k = bisect_right(builds, entry)
-    if k == len(builds):
-        return None, []
 
     def pass_at(cycle: int) -> int:
         """The index of the pass a build at that cycle ran in."""

@@ -23,10 +23,11 @@ OBSERVED = {'VexiiRiscv': ('vexiis_0_logic_core', 'WhiteboxerPlugin_logic_commit
 OWNED_ENTRIES = ('on_join_timer', 'on_pt_timer', 'on_la_timer')
 #: The functions the participants' registry reads the CPU's registers at (sim_main.cpp, note_owner), by the constant
 #: that names each: each application's creation, the timers' registration, the LeaveAll timer's callback the
-#: registration names, and the Domain's publication that ends an interface's creation.
+#: registration names, and the Domain's publication that ends an interface's creation; and an MRPDU's build, whose
+#: slot names its participant (sim_main.cpp, builder_of).
 OWNER_HOOKS = (('msrp_create_pc', 'msrp_app_create'), ('mvrp_create_pc', 'mvrp_app_create'),
                ('timer_init_pc', 'shlan_timer_init'), ('la_timer_pc', 'on_la_timer'),
-               ('pub_domain_pc', 'mbx_pub_domain'))
+               ('pub_domain_pc', 'mbx_pub_domain'), ('build_pc', 'build_mrpdu'))
 
 
 def owner_lines(entries: tuple[str, ...], table: dict[str, int], paths: dict[str, tuple[str, str]]) -> list[str]:

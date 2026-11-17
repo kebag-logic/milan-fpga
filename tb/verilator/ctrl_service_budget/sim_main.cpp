@@ -336,11 +336,14 @@ private:
                 pass_.aged = pass_.aged || !pass_.mbx_seen;
             }
             // A function entry a probe starts at (a test-only entry's call), by its symbol; an MRP timer's
-            // expiry with its owner, read off its own argument at the entry (owner_of).
+            // expiry with its owner, read off its own argument at the entry (owner_of); an MRPDU's build with its
+            // participant, read off its slot at the entry (builder_of).
             for (unsigned e = 0; e < n_entries; ++e)
                 if (last_pc_ == entry_pc[e]) {
                     if (entry_owned[e])
                         std::printf("ENTRY %llu %s %s\n", ull(sys_), entry_name[e], owner_of(dut).c_str());
+                    else if (entry_pc[e] == build_pc)
+                        std::printf("ENTRY %llu %s %s\n", ull(sys_), entry_name[e], builder_of(dut).c_str());
                     else
                         std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
                 }
@@ -447,6 +450,17 @@ private:
         if (at != owners_.end()) return at->second;
         char buf[32];
         std::snprintf(buf, sizeof buf, "unresolved %08x", arg);
+        return buf;
+    }
+
+    // A build's participant (#665, PR #934): srp_mbx.c's build_mrpdu(m, i, slot) builds exactly one participant's
+    // MRPDU, slot 2n interface n's MSRP and 2n + 1 its MVRP (participant), its slot a2 at the entry; a slot past the
+    // point's interfaces is unresolved.
+    std::string builder_of(const Vsim& dut) const {
+        const std::uint32_t slot = reg(dut, 12);
+        if (slot / 2u < n_if) return "if" + std::to_string(slot / 2u) + (slot % 2u ? " MVRP" : " MSRP");
+        char buf[32];
+        std::snprintf(buf, sizeof buf, "unresolved %08x", slot);
         return buf;
     }
 

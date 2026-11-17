@@ -887,6 +887,15 @@ MUTANTS: dict[str, Patches] = {
             frames[0], ())] or [entry]) if frames else entry))],
     "transmit: another participant's MRPDU credited to a run-out, timed from its owner": lambda: [patch.object(
         mrpdu_grade, 'served', lambda log, entry, who, frames: (frames, mrpdu_grade.opportunity(log, who, entry)))],
+    "transmit: a build's recorded participant ignored, every build from the owner's opportunity taken for the owner's":
+        lambda: [patch.object(mrpdu_grade, 'candidate', lambda log, b, who, start: 'own' if b >= start else None)],
+    "transmit: a run-out settled by the first build after it, whichever participant's (earlier rule)": lambda: [
+        patch.object(mrpdu_grade, 'candidate', lambda log, b, who, start: 'own')],
+    "transmit: a build with no participant recorded that sends nothing taken for the owner's": lambda: [patch.object(
+        mrpdu_grade, 'candidate', lambda log, b, who, start, f=mrpdu_grade.candidate: (
+            lambda kind: 'own' if kind == 'unattributed' else kind)(f(log, b, who, start)))],
+    "transmit: the owner's own build before its transmit opportunity settling its run-out": lambda: [patch.object(
+        mrpdu_grade, 'candidate', lambda log, b, who, start, f=mrpdu_grade.candidate: f(log, b, who, -1))],
     "transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)":
         lambda: [patch.object(mrpdu_grade, 'start_of', lambda log, entry, whose: min([
             mrpdu_grade.opportunity(log, other, entry) for other in whose] or [entry]))],

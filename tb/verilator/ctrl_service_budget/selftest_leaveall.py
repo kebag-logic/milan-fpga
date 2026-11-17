@@ -57,8 +57,10 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
         LeaveAll, interface), each committed at its ms after its build, in a pass of its own; its timers' entries
         (ms, callback, owner) just after their ms's TICK, the owner as the testbench records it at the expiry (a
         participant, `unresolved`, or None for no record); passes with no build at the ms in ordinary; and builds
-        that send nothing, each in a pass of its own, at the ms in empty. Its timer rows and its join intervals and
-        run-outs (join_grade.held)."""
+        that send nothing, each in a pass of its own, at the ms in empty, each an ms or (ms, participant). Each build
+        names its participant at its entry as the testbench records it, a send's its MRPDU's and an empty build its
+        own where one is given (none recorded otherwise). Its timer rows and its join intervals and run-outs
+        (join_grade.held)."""
         lines, word = ['MARK 1000 save.change'], 0
         for at in range(900, 1_501, 10):
             lines += [f'EVW {at * ms} {n} {w:08x}' for n, w in enumerate((mrpdu_grade.TICK, 1, 0, 0))]
@@ -66,9 +68,14 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
             frame = mrpdu(kind, leave)
             lines += tx_record(srp, interface, frame, word, at * ms)
             word += 2 + (len(frame) + 3) // 4
-        lines += [f'ENTRY {at * ms - 2000} build_mrpdu' for at in sorted([s[0] for s in sends] + list(empty))]
+        idle = [e if isinstance(e, tuple) else (e, None) for e in empty]
+        builds = [(at, f'if{interface} {mrpdu_grade.APPLICATIONS[kind]}') for at, kind, _, interface in sends] + idle
+        seen: dict[int, int] = {}
+        for at, who in sorted(builds, key=lambda b: (b[0], b[1] or '')):
+            seen[at] = seen.get(at, -1) + 1
+            lines.append(f'ENTRY {at * ms - 2000 + seen[at]} build_mrpdu' + (f' {who}' if who else ''))
         lines += [f'PASS {at} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
-                  for at in sorted({at for at, _, _, _ in sends} | set(ordinary) | set(empty))]
+                  for at in sorted({at for at, _, _, _ in sends} | set(ordinary) | {at for at, _ in idle})]
         lines += [f'ENTRY {at * ms + 100} {name}' + (f' {who}' if who else '') for at, name, who in timers]
         log = grade.parse(synthetic(lines), sys_hz, cpu_hz)
         group = scenario.Group('leaveall', save=dict(loaded=True, origin='save.change'))
@@ -99,7 +106,7 @@ def leave_all_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz:
     graded = harness(synthetic, sys_hz, cpu_hz, tx_record)
     single, one = single_checks(graded)
     return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded) + \
-        foreign_checks(graded)
+        foreign_checks(graded) + builder_checks(graded)
 
 
 def single_checks(graded: Graded) -> tuple[list[Check], list[str]]:
@@ -243,11 +250,13 @@ def anchor_checks(graded: Graded) -> list[Check]:
     # the periodic timer's run-out at 1,300 ms; MSRP's join timer ran out at 1,180 ms, and a commit at 1,250 ms arms one
     # to the 1,430 ms TICK; each build at 1,360 or 1,460 ms sends nothing
     cases = dict(
-        alone=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'),), (1_400,), (1_360,)),
+        alone=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'),), (1_400,), ((1_360, 'if0 MSRP'),)),
         callback=graded(((1_000, MSRP, False, 0),), ((1_300, pt, 'if0 MSRP'), (1_330, join, 'if0 MVRP')), (1_400,),
-                        (1_360,)),
-        own=graded(((1_000, MSRP, False, 0), (1_250, MSRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)),
-        other=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (), (1_460,)))
+                        ((1_360, 'if0 MSRP'), (1_361, 'if0 MVRP'))),
+        own=graded(((1_000, MSRP, False, 0), (1_250, MSRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (),
+                   ((1_460, 'if0 MSRP'),)),
+        other=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, 'if0 MSRP'),), (),
+                     ((1_460, 'if0 MSRP'),)))
     late = {k: ([(f['kind'], f['from_ms'], f['after_ms']) for f in h['failing']], h['runs']['empty'])
             for k, (_, h) in cases.items()}
     said = named_late(cases['callback'][1])
@@ -257,8 +266,8 @@ def anchor_checks(graded: Graded) -> list[Check]:
                 late == {'alone': ([('periodic', 1300.001, 59.979)], 0),
                          'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
                          'other': ([('periodic', 1300.001, 159.979)], 0)} and said == [
-                    "c: the periodic timer's run-out at 1300.001 ms (if0 MSRP): its owner's first frame, or first "
-                    "build, 59.979 ms after the owner's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms "
+                    "c: the periodic timer's run-out at 1300.001 ms (if0 MSRP): its owner's first frame or build "
+                    "59.979 ms after the owner's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms "
                     "(late)"],
                 str((late, said))))
     return out + unowned_checks(graded)
@@ -272,7 +281,7 @@ def unowned_checks(graded: Graded) -> list[Check]:
     cases = dict(
         # no owner recorded; its build at 1,360 ms sends nothing, 59.979 ms after the run-out
         none=graded(((1_000, MSRP, False, 0), (1_040, MVRP, False, 0)), ((1_300, pt, None), (1_330, join, 'if0 MVRP')),
-                    (1_400,), (1_360,)),
+                    (1_400,), ((1_360, 'if0 MVRP'),)),
         # no owner recorded, and MVRP's join timer, armed at 1,250 ms, runs to the 1,430 ms TICK: the latest of the
         # participants' opportunities would hold the build at 1,460 ms
         running=graded(((1_000, MSRP, False, 0), (1_250, MVRP, False, 0)), ((1_300, pt, None),), (), (1_460,)),
@@ -316,9 +325,11 @@ def foreign_checks(graded: Graded) -> list[Check]:
         _, short = graded(prior, timer, (1_340,))
         missing[who] = (failing(peer), failing(short), short['runs']['unresolved'])
         out = {}
-        for case, extra in (('late', (1_431, other, False, 1 - i)), ('within', (1_311, other, False, 1 - i)),
-                            ('own', (1_311, app, False, i))):
-            rows, held = graded(prior + (extra,), timer, (1_500,))
+        for case, extra, idle in (('late', (1_431, other, False, 1 - i), ()),
+                                  ('within', (1_311, other, False, 1 - i), ()),
+                                  ('shared', (1_312, other, False, 1 - i), ((1_311, who),)),
+                                  ('own', (1_311, app, False, i), ())):
+            rows, held = graded(prior + (extra,), timer, (1_500,), idle)
             out[case] = ([o for o, n in held['runs'].items() if n], failing(held),
                          {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows})
         frames[who] = out
@@ -329,16 +340,63 @@ def foreign_checks(graded: Graded) -> list[Check]:
         starts[who] = {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows}
     name = {i_a: f'if{i_a[0]} {mrpdu_grade.APPLICATIONS[i_a[1]]}' for i_a in ((i, a) for i, a, _ in combos)}
     want_missing = {who: ([('periodic', 'absent', who, 1300.001)], [], 1) for who in name.values()}
-    want_frames = {who: dict(late=(['late'], [('periodic', 'late', who, 1300.001)], {}), within=(['empty'], [], {}),
-                             own=(['released'], [], {f'periodic.if{i}': 11.0})) for (i, _), who in name.items()}
+    want_frames = {who: dict(late=(['late'], [('periodic', 'late', who, 1300.001)], {}),
+                             within=(['absent'], [('periodic', 'absent', who, 1300.001)], {}),
+                             shared=(['empty'], [], {}), own=(['released'], [], {f'periodic.if{i}': 11.0}))
+                   for (i, _), who in name.items()}
     want_starts = {who: {f'periodic.if{i}': 10.0} for (i, _), who in name.items()}
     return [("a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit "
              "opportunity, though another participant's join timer runs on, for either application on either "
              "interface; a log that ends first leaves it unresolved", missing == want_missing, str(missing)),
-            ("a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound "
-             "after its owner's opportunity, empty within it, no row for either interface, for either application on "
-             "either interface; the owner's own MRPDU on time is released and times the owner's row",
+            ("another participant's build or MRPDU answers nothing for a run-out, for either application on either "
+             "interface: absent where its owner builds nothing, late where a build comes only past the bound; the "
+             "owner's own build that sends nothing is empty though the other's MRPDU follows in its run, no row; the "
+             "owner's own MRPDU on time is released and times the owner's row",
              frames == want_frames, str(frames)),
             ("a timer's row starts at its owner's first transmit opportunity, for either application on either "
              "interface, though its commit carries another participant's MRPDU whose opportunity came earlier",
              starts == want_starts, str(starts))]
+
+
+def builder_checks(graded: Graded) -> list[Check]:
+    """A run-out settled only by a build that can be its owner's (mrpdu_grade.settle, candidate; PR #934): the build's
+    participant as the testbench records it at the build (srp_mbx.c's build_mrpdu builds one participant's MRPDU), for
+    either application on either interface, the other participant the other application on the other interface. The
+    owner's opportunity is the run-out at 1,300.001 ms (its last commit at 1,000 ms) or, its join timer armed at 1,250
+    ms, the 1,430 ms TICK; the owner's MRPDU comes at 1,431 ms."""
+    pt = 'on_pt_timer'
+    got = {}
+    for i, app in ((i, app) for i in (0, 1) for app in (MSRP, MVRP)):
+        who, other = f'if{i} {mrpdu_grade.APPLICATIONS[app]}', MVRP if app == MSRP else MSRP
+        mine = (1_431, app, False, i)
+        cases = dict(
+            # another participant's timely build and MRPDU, the owner's 131 ms later
+            other=(((1_000, app, False, i), (1_311, other, False, 1 - i), mine), ()),
+            # a build at 1,311 ms whose participant the testbench did not record, sending nothing
+            unattributed=(((1_000, app, False, i), mine), (1_311,)),
+            # the owner's own join timer running: its own build at 1,311 ms, before its opportunity, sends nothing
+            early=(((1_250, app, False, i), mine), ((1_311, who),)),
+            # the owner's own join timer running, another participant's MRPDU at 1,311 ms
+            joined=(((1_250, app, False, i), (1_311, other, False, 1 - i), mine), ()))
+        for case, (sends, idle) in cases.items():
+            rows, held = graded(sends, ((1_300, pt, who),), (1_500,), idle)
+            got[(who, case)] = ([o for o, n in held['runs'].items() if n],
+                                [(f['outcome'], f['who'], f['from_ms'], f['after_ms']) for f in held['failing']],
+                                {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows})
+    def want(case: str) -> dict:
+        """The expected outcome of a case for each owner: late on the owner's MRPDU, or released on it."""
+        late = lambda who, i: (['late'], [('late', who, 1300.001, 130.999)], {f'periodic.if{i}': 131.0})
+        held = lambda who, i: (['released'], [], {f'periodic.if{i}': 1.0})
+        return {(f'if{i} {mrpdu_grade.APPLICATIONS[a]}', case): (late if case in ('other', 'unattributed') else held)(
+            f'if{i} {mrpdu_grade.APPLICATIONS[a]}', i) for i in (0, 1) for a in (MSRP, MVRP)}
+    pick = lambda *cases: {k: v for k, v in got.items() if k[1] in cases}
+    return [("another participant's build never settles a run-out, for either application on either interface: "
+             "its timely MRPDU leaves the owner's 131 ms later late, named by its owner at its opportunity, with its "
+             "row; before the owner's own opportunity, it leaves the owner's MRPDU released",
+             pick('other', 'joined') == {**want('other'), **want('joined')}, str(pick('other', 'joined'))),
+            ("a build whose participant the testbench did not record, sending nothing, is never taken for the owner's "
+             "build that sends nothing: the owner's MRPDU 131 ms later is late, for either application on either "
+             "interface", pick('unattributed') == want('unattributed'), str(pick('unattributed'))),
+            ("the owner's own build before its transmit opportunity settles nothing: its MRPDU at the opportunity is "
+             "released and times its row, for either application on either interface",
+             pick('early') == want('early'), str(pick('early')))]

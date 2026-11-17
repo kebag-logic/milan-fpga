@@ -73,17 +73,18 @@ def held(log: grade.Log) -> dict:
     named."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
-    builds, _, sent, last = mrpdu_grade.index(log)
+    last = mrpdu_grade.index(log)[3]
     ms = lambda cycle: round(cycle * 1000 / log.sys_hz, 3)
     runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
     for entry, kind, outcome in mrpdu_grade.outcomes(log):
         runs[outcome] += 1
         if outcome in mrpdu_grade.FAILING:
-            frames = mrpdu_grade.released(log, entry)
-            after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
-            # from its owner's first transmit opportunity, the owner's frames alone (mrpdu_grade.served, anchor)
+            # from its owner's first transmit opportunity, to what its late judgement rests on (mrpdu_grade.settle), or
+            # the log's end
             start = mrpdu_grade.anchor(log, entry)
-            failing.append(dict(kind=kind, outcome=outcome, who=mrpdu_grade.recorded_owner(log, entry),
+            at, by = mrpdu_grade.late_at(log, entry) if outcome == 'late' else (None, 'owner')
+            after = at if at is not None else last
+            failing.append(dict(kind=kind, outcome=outcome, by=by, who=mrpdu_grade.recorded_owner(log, entry),
                                 at_ms=ms(entry), from_ms=ms(start),
                                 after_ms=round((after - start) * 1000 / log.sys_hz, 3),
                                 **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
