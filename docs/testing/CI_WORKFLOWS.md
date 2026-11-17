@@ -270,11 +270,15 @@ Empty deltas retain the conservative relevant verdict.
 Fast push events retain their before-to-after tree comparison.
 An unknown push base retains the full tracked-file fallback.
 
-The merge train validates composition before every merge.
-Its current-dev candidate runs builder and full native banks.
+Merge validation gates the composed tree before every merge into the base.
+Its candidate on the live base runs builder and full native banks.
+
 Those banks catch interactions with intervening base changes.
 Scope selection therefore need not charge those changes to PRs.
 The hosted required contexts and merge validation remain mandatory.
+
+A batch merges once, so one candidate covers all its members.
+[CONTRIBUTING.md section 2.3](../../CONTRIBUTING.md#23-batched-merges) defines that path.
 
 The scope self-test executes each workflow's actual shell body.
 It compares hosted merge checkouts with replay head checkouts.
