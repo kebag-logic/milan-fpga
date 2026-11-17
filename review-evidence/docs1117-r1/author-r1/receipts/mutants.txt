@@ -1,0 +1,58 @@
+# Planted mutants on a clean clone at 490d54ee; each restored before the next
+
+M0 unmutated head
+  [scripts/docs_check.py] rc=0
+      docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  [scripts/gen_toc.py --verify-anchors] rc=0
+      anchor check: 620 existing cross-page fragment links reproduced
+  [scripts/check_doc_paths.py] rc=0
+      doc path gate: OK (1638 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  [same_page_anchors.py CONTRIBUTING.md] rc=0
+      CONTRIBUTING.md#23-batched-merges: RESOLVES
+      CONTRIBUTING.md: 12 heading anchors; '23-batched-merges' present: True; unresolved same-page links: 0
+M1 AGENTS.md cross-page anchor -> #23-batched-mergez
+1	1	AGENTS.md
+  [scripts/docs_check.py] rc=0
+      docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  [scripts/gen_toc.py --verify-anchors] rc=1
+        MISS AGENTS.md -> CONTRIBUTING.md#23-batched-mergez
+  [scripts/check_doc_paths.py] rc=0
+      doc path gate: OK (1638 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  [same_page_anchors.py CONTRIBUTING.md] rc=0
+      CONTRIBUTING.md#23-batched-merges: RESOLVES
+      CONTRIBUTING.md: 12 heading anchors; '23-batched-merges' present: True; unresolved same-page links: 0
+M2 CONTRIBUTING.md same-page anchor -> #23-batched-mergez
+1	1	CONTRIBUTING.md
+  [scripts/docs_check.py] rc=0
+      docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  [scripts/gen_toc.py --verify-anchors] rc=0
+      anchor check: 620 existing cross-page fragment links reproduced
+  [scripts/check_doc_paths.py] rc=0
+      doc path gate: OK (1638 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  [same_page_anchors.py CONTRIBUTING.md] rc=1
+      CONTRIBUTING.md#23-batched-mergez: MISSING
+      CONTRIBUTING.md: 12 heading anchors; '23-batched-merges' present: True; unresolved same-page links: 1
+M3 CI_WORKFLOWS.md path ../../CONTRIBUTING.md -> ../CONTRIBUTING.md
+1	1	docs/testing/CI_WORKFLOWS.md
+  [scripts/docs_check.py] rc=1
+      docs/testing/CI_WORKFLOWS.md:276: broken link -> ../CONTRIBUTING.md
+  [scripts/gen_toc.py --verify-anchors] rc=0
+      anchor check: 619 existing cross-page fragment links reproduced
+  [scripts/check_doc_paths.py] rc=0
+      doc path gate: OK (1638 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  [same_page_anchors.py CONTRIBUTING.md] rc=0
+      CONTRIBUTING.md#23-batched-merges: RESOLVES
+      CONTRIBUTING.md: 12 heading anchors; '23-batched-merges' present: True; unresolved same-page links: 0
+M4 CI_WORKFLOWS.md anchor -> #23-batched-mergez
+1	1	docs/testing/CI_WORKFLOWS.md
+  [scripts/docs_check.py] rc=0
+      docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  [scripts/gen_toc.py --verify-anchors] rc=1
+        MISS docs/testing/CI_WORKFLOWS.md -> ../../CONTRIBUTING.md#23-batched-mergez
+  [scripts/check_doc_paths.py] rc=0
+      doc path gate: OK (1638 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  [same_page_anchors.py CONTRIBUTING.md] rc=0
+      CONTRIBUTING.md#23-batched-merges: RESOLVES
+      CONTRIBUTING.md: 12 heading anchors; '23-batched-merges' present: True; unresolved same-page links: 0
+
+clean after restore: 0 changed path(s)

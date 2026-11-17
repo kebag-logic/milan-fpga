@@ -1,0 +1,180 @@
+{
+ "job": "docs-gates-1",
+ "head": "490d54ee2fc38cfa1b5433f5791173f23a979793",
+ "rows": [
+  {
+   "id": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "action": "not run",
+   "reason": "hosted action actions/checkout@v4"
+  },
+  {
+   "id": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "action": "run",
+   "rc": 0,
+   "seconds": 0.0,
+   "note": "",
+   "log": "01_ci_step_1.log",
+   "tail": []
+  },
+  {
+   "id": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_3",
+   "name": "Install the python gate dependencies",
+   "action": "run",
+   "rc": 0,
+   "seconds": 0.7,
+   "note": "",
+   "log": "03_ci_step_3.log",
+   "tail": [
+    "",
+    "[notice] A new release of pip is available: 25.0.1 -> 26.3",
+    "[notice] To update, run: pip install --upgrade pip"
+   ]
+  },
+  {
+   "id": "ci_step_4",
+   "name": "Cache the pinned Markdown renderer downloads",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_5",
+   "name": "Install the pinned Markdown renderer",
+   "action": "run",
+   "rc": 0,
+   "seconds": 1.1,
+   "note": "",
+   "log": "05_ci_step_5.log",
+   "tail": [
+    "",
+    "[notice] A new release of pip is available: 25.0.1 -> 26.3",
+    "[notice] To update, run: pip install --upgrade pip"
+   ]
+  },
+  {
+   "id": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "action": "not run",
+   "reason": "apt package resolution; librsvg2-bin present on host"
+  },
+  {
+   "id": "ci_step_7",
+   "name": "Cache exact package downloads 4",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_8",
+   "name": "Install diagram gate dependencies",
+   "action": "run",
+   "rc": 0,
+   "seconds": 2.6,
+   "note": "apt-get line dropped (librsvg2-bin present); pip line run",
+   "log": "08_ci_step_8.log",
+   "tail": [
+    "",
+    "[notice] A new release of pip is available: 25.0.1 -> 26.3",
+    "[notice] To update, run: pip install --upgrade pip"
+   ]
+  },
+  {
+   "id": "ci_step_9",
+   "name": "Fetch the builder source dependencies",
+   "action": "run",
+   "rc": 0,
+   "seconds": 3.9,
+   "note": "",
+   "log": "09_ci_step_9.log",
+   "tail": [
+    "Submodule path 'gptp-processor': checked out '1616fc8f062fbf58c35ad31674b5b233207bbdb8'",
+    "Submodule path 'protocol-processor': checked out '801ef2283ec793e35a2590fc6593c90313a64041'",
+    "Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'"
+   ]
+  },
+  {
+   "id": "ci_step_10",
+   "name": "Cache verified sv2v archive",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_11",
+   "name": "Install the pinned sv2v release",
+   "action": "run",
+   "rc": 0,
+   "seconds": 0.7,
+   "note": "same pinned archive and sha256, installed into scratch bin instead of sudo /usr/local/bin",
+   "log": "11_ci_step_11.log",
+   "tail": [
+    "<work>/run/docs-gates-1/runner_temp/ci-sv2v-cache/sv2v.zip: OK",
+    "sv2v v0.0.12"
+   ]
+  },
+  {
+   "id": "ci_step_12",
+   "name": "Cache the pinned RV32 SDK",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_13",
+   "name": "Install and verify the pinned RV32 SDK",
+   "action": "run",
+   "rc": 0,
+   "seconds": 17.7,
+   "note": "",
+   "log": "13_ci_step_13.log",
+   "tail": [
+    "SDK verified: {\"archive_sha256\": \"d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f\", \"archive_url\": \"https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz\", \"destination\": \"<work>/run/docs-gates-1<home-path>/host\", \"host\": {\"architecture\": \"x86_64\", \"os\": \"Linux\"}, \"installer_revision\": 1, \"installer_sha256\": \"ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4\", \"release\": \"riscv32-ilp32d--glibc--stable-2025.08-1\"}",
+    "SDK tools: {\"compiler\": \"<work>/run/docs-gates-1<home-path>/host/bin/riscv32-linux-gcc\", \"gcc_version\": \"14.3.0\", \"realpath\": \"<work>/run/docs-gates-1<home-path>/host/bin/toolchain-wrapper\", \"sysroot\": \"<work>/run/docs-gates-1<home-path>/host/riscv32-buildroot-linux-gnu/sysroot\", \"target\": \"riscv32-buildroot-linux-gnu\", \"version\": \"riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\\nCopyright (C) 2024 Free Software Foundation, Inc.\\nThis is free software; see the source for copying conditions.  There is NO\\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\"}",
+    "SDK fresh installation: verified"
+   ]
+  },
+  {
+   "id": "gate_25_0",
+   "name": "End-station builder gates, leg 0 of 2",
+   "action": "run",
+   "rc": 0,
+   "seconds": 1072.1,
+   "note": "",
+   "log": "14_gate_25_0.log",
+   "tail": [
+    "",
+    "SUBSET: 1 of 109 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs",
+    "ALL GATES PASS"
+   ]
+  },
+  {
+   "id": "ci_step_15",
+   "name": "Record executed gate outcomes",
+   "action": "not run",
+   "reason": "hosted evidence plumbing"
+  },
+  {
+   "id": "ci_step_16",
+   "name": "Upload executed gate outcomes",
+   "action": "not run",
+   "reason": "hosted action actions/upload-artifact@v4"
+  },
+  {
+   "id": "ci_record",
+   "name": "Record actual job execution",
+   "action": "not run",
+   "reason": "hosted evidence plumbing"
+  },
+  {
+   "id": "ci_upload",
+   "name": "Upload actual job execution",
+   "action": "not run",
+   "reason": "hosted action actions/upload-artifact@v4"
+  }
+ ],
+ "result": "success"
+}

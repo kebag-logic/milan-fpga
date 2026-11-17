@@ -1,0 +1,10 @@
+# gen_toc.py --verify-anchors (clean clone at ee5c6f92; dev figure from the round 1 dev clone at 6b66f66d)
+dev 6b66f66d:  anchor check: 617 existing cross-page fragment links reproduced
+head ee5c6f92: anchor check: 620 existing cross-page fragment links reproduced
+
+# check_em_dash.py --base 6b66f66d89cf25d2717687bcc2c3bf617685a99a (= merge-base of the head with live origin/dev)
+check_em_dash: 0 finding(s) over 122 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6b66f66d..HEAD]
+rc=0
+
+# mermaid: CONTRIBUTING.md is byte-identical to round 1 (blob 2ff614ba1dca7eead0ace8d184f10b251f2f5476 at 490d54ee and ee5c6f92),
+# so round 1's render receipt (both flowcharts rc 0) applies unchanged.

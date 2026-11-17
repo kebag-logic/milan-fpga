@@ -1,0 +1,69 @@
+{
+ "job": "wire-accountability",
+ "head": "490d54ee2fc38cfa1b5433f5791173f23a979793",
+ "rows": [
+  {
+   "id": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "action": "not run",
+   "reason": "hosted action actions/checkout@v4"
+  },
+  {
+   "id": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "action": "run",
+   "rc": 0,
+   "seconds": 0.0,
+   "note": "",
+   "log": "01_ci_step_1.log",
+   "tail": []
+  },
+  {
+   "id": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "action": "not run",
+   "reason": "hosted action actions/cache@v4"
+  },
+  {
+   "id": "ci_step_3",
+   "name": "Fetch the engine authority the builder derives from",
+   "action": "run",
+   "rc": 0,
+   "seconds": 1.0,
+   "note": "",
+   "log": "03_ci_step_3.log",
+   "tail": [
+    "Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'",
+    "Cloning into '<work>/run/wire-accountability/src/gptp-processor'...",
+    "Submodule path 'gptp-processor': checked out '1616fc8f062fbf58c35ad31674b5b233207bbdb8'"
+   ]
+  },
+  {
+   "id": "ci_step_4",
+   "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+   "action": "run",
+   "rc": 0,
+   "seconds": 1.0,
+   "note": "",
+   "log": "04_ci_step_4.log",
+   "tail": [
+    "----------------------------------------------------------------------",
+    "checks: 77   findings: 0",
+    "RESULT: PASS"
+   ]
+  },
+  {
+   "id": "ci_record",
+   "name": "Record actual job execution",
+   "action": "not run",
+   "reason": "hosted evidence plumbing"
+  },
+  {
+   "id": "ci_upload",
+   "name": "Upload actual job execution",
+   "action": "not run",
+   "reason": "hosted action actions/upload-artifact@v4"
+  }
+ ],
+ "result": "success"
+}

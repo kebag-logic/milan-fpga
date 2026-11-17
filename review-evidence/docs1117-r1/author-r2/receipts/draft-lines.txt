@@ -1,0 +1,16 @@
+# draft_exact.py at ee5c6f92. Round 2 added blank lines inside (d), (e) and (h) to split paragraphs over 30 words, so those three blocks are no longer byte-verbatim (MISMATCH, RESULT FAIL by construction). The line check, which ignores blank lines, still equals the draft for every file, and the head differs from round 1 490d54ee only in whitespace.
+
+(a) CONTRIBUTING.md: VERBATIM (87 added, 0 removed line(s) in draft)
+(b) CONTRIBUTING.md: VERBATIM (2 added, 0 removed line(s) in draft)
+(c) CONTRIBUTING.md: VERBATIM (2 added, 0 removed line(s) in draft)
+(d) AGENTS.md: MISMATCH (8 added, 0 removed line(s) in draft)
+(e) AGENTS.md: MISMATCH (6 added, 0 removed line(s) in draft)
+(f) AGENTS.md: VERBATIM (2 added, 1 removed line(s) in draft)
+(g) AGENTS.md: VERBATIM (2 added, 0 removed line(s) in draft)
+(h) docs/testing/CI_WORKFLOWS.md: MISMATCH (4 added, 2 removed line(s) in draft)
+AGENTS.md: commit adds 17 non-blank / removes 1 line(s); equals draft: True
+CONTRIBUTING.md: commit adds 74 non-blank / removes 0 line(s); equals draft: True
+docs/testing/CI_WORKFLOWS.md: commit adds 4 non-blank / removes 2 line(s); equals draft: True
+RESULT FAIL
+rc=1
+whitespace-insensitive diff vs round 1 490d54ee: 0 line(s)
