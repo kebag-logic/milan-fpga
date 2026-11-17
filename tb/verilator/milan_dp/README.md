@@ -1379,13 +1379,21 @@ a finding too: the lane that fixes it deletes the row.
 
 | Row | Fabric | Split | Owed to |
 |---|---|---|---|
-| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
+| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #665 (no issue owns it yet) |
 | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
 | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
 
-The first two have one cause: the split's sources stay unallocated until an
-SRP adapter entry takes MAAP's range
-([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
+The first is the split datapath's. Its GET_STREAM_INFO face answers a
+STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's address. The
+split does not build that engine, so a declaring output reads 0
+(`hdl/milan/milan_datapath.sv`, `g_no_maap` and `gsi_answer`'s selector 4;
+Milan v1.2 5.4.2.10.2, Table 5.11).
+#936 deleted the row before it, `stream-output-0-notices`. It owed the split's
+missing notices of STREAM_OUTPUT 0. The split now sends the fabric's four, at
+the same changes, to the same controllers
+([SRP README, Talker declarations](../../../sw/firmware/ctrl/srp/README.md)).
+The second's cause was the split's sources staying unallocated until an SRP
+adapter entry took MAAP's range.
 The third is the fabric's: its AECP engine serves the image's ENTITY
 descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
 6.2.2.15).
@@ -1410,7 +1418,7 @@ item 2).
 
 ### The plants
 
-`make twin-plants` runs twenty plants. Each must be refused by its words
+`make twin-plants` runs twenty-one plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1429,7 +1437,8 @@ asserts.
 | `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
 | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
 | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
-| `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
+| `vanished-owed` | an owed difference gone: the split's STREAM_OUTPUT 0 notices replaced by the fabric's | `owed row stream-output-0-dest-mac: the difference has gone` |
+| `output-notice-dropped` | #936's defect back: the split's STREAM_OUTPUT 0 notices dropped | `owed row stream-output-0-dest-mac does not hold` |
 | `command-byte` | one byte other than `sequence_id` of the first CONTROLLER_AVAILABLE to the first controller | `AECP command 0 differs at byte 33` |
 | `command-sequence` | the second CONTROLLER_AVAILABLE to the second controller given the first's `sequence_id` | `the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0` |
 | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
