@@ -29,6 +29,16 @@ fabric's own bound-and-nonzero rule in charge, so the [GSI] G11 case of a
 sink back in PROBING_PASSIVE with its settled stream still in the binding
 view must fail by name.
 
+#883 adds four arms for the same leg's [AIDX] section (#858, processor #217):
+READ_DESCRIPTOR(ENTITY) carries the available_index the last ENTITY_AVAILABLE
+on the wire carried, and 0 after an ENTITY_DEPARTING (IEEE 1722.1-2021 Table
+7-2, 6.2.2.15). They are the processor's own arms for #217, planted in the
+copy: the microcode copying the image's ENTITY descriptor whole, the AEM
+constant (a microcode mutant); the AECP engine answering 0 for the index; ADP
+serving the next frame's index; and ADP keeping the last index across an
+ENTITY_DEPARTING. These edit the ADP and AECP engines as well as the top, so
+the copy takes every processor file a mutant names.
+
 The submodule checkout is never edited: the processor half of a mutant is
 written into a copy of its hdl/ tree under a temporary directory, and the
 copy is what the recipe's derived source list points at.
@@ -77,6 +87,10 @@ PP_HDL = HERE / "../../../protocol-processor/hdl"
 PP_TOP = Path("top") / "protocol_processor_top.sv"
 #: the AECP microcode generator, relative to the same tree
 PP_UCODE = Path("aecp") / "ucode" / "gen_ucode.py"
+#: every processor file a mutant may edit, by its key in MUTATIONS
+PP_FILES = {"pp": PP_TOP, "uc": PP_UCODE,
+            "adp": Path("adp") / "KL_adp_engine.sv",
+            "aecp": Path("aecp") / "KL_aecp_engine.sv"}
 #: the ROM images the leg reads from its working directory
 RUN_ROMS = ("ucode.hex", "ltn_rom.hex", "gptp_ucode.hex")
 CLEAN_MDIR = HERE / "obj_notify"
@@ -150,9 +164,23 @@ DP_ALL_ROWS_ROUNDER = (
     "    .rb_row_i (gsi_oix_w[0 +: ((ACMP_SRC_C > 1) ? $clog2(ACMP_SRC_C) : 1)]),\n"
     "    .rb_ns_o (mut_rb_ns_w));\n")
 
+#: #858 (processor #217): READ_DESCRIPTOR(ENTITY) builds octets 36..39 from
+#: ADP's last index, verbatim at the pin
+UC_RDESCENT_AIDX = (
+    "    u('COPY_BUF', ra=7, imm=RGN_DATA),           # ENTITY bytes 0..35\n"
+    "    u('BUILD_FLD', ra=2, fmt=FMT_D),             # available_index 36..39\n"
+    "    u('COPY_BUF', ra=8, cnd=TAIL, imm=RGN_DATA + ENT_AIDX_TAIL),  # 40..309\n")
+AECP_AIDX_GATHER = "                   : rdent_r              ? {32'd0, adp_avail_index_i}\n"
+ADP_LAST_INDEX = "      last_avail_index_o[32*i +: 32] = last_aidx_r[i];"
+ADP_DEPART_CLEAR = ("    end else if (bld_done_dep_w) begin\n"
+                    "      last_aidx_r[bld_done_if_w] <= 32'd0;\n"
+                    "    end\n")
+AIDX_A1 = "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's"
+AIDX_D = "[AIDX] D after ENTITY_DEPARTING: available_index (octets 36..39) is the wire's"
+
 # (name, [(file, the text it replaces, its replacement)], the check it must fail).
-# `file` is "pp" for the processor top, "dp" for milan_datapath or "uc" for
-# the processor's microcode generator.
+# `file` is "dp" for milan_datapath or a PP_FILES key: "pp" for the processor
+# top, "uc" for its microcode generator, "adp" and "aecp" for those engines.
 MUTATIONS = [
     ("the processor ties a sink's failure bridge id to zero",
      [("pp", PP_SEL5, "        4'd5: aecp_gsi_data_w = 64'd0;")],
@@ -203,6 +231,19 @@ MUTATIONS = [
     ("the processor passes selector 4's stream_dest_mac through while unsettled (#790)",
      [("pp", PP_UNSETTLED_DMAC, "          4'd4: begin end")],
      G11_STALE + ": stream_dest_mac is zero"),
+    ("READ_DESCRIPTOR(ENTITY) copies the image whole, the AEM constant 0 (before processor #217)",
+     [("uc", UC_RDESCENT_AIDX,
+       "    u('COPY_BUF', ra=8, imm=RGN_DATA),           # ENTITY bytes 0..309, the image whole\n")],
+     AIDX_A1),
+    ("the AECP engine answers 0 for the available_index gather (#858)",
+     [("aecp", AECP_AIDX_GATHER, "                   : rdent_r              ? {32'd0, 32'd0}\n")],
+     AIDX_A1),
+    ("ADP serves the next frame's index, not the last one sent (#858)",
+     [("adp", ADP_LAST_INDEX, "      last_avail_index_o[32*i +: 32] = aidx_r[i];")],
+     AIDX_A1),
+    ("ADP keeps the last index across ENTITY_DEPARTING (#858)",
+     [("adp", ADP_DEPART_CLEAR, "    end\n")],
+     AIDX_D),
 ]
 
 
@@ -270,9 +311,10 @@ def plant(name: str, edits: list[tuple[str, str, str]], work: Path,
           tag: str) -> tuple[Path, Path] | None:
     """Write the mutant's datapath and processor tree; None when a pattern
     no longer matches exactly once, so the mutant would mutate nothing."""
-    texts = {"dp": DP_RTL.read_text(), "pp": (PP_HDL / PP_TOP).read_text(),
-             "uc": (PP_HDL / PP_UCODE).read_text()}
-    files = {"dp": "milan_datapath.sv", "pp": PP_TOP.name, "uc": PP_UCODE.name}
+    texts = {"dp": DP_RTL.read_text()}
+    texts.update({key: (PP_HDL / rel).read_text() for key, rel in PP_FILES.items()})
+    files = {"dp": "milan_datapath.sv"}
+    files.update({key: rel.name for key, rel in PP_FILES.items()})
     for where, pattern, replacement in edits:
         count = texts[where].count(pattern)
         if count != 1:
@@ -286,8 +328,8 @@ def plant(name: str, edits: list[tuple[str, str, str]], work: Path,
     dp_path.write_text(texts["dp"])
     pp_dir = work / f"pp_hdl_{tag}"
     shutil.copytree(PP_HDL, pp_dir)
-    (pp_dir / PP_TOP).write_text(texts["pp"])
-    (pp_dir / PP_UCODE).write_text(texts["uc"])
+    for key, rel in PP_FILES.items():
+        (pp_dir / rel).write_text(texts[key])
     return dp_path, pp_dir
 
 

@@ -1,10 +1,10 @@
 # One AAF frame, hop by hop
 
 This page describes the all-fabric shipping placement.
-[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
-Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
-All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+It stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) defines the transition and end state.
 
 
 *The page to read before you go looking for a module.* It follows a single

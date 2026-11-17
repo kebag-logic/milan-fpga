@@ -11,6 +11,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 - **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
 - **[Pending from live writes](#pending-from-live-writes)** -- Real programs expose the unsaved interval.
 - **[The reset on an AECP REBOOT (#787)](#the-reset-on-an-aecp-reboot-787)** -- Section `[RB]`: a REBOOT on the wire, its frames graded at a MAC model's wire-side output, then the PHY hold and the IPROG words at the datapath ports.
+- **[Control frames lost to a full FIFO (#854)](#control-frames-lost-to-a-full-fifo-854)** -- Section `[DR]`: bursts past the tap's FIFO, the frames lost equal to `PP_DIAG[15:8]`, refused frames and runts not counted, a frame longer than the FIFO counted, saturation at 255, and eight planted arms in two builds.
 - **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
 - **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
 - **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
@@ -161,6 +162,54 @@ defect in a private copy of `milan_datapath.sv` or `KL_reboot_ctrl.sv` and must 
 | `egress-without-a-bound` | a MAC that never finishes keeps the hold off | RB dead transmit clock: the PHY hold still rises |
 | `txend-unwired` | the frame-end toggle is not connected | RB advertising: ...and at most two ticks and eight clocks after it |
 
+## Control frames lost to a full FIFO (#854)
+
+Section `[DR]` grades `PP_DIAG[15:8]`, the count of control frames the tap loses to a full FIFO, or because they
+are longer than the FIFO. The tap cannot backpressure the MAC, and its FIFO (`FRAME_FIFO`, `DROP_WHEN_FULL`,
+`DROP_OVERSIZE_FRAME`) holds `tready` high and drops a whole frame it has no room for, or one longer than its whole
+depth, so the count is read from the FIFO's own overflow indication, not the handshake. The harness counts every
+frame the serializer hands to the processor at the serializer's own byte stream (`drops_probes.vlt`) and grades the
+count against the frames offered less the frames handed out:
+
+- **A burst**: 100 back-to-back 64-byte ADP frames, then eight of 16 bytes kept at their second beat, at eight bytes
+  a cycle into a 4,096-byte FIFO that drains eight bytes every nine cycles (one byte a cycle into the processor, one
+  cycle to pop each word). The serializer into the processor has no ready, so it is never stalled; the burst outruns
+  it. Frames are lost, the count equals them, every frame handed out is whole and in order, and the FIFO holds 4,096
+  bytes of the burst before it loses one.
+- **Refused frames**: the FIFO is filled with 100 frames of 64 bytes, then 100 IPv4 frames each behind a 16-byte
+  ADP frame. Refused frames meet the full FIFO (its overflow strobes outnumber the kept frames lost) and are not
+  counted: the kept frames lost equal the count.
+- **Runts**: the same shape with an 8-byte, one-beat runt behind each 16-byte frame. In the suite's builds
+  `rx_mac_filter` ahead of the tap drops every runt, so the FIFO overflows once per kept frame lost. In the base leg
+  built with the filter pruned (`RXFILT=0`, which sets `RXFILT_P = 0`, the builder's `--no-rx-mac-filter`), runts
+  reach the tap and meet the full FIFO (its overflow strobes outnumber the kept frames lost). In both builds runts
+  are not counted: the kept frames lost equal the count.
+- **A frame longer than the FIFO**: into the empty FIFO, a 4,096-byte ADP frame (512 words, the FIFO's depth) is
+  kept and handed out whole, and not counted. A 4,097-byte one is dropped by the FIFO although it is empty: one
+  overflow strobe, the count moves by one, and the 64-byte frame behind it is handed out.
+- **Saturation**: 400 more frames take the frames lost past 255, and the count reads 255 and holds there.
+
+```sh
+make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--drops-only
+make -C tb/verilator/pp_shadow build-base exec-base RXFILT=0 BUILD_DIR=obj_rxfilt0 SIM_ARGS=--drops-only
+make -C tb/verilator/pp_shadow drops-mutant
+```
+
+The `RXFILT=0` build is not a default leg. `drops-mutant` builds it, beside the base leg, and runs `[DR]` alone in
+each. Both clean controls must pass. Each arm then plants one defect in a private copy of `KL_pp_shadow.sv` or
+`milan_datapath.sv`, is built in its leg, and must fail its named check:
+
+| Arm | Leg | Plant | Named check |
+|---|---|---|---|
+| `count-removed` | base | the drop count never moves | DR a burst past the FIFO loses frames and counts them |
+| `count-from-tready` | base | the count read from the FIFO's tready, the construction #854 reported | the same |
+| `counts-refused` | base | every FIFO overflow counted, a refused frame's too | DR ...and are not counted: the kept frames lost equal the count |
+| `misses-second-beat` | base | a frame kept at its second beat not counted | DR the burst's lost frames equal the drop count |
+| `wraps` | base | the count wraps instead of saturating at 255 | DR the count saturates at 255 |
+| `diag-tied-off` | base | the count never reaches `PP_DIAG[15:8]` | DR a burst past the FIFO loses frames and counts them |
+| `misses-oversize` | base | a frame over 512 words ends uncounted, so a frame lost for being longer than the FIFO is not counted | DR the frame longer than the FIFO is counted |
+| `counts-runts` | `RXFILT=0` | a runt the full FIFO turns away counted | DR ...and runts are not counted: the kept frames lost equal the count |
+
 ## The premise inverted (2026-08-13)
 
 This suite used to be the *shadow* half of a parity contract: the processor was
@@ -197,7 +246,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | K | **the shared control lane** | both legs of `ctl_tx_mux` transmitted, every frame is well formed, and no TX-trunk arbiter aborted or stalled. AECP responses are in that census, so a response that was well formed in isolation but corrupted by the shared lane fails here |
 | J | global anti-wedge invariant | `accepted == answered` over every cycle simulated, and **no `RELEASE_DA` is reachable in this shape**: `milan_datapath` ties `cfg_src_en_i` to all-ones, so no talker source can leave the configuration. Graded rather than assumed, because the owed-release law (a release booked per source and retried until the face ACCEPTS it, ahead of any `ALLOC_DA`) is proven in `protocol-processor/tb/acmp_talker` section L. Wire `cfg_src_en_i` to anything live and this check goes red, which is the reminder to bring that path under test here too |
 | T | **a registered Listener, as a controller reads it** | an MSRP Listener declaration for source 0's stream is injected on the MAC RX port and registered by the processor's own SRP engine, which must publish the IEEE 802.1Q Section 35.2.2.7.4 code on snapshot word 13 (1 Asking Failed, 3 Ready Failed, 2 Ready, 0 once the Listener leaves). For each, ACMP `GET_TX_STATE` must carry `REGISTERING_FAILED` (0x0040) for Asking Failed only (Milan v1.2 Section 5.5.4.3, answered inside the processor: protocol-processor #46), and AECP `GET_STREAM_INFO` on `STREAM_OUTPUT` 0, whose flags this repository gathers, must carry `REGISTERING_FAILED` for Asking Failed only and `flags_ex` `REGISTERING` while any Listener is registered. `LWSRP_STATUS[3:0]` (`0x694`) is GRADED per arm: `[1:0]` carries the registered four-pack, `[2]` listener registered is 1 for any registered Listener, Asking Failed included, and `[3]` listener ready is 1 for Ready and Ready Failed only (#471, #472). The image carries a `STREAM_OUTPUT[0]` for this group, because the image is the existence authority `GET_STREAM_INFO` answers from. It runs after J and before M2, so K's census never sees the stream a Ready Listener starts and M2's reset wipes what it leaves |
-| U | **a registered Talker attribute, as a bound sink reads it** | `STREAM_INPUT` 0 is bound over ACMP the way a controller does it (`BIND_RX`, then the talker that answers the listener's probe), because the processor's registrar ignores every attribute until the sink is armed and matches the exact {stream_id, DA, VID} it settled with. A Talker Advertise and then a Talker Failed are declared for that stream on the MAC RX port, and `ACMPL_STATE` (`0x6A4`) is graded per arm against the processor's `tk_reg_state` codes (0 none, 1 Advertise, 2 Failed): `[6]` TalkerAdvertise registered is 1 for Advertise only, `[7]` TalkerFailed registered is 1 for Failed only, and `ACMPL_TUID[23:16]` carries the MSRP failure code for Failed only (#472). The armed, unregistered baseline is graded first, so no arm passes on a stuck bit. It runs after R and before M2, whose reset wipes both the bind and the registration |
+| U | **a registered Talker attribute, as a bound sink reads it** | `STREAM_INPUT` 0 is bound over ACMP the way a controller does it (`BIND_RX`, then the talker that answers the listener's probe), because a sink reports a Talker registration only once it is armed and settled on the exact {stream_id, DA, VID}; since processor `92100657` (processor #212) a value the port registered before the settle is applied at the settle. A Talker Advertise and then a Talker Failed are declared for that stream on the MAC RX port, and `ACMPL_STATE` (`0x6A4`) is graded per arm against the processor's `tk_reg_state` codes (0 none, 1 Advertise, 2 Failed): `[6]` TalkerAdvertise registered is 1 for Advertise only, `[7]` TalkerFailed registered is 1 for Failed only, and `ACMPL_TUID[23:16]` carries the MSRP failure code for Failed only (#472). The armed, unregistered baseline is graded first, so no arm passes on a stuck bit. It runs after R and before M2, whose reset wipes both the bind and the registration |
 | GSI | **an input's stream fields only while settled** (#790) | Milan v1.2 5.4.2.10.1, Table 5.9: a Stream Input's stream_id, stream_dest_mac and stream_vlan_id, and STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID, are valid if, and only if, it is settled (probing_status PROBING_COMPLETED). `milan_datapath` folds those words from the processor's binding view, which keeps a stream's identity from settle to unbind, so the processor gates them on its committed status (processor #206). After U's binding is released, sink 0 is bound over real ACMP to a stream no Talker attribute names, and a solicited `GET_STREAM_INFO` on `STREAM_INPUT` 0 is graded in four named cases: bound and probing before the first answer (all three flags clear, the three fields zero); settled (the flags set, the talker's stream_id, destination MAC and VLAN); back in PROBING_PASSIVE after TMR_NO_TK (10 s from the settle, Milan v1.2 5.5.3.5.18 and 5.5.3.5.36: no Talker registered, the talker never discovered), while `ACMPL_STATE` (`0x6A4`) still reads the sink bound with the settled stream's VLAN in the binding view (clear and zero); and unbound after UNBIND_RX (clear and zero, the binding view cleared). It runs after U and before M2, whose reset wipes it |
 | R | **the sampling rate, as a controller sets it** | against AUDIO_UNIT[0] as the shipping image of this shape lists it (`endstation_arty_current.yaml`: 48000, 96000, 192000; current 48000), a `SET_SAMPLING_RATE` of 44100 must answer `BAD_ARGUMENTS` carrying the CURRENT 48000 at cdl 20, `GET_SAMPLING_RATE` must still read 48000, and a second controller registered for unsolicited notifications must hear nothing; a `SET_SAMPLING_RATE` of the listed 96000 must answer `SUCCESS` carrying 96000, read back, and reach the second controller as exactly one unsolicited response (protocol-processor #51: the processor used to store, answer and announce any rate). The fabric's half is graded too: no port of `KL_pp_shadow` carries a sampling rate and `KL_media_nco` is elaborated at 48 kHz, so the toggle count of `media_lrclk_o` over a fixed window must not move after either SET. It runs after T and before M2, whose reset wipes what it leaves; the image carries `AUDIO_UNIT[0]` for it, and `AUDIO_UNIT[7]` is now L3's index miss, and L3t asks for an absent type beside it |
 

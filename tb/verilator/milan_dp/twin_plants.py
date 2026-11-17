@@ -18,12 +18,8 @@ Each plant names the grade or row it is the plant of:
   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
   * leave-all-omission: a LeaveAll frame that leaves out a declared attribute, against Table 10-3's txLA!
     (twin_mrp.py);
-  * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
-  * vanished-available-index: the #858 owed row's difference gone (OWED);
-  * vanished-domain-new, vanished-vid2-join-in: the #860 owed rows' defects gone, where the fix would land
-    (OWED_GRADES);
-  * domain-trace-moved, vid2-registrar-in: each #860 row's exact trace, the defect kept but the trace changed:
-    the Domain's first Join sent as JoinIn, and VID 2 registered by a peer's MVRPDU.
+  * FABRIC_PLANTS is empty: the owed fabric defects whose fixes its plants landed (#857, #858, #860) are
+    fixed at processor 801ef228 (#893), and their rows are gone.
 """
 from __future__ import annotations
 
@@ -288,86 +284,6 @@ def plant_mvrp_received_join(fabric: dict, split: dict) -> dict:
     return planted(split, "mvrp-received-join")
 
 
-# ---- the fabric's owed defects gone ----------------------------------------------
-
-
-def plant_vanished_mvrp_leave_all(fabric: dict, split: dict) -> dict:
-    """#857 fixed: the fabric's MVRP sends a LeaveAll every 12 s after its one at 10201 ms, each an MRPDU of
-    one LeaveAll vector of no value (IEEE 802.1Q-2018 10.8.2.4, 11.2.3.1), from its own header."""
-    del split
-    own = [e for e in fabric["frames"] if (f := frame_fields(e)) and f[0] == "MVRP"]
-    if not own:
-        raise SystemExit("plant vanished-mvrp-leave-all: the fabric sent no MVRP")
-    header = bytes.fromhex(own[0]["hex"])[:14]
-    pdu = bytes([0, 1, 2]) + bytes.fromhex("2000") + bytes.fromhex("0002") + bytes(4)
-    added = [{"ms": ms, "hex": (header + pdu).ljust(td.MIN_FRAME, b"\0").hex()} for ms in range(22201, 75000, 12000)]
-    fabric["frames"] = sorted(fabric["frames"] + added, key=lambda e: e["ms"])
-    return planted(fabric, "vanished-mvrp-leave-all")
-
-
-def plant_vanished_available_index(fabric: dict, split: dict) -> dict:
-    """#858 fixed: the fabric's ENTITY descriptor of the later read carries its last ENTITY_AVAILABLE's
-    available_index, 1 (frame byte 81, the index's last octet)."""
-    del split
-    for entry in fabric["frames"]:
-        f = aecp_doc_frame(entry)
-        if f and f.message_type == 1 and f.command == 0x0004 and f.controller == FIRST and f.seq == 25:
-            set_byte(entry, 14 + 64 + 3, 1)
-            return planted(fabric, "vanished-available-index")
-    raise SystemExit("plant vanished-available-index: no response to the later ENTITY read")
-
-
-def fabric_domain(fabric: dict, name: str) -> list[tuple[dict, int]]:
-    """The fabric's Domain messages, which must open with one New and then a JoinMt (#860)."""
-    found = list(domain_events(fabric))
-    octets = [bytes.fromhex(e["hex"])[at] for e, at in found[:2]]
-    if octets != [NEW * 36, JOIN_MT * 36]:
-        raise SystemExit(f"plant {name}: the fabric's Domain does not open with one New, then JoinMt")
-    return found
-
-
-def plant_vanished_domain_new(fabric: dict, split: dict) -> dict:
-    """#860 fixed for the Domain: the fabric's first JoinMt (1000 ms) sent as a second New, so its Domain is New
-    twice, then JoinMt (Table 10-3: VN, AN, then AA by note 8 with the Registrar MT)."""
-    del split
-    entry, at = fabric_domain(fabric, "vanished-domain-new")[1]
-    set_byte(entry, at, NEW * 36)
-    return planted(fabric, "vanished-domain-new")
-
-
-def plant_domain_trace_moved(fabric: dict, split: dict) -> dict:
-    """The fabric's Domain still not an Applicant's, but its trace another than the #860 row asserts: its first
-    JoinMt (1000 ms) sent as JoinIn."""
-    del split
-    entry, at = fabric_domain(fabric, "domain-trace-moved")[1]
-    set_byte(entry, at, JOIN_IN * 36)
-    return planted(fabric, "domain-trace-moved")
-
-
-def plant_vanished_vid2_join_in(fabric: dict, split: dict) -> dict:
-    """#860 fixed for VID 2: the fabric's first JoinIn (6200 ms) sent as a second New and every later JoinIn as
-    JoinMt, its Registrar being MT (10.7.6.3); the Lv at 20000 ms kept."""
-    del split
-    found = list(vid2_events(fabric))
-    octets = [bytes.fromhex(e["hex"])[at] for e, at in found]
-    if octets[:2] != [NEW * 36, JOIN_IN * 36]:
-        raise SystemExit("plant vanished-vid2-join-in: the fabric's VID 2 does not open with New, then JoinIn")
-    set_byte(found[1][0], found[1][1], NEW * 36)
-    for (entry, at), octet in zip(found[2:], octets[2:]):
-        if octet == JOIN_IN * 36:
-            set_byte(entry, at, JOIN_MT * 36)
-    return planted(fabric, "vanished-vid2-join-in")
-
-
-def plant_vid2_registrar_in(fabric: dict, split: dict) -> dict:
-    """The fabric's VID 2 still sent New then JoinIn, but registered by a peer's VID 2 JoinIn at 6000 ms, so its
-    Registrar is no longer MT throughout, as the #860 row asserts."""
-    del split
-    fabric["applied"] = sorted(fabric["applied"] + [{"ms": 6000, "what": "MVRP VID 2 JoinIn from a peer (planted)",
-                                                     "hex": vid2_frame(JOIN_IN).hex()}], key=lambda a: a["ms"])
-    return planted(fabric, "vid2-registrar-in")
-
-
 Plant = Callable[[dict, dict], dict]
 #: the plants of the split half's capture (--make-plant writes the planted split capture)
 SPLIT_PLANTS: dict[str, Plant] = {
@@ -378,11 +294,7 @@ SPLIT_PLANTS: dict[str, Plant] = {
     "leave-all-omission": plant_leave_all_omission,
     "mvrp-join-in": plant_mvrp_join_in, "mvrp-received-join": plant_mvrp_received_join,
 }
-#: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)
-FABRIC_PLANTS: dict[str, Plant] = {
-    "vanished-mvrp-leave-all": plant_vanished_mvrp_leave_all,
-    "vanished-available-index": plant_vanished_available_index,
-    "vanished-domain-new": plant_vanished_domain_new, "domain-trace-moved": plant_domain_trace_moved,
-    "vanished-vid2-join-in": plant_vanished_vid2_join_in, "vid2-registrar-in": plant_vid2_registrar_in,
-}
+#: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture): none at this
+#: head, since no owed fabric defect is left to plant the fix of (processor 801ef228, #893, fixed #857, #858, #860)
+FABRIC_PLANTS: dict[str, Plant] = {}
 CAPTURE_PLANTS: dict[str, Plant] = {**SPLIT_PLANTS, **FABRIC_PLANTS}

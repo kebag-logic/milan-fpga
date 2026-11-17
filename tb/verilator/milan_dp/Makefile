@@ -249,7 +249,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi bootsa bootsa-build bootsa-mutants clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -306,8 +306,9 @@ endef
 # off clk_audio), so FRAMES_TX and the PDU total can be told apart. Each
 # number feeds both the -G that builds the gateware and the -D the harness
 # grades against. crflic_mutants.py builds a MUTATED datapath through the same
-# recipe (DP_SRC and CRFLIC_MDIR overridden), so its negative controls
-# elaborate exactly the gateware the positive leg does.
+# recipe (DP_SRC and CRFLIC_MDIR overridden), or a MUTATED processor copy
+# (PP_DIR too), so its negative controls elaborate exactly the gateware the
+# positive leg does.
 CRFLIC_MS_CYC  = 100
 CRFLIC_DIAG_MS = 2000
 CRFLIC_MDIR   ?= obj_crflic
@@ -456,8 +457,23 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 
 # ...and the gPTP plane's, generated for the leg's 2 MHz sim clock so the
 # boot cadence fires within a runnable window (same relative-$readmemh).
-gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
-	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
+# #843: each image takes priority1 and clockAccuracy from a config, through
+# the builder's own generator options (gen_gptp_leg_ucode.py), and each leg
+# grades the clockAccuracy of the DUT's own Announce against the value its
+# board decided (802.1AS-2011 8.6.2.3). The `gptp` leg runs the shipping
+# AX7101 config (0x22); `gptp-lat` runs the Arty's (0xFE), so one leg sees
+# each value on the wire.
+GPTP_LEG_CONFIG = ../../../configs/endstation_ax7101_1x1_tdm8.yaml
+GPTP_LEG_ACCURACY = 0x22
+GPTP_LAT_CONFIG = ../../../configs/endstation_arty_current.yaml
+GPTP_LAT_ACCURACY = 0xFE
+GPTP_LEG_GEN = gen_gptp_leg_ucode.py $(GPTP_DIR)/ucode/gen_gptp_ucode.py \
+               ../../../sw/builder/endstation_builder.py
+gptp_ucode.hex: $(GPTP_LEG_GEN) $(GPTP_LEG_CONFIG)
+	python3 gen_gptp_leg_ucode.py $(GPTP_LEG_CONFIG) -o $@
+
+gptp_lat_ucode.hex: $(GPTP_LEG_GEN) $(GPTP_LAT_CONFIG)
+	python3 gen_gptp_leg_ucode.py $(GPTP_LAT_CONFIG) -o $@
 
 $(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstation_builder.py
 	python3 gen_divergent_shape.py
@@ -475,6 +491,7 @@ gptp: build-gptp
 build-gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptp \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+	  -CFLAGS "-DGPTP_CLOCK_ACCURACY_TB=$(GPTP_LEG_ACCURACY) -Wall -Wextra" \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 
 exec-gptp:
@@ -506,6 +523,38 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
 
+# issue #839: EVERY FRAME FROM RESET CARRIES THE STATION MAC. The gmstep
+# elaboration (the shipping 1x1 entity, gPTP on, the 2 MHz compressed clock),
+# booted through milan_init()'s own stage order with the firmware's own
+# configure_fabric() and entity_advertise() compiled in: gen_boot_fw.py copies
+# them out of milan_baremetal.c against the generated words of the same
+# config, and generates this leg's gPTP program for the same station MAC.
+# sim_boot_sa.cpp's banner has the model. bootsa_mutants.py builds mutated
+# copies through this recipe (BOOTSA_MDIR with DP_SRC overridden).
+BOOTSA_MDIR ?= obj_bootsa
+BOOTSA_CFG = endstation_ax7101_1x1_tdm8
+BOOTSA_FW = ../../../sw/firmware/milan_baremetal/milan_baremetal.c
+CC ?= cc
+bootsa-build: ltn_rom.hex ucode.hex $(GEN_ALL)
+	python3 ../../../sw/builder/endstation_builder.py ../../../configs/$(BOOTSA_CFG).yaml -o $(BOOTSA_MDIR)/aem-build
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(BOOTSA_MDIR)/aem-build/$(BOOTSA_CFG)/aem_overlay.json --line-bytes 576 -o $(BOOTSA_MDIR)/aemi.bin
+	python3 gen_boot_fw.py --firmware $(BOOTSA_FW) --build $(BOOTSA_MDIR)/aem-build/$(BOOTSA_CFG) \
+	  --clk-hz 2000000 --out $(BOOTSA_MDIR)/boot
+	$(CC) -std=gnu11 -O1 -Wall -Wextra -Werror -c $(BOOTSA_MDIR)/boot/boot_fw.c -o $(BOOTSA_MDIR)/boot/boot_fw.o
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(BOOTSA_MDIR) \
+	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+	  -GGPTP_UCODE_HEX_P='"$(BOOTSA_MDIR)/boot/gptp_ucode.hex"' \
+	  -CFLAGS "-I$(abspath $(BOOTSA_MDIR))/boot -Wall -Wextra" -LDFLAGS "$(abspath $(BOOTSA_MDIR))/boot/boot_fw.o" \
+	  bootsa_probes.vlt $(SRCS) sim_boot_sa.cpp -o Vmilan_dp_bootsa
+
+bootsa: bootsa-build
+	./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+
+# #839's negative controls: bootsa_mutants.py's banner lists them. An explicit
+# campaign outside the sweep, like crflic-mutants.
+bootsa-mutants: bootsa
+	python3 bootsa_mutants.py
+
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
 # grades the UNCORRECTED stamps bit for bit; this one elaborates non-zero,
@@ -521,17 +570,23 @@ gmstep: gmstep-build
 # and a defect that scaled both by the same ratio would still land inside a
 # window sized for them, while 296/104 are small, coprime and unrelated to
 # any figure in the RTL.
+#
+# This leg also runs the Arty config's image (gptp_lat_ucode.hex, #843), so
+# it grades clockAccuracy 0xFE on the wire where `gptp` grades 0x22. No
+# check of this leg depends on our clockAccuracy otherwise: every peer
+# Announce is decided on priority1 first.
 GPTP_LAT_ING = 296
 GPTP_LAT_EGR = 104
 gptp-lat: build-gptp-lat
 	$(MAKE) --no-print-directory exec-gptp-lat
 
-build-gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+build-gptp-lat: ltn_rom.hex ucode.hex gptp_lat_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptplat \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  -GGPTP_INGRESS_LAT_NS_P=$(GPTP_LAT_ING) \
 	  -GGPTP_EGRESS_LAT_NS_P=$(GPTP_LAT_EGR) \
-	  -CFLAGS "-DGPTP_LAT_ING_TB=$(GPTP_LAT_ING) -DGPTP_LAT_EGR_TB=$(GPTP_LAT_EGR) -Wall -Wextra" \
+	  -GGPTP_UCODE_HEX_P='"gptp_lat_ucode.hex"' \
+	  -CFLAGS "-DGPTP_LAT_ING_TB=$(GPTP_LAT_ING) -DGPTP_LAT_EGR_TB=$(GPTP_LAT_EGR) -DGPTP_CLOCK_ACCURACY_TB=$(GPTP_LAT_ACCURACY) -Wall -Wextra" \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptplat
 
 exec-gptp-lat:
@@ -576,7 +631,7 @@ AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),
 # Three-thread measurements did not establish a safe PR-shard budget.
 AX_GPTP_FLAGS += -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra"
 gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile $(CLOCK_RECIPE)
-	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
+	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x024b4c4b4c01 --p1 248 -o $@
 
 ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
@@ -623,7 +678,10 @@ sidmove8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
 # Six additional elaborations remove ACTIVE or the real grant at each
 # consumer, and two more (#774) give every source talker 0's TSpec, one per
-# shape. Their cost is outside the default sweep's stated margin.
+# shape. One more (#851, processor #214) builds a copy of the processor whose
+# SRP intake takes every push twice and whose encoder never merges, and five
+# more (#883, processor #216) build copies with its MRP Applicant and LeaveAll
+# defects. Their cost is outside the default sweep's stated margin.
 crflic-mutants: crflic tspec8
 	python3 crflic_mutants.py
 
@@ -633,8 +691,8 @@ notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 notify: notify-build
 	./$(NOTIFY_MDIR)/Vmilan_dp_notify
 
-# An EXPLICIT campaign like crflic-mutants: eight more elaborations and
-# nine runs of the timed leg, outside the sweep's deadline.
+# An EXPLICIT campaign like crflic-mutants: sixteen more elaborations and
+# nineteen runs of the timed leg, outside the sweep's deadline.
 gsi-mutants: notify
 	python3 gsi_mutants.py
 
@@ -696,7 +754,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split
+ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -720,6 +778,7 @@ CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_pru
 CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
 CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
 CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
+CASE_OPTIONS_bootsa = --banner "---- \#839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----" ./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
 
 # Keep the original ordered build and bounded simulation phases.
 # Each selected CI invocation prepares shared inputs before building cases.
@@ -729,7 +788,7 @@ run: ci-prepare
 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" $(foreach case,$(ORDINARY_CASES),$(CASE_OPTIONS_$(case)))
 	python3 render_mutants.py
 
-ci-prepare: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+ci-prepare: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 
 ci-receipts:
 	@$(foreach case,$(RUN_CASES),printf '%s\t%s\n' '$(case)' '$(or $(RECEIPT_$(case)),tally)';)
@@ -956,13 +1015,13 @@ twin: build-twin
 # (twin_plants.py, through twin_compare.py --make-plant): the split's for a
 # difference no row covers, an owed difference gone, the entity's commands and
 # their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
-# out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
-# for the #860 rows' exact traces
+# out a declared attribute and the LeaveAll declarations; the fabric's for an owed
+# fabric defect gone, of which none is left (TWIN_FABRIC_PLANTS)
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
 TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
   table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
-TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
-  vanished-vid2-join-in vid2-registrar-in
+# none at this head: processor 801ef228 (#893) fixed the owed fabric defects (#857, #858, #860) they planted
+TWIN_FABRIC_PLANTS =
 twin-plants: build-twin
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
@@ -1065,6 +1124,11 @@ build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
 exec-dynmap:
 	./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
 
+build-bootsa: bootsa-build
+
+exec-bootsa:
+	./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+
 build-maprec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(call MAPREC_MP_BUILD,$(SHAPE_8x8),$(MAPREC8_MDIR),8,Vmilan_dp_maprec8)
 
@@ -1154,4 +1218,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)

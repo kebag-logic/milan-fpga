@@ -28,7 +28,13 @@
 #include <utility>
 #include <vector>
 
+#ifdef GPTP_TXTS_MII
+#include "Vmac_tx_chain_mii.h"
+using MacChain = Vmac_tx_chain_mii;
+#else
 #include "Vmac_tx_chain.h"
+using MacChain = Vmac_tx_chain;
+#endif
 
 #include "../../common/verilator_harness.hpp"
 
@@ -37,7 +43,13 @@ namespace {
 //! The product's clock periods, in nanoseconds: 125 MHz at the wire, 100 MHz
 //! at the MAC system side, 50 MHz at the datapath. The migen run drives the
 //! same three numbers into its own simulator.
+//! The MII chain (issue #829) runs its wire clock at 25 MHz and each line of
+//! the trace is then one nibble.
+#ifdef GPTP_TXTS_MII
+constexpr uint64_t kEthPeriodNs = 40;
+#else
 constexpr uint64_t kEthPeriodNs = 8;
+#endif
 constexpr uint64_t kSysPeriodNs = 10;
 constexpr uint64_t kDpPeriodNs = 20;
 
@@ -87,8 +99,8 @@ class PadTrace {
   int write(const char *path);
 
  private:
-  const milan::tb::Model<Vmac_tx_chain> model_;
-  Vmac_tx_chain *dut = model_.get();
+  const milan::tb::Model<MacChain> model_;
+  MacChain *dut = model_.get();
 
   //! The three clocks start LOW and first rise at their own half period,
   //! which is where migen's simulator puts the first rising edge of a clock

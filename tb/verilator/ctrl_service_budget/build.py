@@ -27,6 +27,7 @@ from pathlib import Path
 
 import arm_path
 import notice_window
+import observers
 import talker_window
 import poll_items
 import save_window
@@ -478,11 +479,6 @@ def symbols(elf: Path) -> dict[str, int]:
     return table
 
 
-#: Each observed module, the instance name it has inside the mailbox, and one of its observed variables.
-OBSERVED = {'VexiiRiscv': ('vexiis_0_logic_core', 'WhiteboxerPlugin_logic_commits_ports_0_valid'),
-            'KL_mbx_rx': ('u_rx', 'commit_w'), 'KL_mbx_evt': ('u_evt', 'wr_en_o')}
-
-
 def code_modules(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
     """Each linked text input section and the source module it came from, off the link map.
 
@@ -510,42 +506,6 @@ def code_modules(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
         if start < end:
             raise RuntimeError('overlapping text sections in the link map')
     return names, spans
-
-
-def member_paths(native: Path) -> dict[str, tuple[str, str]]:
-    """Each observed module's C++ path from the root, and the prefix of its variables there.
-
-    Verilator keeps a module as its own class or inlines it into its parent,
-    whose members then carry the instance path (KL_mbx__DOT__u_rx__DOT__x);
-    both forms are read off the generated headers, never assumed.
-    """
-    edges: dict[str, list[tuple[str, str]]] = {}
-    members: dict[str, str] = {}
-    for header in [native / 'Vsim___024root.h', *native.glob('Vsim_*.h')]:
-        text = header.read_text()
-        members[header.stem] = text
-        for target, name in re.findall(r'^\s*(Vsim_\w+)\*\s+(\w+);', text, re.M):
-            edges.setdefault(header.stem, []).append((target, name))
-    paths = {'Vsim___024root': 'dut.rootp'}
-    frontier = ['Vsim___024root']
-    while frontier:
-        cls = frontier.pop()
-        for target, name in edges.get(cls, []):
-            if target not in paths:
-                paths[target] = f'{paths[cls]}->{name}'
-                frontier.append(target)
-    found: dict[str, tuple[str, str]] = {}
-    for module, (instance, var) in OBSERVED.items():
-        cls = 'Vsim_' + module
-        if cls in paths and re.search(rf'\b{var};', members[cls]):
-            found[module] = (paths[cls], '')
-            continue
-        hits = [(c, m.group(1)) for c in paths if c in members
-                for m in re.finditer(rf'\b(\w*__DOT__{instance}__DOT__){var};', members[c])]
-        if len(hits) != 1:
-            raise RuntimeError(f'observed module {module} is not reachable once from the root: {hits}')
-        found[module] = (paths[hits[0][0]], hits[0][1])
-    return found
 
 
 #: The testbench's observers: accessor name, its C++ type, the module and the variable it reads.
@@ -708,7 +668,7 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               'inline constexpr std::uint32_t entry_pc[n_entries] = {'
               + ', '.join(f'0x{table[name]:x}u' for name in entries) + '};',
               'inline const char* const entry_name[n_entries] = {'
-              + ', '.join(f'"{name}"' for name in entries) + '};']
+              + ', '.join(f'"{name}"' for name in entries) + '};', *observers.owner_lines(entries, table, paths)]
     lines += trace_lines(table, Path(spec['elf']), modules)
     journal = json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
     lines += [f"constexpr std::uint32_t journal_offset = 0x{journal['offset']:x}u;",
@@ -784,7 +744,7 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
     missing = mailbox_pins_missing((build_dir / 'verilate.log').read_text(), build_dir / 'gateware')
     if missing:
         raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
-    config_header(build_dir, spec, table, member_paths(native),
+    config_header(build_dir, spec, table, observers.member_paths(native),
                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
     run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
 

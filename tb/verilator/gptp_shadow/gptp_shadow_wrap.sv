@@ -574,6 +574,7 @@ module gptp_shadow_wrap #(
       .eth_clk_i     (clk_i),
       .eth_rst_n     (obs_rst_n_w),
       .gmii_tvalid_i (gmii_v_r),
+      .gmii_tready_i (1'b1),
       .gmii_tdata_i  (gmii_d_r),
       .dp_clk_i      (clk_i),
       .dp_rst_n      (rst_n),

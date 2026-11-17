@@ -1,8 +1,9 @@
 `verilator_config
 // Passive observation only: committed PCs, the CPU's fetch bus (cacheless,
 // or the instruction cache's refills) and data bus (cacheless, or the data
-// cache's IO bus), the mailbox's receive commit and its event-ring writes.
-// No source changes.
+// cache's IO bus), the mailbox's receive commit and its event-ring writes,
+// and the CPU's register file, read at a few function entries (sim_main.cpp,
+// note_owner). No source changes.
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
@@ -39,3 +40,4 @@ public_flat_rd -module "KL_mbx_rx" -var "ch_r"
 public_flat_rd -module "KL_mbx_evt" -var "wr_en_o"
 public_flat_rd -module "KL_mbx_evt" -var "wr_addr_o"
 public_flat_rd -module "KL_mbx_evt" -var "wr_data_o"
+public_flat_rd -module "RegFileMem" -var "asMem_ram"

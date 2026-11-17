@@ -1,0 +1,51 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "guard",
+  "heading": "0x7D8  -  Ethernet guard",
+  "registers": [
+    {
+      "acronym": "ETH_GUARD",
+      "offset": "0x7D8",
+      "svg": "docs/diagrams/regmap/guard/ETH_GUARD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "ETH_GUARD",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}
