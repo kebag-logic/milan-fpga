@@ -1,0 +1,62 @@
+# head 70f4056f384e12520ccae254fe26f6286fd39db6 dirty 0 start 2026-11-17T00:55:47+01:00
+# cmd: python3 -I $REVIEWS/929-r855-1-packet/scripts/srp_arms4.py . $REVIEWS/929-r855-1-packet/scratch/b-base4
+== srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8: rc 0
+   [==========] Running 74 tests from 1 test suite.
+   [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+   [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+   [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+   [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+   [==========] 74 tests from 1 test suite ran. (20 ms total)
+   [  PASSED  ] 74 tests.
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+== srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8: rc 0
+   [==========] Running 74 tests from 1 test suite.
+   [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+   [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+   [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+   [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (8 ms)
+   [==========] 74 tests from 1 test suite ran. (50 ms total)
+   [  PASSED  ] 74 tests.
+== srp-srp_mbx-if1-endstation_ax7101_8x8: rc 1
+   [==========] Running 74 tests from 1 test suite.
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:293: Failure
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+   [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+   [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+   [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+   [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+   [==========] 74 tests from 1 test suite ran. (24 ms total)
+   [  PASSED  ] 73 tests.
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/929-r855-1-packet/scratch/b-base4/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+== srp-srp_mbx-if2-endstation_ax7101_8x8: rc 1
+   [==========] Running 74 tests from 1 test suite.
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:294: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:298: Failure
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:293: Failure
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+   [ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+   [       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+   $REVIEWS/929-r855-1-packet/scratch/c-fwbase/sw/firmware/ctrl/test/srp_mbx.cpp:704: Failure
+   [  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+   [ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+   [       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (16 ms)
+   [==========] 74 tests from 1 test suite ran. (72 ms total)
+   [  PASSED  ] 72 tests.
+   [  FAILED  ] 2 tests, listed below:
+   [  FAILED  ] Srp.StartupDeclaresTalkersDomainAndVlan
+   [  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+# end 2026-11-17T00:56:35+01:00 rc=1 48s porcelain-after 0

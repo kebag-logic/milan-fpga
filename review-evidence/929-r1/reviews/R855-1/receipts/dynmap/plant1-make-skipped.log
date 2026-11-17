@@ -1,0 +1,9 @@
+# head 372556835d03b70134b2e76567b63b25c4cca005 dirty 1 start 2026-11-17T00:58:32+01:00
+# cmd: cd tb/verilator/milan_dp && python3 dynmap_mutants.py --jobs 2 36 37
+[FAIL] the listener leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex, tdm8r_aemi.bin (make rc 0: ) - its mutant results are meaningless
+[FAIL] the talker leg's inputs are not made: its suite did not make ltn_rom.hex, ucode.hex (make rc 0: ) - its mutant results are meaningless
+[FAIL] mutant "an empty reset, under the listener's end-to-end check" failed, but not the named check ('T18 POWER-ON: with no map command since the reset, the lane renders injected events')
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 108 failure(s) across 480 checks)
+
+4 checks: 1 PASS, 3 FAIL
+# end 2026-11-17T01:01:45+01:00 rc=1 193s porcelain-after 1

@@ -1,0 +1,9 @@
+# head 372556835d03b70134b2e76567b63b25c4cca005 dirty 1 start 2026-11-17T00:58:32+01:00
+# cmd: cd tb/verilator/milan_dp && python3 dynmap_mutants.py --jobs 2 36 37
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[PASS] the unmutated gateware still passes the talker leg
+[FAIL] mutant "an empty reset, under the listener's end-to-end check" failed, but not the named check ('T18 POWER-ON: with no map command since the reset, the lane renders injected events')
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 108 failure(s) across 480 checks)
+
+4 checks: 2 PASS, 2 FAIL
+# end 2026-11-17T01:04:26+01:00 rc=1 354s porcelain-after 1

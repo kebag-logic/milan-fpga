@@ -1,0 +1,34 @@
+# head 372556835d03b70134b2e76567b63b25c4cca005 dirty 0 start 2026-11-17T00:45:52+01:00
+# cmd: python3 -I $REVIEWS/929-r855-1-packet/scripts/srp_probe.py . $REVIEWS/929-r855-1-packet/scratch/b-pl1 1 startup-8x8-sources-past-two-undeclared startup-8x8-failure-code-past-two duplicate-tick-owner-8x8
+[ESCAPED] startup-8x8-sources-past-two-undeclared: StartupDeclaresTalkersDomainAndVlan / each source's three Talker declarations and no other
+Note: Google Test filter = Srp.StartupDeclaresTalkersDomainAndVlan
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ESCAPED] startup-8x8-failure-code-past-two: StartupDeclaresTalkersDomainAndVlan / source 2's failure code
+Note: Google Test filter = Srp.StartupDeclaresTalkersDomainAndVlan
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] duplicate-tick-owner-8x8: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+# end 2026-11-17T00:46:07+01:00 rc=1 15s porcelain-after 0
