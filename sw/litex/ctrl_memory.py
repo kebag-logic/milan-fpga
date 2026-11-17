@@ -263,10 +263,11 @@ LEDGERED: dict[str, Ledgered] = {
                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
                                          "declarations plan within it (#895); 59.5 by the owner's decision of "
-                                         "2026-11-15 (#665, block RAM kept loose): the CPU budget harness's "
-                                         "answering-every-port arm, the fixture with its test port, needs 127,124 B "
-                                         "of rom with SRP's record of the STREAM_OUTPUT notices (#936), 148 B past "
-                                         "the 126,976 B 59.0 holds, debt owed to S14"),
+                                         "2026-11-15 (#665, block RAM kept loose): with SRP's record of the "
+                                         "STREAM_OUTPUT notices (#936) the CPU budget harness's answering-every-port "
+                                         "arm, the fixture with its test port, needs 127,132 B of rom, 156 B past "
+                                         "the 126,976 B 59.0 holds, and its valid-destinations arm 126,992 B, 16 B "
+                                         "past, debt owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
