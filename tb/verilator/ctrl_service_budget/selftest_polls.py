@@ -330,8 +330,8 @@ def horizon_checks(joins: Callable[..., dict], msrp: int) -> list[Check]:
                 'unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes '
                 'nothing', absent['runs']['absent'] == 1 and pending['runs']['unresolved'] == 1 and
                 not pending['failing'] and absent['runs']['empty'] == pending['runs']['empty'] == 0 and len(named) == 1
-                and named[0].startswith("a: the join timer's run-out at 1190.000 ms, no build after it though the log "
-                                        'runs on 110.0') and named[0].endswith(' ms (absent)'),
+                and named[0].startswith("a: the join timer's run-out at 1190.000 ms (if0 MSRP): no build after it "
+                                        'though the log runs on 110.0') and named[0].endswith(' ms (absent)'),
                 str((absent, pending, named))))
     owed = joins(((1_000, 0, msrp), (1_200, 0, msrp)), ((1_190, 'on_join_timer'),), owed=(1_200,))
     out.append(("a frame its build left owed, which the poll sends a pass later, is that build's: the run-out "

@@ -51,7 +51,7 @@ def quietly(action: Callable[[], int]) -> int:
 def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: bool = True) -> list[dict]:
     """A held group's timer rows: a TICK posted at TICK_AT, its join timer's end, a pass with its build and a commit."""
     srp = scenario.CH['srp']
-    frame = bytes(60)
+    frame = bytes(12) + (0x22EA).to_bytes(2, 'big') + bytes(46)   # an MSRP MRPDU, its timer's owner's
     sent = tx_sequence(srp, [(0, frame, commit)]) if built else []
     lines = ['MARK 1000 load', f'EVW {TICK_AT} 0 {mrpdu_grade.TICK:08x}', f'EVW {TICK_AT} 1 00000001',
              f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer if0 MSRP',

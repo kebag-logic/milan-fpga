@@ -98,7 +98,8 @@ def leave_all_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz:
     commit of one TX record."""
     graded = harness(synthetic, sys_hz, cpu_hz, tx_record)
     single, one = single_checks(graded)
-    return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded)
+    return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded) + \
+        foreign_checks(graded)
 
 
 def single_checks(graded: Graded) -> tuple[list[Check], list[str]]:
@@ -256,8 +257,9 @@ def anchor_checks(graded: Graded) -> list[Check]:
                 late == {'alone': ([('periodic', 1300.001, 59.979)], 0),
                          'callback': ([('periodic', 1300.001, 59.979)], 1), 'own': ([], 1),
                          'other': ([('periodic', 1300.001, 159.979)], 0)} and said == [
-                    "c: the periodic timer's run-out at 1300.001 ms, its first frame or build 59.979 ms after its "
-                    "participant's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms (late)"],
+                    "c: the periodic timer's run-out at 1300.001 ms (if0 MSRP): its owner's first frame, or first "
+                    "build, 59.979 ms after the owner's transmit opportunity at 1300.001 ms, past THE TRANSMIT's 49 ms "
+                    "(late)"],
                 str((late, said))))
     return out + unowned_checks(graded)
 
@@ -295,3 +297,48 @@ def named_late(held: dict) -> list[str]:
     """A log's late, absent or unowned run-outs as a run names them."""
     return [m for m in run.stated_misses([dict(group='c', passes=dict(joins=held))])
             if m.endswith(('(late)', '(absent)', '(owner unresolved)')) and 'LeaveAll' not in m]
+
+
+def foreign_checks(graded: Graded) -> list[Check]:
+    """A run-out judged on its owner alone (mrpdu_grade.horizon, served, start_of; PR #934): another participant's
+    running join timer never defers its deadline, another participant's MRPDU never answers or times it, and its row
+    starts at its owner's opportunity. Each for either application on either interface, the other participant the
+    other application on the other interface, its last commit at 1,250 ms arming its join timer to the 1,430 ms TICK."""
+    pt = 'on_pt_timer'
+    combos = [(i, app, MVRP if app == MSRP else MSRP) for i in (0, 1) for app in (MSRP, MVRP)]
+    missing, frames, starts = {}, {}, {}
+    for i, app, other in combos:
+        who = f'if{i} {mrpdu_grade.APPLICATIONS[app]}'
+        prior = ((1_000, app, False, i), (1_250, other, False, 1 - i))
+        timer = ((1_300, pt, who),)
+        failing = lambda h: [(f['kind'], f['outcome'], f['who'], f['from_ms']) for f in h['failing']]
+        _, peer = graded(prior, timer, (1_400,))
+        _, short = graded(prior, timer, (1_340,))
+        missing[who] = (failing(peer), failing(short), short['runs']['unresolved'])
+        out = {}
+        for case, extra in (('late', (1_431, other, False, 1 - i)), ('within', (1_311, other, False, 1 - i)),
+                            ('own', (1_311, app, False, i))):
+            rows, held = graded(prior + (extra,), timer, (1_500,))
+            out[case] = ([o for o, n in held['runs'].items() if n], failing(held),
+                         {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows})
+        frames[who] = out
+        # the owner's join timer, armed at 1,250 ms, runs to the 1,430 ms TICK; the other participant's ran out at
+        # 1,180 ms; one TX_HEAD write at 1,440 ms commits both participants' MRPDUs on the owner's interface
+        rows, _ = graded(((1_000, other, False, i), (1_250, app, False, i), (1_440, app, False, i),
+                          (1_440, other, False, i)), timer)
+        starts[who] = {r['probe'].split('.mrpdu.')[1]: r['ms'] for r in rows}
+    name = {i_a: f'if{i_a[0]} {mrpdu_grade.APPLICATIONS[i_a[1]]}' for i_a in ((i, a) for i, a, _ in combos)}
+    want_missing = {who: ([('periodic', 'absent', who, 1300.001)], [], 1) for who in name.values()}
+    want_frames = {who: dict(late=(['late'], [('periodic', 'late', who, 1300.001)], {}), within=(['empty'], [], {}),
+                             own=(['released'], [], {f'periodic.if{i}': 11.0})) for (i, _), who in name.items()}
+    want_starts = {who: {f'periodic.if{i}': 10.0} for (i, _), who in name.items()}
+    return [("a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit "
+             "opportunity, though another participant's join timer runs on, for either application on either "
+             "interface; a log that ends first leaves it unresolved", missing == want_missing, str(missing)),
+            ("a build that sends only another participant's MRPDU answers nothing for a run-out: late past the bound "
+             "after its owner's opportunity, empty within it, no row for either interface, for either application on "
+             "either interface; the owner's own MRPDU on time is released and times the owner's row",
+             frames == want_frames, str(frames)),
+            ("a timer's row starts at its owner's first transmit opportunity, for either application on either "
+             "interface, though its commit carries another participant's MRPDU whose opportunity came earlier",
+             starts == want_starts, str(starts))]

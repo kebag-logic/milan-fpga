@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
-periodic or LeaveAll timer made owed, timed from its participant's transmit opportunity to the TX commit of the frame
+periodic or LeaveAll timer made owed, timed from its owner's transmit opportunity to the TX commit of the owner's frame
 that answers it. The opportunity is the deadline, the centisecond whose TICK ran the timer out, where the participant's
 join timer has run out by then; and where it still runs, the centisecond whose TICK runs it out, since an MRPDU a timer
 requests goes out at the participant's next transmit opportunity, the join timer's expiry (IEEE 802.1Q-2018 10.7.4.1;
@@ -12,15 +12,17 @@ A timer that runs out with nothing to send owes nothing, and lwSRP reports no su
 no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
 (#894's egress ruling of 2026-11-13, item 4; resolve): the first after it and, where the other participant or
 interface owes one too, the next, at most one ordinary or idle pass standing between two (ctrl_loop.c, whole_runs), each
-build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). The
-run-out is `released` where they send frames, `empty` where the first sends none, `late` where its first frame comes
-past THE TRANSMIT's bound (LATE_MS) after its participant's transmit opportunity, or where its first build sends none
-and comes past the bound after the transmit opportunity of the timer's owner, the participant the testbench recorded
-at the expiry (anchor), `absent` where no build follows it in a log that runs on past the bound after every
-participant's opportunity, and `unresolved` where the log ends first; and whatever its builds sent, `unowned` where the
-testbench recorded no owner at the expiry, or recorded it unresolved (recorded_owner). A late, absent or unowned
-run-out fails the run (join_grade.held); an unresolved one is counted and named, never taken for one that owes
-nothing.
+build's frames those it commits and those it leaves owed, which only the poll sends, before the next build (A3). Each
+run-out is judged on its owner alone, the participant the testbench recorded at the expiry (recorded_owner; PR #934):
+the frames that answer it are the owner's (served), and its lateness counts from the owner's first transmit
+opportunity. The run-out is `released` where its builds send the owner's frames; `empty` where they send none of the
+owner's; `late` where the owner's first frame comes past THE TRANSMIT's bound (LATE_MS) after the owner's opportunity,
+or where the first build sends none of the owner's and comes past the bound after it (anchor); `absent` where no build
+follows it in a log that runs on past the bound after the owner's opportunity (horizon), and `unresolved` where the log
+ends first; and whatever its builds sent, `unowned` where the testbench recorded no owner at the expiry, or recorded it
+unresolved. Another participant's callback, running join timer or frame never defers a run-out's deadline nor answers
+it. A late, absent or unowned run-out fails the run (join_grade.held); an unresolved one is counted and named, never
+taken for one that owes nothing.
 
 A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
 at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
@@ -155,13 +157,23 @@ def opportunity(log: grade.Log, who: str, entry: int) -> int:
 
 def begin(log: grade.Log, entry: int, cycle: int, interface: int) -> int:
     """Where THE TRANSMIT's row of the frame committed at that cycle on that interface, answering the timer that ran
-    out at entry, starts: the deadline of its participant's transmit opportunity, the centisecond whose TICK ran the
-    timer out or runs its join timer out (the earliest, where the commit carries two participants' MRPDUs; the
-    deadline of the run-out itself, for a frame of neither application)."""
+    out at entry, starts: the deadline of its owner's transmit opportunity (start_of), the centisecond whose TICK ran
+    the timer out or runs the owner's join timer out."""
     _, at, posted = sends(log)
-    starts = [opportunity(log, who, entry) for who in at.get((cycle, interface), ())] or [entry]
-    k = bisect_right(posted, min(starts))
-    return posted[k - 1] if k else min(starts)
+    start = start_of(log, entry, at.get((cycle, interface), ()))
+    k = bisect_right(posted, start)
+    return posted[k - 1] if k else start
+
+
+def start_of(log: grade.Log, entry: int, whose: tuple | list) -> int:
+    """Where a timer's row starts, the commit it ends at carrying the MRPDUs of the participants in whose: its owner's
+    first transmit opportunity, the owner the testbench recorded at the expiry, though the commit carries another
+    participant's MRPDU too (PR #934); with none recorded, an unowned run-out that fails the run (resolve), the earliest
+    of the commit's participants' (the run-out itself for a frame of neither application)."""
+    who = recorded_owner(log, entry)
+    if who:
+        return opportunity(log, who, entry)
+    return min([opportunity(log, other, entry) for other in whose] or [entry])
 
 
 def commits(grader: grade.Grader, entry: int) -> list[tuple[int, int]]:
@@ -200,20 +212,52 @@ def index(log: grade.Log) -> tuple[list[int], list[grade.Pass], list[tuple[int, 
 def resolve(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
     """The outcome (OUTCOMES) of the timer that ran out at entry, and the (cycle, interface) of the frames its builds
     sent, as the module docstring says: `unowned` where the testbench recorded no owner at the expiry, whatever its
-    builds sent, since no transmit opportunity is the run-out's without its owner (PR #934)."""
-    outcome, frames = built(log, entry)
-    return ('unowned' if recorded_owner(log, entry) is None else outcome), frames
+    builds sent, since no transmit opportunity is the run-out's without its owner (PR #934). An unowned run-out's frames
+    are every participant's its builds committed, so that the failing log still shows them."""
+    who = recorded_owner(log, entry)
+    if who is None:
+        return 'unowned', window(log, entry)[1]
+    return built(log, entry, who)
 
 
-def built(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
-    """What the builds after the timer's run-out at entry did (resolve), its owner aside."""
-    builds, passes, sent, last = index(log)
+def built(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, int]]]:
+    """What the builds after the timer's run-out at entry did for its owner who (resolve): each judged on the owner
+    alone, its frames the owner's and its lateness from the owner's first transmit opportunity. Another participant's
+    callback, running join timer or frame neither defers the run-out's deadline nor answers it (PR #934)."""
+    last, bound = index(log)[3], int(LATE_MS * log.sys_hz / 1000)
+    first, frames = window(log, entry)
+    if first is None:
+        return ('absent' if last > horizon(log, entry, who) + bound else 'unresolved'), []
+    mine, start = served(log, entry, who, frames)
+    if mine:
+        return ('late' if mine[0][0] > start + bound else 'released'), mine
+    return ('late' if first > anchor(log, entry) + bound else 'empty'), []
+
+
+def horizon(log: grade.Log, entry: int, who: str) -> int:
+    """Where a run-out with no build after it counts from: its owner's first transmit opportunity. It is absent where
+    the log runs on past THE TRANSMIT's bound after that, unresolved where the log ends first; another participant's
+    running join timer never defers it (PR #934)."""
+    return opportunity(log, who, entry)
+
+
+def served(log: grade.Log, entry: int, who: str, frames: list[tuple[int, int]]) -> tuple[list[tuple[int, int]], int]:
+    """The frames of the builds after a run-out that answer it, its owner's alone (a commit that carries the owner's
+    MRPDU), and where their lateness counts from, the owner's first transmit opportunity: another participant's frame
+    neither answers the run-out nor times it (PR #934). With none of the owner's, the first build is judged as one that
+    sends nothing (anchor)."""
+    at = sends(log)[1]
+    return [f for f in frames if who in at.get(f, ())], opportunity(log, who, entry)
+
+
+def window(log: grade.Log, entry: int) -> tuple[int | None, list[tuple[int, int]]]:
+    """The first build after the timer's run-out at entry, or None for none, and the (cycle, interface) of every
+    participant's frames its builds committed, as the module docstring says."""
+    builds, passes, sent, _ = index(log)
     starts = [p.start_sys for p in passes]
-    bound = int(LATE_MS * log.sys_hz / 1000)
     k = bisect_right(builds, entry)
     if k == len(builds):
-        latest = max([entry] + [opportunity(log, who, entry) for who in sends(log)[0]])
-        return ('absent' if last > latest + bound else 'unresolved'), []
+        return None, []
 
     def pass_at(cycle: int) -> int:
         """The index of the pass a build at that cycle ran in."""
@@ -236,11 +280,7 @@ def built(log: grade.Log, entry: int) -> tuple[str, list[tuple[int, int]]]:
             break
         frames.append((cycle, interface))
         interfaces.add(interface)
-    if frames:
-        whose = sends(log)[1].get(frames[0], ())
-        late = min([opportunity(log, who, entry) for who in whose] or [entry]) + bound
-        return ('late' if frames[0][0] > late else 'released'), frames
-    return ('late' if run[0] > anchor(log, entry) + bound else 'empty'), frames
+    return run[0], frames
 
 
 def recorded_owner(log: grade.Log, entry: int) -> str | None:
@@ -303,8 +343,8 @@ def tick_at(log: grade.Log, at: int) -> int:
 
 
 def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
-    """A held group's timer rows: for each timer and interface the longest, each a row of its own, from its
-    participant's transmit opportunity (begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
+    """A held group's timer rows: for each timer and interface the longest, each a row of its own, on its owner's
+    frames from its owner's transmit opportunity (served, begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
     if not group.save or not group.save.get('loaded'):
         return []
     log = grader.log

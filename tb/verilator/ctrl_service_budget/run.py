@@ -179,17 +179,20 @@ def stated_misses(results: list[dict]) -> list[str]:
 
 
 def run_out_miss(group: str, o: dict) -> str:
-    """An MRP timer's run-out whose build is late past its participant's transmit opportunity, or absent, or whose
-    owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names it."""
+    """An MRP timer's run-out whose owner's frame or build is late past the owner's transmit opportunity, or absent, or
+    whose owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names
+    it, with its owner and the owner's opportunity."""
     import mrpdu_grade
-    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, "
-    if o['outcome'] == 'late':
-        return (at + f"its first frame or build {o['after_ms']:.3f} ms after its participant's transmit opportunity "
-                f"at {o.get('from_ms', o['at_ms']):.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms"
     if o['outcome'] == 'unowned':
-        return at + ('its owner recorded unresolved' if o.get('recorded') else 'no owner recorded') + \
+        return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
             ' at the expiry (owner unresolved)'
-    return at + f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)"
+    opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
+    if o['outcome'] == 'late':
+        return (at + f" ({o.get('who')}): its owner's first frame, or first build, {o['after_ms']:.3f} ms after {opp}, "
+                f"past THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+    return at + f" ({o.get('who')}): no build after it though the log runs on {o['after_ms']:.3f} ms past {opp} " \
+        '(absent)'
 
 
 def leave_all_miss(group: str, o: dict) -> str:

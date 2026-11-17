@@ -66,8 +66,8 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
     MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
-    with its timer, its time, its participant's transmit opportunity (a build that sends nothing, its timer's owner's:
-    mrpdu_grade.anchor) and how far its first frame or build, or the log's end, lies past that, and each unowned one
+    with its timer, its time, its owner, the owner's transmit opportunity (mrpdu_grade.anchor) and how far the owner's
+    first frame or the first build, or the log's end, lies past that, and each unowned one
     with whether the testbench recorded its owner unresolved or recorded none; and every LeaveAll
     timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
     named."""
@@ -81,12 +81,10 @@ def held(log: grade.Log) -> dict:
         if outcome in mrpdu_grade.FAILING:
             frames = mrpdu_grade.released(log, entry)
             after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
-            whose = mrpdu_grade.sends(log)[1].get(frames[0], ()) if frames else ()
-            start = min([mrpdu_grade.opportunity(log, who, entry) for who in whose] or [entry])
-            if outcome == 'late' and not frames:
-                # a build that sends nothing: from its timer's owner's transmit opportunity (mrpdu_grade.anchor)
-                start = mrpdu_grade.anchor(log, entry)
-            failing.append(dict(kind=kind, outcome=outcome, at_ms=ms(entry), from_ms=ms(start),
+            # from its owner's first transmit opportunity, the owner's frames alone (mrpdu_grade.served, anchor)
+            start = mrpdu_grade.anchor(log, entry)
+            failing.append(dict(kind=kind, outcome=outcome, who=mrpdu_grade.recorded_owner(log, entry),
+                                at_ms=ms(entry), from_ms=ms(start),
                                 after_ms=round((after - start) * 1000 / log.sys_hz, 3),
                                 **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
                                    if outcome == 'unowned' else {})))

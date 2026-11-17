@@ -878,6 +878,18 @@ MUTANTS: dict[str, Patches] = {
                              default=None)))],
     "transmit: an unowned run-out not failing the run": lambda: [patch.object(
         mrpdu_grade, 'FAILING', ('late', 'absent'))],
+    "transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule)":
+        lambda: [patch.object(mrpdu_grade, 'horizon', lambda log, entry, who: max([entry] + [
+            mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[0]]))],
+    "transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's "
+    "opportunity (earlier rule)": lambda: [patch.object(mrpdu_grade, 'served', lambda log, entry, who, frames: (
+        frames, min([mrpdu_grade.opportunity(log, other, entry) for other in mrpdu_grade.sends(log)[1].get(
+            frames[0], ())] or [entry]) if frames else entry))],
+    "transmit: another participant's MRPDU credited to a run-out, timed from its owner": lambda: [patch.object(
+        mrpdu_grade, 'served', lambda log, entry, who, frames: (frames, mrpdu_grade.opportunity(log, who, entry)))],
+    "transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)":
+        lambda: [patch.object(mrpdu_grade, 'start_of', lambda log, entry, whose: min([
+            mrpdu_grade.opportunity(log, other, entry) for other in whose] or [entry]))],
     "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
         mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
     'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(
