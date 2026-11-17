@@ -1,0 +1,36 @@
+# planted: 355:#define CTRL_LOOP_TX_MS 60u
+shape_costs.py --check rc=0: RESULT: PASS 
+flip_grade.py --check --point 8x8/1if rc=0: RESULT: PASS 
+flip_grade.py --check rc=1: RESULT: FAIL 
+load_grade.py --check rc=0: RESULT: PASS 
+rows_tiers.py --selftest rc=0: rows_tiers: 1033 of 1033 planted controls refused 
+60:REPORTED = ('8x8/1if',)
+404:    rowed = tuple(p for p in points if p not in REPORTED)
+420:        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \
+# flip_grade.py --check over every point: the OVER lines at the head and with the plant (8x8/2if's by design)
+## head
+OVER 8x8/2if: the load 0.798 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 45.06 ms, over its bound 20 ms; the largest term timers 11.37 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 209.00 ms, over its bound 90 ms; the largest term others 34.59 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 198.71 ms, over its bound 90 ms; the largest term others 33.31 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 21.11 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 857.77 ms, over its bound 125 ms; the largest term srp 166.44 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 68.94 ms, over its bound 30 ms; the largest term timers 12.54 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 68.91 ms, over its bound 30 ms; the largest term others 14.46 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.89 ms, over its bound 30 ms; the largest term others 16.12 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 104.25 ms, over its bound 49 ms; the largest term others 22.18 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 466.85 ms, over its bound 49 ms; the largest term aecp 100.91 ms
+RESULT: FAIL
+## planted
+OVER 8x8/2if: the load 0.798 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 45.06 ms, over its bound 20 ms; the largest term timers 11.37 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 209.00 ms, over its bound 90 ms; the largest term others 34.59 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 198.71 ms, over its bound 90 ms; the largest term others 33.31 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 21.11 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 857.77 ms, over its bound 125 ms; the largest term srp 166.44 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 68.94 ms, over its bound 30 ms; the largest term timers 12.54 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 68.91 ms, over its bound 30 ms; the largest term others 14.46 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.89 ms, over its bound 30 ms; the largest term others 16.12 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 104.25 ms, over its bound 49 ms; the largest term others 22.18 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 466.85 ms, over its bound 49 ms; the largest term aecp 100.91 ms
+RESULT: FAIL

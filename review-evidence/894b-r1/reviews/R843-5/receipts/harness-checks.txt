@@ -1,0 +1,112 @@
+### shape_costs.py --check --selftest
+the table of shapes: 25 of 25 planted controls refused
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+### flip_grade.py --check --point 1x1/1if
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.25 | 20 | -6.75 | 5 | aecp 3.760, timers 1.485, passes 1.300 |
+| 1x1/1if | R5 | 75.84 | 90 | -14.16 | 39 | others 11.520, passes 10.140, srp 8.960 |
+| 1x1/1if | R6 | 73.36 | 90 | -16.64 | 37 | others 11.240, passes 9.620, srp 8.960 |
+| 1x1/1if | first | 14.72 | 20 | -5.28 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 136.65 | 140 | -3.35 | 71 | srp 26.880, passes 18.460, others 15.190 |
+| 1x1/1if | R4L | 203.57 | 238 | -34.43 | 3 | pace 195.000, timers 1.105, item.aecp 1.095 |
+| 1x1/1if | ACMP | 29.63 | 30 | -0.37 | 17 | aecp 4.935, own 4.480, passes 4.420 |
+| 1x1/1if | ADP | 27.86 | 30 | -2.14 | 13 | others 6.915, aecp 4.935, passes 3.380 |
+| 1x1/1if | MAAP | 27.96 | 30 | -2.04 | 13 | others 6.930, aecp 4.935, passes 3.380 |
+| 1x1/1if | tx | 34.00 | 49 | -15.00 | 17 | others 8.350, aecp 5.170, passes 4.420 |
+| 1x1/1if | txL | 48.58 | 49 | -0.42 | 23 | aecp 10.315, others 9.410, item.aecp 8.395 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+### flip_grade.py --check --point 8x8/1if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.735 | 0.75 | 1.00x | srp 0.217, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 280 | 85 | 34 | 140 | 34 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 365 | 165 | 25 | 130 | 70 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+RESULT: PASS
+rc=0
+### load_grade.py --check
+| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.517 | 0.514 | 0.70, both columns | 1.00x | 260 | srp 0.168, rec.acmp 0.053, ticks 0.049, rec.aecp 0.047, item.aecp 0.046, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.010, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.798 | 0.756 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 385 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.060, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.735 | 0.694 | the flip check, 0.75 at the pin (flip_grade.py) | 1.00x | 320 | srp 0.217, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.031, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.adp 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.517, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.514, its ceiling 0.70
+RESULT: PASS
+rc=0
+### egress_ledger.py --selftest
+PASS [as a process] backlog.owed_behind1.if0 a large increase over its figure (101.12000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 one cycle over its figure (64.61001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 a large increase over its figure (101.37000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 one cycle over its figure (64.86001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 a large increase over its figure (101.62000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 one cycle over its figure (62.62001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 a large increase over its figure (99.38000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 one cycle over its figure (62.16001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 a large increase over its figure (98.92000 ms) exits nonzero naming it: rc 1
+PASS [as a process] a miss of another row is new and fails, named: rc 1
+PASS [as a process] another row within its budget passes: rc 0
+PASS [as a process] a ledger row with no instance fails, named: rc 1
+PASS [as a process] a ledger row not measured fails, named: rc 1
+PASS [as a process] a ledger row never answered, within its figure, fails: rc 1
+PASS [as a process] a ledger row's name in another group is a new miss: rc 1
+PASS [as a process] a log's rows a printed microsecond under their figures pass: rc 0
+PASS [as a process] a log of section 13's measurement passes: rc 0
+PASS [as a process] a log's row printed at its figure fails: its log does not show it within: rc 1
+PASS [as a process] a log with no summary fails: rc 1
+PASS [as a process] a log with a refusal fails: rc 1
+PASS [as a process] a log with a BUDGET line short of the summary fails: rc 1
+PASS [as a process] a results directory whose run refused a group fails: rc 1
+PASS [as a process] a results directory with no results.json fails: rc 1
+PASS [as a process] a point with no ledger is refused: rc 2
+caught mutant 'a ledger row waived by its name whatever its size': backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant "a grade's figure read at its log's microsecond": backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant 'a ledger row at its figure failing': the unchanged ledger, every row at its figure, passes
+caught mutant 'a new miss waived': a miss of another row is new and fails, named
+caught mutant 'a ledger row with no instance passing': a ledger row with no instance fails, named
+caught mutant "a log's figure read as exact": a log's row printed at its figure fails: its log does not show it within
+caught mutant "a ledger figure a hundredth over section 13's": the ledger is section 13's table, row for row and figure for figure
+caught mutant 'a ledger figure with no 5 % on its service': the ledger is section 13's table, row for row and figure for figure
+caught mutant 'the 5 % on the whole row, the hold too': the ledger is section 13's table, row for row and figure for figure
+caught mutant "the hold not the scenario's": each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms
+caught mutant 'a measurement the ledger does not derive from': section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the merged image's measurement where the composed one is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the composed image's measurement where the Listener copies' is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a run's refusals not read": a results directory whose run refused a group fails
+caught mutant "a ledger row's name taken in any group": a ledger row's name in another group is a new miss
+RESULT: PASS: 15 mutants, 0 failure(s)
+rc=0
+### flip_grade.py --selftest
+flip check: 612 of 612 planted controls refused
+rc=0
+### load_grade.py --selftest
+load gate: 28 of 28 planted controls refused
+rc=0

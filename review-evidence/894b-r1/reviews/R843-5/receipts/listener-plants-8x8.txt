@@ -1,0 +1,33 @@
+[ok] reviewer-dispatch-any-type: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[as-expected] reviewer-dispatch-any-type at plants-8x8: caught, expected caught
+[ESCAPED] reviewer-dispatch-any-slot: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+Note: Google Test filter = Listeners.RandomRecordsMatchTheReferenceWalk
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Listeners
+[ RUN      ] Listeners.RandomRecordsMatchTheReferenceWalk
+[       OK ] Listeners.RandomRecordsMatchTheReferenceWalk (60 ms)
+[----------] 1 test from Listeners (60 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (60 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Listener copies: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[as-expected] reviewer-dispatch-any-slot at plants-8x8: escaped, expected escape (equivalent)
+[ok] reviewer-presence-always: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[as-expected] reviewer-presence-always at plants-8x8: caught, expected caught
+[ok] reviewer-arrival-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[as-expected] reviewer-arrival-dropped at plants-8x8: caught, expected caught
+[ESCAPED] reviewer-leave-not-copied: srp_mbx.c does not compile:
+$PACKET/scratch/probe/p8/reviewer-leave-not-copied/work/ctrl/srp/srp_mbx.c: In function ‘left’:
+$PACKET/scratch/probe/p8/reviewer-leave-not-copied/work/ctrl/srp/srp_mbx.c:225:48: error: unused parameter ‘port’ [-Werror=unused-parameter]
+  225 | static void left(struct msrp_ctx *ctx, uint8_t port, uint8_t type, const void *value)
+      |                                        ~~~~~~~~^~~~
+cc1: all warnings being treated as errors
+
+[UNEXPECTED] reviewer-leave-not-copied at plants-8x8: escaped, expected caught
+[ok] reviewer-indication-readyfailed-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[as-expected] reviewer-indication-readyfailed-dropped at plants-8x8: caught, expected caught
+RESULT: FAIL
