@@ -268,6 +268,19 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   Its second group, `srp-talker-loss`, probes every source the same way, then makes each interface lose its range: a peer ANNOUNCEs it from a MAC for which `compare_MAC` is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), so MAAP restarts on a new range, its DA gate closes, and SRP withdraws that interface's Talkers, the row `srp.talker_loss` from the ANNOUNCE's commit to MAAP's new PROBE and SRP's Leave, with the same wait.
   The new range waits two LeaveAllTime periods, so no Advertise follows within the group.
   Those declaration and withdrawal passes are given whole to THE TRANSMIT, so `whole_grade.py` holds them to its stated build cost and `share.py` to the share; arm A's fixture reports no destination, so no arm A group declares a Talker.
+- `talker-notices` (#936) is `valid-destinations` with the face block's stream observation answering zeroed values at every attempt, as `answering-ports`' does, so a STREAM_OUTPUT's GET_STREAM_INFO notice is built at its first attempt.
+  Its groups, `talker-notice-<k>` ([`talker_notice.py`](talker_notice.py)), register 16 controllers on every interface and start a save, as `notice-retried-<k>` does. Then each times two events on source 0's interface against the asynchronous notifications' 20 ms (FR_NFR.md 3.4.1), from the event's commit to the last registration's notice:
+  - the declaration, a PROBE_TX for source 0 once MAAP holds the ranges, to the later of its response and the notice (`notice.declared`): its DA gate opens, SRP declares the Talker and records the source, the SRP delivery takes the record, the AECP bridge raises the notice and THE RETRY sends it;
+  - the withdrawal, a peer ANNOUNCE that takes the range, as in `srp-talker-loss`, to the notice (`notice.withdrawn`).
+  Each event comes `k` ms into 130 ms of `notice-retried`'s load: every receive channel at its refill rate with its bursts, the event's own channel from one refill period after it, so its bucket admits the burst whole, and a grandmaster change as every pass starts. SRP's channel carries a Listener Ready for another entity's stream: one for source 0's own would open its DA gate by itself.
+  A row over its bound, or with no notice, fails the run whatever its options record (`run.notice_misses`, the row's refusal), and the run prints a `NOTICE` line for each with its event's and its last recipient's commit.
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-talker-notices --variant talker-notices --record-budget-findings --record-share-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8-1if \
+  --build-dir /tmp/budget-8x8-talker-notices --variant talker-notices --record-budget-findings --record-share-findings
+```
 
 As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
 With `--fetch-l1 none` they are S2's arms in [Results](#results).
@@ -1463,6 +1476,18 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Every group's timer-driven MRPDU must then be over its 20 ms, with no refusal: it prints `CONTROL transmit-aged caught`, naming the groups; any group within its bound, a miss in another row, or a refusal is `ESCAPED`.
+
+The declared or withdrawn Talker's notice (#936, [`talker_notice.py`](talker_notice.py)) has two planted defects, each run on every `talker-notice-<k>` group of the `talker-notices` arm.
+The first drops the notice: the AECP bridge raises no STREAM_OUTPUT GET_STREAM_INFO from SRP's record. The second delays it: the bridge holds the record 25 ms from the pass that first sees it, past the row's 20 ms:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-declared-dropped --variant talker-notices --mutation declared-notice-dropped
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-declared-delayed --variant talker-notices --mutation declared-notice-delayed
+```
+
+Both rows of every group must then fail for the plant's reason, each named by its row, with no other refusal: no notification to any registration for the dropped notice, a notice committed later than its bound after its event's commit for the delayed one. It prints `CONTROL declared-notice-dropped caught` or `CONTROL declared-notice-delayed caught`; a row within its bound, a row failing for the other reason, or another refusal is `ESCAPED`.
 
 The polls by source have two planted defects, each run on the `backlog` group, whose link change makes SRP withdraw and rebuild each interface.
 The first rebuilds through the participants' creation itself, not as the rebuild item (`open_interface` stays in the image, never taken, so its code layout and hot list hold), so the pass that rebuilds carries the rebuild in its base; the second creates the participants twice, so the rebuild item is heavier than its stated cost:

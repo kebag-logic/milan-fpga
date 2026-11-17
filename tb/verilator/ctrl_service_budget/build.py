@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 import notice_window
+import talker_notice
 import talker_window
 import poll_items
 import save_window
@@ -101,6 +102,21 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+    # #936's planted dropped notice: the AECP bridge raises no STREAM_OUTPUT's GET_STREAM_INFO from SRP's record, so
+    # neither row of a talker-notice group has a notice to end at (talker_notice.py)
+    'declared-notice-dropped': ('app/ctrl_app_aecp.c', '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
+                                '\t\t\t\t(void)n;\n', ','.join(talker_notice.names()), 'talker-notices'),
+    # #936's planted late notice: the bridge holds SRP's record 25 ms from the pass that first sees it, so both rows of
+    # every talker-notice group are committed past their 20 ms
+    'declared-notice-delayed': ('app/ctrl_app_aecp.c', '\tuint32_t noticed = c->app->srp_noticed;\n',
+                                '\tstatic uint32_t held_since;\n\tstatic bool holding;\n'
+                                '\tuint32_t noticed = c->app->srp_noticed;\n'
+                                '\tif (noticed != 0u && !holding) {\n\t\tholding = true;\n'
+                                '\t\theld_since = c->aecp->core.now;\n\t}\n'
+                                '\tif (noticed != 0u && c->aecp->core.now - held_since < 25u) {\n'
+                                '\t\tnoticed = 0u;\n\t}\n'
+                                '\tholding = holding && noticed == 0u;\n',
+                                ','.join(talker_notice.names()), 'talker-notices'),
     **poll_items.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
@@ -113,6 +129,9 @@ AGED_CONTROLS = ('store-step-aged-heavier',)
 NOTICE_CONTROLS = ('retry-ageless',)
 #: The controls whose finding is every group's longest timer-driven MRPDU over its bound, with no refusal.
 SRP_CONTROLS = ('transmit-aged',)
+#: The controls whose finding is both rows of every talker-notice group (talker_notice.py) failing their check, each by
+#: the control's reason: no notice to end at, or a notice later than its bound.
+DECLARED_CONTROLS = {'declared-notice-dropped': 'missing', 'declared-notice-delayed': 'late'}
 #: The controls whose finding is a pass's polls base or a heavy item over its stated cost, by its STATED words.
 POLL_CONTROLS = poll_items.CONTROLS
 #: The controls whose finding is their group's heaviest instance of a kind dearer than on this tree's unplanted image,
@@ -232,6 +251,9 @@ VARIANTS = {
     ],
 }
 VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
+# talker-notices (#936): valid-destinations' fixture with the face block's stream observation answering every
+# attempt, so a declared or withdrawn Talker's STREAM_OUTPUT notice is built at its first (talker_notice.py).
+VARIANTS['talker-notices'] = list(talker_notice.FIXTURE_EDITS)
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
 VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 
