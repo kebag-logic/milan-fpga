@@ -1,0 +1,58 @@
+Original file: plants-aecp/results.json
+Original size: 1611 bytes
+Original sha256: 85cb10f7fac022f9038ef793946fb2664ab545a1abcf24e21044386738bd28fb
+
+[
+  {
+    "name": "app-output-notice-dropped",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n",
+    "new": "\t\t\t\t(void)n;\n",
+    "checks": [
+      [
+        "App.SrpDeclarationChangeIsItsStreamOutputsNotice",
+        "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-output-notice-as-an-input",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n",
+    "new": "\t\t\t\taecp_changed(&c->aecp->core, 5, n, 1u);\n",
+    "checks": [
+      [
+        "App.SrpDeclarationChangeIsItsStreamOutputsNotice",
+        "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-output-notice-next-source",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n",
+    "new": "\t\t\t\taecp_changed(&c->aecp->core, 6, (uint16_t)(n + 1u), 1u);\n",
+    "checks": [
+      [
+        "App.SrpDeclarationChangeIsItsStreamOutputsNotice",
+        "a source the record does not name is notified nothing"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-output-notice-kept",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\tc->app->srp_noticed = 0u;\n",
+    "new": "\t\t(void)c;\n",
+    "checks": [
+      [
+        "App.SrpDeclarationChangeIsItsStreamOutputsNotice",
+        "the bridge raises every STREAM_OUTPUT the delivery took"
+      ]
+    ],
+    "caught": true
+  }
+]

@@ -1,0 +1,37 @@
+Branch: 936-stream-notice
+HEAD: 7cfb8a04
+Status: clean
+Commits:
+7cfb8a0499 Ledger: state #936's head figures from its final image, the attach clear's 8 B and the valid-destinations arm past 59.0 (#936)
+b496c99e62 Twin: name the dest-MAC row's RTL cause without a source path, which the test-evidence ratchet reads as a DUT-source reader (#936)
+f3be8e696c SRP plants: name the STREAM_OUTPUT notice record's anchor apart from the MOVED test it shadowed (#936)
+77c1aad706 Clear SRP's STREAM_OUTPUT notice record at attach, and keep the SRP plants' anchors whole in declare_sources (#936)
+73e30fb207 Ledger: ctrl_plat 64 B more at both two-interface points, the size fixture's 8x8/2if entry 59.5 by the owner's loose block-RAM decision (#936)
+3f253fd4f2 Twin: its Makefile names twenty-one plants (#936)
+feaf5d9a80 Docs: the split's STREAM_OUTPUT GET_STREAM_INFO notice from SRP's declarations, the twin's stream-output-0-dest-mac row and its plants (#936)
+428f125d5a Twin: delete stream-output-0-notices, owe the split's stream_dest_mac in those notices as its own row, plant the dropped notices (#936)
+d3c528fcd2 Notify a STREAM_OUTPUT's GET_STREAM_INFO when the split's SRP adapter declares, withdraws or swaps its Talker or moves its VID (#936)
+Change:
+ docs/design/MARK_II_AREA_PLAN.md            |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md         |  28 ++++++--
+ sw/firmware/ctrl/aecp/README.md             |   4 ++
+ sw/firmware/ctrl/app/ctrl_app.h             |   3 +
+ sw/firmware/ctrl/app/ctrl_app_aecp.c        |  12 ++++
+ sw/firmware/ctrl/app/ctrl_app_srp.c         |   8 +++
+ sw/firmware/ctrl/srp/README.md              |  28 ++++++++
+ sw/firmware/ctrl/srp/srp_mbx.c              |  16 +++++
+ sw/firmware/ctrl/srp/srp_mbx.h              |   9 +++
+ sw/firmware/ctrl/test/aecp_mutants.py       |  22 ++++++
+ sw/firmware/ctrl/test/srp_gate.hpp          |  25 +++++++
+ sw/firmware/ctrl/test/srp_talker.cpp        | 107 ++++++++++++++++++++++++++++
+ sw/firmware/ctrl/test/srp_talker_mutants.py |  62 +++++++++++++++-
+ sw/firmware/ctrl/test/test_aecp.cpp         |  35 +++++++++
+ sw/litex/ctrl_memory.py                     |  18 +++--
+ sw/litex/ctrl_memory_ledger.py              |  20 +++---
+ sw/litex/test_ctrl_memory.py                |   4 +-
+ tb/verilator/ctrl_service_budget/README.md  |   2 +-
+ tb/verilator/milan_dp/Makefile              |   6 +-
+ tb/verilator/milan_dp/README.md             |  21 ++++--
+ tb/verilator/milan_dp/twin_compare.py       |  26 +++++--
+ tb/verilator/milan_dp/twin_plants.py        |  34 +++++++--
+ 22 files changed, 442 insertions(+), 50 deletions(-)

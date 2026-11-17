@@ -1,0 +1,32 @@
+Original file: b-wip/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/run.log
+Original size: 1697 bytes
+Original sha256: ed3451eb1658c52c01a3288bf201c1af658a616230363051e17fb5b206394d47
+
+Note: Google Test filter = SrpGate.*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from SrpGate
+[ RUN      ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens
+[       OK ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens (1 ms)
+[ RUN      ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens
+[       OK ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens (8 ms)
+[ RUN      ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain (1 ms)
+[ RUN      ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain (2 ms)
+[ RUN      ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt
+[       OK ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt (8 ms)
+[ RUN      ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow
+[       OK ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow (9 ms)
+[ RUN      ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff
+[       OK ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff (11 ms)
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (9 ms)
+[----------] 8 tests from SrpGate (53 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (53 ms total)
+[  PASSED  ] 8 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)

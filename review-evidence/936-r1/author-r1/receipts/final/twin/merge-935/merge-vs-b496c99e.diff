@@ -1,0 +1,348 @@
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 00c1e01467..e198b93539 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -956,11 +956,13 @@ twin: build-twin
+ # (twin_plants.py, through twin_compare.py --make-plant): the split's for a
+ # difference no row covers, an owed difference gone, the entity's commands and
+ # their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
+-# out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
++# out a declared attribute, the LeaveAll declarations and the Talker declared as
++# Talker Failed again (#929); the fabric's for its owed defects gone (#857, #858, #860), and
+ # for the #860 rows' exact traces
+ TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+ TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed output-notice-dropped command-byte command-sequence \
+-  response-sequence table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
++  response-sequence table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join \
++  talker-failed-back
+ TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
+   vanished-vid2-join-in vid2-registrar-in
+ twin-plants: build-twin
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 425e1c3785..d3dc4294ca 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -107,7 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+ - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+ - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
+-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
++- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty-one plants and what it finds
+ - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+@@ -911,6 +911,12 @@ the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
+ each defect in a copy of `milan_datapath.sv`, of `KL_pp_shadow.sv` for the
+ device-face arbiter, or of the processor's `hdl/` tree for the volatile set,
+ and builds the named leg through its own suite's recipe.
++That recipe keeps the leg's generated inputs (its ROMs, microcode and entity
++image) with `-o`, so before the clean builds the campaign makes each selected
++leg's inputs through that suite's own rules, and refuses a leg whose inputs
++are still absent (#929). Until then a fresh clone, which has built nothing
++in `milan_dp_render`, ran the listener leg without them and failed its
++control.
+ Each mutant must fail its named check, every one of them where a row names
+ several, and each leg's clean build must still pass. `DYNMAP_MUTANT_JOBS`
+ runs that many at once, at most two of them building. Measured on 2026-10-20
+@@ -1380,7 +1386,6 @@ a finding too: the lane that fixes it deletes the row.
+ | Row | Fabric | Split | Owed to |
+ |---|---|---|---|
+ | `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #665 (no issue owns it yet) |
+-| `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+ | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
+ 
+ The first is the split datapath's. Its GET_STREAM_INFO face answers a
+@@ -1392,12 +1397,20 @@ Milan v1.2 5.4.2.10.2, Table 5.11).
+ missing notices of STREAM_OUTPUT 0. The split now sends the fabric's four, at
+ the same changes, to the same controllers
+ ([SRP README, Talker declarations](../../../sw/firmware/ctrl/srp/README.md)).
+-The second's cause was the split's sources staying unallocated until an SRP
+-adapter entry took MAAP's range.
+-The third is the fabric's: its AECP engine serves the image's ENTITY
++The second is the fabric's: its AECP engine serves the image's ENTITY
+ descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
+ 6.2.2.15).
+ 
++A third row, `split-talker-failed`, held the split's Talker Failed for both
++sources from boot, never withdrawn, against the fabric's Talker Advertise for
++source 0. Its cause, no SRP adapter entry taking MAAP's allocation, went with
++#895 (`srp_mbx_allocation`): at its head the split declares no Talker Failed in
++this stimulus, and its Talker Advertise for source 0 runs from 5190 ms to its
++Leave at 20190 ms, the fabric's from 5200 ms to 20000 ms. #929 deleted the row.
++Its Talker attributes are now compared as every other MSRP attribute is, at the
++LeaveAll boundaries and against Table 10-3, and `talker-failed-back` plants the
++row's old behaviour.
++
+ `OWED_GRADES` holds an owed defect that one half's grade finds. Its row asserts
+ that half's exact behaviour and takes those grade findings out while it holds.
+ It too is a finding once the defect has gone.
+@@ -1434,7 +1447,7 @@ asserts.
+ | Plant | What it changes | Refused by, between the placements |
+ |---|---|---|
+ | `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
+-| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
++| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 0200000000010001` |
+ | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
+ | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
+ | `vanished-owed` | an owed difference gone: the split's STREAM_OUTPUT 0 notices replaced by the fabric's | `owed row stream-output-0-dest-mac: the difference has gone` |
+@@ -1444,7 +1457,8 @@ asserts.
+ | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
+ | `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
+ | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+-| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
++| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]` |
++| `talker-failed-back` | the split's Talker declared as Talker Failed again, as before #895: each Talker Advertise vector re-encoded in place as Talker Failed of the same StreamID and events, code 2 | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1` |
+ | `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
+ | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
+ | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+@@ -1465,8 +1479,22 @@ per controller (0 and 1 to the second, 0 to the first), the split per entity
+ (0 and 2 to the second, 1 to the first). Both halves meet every timing bound.
+ No stream frame is sent and no sink settles in this stimulus, so the 4.3.2
+ and 4.4.1 checks hold without being tested. At every LeaveAll boundary both
+-halves declare the Domain. The Talker attributes are the
+-`split-talker-failed` owed row's.
++halves declare the Domain, and at the first one, while both declare it, each
++half's Talker Advertise for source 0. Each half's Talker passes the Table 10-3
++grade: the split's is New twice from 5190 ms, then JoinMt, then Lv at 20190 ms;
++the fabric's New twice from 5200 ms, then JoinMt, Lv at 20000 ms, then Mt x5
++from 21000 ms.
++
++The comparison reads a Talker attribute by its type and StreamID
++(`twin_mrp.declarations`), not its TSpec, and the halves' TSpecs differ: the
++split's MaxFrameSize is 217, Milan v1.2 4.3.3.2 Table 4.4's 24 x 8 + 24 + 1
++for the entity's 8 channels, the fabric's 73, the same formula at 2, though
++both halves' notices carry the 8-channel format (`0205022002006000`). The twin
++builds both datapaths at `TALKER_WIRE_CHANS_P`'s default of 2, where the
++shipping AX shape builds 8 (`--talker-wire-chans 8`), and the fabric's source 0
++declares its `LWSRP_TSPEC` word (`milan_datapath.sv`, the TSpec geometry's
++reset). Which of the two sets the 73 is not diagnosed here. Reported on #929,
++not held here.
+ 
+ `make twin` exits 0: everything else is a ledger or an owed row. The split's
+ Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its
+diff --git a/tb/verilator/milan_dp/dynmap_mutants.py b/tb/verilator/milan_dp/dynmap_mutants.py
+index 240f2bc0d5..915fae02cd 100644
+--- a/tb/verilator/milan_dp/dynmap_mutants.py
++++ b/tb/verilator/milan_dp/dynmap_mutants.py
+@@ -67,7 +67,12 @@ or `make dp-build`, with DP_SRC and the objdir overridden) and run. A mutant
+ is caught only when the leg FAILS by its own verdict (a `[FAIL]` line or a
+ tally with failures, read by scripts/suite_tally.py) AND the named check is
+ among the failures; a crash or an abort is not a catch. Each leg's positive
+-control is its clean build, run again here.
++control is its clean build, run again here. Before it, the campaign makes the
++generated inputs each selected leg reads (its LEGS entry's last field)
++through that suite's own rules, and refuses the leg when one is still absent:
++every build keeps them with `-o`, and a fresh clone has made none outside
++milan_dp, so the listener leg ran with no ROM, microcode or entity image and
++failed its control (#929).
+ 
+ What bounds a run: no host-time deadline. The leg is cycle-bounded by
+ construction (each AEM command waits a fixed number of cycles for its answer,
+@@ -102,7 +107,8 @@ SHADOW_RTL = HERE / "../../../hdl/milan/KL_pp_shadow.sv"
+ #: to the recipe as PP_DIR; the submodule checkout is never edited
+ PP_HDL = HERE / "../../../protocol-processor/hdl"
+ #: each leg's suite, build target, objdir variable, clean objdir, executable,
+-#: the arguments it runs with and the generated inputs its build may not remake
++#: the arguments it runs with and the generated inputs its build may not remake,
++#: which prepare() makes first
+ LEGS = {
+     "dynmap": (HERE, "dynmap-build", "DYNMAP_MDIR", "obj_dynmap",
+                "Vmilan_dp_dynmap", (), ("ltn_rom.hex", "ucode.hex")),
+@@ -452,6 +458,20 @@ MUTATIONS = [
+ ]
+ 
+ 
++def prepare(leg: str) -> str | None:
++    """Make the generated inputs `leg` reads, through its suite's own rules, so every build of it (the clean
++    control's and each mutant's, which keep them with `-o`) reads the inputs of this tree. None when each is
++    there, else why not: a fresh clone has made none outside milan_dp, and a leg built without them runs with
++    no ROM, microcode or entity image (#929)."""
++    suite, *_rest, keep = LEGS[leg]
++    out = subprocess.run(["make", "-s", "-C", str(suite), *keep], capture_output=True, text=True, check=False)
++    missing = [name for name in keep if not (suite / name).is_file()]
++    if out.returncode != 0 or missing:
++        return (f"its suite did not make {', '.join(missing or keep)} (make rc {out.returncode}: "
++                f"{(out.stdout + out.stderr)[-500:].strip()})")
++    return None
++
++
+ def build(leg: str, dp_path: Path, mdir: Path,
+           shadow_path: Path | None = None, log: list[str] | None = None,
+           pp_dir: Path | None = None) -> Path | None:
+@@ -621,6 +641,12 @@ def main() -> int:
+         work = Path(td)
+         for leg in dict.fromkeys(m[0] for m in mutations):
+             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
++            unmade = prepare(leg)
++            if unmade is not None:
++                fails += 1
++                print(f"[FAIL] the {leg} leg's inputs are not made: {unmade} - its mutant results are "
++                      f"meaningless")
++                continue
+             clean = suite / clean_mdir / exe_name
+             exe = clean if clean.is_file() else build(leg, DP_RTL, work / f"obj_clean_{leg}",
+                                                       None, None)
+diff --git a/tb/verilator/milan_dp/twin_compare.py b/tb/verilator/milan_dp/twin_compare.py
+index 1f57e8adad..20d35b24e5 100644
+--- a/tb/verilator/milan_dp/twin_compare.py
++++ b/tb/verilator/milan_dp/twin_compare.py
+@@ -67,7 +67,7 @@ TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
+ #: each plant's words, which its refusal against the all-fabric capture must carry
+ PLANT_WORDS = {
+     "byte-flip": "ADP frame 1 differs at byte 34",
+-    "srp-plus-k": "MSRP Talker Failed stream_id 0200000000010001",
++    "srp-plus-k": "MSRP Talker Advertise stream_id 0200000000010001",
+     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
+                             "to the second controller",
+     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
+@@ -82,10 +82,15 @@ PLANT_WORDS = {
+     "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
+                      "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
+                      "nothing",
+-    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
+-                             "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
++    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
++                             "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
++                             "split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, "
++                             "{Domain value 06030002} x1, {none} x3]",
+     "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
+                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
++    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
++                          "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
++                          "split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1",
+     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
+     "vanished-available-index": "owed row entity-available-index: the difference has gone",
+     "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table "
+@@ -105,6 +110,7 @@ SELF_WORDS = {
+     "output-notice-dropped": "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first "
+                              "controller",
+     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
++    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ",
+     "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
+     "vanished-available-index": "AECP response 13 differs at byte 81",
+     "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
+@@ -120,6 +126,7 @@ PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notificat
+                     "command-byte": "AECP",
+                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
+                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
++                    "talker-failed-back": "MSRP",
+                     "vanished-mvrp-leave-all": "MVRP",
+                     "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
+                     "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
+@@ -333,11 +340,6 @@ def shown_aecp(frames: list) -> str:
+                            f"{body(s).hex()}" for s in frames) + "]"
+ 
+ 
+-def shown_msrp(attributes: list) -> str:
+-    """MSRP attributes as a finding prints them."""
+-    return "[" + "; ".join(f"MSRP {td.attribute_label(*k)}: {td.run_length(v)}" for k, v in attributes) + "]"
+-
+-
+ FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
+ MVU = td.MVU_PROTOCOL
+ SYSTEM_UNIQUE_ID = bytes.fromhex("0102030405060708")
+@@ -457,14 +459,6 @@ OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000"
+                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
+ #: the split's declared notice since #936: the fabric's fields with stream_dest_mac 0, its STREAM_DEST_MAC_VALID set
+ OUT0_DECLARED_SPLIT = OUT0_DECLARED.replace("91e0f0000100", "000000000000")
+-#: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
+-#: Advertise for source 0, the split's Talker Failed for both sources
+-FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
+-SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d900017000000000000002000000000102"),
+-                 (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
+-SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
+-               "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
+-SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
+ SPLIT_DEST_MAC = ("the split datapath answers a STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's "
+                   "address, which the split does not build (milan_datapath.sv, g_no_maap, and gsi_answer's selector "
+                   "4), so a declaring STREAM_OUTPUT reads 0")
+@@ -486,15 +480,6 @@ OWED = (
+         "PROBE_TX, stream_dest_mac 91e0f0000100, and as it withdraws",
+         "the same notices at the same changes, the declared ones with stream_dest_mac 000000000000", shown_aecp,
+         SPLIT_DEST_MAC, "#665 (a split datapath defect; no issue owns it yet)"),
+-    Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
+-        lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
+-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+-        == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
+-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+-        == [(SPLIT_TALKERS[0], "New x2, JoinMt x89"), (SPLIT_TALKERS[1], "New x2, JoinMt x89")],
+-        "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
+-        "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
+-        SRP_ROUND),
+     Row("entity-available-index",
+         "IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's",
+         lambda h: responses(h, 25),
+diff --git a/tb/verilator/milan_dp/twin_plants.py b/tb/verilator/milan_dp/twin_plants.py
+index 5c26ff2f70..9fc6f82978 100644
+--- a/tb/verilator/milan_dp/twin_plants.py
++++ b/tb/verilator/milan_dp/twin_plants.py
+@@ -18,6 +18,8 @@ Each plant names the grade or row it is the plant of:
+     against its Registrar (twin_mrp.py);
+   * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665);
+   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
++  * talker-failed-back: the same comparison of the Talker declarations, which no owed row holds since #895
++    (#929): the split's Talker Advertise declared as Talker Failed again;
+   * leave-all-omission: a LeaveAll frame that leaves out a declared attribute, against Table 10-3's txLA!
+     (twin_mrp.py);
+   * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
+@@ -46,6 +48,9 @@ MVRP_ETHERTYPE = 0x88F5
+ DOMAIN = bytes.fromhex("06030002")
+ #: IEEE 802.1Q-2018 10.8.2.6: a single value's ThreePackedEvents octet is its event x 36
+ NEW, JOIN_IN, JOIN_MT, LV = 0, 1, 3, 5
++#: a Talker Advertise FirstValue's octets (IEEE 802.1Q-2018 35.2.2.8.1: StreamID, DataFrameParameters, TSpec,
++#: PriorityAndRank, AccumulatedLatency)
++TALKER_ADVERTISE_BYTES = 25
+ 
+ 
+ def frame_fields(entry: dict) -> tuple[str, Sent] | None:
+@@ -242,6 +247,41 @@ def plant_leave_all_omission(fabric: dict, split: dict) -> dict:
+     raise SystemExit("plant leave-all-omission: no split MSRP LeaveAll frame carrying the Domain after 20000 ms")
+ 
+ 
++def plant_talker_failed_back(fabric: dict, split: dict) -> dict:
++    """The split's Talker declared as Talker Failed again, as before #895: every Message of Talker Advertise
++    vectors re-encoded in place as Talker Failed of the same StreamIDs and events, each FirstValue followed by
++    FailureInformation, the split's MAC as system identifier and code 2 (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6),
++    and its AttributeLength and AttributeListLength grown by it (10.8.1.2)."""
++    del fabric
++    planted_any = False
++    for entry in split["frames"]:
++        found = frame_fields(entry)
++        if found is None or found[0] != "MSRP":
++            continue
++        raw = bytes.fromhex(entry["hex"])
++        data, offset = bytearray(raw), found[1].at + 1
++        while offset + 4 <= len(data) and data[offset:offset + 2] != b"\0\0":
++            listed = int.from_bytes(data[offset + 2:offset + 4], "big")
++            if data[offset] == 1 and data[offset + 1] == TALKER_ADVERTISE_BYTES:
++                failure = bytes(2) + raw[6:12] + bytes([2])
++                vector, end, grown = offset + 4, offset + 4 + listed, 0
++                while vector + 2 <= end + grown and data[vector:vector + 2] != b"\0\0":
++                    count = int.from_bytes(data[vector:vector + 2], "big") & 0x1FFF
++                    at = vector + 2 + TALKER_ADVERTISE_BYTES
++                    data[at:at] = failure
++                    grown += len(failure)
++                    vector = at + len(failure) + (count + 2) // 3
++                data[offset], data[offset + 1] = 2, TALKER_ADVERTISE_BYTES + len(failure)
++                data[offset + 2:offset + 4] = (listed + grown).to_bytes(2, "big")
++                listed += grown
++                planted_any = True
++            offset += 4 + listed
++        entry["hex"] = bytes(data).hex()
++    if not planted_any:
++        raise SystemExit("plant talker-failed-back: the split declared no Talker Advertise")
++    return planted(split, "talker-failed-back")
++
++
+ def plant_received_join(fabric: dict, split: dict) -> dict:
+     """A peer's MSRP Domain JoinIn the split receives at 30500 ms, as the stimulus would apply it: its Registrar
+     goes IN (IEEE 802.1Q-2018 Table 10-4), so its next sJ must be JoinIn (10.7.6.3), and the split, which never
+@@ -395,7 +435,7 @@ SPLIT_PLANTS: dict[str, Plant] = {
+     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
+     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
+     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
+-    "leave-all-omission": plant_leave_all_omission,
++    "leave-all-omission": plant_leave_all_omission, "talker-failed-back": plant_talker_failed_back,
+     "mvrp-join-in": plant_mvrp_join_in, "mvrp-received-join": plant_mvrp_received_join,
+ }
+ #: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)

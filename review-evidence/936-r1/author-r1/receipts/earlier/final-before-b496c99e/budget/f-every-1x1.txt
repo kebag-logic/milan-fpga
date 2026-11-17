@@ -1,0 +1,382 @@
+HEAD 73e30fb2 DIRTY 0 point 1x1 jobs 8 args --variant answering-every-port start 05:46:07
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=False, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (7)
+rom                 : Origin: 0x00000000, Size: 0x00038000, Mode:  RX, Cached:  True, Linker: False
+spiflash            : Origin: 0x01000000, Size: 0x01000000, Mode:   R, Cached: False, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00038000, Mode: RWX, Cached:  True, Linker: False
+ctrl_mbx            : Origin: 0x80000000, Size: 0x00008000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : rw
+- sram              : rw
+- ctrl_mbx          : rw
+- spiflash          : r
+- csr               : rw
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (1)
+- ctrl_mbx_dma      : rw
+Bus Slaves: (1)
+- dma               : rw
+CSR Locations: (6)
+- ctrl           : 0
+- identifier_mem : 1
+- uart           : 2
+- spiflash       : 3
+- timer0         : 4
+- ctrl_mbx_dma   : 29
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+VexiiRiscv netlist : VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952
+MilanSoC
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    ├── offset_0 (Offset) [Gen]
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    ├── offset_0 (Offset) [Gen]
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    └── [BB:VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952]
+├── dma_bus (SoCBusHandler)
+│    └── _interconnect (AXIInterconnectPointToPoint)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHYModel)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── crg (SimClocks)
+├── rom (CtrlMemory)
+│    ├── bank0 (SRAM)
+│    ├── bank1 (SRAM)
+│    ├── bank2 (SRAM)
+│    └── decoder (Decoder)
+├── sram (CtrlMemory)
+│    ├── bank0 (SRAM)
+│    ├── bank1 (SRAM)
+│    ├── bank2 (SRAM)
+│    ├── bank3 (SRAM)
+│    └── decoder (Decoder)
+├── ctrl_mbx_dma (CtrlMailboxDma)
+│    └── [BB:KL_mbx_dma]
+├── ctrl_mbx (StimulusMailbox)
+│    ├── [BB:KL_mbx]
+│    └── [BB:KL_mbx_wb]
+├── spiflash (LiteSPI)
+│    ├── crossbar (LiteSPICrossbar)
+│    │    ├── rr (RoundRobin)
+│    │    ├── tx_mux (Multiplexer)
+│    │    └── rx_demux (Demultiplexer)
+│    ├── mmap (LiteSPIMMAP)
+│    │    ├── burst_timeout (WaitTimer)
+│    │    └── fsm (FSM)
+│    ├── master (LiteSPIMaster)
+│    │    ├── tx_fifo (SyncFIFO)
+│    │    │    └── buffer_0 (Buffer) [Gen]
+│    │    │         ├── pipe_valid (PipeValid)
+│    │    │         └── pipeline (Pipeline)
+│    │    └── rx_fifo (SyncFIFO)
+│    │         └── buffer_0 (Buffer) [Gen]
+│    │              ├── pipe_valid (PipeValid)
+│    │              └── pipeline (Pipeline)
+│    └── phy (FlashBoundary)
+│         └── stage (SPIPHYStage)
+│              ├── tx (Buffer)
+│              │    ├── pipe_valid (PipeValid)
+│              │    ├── pipe_ready (PipeReady)
+│              │    └── pipeline (Pipeline)
+│              └── rx (Buffer)
+│                   ├── pipe_valid (PipeValid)
+│                   ├── pipe_ready (PipeReady)
+│                   └── pipeline (Pipeline)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_6 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_4 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 4992 passes carry the store's step; the longest 111,370 CPU cycles (1.114 ms), notice-burst-2; the longest step 77,769 (0.778 ms), notice-burst-0
+SLICES 286656 tier-2 slices; the longest SRP's records 75,275, THE TRANSMIT's build 30,411, THE RETRY's round 49,480 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-0: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-1: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-2: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-3: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-4: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-5: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-6: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-every-7: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-0: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-1: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-2: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-3: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-4: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-5: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-6: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS notice-burst-7: 3 join interval(s), the shortest 189.048 ms and the longest 189.891 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+NOTICE notice-every-0: committed 8.033 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 8.229 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 1.920 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 2.127 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 4.139 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 4.341 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 5.983 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 6.183 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 10.029 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 10.200 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 11.987 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-0: committed 12.185 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 1.865 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 2.066 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 3.837 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 4.039 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 5.899 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 6.095 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 7.926 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 8.122 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 9.916 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 10.086 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 11.874 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 12.072 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 2.101 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 2.302 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 4.051 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 4.254 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 5.928 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 6.124 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 7.956 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 8.151 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 9.948 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 10.118 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 11.906 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-2: committed 12.104 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 6.238 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 6.439 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 8.291 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 8.490 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 2.199 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 2.407 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 4.268 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 4.469 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 10.290 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 10.460 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 12.248 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-3: committed 12.446 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 3.838 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 4.039 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 5.964 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 6.164 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 7.794 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 7.989 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 1.862 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 2.071 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 9.789 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 9.959 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 11.747 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-4: committed 11.945 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 8.336 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 8.533 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 2.251 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 2.459 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 4.323 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 4.521 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 6.282 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 6.484 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 10.331 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 10.501 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 12.289 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-5: committed 12.486 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 8.124 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 8.320 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 2.044 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 2.253 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 4.115 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 4.313 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 6.070 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 6.272 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 10.118 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 10.288 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 12.076 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-6: committed 12.273 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 2.199 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 2.402 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 4.273 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 4.472 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 6.229 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 6.428 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 8.259 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 8.454 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 10.250 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 10.420 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 12.208 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 12.405 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 8.416 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 16.969 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 17.188 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 18.259 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 2.230 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 2.435 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 2.684 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 2.885 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 18.442 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 20.182 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 20.377 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-0: committed 6.656 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 15.413 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 15.619 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 17.280 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 17.480 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 3.658 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 3.866 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 19.287 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 19.483 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 21.264 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 21.434 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 23.278 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-1: committed 23.476 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 8.875 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 15.996 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 16.214 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 17.285 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 3.213 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 3.422 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 3.671 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 3.872 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 17.468 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 19.207 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 19.402 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-2: committed 5.680 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 14.270 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 14.476 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 16.316 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 16.515 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 2.257 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 2.463 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 4.264 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 18.138 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 18.319 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 20.322 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 20.517 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 22.302 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 5.272 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 5.475 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 17.033 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 17.243 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 18.880 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 19.076 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 20.881 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 21.077 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 22.859 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 23.029 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 24.871 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-4: committed 25.069 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 7.658 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 17.768 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 17.987 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 19.266 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 19.468 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 21.278 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 21.477 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 23.282 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 23.463 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 25.099 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 25.294 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-5: committed 27.262 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 6.659 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 16.765 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 16.985 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 18.262 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 18.464 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 20.273 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 20.473 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 22.275 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 22.456 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 24.276 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 24.471 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-6: committed 26.256 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 8.948 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 17.447 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 17.667 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 19.090 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 2.010 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 2.216 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 2.468 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 2.668 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 19.273 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 21.013 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 21.208 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-7: committed 4.201 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+16 groups graded, 0 refusals, 0 budget misses (0 of 280 probe instances, 0 of 7 paths), 0 of 20338 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=2604s rc=0 end 06:29:31 DIRTY-after 0

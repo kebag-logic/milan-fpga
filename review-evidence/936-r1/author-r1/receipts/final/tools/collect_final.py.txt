@@ -1,0 +1,207 @@
+Original file: <scratch>/tools/collect_final.py
+Original size: 11776 bytes
+Original sha256: 8d0b44a95ef8b658063d401d714bd7ec62f42986af9bdece6399db527dc16503
+
+#!/usr/bin/env python3
+"""collect_final.py: the final-head receipts of #936 round 1 into <output>/receipts/final (sanitized: no host paths,
+full SHAs cut to 8; a file over 180 KB becomes an excerpt with its original size and sha256), the earlier final/
+content moved to receipts/earlier/, then receipts/INDEX.md generated from the files present."""
+import hashlib, json, re, shutil, subprocess, sys
+from pathlib import Path
+
+S = Path('<scratch>')
+O = Path('<output>')
+R = O / 'receipts'
+F = R / 'final'
+LANE = '<lane>'
+LIMIT = 180_000
+PATHS = [(str(O), '<output>'), (str(S), '<scratch>'), (LANE, '<lane>'), ('<tmp>', '<tmp>'),
+         ('<home>', '<home>'), ('<workspace>', '<workspace>'), ('<workspace>', '<workspace>')]
+
+
+def sanitize(s: str) -> str:
+    for a, b in PATHS:
+        s = s.replace(a, b)
+    return re.sub(r'(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])', lambda m: m[0][:8], s)
+
+
+def put(rel: str, text: str) -> None:
+    d = F / rel
+    d.parent.mkdir(parents=True, exist_ok=True)
+    text = sanitize(text)
+    assert len(text.encode()) <= 200_000, (rel, len(text.encode()))
+    d.write_text(text)
+
+
+KEEP = ('plant ', '[DIFF]', 'TWIN', '[OWED]', '[LEDGER]', 'twin:', 'RESULT', 'PASS', 'FAIL', '[ok]', '[ESCAPED]',
+        'mutants:', 'suites:', 'checks:', 'test_ctrl_firmware', 'firmware coverage', 'REFUSED', 'BUDGET', 'SHARE',
+        'STATED', 'groups graded', 'elapsed=', 'HEAD ', '# head', 'shard:', 'saved-state')
+
+
+def take(src: Path, rel: str) -> None:
+    data = src.read_bytes()
+    text = data.decode(errors='replace')
+    head = f'Original file: {sanitize(str(src))}\nOriginal size: {len(data)} bytes\nOriginal sha256: ' \
+           f'{hashlib.sha256(data).hexdigest()}\n\n'
+    if len(data) > LIMIT:
+        lines = text.splitlines()
+        kept = [l[:400] for l in lines if l.lstrip().startswith(KEEP)]
+        body = 'EXCERPT ONLY (the file is over 180 KB; the original is kept in scratch, its sha256 above)\n' + \
+               '\n'.join(kept[:600]) + '\n--- last 20 lines ---\n' + '\n'.join(l[:400] for l in lines[-20:]) + '\n'
+        while len(sanitize(head + body).encode()) > 195_000:
+            kept = kept[:len(kept) * 3 // 4]
+            body = 'EXCERPT ONLY (the file is over 180 KB; the original is kept in scratch, its sha256 above)\n' + \
+                   '\n'.join(kept) + '\n--- last 20 lines ---\n' + '\n'.join(l[:400] for l in lines[-20:]) + '\n'
+        put(rel, head + body)
+    else:
+        put(rel, head + text)
+
+
+def git(*a: str) -> str:
+    return subprocess.run(['git', *a], cwd=LANE, check=True, text=True, capture_output=True).stdout
+
+
+def main() -> int:
+    # earlier final/ content (built before 77c1aad7, or at 73e30fb2/77c1aad7) moves aside once
+    old = R / 'earlier' / 'final-before-b496c99e'
+    if F.exists() and not old.exists():
+        old.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(F), str(old))
+    elif F.exists():
+        shutil.rmtree(F)
+    F.mkdir(parents=True)
+    # workflows: every step log and the verification tables
+    wf = S / 'wf/run-J'
+    for p in sorted((wf / 'logs').iterdir()):
+        take(p, f'workflows/logs/{p.name}' + ('' if p.suffix in ('.log', '.txt', '.md') else '.txt'))
+    for p in sorted(wf.glob('verify-*.md')):
+        take(p, f'workflows/{p.name}')
+    for s in (1, 4, 6, 10, 17):
+        logs = wf / f'rtl__verilator-shards-{s}/runner_temp/suite-logs'
+        for p in sorted(logs.glob('*.log')):
+            take(p, f'workflows/shard-{s}-suite-logs/{p.name}')
+    take(S / 'wf/not_run.json', 'workflows/not_run.json.txt')
+    for n in ('run_wf.py', 'verify_sel.py'):
+        take(S / 'wf' / n, f'tools/{n}.txt')
+    for n in ('wf_batch.sh', 'qrun.sh', 'unit.sh', 'budget.sh', 'release_image.sh', 'env.sh', 'clone.sh',
+              'collect_final.py'):
+        take(S / 'tools' / n, f'tools/{n}.txt')
+    # the voided first shard replays, for the record
+    for p in sorted((S / 'logs/void').glob('*')):
+        take(p, f'workflows/void/{p.name}' + ('' if p.suffix == '.log' else '.txt'))
+    for p in sorted((S / 'wf/void-shards-origin').rglob('*.log')):
+        if 'suite-logs' in str(p) or 'logs-' in str(p):
+            take(p, f'workflows/void/{p.relative_to(S / "wf/void-shards-origin")}')
+    # twin, at the head and on the scratch merge with #935
+    take(S / 'logs/j-twin.log', 'twin/j-twin.log')
+    if (S / 'logs/j-m935-twin.log').is_file():
+        take(S / 'logs/j-m935-twin.log', 'twin/merge-935/j-m935-twin.log')
+        put('twin/merge-935/merge.txt', subprocess.run(
+            ['git', 'log', '-1', '--format=commit %H%nparents %P%nsubject %s'], cwd=S / 'clones/c-m935b',
+            check=True, text=True, capture_output=True).stdout + subprocess.run(
+            ['git', 'show', '--format=', '--stat', '--cc', 'HEAD'], cwd=S / 'clones/c-m935b', check=True,
+            text=True, capture_output=True).stdout)
+        take_diff = subprocess.run(['git', 'diff', 'HEAD^1', 'HEAD', '--', 'tb/verilator/milan_dp'],
+                                   cwd=S / 'clones/c-m935b', check=True, text=True, capture_output=True).stdout
+        put('twin/merge-935/merge-vs-b496c99e.diff', take_diff)
+    # images
+    for n in ('RUN.txt', 'IMAGES.sha256'):
+        take(S / 'out/rel-j' / n, f'images/release-b496c99e-{n}')
+    take(S / 'out/rel-base/IMAGES.sha256', 'images/release-70f4056f-IMAGES.sha256')
+    take(S / 'logs/j-led.log', 'images/plat-ledger-b496c99e.log')
+    take(S / 'out/fix-j.txt', 'images/fixture-sizes-b496c99e.txt')
+    take(S / 'logs/j-ident.log', 'images/budget-image-identity-b496c99e.log')
+    # harness
+    for p in sorted((S / 'logs').glob('j-a[18]-*.log')) + sorted((S / 'logs').glob('j-[evl]*.log')):
+        if p.name.startswith(('j-every', 'j-later', 'j-vd', 'j-a1', 'j-a8')):
+            take(p, f'budget/runs/{p.name}')
+    for p in sorted((S / 'budget/final').rglob('*')) if (S / 'budget/final').exists() else []:
+        if not p.is_file():
+            continue
+        rel = f'budget/{p.relative_to(S / "budget/final")}'
+        data = p.read_bytes()
+        stamp = f'Original file: {sanitize(str(p))}\nOriginal size: {len(data)} bytes\nOriginal sha256: ' \
+                f'{hashlib.sha256(data).hexdigest()}\n\n'
+        if p.name == 'results.json':
+            r = json.loads(data)
+            keep = {k: r.get(k) for k in ('point', 'build', 'counts', 'refusals', 'misses', 'share_misses',
+                                          'save_misses', 'notice_misses', 'composed_maximum', 'clock')}
+            notes = r.get('notices') or []
+            keep['notices'] = dict(count=len(notes), within_budget=sum(1 for x in notes if x.get('within_budget')),
+                                   longest=max(notes, key=lambda x: x.get('ms', 0), default=None))
+            keep['paths'] = [dict(path=x.get('path'), interface=x.get('interface'), row=x.get('row'),
+                                  instances=x.get('instances'), misses=x.get('misses'),
+                                  worst_probe=(x.get('worst') or {}).get('probe'),
+                                  worst_ms=(x.get('worst') or {}).get('ms'),
+                                  budget_ms=(x.get('worst') or {}).get('budget_ms')) for x in r.get('paths', [])]
+            put(rel.replace('results.json', 'results-summary.json'),
+                stamp.replace('\n\n', '\nA summary of the file (its point, counts, refusals, misses and every '
+                              'path\'s worst instance); the original is kept in scratch.\n\n') +
+                json.dumps(keep, indent=1) + '\n')
+        elif p.name == 'table.md' and len(data) > LIMIT:
+            text = data.decode()
+            cut = text[:LIMIT - 2000].rsplit('\n', 1)[0]
+            put(rel, stamp + f'TRUNCATED at {len(cut.encode())} of {len(data)} bytes (the original is kept in '
+                'scratch, its sha256 above)\n\n' + cut + '\n')
+        else:
+            take(p, rel)
+    # the final head 7cfb8a04's re-runs: docs and firmware-unit replays, the images, the twin, elaborate's gates
+    wk = S / 'wf/run-K'
+    if wk.exists():
+        for p in sorted((wk / 'logs').iterdir()):
+            take(p, f'head-7cfb8a04/workflows/logs/{p.name}' + ('' if p.suffix in ('.log', '.txt', '.md') else '.txt'))
+        for p in sorted(wk.glob('verify-*.md')):
+            take(p, f'head-7cfb8a04/workflows/{p.name}')
+    for n in ('k-img', 'k-twin', 'k-litex', 'k-docs', 'k-unit'):
+        if (S / f'logs/{n}.log').is_file():
+            take(S / f'logs/{n}.log', f'head-7cfb8a04/{n}.log')
+    for n in ('k-img-compare.txt', 'fix-k.txt', 'rel-k/RUN.txt', 'rel-k/IMAGES.sha256', 'led-k.sha256', 'fix-k.sha256',
+              'led-j.sha256', 'fix-j.sha256'):
+        if (S / 'out' / n).is_file():
+            take(S / 'out' / n, f'head-7cfb8a04/images/{n.replace("/", "-")}')
+    lk = S / 'out/litex-k'
+    if lk.exists():
+        for p in sorted(lk.rglob('*')):
+            if p.is_file():
+                take(p, f'head-7cfb8a04/elaborate/{p.relative_to(lk)}')
+    for p in sorted((S / 'logs/void').glob('k-litex-1.log*')):
+        take(p, f'head-7cfb8a04/void/{p.name}' + ('' if p.suffix == '.log' else '.txt'))
+    # the base's backlog-owed group at each point, for the held-egress rows' difference
+    for n in ('base-1x1', 'base-8x8'):
+        if (S / f'logs/j-base-bo-{n[5:]}.log').is_file():
+            take(S / f'logs/j-base-bo-{n[5:]}.log', f'budget/base-70f4056f/{n}-console.txt')
+        rj = S / f'budget/{n}/results/results.json'
+        if rj.is_file():
+            r = json.loads(rj.read_text())
+            put(f'budget/base-70f4056f/{n}-results-summary.json',
+                f'Original size: {rj.stat().st_size} bytes\nOriginal sha256: '
+                f'{hashlib.sha256(rj.read_bytes()).hexdigest()}\n\n' +
+                json.dumps({k: r.get(k) for k in ('point', 'build', 'counts', 'refusals', 'misses')}, indent=1) + '\n')
+    for p in sorted((S / 'budget/final').glob('*.md')) if (S / 'budget/final').exists() else []:
+        pass
+    # restarts and the candidate's state
+    take(S / 'restart2-notes.md', 'restarts/second-restart.md')
+    put('candidate-state.txt', 'Branch: ' + git('branch', '--show-current') + 'HEAD: ' + git('rev-parse', 'HEAD') +
+        'Status: ' + (git('status', '--porcelain') or 'clean\n') + 'Commits:\n' + git('log', '--oneline', '70f4056f..HEAD')
+        + 'Change:\n' + git('diff', '--stat', '70f4056f', 'HEAD'))
+    put('candidate.diff', git('diff', '--no-ext-diff', '70f4056f', 'HEAD'))
+    # index from the files present
+    rows = []
+    for p in sorted(R.rglob('*')):
+        if p.is_file() and p.name != 'INDEX.md':
+            data = p.read_bytes()
+            rows.append(f'| `{p.relative_to(R)}` | {len(data)} | `{hashlib.sha256(data).hexdigest()[:16]}` |')
+    (R / 'INDEX.md').write_text('# Receipts index (#936 round 1)\n\nGenerated by `final/tools/collect_final.py.txt` '
+                                'from the files present under `receipts/`.\n`final/` holds the evidence for the '
+                                'final head `7cfb8a04`: its re-runs under `final/head-7cfb8a04/`, the rest at '
+                                '`b496c99e` (and arm A on `77c1aad7`\'s image builds, identical by hash). '
+                                '`earlier/` and the top-level files are the STOP-stage and earlier receipts.\n\n'
+                                '| File | Bytes | sha256 (16) |\n|---|---:|---|\n' +
+                                '\n'.join(rows) + '\n')
+    bad = [p for p in R.rglob('*') if p.is_file() and p.stat().st_size > 200_000]
+    print('files', len(rows), 'over 200 KB', [str(b) for b in bad])
+    return 1 if bad else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

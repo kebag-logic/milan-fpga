@@ -1,0 +1,48 @@
+Branch: 936-stream-notice
+HEAD/base: 73e30fb2
+70f4056f
+Status: clean
+Commits:
+73e30fb207 Ledger: ctrl_plat 64 B more at both two-interface points, the size fixture's 8x8/2if entry 59.5 by the owner's loose block-RAM decision (#936)
+3f253fd4f2 Twin: its Makefile names twenty-one plants (#936)
+feaf5d9a80 Docs: the split's STREAM_OUTPUT GET_STREAM_INFO notice from SRP's declarations, the twin's stream-output-0-dest-mac row and its plants (#936)
+428f125d5a Twin: delete stream-output-0-notices, owe the split's stream_dest_mac in those notices as its own row, plant the dropped notices (#936)
+d3c528fcd2 Notify a STREAM_OUTPUT's GET_STREAM_INFO when the split's SRP adapter declares, withdraws or swaps its Talker or moves its VID (#936)
+Build-to-final delta (428f125d..73e30fb2):
+ docs/design/MARK_II_AREA_PLAN.md           |  2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md        | 28 +++++++++++++++++++++-------
+ sw/firmware/ctrl/aecp/README.md            |  4 ++++
+ sw/firmware/ctrl/srp/README.md             | 27 +++++++++++++++++++++++++++
+ sw/litex/ctrl_memory.py                    | 17 ++++++++++++-----
+ sw/litex/ctrl_memory_ledger.py             | 20 ++++++++++----------
+ sw/litex/test_ctrl_memory.py               |  4 ++--
+ tb/verilator/ctrl_service_budget/README.md |  2 +-
+ tb/verilator/milan_dp/Makefile             |  2 +-
+ tb/verilator/milan_dp/README.md            | 21 +++++++++++++++------
+ 10 files changed, 94 insertions(+), 33 deletions(-)
+Full change:
+ docs/design/MARK_II_AREA_PLAN.md            |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md         |  28 ++++++--
+ sw/firmware/ctrl/aecp/README.md             |   4 ++
+ sw/firmware/ctrl/app/ctrl_app.h             |   3 +
+ sw/firmware/ctrl/app/ctrl_app_aecp.c        |  12 ++++
+ sw/firmware/ctrl/app/ctrl_app_srp.c         |   6 ++
+ sw/firmware/ctrl/srp/README.md              |  27 +++++++
+ sw/firmware/ctrl/srp/srp_mbx.c              |  16 +++++
+ sw/firmware/ctrl/srp/srp_mbx.h              |   9 +++
+ sw/firmware/ctrl/test/aecp_mutants.py       |  22 ++++++
+ sw/firmware/ctrl/test/srp_gate.hpp          |  22 ++++++
+ sw/firmware/ctrl/test/srp_talker.cpp        | 107 ++++++++++++++++++++++++++++
+ sw/firmware/ctrl/test/srp_talker_mutants.py |  56 ++++++++++++++-
+ sw/firmware/ctrl/test/test_aecp.cpp         |  35 +++++++++
+ sw/litex/ctrl_memory.py                     |  17 +++--
+ sw/litex/ctrl_memory_ledger.py              |  20 +++---
+ sw/litex/test_ctrl_memory.py                |   4 +-
+ tb/verilator/ctrl_service_budget/README.md  |   2 +-
+ tb/verilator/milan_dp/Makefile              |   6 +-
+ tb/verilator/milan_dp/README.md             |  21 ++++--
+ tb/verilator/milan_dp/twin_compare.py       |  26 +++++--
+ tb/verilator/milan_dp/twin_plants.py        |  34 +++++++--
+ 22 files changed, 429 insertions(+), 50 deletions(-)
+
+Verification: git diff 428f125d HEAD -- sw/firmware/ctrl :!*.md tb/verilator/ctrl_service_budget :!*.md produced no output. Firmware and harness code unchanged since the measured build.

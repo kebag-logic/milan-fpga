@@ -1,0 +1,907 @@
+Original file: <scratch>/budget/final/8x8-1if/results.json
+Original size: 1892331 bytes
+Original sha256: 017e078d43479fb396830c3df3fbfb5164d0f82bf9273803263dc592f4a04d35
+A summary of the file (its point, counts, refusals, misses and every path's worst instance); the original is kept in scratch.
+
+{
+ "point": "8x8-1if",
+ "build": "c5cf073ed89cc1f0ce76e95007d02a7e1c14f56fdb4b6254b062a7f6ac33a9ee",
+ "counts": {
+  "paths": 85,
+  "path_misses": 4,
+  "instances": 947,
+  "instance_misses": 7
+ },
+ "refusals": [],
+ "misses": [
+  "backlog.owed.if0: 63.546 ms over its budget 20 ms",
+  "backlog.owed_behind0.if0: 63.837 ms over its budget 20 ms",
+  "backlog.owed_behind1.if0: 64.071 ms over its budget 20 ms",
+  "backlog.owed_behind2.if0: 64.330 ms over its budget 20 ms",
+  "backlog.owed_behind3.if0: 64.578 ms over its budget 20 ms",
+  "backlog-owed.service.acmp.last.if0: 62.389 ms over its budget 20 ms",
+  "backlog-owed.service.aecp.last.if0: 62.024 ms over its budget 20 ms"
+ ],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "composed_maximum": {
+  "cycles": 159029,
+  "ms": 1.59029,
+  "group": "backlog-adp",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 159029,
+   "ms": 1.59029,
+   "group": "backlog-adp"
+  }
+ },
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 0,
+  "within_budget": 0,
+  "longest": null
+ },
+ "paths": [
+  {
+   "path": "acmp.bind_rx",
+   "interface": 0,
+   "row": "BIND_RX",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "fixture.bind_rx.if0",
+   "worst_ms": 0.22121,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.disconnect_tx",
+   "interface": 0,
+   "row": "DISCONNECT_TX",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.disconnect_tx.if0",
+   "worst_ms": 0.11111,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.entity_available",
+   "interface": 0,
+   "row": "ENTITY_AVAILABLE from its RX_HEAD (H-DISC)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.entity_available.if0",
+   "worst_ms": 0.09654,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.entity_departing",
+   "interface": 0,
+   "row": "ENTITY_DEPARTING from its RX_HEAD (H-DISC)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "fixture.entity_departing.if0",
+   "worst_ms": 0.1736,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.get_rx_state",
+   "interface": 0,
+   "row": "GET_RX_STATE",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.get_rx_state.if0",
+   "worst_ms": 0.10891,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.get_tx_connection",
+   "interface": 0,
+   "row": "GET_TX_CONNECTION, refused NOT_SUPPORTED",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.get_tx_connection.if0",
+   "worst_ms": 0.09981,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.get_tx_state",
+   "interface": 0,
+   "row": "GET_TX_STATE",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.get_tx_state.if0",
+   "worst_ms": 0.10972,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.probe_tx",
+   "interface": 0,
+   "row": "PROBE_TX, refused TALKER_DEST_MAC_FAIL",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.probe_tx.if0",
+   "worst_ms": 0.10832,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.probe_tx_response",
+   "interface": 0,
+   "row": "PROBE_TX_RESPONSE",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.probe_tx_response.if0",
+   "worst_ms": 0.10699,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_delay",
+   "interface": 0,
+   "row": "TMR_DELAY",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_delay.if0",
+   "worst_ms": 0.30575,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_no_adp",
+   "interface": 0,
+   "row": "TMR_NO_ADP (H-DISC)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_no_adp.if0",
+   "worst_ms": 0.25937,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_no_resp1",
+   "interface": 0,
+   "row": "TMR_DELAY, or the first TMR_NO_RESP",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_no_resp1.if0",
+   "worst_ms": 0.33066,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_no_resp2",
+   "interface": 0,
+   "row": "the second TMR_NO_RESP",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_no_resp2.if0",
+   "worst_ms": 0.29697,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_no_tk",
+   "interface": 0,
+   "row": "TMR_NO_TK",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_no_tk.if0",
+   "worst_ms": 0.1062,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.tmr_retry",
+   "interface": 0,
+   "row": "TMR_RETRY",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.tmr_retry.if0",
+   "worst_ms": 0.26757,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "acmp.unbind_rx",
+   "interface": 0,
+   "row": "UNBIND_RX",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "acmp.unbind_rx.if0",
+   "worst_ms": 0.16019,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.discover",
+   "interface": 0,
+   "row": "RCV_ADP_DISCOVER",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "adp.discover.if0",
+   "worst_ms": 0.05946,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.gm_change",
+   "interface": 0,
+   "row": "GM_CHANGE",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "adp.gm_change.if0",
+   "worst_ms": 0.0309,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.link_down",
+   "interface": 0,
+   "row": "LINK_DOWN",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "fixture.link_down.if0",
+   "worst_ms": 0.03207,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.link_up",
+   "interface": 0,
+   "row": "LINK_UP",
+   "instances": 6,
+   "misses": 0,
+   "worst_probe": "adp.link_up.if0",
+   "worst_ms": 0.03526,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.tmr_advertise",
+   "interface": 0,
+   "row": "TMR_ADVERTISE expiry",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "adp.tmr_advertise.if0",
+   "worst_ms": 0.08581,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "adp.tmr_delay",
+   "interface": 0,
+   "row": "TMR_DELAY expiry",
+   "instances": 5,
+   "misses": 0,
+   "worst_probe": "adp.tmr_delay.if0",
+   "worst_ms": 0.25486,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.entity_available",
+   "interface": 0,
+   "row": "entity_available",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.entity_available.if0",
+   "worst_ms": 0.27418,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.get_avb_info",
+   "interface": 0,
+   "row": "get_avb_info, refused ENTITY_MISBEHAVING",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.get_avb_info.if0",
+   "worst_ms": 0.19794,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.get_configuration",
+   "interface": 0,
+   "row": "get_configuration",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.get_configuration.if0",
+   "worst_ms": 0.21277,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.get_counters",
+   "interface": 0,
+   "row": "get_counters, refused ENTITY_MISBEHAVING",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.get_counters.if0",
+   "worst_ms": 0.24556,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.get_name",
+   "interface": 0,
+   "row": "get_name",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.get_name.if0",
+   "worst_ms": 0.28856,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.lock_entity",
+   "interface": 0,
+   "row": "lock_entity",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.lock_entity.if0",
+   "worst_ms": 0.249,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.mvu_get_milan_info",
+   "interface": 0,
+   "row": "MVU GET_MILAN_INFO",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.mvu_get_milan_info.if0",
+   "worst_ms": 0.2716,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t0.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (312 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t0.i0.c0.if0",
+   "worst_ms": 0.33709,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t1.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (106 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t1.i0.c0.if0",
+   "worst_ms": 0.28535,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t10.i9.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (86 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t10.i9.c0.if0",
+   "worst_ms": 0.28388,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t12.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (72 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t12.i0.c0.if0",
+   "worst_ms": 0.23771,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t13.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (452 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t13.i0.c0.if0",
+   "worst_ms": 0.33862,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t14.i7.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (20 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t14.i7.c0.if0",
+   "worst_ms": 0.23252,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t15.i7.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (20 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t15.i7.c0.if0",
+   "worst_ms": 0.29228,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t2.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (148 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t2.i0.c0.if0",
+   "worst_ms": 0.23846,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t20.i71.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (90 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t20.i71.c0.if0",
+   "worst_ms": 0.28696,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t26.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (113 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t26.i0.c0.if0",
+   "worst_ms": 0.23963,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t36.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (96 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t36.i0.c0.if0",
+   "worst_ms": 0.29368,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t5.i8.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (146 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t5.i8.c0.if0",
+   "worst_ms": 0.29168,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t6.i8.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (146 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t6.i8.c0.if0",
+   "worst_ms": 0.24406,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.read_descriptor.t9.i0.c0",
+   "interface": 0,
+   "row": "READ_DESCRIPTOR (102 B)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.read_descriptor.t9.i0.c0.if0",
+   "worst_ms": 0.29395,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.register_unsolicited",
+   "interface": 0,
+   "row": "register_unsolicited",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.register_unsolicited.if0",
+   "worst_ms": 0.22237,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.set_name",
+   "interface": 0,
+   "row": "set_name",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.set_name.if0",
+   "worst_ms": 0.33975,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.unknown_command",
+   "interface": 0,
+   "row": "unknown_command, refused NOT_IMPLEMENTED",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.unknown_command.if0",
+   "worst_ms": 0.2172,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp.unlock_entity",
+   "interface": 0,
+   "row": "unlock_entity",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp.unlock_entity.if0",
+   "worst_ms": 0.33948,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.lock_entity",
+   "interface": 0,
+   "row": "lock_entity",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.lock_entity.if0",
+   "worst_ms": 0.50522,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.set_clock_source",
+   "interface": 0,
+   "row": "set_clock_source",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.set_clock_source.if0",
+   "worst_ms": 0.58049,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.set_control",
+   "interface": 0,
+   "row": "set_control_identify_on",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.set_control_identify_on.if0",
+   "worst_ms": 0.50272,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.set_name",
+   "interface": 0,
+   "row": "set_name",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.set_name.if0",
+   "worst_ms": 0.59056,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.set_sampling_rate",
+   "interface": 0,
+   "row": "set_sampling_rate",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.set_sampling_rate.if0",
+   "worst_ms": 0.51347,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "aecp_fanout.unlock_entity",
+   "interface": 0,
+   "row": "unlock_entity",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "aecp_fanout.unlock_entity.if0",
+   "worst_ms": 0.54295,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.acmp_command",
+   "interface": 0,
+   "row": "an ACMP command behind a full acmp ring",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog.acmp_command.if0",
+   "worst_ms": 4.83365,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.adp_available",
+   "interface": 0,
+   "row": "an ENTITY_AVAILABLE behind a full adp ring",
+   "instances": 73,
+   "misses": 0,
+   "worst_probe": "backlog-adp@program-aged2-7.adp_available.if0",
+   "worst_ms": 4.96037,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.adp_available_refill",
+   "interface": 0,
+   "row": "an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog.adp_available_refill.if0",
+   "worst_ms": 0.20567,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.event",
+   "interface": 0,
+   "row": "an event behind 15 others",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog.event.if0",
+   "worst_ms": 1.6746,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.owed",
+   "interface": 0,
+   "row": "a response with 7 frames owed ahead of it",
+   "instances": 1,
+   "misses": 1,
+   "worst_probe": "backlog.owed.if0",
+   "worst_ms": 63.54603,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.owed_behind",
+   "interface": 0,
+   "row": "an ACMP command behind the owed input",
+   "instances": 4,
+   "misses": 4,
+   "worst_probe": "backlog.owed_behind3.if0",
+   "worst_ms": 64.57842,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "fixture.set_name_one_recipient",
+   "interface": 0,
+   "row": "SET_NAME fan-out to one registered controller",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "fixture.set_name.if0",
+   "worst_ms": 0.35468,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.acmp",
+   "interface": 0,
+   "row": "ACMP record, every channel at its refill rate, the longest",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "save-starved.held.acmp.if0",
+   "worst_ms": 3.19367,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.adp",
+   "interface": 0,
+   "row": "ADP record, every channel at its refill rate, the longest",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "save-starved.held.adp.if0",
+   "worst_ms": 2.65213,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.aecp",
+   "interface": 0,
+   "row": "AECP record, every channel at its refill rate, the longest",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "save-starved.held.aecp.if0",
+   "worst_ms": 3.12415,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.maap",
+   "interface": 0,
+   "row": "MAAP record, every channel at its refill rate, the longest",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "save-held.held.maap.if0",
+   "worst_ms": 2.02104,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.srp",
+   "interface": 0,
+   "row": "SRP record, every channel at its refill rate, the longest",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "save-starved.held.srp.if0",
+   "worst_ms": 8.52141,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "maap.announce",
+   "interface": 0,
+   "row": "ANNOUNCE (TMR expiry)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "maap.announce.if0",
+   "worst_ms": 0.13606,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "maap.defend",
+   "interface": 0,
+   "row": "conflicting PROBE -> DEFEND",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "maap.defend.if0",
+   "worst_ms": 0.11814,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "maap.probe1",
+   "interface": 0,
+   "row": "first PROBE (LINK_UP)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "maap.probe1.if0",
+   "worst_ms": 0.14083,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "maap.probe4",
+   "interface": 0,
+   "row": "last PROBE retransmission (TMR expiry)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "maap.probe4.if0",
+   "worst_ms": 0.11629,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "maap.probe_retransmission",
+   "interface": 0,
+   "row": "PROBE retransmission (TMR expiry)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "maap.probe3.if0",
+   "worst_ms": 0.28533,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "mrpdu",
+   "interface": 0,
+   "row": "an MRPDU its join timer owes, the longest",
+   "instances": 6,
+   "misses": 0,
+   "worst_probe": "save-starved.mrpdu.periodic.if0",
+   "worst_ms": 2.83005,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.acmp.first",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, first",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog.service.acmp.first.if0",
+   "worst_ms": 4.28488,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.acmp.last",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, last",
+   "instances": 77,
+   "misses": 1,
+   "worst_probe": "backlog-owed.service.acmp.last.if0",
+   "worst_ms": 62.38865,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.adp.first",
+   "interface": 0,
+   "row": "ADP record released under the composed load, first",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog.service.adp.first.if0",
+   "worst_ms": 4.3281,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.adp.last",
+   "interface": 0,
+   "row": "ADP record released under the composed load, last",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog-adp@blank-0.service.adp.last.if0",
+   "worst_ms": 5.44096,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.aecp.first",
+   "interface": 0,
+   "row": "AECP record released under the composed load, first",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog-adp@blank-0.service.aecp.first.if0",
+   "worst_ms": 2.30566,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.aecp.last",
+   "interface": 0,
+   "row": "AECP record released under the composed load, last",
+   "instances": 77,
+   "misses": 1,
+   "worst_probe": "backlog-owed.service.aecp.last.if0",
+   "worst_ms": 62.0243,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.maap.first",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, first",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog.service.maap.first.if0",
+   "worst_ms": 4.31072,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.maap.last",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, last",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog-adp@blank-0.service.maap.last.if0",
+   "worst_ms": 5.47824,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.srp.first",
+   "interface": 0,
+   "row": "SRP record released under the composed load, first",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog-adp@verify-aged2-6.service.srp.first.if0",
+   "worst_ms": 6.4397,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.srp.last",
+   "interface": 0,
+   "row": "SRP record released under the composed load, last",
+   "instances": 77,
+   "misses": 0,
+   "worst_probe": "backlog-adp@verify-aged2-6.service.srp.last.if0",
+   "worst_ms": 10.30003,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "srp.domain",
+   "interface": 0,
+   "row": "Domain RX -> declarations (JoinTime wait)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "srp.domain.if0",
+   "worst_ms": 0.79488,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.listener_ready",
+   "interface": 0,
+   "row": "Listener Ready RX (registrar)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "srp.listener_ready.if0",
+   "worst_ms": 0.45597,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "srp.malformed",
+   "interface": 0,
+   "row": "malformed MRPDU discard",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "fixture.malformed.if0",
+   "worst_ms": 0.25129,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "srp.startup",
+   "interface": 0,
+   "row": "startup declarations (LINK_UP)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "srp.startup.if0",
+   "worst_ms": 0.81111,
+   "budget_ms": 20.0
+  }
+ ]
+}

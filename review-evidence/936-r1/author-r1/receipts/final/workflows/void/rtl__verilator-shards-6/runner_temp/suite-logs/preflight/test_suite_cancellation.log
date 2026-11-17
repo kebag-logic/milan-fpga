@@ -1,0 +1,31 @@
+Original file: <scratch>/wf/void-shards-origin/rtl__verilator-shards-6/runner_temp/suite-logs/preflight/test_suite_cancellation.log
+Original size: 6222 bytes
+Original sha256: 13557b3f72ad4197849a2d1e2edcda87f66f993fc29784488b862db2e11015be
+
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 716771, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/normal-orphan input [523]", "identities": {"716767": ["216264", "S"], "716771": ["216266", "S"]}, "pid": 716767}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 717871, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-selection-SIGINT input [523]", "identities": {"717870": ["216559", "S"], "717871": ["216562", "S"]}, "pid": 717870}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 718240, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-selection-SIGTERM input [523]", "identities": {"718236": ["216788", "S"], "718240": ["216791", "S"]}, "pid": 718236}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 718651, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-preflight-SIGINT input [523]", "identities": {"718649": ["217026", "S"], "718651": ["217029", "S"]}, "pid": 718649}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 719032, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-preflight-SIGTERM input [523]", "identities": {"719031": ["217270", "S"], "719032": ["217272", "S"]}, "pid": 719031}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 719625, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-command-SIGINT input [523]", "identities": {"719616": ["217526", "S"], "719625": ["217529", "S"]}, "pid": 719616}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 720259, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-command-SIGTERM input [523]", "identities": {"720257": ["217779", "S"], "720259": ["217781", "S"]}, "pid": 720257}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 720723, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-transition-SIGINT input [523]", "identities": {"720709": ["218033", "S"], "720723": ["218035", "S"]}, "pid": 720709}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 721609, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/cancel-transition-SIGTERM input [523]", "identities": {"721608": ["218287", "S"], "721609": ["218289", "S"]}, "pid": 721608}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 722588, "cwd": "<scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/unsafe-command-SIGTERM input [523]", "identities": {"722579": ["218606", "S"], "722588": ["218608", "S"]}, "pid": 722579}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP-group: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP-group", "sweep_shell_exited": true, "unsafe_control_detected": false}
+unsafe-KILL: {"exit": -9, "lock_owner_left": false, "next_suite": true, "output_after_death": "PASS     alpha\nPASS     omega\n----------------------------------------------------------------\nsuites: 2   passed: 2   failed: 0   timed out: 0\nchecks: 2   in-suite failures: 0\nlogs: <scratch>/wf/run-J/rtl__verilator-shards-6/tmp/suite-cancellation-e20g389a/unsafe-KILL input [523]/logs\n", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": true}
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "refused": true, "sweep_started": false}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "refused": true, "sweep_started": false}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "refused": true, "sweep_started": false}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "refused": true, "sweep_started": false}
+suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)

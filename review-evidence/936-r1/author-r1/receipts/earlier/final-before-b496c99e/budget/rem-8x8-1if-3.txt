@@ -1,0 +1,42 @@
+HEAD 428f125d DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --out <scratch>/budget/b-8x8/rem-3 --groups backlog-adp@blank-aged1-5,backlog-adp@program-aged2-0,backlog-adp@program-aged1-2,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-5,backlog-adp@verify-aged1-1,backlog-adp@verify-aged1-5,acmp-noresp,srp,backlog-owed,control,fixture start 05:45:52
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+<scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/rem-3/backlog-adp@verify-aged2-5.txt -COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/rem-3/backlog-adp@verify-aged1-5.txt -
+
+BUDGET backlog.owed.if0: 63.517 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.810 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.046 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.305 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.553 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.354 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.991 ms over its budget 20 ms
+STEPS 4746 passes carry the store's step; the longest 109,503 CPU cycles (1.095 ms), acmp-noresp; the longest step 78,650 (0.786 ms), backlog-adp@program-aged2-0
+SLICES 222249 tier-2 slices; the longest SRP's records 67,540, THE TRANSMIT's build 42,541, THE RETRY's round 9,700 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@blank-aged1-5: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-0: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@program-aged1-2: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 12 released, 9 empty
+JOINS backlog-adp@verify-aged2-1: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged2-5: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-1: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS backlog-adp@verify-aged1-5: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS acmp-noresp: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 11 empty
+JOINS srp: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS control: 3 join interval(s), the shortest 187.733 ms and the longest 189.974 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 7 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 9.878 ms, backlog-adp@verify-aged2-5.service.srp.last.if0 at 10.122 ms
+12 groups graded, 0 refusals, 7 budget misses (7 of 120 probe instances, 4 of 28 paths), 0 of 11978 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED backlog-adp@blank-aged1-5: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged2-0: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@program-aged1-2: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-1: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged2-5: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-1: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-adp@verify-aged1-5: a pass's polls base of 23,252 CPU cycles, over its stated 22,500
+STATED backlog-owed: a acmp item of 6,652 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 7,030 CPU cycles, over its stated 5,500
+STATED backlog-owed: a acmp item of 6,103 CPU cycles, over its stated 5,500
+STATED backlog-owed: a declined ACMP offer of 2,356 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,380 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,380 CPU cycles, over its stated 2,000
+STATED backlog-owed: a declined ACMP offer of 2,380 CPU cycles, over its stated 2,000
+elapsed=2631s rc=1 end 06:29:43 DIRTY-after 0

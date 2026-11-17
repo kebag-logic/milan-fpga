@@ -1,0 +1,31 @@
+Original file: plants-srp1/talker-notice-vid-on-every-domain.log
+Original size: 1014 bytes
+Original sha256: 63002d015df89746b3fad1dd0dae784631d8a28014d2a87cda89c418d2984877
+
+Note: Google Test filter = Talker.AdoptedDomainVidIsNoticed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.AdoptedDomainVidIsNoticed
+<lane>/sw/firmware/ctrl/test/srp_talker.cpp:717: Failure
+Expected equality of these values:
+  adapter.ifs[0].noticed
+    Which is: 1
+  0u
+    Which is: 0
+a Domain that keeps the VID notices nothing
+
+  [FAIL] Talker.AdoptedDomainVidIsNoticed: a Domain that keeps the VID notices nothing
+[  FAILED  ] Talker.AdoptedDomainVidIsNoticed (0 ms)
+[----------] 1 test from Talker (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.AdoptedDomainVidIsNoticed
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

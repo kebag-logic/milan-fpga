@@ -1,0 +1,62 @@
+{
+ "base": "70f4056f",
+ "built_head": "3f253fd4",
+ "final_head": "73e30fb2",
+ "note": "Built before STOP. Later commits change docs and split memory ledger only. Full debug ELFs differ; loadable BIOS and debug-stripped ELF compare equal.",
+ "images": [
+  {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "file": "bios.bin",
+   "base_size": 55044,
+   "head_size": 55044,
+   "base_sha256": "860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f",
+   "head_sha256": "860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f",
+   "identical": true
+  },
+  {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "file": "bios.elf",
+   "base_size": 519240,
+   "head_size": 519240,
+   "base_sha256": "b9d2547fff54d6c0748c5449b55362924b196bbfc4504603c6a7735dc8268de4",
+   "head_sha256": "675e397380641bf2378f3ae08046b8e85514312b53a23d9c58e1b3fbbdaab82c",
+   "identical": false
+  },
+  {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "file": "bios.elf.stripped",
+   "base_size": 69456,
+   "head_size": 69456,
+   "base_sha256": "8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719",
+   "head_sha256": "8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719",
+   "identical": true
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "file": "bios.bin",
+   "base_size": 55204,
+   "head_size": 55204,
+   "base_sha256": "d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99",
+   "head_sha256": "d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99",
+   "identical": true
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "file": "bios.elf",
+   "base_size": 519516,
+   "head_size": 519508,
+   "base_sha256": "8cdac9c6ea67c967078a48cf06fb27a8cd5f0a5d2e6559538d66411f9d28afbd",
+   "head_sha256": "48ba8f88d6b6d376c7c15eca1936d049bf366c76b8b7dd5d82384480dab3c429",
+   "identical": false
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "file": "bios.elf.stripped",
+   "base_size": 69616,
+   "head_size": 69616,
+   "base_sha256": "733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb",
+   "head_sha256": "733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb",
+   "identical": true
+  }
+ ]
+}

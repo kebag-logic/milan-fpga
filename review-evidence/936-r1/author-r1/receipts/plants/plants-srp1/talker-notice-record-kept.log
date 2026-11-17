@@ -1,0 +1,40 @@
+Original file: plants-srp1/talker-notice-record-kept.log
+Original size: 1442 bytes
+Original sha256: e936ef37f8d686f950fc111e7611e48678b8f5e0503853b386e80256eec558a0
+
+Note: Google Test filter = SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpGate
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+<lane>/sw/firmware/ctrl/test/srp_gate.hpp:356: Failure
+Expected equality of these values:
+  srp_adapter.ifs[i].noticed
+    Which is: 2
+  0u
+    Which is: 0
+the SRP delivery takes SRP's record
+
+  [FAIL] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource: the SRP delivery takes SRP's record
+<lane>/sw/firmware/ctrl/test/srp_gate.hpp:360: Failure
+Expected equality of these values:
+  app.srp_noticed
+    Which is: 2
+  0u
+    Which is: 0
+the probe window's periodic declarations notice nothing
+
+  [FAIL] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource: the probe window's periodic declarations notice nothing
+[  FAILED  ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (6 ms)
+[----------] 1 test from SrpGate (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (6 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

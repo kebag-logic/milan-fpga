@@ -1,0 +1,78 @@
+Original file: b-wip/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if1/run.log
+Original size: 3766 bytes
+Original sha256: 229bb3e93bf3ca02fcc2ccbcb369e123877089722d372bd84c18e71b08c1de00
+
+Note: Google Test filter = App.*
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from App
+[ RUN      ] App.EntityReadSeesTheLastAdvertisedIndex
+[       OK ] App.EntityReadSeesTheLastAdvertisedIndex (3 ms)
+[ RUN      ] App.DeferredStartAndLockUseTheRealAcmpOwner
+[       OK ] App.DeferredStartAndLockUseTheRealAcmpOwner (1 ms)
+[ RUN      ] App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+H-AECP-APP if=1 path=34 elapsed_ns=1004700
+H-AECP-APP if=1 path=35 elapsed_ns=1004700
+[       OK ] App.StartAndStopPublishTheStartedLevelBeforeTheirResponse (0 ms)
+[ RUN      ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+[       OK ] App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse (0 ms)
+[ RUN      ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+[       OK ] App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner (0 ms)
+[ RUN      ] App.InputInfoReflectsAcmpSettlementAndFailures
+[       OK ] App.InputInfoReflectsAcmpSettlementAndFailures (0 ms)
+[ RUN      ] App.CompositionRefusalsLeaveExistingBindingsIntact
+[       OK ] App.CompositionRefusalsLeaveExistingBindingsIntact (0 ms)
+[ RUN      ] App.ExpiredAndMissingStartRequestsCannotApplyLate
+[       OK ] App.ExpiredAndMissingStartRequestsCannotApplyLate (0 ms)
+[ RUN      ] App.UnboundStartAndStopAreSuccessfulNoOps
+[       OK ] App.UnboundStartAndStopAreSuccessfulNoOps (0 ms)
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (0 ms)
+[----------] 10 tests from App (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (8 ms total)
+[  PASSED  ] 9 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+
+ 1 FAILED TEST
+== AECP core: checks: 10   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 10 checks, exit 1)

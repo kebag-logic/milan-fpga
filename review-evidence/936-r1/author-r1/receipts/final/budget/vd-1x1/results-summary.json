@@ -1,0 +1,64 @@
+Original file: <scratch>/budget/final/vd-1x1/results.json
+Original size: 20533 bytes
+Original sha256: 12ce2d6d2cb94aab5137a580578dc2e7f91436bcc4daa99275fba14cae223503
+A summary of the file (its point, counts, refusals, misses and every path's worst instance); the original is kept in scratch.
+
+{
+ "point": "1x1",
+ "build": "6133f7e6bd8622cbaeb83670f09ed6266283998247702bf2cd84b84ffcb707d1",
+ "counts": {
+  "paths": 3,
+  "path_misses": 0,
+  "instances": 5,
+  "instance_misses": 0
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "composed_maximum": null,
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 0,
+  "within_budget": 0,
+  "longest": null
+ },
+ "paths": [
+  {
+   "path": "srp.talker_declare.s0",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s0.if0",
+   "worst_ms": 0.65802,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s1",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s1.if0",
+   "worst_ms": 186.95286,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_loss",
+   "interface": 0,
+   "row": "range lost -> Talker Leave (JoinTime wait)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "srp.talker_loss.if0",
+   "worst_ms": 189.31508,
+   "budget_ms": 220.0
+  }
+ ]
+}

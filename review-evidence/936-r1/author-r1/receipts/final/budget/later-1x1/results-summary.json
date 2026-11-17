@@ -1,0 +1,167 @@
+Original file: <scratch>/budget/final/later-1x1/results.json
+Original size: 122701 bytes
+Original sha256: 25c80e7f8caaa68d1d724ee8258494d01e58630aaa17a9470df880204ea4194a
+A summary of the file (its point, counts, refusals, misses and every path's worst instance); the original is kept in scratch.
+
+{
+ "point": "1x1",
+ "build": "91e4077852c46e2fe23028d9cde15d657d4932b5b35be5371f2f6d000855a923",
+ "counts": {
+  "paths": 7,
+  "path_misses": 0,
+  "instances": 56,
+  "instance_misses": 0
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "composed_maximum": null,
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 8,
+  "within_budget": 8,
+  "longest": {
+   "probe": "notice-retried-2.stream_info.if0",
+   "row": "a retried notice, from its port's answer (THE RETRY)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.retried",
+    0
+   ],
+   "start_sys": 315316673,
+   "end_sys": 316146757,
+   "sys_cycles": 830084,
+   "cpu_cycles": 830084,
+   "ms": 8.30084,
+   "wait_ms": 0.0,
+   "passes": 41,
+   "ring": "events",
+   "ahead": 2,
+   "budget_ms": 20.0,
+   "ceiling_ms": 24.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316133857,
+    "last_sys": 316146757,
+    "per_recipient_cpu_cycles": 860
+   },
+   "bound_cpu_cycles": 839406,
+   "bound_ms": 8.39406,
+   "bound_within_budget": true,
+   "pass_cycles": 27645,
+   "pass_instr": 5650,
+   "pass_mbx_accesses": 52,
+   "pass_fetch_share": 0.447,
+   "pass_fetch_wait_share": 0.2925,
+   "pass_regions": {
+    "rom": [
+     97,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     4,
+     48
+    ],
+    "csr": [
+     0,
+     18,
+     50
+    ]
+   },
+   "pass_modules": {
+    "aecp": 10993,
+    "mbx": 8312,
+    "ctrl_mem": 2206,
+    "aecp_commands": 1676,
+    "aecp_mbx": 1329,
+    "ctrl_loop": 1100
+   },
+   "status": "measured",
+   "group": "notice-retried-2"
+  }
+ },
+ "paths": [
+  {
+   "path": "held.acmp",
+   "interface": 0,
+   "row": "ACMP record, every channel at its refill rate, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-4.held.acmp.if0",
+   "worst_ms": 4.28698,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.adp",
+   "interface": 0,
+   "row": "ADP record, every channel at its refill rate, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-7.held.adp.if0",
+   "worst_ms": 1.62995,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.aecp",
+   "interface": 0,
+   "row": "AECP record, every channel at its refill rate, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-4.held.aecp.if0",
+   "worst_ms": 4.08494,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.maap",
+   "interface": 0,
+   "row": "MAAP record, every channel at its refill rate, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-4.held.maap.if0",
+   "worst_ms": 3.89223,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "held.srp",
+   "interface": 0,
+   "row": "SRP record, every channel at its refill rate, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-4.held.srp.if0",
+   "worst_ms": 10.41746,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "mrpdu",
+   "interface": 0,
+   "row": "an MRPDU its periodic timer owes, the longest",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-5.mrpdu.periodic.if0",
+   "worst_ms": 0.93239,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "notice.retried",
+   "interface": 0,
+   "row": "a retried notice, from its port's answer (THE RETRY)",
+   "instances": 8,
+   "misses": 0,
+   "worst_probe": "notice-retried-2.stream_info.if0",
+   "worst_ms": 8.30084,
+   "budget_ms": 20.0
+  }
+ ]
+}

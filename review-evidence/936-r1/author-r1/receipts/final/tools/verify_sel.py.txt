@@ -1,0 +1,43 @@
+Original file: <scratch>/wf/verify_sel.py
+Original size: 2165 bytes
+Original sha256: 68d91d7a58b36defe1bff1a69e6757974ea1b54d638ab2669bbad9d602082530
+
+#!/usr/bin/env python3
+"""verify_sel.py <head> <root> <workflow:job>...: every `run:` step of each named job at <head> has an rc of 0 in
+<root>/logs or a stated reason in not_run.json; a table of them, rc 1 on any other (a step with no rc, or rc != 0)."""
+import json, subprocess, sys
+from pathlib import Path
+import yaml
+LANE = "<lane>"
+head, root, specs = sys.argv[1], Path(sys.argv[2]), sys.argv[3:]
+logs = root / "logs"
+NOT_RUN = json.loads(Path(__file__).with_name("not_run.json").read_text())
+bad = ran = skipped = 0
+print(f"Every run step of the jobs replayed at {head[:8]}, each on its own fresh clone (run_wf.py)\n")
+print("| Workflow | Job | Step | Name | rc | Log or reason |\n|---|---|---|---|---:|---|")
+for spec in specs:
+    # workflow:job or workflow:job:<matrix tag> (run_wf.py's, e.g. -6 for shard=6 total=19)
+    workflow, job, mtag = (spec.split(":") + [""])[:3]
+    wf = yaml.safe_load(subprocess.run(["git", "-C", LANE, "show", f"{head}:.github/workflows/{workflow}"],
+                                       check=True, capture_output=True, text=True).stdout)
+    w = workflow.removesuffix(".yml")
+    for n, step in enumerate(wf["jobs"][job]["steps"]):
+        if "run" not in step:
+            continue
+        sid = step.get("id") or f"step{n}"
+        name = (step.get("name") or "").replace("|", "/")[:60]
+        reason = next((NOT_RUN[k] for k in (f"{workflow}/{job}/{sid}", f"{workflow}/{sid}", sid) if k in NOT_RUN), None)
+        rcf = logs / f"{w}__{job}{mtag}__{sid}.rc"
+        if reason is not None:
+            skipped += 1
+            print(f"| {w} | {job}{mtag} | {sid} | {name} | - | not run: {reason[:110]} |")
+        elif rcf.is_file():
+            rc = rcf.read_text().strip()
+            ran += 1
+            bad += rc != "0"
+            print(f"| {w} | {job}{mtag} | {sid} | {name} | {rc} | `{w}__{job}{mtag}__{sid}.log` |")
+        else:
+            bad += 1
+            print(f"| {w} | {job}{mtag} | {sid} | {name} | none | NO RC AND NO REASON |")
+print(f"\n{ran} steps run ({ran - bad if bad <= ran else 0} rc 0), {skipped} not run with a reason, {bad} bad")
+sys.exit(1 if bad else 0)

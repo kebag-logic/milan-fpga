@@ -1,0 +1,14 @@
+commit 32919b5f
+parents b496c99e 37255683
+subject scratch merge of #935's head 37255683 onto b496c99e for the twin's evidence (not pushed)
+ sw/firmware/ctrl/srp/README.md              |  6 +++
+ sw/firmware/ctrl/test/srp_arms.py           |  6 +++
+ sw/firmware/ctrl/test/srp_mbx.cpp           | 61 +++++++++++++++++++----------
+ sw/firmware/ctrl/test/srp_mutants.py        | 12 ++++++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py |  1 +
+ tb/verilator/milan_dp/Makefile              |  6 ++-
+ tb/verilator/milan_dp/README.md             | 46 +++++++++++++++++-----
+ tb/verilator/milan_dp/dynmap_mutants.py     | 30 +++++++++++++-
+ tb/verilator/milan_dp/twin_compare.py       | 35 +++++------------
+ tb/verilator/milan_dp/twin_plants.py        | 42 +++++++++++++++++++-
+ 10 files changed, 186 insertions(+), 59 deletions(-)

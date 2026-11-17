@@ -1,0 +1,159 @@
+Original file: out/fix-base.txt
+Original size: 10488 bytes
+Original sha256: 0d323fb86cb5ec1c9930511f599d5835ed80bb4797bc218a7799dd91971a3df4
+
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if1-none/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/clones/c-base-led/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if1-none/image --flash-map <scratch>/out/led-base/endstation_ax7101_1x1_tdm8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if1-none/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if1-none/runtime/libcompiler_rt.a
+endstation_ax7101_1x1_tdm8 if1 none: rom 112,424 B in 112,640, sram 55,200 B, 41.0 RAMB36 (budget 56)
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if2-none/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/clones/c-base-led/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if2-none/image --flash-map <scratch>/out/led-base/endstation_ax7101_1x1_tdm8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if2-none/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_1x1_tdm8-if2-none/runtime/libcompiler_rt.a
+endstation_ax7101_1x1_tdm8 if2 none: REFUSED JSONDecodeError: Expecting value: line 1 column 1 (char 0) | 867db697316ecdbbe9a226c2817daaa265414"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 158988,
+      "sha256": "fddb3470f607fb66671b5e49e0807e665a33d201ff4f3e079135147c80635dca"
+    }
+  ],
+  "ram_sections": 171294,
+  "split": {
+    "rom": {
+      "bytes": 113984,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 57376,
+      "banks": [
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 14,
+      "RAMB18": 1
+    },
+    "tiles": 42.5,
+    "budget_tiles": 56
+  }
+}
+
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_8x8-if1-none/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/clones/c-base-led/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_8x8-if1-none/image --flash-map <scratch>/out/led-base/endstation_ax7101_8x8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_8x8-if1-none/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_8x8-if1-none/runtime/libcompiler_rt.a
+endstation_ax7101_8x8 if1 none: rom 125,088 B in 126,976, sram 96,304 B, 55.0 RAMB36 (budget 56)
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-none/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/clones/c-base-led/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-none/image --ledgered-point 8x8-two-interfaces --flash-map <scratch>/out/led-base/endstation_ax7101_8x8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_8x8-if2-none/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_8x8-if2-none/runtime/libcompiler_rt.a
+endstation_ax7101_8x8 if2 none: REFUSED JSONDecodeError: Expecting value: line 1 column 1 (char 0) |       "size": 154310,
+      "sha256": "a312589ae4112dcb4b884ad8ec74b17fb159f8f93453131cd9272f6c262426af"
+    }
+  ],
+  "ram_sections": 239398,
+  "split": {
+    "rom": {
+      "bytes": 126608,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113248,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  }
+}
+
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-answering-every-port/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/fixture_variant.py <scratch>/out/fix-base/endstation_ax7101_8x8-if2-answering-every-port/fixture-variant --config <scratch>/clones/c-base-led/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-answering-every-port/image --ledgered-point 8x8-two-interfaces --flash-map <scratch>/out/led-base/endstation_ax7101_8x8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_8x8-if2-answering-every-port/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_8x8-if2-answering-every-port/runtime/libcompiler_rt.a
+endstation_ax7101_8x8 if2 answering-every-port: REFUSED JSONDecodeError: Expecting value: line 1 column 1 (char 0) |       "size": 170357,
+      "sha256": "db55c2f1facf0e8f98ed0a3186113469b1ad9d0891ebb372c535f368388ee813"
+    }
+  ],
+  "ram_sections": 239706,
+  "split": {
+    "rom": {
+      "bytes": 126916,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113312,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  }
+}
+
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-valid-destinations/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/c-base-led/tb/verilator/ctrl_service_budget/fixture_variant.py <scratch>/out/fix-base/endstation_ax7101_8x8-if2-valid-destinations/fixture-variant --config <scratch>/clones/c-base-led/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/out/fix-base/endstation_ax7101_8x8-if2-valid-destinations/image --ledgered-point 8x8-two-interfaces --flash-map <scratch>/out/led-base/endstation_ax7101_8x8/split-soc/flash-map --libc <scratch>/out/fix-base/endstation_ax7101_8x8-if2-valid-destinations/runtime/libc.a --compiler-runtime <scratch>/out/fix-base/endstation_ax7101_8x8-if2-valid-destinations/runtime/libcompiler_rt.a
+endstation_ax7101_8x8 if2 valid-destinations: REFUSED JSONDecodeError: Expecting value: line 1 column 1 (char 0) |       "size": 167720,
+      "sha256": "69a212c872b3bb80e700719f62a5a9d57b5b7d53202936e9a5bcd2a5aab9fd21"
+    }
+  ],
+  "ram_sections": 239570,
+  "split": {
+    "rom": {
+      "bytes": 126776,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113248,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  }
+}
+

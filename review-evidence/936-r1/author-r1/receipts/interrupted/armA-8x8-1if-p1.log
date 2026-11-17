@@ -1,0 +1,33 @@
+Original file: logs/armA-8x8-1if-p1.log
+Original size: 4608 bytes
+Original sha256: 3676453024ea22ebf34e47586b456bc97fe3df21c5712dffafc0b476c964e188
+
+HEAD 428f125d DIRTY 0 point 8x8-1if jobs 8 args --reuse-build --out <scratch>/budget/b-8x8/armA-p1 --groups save-held,acmp-notk,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-4,backlog-adp@blank-aged2-7,backlog-adp@program-2,backlog-adp@program-5,backlog-adp@program-aged1-0,backlog-adp@program-aged1-3,backlog-adp@program-aged1-6,backlog-adp@program-aged2-1,backlog-adp@program-aged2-4,backlog-adp@program-aged2-7,backlog-adp@verify-2,backlog-adp@verify-5,backlog-adp@verify-aged1-0,backlog-adp@verify-aged1-3,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-4,backlog-adp@verify-aged2-7,srp,backlog-adp,acmp-disc,adp-gm,aecp-fanout,fixture start 01:26:55
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/acmp-notk.txt -
+COMMAND COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-2.txt -
+<scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/save-held.txt -
+COMMANDCOMMAND  <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-5.txt -<scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-2.txt -
+
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-5.txt -COMMAND
+ <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-5.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-2.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged2-1.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged2-4.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged2-7.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged1-0.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged1-3.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@blank-aged1-6.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged2-1.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged2-4.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged2-7.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged1-0.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged1-3.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@program-aged1-6.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged2-1.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged2-4.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged2-7.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged1-0.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged1-3.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/backlog-adp@verify-aged1-6.txt -
+COMMAND <scratch>/budget/b-8x8/native/Vsim <scratch>/budget/b-8x8/armA-p1/srp.txt -

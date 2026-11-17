@@ -1,0 +1,58 @@
+Original file: plants-aecp/app-output-notice-dropped.log
+Original size: 2526 bytes
+Original sha256: 08c2384afda48f4b8badb496bfb4f802bc2d246d7db702e5083444ec52b90cc5
+
+Note: Google Test filter = App.SrpDeclarationChangeIsItsStreamOutputsNotice
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:770: Failure
+Expected equality of these values:
+  notices(before,0,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:779: Failure
+Expected equality of these values:
+  notices(before,last,controller)
+    Which is: 0
+  1u
+    Which is: 1
+a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+
+  [FAIL] App.SrpDeclarationChangeIsItsStreamOutputsNotice: a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (2 ms)
+[----------] 1 test from App (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

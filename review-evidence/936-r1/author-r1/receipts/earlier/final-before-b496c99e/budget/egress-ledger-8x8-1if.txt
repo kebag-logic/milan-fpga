@@ -1,0 +1,12 @@
+# python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --point 8x8-1if <results of the backlog-owed run>; the tool from PR #914 (lane head 8883d499), read-only
+# 8x8-1if: the rows the egress decides against their ledger; 120 instance(s) read (120 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.51687 | 63.86 | -0.34313 | yes |
+| `backlog.owed_behind0.if0` | 63.80957 | 64.1 | -0.29043 | yes |
+| `backlog.owed_behind1.if0` | 64.04566 | 64.36 | -0.31434 | yes |
+| `backlog.owed_behind2.if0` | 64.30456 | 64.61 | -0.30544 | yes |
+| `backlog.owed_behind3.if0` | 64.55322 | 64.86 | -0.30678 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.35416 | 62.62 | -0.26584 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.99076 | 62.16 | -0.16924 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss

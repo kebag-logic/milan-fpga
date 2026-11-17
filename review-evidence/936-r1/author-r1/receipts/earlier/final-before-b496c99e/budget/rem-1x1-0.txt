@@ -1,0 +1,16 @@
+HEAD 428f125d DIRTY 0 point 1x1 jobs 8 args --reuse-build --out <scratch>/budget/b-1x1/rem-0 --groups backlog-adp@verify-aged2-3,backlog-adp@verify-aged1-2,adp-advertise,acmp-noresp,backlog-adp,acmp-disc,acmp-cmd start 05:45:26
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+<scratch>/budget/b-1x1/native/Vsim <scratch>/budget/b-1x1/rem-0/adp-advertise.txt -
+STEPS 2543 passes carry the store's step; the longest 95,159 CPU cycles (0.952 ms), backlog-adp@verify-aged2-3; the longest step 78,247 (0.782 ms), backlog-adp@verify-aged2-3
+SLICES 155233 tier-2 slices; the longest SRP's records 75,685, THE TRANSMIT's build 28,873, THE RETRY's round 8,390 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@verify-aged2-3: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-2: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS adp-advertise: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS acmp-noresp: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 16 released, 11 empty
+JOINS backlog-adp: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS acmp-disc: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 5 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 2 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 9.092 ms, backlog-adp@verify-aged2-3.service.srp.last.if0 at 10.908 ms
+7 groups graded, 0 refusals, 0 budget misses (0 of 51 probe instances, 0 of 29 paths), 0 of 5536 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1765s rc=0 end 06:14:51 DIRTY-after 0

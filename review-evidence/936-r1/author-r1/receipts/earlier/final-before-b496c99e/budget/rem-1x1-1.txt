@@ -1,0 +1,18 @@
+HEAD 428f125d DIRTY 0 point 1x1 jobs 8 args --reuse-build --out <scratch>/budget/b-1x1/rem-1 --groups backlog-adp@verify-aged2-6,backlog-adp@verify-aged1-5,save-held,save-starved,save,adp-link,fixture start 05:45:31
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+
+STEPS 2568 passes carry the store's step; the longest 95,401 CPU cycles (0.954 ms), save-held; the longest step 78,369 (0.784 ms), save-held
+SLICES 146304 tier-2 slices; the longest SRP's records 75,636, THE TRANSMIT's build 29,632, THE RETRY's round 8,463 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@verify-aged2-6: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-5: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS save-held: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 15 empty
+JOINS save-starved: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 15 empty
+JOINS save: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 11 empty
+JOINS adp-link: 3 join interval(s), the shortest 188.951 ms and the longest 189.959 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 2 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 8.928 ms, backlog-adp@verify-aged2-6.service.srp.last.if0 at 11.072 ms
+SAVE save-held: durable 2019.239 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 15.621 ms) within
+SAVE save-starved: durable 4049.191 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 31.229 ms) within
+SAVE save: durable 2019.694 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 10.917 ms) within
+7 groups graded, 0 refusals, 0 budget misses (0 of 54 probe instances, 0 of 25 paths), 0 of 27721 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=2021s rc=0 end 06:19:12 DIRTY-after 0

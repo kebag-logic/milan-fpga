@@ -1,0 +1,31 @@
+Original file: <scratch>/out/k-img-compare.txt
+Original size: 2264 bytes
+Original sha256: df7b5fef3ddc23828ed9ceb148ed357a871f7032e269658f197a16704420458b
+
+k_img.sh at 7cfb8a04 exited 1 on two lines only: the whole bios.elf of each shape, whose debug sections carry the clone's build path (they differ between any two clones; base vs b496c99e differ the same way). The release image is bios.bin; the comparison below leaves the whole ELF out and keeps bios.bin, the disassembly and the debug-stripped ELF.
+
+70f4056f (base) vs 7cfb8a04:
+  identical, 6 hashes
+b496c99e vs 7cfb8a04:
+  identical, 6 hashes
+
+860d4771decf5b92bd167e57c690892d665eec8075902a3468b68e3b3f56041f  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+d8851b6d470e811cfd1c95b3aa3a6d3e9c367f3e1fddaac38270d484291aea99  ./endstation_ax7101_8x8/software/bios/bios.bin
+3b1c5034ac017b1b89e1a5d4a2e54425c434af4f4652025f448bb296f3c38bd4  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+8cebfd66a483655d4151abc005f186e213690dce716a64180f3f8245e507f719  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf.stripped (debug sections stripped)
+51525853230857010d4cd5eaa3b80af21589f75e505cefed3a5950abc15422be  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+733c99388cda9a9cd734ac5f0e57227250e616e06971a269f23a9b1ced3a12bb  ./endstation_ax7101_8x8/software/bios/bios.elf.stripped (debug sections stripped)
+
+split platform images (plat_ledger build), b496c99e vs 7cfb8a04:
+  identical, 24 hashes (ctrl_app.elf, stripped, loadable at each point)
+size fixture images and its two harness arms, b496c99e vs 7cfb8a04:
+  identical, 6 hashes
+b869006362f6974656c44210a6badc65deafccc22560359736be95879726bd70  ./endstation_ax7101_1x1_tdm8-if1-none/image/ctrl_app.elf
+e239e7529c0a16b63fa35222b8f566b51acbd208e8df4780e54f8aeb94d3f9e8  ./endstation_ax7101_1x1_tdm8-if2-none/image/ctrl_app.elf
+41e589c5ae06d185e67e75473610005a64aabe9aaf29d414ac08e1116fb628fd  ./endstation_ax7101_8x8-if1-none/image/ctrl_app.elf
+495c17e16b11fdf1d453579060db207b4d289ac8a9ef3546e1ca90081f72d3bd  ./endstation_ax7101_8x8-if2-answering-every-port/image/ctrl_app.elf
+1bacdd646a7f261643a143dc1513a26fd476ee0c969ec5f940cbd4bae3fdace3  ./endstation_ax7101_8x8-if2-none/image/ctrl_app.elf
+6d8282cbf338849f5e4f1cc8fe41098893449b891cb2582dd4afe3100cc284dd  ./endstation_ax7101_8x8-if2-valid-destinations/image/ctrl_app.elf
+
+fixture sizes, b496c99e vs 7cfb8a04:
+  identical

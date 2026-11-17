@@ -1,0 +1,17 @@
+Original file: <scratch>/budget/final/8x8-1if/egress-ledger.txt
+Original size: 985 bytes
+Original sha256: 3e1eaf32a24c1b63d41fc3687082b0757abd523d9858b9e6a41e7c28b6efc483
+
+# python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --point 8x8-1if <the full 95-group regrade of the final image>; the tool from PR #914's head 8883d499 (a clean clone of it, read-only)
+# 8x8-1if: the rows the egress decides against their ledger; 947 instance(s) read (947 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.54603 | 63.86 | -0.31397 | yes |
+| `backlog.owed_behind0.if0` | 63.83736 | 64.1 | -0.26264 | yes |
+| `backlog.owed_behind1.if0` | 64.07120 | 64.36 | -0.28880 | yes |
+| `backlog.owed_behind2.if0` | 64.32965 | 64.61 | -0.28035 | yes |
+| `backlog.owed_behind3.if0` | 64.57842 | 64.86 | -0.28158 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.38865 | 62.62 | -0.23135 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.02430 | 62.16 | -0.13570 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+rc=0

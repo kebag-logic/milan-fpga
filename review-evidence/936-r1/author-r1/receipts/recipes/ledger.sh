@@ -1,0 +1,23 @@
+Original file: tools/ledger.sh
+Original size: 1287 bytes
+Original sha256: ed2c650f4ecccfc38a08793840555cfa12aa4eaa795ab58e689514b21ff8a7d1
+
+#!/usr/bin/env bash
+# ledger.sh <clone> <build-dir>: plat_ledger.py (the split platform image at every point, against the memory ledger)
+# on a clean clone, with the product LiteX venv and the pinned RV32 SDK; then the sha256 of each point's image
+set -u
+C=$1; B=$2
+export PATH=<home>/litex-milan/venv/bin:<home>/br-milan-rv32/host/bin:<workspace>/tools/pinned-verilator-5.050:<workspace>/tools/sv2v-v0.0.12:/usr/local/bin:/usr/bin:/bin
+export LITEX_ENV_CC_TRIPLE=riscv32-buildroot-linux-gnu PYTHONHASHSEED=0 COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true
+cd "$C" || exit 3
+echo "head $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l)"
+python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir "$B"; rc=$?
+echo "plat_ledger rc=$rc"
+(cd "$B" && find . -name 'ctrl_app.elf' -o -name 'ctrl_app.bin' | LC_ALL=C sort | xargs -r sha256sum)
+OC=$(ls <home>/br-milan-rv32/host/bin/*-objcopy | head -1)
+for e in $(cd "$B" && find . -name 'ctrl_app.elf' | LC_ALL=C sort); do
+  "$OC" --strip-debug "$B/$e" "$B/$e.stripped" && (cd "$B" && sha256sum "$e.stripped")
+  "$OC" -O binary "$B/$e" "$B/$e.loadable" && (cd "$B" && sha256sum "$e.loadable")
+done
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l)"
+exit $rc

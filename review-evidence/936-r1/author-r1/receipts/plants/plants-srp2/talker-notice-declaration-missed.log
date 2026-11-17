@@ -1,0 +1,40 @@
+Original file: plants-srp2/talker-notice-declaration-missed.log
+Original size: 1309 bytes
+Original sha256: abb3b25b989a7467729ebc6aaaeadab76a507eb3237d6b6dd2d476d93c3ccaf7
+
+Note: Google Test filter = Talker.DeclarationAndWithdrawalAreNoticed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.DeclarationAndWithdrawalAreNoticed
+<lane>/sw/firmware/ctrl/test/srp_talker.cpp:638: Failure
+Expected equality of these values:
+  adapter.ifs[i].noticed
+    Which is: 0
+  1u
+    Which is: 1
+a declaration is noticed
+
+  [FAIL] Talker.DeclarationAndWithdrawalAreNoticed: a declaration is noticed
+<lane>/sw/firmware/ctrl/test/srp_talker.cpp:638: Failure
+Expected equality of these values:
+  adapter.ifs[i].noticed
+    Which is: 0
+  1u
+    Which is: 1
+a declaration is noticed
+
+  [FAIL] Talker.DeclarationAndWithdrawalAreNoticed: a declaration is noticed
+[  FAILED  ] Talker.DeclarationAndWithdrawalAreNoticed (0 ms)
+[----------] 1 test from Talker (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.DeclarationAndWithdrawalAreNoticed
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

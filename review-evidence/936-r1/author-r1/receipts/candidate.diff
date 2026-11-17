@@ -1,0 +1,913 @@
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 1f9f8eb7f0..ec8d9b3baa 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -1085,7 +1085,7 @@ Mapped out of context by `ctrl_memory_ooc.py`, Vivado 2026.1, `xc7a100t-fgg484-2
+ At the shipping point the route maps the banks exactly so: 25 / 1 and 12 / 0.
+ Vivado trims constant ROM bit columns, so every point maps below its plan.
+ The largest point is 1.5 tiles over the allocation as mapped, and 3.0 as planned.
+-It is ledgered at 59.0, owed to lane S14 (#665, ruling 6505997821); every other point fits.
++It is ledgered at 59.0, owed to lane S14 (#665, ruling 6505997821), and at 59.5 since #936 by the owner's decision of 2026-11-15 to keep block RAM loose; every other point fits.
+ 
+ **The five largest BSS consumers**, at the largest point, each with a reduction option (none measured):
+ 
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 1bd48a0e33..bc4a5edacc 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -134,16 +134,17 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
++| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.5 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+-The caps are 59.0 for the size fixture's point and 60.5 for the platform's, which their entries now hold; each image is refused half a tile past its entry, at 59.5 and 61.0.
+-SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
++The size fixture's entry is 59.5 since #936, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), which keeps block RAM loose: an image past its entry raises it to its measured size at the next half tile, as named debt owed to S14. The CPU budget harness's `answering-every-port` arm, the fixture with its test port, needs 127,124 B of `rom` with SRP's record of the STREAM_OUTPUT notices, 148 B past the 126,976 B that 59.0 holds ([section 5](#5-fit)).
++The entries are 59.5 for the size fixture's point and 60.5 for the platform's; each image is refused half a tile past its entry, at 60.0 and 61.0.
++SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit). SRP's record of the STREAM_OUTPUT notices (#936) adds 64 B at both two-interface points and none at one: 17,536, 19,136, 18,240 and 20,416 B.
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -268,11 +269,11 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
+ The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
+ 
+ - the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: a debt of 4.5 RAMB36, the cap fully used;
+-- the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
++- the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and since #936 59.5, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) to keep block RAM loose;
+ - every other point, including every 1x1/1if point, stays at or under 56.
+ 
+ S14 is the first lane after the flip.
+-`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
++`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), 60.0 before it, and the size fixture's at 59.5 since #936, by the owner's decision of 2026-11-15, 59.0 since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+ These figures are planned, not mapped.
+ 
+ The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
+@@ -540,6 +541,19 @@ The size fixture's 8x8 image with two interfaces held 126,320 B in 126,976 there
+ 
+ The platform's 8x8 image with two interfaces holds 131,752 B of `rom` in 133,120, 1,368 B left at 60.5 RAMB36, its debt of 4.5 RAMB36 owed to S14. The size fixture's 8x8 image with two interfaces holds 126,608 B in 126,976 (368 B to spare), the harness's `answering-every-port` arm 126,916 B (60 B) and its `valid-destinations` arm 126,776 B (200 B), each 59.0. The platform's 8x8 one-interface image holds 130,200 B in 131,072 at 56.0 (872 B), its `ctrl_plat` 18,240 B since the gate's kept gate and base (#895's one cut). Every other point of both images is within 56.
+ 
++**At #936's head**, each image linked from the same inputs as at its base `70f4056f`, the fixture and its two harness arms by the CPU budget harness's `build.firmware()` on each shape's split export's flash map, the platform's by `plat_ledger.py` (which passes at every point):
++
++| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
++|---|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 112,616 / 55,216 | 41.0 | 117,680 / 56,224 | 43.0 | 17,536 |
++| 1x1, two interfaces | 114,200 / 57,408 | 42.5 | 119,288 / 58,464 | 44.0 | 19,136 |
++| 8x8, one interface | 125,272 / 96,320 | 55.0 | 130,384 / 97,328 | 56.0, accepted | 18,240 |
++| 8x8, two interfaces (largest) | 126,816 / 113,280 | 59.0, within its 59.5 | 131,960 / 114,288 | 60.5, its ledger's | 20,416 |
++
++SRP's record of the STREAM_OUTPUT notices adds 184 to 216 B of `rom` an image, the most at the 1x1 two-interface points, and 16 to 64 B of `sram`, 64 B in the platform's two-interface images, its `ctrl_plat`.
++The harness's `answering-every-port` arm at 8x8 with two interfaces needs 127,124 B in 129,024, 59.5, past the 59.0 entry, which the owner's decision of 2026-11-15 raises to 59.5 as debt owed to S14 ([section 3](#3-named-refusals)); its `valid-destinations` arm needs 126,976 B, all of 126,976 (59.0), and the fixture 126,816 B (160 B to spare).
++The platform's 8x8 image with two interfaces holds 131,960 B of `rom` in 133,120, 1,160 B left at its 60.5. Its 8x8 one-interface image holds 130,384 B in 131,072 at 56.0 (688 B), and its 1x1 one-interface image 117,680 B at 43.0. Both product images keep their banks: 64, 32, 16 and 4 KiB at 1x1/1if and one 128 KiB bank at 8x8/1if.
++
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+ The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
+@@ -558,7 +572,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
+ 
+ This is the ledgered point, so both commands name its override.
+ Without `--ledgered-point`, both refuse it, past the 56-RAMB36 budget.
+-At this branch's head the image plans 59.0 RAMB36, its entry's tiles and its cap ([section 5](#5-fit)); half a tile more is refused under its override too.
++At #936's head the image plans 59.0 RAMB36, within its entry's 59.5, and its harness arm `answering-every-port` plans 59.5 ([section 5](#5-fit)); half a tile past the entry is refused under its override too.
+ Every other point takes no override, and refuses one.
+ 
+ Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
+diff --git a/sw/firmware/ctrl/aecp/README.md b/sw/firmware/ctrl/aecp/README.md
+index f55fcbc1d3..261b394672 100644
+--- a/sw/firmware/ctrl/aecp/README.md
++++ b/sw/firmware/ctrl/aecp/README.md
+@@ -95,6 +95,10 @@ uses this unchanged core and mailbox adapter, two registered recipients,
+ and a two-millisecond transmit stall at both descriptor shapes.
+ See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.
+ Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
++A STREAM_OUTPUT's GET_STREAM_INFO event (STREAM_INFO, bit 0) comes from SRP on the split (#936).
++SRP records each change of a source's Talker declaration: a declaration, a withdrawal,
++a type swapped in place, or another VID. The application bridge (`ctrl_app_aecp.c`) raises it.
++The [SRP README](../srp/README.md) states the rule, as Table 5.22 and IEEE 7.5.2 require it.
+ Controller probes use a 30-60 s monitor interval,
+ 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
+ 
+diff --git a/sw/firmware/ctrl/app/ctrl_app.h b/sw/firmware/ctrl/app/ctrl_app.h
+index b3e50f0467..eaae048ae8 100644
+--- a/sw/firmware/ctrl/app/ctrl_app.h
++++ b/sw/firmware/ctrl/app/ctrl_app.h
+@@ -96,6 +96,9 @@ struct ctrl_app {
+ 	const struct acmp_env *acmp_owner;
+ 	struct acmp_env acmp_delivery;
+ 	struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
++	// The STREAM_OUTPUTs whose Talker declaration SRP changed, bit s source s (#936): the SRP delivery takes each
++	// interface's record (srp_interface.noticed), and the AECP bridge notifies each and clears it (ctrl_app_aecp.c).
++	uint32_t srp_noticed;
+ 	bool adp_held;                          // ctrl_app_open_held(): ADP waits for ctrl_app_release_adp()
+ };
+ 
+diff --git a/sw/firmware/ctrl/app/ctrl_app_aecp.c b/sw/firmware/ctrl/app/ctrl_app_aecp.c
+index e5a3976597..86eca1ebb3 100644
+--- a/sw/firmware/ctrl/app/ctrl_app_aecp.c
++++ b/sw/firmware/ctrl/app/ctrl_app_aecp.c
+@@ -200,6 +200,18 @@ static bool deliver(void *ctx)
+ 		publish_store(c);
+ 		pending = aecp_face_poll(c->face) || pending;
+ 	}
++	// A Talker declared, withdrawn, swapped between Advertise and Failed or declared on another VID: its
++	// STREAM_OUTPUT's GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the
++	// release processor sends one at each declaration and withdrawal. SRP's delivery took the change from SRP.
++	uint32_t noticed = c->app->srp_noticed;
++	if (noticed != 0u) {
++		c->app->srp_noticed = 0u;
++		for (uint16_t n = 0; noticed != 0u; ++n, noticed >>= 1) {
++			if ((noticed & 1u) != 0u) {
++				aecp_changed(&c->aecp->core, 6, n, 1u);
++			}
++		}
++	}
+ 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
+ 		if ((c->bindings & (1u << n)) != 0u) {
+ 			c->bindings &= ~(1u << n);
+diff --git a/sw/firmware/ctrl/app/ctrl_app_srp.c b/sw/firmware/ctrl/app/ctrl_app_srp.c
+index 0799a55cf4..eefec1130e 100644
+--- a/sw/firmware/ctrl/app/ctrl_app_srp.c
++++ b/sw/firmware/ctrl/app/ctrl_app_srp.c
+@@ -60,6 +60,12 @@ static bool deliver(void *ctx)
+     if (app->srp->loop != &app->loop) {
+         return false;
+     }
++    // The sources whose Talker declaration SRP changed since this delivery last ran, each its STREAM_OUTPUT's
++    // GET_STREAM_INFO notice, which the AECP bridge raises (#936; Milan v1.2 5.4.5.2, Table 5.22)
++    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
++        app->srp_noticed |= app->srp->ifs[interface].noticed;
++        app->srp->ifs[interface].noticed = 0u;
++    }
+     // A Talker is declared while its destination is valid (#895; Milan v1.2 4.3.3.1, 5.3.7.4): the MAAP adapter's DA
+     // gate, refreshed by MAAP's poll before this one, with the range MAAP holds on the interface
+     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 2359fa02fd..1415c751cc 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -241,6 +241,33 @@ Domain adoption refused for storage before the build, made after it): the
+ source then stays declared, its `TALKER_DECL` bit and bandwidth too, and its
+ withdrawal is owed. THE TRANSMIT's next call meets no frame owed, so its first
+ declarations take the Leave, and the hold-off starts at the Leave lwSRP took.
++
++Each change of a source's declaration owes its STREAM_OUTPUT's GET_STREAM_INFO
++notice (#936). Milan v1.2 5.4.5.2 and Table 5.22 name the Talker declaration
++state, the failure code and the stream VLAN ID. IEEE 1722.1-2021 7.5.2 names
++"MSRP Talker Advertisements or Failures". The release processor sends one at
++each declaration and withdrawal. `declare_sources` compares what it published
++with what the output last showed (`shown`, `shown_advertise`, `shown_vid`):
++
++- a source declared or withdrawn;
++- a source still declared, its type swapped in place, once the swap is made;
++- a source still declared on another VID, an adopted Domain's.
++
++It records each such source in `noticed`. A reset that declares an unchanged
++source again records nothing, since the output shows the same. A failed
++creation returns before the record, so what it joined is recorded once it
++succeeds. A Talker Failed's code follows the source's allocation, which only a
++withdrawal changes. The composition's delivery poll takes `noticed` each pass
++into `ctrl_app.srp_noticed`. The AECP bridge raises each source's STREAM_OUTPUT
++GET_STREAM_INFO event (`aecp_changed`, type 6). The notice then takes AECP's
++own path and pacing to every registered controller (Milan v1.2 5.4.5.1).
++Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
++`TypeSwapIsNoticed`, `AdoptedDomainVidIsNoticed`,
++`ResetNoticesNothingUnchanged`), `test_acmp_mbx.cpp`'s
++`F936AProbeAndItsExpiryEachNoticeTheSource` and `test_aecp.cpp`'s
++`SrpDeclarationChangeIsItsStreamOutputsNotice`; plants `talker-notice-*`
++(`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_mutants.py`).
++
+ A binding declares Ready for a matching Advertise, AskingFailed for a matching
+ Failed, and withdraws when its retained registration expires.
+ Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 9730217f63..8e65e98ff9 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -262,6 +262,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
+ {
+     struct srp_mbx *m = i->owner;
+     uint64_t used = 0;
++    uint32_t advertise = 0;
+     bool done = true;
+     // A join rewrites the value of the attribute a registration shares (#665).
+     i->stale = true;
+@@ -327,6 +328,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
+         i->admitted[n] = advertised && (i->talkers & bit) != 0u;
+         if (i->admitted[n]) {
+             used += slope;
++            advertise |= bit;
+         }
+     }
+     // The admitted bandwidth (IDLE_SLOPE) and the declared sources
+@@ -335,6 +337,20 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
+     // most three quarters of a 32-bit link rate.
+     (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
+     (void)mbx_pub_talker_decl(i->index,i->talkers);
++    // Each source whose declaration changed against what its STREAM_OUTPUT last showed is noticed (#936; Milan v1.2
++    // 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): declared or withdrawn, or still declared with its type swapped or
++    // on another VID (an adopted Domain's). A failed creation returns before this, so what it joined is noticed once
++    // it succeeds. A Talker Failed's code follows the source's allocation, which only a withdrawal changes
++    // (srp_mbx_gate).
++    const uint32_t kept = i->talkers & i->shown;
++    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);
++    if (i->domain.vid != i->shown_vid) {
++        moved |= kept;
++    }
++    i->noticed |= moved;
++    i->shown = i->talkers;
++    i->shown_advertise = advertise;
++    i->shown_vid = i->domain.vid;
+     // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations
+     i->sources_owed = !done;
+     return done;
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index 4d06c1ca57..def1dcc486 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -80,6 +80,15 @@ struct srp_interface {
+     uint32_t talkers;
+     uint32_t readdressed;
+     bool sources_owed;
++    // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of its declaration (#936; Milan v1.2 5.4.5.2, Table 5.22:
++    // the Talker declaration state, the failure code, the stream VLAN ID), bit s source s: shown and shown_advertise
++    // hold talkers and its Talker Advertises as declare_sources last published them, shown_vid the VID they carry,
++    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID
++    // since the composition last took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
++    uint32_t shown;
++    uint32_t shown_advertise;
++    uint32_t noticed;
++    uint16_t shown_vid;
+     // srp_mbx_gate's base at its last call, once one was taken: a call with
+     // that base and the gate it left changes nothing, so it returns at once
+     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+index 669fd921ed..77586d476f 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -527,6 +527,28 @@ DEFECTS = (
+            '\t\t\t(void)(ok && old.bound && acmp_set_started(a, c->start_index, c->start_value));\n',
+            ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+             'BINDING.STARTED is published before the response is committed')),
++    # #936: SRP's record of a changed Talker declaration is its STREAM_OUTPUT's GET_STREAM_INFO notice (Milan v1.2
++    # 5.4.5.2, Table 5.22): dropped, raised for a STREAM_INPUT, raised for the next source, or never cleared
++    defect('app-output-notice-dropped', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\t(void)n;\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
++    defect('app-output-notice-as-an-input', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\taecp_changed(&c->aecp->core, 5, n, 1u);\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            "a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller")),
++    defect('app-output-notice-next-source', 'app/ctrl_app_aecp.c',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, n, 1u);\n',
++           '\t\t\t\taecp_changed(&c->aecp->core, 6, (uint16_t)(n + 1u), 1u);\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            'a source the record does not name is notified nothing')),
++    defect('app-output-notice-kept', 'app/ctrl_app_aecp.c',
++           '\t\tc->app->srp_noticed = 0u;\n',
++           '\t\t(void)c;\n',
++           ('App.SrpDeclarationChangeIsItsStreamOutputsNotice',
++            'the bridge raises every STREAM_OUTPUT the delivery took')),
+     defect('mailbox-interface-crossed', 'aecp_mbx.c',
+            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
+            'aecp_rx(&m->core, 0, f->bytes, f->len);',
+diff --git a/sw/firmware/ctrl/test/srp_gate.hpp b/sw/firmware/ctrl/test/srp_gate.hpp
+index 07cf19ece9..408fc77e1b 100644
+--- a/sw/firmware/ctrl/test/srp_gate.hpp
++++ b/sw/firmware/ctrl/test/srp_gate.hpp
+@@ -342,4 +342,26 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
+     EXPECT_EQ(core()->reentries, 0u);
+ }
+ 
++// #936: a probe's declaration and its expiry's withdrawal each reach the composition as the source's STREAM_OUTPUT
++// notice (Milan v1.2 5.4.5.2, Table 5.22): the SRP delivery takes SRP's record into the application's, once each, and
++// the probe window's periodic declarations notice nothing.
++TEST_F(SrpGate, F936AProbeAndItsExpiryEachNoticeTheSource) {
++    compose();
++    EXPECT_EQ(app.srp_noticed, 0u) << "no source is noticed before its Talker is declared";
++    probe();
++    run(300u);
++    ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";
++    EXPECT_EQ(app.srp_noticed, 1u << source) << "a probe's declaration notices its source";
++    for (unsigned i = 0; i < MBX_N_IF; ++i) {
++        EXPECT_EQ(srp_adapter.ifs[i].noticed, 0u) << "the SRP delivery takes SRP's record";
++    }
++    app.srp_noticed = 0u;
++    run(14500u);
++    EXPECT_EQ(app.srp_noticed, 0u) << "the probe window's periodic declarations notice nothing";
++    run(500u);
++    ASSERT_FALSE(declared(interface)) << "the probe's 15 s expiry withdraws the Talker";
++    EXPECT_EQ(app.srp_noticed, 1u << source) << "the probe's expiry notices its source";
++    EXPECT_EQ(core()->reentries, 0u);
++}
++
+ }  // namespace
+diff --git a/sw/firmware/ctrl/test/srp_talker.cpp b/sw/firmware/ctrl/test/srp_talker.cpp
+index 1bc54ce888..73ca0d5602 100644
+--- a/sw/firmware/ctrl/test/srp_talker.cpp
++++ b/sw/firmware/ctrl/test/srp_talker.cpp
+@@ -623,3 +623,110 @@ TEST_F(Talker, RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt) {
+     EXPECT_NE(adapter.held_cs[0],0u) << "the hold-off starts at the Leave lwSRP took";
+     EXPECT_FALSE(adapter.ifs[0].sources_owed) << "nothing is owed once lwSRP takes the Leave";
+ }
++
++// #936: a source's STREAM_OUTPUT shows its Talker declaration (Milan v1.2 5.4.2.10.2, Table 5.11), so each change of
++// it is noticed, on the interface that declares it, for its GET_STREAM_INFO notice (Milan v1.2 5.4.5.2, Table 5.22;
++// IEEE 1722.1-2021 7.5.2). A declaration and a withdrawal are each noticed once; a report that changes nothing, and
++// the periodic declarations of a Talker already declared, notice nothing.
++TEST_F(Talker, DeclarationAndWithdrawalAreNoticed) {
++    settle(); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a source that declares nothing is not noticed";
++    }
++    gate(1u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a declaration is noticed";
++        adapter.ifs[i].noticed=0u;
++    }
++    gate(1u,kBaseA); advance(1200);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a declaration that did not change is not noticed again";
++    }
++    gate(0u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a withdrawal is noticed";
++        adapter.ifs[i].noticed=0u;
++    }
++    advance(1200);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a withdrawal is noticed once";
++    }
++}
++
++// #936: a Talker Advertise and a Talker Failed show differently (Table 5.11's MSRP_FAILURE_VALID, the failure code and
++// bridge ID), so a type its admission swaps in place is noticed, the swap that lwSRP refuses only once it is made, and
++// a Talker Failed declared or withdrawn is noticed as an Advertise is.
++TEST_F(Talker, TypeSwapIsNoticed) {
++    if (CTRL_SRP_SOURCES<2u) GTEST_SKIP();
++    srp_mbx_destroy(&adapter);
++    // three quarters of 30 Mb/s admit one source
++    config.link_rate_bps=30000000u;
++    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
++    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
++    settle(); gate(3u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        ASSERT_EQ(pub_of(model,i).talker_decl,3u);
++        EXPECT_EQ(adapter.ifs[i].noticed,3u) << "a Talker Failed declared is noticed";
++        adapter.ifs[i].noticed=0u;
++    }
++    gate(1u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,2u) << "a Talker Failed withdrawn is noticed";
++        adapter.ifs[i].noticed=0u;
++    }
++    gate(3u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
++    // source 0 lapses, and source 1's swap to Advertise is refused (no storage): only the withdrawal is noticed
++    calloc_before_failure=0;
++    gate(2u,kBaseA);
++    advance(20);
++    calloc_before_failure=-1;
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        ASSERT_EQ(pub_of(model,i).talker_decl,2u);
++        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a swap lwSRP refuses is not noticed until it is made";
++        adapter.ifs[i].noticed=0u;
++    }
++    advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        ASSERT_TRUE(adapter.ifs[i].admitted[1]) << "the swap is made";
++        EXPECT_EQ(adapter.ifs[i].noticed,2u) << "a type swapped in place is noticed";
++        adapter.ifs[i].noticed=0u;
++    }
++    gate(3u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) {
++        ASSERT_FALSE(adapter.ifs[i].admitted[1]) << "the Advertise swaps back to Talker Failed";
++        EXPECT_EQ(adapter.ifs[i].noticed&2u,2u) << "a type swapped in place is noticed";
++    }
++}
++
++// #936: a declared Talker carries the Domain's VID, its STREAM_OUTPUT's stream_vlan_id (Table 5.11), so an adopted
++// Domain that moves the VID notices every source it declares again, on its own interface only; one that keeps the VID
++// (another priority) notices nothing, and neither notices a source not declared.
++TEST_F(Talker, AdoptedDomainVidIsNoticed) {
++    settle(); gate(1u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
++    offer(frame(4,{6,4,0,3},0)); advance(400);
++    ASSERT_EQ(adapter.ifs[0].domain.vid,3u);
++    EXPECT_EQ(adapter.ifs[0].noticed,1u) << "a declared Talker carrying another VID is noticed";
++    for (unsigned i=1;i<MBX_N_IF;++i) {
++        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a Domain adopted on one interface notices that interface's sources";
++    }
++    adapter.ifs[0].noticed=0u;
++    offer(frame(4,{6,5,0,3},0)); advance(400);
++    ASSERT_EQ(adapter.ifs[0].domain.priority,5u);
++    EXPECT_EQ(adapter.ifs[0].noticed,0u) << "a Domain that keeps the VID notices nothing";
++}
++
++// #936: a reset destroys the participants and declares an unchanged source again on the new ones, which its
++// STREAM_OUTPUT shows as it did: nothing is noticed.
++TEST_F(Talker, ResetNoticesNothingUnchanged) {
++    settle(); gate(1u,kBaseA); advance(400);
++    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
++    const unsigned last=MBX_N_IF-1u;
++    const uint32_t first=model.tx_sent;
++    mbx_model_set_link(&model,last,false); settle();
++    mbx_model_set_link(&model,last,true); settle();
++    advance(400);
++    ASSERT_NE(newly(talker(last,0,first),1),nullptr) << "the reset declares the source again";
++    EXPECT_EQ(adapter.ifs[last].noticed,0u) << "a source a reset declares again unchanged is not noticed";
++}
+diff --git a/sw/firmware/ctrl/test/srp_talker_mutants.py b/sw/firmware/ctrl/test/srp_talker_mutants.py
+index 959c9c4c45..2fefdee84e 100644
+--- a/sw/firmware/ctrl/test/srp_talker_mutants.py
++++ b/sw/firmware/ctrl/test/srp_talker_mutants.py
+@@ -15,7 +15,10 @@ takes its Leave; THE TRANSMIT's call publishes
+ within srp_bounds.h's terms; the entry refuses before attach and on reentry; and the composition feeds each interface's
+ DA gate and range. The source's frames carry the stream_id its Talker declares (#905): the MAAP adapter writes each
+ source's SRC_SID before its DA_GATE bit first opens, each word in its own register, again before each reopening,
+-read from the source port, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO).
++read from the source port, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO). Each change of a source's
++declaration its STREAM_OUTPUT shows is noticed for its GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22):
++a declaration, a withdrawal, a type swapped in place (only once made) and an adopted Domain's other VID, and nothing
++else, a reset that declares an unchanged source again included; the SRP delivery takes the record (ctrl_app_srp.c).
+ """
+ from __future__ import annotations
+ 
+@@ -40,6 +43,11 @@ ENTRY = "Talker.GateEntryRecordsOnlyWhatChanged"
+ REFUSED = "Talker.RefusedDeclarationIsDeclaredAgain"
+ TERMS = "Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin"
+ WITHDRAWN = "Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt"
++NOTICED = "Talker.DeclarationAndWithdrawalAreNoticed"
++SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
++VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
++RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
++TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
+ PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
+ LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
+ LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
+@@ -74,12 +82,21 @@ LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_AD
+          "                i->talkers &= ~bit;\n                m->held_cs[n] = SRP_REDECLARE_CS;\n            }\n")
+ FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],"
+         "app->maap.ifs[interface].core.base);\n")
++#: what declare_sources notices of each source's declaration (#936), as srp_mbx.c holds it.
++MOVED = "    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);\n"
++VID_MOVED = "    if (i->domain.vid != i->shown_vid) {\n        moved |= kept;\n    }\n"
++ADVERTISE = ("        if (i->admitted[n]) {\n            used += slope;\n            advertise |= bit;\n"
++             "        }\n")
++#: the SRP delivery's take of each interface's record (#936), as ctrl_app_srp.c holds it.
++TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n"
++        "        app->srp_noticed |= app->srp->ifs[interface].noticed;\n"
++        "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
+ 
+ 
+ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+     """Every Talker declaration defect, built with srp_mutants.Defect: the declarations', then the entry's and the
+     stream_id's, in that order."""
+-    return declaration_defects(kind) + entry_defects(kind)
++    return declaration_defects(kind) + entry_defects(kind) + notice_defects(kind)
+ 
+ 
+ def planter(kind: Callable[..., T]) -> Callable[..., T]:
+@@ -217,3 +234,38 @@ def entry_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+         d("talker-sid-written-mark-kept", SID_AGAIN, "\tm->sid_written &= (uint16_t)~may;\n", "",
+           "both SRC_SID words are written again between the bit's closing and its reopening", path=MAAP),
+     )
++
++
++def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
++    """What a source's STREAM_OUTPUT GET_STREAM_INFO notice is raised from (#936; Milan v1.2 5.4.5.2, Table 5.22):
++    declare_sources' record of each declaration, withdrawal, type swap and VID change against what was last shown
++    (srp_mbx.c), and the SRP delivery's take of it (ctrl_app_srp.c)."""
++    d = planter(kind)
++    return (
++        d("talker-notice-declaration-missed", NOTICED, MOVED,
++          MOVED.replace("(i->talkers ^ i->shown)", "(i->shown & ~i->talkers)"), "a declaration is noticed"),
++        d("talker-notice-withdrawal-missed", NOTICED, MOVED,
++          MOVED.replace("(i->talkers ^ i->shown)", "(i->talkers & ~i->shown)"), "a withdrawal is noticed"),
++        d("talker-notice-record-dropped", NOTICED, "    i->noticed |= moved;\n", "    (void)moved;\n",
++          "a declaration is noticed"),
++        d("talker-notice-every-declared-source", SWAP_NOTICED, "    i->noticed |= moved;\n",
++          "    i->noticed |= moved | i->talkers;\n", "a Talker Failed withdrawn is noticed"),
++        d("talker-notice-swap-missed", SWAP_NOTICED, MOVED, "    uint32_t moved = (i->talkers ^ i->shown);\n",
++          "a type swapped in place is noticed"),
++        d("talker-notice-refused-swap-noticed", SWAP_NOTICED, ADVERTISE,
++          "        if (i->admitted[n]) {\n            used += slope;\n        }\n"
++          "        if (admitted && (i->talkers & bit) != 0u) {\n            advertise |= bit;\n        }\n",
++          "a swap lwSRP refuses is not noticed until it is made"),
++        d("talker-notice-vid-missed", VID_NOTICED, VID_MOVED, "", "a declared Talker carrying another VID is noticed"),
++        d("talker-notice-vid-on-every-domain", VID_NOTICED, VID_MOVED,
++          VID_MOVED.replace("if (i->domain.vid != i->shown_vid) {", "if (i->domain.vid != i->shown_vid || how == "
++                                                                     "SRP_DECLARE_EVERY) {"),
++          "a Domain that keeps the VID notices nothing"),
++        d("talker-notice-reset-forgets-what-was-shown", RESET_NOTICED, "    withdraw_declared(i->index);\n",
++          "    withdraw_declared(i->index);\n    i->shown = 0u;\n",
++          "a source a reset declares again unchanged is not noticed"),
++        d("talker-notice-not-taken", TAKEN, TAKE, "", "a probe's declaration notices its source", path=APP),
++        d("talker-notice-record-kept", TAKEN, TAKE,
++          TAKE.replace("        app->srp->ifs[interface].noticed = 0u;\n", ""), "the SRP delivery takes SRP's record",
++          path=APP),
++    )
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index d3860eda0e..fd2fe8c043 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -746,6 +746,41 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
+     auto rx=application.loop.rx[MBX_CH_SRP];application.loop.rx[MBX_CH_SRP].fn=nullptr;
+     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
+ }
++
++// #936: SRP's record of a source whose Talker declaration changed is its STREAM_OUTPUT's GET_STREAM_INFO notice
++// (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the SRP delivery takes it and the bridge raises the
++// notice of that STREAM_OUTPUT, which every registered controller is sent once (Milan v1.2 5.4.5.1). A source the
++// record does not name, and a pass with no record, are notified nothing.
++TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
++{
++    aem(36);aem(36,{},CTLR+1);service();
++    const unsigned last=connection.n_sources-1u;
++    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
++        unsigned n=0;
++        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
++            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
++               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
++        return n;
++    };
++    unsigned before=fabric.tx_sent;
++    reservation.ifs[0].noticed=1u;service();
++    EXPECT_EQ(reservation.ifs[0].noticed,0u)<<"the SRP delivery takes SRP's record";
++    EXPECT_EQ(application.srp_noticed,0u)<<"the bridge raises every STREAM_OUTPUT the delivery took";
++    for(uint64_t controller:{CTLR,CTLR+1}){
++        EXPECT_EQ(notices(before,0,controller),1u)
++            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
++        EXPECT_EQ(notices(before,last,controller),0u)<<"a source the record does not name is notified nothing";
++    }
++    before=fabric.tx_sent;service();mbx_model_advance_ms(&fabric,50);service();
++    EXPECT_EQ(notices(before,0,CTLR)+notices(before,last,CTLR),0u)<<"a pass with no record notifies nothing";
++    before=fabric.tx_sent;
++    reservation.ifs[MBX_N_IF-1u].noticed=1u<<last;service();
++    for(uint64_t controller:{CTLR,CTLR+1}){
++        EXPECT_EQ(notices(before,last,controller),1u)
++            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
++        EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
++    }
++}
+ #endif
+ 
+ namespace {
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 08d591fc61..f3b71272dc 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -243,7 +243,8 @@ class Ledgered:
+ #: that struct refuses the override until the size is measured again here.
+ #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+ #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
+-#: 59.5, its entry at 59.0, the cap #894's ruling of 2026-11-13 raises the owner's 58.5 to for the composed image,
++#: 60.0, its entry at 59.5, which the owner's decision of 2026-11-15 (#665, block RAM kept loose: an image past its
++#: entry raises it at the next half tile as debt owed to S14) raises #894's 59.0 to for the harness's arm (#936),
+ #: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
+ #: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
+ #: ledgered the size fixture's at its cap. The
+@@ -252,7 +253,7 @@ class Ledgered:
+ #: where it happens.
+ LEDGERED: dict[str, Ledgered] = {
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+-                                   59.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
++                                   59.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
+                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
+                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
+@@ -261,9 +262,13 @@ LEDGERED: dict[str, Ledgered] = {
+                                          "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
+                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
+                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
+-                                         "declarations plan within it (#895)"),
++                                         "declarations plan within it (#895); 59.5 by the owner's decision of "
++                                         "2026-11-15 (#665, block RAM kept loose): the CPU budget harness's "
++                                         "answering-every-port arm, the fixture with its test port, needs 127,124 B "
++                                         "of rom with SRP's record of the STREAM_OUTPUT notices (#936), 148 B past "
++                                         "the 126,976 B 59.0 holds, debt owed to S14"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+@@ -272,7 +277,9 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
+                                             "declarations composed on the control loop's tiers, 184 B of rom past "
+                                             "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
+-                                            "owed to the hybrid XIP work, the cap fully used"),
++                                            "owed to the hybrid XIP work, the cap fully used; ctrl_plat 64 B more "
++                                            "with SRP's record of the STREAM_OUTPUT notices (#936), its rom within "
++                                            "the 60.5"),
+ }
+ 
+ 
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+index 756fe88e24..3973a2744a 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -4,7 +4,7 @@
+ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+-only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
++only by its own name, under #665's documented memory exceptions: the size fixture's at 59.5 RAMB36 and the target
+ platform's at 60.5 (the owner's decision of 2026-11-12, its cap), each refused half a tile past. A `Case` here is
+ what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+ function here takes, and grades what these return.
+@@ -32,7 +32,7 @@ STAGE_1X1, STAGE_8X8 = 3454, 13594
+ FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
+ #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+ #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
++PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_136, 18_240, 20_416
+ 
+ 
+ class Case(NamedTuple):
+@@ -46,21 +46,21 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 59.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.5)}
++OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 59.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.5)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.0),
++HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.5),
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 60.5)}
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+ REFUSED = (
+-    ("its own image at 59.5 RAMB36, half a tile past its 59.0", FIXTURE, OWN[FIXTURE]._replace(tiles=59.5)),
+-    ("the size fixture's 1x1 one-interface image at 59.0", FIXTURE, Case(STAGE_1X1, 1, None, 59.0)),
+-    ("the size fixture's 1x1 two-interface image at 59.0", FIXTURE, Case(STAGE_1X1, 2, None, 59.0)),
+-    ("the size fixture's 8x8 one-interface image at 59.0", FIXTURE, Case(STAGE_8X8, 1, None, 59.0)),
+-    ("an 8x8 image with no image_allocation at 59.0", FIXTURE, Case(STAGE_8X8, None, None, 59.0)),
++    ("its own image at 60.0 RAMB36, half a tile past its 59.5", FIXTURE, OWN[FIXTURE]._replace(tiles=60.0)),
++    ("the size fixture's 1x1 one-interface image at 59.5", FIXTURE, Case(STAGE_1X1, 1, None, 59.5)),
++    ("the size fixture's 1x1 two-interface image at 59.5", FIXTURE, Case(STAGE_1X1, 2, None, 59.5)),
++    ("the size fixture's 8x8 one-interface image at 59.5", FIXTURE, Case(STAGE_8X8, 1, None, 59.5)),
++    ("an 8x8 image with no image_allocation at 59.5", FIXTURE, Case(STAGE_8X8, None, None, 59.5)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+-    ("the platform's 8x8 two-interface image at 59.0", FIXTURE, OWN[PLATFORM]._replace(tiles=59.0)),
++    ("the platform's 8x8 two-interface image at 59.5", FIXTURE, OWN[PLATFORM]._replace(tiles=59.5)),
+     ("its own image at 61.0 RAMB36, half a tile past its 60.5", PLATFORM, OWN[PLATFORM]._replace(tiles=61.0)),
+     ("the platform's 1x1 one-interface image at 60.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 60.5)),
+     ("the platform's 1x1 two-interface image at 60.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 60.5)),
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index d79cadee4b..985b532a94 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -18,7 +18,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces) plans
+-     its 59.0 or 60.5 by name and is refused without its override, through
++     its 59.5 or 60.5 by name and is refused without its override, through
+      add_ctrl_memory and half a tile past; each override is refused on every
+      other point, on the other's image and on an image with one of its two
+      symbols. Six planted ledgers, each widening an entry to another point or
+@@ -331,7 +331,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-                                          f"platform's 8x8 images with two interfaces at 59.0 and 60.5 ({held})")
++                                          f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 377fde47b3..e507204d0f 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -46,7 +46,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+ 
+ `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
+ `8x8` is `endstation_ax7101_8x8` with two.
+-`8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 59.0 RAMB36 (`ctrl_memory.LEDGERED`, its cap since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
++`8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 59.5 RAMB36 (`ctrl_memory.LEDGERED`: 59.0 since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and 59.5 since #936 by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) to keep block RAM loose) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+ So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
+ The planner refuses the override on any other image, and the product SoC build names none.
+ 
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 92ba6da508..00c1e01467 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -37,7 +37,7 @@
+ #   make twin   - #665: the two-placement simulation, one stimulus on the
+ #                 all-fabric and the split datapath, compared protocol by
+ #                 protocol (twin_compare.py); exit 1 on any difference
+-#   make twin-plants - its twenty plants, each refused by its own words
++#   make twin-plants - its twenty-one plants, each refused by its own words
+ #   make srptx  - #867: the split build's SRP transmit path at the wire, three
+ #                 scenarios and two off-grid controls graded by srptx_grade.py;
+ #                 srptx-plants and srptx-mutants plant each check's defect
+@@ -959,8 +959,8 @@ twin: build-twin
+ # out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
+ # for the #860 rows' exact traces
+ TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+-TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
+-  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
++TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed output-notice-dropped command-byte command-sequence \
++  response-sequence table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
+ TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
+   vanished-vid2-join-in vid2-registrar-in
+ twin-plants: build-twin
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 2449f1a9f8..425e1c3785 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1379,13 +1379,21 @@ a finding too: the lane that fixes it deletes the row.
+ 
+ | Row | Fabric | Split | Owed to |
+ |---|---|---|---|
+-| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
++| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #665 (no issue owns it yet) |
+ | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+ | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
+ 
+-The first two have one cause: the split's sources stay unallocated until an
+-SRP adapter entry takes MAAP's range
+-([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
++The first is the split datapath's. Its GET_STREAM_INFO face answers a
++STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's address. The
++split does not build that engine, so a declaring output reads 0
++(`hdl/milan/milan_datapath.sv`, `g_no_maap` and `gsi_answer`'s selector 4;
++Milan v1.2 5.4.2.10.2, Table 5.11).
++#936 deleted the row before it, `stream-output-0-notices`. It owed the split's
++missing notices of STREAM_OUTPUT 0. The split now sends the fabric's four, at
++the same changes, to the same controllers
++([SRP README, Talker declarations](../../../sw/firmware/ctrl/srp/README.md)).
++The second's cause was the split's sources staying unallocated until an SRP
++adapter entry took MAAP's range.
+ The third is the fabric's: its AECP engine serves the image's ENTITY
+ descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
+ 6.2.2.15).
+@@ -1410,7 +1418,7 @@ item 2).
+ 
+ ### The plants
+ 
+-`make twin-plants` runs twenty plants. Each must be refused by its words
++`make twin-plants` runs twenty-one plants. Each must be refused by its words
+ twice. Against the unplanted capture of the half it plants, every finding must
+ be about the planted protocol. That control also counts each grade finding the
+ plant adds to the planted half, or takes from it. Between the placements, the
+@@ -1429,7 +1437,8 @@ asserts.
+ | `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
+ | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
+ | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
+-| `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
++| `vanished-owed` | an owed difference gone: the split's STREAM_OUTPUT 0 notices replaced by the fabric's | `owed row stream-output-0-dest-mac: the difference has gone` |
++| `output-notice-dropped` | #936's defect back: the split's STREAM_OUTPUT 0 notices dropped | `owed row stream-output-0-dest-mac does not hold` |
+ | `command-byte` | one byte other than `sequence_id` of the first CONTROLLER_AVAILABLE to the first controller | `AECP command 0 differs at byte 33` |
+ | `command-sequence` | the second CONTROLLER_AVAILABLE to the second controller given the first's `sequence_id` | `the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0` |
+ | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
+diff --git a/tb/verilator/milan_dp/twin_compare.py b/tb/verilator/milan_dp/twin_compare.py
+index b7d1d9b4e8..45bf142d43 100644
+--- a/tb/verilator/milan_dp/twin_compare.py
++++ b/tb/verilator/milan_dp/twin_compare.py
+@@ -71,7 +71,8 @@ PLANT_WORDS = {
+     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
+                             "to the second controller",
+     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
+-    "vanished-owed": "owed row stream-output-0-notices: the difference has gone",
++    "vanished-owed": "owed row stream-output-0-dest-mac: the difference has gone",
++    "output-notice-dropped": "owed row stream-output-0-dest-mac does not hold",
+     "command-byte": "AECP command 0 differs at byte 33",
+     "command-sequence": "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0",
+     "response-sequence": "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its "
+@@ -100,7 +101,9 @@ PLANT_WORDS = {
+ }
+ #: the words of the control against the unplanted capture, where they differ
+ SELF_WORDS = {
+-    "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
++    "vanished-owed": "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66",
++    "output-notice-dropped": "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first "
++                             "controller",
+     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
+     "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
+     "vanished-available-index": "AECP response 13 differs at byte 81",
+@@ -113,7 +116,8 @@ SELF_WORDS = {
+                          "with the Registrar IN",
+ }
+ PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
+-                    "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
++                    "uncovered-field": "AECP", "vanished-owed": "AECP", "output-notice-dropped": "AECP",
++                    "command-byte": "AECP",
+                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
+                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
+                     "vanished-mvrp-leave-all": "MVRP",
+@@ -451,6 +455,8 @@ OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "0200000000010000" "
+                               "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
+ OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
+                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
++#: the split's declared notice since #936: the fabric's fields with stream_dest_mac 0, its STREAM_DEST_MAC_VALID set
++OUT0_DECLARED_SPLIT = OUT0_DECLARED.replace("91e0f0000100", "000000000000")
+ #: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
+ #: Advertise for source 0, the split's Talker Failed for both sources
+ FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
+@@ -459,19 +465,27 @@ SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d90001700000000000000200
+ SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
+                "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
+ SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
++SPLIT_DEST_MAC = ("the split datapath answers a STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's "
++                  "address, which the split does not build (hdl/milan/milan_datapath.sv, g_no_maap, and gsi_answer's "
++                  "selector 4), so a declaring STREAM_OUTPUT reads 0")
+ FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
+                 "image's constant 0, and never reads ADP's")
+ 
+ #: The owed-difference list, apart from the ledger (#665): each row names the
+ #: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
+ OWED = (
+-    Row("stream-output-0-notices", "Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed",
++    Row("stream-output-0-dest-mac",
++        "Milan v1.2 5.4.2.10.2, Table 5.11: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's",
+         lambda h: notices(h, 0x000F, (6, 0)),
+         lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
+         == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
+-        lambda h, sel: sel == [],
++        lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
++        == [(FIRST, OUT0_DECLARED_SPLIT), (SECOND, OUT0_DECLARED_SPLIT), (FIRST, OUT0_WITHDRAWN),
++            (SECOND, OUT0_WITHDRAWN)],
+         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
+-        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
++        "PROBE_TX, stream_dest_mac 91e0f0000100, and as it withdraws",
++        "the same notices at the same changes, the declared ones with stream_dest_mac 000000000000", shown_aecp,
++        SPLIT_DEST_MAC, "#665 (a split datapath defect; no issue owns it yet)"),
+     Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
+         lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
+         lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+diff --git a/tb/verilator/milan_dp/twin_plants.py b/tb/verilator/milan_dp/twin_plants.py
+index 2b9779cd48..5c26ff2f70 100644
+--- a/tb/verilator/milan_dp/twin_plants.py
++++ b/tb/verilator/milan_dp/twin_plants.py
+@@ -10,6 +10,8 @@ the all-fabric half's: an owed defect of the fabric gone is planted where the fi
+ 
+ Each plant names the grade or row it is the plant of:
+   * uncovered-field, vanished-owed: a difference no row covers, and an owed difference gone (OWED);
++  * output-notice-dropped: the split's STREAM_OUTPUT 0 notices dropped (#936), which the owed row's exact values
++    refuse;
+   * command-byte: the entity's own commands are still byte-compared, sequence_id aside;
+   * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
+   * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
+@@ -87,17 +89,34 @@ def plant_uncovered_field(fabric: dict, split: dict) -> dict:
+     raise SystemExit("plant uncovered-field: no GET_STREAM_INFO notice of STREAM_INPUT 0 to plant")
+ 
+ 
+-def plant_vanished_owed(fabric: dict, split: dict) -> dict:
+-    """An owed difference gone: the split capture carries the fabric's GET_STREAM_INFO notices of
+-    STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
+-    owed = [e for e in fabric["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
++def output_notices(doc: dict) -> list[dict]:
++    """A capture's GET_STREAM_INFO notices of STREAM_OUTPUT 0, in send order."""
++    return [e for e in doc["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
+             and (f.command, f.descriptor) == (0x000F, (6, 0))]
+-    if not owed:
+-        raise SystemExit("plant vanished-owed: the fabric capture has no STREAM_OUTPUT 0 notice to copy")
+-    split["frames"] = sorted(split["frames"] + owed, key=lambda e: e["ms"])
++
++
++def plant_vanished_owed(fabric: dict, split: dict) -> dict:
++    """An owed difference gone: the split capture's GET_STREAM_INFO notices of STREAM_OUTPUT 0 replaced by the
++    fabric's, each at its own millisecond, as the lane that fixes the split's stream_dest_mac would send them."""
++    owed = output_notices(fabric)
++    if not owed or not output_notices(split):
++        raise SystemExit("plant vanished-owed: a capture has no STREAM_OUTPUT 0 notice to replace")
++    kept = [e for e in split["frames"] if not any(e is x for x in output_notices(split))]
++    split["frames"] = sorted(kept + owed, key=lambda e: e["ms"])
+     return planted(split, "vanished-owed")
+ 
+ 
++def plant_output_notice_dropped(fabric: dict, split: dict) -> dict:
++    """#936's defect back: the split capture with no GET_STREAM_INFO notice of STREAM_OUTPUT 0, as the split sent
++    none when its Talker declared and withdrew."""
++    del fabric
++    dropped = output_notices(split)
++    if not dropped:
++        raise SystemExit("plant output-notice-dropped: the split capture has no STREAM_OUTPUT 0 notice to drop")
++    split["frames"] = [e for e in split["frames"] if not any(e is x for x in dropped)]
++    return planted(split, "output-notice-dropped")
++
++
+ def controller_available(doc: dict, to: int) -> list[dict]:
+     """The split's CONTROLLER_AVAILABLE commands to one controller, in send order."""
+     return [e for e in doc["frames"] if (f := aecp_doc_frame(e)) and f.message_type == 0 and f.command == 0x0003
+@@ -372,6 +391,7 @@ Plant = Callable[[dict, dict], dict]
+ #: the plants of the split half's capture (--make-plant writes the planted split capture)
+ SPLIT_PLANTS: dict[str, Plant] = {
+     "uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed,
++    "output-notice-dropped": plant_output_notice_dropped,
+     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
+     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
+     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,

@@ -1,0 +1,134 @@
+Original file: <scratch>/budget/final/base-70f4056f/vd-8x8-1if/results.json
+Original size: 47995 bytes
+Original sha256: ec909cf27e4bc85d7297f15eeb0cfa206bf876c31cdb97930ee9801e17280b6c
+A summary of the file (its point, counts, refusals, misses and every path's worst instance); the original is kept in scratch.
+
+{
+ "point": "8x8-1if",
+ "build": "fa8f45451bb35875570e4ec8aef76562be49a74daff257ef5866fa20777bcb93",
+ "counts": {
+  "paths": 10,
+  "path_misses": 0,
+  "instances": 19,
+  "instance_misses": 0
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "composed_maximum": null,
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 0,
+  "within_budget": 0,
+  "longest": null
+ },
+ "paths": [
+  {
+   "path": "srp.talker_declare.s0",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s0.if0",
+   "worst_ms": 0.67639,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s1",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s1.if0",
+   "worst_ms": 186.0287,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s2",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s2.if0",
+   "worst_ms": 189.42596,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s3",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s3.if0",
+   "worst_ms": 189.39911,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s4",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s4.if0",
+   "worst_ms": 179.61231,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s5",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s5.if0",
+   "worst_ms": 9.26237,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s6",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s6.if0",
+   "worst_ms": 189.17813,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s7",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s7.if0",
+   "worst_ms": 189.38728,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_declare.s8",
+   "interface": 0,
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "instances": 2,
+   "misses": 0,
+   "worst_probe": "srp.talker_declare.s8.if0",
+   "worst_ms": 189.26111,
+   "budget_ms": 220.0
+  },
+  {
+   "path": "srp.talker_loss",
+   "interface": 0,
+   "row": "range lost -> Talker Leave (JoinTime wait)",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "srp.talker_loss.if0",
+   "worst_ms": 189.68843,
+   "budget_ms": 220.0
+  }
+ ]
+}

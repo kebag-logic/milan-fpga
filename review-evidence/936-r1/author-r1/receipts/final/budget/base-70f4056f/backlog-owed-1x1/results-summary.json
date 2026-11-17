@@ -1,0 +1,181 @@
+Original file: <scratch>/budget/final/base-70f4056f/backlog-owed-1x1/results.json
+Original size: 41513 bytes
+Original sha256: 3194f933d3fc26a781ce61fefdeaa04ac50aee062c7f13e5c002d93a163ff905
+A summary of the file (its point, counts, refusals, misses and every path's worst instance); the original is kept in scratch.
+
+{
+ "point": "1x1",
+ "build": "6ebb72e83438a024feb8142b89fa5eb03fee1716b7744eb4b2407a057a3827f8",
+ "counts": {
+  "paths": 12,
+  "path_misses": 4,
+  "instances": 15,
+  "instance_misses": 7
+ },
+ "refusals": [],
+ "misses": [
+  "backlog.owed.if0: 62.905 ms over its budget 20 ms",
+  "backlog.owed_behind0.if0: 63.092 ms over its budget 20 ms",
+  "backlog.owed_behind1.if0: 63.280 ms over its budget 20 ms",
+  "backlog.owed_behind2.if0: 63.466 ms over its budget 20 ms",
+  "backlog.owed_behind3.if0: 63.652 ms over its budget 20 ms",
+  "backlog-owed.service.acmp.last.if0: 62.002 ms over its budget 20 ms",
+  "backlog-owed.service.aecp.last.if0: 61.736 ms over its budget 20 ms"
+ ],
+ "share_misses": [],
+ "save_misses": [],
+ "notice_misses": [],
+ "composed_maximum": {
+  "cycles": 149154,
+  "ms": 1.49154,
+  "group": "backlog-owed",
+  "windows": 1,
+  "rows": 4,
+  "not_run": [
+   "backlog",
+   "backlog-adp",
+   "backlog-adp-refill"
+  ],
+  "partial": true,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 149154,
+   "ms": 1.49154,
+   "group": "backlog-owed"
+  }
+ },
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "notices": {
+  "count": 0,
+  "within_budget": 0,
+  "longest": null
+ },
+ "paths": [
+  {
+   "path": "backlog.owed",
+   "interface": 0,
+   "row": "a response with 7 frames owed ahead of it",
+   "instances": 1,
+   "misses": 1,
+   "worst_probe": "backlog.owed.if0",
+   "worst_ms": 62.90483,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "backlog.owed_behind",
+   "interface": 0,
+   "row": "an ACMP command behind the owed input",
+   "instances": 4,
+   "misses": 4,
+   "worst_probe": "backlog.owed_behind3.if0",
+   "worst_ms": 63.65221,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.acmp.first",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, first",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.acmp.first.if0",
+   "worst_ms": 1.55889,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.acmp.last",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, last",
+   "instances": 1,
+   "misses": 1,
+   "worst_probe": "backlog-owed.service.acmp.last.if0",
+   "worst_ms": 62.00208,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.adp.first",
+   "interface": 0,
+   "row": "ADP record released under the composed load, first",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.adp.first.if0",
+   "worst_ms": 1.60211,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.adp.last",
+   "interface": 0,
+   "row": "ADP record released under the composed load, last",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.adp.last.if0",
+   "worst_ms": 2.46865,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.aecp.first",
+   "interface": 0,
+   "row": "AECP record released under the composed load, first",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.aecp.first.if0",
+   "worst_ms": 1.59529,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.aecp.last",
+   "interface": 0,
+   "row": "AECP record released under the composed load, last",
+   "instances": 1,
+   "misses": 1,
+   "worst_probe": "backlog-owed.service.aecp.last.if0",
+   "worst_ms": 61.73581,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.maap.first",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, first",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.maap.first.if0",
+   "worst_ms": 1.58473,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.maap.last",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, last",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.maap.last.if0",
+   "worst_ms": 2.45347,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.srp.first",
+   "interface": 0,
+   "row": "SRP record released under the composed load, first",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.srp.first.if0",
+   "worst_ms": 3.31191,
+   "budget_ms": 20.0
+  },
+  {
+   "path": "service.srp.last",
+   "interface": 0,
+   "row": "SRP record released under the composed load, last",
+   "instances": 1,
+   "misses": 0,
+   "worst_probe": "backlog-owed.service.srp.last.if0",
+   "worst_ms": 8.26591,
+   "budget_ms": 20.0
+  }
+ ]
+}
