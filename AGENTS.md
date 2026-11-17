@@ -301,6 +301,7 @@ Re-review it only when its own change changes.
 
 **A composition review has a narrow diff.**
 It covers the conflict resolutions, the composition fixes and the composed measurements.
+
 State lens coverage as usual, at the composition head.
 Cover a lens that no resolution touches by naming the clean merges.
 
@@ -399,8 +400,10 @@ A task is complete only when:
 
   **In a composed batch, each member's ledger stays banked at its frozen head.**
   Another member's commits are covered by that member's own ledger.
+
   Only the conflict resolutions and the composition fixes are new change.
   The composition review's ledger covers those, at the composition head.
+
   Interactions that merge without conflict are checked by the batch candidate, not by review.
   [Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513) records this.
 

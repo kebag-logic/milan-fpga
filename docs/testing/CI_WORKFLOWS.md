@@ -272,8 +272,10 @@ An unknown push base retains the full tracked-file fallback.
 
 Merge validation gates the composed tree before every merge into the base.
 Its candidate on the live base runs builder and full native banks.
+
 A batch merges once, so one candidate covers all its members.
 [CONTRIBUTING.md section 2.3](../../CONTRIBUTING.md#23-batched-merges) defines that path.
+
 Those banks catch interactions with intervening base changes.
 Scope selection therefore need not charge those changes to PRs.
 The hosted required contexts and merge validation remain mandatory.
