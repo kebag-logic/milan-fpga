@@ -344,10 +344,13 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
 
 // #936: a probe's declaration and its expiry's withdrawal each reach the composition as the source's STREAM_OUTPUT
 // notice (Milan v1.2 5.4.5.2, Table 5.22): the SRP delivery takes SRP's record into the application's, once each, and
-// the probe window's periodic declarations notice nothing.
+// the probe window's periodic declarations notice nothing. The application is composed over a record an earlier
+// composition left (ctrl_app.h: recompose before attaching another SRP instance), which the attach clears.
 TEST_F(SrpGate, F936AProbeAndItsExpiryEachNoticeTheSource) {
+    app.srp_noticed = ~0u;
     compose();
-    EXPECT_EQ(app.srp_noticed, 0u) << "no source is noticed before its Talker is declared";
+    EXPECT_EQ(app.srp_noticed, 0u) << "an attached SRP instance starts with no record, and no source is noticed before "
+                                      "its Talker is declared";
     probe();
     run(300u);
     ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";

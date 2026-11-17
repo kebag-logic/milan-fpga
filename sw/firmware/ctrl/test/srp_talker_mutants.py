@@ -18,7 +18,8 @@ source's SRC_SID before its DA_GATE bit first opens, each word in its own regist
 read from the source port, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO). Each change of a source's
 declaration its STREAM_OUTPUT shows is noticed for its GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22):
 a declaration, a withdrawal, a type swapped in place (only once made) and an adopted Domain's other VID, and nothing
-else, a reset that declares an unchanged source again included; the SRP delivery takes the record (ctrl_app_srp.c).
+else, a reset that declares an unchanged source again included; the SRP delivery takes the record and an attach
+starts with none (ctrl_app_srp.c).
 """
 from __future__ import annotations
 
@@ -87,6 +88,9 @@ MOVED = "    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_a
 VID_MOVED = "    if (i->domain.vid != i->shown_vid) {\n        moved |= kept;\n    }\n"
 ADVERTISE = ("        if (i->admitted[n]) {\n            used += slope;\n            advertise |= bit;\n"
              "        }\n")
+#: the attach's clear of the record an earlier composition left (#936), as ctrl_app_srp.c holds it.
+ATTACH_CLEARS = ("        // a recomposed application keeps no record of the SRP instance it attached before (#936)\n"
+                 "        app->srp_noticed = 0u;\n")
 #: the SRP delivery's take of each interface's record (#936), as ctrl_app_srp.c holds it.
 TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n"
         "        app->srp_noticed |= app->srp->ifs[interface].noticed;\n"
@@ -265,6 +269,8 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "    withdraw_declared(i->index);\n    i->shown = 0u;\n",
           "a source a reset declares again unchanged is not noticed"),
         d("talker-notice-not-taken", TAKEN, TAKE, "", "a probe's declaration notices its source", path=APP),
+        d("talker-notice-kept-across-a-recomposition", TAKEN, ATTACH_CLEARS, "",
+          "an attached SRP instance starts with no record", path=APP),
         d("talker-notice-record-kept", TAKEN, TAKE,
           TAKE.replace("        app->srp->ifs[interface].noticed = 0u;\n", ""), "the SRP delivery takes SRP's record",
           path=APP),

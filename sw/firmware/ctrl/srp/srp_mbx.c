@@ -261,8 +261,8 @@ static void domain(struct msrp_ctx *ctx, uint8_t port, const struct msrp_domain 
 static bool declare_sources(struct srp_interface *i, unsigned how)
 {
     struct srp_mbx *m = i->owner;
-    uint64_t used = 0;
     uint32_t advertise = 0;
+    uint64_t used = 0;
     bool done = true;
     // A join rewrites the value of the attribute a registration shares (#665).
     i->stale = true;
@@ -337,6 +337,8 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     // most three quarters of a 32-bit link rate.
     (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
     (void)mbx_pub_talker_decl(i->index,i->talkers);
+    // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations
+    i->sources_owed = !done;
     // Each source whose declaration changed against what its STREAM_OUTPUT last showed is noticed (#936; Milan v1.2
     // 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): declared or withdrawn, or still declared with its type swapped or
     // on another VID (an adopted Domain's). A failed creation returns before this, so what it joined is noticed once
@@ -351,8 +353,6 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     i->shown = i->talkers;
     i->shown_advertise = advertise;
     i->shown_vid = i->domain.vid;
-    // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations
-    i->sources_owed = !done;
     return done;
 }
 

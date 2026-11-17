@@ -137,6 +137,8 @@ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp)
         channels |= 1u << MBX_CH_ACMP;
         app->srp = srp;
         memset(app->srp_requests,0,sizeof(app->srp_requests));
+        // a recomposed application keeps no record of the SRP instance it attached before (#936)
+        app->srp_noticed = 0u;
         app->acmp_owner = app->acmp.acmp.env;
         app->acmp_delivery = (struct acmp_env){app,locked,source,request,persist,changed};
         app->acmp.acmp.env = &app->acmp_delivery;

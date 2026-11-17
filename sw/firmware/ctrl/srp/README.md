@@ -258,7 +258,8 @@ source again records nothing, since the output shows the same. A failed
 creation returns before the record, so what it joined is recorded once it
 succeeds. A Talker Failed's code follows the source's allocation, which only a
 withdrawal changes. The composition's delivery poll takes `noticed` each pass
-into `ctrl_app.srp_noticed`. The AECP bridge raises each source's STREAM_OUTPUT
+into `ctrl_app.srp_noticed`, which an attach of SRP clears, so a recomposition keeps
+no earlier record. The AECP bridge raises each source's STREAM_OUTPUT
 GET_STREAM_INFO event (`aecp_changed`, type 6). The notice then takes AECP's
 own path and pacing to every registered controller (Milan v1.2 5.4.5.1).
 Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
