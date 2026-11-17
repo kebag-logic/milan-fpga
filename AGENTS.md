@@ -296,8 +296,11 @@ A review round that discovers defects is not approval of later fixes. Re-review
 the corrected commit and publish a new verdict.
 
 **A frozen PR is not re-reviewed because its base moved.**
-[CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges) freezes a PR at two positives.
+[CONTRIBUTING.md section 2.3](CONTRIBUTING.md#23-batched-merges) freezes a batch member at two positives.
 Re-review it only when its own change changes.
+
+An unbatched PR is never frozen and may merge the moving base.
+That merge is reviewed under [CONTRIBUTING.md section 2.1](CONTRIBUTING.md#21-the-issue-to-merge-lane) as new change.
 
 **A composition review has a narrow diff.**
 It covers the conflict resolutions, the composition fixes and the composed measurements.
@@ -469,6 +472,6 @@ and the lens already yielding findings is always the cheapest to run again.
   linked requirement and executable evidence.
 - Never publish private chain-of-thought; publish concise conclusions and evidence.
 - Keep commits one-line with no trailers, as required by [CONTRIBUTING.md](CONTRIBUTING.md).
-- Never merge the moving base into a frozen PR, and never re-review one for a base move.
+- Never merge the moving base into a frozen batch member, or re-review one for a base move; an unbatched PR is never frozen.
 - Never fix a batch member on its own branch after composition; fix it in the composition lane.
 - Follow candidate-merge validation and post-merge containment exactly.

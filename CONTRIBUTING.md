@@ -425,6 +425,7 @@ Two board rules that go with it:
 [Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513)
 replaces repeated sync rounds with one composition.
 It builds on the [one-candidate decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939460730).
+[Issue #940's maintainer decision](https://github.com/kebag-logic/milan-fpga/issues/940#issuecomment-6941861692) gives the reason for each detail.
 
 Section 2.1 still governs every PR up to its two positive reviews.
 This section governs how reviewed PRs reach the base branch together.
@@ -435,6 +436,7 @@ flowchart LR
     FZ --> CO[compose once<br/>in order]
     CO --> CR[one composition review]
     CR --> CA[one full candidate<br/>bench gate on the same images]
+    CR -->|finding| CO
     CA -->|finding| CO
     CA -->|clean| M[one merge]
     M --> C[containment<br/>for every member]
@@ -442,12 +444,15 @@ flowchart LR
 
 **Freeze.**
 
-- A PR with both positive reviews at its own head is frozen.
+- Freezing applies only to a PR a maintainer has named in a batch.
+- Such a PR with both positive reviews at its own head is frozen.
 - An earlier positive counts when the other reviewer covers the later delta.
 - A frozen PR takes no merge of the moving base.
 - Nobody re-reviews it because the base moved.
 - It changes only for a defect in its own change.
 - That fix is re-reviewed under section 2.1, and the PR freezes again.
+- An unbatched PR follows section 2.1 as before, and may merge the moving base.
+- That base merge is reviewed under section 2.1 as new change.
 
 **Batch.**
 
