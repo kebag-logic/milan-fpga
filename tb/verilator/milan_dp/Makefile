@@ -37,7 +37,7 @@
 #   make twin   - #665: the two-placement simulation, one stimulus on the
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
-#   make twin-plants - its twenty plants, each refused by its own words
+#   make twin-plants - its twenty-one plants, each refused by its own words
 #   make srptx  - #867: the split build's SRP transmit path at the wire, three
 #                 scenarios and two off-grid controls graded by srptx_grade.py;
 #                 srptx-plants and srptx-mutants plant each check's defect
