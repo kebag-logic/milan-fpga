@@ -1,0 +1,17 @@
+flowchart LR
+    B[Backlog] -->|scope settled,<br/>no open decision| R[Ready]
+    R -->|take it| P[In progress]
+    P --> BR[branch cut FROM the issue<br/>gh issue develop N]
+    BR --> W[work + gates green]
+    W --> PR[open the PR]
+    PR --> RV[In review<br/>multiple agents, CLEARED context]
+    RV -->|findings| W
+    W -->|fixed| RV
+    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| G[validate candidate merge result<br/>with the FULL local bar]
+    RV -->|2 positive,<br/>batched| BT[frozen, then composed once<br/>section 2.3]
+    BT -->|batch candidate clean| M
+    G -->|regression| W
+    G -->|clean| M[merge to dev]
+    M --> C[branch stops moving<br/>run containment]
+    C -->|finding| F[follow-up issue + PR]
+    C -->|clean| D[card to Done<br/>issue closed by the merge]

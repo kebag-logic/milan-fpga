@@ -1,0 +1,70 @@
+CONTRIBUTING.md:189	para	new	22	A PR merged through a [batch](#23-batched-merges) uses the batch's can
+CONTRIBUTING.md:423	para	new	3	### 2.3 Batched merges
+CONTRIBUTING.md:425	para	new	16	[Issue #665's decision](https://github.com/kebag-logic/milan-fpga/issu
+CONTRIBUTING.md:429	para	new	23	Section 2.1 still governs every PR up to its two positive reviews.
+CONTRIBUTING.md:443	para	new	1	**Freeze.**
+CONTRIBUTING.md:445	bullet	new	12	- A PR with both positive reviews at its own head is frozen.
+CONTRIBUTING.md:446	bullet	new	12	- An earlier positive counts when the other reviewer covers the later 
+CONTRIBUTING.md:447	bullet	new	10	- A frozen PR takes no merge of the moving base.
+CONTRIBUTING.md:448	bullet	new	7	- Nobody re-reviews it because the base moved.
+CONTRIBUTING.md:449	bullet	new	10	- It changes only for a defect in its own change.
+CONTRIBUTING.md:450	bullet	new	12	- That fix is re-reviewed under section 2.1, and the PR freezes again.
+CONTRIBUTING.md:452	para	new	1	**Batch.**
+CONTRIBUTING.md:454	bullet	new	12	- A maintainer names the members and their order on a public Issue.
+CONTRIBUTING.md:455	bullet	new	12	- A batch normally holds four to eight frozen PRs from one area.
+CONTRIBUTING.md:456	bullet	new	10	- Order follows dependencies first, then the time each PR froze.
+CONTRIBUTING.md:458	para	new	2	**Compose once.**
+CONTRIBUTING.md:460	bullet	new	12	- One composition lane owns one branch, cut from the live base tip.
+CONTRIBUTING.md:461	bullet	new	11	- It merges each member head in order, one `--no-ff` merge each.
+CONTRIBUTING.md:462	bullet	new	6	- It resolves every conflict there, once.
+CONTRIBUTING.md:463	bullet	new	7	- It never pushes to a member's branch.
+CONTRIBUTING.md:464	bullet	new	11	- It repeats every measurement a member reported, on the composed imag
+CONTRIBUTING.md:465	bullet	new	6	- It fixes only what composition breaks.
+CONTRIBUTING.md:466	bullet	new	12	- It opens one PR and lists the conflicted paths of each merge.
+CONTRIBUTING.md:468	para	new	2	**Check once.**
+CONTRIBUTING.md:470	bullet	new	11	- The internal and the external reviewer each publish one composition 
+CONTRIBUTING.md:471	bullet	new	13	- Their review covers the conflict resolutions, the composition fixes 
+CONTRIBUTING.md:472	bullet	new	9	- `git show --remerge-diff <merge>` shows one merge's resolution exact
+CONTRIBUTING.md:473	bullet	new	9	- The review does not reopen a member's own change.
+CONTRIBUTING.md:474	bullet	new	9	- One full candidate runs on the final composed tree.
+CONTRIBUTING.md:475	bullet	new	10	- It runs the builder bank and the full native bank.
+CONTRIBUTING.md:476	bullet	new	10	- Any bench gate runs on the images that candidate built.
+CONTRIBUTING.md:477	bullet	new	10	- The intermediate merges get no full candidate of their own.
+CONTRIBUTING.md:479	para	new	2	**Merge once.**
+CONTRIBUTING.md:481	bullet	new	14	- No review round may be in flight on a member or on the composition.
+CONTRIBUTING.md:482	bullet	new	11	- The composition PR meets the protected merge bar like any PR.
+CONTRIBUTING.md:483	bullet	new	12	- The composed tree must descend from the base tip at merge time.
+CONTRIBUTING.md:484	bullet	new	12	- If the base moved, merge it in and run the candidate again.
+CONTRIBUTING.md:485	bullet	new	6	- A maintainer authorizes the one merge.
+CONTRIBUTING.md:486	bullet	new	11	- It is a merge commit, never a squash or a rebase.
+CONTRIBUTING.md:487	bullet	new	10	- Each member head is then an ancestor of the base.
+CONTRIBUTING.md:488	bullet	new	7	- GitHub therefore marks each member PR merged.
+CONTRIBUTING.md:489	bullet	new	10	- Run step 7's containment and review-integrity checks for every membe
+CONTRIBUTING.md:491	para	new	3	**Findings after composition.**
+CONTRIBUTING.md:493	bullet	new	12	- Fix the finding on the composition branch, not on the member's branc
+CONTRIBUTING.md:494	bullet	new	6	- The composition review covers that fix.
+CONTRIBUTING.md:495	bullet	new	6	- Allow one fix round per finding.
+CONTRIBUTING.md:496	bullet	new	10	- If it fails, drop the PR that carries the finding.
+CONTRIBUTING.md:497	bullet	new	13	- To find that PR, rerun only the failing units along the ordered merg
+CONTRIBUTING.md:498	bullet	new	10	- Rebuild the composition without it, then rerun the full candidate.
+CONTRIBUTING.md:499	bullet	new	8	- Resolutions changed by the rebuild are reviewed again.
+CONTRIBUTING.md:500	bullet	new	12	- A dropped PR returns to section 2.1, then joins a later batch.
+CONTRIBUTING.md:502	para	new	2	**Not batched.**
+CONTRIBUTING.md:504	bullet	new	8	- An urgent single fix follows section 2.1 alone.
+CONTRIBUTING.md:505	bullet	new	7	- So does a change to shared infrastructure.
+CONTRIBUTING.md:506	bullet	new	10	- That means gate tooling, harness grading and the mailbox contract.
+CONTRIBUTING.md:507	bullet	new	11	- Such a change merges and settles before a batch is composed.
+CONTRIBUTING.md:508	bullet	new	11	- Settled means clean containment and green hosted gates on the base.
+CONTRIBUTING.md:509	bullet	new	13	- While a batch candidate runs, only an urgent fix may move the base.
+AGENTS.md:298	para	new	27	**A frozen PR is not re-reviewed because its base moved.**
+AGENTS.md:302	para	new	19	**A composition review has a narrow diff.**
+AGENTS.md:305	para	new	21	State lens coverage as usual, at the composition head.
+AGENTS.md:401	para	new	23	**In a composed batch, each member's ledger stays banked at its frozen
+AGENTS.md:404	para	new	21	Only the conflict resolutions and the composition fixes are new change
+AGENTS.md:407	para	new	19	Interactions that merge without conflict are checked by the batch cand
+AGENTS.md:433	bullet	new	18	- the candidate merge result is validated, or for a batched PR the bat
+AGENTS.md:472	bullet	new	17	- Never merge the moving base into a frozen PR, and never re-review on
+AGENTS.md:473	bullet	new	17	- Never fix a batch member on its own branch after composition; fix it
+docs/testing/CI_WORKFLOWS.md:273	para	new	24	Merge validation gates the composed tree before every merge into the b
+docs/testing/CI_WORKFLOWS.md:276	para	new	17	A batch merges once, so one candidate covers all its members.
+max words in a wholly new block: 27

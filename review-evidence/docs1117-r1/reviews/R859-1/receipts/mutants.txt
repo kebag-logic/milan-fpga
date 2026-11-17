@@ -1,0 +1,8 @@
+M1-agents-fragment | scripts/gen_toc.py --verify-anchors | rc=1 |   MISS AGENTS.md -> CONTRIBUTING.md#23-batched-mergez
+M2-ci-fragment | scripts/gen_toc.py --verify-anchors | rc=1 |   MISS docs/testing/CI_WORKFLOWS.md -> ../../CONTRIBUTING.md#23-batched-mergez
+M3-ci-path | scripts/docs_check.py | rc=1 | docs/testing/CI_WORKFLOWS.md:277: broken link -> ../CONTRIBUTING.md
+M4-contrib-same-page | scripts/gen_toc.py --verify-anchors | rc=0 | 
+M4-contrib-same-page | scripts/docs_check.py | rc=0 | docs_check: 0 finding(s) across 215 md files + 1706 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+M5-heading-renamed | scripts/gen_toc.py --verify-anchors | rc=1 |   MISS AGENTS.md -> CONTRIBUTING.md#23-batched-merges
+M6-em-dash-added (committed probe) | scripts/check_em_dash.py --base 6b66f66d | rc=1 | AGENTS.md:300: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+NOTE M4 is the known same-page-anchor gap tracked by #941; M6 must be committed because check_em_dash judges base..HEAD.
