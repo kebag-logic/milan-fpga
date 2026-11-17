@@ -1,0 +1,12 @@
+634a635,636
+> static uint32_t probe_defer[NVM_WORDS];
+> 
+666a669
+> 		{ unsigned int i, k; for (i = 0; i < NVM_WORDS; ++i) for (k = 0; k < 32u; ++k) if (probe_defer[i] & (1u << k)) nvm_open_set(&nvm.dirty, i * 32u + k); for (i = 0; i < NVM_WORDS; ++i) probe_defer[i] = 0; }
+939a943,948
+> 	if (nvm.st.phase == NVM_P_CAPTURE && nvm.rewound && !nvm_bit(&nvm.inflight, id)) {
+> 		probe_defer[id >> 5] |= 1u << (id & 31u);
+> 		nvm.next_now = 1;
+> 		nvm_publish();
+> 		return;
+> 	}

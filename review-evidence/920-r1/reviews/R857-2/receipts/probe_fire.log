@@ -1,0 +1,9 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+endstation_arty_current      clock=83333000 Hz
+  [FAIL] Ports/NvmBoth.capture_joins/model: crashed on signal 4
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 77   failures: 1 ==
+  RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 77 checks, exit -4)
+  rv32 at 83333000 Hz: text=14316 data=24 bss=3662 stage=2610 payload=66 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+FINDING: endstation_arty_current: suite failed
