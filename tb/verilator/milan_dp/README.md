@@ -1379,7 +1379,7 @@ a finding too: the lane that fixes it deletes the row.
 
 | Row | Fabric | Split | Owed to |
 |---|---|---|---|
-| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #665 (no issue owns it yet) |
+| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #943 |
 | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
 | `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
 

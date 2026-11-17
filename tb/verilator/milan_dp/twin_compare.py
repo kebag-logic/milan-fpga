@@ -485,7 +485,7 @@ OWED = (
         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
         "PROBE_TX, stream_dest_mac 91e0f0000100, and as it withdraws",
         "the same notices at the same changes, the declared ones with stream_dest_mac 000000000000", shown_aecp,
-        SPLIT_DEST_MAC, "#665 (a split datapath defect; no issue owns it yet)"),
+        SPLIT_DEST_MAC, "#943"),
     Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
         lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
         lambda h, sel: [(k, td.run_length(v)) for k, v in sel]

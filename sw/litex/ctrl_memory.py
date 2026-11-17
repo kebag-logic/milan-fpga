@@ -244,8 +244,9 @@ class Ledgered:
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
 #: 60.0, its entry at 59.5, which the owner's decision of 2026-11-15 (#665, block RAM kept loose: an image past its
-#: entry raises it at the next half tile as debt owed to S14) raises #894's 59.0 to for the harness's arm (#936),
-#: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
+#: entry raises it at the next half tile as debt owed to the cold-code and descriptor move to QSPI (#665 decision
+#: D3)) raises #894's 59.0 to for the harness's arm (#936), and the platform's at 61.0, its entry at 60.5, the
+#: owner's decision's cap (#665), which #895's ruling of
 #: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, as #665's ruling of 2026-11-12
 #: ledgered the size fixture's at its cap. The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
