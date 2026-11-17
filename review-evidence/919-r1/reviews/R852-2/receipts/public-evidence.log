@@ -1,0 +1,256 @@
+Public author receipts; not reviewer or manager full-bank executions
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/boot/boot-1x1-1a1e6665.log
+sha256 dc7a0b70d4e4eef5407be879b8125a393531af711732c29b3c87823311d6409e
+head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 dirty 0
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+PHY 59 frames, 10 publications; the longest frame 14537 bus cycles (14537 CPU cycles, 145.37 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.041 to 125.389 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.231 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+ctrl_split_boot: PASS (0 finding(s))
+elapsed=203s rc=0
+rc=0
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/boot/boot-8x8-1a1e6665.log
+sha256 7d1814a575e8624f245da7e011551c773ed8e354ed37c852bf7f1a1651279986
+head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 dirty 0
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+PHY 59 frames, 10 publications; the longest frame 14545 bus cycles (14545 CPU cycles, 145.45 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.103 to 125.557 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.515 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+ctrl_split_boot: PASS (0 finding(s))
+elapsed=210s rc=0
+rc=0
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/boot/boot-self-test-1a1e6665.log
+sha256 630cb4cb76709614432727d00b84c9dd7f3d3c3e55874d001a0bf08247771864
+head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 dirty 0
+NATIVE-CONTROL native-passes: as required (run PASS, regrade PASS; required PASS, PASS); findings: [] / []
+NATIVE-CONTROL native-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1'] / ['NATIVE: the model exited 1']
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-incomplete: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model printed no tally: it did not complete']
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-status-not-saved: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings: [] / ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+ctrl_split_boot native controls: 6 of 6 as required
+PLANT flash-window-cached: caught (the export is refused: its flash window's regions)
+PLANT csr-write-skipped: caught (TRACE; the run completed); findings: ["TRACE: [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000001'), ('0x608', '0x20000ff'), ('0x60c', '0x935893e1'), ('0x610', '0x1bc5c1'), ('0x108', '0x2'), ('0x10c', '0x100'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x680', '0x13'), ('0x6cc', '0x201'), ('0x750', '0x3'), ('0x654', '0x20000'), ('0x750', '0x2'), ('0x6cc', '0x200'), ('0x654', '0x20000')] != [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000001'), ('0x608', '0x20000ff'), ('0x60c', '0x935893e1'), ('0x610', '0x1bc5c1'), ('0x108', '0x2'), ('0x10c', '0x100'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x201'), ('0x750', '0x3'), ('0x654', '0x20000'), ('0x750', '0x2'), ('0x6cc', '0x200')]"]
+PLANT phy-unpublished: caught (PHY; the run completed); findings: ['PHY: 71 MDIO frame(s) and 0 publication(s): the PHY is not polled']
+PLANT phy-loss-not-latched: caught (PHY; the run completed); findings: ['PHY: a step of the script waited past its limit for the publication it needs', 'PHY: a loss latched between two polls is not published down, then up, by the next poll: [[13]]', 'PHY: a loss is not published down by the next poll: [[0]]', 'PHY: after the 1 losses the advertisement was written [[]], not [(9, 512), (4, 1)] after each, with no restart']
+PLANT phy-unadvertised: caught (PHY; the run completed); findings: ['PHY: after the 2 losses the advertisement was written [[(9, 512), (4, 1)], []], not [(9, 512), (4, 1)] after each, with no restart']
+PLANT console-blocks: caught (UART; the run completed); findings: ['UART: milan_status holds the loop past its bound (548.443 / 1.026 / 540.671 ms)', "PHY: the boot's poll published [[0]], not link down a miss, then the PHY's 1000BASE-T full duplex (13)", 'PHY: polls 12507058 to 54204474 bus cycles apart, not every CTRL_PLAT_PHY_POLL_US within 250 ms']
+PLANT guard-removed: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+PLANT deviations-empty: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+ctrl_split_boot placement controls: 8 of 8 as required
+elapsed=1353s rc=0
+rc=0
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/boot/plat-ledger-self-test-1a1e6665.log
+sha256 c91317eb4a6b568037c94ceda24f635ceef56f8e88b10bf9f010534b863071f8
+head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 dirty 0
+plat_ledger controls: 8 of 8 as required
+POINT 1x1-if1: rom 119,500 B, sram 56,288 B, 43.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 17600 B: PASS
+POINT 1x1-if2: rom 121,084 B, sram 58,464 B, 44.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19136 B: PASS
+POINT 8x8-if1: rom 132,204 B, sram 97,392 B, 56.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 18240 B: PASS
+POINT 8x8-if2: rom 133,772 B, sram 114,352 B, 61 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 20416 B: PASS
+plat_ledger: PASS (0 finding(s))
+elapsed=51s rc=0
+rc=0
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/workflows/logs/rtl-fast__firmware-control-mutants__ci_step_9.log
+sha256 921bda00799b9073fbb83d4467e2081e92690a1dee8faaaf5ccf300937296428
+# head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 workflow rtl-fast.yml job firmware-control-mutants step ci_step_9: Run the control mutation campaign
+[ok] mutant plat-phy-never-armed (platboot1): 15 check(s) failed
+[ok] mutant plat-phy-loss-not-latched (platboot1, platboot1): 16 check(s) failed
+[ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 46 check(s) failed
+[ok] mutant plat-phy-cease-not-ended (platboot1, platboot1): 24 check(s) failed
+[ok] mutant plat-phy-unguarded (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-refused-stage-unpolled (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-store-owed-dropped (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-after-an-idle-step-refused (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-probe-scans (platboot1): 11 check(s) failed
+[ok] mutant plat-phy-late-sample (platboot1): 109 check(s) failed
+[ok] mutant plat-phy-unpaced (platboot1, platboot1): 14 check(s) failed
+[ok] mutant plat-phy-wrap-unsafe (platboot1): 4 check(s) failed
+[ok] mutant plat-phy-common-mode-misread (platboot1): 7 check(s) failed
+[ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-ack-ignored (platboot1): 7 check(s) failed
+[ok] mutant plat-phy-turnaround-driven (platboot1): 16 check(s) failed
+[ok] mutant plat-phy-no-deadline (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-not-owed (platboot1): 166 check(s) failed
+[ok] mutant plat-phy-half-period-short (platboot1): 4 check(s) failed
+[ok] mutant plat-phy-timed-run-ignored (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-timed-resolution-ignored (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-100base-tx-advertised (platboot1): 48 check(s) failed
+[ok] mutant plat-phy-10base-t-advertised (platboot1): 42 check(s) failed
+[ok] mutant plat-phy-reserved-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-half-duplex-advertised (platboot1): 39 check(s) failed
+[ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-test-mode-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-not-restarted (platboot1): 48 check(s) failed
+[ok] mutant plat-phy-reset-kept (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-boot-restart-dropped (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-write-released (platboot1): 14 check(s) failed
+[ok] mutant plat-phy-mii-written (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-10-100-written (platboot1): 10 check(s) failed
+[ok] mutant plat-phy-advertised-once (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-restart-every-loss (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-reset-phy-not-restarted (platboot1): 21 check(s) failed
+[ok] mutant plat-phy-lost-local-not-restarted (platboot1): 11 check(s) failed
+[ok] mutant plat-phy-lost-gig-not-restarted (platboot1): 9 check(s) failed
+[ok] mutant plat-phy-restarted-before-verified (platboot1, platboot1): 36 check(s) failed
+[ok] mutant plat-phy-advertisement-unverified (platboot1): 22 check(s) failed
+[ok] mutant plat-phy-written-before-read (platboot1): 5 check(s) failed
+[ok] mutant plat-phy-outcome-unchecked (platboot1, platboot1): 42 check(s) failed
+[ok] mutant plat-phy-outcome-not-renegotiated (platboot1, platboot1): 32 check(s) failed
+[ok] mutant plat-phy-outcome-uncounted (platboot1): 10 check(s) failed
+[ok] mutant plat-phy-outcome-count-wraps (platboot1): 1 check(s) failed
+[ok] mutant plat-phy-outcome-at-gigabit (platboot1): 22 check(s) failed
+[ok] mutant plat-phy-resolved-before-restart (platboot1): 2 check(s) failed
+[ok] mutant plat-phy-outcome-on-unadvertised (platboot1): 1 check(s) failed
+mutants: 769 of 769 caught
+test_ctrl_firmware: PASS
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/workflows/logs/rtl-fast__firmware-unit__ci_step_12.log
+sha256 8108b1cc2d99f3e4dd85d14b4f711dbb39002a8b80776262c289ff8db618308e
+# head 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 workflow rtl-fast.yml job firmware-unit step ci_step_12: Hold the firmware coverage ratchet
+sw/firmware/ctrl/plat/ctrl_plat_phy.c            178/178     164/164     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/probes/r852-retry-probe-1a1e6665.log
+sha256 14db8bc5249c9a763072f8d052d712f377f87f0a87eb9ff216f18f03c70d6ad1
+RETRY-PROBE register4=0001 advertised-at-last-restart=0001 active-Mbps=0 restarts=2 owed=0 published=0
+[  PASSED  ] 37 tests.
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/probes/r852-retry-control-1a1e6665.log
+sha256 6f08a6ef2e8324a50c19a8457457b77438f761c969482afcc3a25d476a97542b
+RETRY-PROBE register4=0001 advertised-at-last-restart=0001 active-Mbps=0 restarts=1 owed=0 published=0
+[  PASSED  ] 37 tests.
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/budget/harness-image-identity-1a1e6665.txt
+sha256 0741cab639820debaede24392cd29cd5e6284c89c8edf3d740adb25491ccf69b
+tree 1a1e6665fcfd57943f2721cd3bd024eb16b0aa84 porcelain 0
+1x1 link rc=0
+1x1 ctrl_app.elf 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8; round 2's harness build and base 10684d74b0023aa7b4326a0d1d66150fe2a0b495068c5819935d5f1cb1464fc8: identical
+8x8 link rc=0
+8x8 ctrl_app.elf 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae; round 2's harness build and base 2cf4e51a33e43e2103f366385e8e5370e9fa5c6e213b9cce77b89806261560ae: identical
+tree porcelain after 0
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/measure/rom-banking.txt
+sha256 b53fc81222a277d2ffeb3612230cd4c968c621c82db90ff10b8078e587240e4f
+The platform image at each point as plat_ledger.py --self-test plans it (each point's JSON record): rom and sram
+bytes, banks and tiles at round 3's head da8a8b84 and at round 4's code head 8beada76
+== 1x1-if1
+  da8a8b84: rom 119436 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  8beada76: rom 119500 B banks [65536, 32768, 16384, 4096, 2048]; sram 56288 B banks [32768, 16384, 8192]; tiles 43.5
+  banks and tiles unchanged; rom left in its banks 1332 B
+== 1x1-if2
+  da8a8b84: rom 121020 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  8beada76: rom 121084 B banks [65536, 32768, 16384, 8192]; sram 58464 B banks [32768, 16384, 8192, 2048]; tiles 44.5
+  banks and tiles unchanged; rom left in its banks 1796 B
+== 8x8-if1
+  da8a8b84: rom 132140 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  8beada76: rom 132204 B banks [131072, 2048]; sram 97392 B banks [65536, 32768]; tiles 56.5; ledgered platform-8x8-one-interface
+  banks and tiles unchanged; rom left in its banks 916 B
+== 8x8-if2
+  da8a8b84: rom 133708 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  8beada76: rom 133772 B banks [131072, 4096]; sram 114352 B banks [65536, 32768, 16384]; tiles 61.0; ledgered platform-8x8-two-interfaces
+  banks and tiles unchanged; rom left in its banks 1396 B
+verdict: every point's ROM and SRAM banks are round 3's (and round 2's): no route repeated
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/measure/rom-per-file.txt
+sha256 876308eeae8ab9786dbf8cb9aaa4fcb26d2329ec9716ad1fb1b973e411b6aa60
+rom bytes per object, base 70f4056f (dev-soft-core) -> 8beada76, and round 4's own share, da8a8b84 -> 8beada76 (plat_ledger.py's link maps)
+== 1x1-if1 (base -> 8beada76)
+ctrl_plat.o                                  9850 ->     9910  +60
+ctrl_plat_main.o                              168 ->      180  +12
+ctrl_plat_phy.o                                 0 ->     1939  +1939
+total                                      119780 ->   121791  +2011
+-- 1x1-if1 (da8a8b84 -> 8beada76)
+ctrl_plat_phy.o                              1875 ->     1939  +64
+total                                      121727 ->   121791  +64
+== 1x1-if2 (base -> 8beada76)
+ctrl_plat.o                                  9898 ->     9962  +64
+ctrl_plat_main.o                              168 ->      180  +12
+ctrl_plat_phy.o                                 0 ->     1939  +1939
+total                                      121792 ->   123807  +2015
+-- 1x1-if2 (da8a8b84 -> 8beada76)
+ctrl_plat_phy.o                              1875 ->     1939  +64
+total                                      123743 ->   123807  +64
+== 8x8-if1 (base -> 8beada76)
+ctrl_plat.o                                 22630 ->    22690  +60
+ctrl_plat_main.o                              224 ->      236  +12
+ctrl_plat_phy.o                                 0 ->     1939  +1939
+total                                      132488 ->   134499  +2011
+-- 8x8-if1 (da8a8b84 -> 8beada76)
+ctrl_plat_phy.o                              1875 ->     1939  +64
+total                                      134435 ->   134499  +64
+== 8x8-if2 (base -> 8beada76)
+ctrl_plat.o                                 22718 ->    22786  +68
+ctrl_plat_main.o                              224 ->      236  +12
+ctrl_plat_phy.o                                 0 ->     1939  +1939
+total                                      134472 ->   136491  +2019
+-- 8x8-if2 (da8a8b84 -> 8beada76)
+ctrl_plat_phy.o                              1875 ->     1939  +64
+total                                      136427 ->   136491  +64
+
+ARTIFACT d8bc5057f25ee85a2f19bd3a4149e7919dd7465d:review-evidence/919-r1/author-r4/receipts/probes/r851-mutants-1a1e6665.txt
+sha256 0a64d7bc09328a0917a72b233aae203c93d8737319c57813ffc79938a75a4500
+R851-1's mutants.sh and an executor's copy with renamed anchors, at 1a1e6665 (round 4)
+== scripts/mutants.sh, as the review wrote it: m3, m3b and m8 anchor on names this head renamed (refused)
+anchor found 0 times
+m3: anchor refused
+anchor found 0 times
+m3b: anchor refused
+anchor found 0 times
+m8: anchor refused
+m1 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m2 rc=1 FAILED  ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+m3 rc=3 
+m3b rc=3 
+m4 rc=1 FAILED  ] PlatPhy.P4ResolvedModesAreTheReleases
+m5 rc=1 FAILED  ] PlatPhy.P7OneFrameACallWithItsRoom
+m6 rc=0 
+m7 rc=1 FAILED  ] PlatPhy.P2PollsArePaced
+m8 rc=3 
+
+== scripts/mutants_renamed.sh: the same mutants with those three anchors renamed (diff below)
+m1 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m2 rc=1 FAILED  ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+m3 rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m3b rc=1 FAILED  ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+m4 rc=1 FAILED  ] PlatPhy.P4ResolvedModesAreTheReleases
+m5 rc=1 FAILED  ] PlatPhy.P7OneFrameACallWithItsRoom
+m6 rc=0 
+m7 rc=1 FAILED  ] PlatPhy.P2PollsArePaced
+m8 rc=1 FAILED  ] PlatPhy.P3LatchedLossPublishesBothEdges
+
+== diff scripts/mutants.sh scripts/mutants_renamed.sh
+2c2,4
+< # mutants.sh: the round's disposable mutants of ctrl_plat_phy.c, each built into a copy and run against
+---
+> # mutants_renamed.sh (round 4, the executor's copy): R851-1's mutants.sh with m3's, m3b's and m8's anchors
+> # renamed to this head's names (CTRL_PLAT_PHY_ADV_BOOT -> _RENEGOTIATE, the HELD line's break, STATUS's owed test);
+> # every other line is the review's. mutants.sh: the round's disposable mutants of ctrl_plat_phy.c, each built into a copy and run against
+16c18
+< mk m3 '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only(0u, (uint32_t)phy->gig))'
+---
+> mk m3 '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only(0u, (uint32_t)phy->gig))'
+18c20
+< mk m3b '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_BOOT) == 0u && gigabit_only((uint32_t)phy->local, CTRL_PLAT_PHY_GCTRL_1000_FULL))'
+---
+> mk m3b '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig))' '((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n\t\t    gigabit_only((uint32_t)phy->local, CTRL_PLAT_PHY_GCTRL_1000_FULL))'
+29c31
+< mk m8 '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u) {' '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && phy->adv != 0u && (phy->adv & CTRL_PLAT_PHY_ADV_BOOT) != 0u) {'
+---
+> mk m8 '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u) {' '	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u && (phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) != 0u) {'
