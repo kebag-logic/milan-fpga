@@ -1,0 +1,116 @@
+compiler: riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 (the CI-pinned RV32 compiler, fw_rv32.CANDIDATES[0])
+built: ctrl_srp_image.py --with-aecp --layout split --interfaces 1, configs endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8, at 544fd72c, stand-in runtime archives (srp_mbx.c's object does not depend on them)
+== image 1x1 sha256 436764c2d64878ad46ddd3f1dcc6dbd1462b74ab6bfc85f789a16dfb5d8627fb
+-- symbols:
+00017348 t build_mrpdu
+000027b8 T mrp_transmit
+-- callers of build_mrpdu and of mrp_transmit:
+2194:    2100:	jal	17348 <build_mrpdu>
+2424:    2470:	jal	17348 <build_mrpdu>
+24751:   1738c:	jal	27b8 <mrp_transmit>
+-- build_mrpdu body:
+00017348 <build_mrpdu>:
+   17348:	addi	sp,sp,-32
+   1734c:	sw	s0,24(sp)
+   17350:	sw	s1,20(sp)
+   17354:	sw	ra,28(sp)
+   17358:	sw	a1,8(sp)
+   1735c:	andi	a5,a2,1
+   17360:	mv	s0,a0
+   17364:	mv	s1,a2
+   17368:	beqz	a5,173b4 <build_mrpdu+0x6c>
+   1736c:	lw	a0,20(a1)
+   17370:	lui	a4,0x17
+   17374:	addi	a5,sp,8
+   17378:	addi	a4,a4,956 # 173bc <send_pdu>
+   1737c:	li	a3,1500
+   17380:	addi	a2,s0,1874
+   17384:	li	a1,0
+   17388:	sw	a0,12(sp)
+   1738c:	jal	27b8 <mrp_transmit>
+   17390:	blez	a0,173a0 <build_mrpdu+0x58>
+   17394:	add	s0,s0,s1
+   17398:	li	a5,19
+   1739c:	sb	a5,321(s0)
+   173a0:	lw	ra,28(sp)
+   173a4:	lw	s0,24(sp)
+   173a8:	lw	s1,20(sp)
+   173ac:	addi	sp,sp,32
+   173b0:	ret
+   173b4:	lw	a0,16(a1)
+   173b8:	j	17370 <build_mrpdu+0x28>
+
+-- poll call site (a2 = 2*owed_if + mvrp):
+    20e8:	addi	a4,a4,1803 # ffff770b <_stack_top+0xeffe9f6b>
+    20ec:	add	a5,a5,a4
+    20f0:	seqz	a5,a5
+    20f4:	slli	a2,a2,0x1
+    20f8:	add	a2,a5,a2
+    20fc:	mv	a0,s0
+    2100:	jal	17348 <build_mrpdu>
+--
+    2458:	jal	172f4 <reclaim>
+    245c:	lbu	a5,186(s2)
+    2460:	lw	a2,4(sp)
+    2464:	beqz	a5,2474 <transmit+0x190>
+    2468:	lw	a1,0(sp)
+    246c:	mv	a0,s0
+    2470:	jal	17348 <build_mrpdu>
+== image 81 sha256 86352cdc998458be598f91adfe26daa3236499f019417823dfa04a346bf9a86e
+-- symbols:
+000172dc t build_mrpdu
+00002758 T mrp_transmit
+-- callers of build_mrpdu and of mrp_transmit:
+2193:    20fc:	jal	172dc <build_mrpdu>
+2413:    2444:	jal	172dc <build_mrpdu>
+24726:   17328:	jal	2758 <mrp_transmit>
+-- build_mrpdu body:
+000172dc <build_mrpdu>:
+   172dc:	addi	sp,sp,-32
+   172e0:	sw	s0,24(sp)
+   172e4:	sw	s1,20(sp)
+   172e8:	sw	ra,28(sp)
+   172ec:	sw	a1,8(sp)
+   172f0:	andi	a5,a2,1
+   172f4:	mv	s0,a0
+   172f8:	mv	s1,a2
+   172fc:	beqz	a5,17350 <build_mrpdu+0x74>
+   17300:	lw	a0,20(a1)
+   17304:	lui	a2,0x1
+   17308:	lui	a4,0x17
+   1730c:	addi	a2,a2,-1786 # 906 <adp_poll+0x62>
+   17310:	addi	a5,sp,8
+   17314:	addi	a4,a4,856 # 17358 <send_pdu>
+   17318:	li	a3,1500
+   1731c:	add	a2,s0,a2
+   17320:	li	a1,0
+   17324:	sw	a0,12(sp)
+   17328:	jal	2758 <mrp_transmit>
+   1732c:	blez	a0,1733c <build_mrpdu+0x60>
+   17330:	add	s0,s0,s1
+   17334:	li	a5,19
+   17338:	sb	a5,745(s0)
+   1733c:	lw	ra,28(sp)
+   17340:	lw	s0,24(sp)
+   17344:	lw	s1,20(sp)
+   17348:	addi	sp,sp,32
+   1734c:	ret
+   17350:	lw	a0,16(a1)
+   17354:	j	17304 <build_mrpdu+0x28>
+
+-- poll call site (a2 = 2*owed_if + mvrp):
+    20e4:	addi	a4,a4,1803 # ffff770b <_stack_top+0xeffdfedb>
+    20e8:	add	a5,a5,a4
+    20ec:	seqz	a5,a5
+    20f0:	slli	a2,a2,0x1
+    20f4:	add	a2,a5,a2
+    20f8:	mv	a0,s0
+    20fc:	jal	172dc <build_mrpdu>
+--
+    242c:	jal	17288 <reclaim>
+    2430:	lbu	a5,614(s1)
+    2434:	lw	a2,12(sp)
+    2438:	beqz	a5,2448 <transmit+0x190>
+    243c:	lw	a1,8(sp)
+    2440:	mv	a0,s0
+    2444:	jal	172dc <build_mrpdu>
