@@ -60,6 +60,12 @@ static bool deliver(void *ctx)
     if (app->srp->loop != &app->loop) {
         return false;
     }
+    // The sources whose Talker declaration SRP changed since this delivery last ran, each its STREAM_OUTPUT's
+    // GET_STREAM_INFO notice, which the AECP bridge raises (#936; Milan v1.2 5.4.5.2, Table 5.22)
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+        app->srp_noticed |= app->srp->ifs[interface].noticed;
+        app->srp->ifs[interface].noticed = 0u;
+    }
     // A Talker is declared while its destination is valid (#895; Milan v1.2 4.3.3.1, 5.3.7.4): the MAAP adapter's DA
     // gate, refreshed by MAAP's poll before this one, with the range MAAP holds on the interface
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {

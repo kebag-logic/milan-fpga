@@ -623,3 +623,110 @@ TEST_F(Talker, RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt) {
     EXPECT_NE(adapter.held_cs[0],0u) << "the hold-off starts at the Leave lwSRP took";
     EXPECT_FALSE(adapter.ifs[0].sources_owed) << "nothing is owed once lwSRP takes the Leave";
 }
+
+// #936: a source's STREAM_OUTPUT shows its Talker declaration (Milan v1.2 5.4.2.10.2, Table 5.11), so each change of
+// it is noticed, on the interface that declares it, for its GET_STREAM_INFO notice (Milan v1.2 5.4.5.2, Table 5.22;
+// IEEE 1722.1-2021 7.5.2). A declaration and a withdrawal are each noticed once; a report that changes nothing, and
+// the periodic declarations of a Talker already declared, notice nothing.
+TEST_F(Talker, DeclarationAndWithdrawalAreNoticed) {
+    settle(); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a source that declares nothing is not noticed";
+    }
+    gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a declaration is noticed";
+        adapter.ifs[i].noticed=0u;
+    }
+    gate(1u,kBaseA); advance(1200);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a declaration that did not change is not noticed again";
+    }
+    gate(0u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a withdrawal is noticed";
+        adapter.ifs[i].noticed=0u;
+    }
+    advance(1200);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a withdrawal is noticed once";
+    }
+}
+
+// #936: a Talker Advertise and a Talker Failed show differently (Table 5.11's MSRP_FAILURE_VALID, the failure code and
+// bridge ID), so a type its admission swaps in place is noticed, the swap that lwSRP refuses only once it is made, and
+// a Talker Failed declared or withdrawn is noticed as an Advertise is.
+TEST_F(Talker, TypeSwapIsNoticed) {
+    if (CTRL_SRP_SOURCES<2u) GTEST_SKIP();
+    srp_mbx_destroy(&adapter);
+    // three quarters of 30 Mb/s admit one source
+    config.link_rate_bps=30000000u;
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+    settle(); gate(3u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_EQ(pub_of(model,i).talker_decl,3u);
+        EXPECT_EQ(adapter.ifs[i].noticed,3u) << "a Talker Failed declared is noticed";
+        adapter.ifs[i].noticed=0u;
+    }
+    gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,2u) << "a Talker Failed withdrawn is noticed";
+        adapter.ifs[i].noticed=0u;
+    }
+    gate(3u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
+    // source 0 lapses, and source 1's swap to Advertise is refused (no storage): only the withdrawal is noticed
+    calloc_before_failure=0;
+    gate(2u,kBaseA);
+    advance(20);
+    calloc_before_failure=-1;
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_EQ(pub_of(model,i).talker_decl,2u);
+        EXPECT_EQ(adapter.ifs[i].noticed,1u) << "a swap lwSRP refuses is not noticed until it is made";
+        adapter.ifs[i].noticed=0u;
+    }
+    advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_TRUE(adapter.ifs[i].admitted[1]) << "the swap is made";
+        EXPECT_EQ(adapter.ifs[i].noticed,2u) << "a type swapped in place is noticed";
+        adapter.ifs[i].noticed=0u;
+    }
+    gate(3u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_FALSE(adapter.ifs[i].admitted[1]) << "the Advertise swaps back to Talker Failed";
+        EXPECT_EQ(adapter.ifs[i].noticed&2u,2u) << "a type swapped in place is noticed";
+    }
+}
+
+// #936: a declared Talker carries the Domain's VID, its STREAM_OUTPUT's stream_vlan_id (Table 5.11), so an adopted
+// Domain that moves the VID notices every source it declares again, on its own interface only; one that keeps the VID
+// (another priority) notices nothing, and neither notices a source not declared.
+TEST_F(Talker, AdoptedDomainVidIsNoticed) {
+    settle(); gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
+    offer(frame(4,{6,4,0,3},0)); advance(400);
+    ASSERT_EQ(adapter.ifs[0].domain.vid,3u);
+    EXPECT_EQ(adapter.ifs[0].noticed,1u) << "a declared Talker carrying another VID is noticed";
+    for (unsigned i=1;i<MBX_N_IF;++i) {
+        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a Domain adopted on one interface notices that interface's sources";
+    }
+    adapter.ifs[0].noticed=0u;
+    offer(frame(4,{6,5,0,3},0)); advance(400);
+    ASSERT_EQ(adapter.ifs[0].domain.priority,5u);
+    EXPECT_EQ(adapter.ifs[0].noticed,0u) << "a Domain that keeps the VID notices nothing";
+}
+
+// #936: a reset destroys the participants and declares an unchanged source again on the new ones, which its
+// STREAM_OUTPUT shows as it did: nothing is noticed.
+TEST_F(Talker, ResetNoticesNothingUnchanged) {
+    settle(); gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) adapter.ifs[i].noticed=0u;
+    const unsigned last=MBX_N_IF-1u;
+    const uint32_t first=model.tx_sent;
+    mbx_model_set_link(&model,last,false); settle();
+    mbx_model_set_link(&model,last,true); settle();
+    advance(400);
+    ASSERT_NE(newly(talker(last,0,first),1),nullptr) << "the reset declares the source again";
+    EXPECT_EQ(adapter.ifs[last].noticed,0u) << "a source a reset declares again unchanged is not noticed";
+}

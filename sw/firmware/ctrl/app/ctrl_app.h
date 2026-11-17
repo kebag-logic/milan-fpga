@@ -96,6 +96,9 @@ struct ctrl_app {
 	const struct acmp_env *acmp_owner;
 	struct acmp_env acmp_delivery;
 	struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
+	// The STREAM_OUTPUTs whose Talker declaration SRP changed, bit s source s (#936): the SRP delivery takes each
+	// interface's record (srp_interface.noticed), and the AECP bridge notifies each and clears it (ctrl_app_aecp.c).
+	uint32_t srp_noticed;
 	bool adp_held;                          // ctrl_app_open_held(): ADP waits for ctrl_app_release_adp()
 };
 

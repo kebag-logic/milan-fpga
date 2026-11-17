@@ -342,4 +342,26 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
     EXPECT_EQ(core()->reentries, 0u);
 }
 
+// #936: a probe's declaration and its expiry's withdrawal each reach the composition as the source's STREAM_OUTPUT
+// notice (Milan v1.2 5.4.5.2, Table 5.22): the SRP delivery takes SRP's record into the application's, once each, and
+// the probe window's periodic declarations notice nothing.
+TEST_F(SrpGate, F936AProbeAndItsExpiryEachNoticeTheSource) {
+    compose();
+    EXPECT_EQ(app.srp_noticed, 0u) << "no source is noticed before its Talker is declared";
+    probe();
+    run(300u);
+    ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";
+    EXPECT_EQ(app.srp_noticed, 1u << source) << "a probe's declaration notices its source";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_EQ(srp_adapter.ifs[i].noticed, 0u) << "the SRP delivery takes SRP's record";
+    }
+    app.srp_noticed = 0u;
+    run(14500u);
+    EXPECT_EQ(app.srp_noticed, 0u) << "the probe window's periodic declarations notice nothing";
+    run(500u);
+    ASSERT_FALSE(declared(interface)) << "the probe's 15 s expiry withdraws the Talker";
+    EXPECT_EQ(app.srp_noticed, 1u << source) << "the probe's expiry notices its source";
+    EXPECT_EQ(core()->reentries, 0u);
+}
+
 }  // namespace

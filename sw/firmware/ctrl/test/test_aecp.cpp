@@ -746,6 +746,41 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
     auto rx=application.loop.rx[MBX_CH_SRP];application.loop.rx[MBX_CH_SRP].fn=nullptr;
     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
 }
+
+// #936: SRP's record of a source whose Talker declaration changed is its STREAM_OUTPUT's GET_STREAM_INFO notice
+// (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the SRP delivery takes it and the bridge raises the
+// notice of that STREAM_OUTPUT, which every registered controller is sent once (Milan v1.2 5.4.5.1). A source the
+// record does not name, and a pass with no record, are notified nothing.
+TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);service();
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    unsigned before=fabric.tx_sent;
+    reservation.ifs[0].noticed=1u;service();
+    EXPECT_EQ(reservation.ifs[0].noticed,0u)<<"the SRP delivery takes SRP's record";
+    EXPECT_EQ(application.srp_noticed,0u)<<"the bridge raises every STREAM_OUTPUT the delivery took";
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,0,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,last,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+    before=fabric.tx_sent;service();mbx_model_advance_ms(&fabric,50);service();
+    EXPECT_EQ(notices(before,0,CTLR)+notices(before,last,CTLR),0u)<<"a pass with no record notifies nothing";
+    before=fabric.tx_sent;
+    reservation.ifs[MBX_N_IF-1u].noticed=1u<<last;service();
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,last,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+}
 #endif
 
 namespace {
