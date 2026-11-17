@@ -279,7 +279,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
                                          "(#665): an image past its entry raises it"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 61.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_480)), 61.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -296,7 +296,10 @@ LEDGERED: dict[str, Ledgered] = {
                                             "poll and its 1000BASE-T-only advertisement on that image (#919, "
                                             "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
                                             "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
-                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14"),
+                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; and the "
+
+                                            "saved-state store's name marks over layout 3's id space and its step "
+                                            "a pass (#920), ctrl_plat 128 B more and 296 B more rom"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_304)), 56.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "

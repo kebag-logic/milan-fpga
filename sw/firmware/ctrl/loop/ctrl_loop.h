@@ -132,7 +132,10 @@
 // step only when its stated cost still fits before that deadline. Otherwise
 // the step stays owed, the loop passes again at once, and the first pass
 // that takes nothing and has room takes it. An input that arrives during
-// such a pass waits for it, as for any pass running when it arrives.
+// such a pass waits for it, as for any pass running when it arrives. The
+// client may take a step in every pass the loop calls it in, not only the one
+// a centisecond owes, one a pass: the store does while a save is in flight
+// (nvm_store.h, #920).
 // Input that never leaves a pass empty would hold the step off for good, so
 // it has an age limit: once more than CTRL_LOOP_STEP_AGE centiseconds have
 // been dispatched since the step last ran or owed nothing, the next pass is

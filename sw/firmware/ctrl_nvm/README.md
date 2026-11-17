@@ -273,7 +273,13 @@ left; otherwise it stays owed, and the passes it waits through owe it once.
 Once more than two centiseconds have been dispatched since the step last ran
 or owed nothing (`CTRL_LOOP_STEP_AGE`), the next pass is the step's alone,
 before any input, so input that never leaves a pass empty still lets the store
-step once every three ticks.
+step once every three ticks. While a save is in flight, or a change it left
+waits, every pass the loop calls the step in takes one too, owed or not, one a
+pass and only with `NVM_STEP_US` left (#920; #665, the ruling of
+issuecomment-6899740728, item 1); a step not owed that finds no room owes
+nothing. On the split image `mbx_hal_wait()` returns at once, so the loop
+passes again at once and a save advances a step in every pass that takes no
+input.
 On the split CPU, through the product's uncached flash window and its command
 master, a step costs at most (CPU cycles at 100 MHz, the store's and its flash
 port's own in the step's pass, one save with no other load, arm A;
@@ -290,14 +296,16 @@ port's own in the step's pass, one save with no other load, arm A;
 
 Over every pass of every group the budget harness runs, at both points and in
 both arms, with and without the drafts, the longest step is 96,579 cycles,
-0.97 ms, a page program's issue: within the 1.0 ms of `NVM_STEP_US`.
+0.97 ms, a page program's issue: within the 1.0 ms of `NVM_STEP_US`. With
+#920's step a pass it is 78,825 cycles at 1x1/1if and 78,737 at 8x8/1if, over
+every group at each.
 
-A save at 8x8 takes 4,697 ms from the change to durable on a flash with
-no busy time, 2,018 ms at 1x1: the 1,000 ms first-dirty window, the
-seal, then 128-byte read-backs a tick for the blank check and the verify and a
-page every other tick. A real part's erase and program waits add to it. No
-deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
-the append-only design.
+A save at 1x1/1if takes 1,081.8 ms from the change to durable on a flash
+with no busy time, 1,308.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
+then its steps a pass each (2,018 ms at 1x1 and 4,697 ms at 8x8/2if when it
+took a step a tick, before #920). A real part's erase and program waits add to
+it. No deadline of this store is that figure: the owner's 0.5 s (#823) belongs
+to the append-only design.
 
 **A change's worst case.** Under input that leaves no pass empty a step comes
 at most three ticks after the one before. With no save in flight a change is
@@ -306,14 +314,16 @@ that window (the step that starts the capture, one for each changed record and
 one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
 of the blank check and of the verify, each page's issue and its wait), and
 10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
-change marked once a capture in flight has passed its record is the next
-save's, which only an idle step starts, so it waits first for the rest of the
-save in flight, at worst all its steps but two, or for its own 1,000 ms where
-that is longer. A SET_NAME of the entity, which marks both its names, is 370
-steps: 12,110 ms alone and 22,150 ms beside another's save in flight at 8x8,
-4,070 and 6,070 ms at 1x1, with no flash busy time. A part's busy time adds at
-most its erase time and its page programs': 3,260 ms a save at 8x8 and
-3,070 ms at 1x1 on the part of
+change marked during a running capture joins it; one to a record the capture
+has taken, or marked after the capture, is the next save's, which starts at
+the first idle step after the save in flight with no window, so it waits first
+for the rest of that save, at worst all its steps but two (#920). A SET_NAME of
+the entity, which marks both its names, is 382 steps at 8x8 (KLJ3's 13,584 B
+container, one interface or two): 12,470 ms alone and 22,870 ms beside
+another's save in flight, 4,070 and 6,070 ms at 1x1, with no flash busy time;
+a burst marking every name, 15,620 ms at 8x8 and 5,180 ms at 1x1. A part's busy
+time adds at most its erase time and its page programs': 3,270 ms a save at
+8x8 and 3,070 ms at 1x1 on the part of
 [section 9.4 of the fast-connect design](../../../docs/design/SAVED_STATE_FASTCONNECT.md#94-the-deadlines).
 The budget harness holds a change to it with every receive channel at its
 refill rate and a grandmaster change every pass, and a second change just after
@@ -333,8 +343,14 @@ The atomicity rules, from section 7 and the D3 register:
   covered the whole container. A power cut at any step boots the old values
   or the new ones, never a mix.
 - **DR2a.** The window opens at the first change still waiting for a
-  capture. A change the running capture has yet to reach is taken by that
-  capture and opens no window; a change it has passed opens its own.
+  capture. A change marked during a running capture joins it and opens no
+  window: one the capture has yet to reach, and one to a record no capture
+  holds, for which the capture walks again from the first record, taking only
+  such records, so it takes each record once and ends (#920). A change to a
+  record the capture has taken, or one marked after the capture, is the next
+  save's, which starts at the first idle step after the save in flight with no
+  window (#920; #665, the ruling of issuecomment-6899740728, item 1). A first
+  change keeps its 1,000 ms window.
 - **DR2c.** A failed attempt names its step (`VD_ERASE`, `VD_PROGRAM`,
   `VD_VERIFY`), keeps its records in flight and marks the claim stale. The
   captured work set gets three attempts in all, the first included. Each
@@ -412,8 +428,8 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   (option (c)).**
   - This store, the split writer F1, is not held to D5's 24.5 ms capture
     bound. It holds no owner while it captures, and a change behind its
-    cursor opens its own window (DR2a), so the hold the bound protects does
-    not exist in the split.
+    cursor joins the capture or is the next save's (DR2a), so the hold the
+    bound protects does not exist in the split.
   - Each step stays bounded by T_svc, under
     [FR_NFR 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
     as amended (20 ms, graded per family).

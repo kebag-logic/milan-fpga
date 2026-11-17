@@ -48,10 +48,53 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
     script.write_text(group.script())
     log = out / f'{group.name}.log'
     argv = [str(build_dir / 'native/Vsim'), str(script), flash]
+    # a group that grades the journal a cut leaves has the testbench write it at the script's end (save_burst.py)
+    env = dict(os.environ, BUDGET_JOURNAL_OUT=str(journal_of(out, group))) if group.save.get('journal') else None
     print('COMMAND', shlex.join(argv), flush=True)
     with log.open('w') as sink:
-        subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False)
+        subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False, env=env)
     return log
+
+
+def journal_of(out: Path, group: object) -> Path:
+    """The journal a group's run leaves, when its save asks for it (save_burst.py)."""
+    return out / f'{group.name}.journal'
+
+
+def burst_misses(results: list[dict]) -> list[str]:
+    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, and a next
+    save that waited past the first idle step (save_burst.misses), named by its group."""
+    import save_burst
+    return [m for g in results if g.get('burst') for m in save_burst.misses(g['burst'], g['group'])]
+
+
+def burst_lines(results: list[dict]) -> list[str]:
+    """One BURST line for each graded burst or change in flight: its names' worst time to durable, its target."""
+    out = []
+    for g in results:
+        b = g.get('burst')
+        if not b:
+            continue
+        worst = f"{b['worst_ms']:.3f} ms" if b['worst_ms'] is not None else 'never'
+        tail = (f", the cut's container sequence {b['cut_seq']}, {len(b['cut_missing'])} name(s) missing" if
+                b['kind'] == 'burst' else f", {b['next_steps']['steps']} steps to the next save's erase "
+                f"(want {b['next_steps']['want']})")
+        verdict = 'OVER' if save_misses_of(b, g['group']) else 'within'
+        out.append(f"BURST {g['group']}: {b['names']} name(s), the latest durable {worst} after its response (name "
+                   f"{b['worst_ordinal']}; target {b['target_ms']:,} ms), {len(b['saves'])} save(s){tail} {verdict}")
+    return out
+
+
+def print_bursts(results: list[dict]) -> None:
+    """Each burst's and change in flight's BURST line (burst_lines), as the run prints it."""
+    for line in burst_lines(results):
+        print(line)
+
+
+def save_misses_of(burst: dict, group: str) -> list[str]:
+    """save_burst.misses of one group's burst."""
+    import save_burst
+    return save_burst.misses(burst, group)
 
 
 def verdict_word(r: dict) -> str:
@@ -322,6 +365,27 @@ def save_table(results: list[dict]) -> list[str]:
     return lines
 
 
+def burst_table(results: list[dict]) -> list[str]:
+    """The bursts' and the changes in flight's section of the table (save_burst.py): each name's latest time from its
+    response to durable against the target, the saves, and the cut's container or the next save's start."""
+    rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
+    if not rows:
+        return []
+    lines = ['', 'Names from their response to durable (save_burst.py; #920, the ruling of #665 '
+             'issuecomment-6899740728, item 1):', '',
+             '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
+             'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
+    for group, b in rows:
+        worst = (f"{b['worst_ms']:.3f} ({b['worst_ordinal']})" if b['worst_ms'] is not None else
+                 f"never ({b['worst_ordinal']})")
+        end = (f"sequence {b['cut_seq']}, {len(b['cut_missing'])} missing" if b['kind'] == 'burst' else
+               f"{b['next_steps']['steps']} steps (want {b['next_steps']['want']}), {b['next_steps']['gap_ms']} ms")
+        lines.append(f"| {group} | {b['names']} | {worst} | {b['target_ms']:,} | {len(b['saves'])} | "
+                     f"{', '.join(map(str, b['never'])) or '-'} | {', '.join(map(str, b['over'])) or '-'} | {end} | "
+                     f"{'OVER' if save_misses_of(b, group) else 'within'} |")
+    return lines
+
+
 def step_table(results: list[dict]) -> list[str]:
     """The store's steps' section of the table: each group's passes that carry a step (save_grade.step_figures)."""
     rows = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
@@ -401,6 +465,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += share_table(results)
     lines += aged_table(results)
     lines += save_table(results)
+    lines += burst_table(results)
     lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
@@ -530,7 +595,8 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     for group, log in zip(groups, logs):
         refusals += unstated(group)
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape)
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape,
+                                 journal_of(out, group) if group.save.get('journal') else None)
         except grade.Refusal as error:
             refusals.append(str(error))
             continue
@@ -785,7 +851,8 @@ def main() -> int:
         print('BUDGET', line)
     for line in shares:
         print('SHARE', line)
-    late = save_misses(results)
+    late = save_misses(results) + burst_misses(results)
+    print_bursts(results)
     stepped = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
     if stepped:
         group, top = max(stepped, key=lambda r: r[1]['cycles'])

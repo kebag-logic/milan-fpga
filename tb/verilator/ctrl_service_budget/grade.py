@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import answers
 import held
@@ -41,6 +42,7 @@ import mrpdu_grade
 import poll_grade
 import round_grade
 import slice_grade
+import save_burst
 import save_grade
 import save_window
 import scenario
@@ -126,6 +128,8 @@ class Log:
     #: each run of journal reads (FLASHRD): its first and last read's cycles, its address and bytes
     reads: list[tuple[int, int, int, int]] = field(default_factory=list)
     polls: list[int] = field(default_factory=list)  # each busy poll's cycle (FLASHPOLL)
+    #: each page program's cycle, address and the bytes it left in the device (FLASHDATA; save_burst.py, #920)
+    programmed: list[tuple[int, int, bytes]] = field(default_factory=list)
     floods: list[tuple[int, int]] = field(default_factory=list)  # cycle, the grandmaster flood on or off (FLOOD)
     #: start, CPU cycles and the store's own cycles of each pass that carries the store's step and writes nothing
     #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
@@ -261,7 +265,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -892,7 +896,7 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
     the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
-    after a page and within save_window.IDLE_MS of it, which the program phase issues every other tick, or before a
+    after a page and within save_window.IDLE_MS of it, which the program phase issues every other pass, or before a
     later page, as under a flood that paces a page every other aged step (the program phase); or that long or more
     after its last page, with no later page, while its read-backs have not yet read back every programmed byte (the
     verify). Refused otherwise, so that its passes are that phase's."""
@@ -929,13 +933,21 @@ def pass_share(log: Log) -> dict:
                 idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
+def programmed(text: str) -> list[tuple[int, int, bytes]]:
+    """Each page program's cycle, address and the bytes it left in the device, from the testbench's FLASHDATA lines
+    (sim_main.cpp; save_burst.py, #920), which parse passes over."""
+    return [(int(m[1]), int(m[2], 16), bytes.fromhex(m[3]))
+            for m in re.finditer(r'^FLASHDATA (\d+) ([0-9a-fA-F]+) ([0-9a-fA-F]*)$', text, re.M)]
+
+
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2,
-          shape: shape_costs.Shape | None = None) -> dict:
+          shape: shape_costs.Shape | None = None, journal: Path | None = None) -> dict:
     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish. The passes given
     whole, the polls and the slices are held to the costs stated at the image's shape (shape_costs.py, THE SHAPES), or
     with none given at that many interfaces at the shipping shape's streams."""
     stated_at = shape or interfaces
     log = parse(text, sys_hz, cpu_hz)
+    log.programmed = programmed(text)
     refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
     grader = Grader(log)
@@ -975,5 +987,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                             stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, stated_at),
                             polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
-                save=save_grade.save_time(log, group),
+                save=save_grade.save_time(log, group), burst=save_burst.grade(log, group, journal),
                 summary=log.summary, modules=log.modules, code=log.code)

@@ -95,6 +95,8 @@ struct nvm_store {
 	int stage_changed;              /* the capture changed a staged byte */
 	int stage_durable;              /* the stage equals the authoritative slot */
 	int owed;                       /* a centisecond owes a step (THE STEP) */
+	int rewound;                    /* the capture walks again for changes marked behind it (#920) */
+	int next_now;                   /* the save in flight left a change: the next save waits for no window */
 };
 
 static const struct nvm_store nvm_reset_value;
@@ -521,27 +523,36 @@ void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state
 
 /* ---- the write path ------------------------------------------------------- */
 
+/* 1 while a save is in flight: from its capture's start to its verify's end. */
+static int nvm_in_flight(void)
+{
+	return nvm.st.phase >= NVM_P_CAPTURE && nvm.st.phase <= NVM_P_VERIFY;
+}
+
 static void nvm_capture_begin(void)
 {
 	nvm.cursor = nvm_rec_first();
 	nvm.stage_changed = 0;
+	nvm.rewound = 0;
 	/* every change so far is this capture's; a later one opens a window */
 	nvm.dirty_armed = 0;
 	nvm.retry_armed = 0;
+	nvm.next_now = 0;
 	nvm.st.phase = NVM_P_CAPTURE;
 }
 
 /* DR2c spaces every attempt 1,000 ms after a failed one; DR2a starts a
- * capture 1,000 ms after the first change it takes; a failed work set is
- * retried while it has attempts left. */
+ * capture 1,000 ms after the first change it takes, and a change the save in
+ * flight left (nvm_mark) at the first idle step after that save (#920); a
+ * failed work set is retried while it has attempts left. */
 static void nvm_idle(void)
 {
 	int due;
 
 	if (nvm.retry_armed && nvm.now_us < nvm.retry_at_us)
 		return;
-	due = nvm.dirty_armed && nvm_any(&nvm.dirty) &&
-	      nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS);
+	due = nvm_any(&nvm.dirty) &&
+	      (nvm.next_now || (nvm.dirty_armed && nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS)));
 	if (due || (nvm_any(&nvm.inflight) && !nvm.st.exhausted))
 		nvm_capture_begin();
 }
@@ -621,13 +632,38 @@ static void nvm_seal_begin(void)
 	nvm.st.phase = NVM_P_SEAL;
 }
 
+/* 1 when the capture takes record id: a changed one, once walked again only one no capture holds (nvm_mark). */
+static int nvm_takes(unsigned int id)
+{
+	return nvm_bit(&nvm.dirty, id) && !(nvm.rewound && nvm_bit(&nvm.inflight, id));
+}
+
+/* 1 when a change marked behind the cursor joined the capture: a changed record no capture holds. */
+static int nvm_joined_behind(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < NVM_WORDS; ++i)
+		if (nvm.dirty.bit[i] & ~nvm.inflight.bit[i])
+			return 1;
+	return 0;
+}
+
+/* One record a step, in ascending id. At the end, a change marked behind the cursor that joined (nvm_mark) has the
+ * capture walk again from the first record, taking only records no capture holds: each walk takes at least one, and
+ * a record it takes is in flight, so a capture takes each record at most once and ends (#920). */
 static void nvm_capture_step(void)
 {
 	struct nvm_rec r = nvm.cursor;
 
-	while (r.ok && !nvm_bit(&nvm.dirty, r.id))
+	while (r.ok && !nvm_takes(r.id))
 		r = nvm_rec_next(r);
 	if (!r.ok) {
+		if (nvm_joined_behind()) {
+			nvm.rewound = 1;
+			nvm.cursor = nvm_rec_first();
+			return;
+		}
 		nvm.cursor = r;
 		nvm_seal_begin();
 		return;
@@ -854,15 +890,32 @@ void nvm_store_tick(void)
 	nvm.owed = 1;
 }
 
+/* 1 while a step would advance the write path with no centisecond owed: a save
+ * in flight, or a change the save just ended left, outside a failed attempt's
+ * backoff. It reads no clock: a window and a backoff wait for the centisecond. */
+static int nvm_busy(void)
+{
+	if (nvm_in_flight())
+		return 1;
+	return nvm.st.phase == NVM_P_IDLE && nvm.next_now && !nvm.retry_armed;
+}
+
 /* THE STEP (#665): a flash step beside the heaviest pass's other work would
  * take that pass past the share, so the step waits for a pass whose deadline
- * is still NVM_STEP_US away. The int32 difference is wrap-safe on the 32-bit
- * clock. */
+ * is still NVM_STEP_US away. While busy, every pass the loop calls the step in
+ * takes one, not only the one a centisecond owes (#920): the loop calls it
+ * once a pass and only in a pass that took no input, and on the split image,
+ * whose mbx_hal_wait() returns at once, it passes again at once, so a save
+ * advances a step in each such pass with room. A step not owed that finds no
+ * room waits for nothing, so the loop's age does not run on it. The int32
+ * difference is wrap-safe on the 32-bit clock. */
 bool nvm_store_step(void *ctx, uint32_t deadline)
 {
-	if (!nvm.owed)
+	if (!nvm.owed && !nvm_busy())
 		return false;
 	if ((int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US) {
+		if (!nvm.owed)
+			return false;
 		nvm.st.deferred++;
 		return true;
 	}
@@ -880,15 +933,25 @@ uint32_t nvm_store_clock(void *ctx)
 /* Mark record id changed; the callers hold it to a record of the shape. */
 static void nvm_mark(unsigned int id)
 {
-	int taken;
+	int joins;
 
 	if (nvm.st.phase == NVM_P_OFF)
 		return;
-	/* the running capture has yet to reach the record: it takes this change,
-	 * and leaves no window open behind it (DR2a) */
-	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;
+	/* the running capture takes this change, and leaves no window open behind
+	 * it (DR2a): on its first walk a record it has yet to reach, and at any
+	 * walk a record no capture holds, which it walks again for (#920) */
+	joins = nvm.st.phase == NVM_P_CAPTURE &&
+		(!nvm_bit(&nvm.inflight, id) || (!nvm.rewound && nvm.cursor.ok && id >= nvm.cursor.id));
 	nvm_open_set(&nvm.dirty, id);
-	if (!taken && !nvm.dirty_armed) {
+	if (joins) {
+		nvm_publish();
+		return;
+	}
+	/* a change the save in flight cannot take is the next save's, which then
+	 * starts at the first idle step after it, not after a window (#920) */
+	if (nvm_in_flight())
+		nvm.next_now = 1;
+	if (!nvm.dirty_armed) {
 		nvm.dirty_armed = 1;
 		nvm.dirty_since_us = nvm_now();
 	}

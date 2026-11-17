@@ -306,8 +306,20 @@ private:
             const auto programmed = flash_.programmed_bytes;
             const auto op = flash_.deselect(sys_);
             if (op) {
-                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, flash_.programmed_bytes - programmed);
+                const auto bytes = flash_.programmed_bytes - programmed;
+                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, bytes);
                 flash_write_at_ = sys_;
+                // the bytes a page program left in the device, so a save's container is read off the log (#920,
+                // save_burst.py)
+                if (op == 0x02) {
+                    std::string text;
+                    char b[3];
+                    for (std::uint32_t a = address; a < address + bytes; ++a) {
+                        std::snprintf(b, sizeof b, "%02x", flash_.byte(a));
+                        text += b;
+                    }
+                    std::printf("FLASHDATA %llu %06x %s\n", ull(sys_), address, text.c_str());
+                }
             }
         }
         flash_cs_ = dut.flash_cs;

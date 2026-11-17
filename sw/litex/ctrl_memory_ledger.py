@@ -3,13 +3,13 @@
 """The memory test's ledgered points (#665): each override's own image, the images it must refuse, the
 planted ledgers that widen one, and the out-of-context mapper's override.
 
-`ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, under #665's documented memory exceptions
-and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the size fixture's at 8x8 with two interfaces at
-59.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations, #897) and the target platform's
-at 61.0 (60.5, the owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and with AECP's
-REBOOT, #871, then 61.0 with the PHY poll and its advertisement, #919), each only by its own name; and the target
-platform's at 8x8 with one interface, a shipping image, at 56.5, a product entry, which the product SoC build plans
-by the image's symbols (`ctrl_memory.product_point`). Each is refused half a tile past. A `Case` here is
+`ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, under #665's documented memory exceptions and
+the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the size fixture's at 8x8 with two interfaces at 59.5
+RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations, #897) and the target platform's at 61.0
+(60.5, the owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, AECP's REBOOT, #871, and the
+saved-state store's name marks, #920, then 61.0 with the PHY poll and its advertisement, #919), each only by its own
+name; and the target platform's at 8x8 with one interface, a shipping image, at 56.5, a product entry, which the product
+SoC build plans by the image's symbols (`ctrl_memory.product_point`). Each is refused half a tile past. A `Case` here is
 what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
 function here takes, and grades what these return.
 syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
@@ -38,7 +38,7 @@ FIXTURE, PLATFORM, PLATFORM_1 = "8x8-two-interfaces", "platform-8x8-two-interfac
 PRODUCT = {PLATFORM_1}
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_136, 18_304, 20_416
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_200, 18_304, 20_480
 
 
 class Case(NamedTuple):

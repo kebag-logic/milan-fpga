@@ -98,12 +98,12 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
-    **poll_items.PLANTS,
+    **poll_items.PLANTS, **save_window.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
 #: The controls whose finding is a save not durable within its stated worst case, by its group's name.
-SAVE_CONTROLS = ('store-step-ageless',)
+SAVE_CONTROLS = ('store-step-ageless', *save_window.PLANTS)
 #: The controls whose finding is a row of an aged window over its budget, with no refusal.
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
@@ -290,7 +290,7 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
     the tree: the control firmware for MUTATIONS, or the tree a Plant names."""
     if isinstance(mutation, str):
         path, anchor, replacement, _, _ = MUTATIONS[mutation]
-        mutation = Plant(mutation, f'ctrl/{path}', anchor, replacement)
+        mutation = Plant(mutation, path if path.startswith('ctrl_nvm/') else f'ctrl/{path}', anchor, replacement)
     tree_name, _, path = mutation.path.partition('/')
     if tree_name not in PLANT_TREES:
         raise RuntimeError(f'mutation {mutation.name}: {mutation.path} is in no firmware tree the image takes')
