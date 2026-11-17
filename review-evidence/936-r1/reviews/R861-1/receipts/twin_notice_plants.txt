@@ -1,0 +1,19 @@
+=== missing-notification
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+self rc=0
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+=== uncovered-field
+plant uncovered-field: written to split-uncovered-field.json
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+self rc=0
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+=== vanished-owed
+plant vanished-owed: written to split-vanished-owed.json
+plant vanished-owed: REFUSED by "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66"
+self rc=0
+plant vanished-owed: REFUSED by "owed row stream-output-0-dest-mac: the difference has gone"
+=== output-notice-dropped
+plant output-notice-dropped: written to split-output-notice-dropped.json
+plant output-notice-dropped: REFUSED by "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first controller"
+self rc=0
+plant output-notice-dropped: REFUSED by "owed row stream-output-0-dest-mac does not hold"

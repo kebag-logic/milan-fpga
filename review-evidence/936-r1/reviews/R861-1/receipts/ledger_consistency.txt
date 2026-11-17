@@ -1,0 +1,12 @@
+command (in a clean local clone at 7cfb8a0499941e56682f0c2f63326d120f5b7d9e, sw/litex):
+  python3 -B -c 'import ctrl_memory, ctrl_memory_ledger as L; held={n:(p.symbols,p.tiles) for n,p in ctrl_memory.LEDGERED.items()}; print(held==L.HELD) ...'
+output:
+HELD equal: True
+8x8-two-interfaces 59.5 (('nvm_stage', 13594), ('image_allocation', 16))
+platform-8x8-two-interfaces 60.5 (('nvm_stage', 13594), ('ctrl_plat', 20416))
+note: sw/litex/test_ctrl_memory.py itself was not run (no migen in this host's Python; test_ctrl_memory.log/.rc record the import refusal).
+arithmetic against docs/design/SPLIT_CONTROL_MEMORY.md section 5 (2,048 B of rom per half tile):
+  59.0 holds 126,976 B, 59.5 holds 129,024 B
+  answering-every-port arm 127,132 B = 126,976 + 156  -> needs 59.5
+  valid-destinations arm   126,992 B = 126,976 + 16   -> needs 59.5
+  fixture                  126,824 B = 126,976 - 152  -> within 59.0

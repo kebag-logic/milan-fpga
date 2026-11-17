@@ -1,0 +1,38 @@
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index fd2fe8c043..0cc4d2643d 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -781,6 +781,33 @@ TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
+         EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
+     }
+ }
++
++// REVIEW PROBE (disposable): pass by pass after SRP records a change, does any pass return 0 (the loop would sleep in
++// mbx_hal_wait) while the record or the notice is still owed?
++TEST_F(App, ReviewProbeRecordAcrossASleep)
++{
++    aem(36);aem(36,{},CTLR+1);service();mbx_model_advance_ms(&fabric,50);service(50);
++    auto notices=[&](unsigned from){
++        unsigned n=0;
++        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
++            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
++               get(p->bytes+40,2)==0u)++n;}
++        return n;
++    };
++    unsigned quiet=0;for(unsigned i=0;i<200;++i){quiet=ctrl_loop_service(&application.loop);if(quiet==0)break;}
++    printf("PROBE quiescent pass returns %u\n",quiet);
++    const unsigned before=fabric.tx_sent;
++    reservation.ifs[0].noticed=1u;
++    bool slept_owed=false;
++    for(unsigned pass=0;pass<12;++pass){
++        unsigned w=ctrl_loop_service(&application.loop);
++        printf("PROBE pass %u returns %u srp_noticed=%u ifs0.noticed=%u notices_sent=%u\n",pass,w,
++               (unsigned)application.srp_noticed,(unsigned)reservation.ifs[0].noticed,notices(before));
++        if(w==0&&notices(before)==0u){slept_owed=true;printf("PROBE the loop would sleep here with the notice owed\n");}
++        if(notices(before)>=2u)break;
++    }
++    printf("PROBE slept_owed=%d\n",(int)slept_owed);
++}
+ #endif
+ 
+ namespace {

@@ -1,0 +1,18 @@
+== if1
+[       OK ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (3 ms)
+PROBE quiescent pass returns 0
+PROBE pass 0 returns 0 srp_noticed=1 ifs0.noticed=0 notices_sent=0
+PROBE the loop would sleep here with the notice owed
+PROBE pass 1 returns 0 srp_noticed=0 ifs0.noticed=0 notices_sent=2
+PROBE slept_owed=1
+[       OK ] App.ReviewProbeRecordAcrossASleep (0 ms)
+[  PASSED  ] 2 tests.
+== if2
+[       OK ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (3 ms)
+PROBE quiescent pass returns 0
+PROBE pass 0 returns 0 srp_noticed=1 ifs0.noticed=0 notices_sent=0
+PROBE the loop would sleep here with the notice owed
+PROBE pass 1 returns 0 srp_noticed=0 ifs0.noticed=0 notices_sent=2
+PROBE slept_owed=1
+[       OK ] App.ReviewProbeRecordAcrossASleep (0 ms)
+[  PASSED  ] 2 tests.
