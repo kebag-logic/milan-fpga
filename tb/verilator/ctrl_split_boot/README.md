@@ -133,14 +133,14 @@ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/boot-8x8-if2 --s
 ```
 
 The merge of `dev-soft-core` `0fb66211` built and linked at every point and passed the firmware's own gates, but its firmware stopped at boot with "mailbox contract mismatch; entity disabled": the record mover still answered a CPU request the cycle after it, and the mailbox now answers a register read two cycles after (#870).
-At 8x8 with two interfaces the platform image is the ledgered point: its link names `--ledgered-point platform-8x8-two-interfaces` and the boot SoC plans it to that override's tiles (`boot_soc.PLATFORM_LEDGERED`), and every other point takes no override.
+At 8x8 the platform image is a ledgered point, with one interface and with two: its link names `--ledgered-point platform-8x8-one-interface` or `platform-8x8-two-interfaces` and the boot SoC plans it to that override's tiles (`boot_soc.PLATFORM_LEDGERED`), and every other point takes no override.
 At this branch's head each boot reaches ready, at 26.370 ms (1x1, one interface), 66.017 ms (8x8, one) and 68.371 ms (8x8, two), within the 20 s ADP valid time.
 
 ## The platform image against the ledger
 
 [`plat_ledger.py`](plat_ledger.py) links the platform image at the ledger's four points, 1x1 and 8x8 each with one and two interfaces, and grades each against `ctrl_memory.LEDGERED` ([SPLIT_CONTROL_MEMORY.md section 5](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 Each shape's `csr.csv` and flash map are its split SoC export's, from the CPU budget harness's `build.flash_map`, and the runtime archives are this simulation's.
-The 8x8 image with two interfaces is linked with `--ledgered-point platform-8x8-two-interfaces`, and every other image with no override.
+The 8x8 images are linked with `--ledgered-point platform-8x8-one-interface` (one interface) and `platform-8x8-two-interfaces` (two), and every other image with no override.
 Each image is graded on four checks, each apart, so that one finding does not hide another:
 
 - `LINK`: `ctrl_plat_image.py` exits 0, and the image's plan with its point's override is accepted;
