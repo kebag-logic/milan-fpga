@@ -46,6 +46,9 @@
 //       publishes its stream on the new format
 //   S10 SET_CONFIGURATION writes every context at its format in force; one that
 //       waits while an input is bound meanwhile is not done again
+//   S11 at an input's index, with that input bound and its stream published, a
+//       change of another type (STREAM_OUTPUT n's SET_STREAM_FORMAT, which waits)
+//       or of another kind (SET_NAME of input n) is taken and writes no context
 
 #include <gtest/gtest.h>
 
@@ -87,6 +90,7 @@ using plat_bus::kCsr;
 
 constexpr std::uint16_t kStreamInput = 5u;          // IEEE 1722.1-2021 Table 7-1
 constexpr unsigned kFormatAt = 74u;                  // a STREAM_INPUT's current_format (7.2.6)
+constexpr unsigned kFormatsAt = 82u;                 // its formats_offset, then number_of_formats
 constexpr unsigned kInterfaceAt = 126u;              // its avb_interface_index
 constexpr std::uint8_t kAaf = 0x02u;                 // IEEE 1722-2016 Table 6
 constexpr std::uint32_t kOtherSelection = 0x103u;    // talker 3, as MAAP's destination writes leave it
@@ -571,6 +575,23 @@ TEST_F(Sinks, S1EveryAafInputAboveZeroHoldsItsFormatAtReady) {
         EXPECT_GE(w.at.at(n), ready) << "S1 written after the open's acknowledged publication: input " << n;
         EXPECT_LT(w.at.at(n), adp) << "S1 written before ADP starts: input " << n;
     }
+    // a context is judged on its input's current format's subtype (ctrl_plat_csr_sink_context), so each format such
+    // an input advertises (IEEE 1722.1-2021 7.2.6, formats_offset and number_of_formats) is AAF, and a change to any
+    // of them keeps its context
+    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+    for (std::size_t k = 0; k < model->count; ++k) {
+        const aecp_descriptor& d = model->descriptors[k];
+        if (d.type != kStreamInput || d.configuration != ctrl_plat.aecp.core.configuration ||
+            std::find(want.begin(), want.end(), d.index) == want.end()) {
+            continue;
+        }
+        const auto start = static_cast<std::size_t>(be(d.value + kFormatsAt, 2));
+        const auto count = static_cast<std::size_t>(be(d.value + kFormatsAt + 2u, 2));
+        ASSERT_LE(start + 8u * count, static_cast<std::size_t>(d.length)) << "S1 input " << d.index << "'s formats fit";
+        for (std::size_t f = 0; f < count; ++f) {
+            EXPECT_EQ(d.value[start + 8u * f], kAaf) << "S1 every format input " << d.index << " advertises is AAF";
+        }
+    }
     for (const unsigned n : w.selected) {
         EXPECT_NE(n, 0u) << "S1 input 0 is never selected (the publication carries its format)";
         EXPECT_TRUE(all.count(n) == 0u || (all.at(n).format >> 56) == kAaf)
@@ -855,6 +876,49 @@ TEST_F(Sinks, S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOn
         << "S10 SET_CONFIGURATION is accepted";
     every_context_in_force(from, "S10 SET_CONFIGURATION");
     coherent("S10");
+}
+
+TEST_F(Sinks, S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S11")
+    const unsigned n = want.back();
+    const aecp_descriptor* out = nullptr;
+    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+    for (std::size_t k = 0; k < model->count; ++k) {
+        const aecp_descriptor& d = model->descriptors[k];
+        if (d.type == 6u && d.index == n && d.configuration == ctrl_plat.aecp.core.configuration) out = &d;
+    }
+    ASSERT_NE(out, nullptr) << "S11 the image holds STREAM_OUTPUT " << n;
+    const std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S11 input " << n << " is bound";
+    ASSERT_TRUE(answer_probe(n, since)) << "S11 input " << n << "'s binding settles with its stream";
+    // STREAM_OUTPUT n's SET_STREAM_FORMAT, its first, so a change: its commit held, it waits, and is acknowledged
+    std::size_t from = bus().log.size();
+    far.ack = false;
+    ASSERT_TRUE(send(kSetStreamFormat, format_payload(6u, n, be(out->value + kFormatAt, 8)), 0x0b01u))
+        << "S11 output " << n << "'s SET_STREAM_FORMAT reaches the mailbox";
+    ASSERT_TRUE(held(kSetStreamFormat, 0x0b01u)) << "S11 output " << n << "'s SET_STREAM_FORMAT waits, IN_PROGRESS";
+    acknowledge();
+    EXPECT_EQ(final_status(kSetStreamFormat, 0x0b01u), static_cast<int>(kSuccess))
+        << "S11 output " << n << "'s SET_STREAM_FORMAT is taken while input " << n << " is bound";
+    steps(20);
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty())
+        << "S11 output " << n << "'s format change writes no context";
+    // SET_NAME (IEEE 1722.1-2021 7.4.17.1) of STREAM_INPUT n itself: descriptor_type, descriptor_index, name_index,
+    // configuration_index, then the name
+    std::vector<std::uint8_t> name(72, 0);
+    name[1] = static_cast<std::uint8_t>(kStreamInput);
+    name[3] = static_cast<std::uint8_t>(n);
+    name[8] = 'S';
+    from = bus().log.size();
+    ASSERT_TRUE(send(0x0010u, name, 0x0b02u)) << "S11 SET_NAME of input " << n << " reaches the mailbox";
+    EXPECT_EQ(final_status(0x0010u, 0x0b02u), static_cast<int>(kSuccess))
+        << "S11 SET_NAME of bound input " << n << " is taken";
+    steps(20);
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S11 SET_NAME of input " << n << " writes no context";
+    EXPECT_TRUE(sink(n).settled) << "S11 input " << n << "'s binding stays settled";
+    EXPECT_GT(seen.checks, 0u) << "S11 watched while its stream is published";
+    coherent("S11");
 }
 
 }  // namespace
