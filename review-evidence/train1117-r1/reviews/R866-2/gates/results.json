@@ -1,0 +1,187 @@
+[
+  {
+    "name": "inventory",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.07
+  },
+  {
+    "name": "inventory-selftest",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/docs_inventory.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.4
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 8.81
+  },
+  {
+    "name": "toc",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.97
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 5.58
+  },
+  {
+    "name": "em-dash-delta",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "73272666"
+    ],
+    "rc": 0,
+    "seconds": 2.53
+  },
+  {
+    "name": "em-dash-train",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "cb96336d"
+    ],
+    "rc": 0,
+    "seconds": 2.75
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.09
+  },
+  {
+    "name": "hygiene",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.44
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 6.62
+  },
+  {
+    "name": "module-matrix",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.61
+  },
+  {
+    "name": "register-reference",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "scripts/gen_register_reference.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.51
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "seconds": 1.42
+  },
+  {
+    "name": "mailbox-contract",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck"
+    ],
+    "rc": 0,
+    "seconds": 0.17
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "cb96336d..b1f1161b"
+    ],
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "trace-events",
+    "command": [
+      "$REVIEWS/train1117-r866-2-packet/scratch/venv/bin/python",
+      "-B",
+      "sw/trace/gen_trace_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  }
+]

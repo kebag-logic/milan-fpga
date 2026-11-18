@@ -1,0 +1,78 @@
+{
+  "sha256": "c29048c71dfab76093fa937bfa2787d660e7716f9689d03b63257ec2fc385fae",
+  "runs": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--write"
+      ],
+      "rc": 0,
+      "expected": 0,
+      "stdout": "wrote docs/DOCUMENTATION_AUDIT.md\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--write"
+      ],
+      "rc": 0,
+      "expected": 0,
+      "stdout": "wrote docs/DOCUMENTATION_AUDIT.md\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--check"
+      ],
+      "rc": 0,
+      "expected": 0,
+      "stdout": "documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--check"
+      ],
+      "rc": 1,
+      "expected": 1,
+      "stdout": "docs/DOCUMENTATION_AUDIT.md: STALE (123 lines differ); first difference at line 30:\n  committed: | current | 185 |\n  generated: | current | 186 |\nregenerate with: python3 scripts/docs_inventory.py --write\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--write"
+      ],
+      "rc": 0,
+      "expected": 0,
+      "stdout": "wrote docs/DOCUMENTATION_AUDIT.md\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/docs_inventory.py",
+        "--check"
+      ],
+      "rc": 0,
+      "expected": 0,
+      "stdout": "documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)\n",
+      "stderr": ""
+    }
+  ],
+  "restored": true
+}
