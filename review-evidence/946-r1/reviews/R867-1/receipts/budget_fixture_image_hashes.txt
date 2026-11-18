@@ -1,0 +1,10 @@
+# sha256 of the size fixture's split image (ctrl_srp_image.py --with-aecp --layout split, the CPU-budget harness's image), as plat_ledger.py's flash-map step links it, per tree
+# base cb96336d, head 66c6edf3, composition = merge-tree(b1f1161b, 66c6edf3) tree 74c60aaa
+ledger_base endstation_ax7101_1x1_tdm8 554b04f717765a88e02daadd0329b22064c77f5caff911deb4c89979a6c405d7
+ledger_base endstation_ax7101_8x8 112680a06b8983e6756cec20bc772c3c67fe698260d6b597ba5c46508e2965e5
+ledger_head endstation_ax7101_1x1_tdm8 554b04f717765a88e02daadd0329b22064c77f5caff911deb4c89979a6c405d7
+ledger_head endstation_ax7101_8x8 112680a06b8983e6756cec20bc772c3c67fe698260d6b597ba5c46508e2965e5
+ledger_comp endstation_ax7101_1x1_tdm8 55484254e638ed7f05ada7c8d6e36fd18791d42d0a45d2c5f7f2bf0d30516e58
+ledger_comp endstation_ax7101_8x8 175418f4b5b1a9d463607792be769c1c8f7cc9c612cc1b0f970c6179a8e14093
+# the lane's recorded train images (author receipt budget/image-hashes-arm-a.txt): 1x1 55484254e638ed7f05ada7c8d6e36fd18791d42d0a45d2c5f7f2bf0d30516e58, 8x8-1if 175418f4b5b1a9d463607792be769c1c8f7cc9c612cc1b0f970c6179a8e14093
+# toolchain: riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0

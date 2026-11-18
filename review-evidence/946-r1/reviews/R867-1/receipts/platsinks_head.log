@@ -1,0 +1,98 @@
+checkout: $REVIEWS/946-r867-1-packet/scratch/headrun
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+===== arm plat rc=0
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+[       OK ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores (0 ms)
+[ RUN      ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+[       OK ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[----------] 12 tests from Plat (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 12 tests.
+== ctrl split platform CSR window and console (host bus): checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+===== arm platsinks rc=0
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 5 tests.
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+===== arm platsinks rc=0
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 5 tests.
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+run_platsinks: 3 of 3 arms passed

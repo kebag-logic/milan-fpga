@@ -1,0 +1,38 @@
+# git merge-tree --write-tree b1f1161b (train #945 head) 66c6edf3 (this head): rc 0, tree 74c60aaa301c2db41f3b5e1af7396fbb87bc2178
+# files the composition changes against the train head:
+ scripts/measure_test_evidence_readers.py      |   6 +
+ sw/firmware/ctrl/plat/README.md               |  11 +-
+ sw/firmware/ctrl/plat/ctrl_plat.c             |  86 ++++-
+ sw/firmware/ctrl/plat/ctrl_plat_csr.c         |  36 ++
+ sw/firmware/ctrl/plat/ctrl_plat_csr.h         |  26 ++
+ sw/firmware/ctrl/test/ctrl_mutants.py         |   5 +-
+ sw/firmware/ctrl/test/plat_arms.py            |  45 +++
+ sw/firmware/ctrl/test/sink_mutants.py         | 106 ++++++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py   |   7 +
+ sw/firmware/ctrl/test/test_plat.cpp           |  72 ++++
+ sw/firmware/ctrl/test/test_plat_sinks.cpp     | 510 ++++++++++++++++++++++++++
+ tb/verilator/avtp_rxmon/Makefile              |  15 +-
+ tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv |   7 +-
+ tb/verilator/avtp_rxmon/ctxfmt_mutants.py     | 137 +++++++
+ tb/verilator/avtp_rxmon/sim_ctxfmt.cpp        | 309 ++++++++++++++++
+ 15 files changed, 1370 insertions(+), 8 deletions(-)
+# train vs dev-soft-core base touches these #947 files:
+hdl/common/csr/milan_csr.sv
+scripts/measure_test_evidence_readers.py
+sw/firmware/ctrl/aecp/aecp_commands.c
+sw/firmware/ctrl/aecp/aecp_face.c
+sw/firmware/ctrl/aecp/aecp_face.h
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/plat/ctrl_cc.h
+sw/firmware/ctrl/plat/ctrl_plat.c
+sw/firmware/ctrl/plat/ctrl_plat.h
+sw/firmware/ctrl/plat/ctrl_plat_gen.py
+sw/firmware/ctrl/plat/ctrl_plat_main.c
+sw/firmware/ctrl/plat/ctrl_plat_phy.c
+sw/firmware/ctrl/plat/ctrl_plat_phy.h
+sw/firmware/ctrl/plat/ctrl_split.ld
+sw/firmware/ctrl/plat/ctrl_split_hot.txt
+sw/firmware/ctrl/plat/mbx_dma.h
+sw/firmware/ctrl/test/ctrl_mutants.py
+sw/firmware/ctrl/test/plat_arms.py
+sw/firmware/ctrl/test/test_ctrl_firmware.py

@@ -1,0 +1,8 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] mutant r867-change-writes-every-context (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+[ESCAPED] mutant r867-poll-never-clears-owed (platsinks8): 0 check(s) failed, none named platsinks8: Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce on 'S5'
+[ESCAPED] mutant r867-poll-writes-every-pass (platsinks8): 3 check(s) failed, none named platsinks8: Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce on 'S5'
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+mutants: 1 of 3 caught
+extra probes: SOME ESCAPED

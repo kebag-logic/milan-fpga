@@ -1,0 +1,43 @@
+tests named by no defect of the full table: 0 []
+sink table: 19 defects
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] mutant sink-open-unwritten (platsinks8): 7 check(s) failed
+    first: [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 1 holds none
+[ok] mutant sink-change-unfollowed (platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-open-before-acknowledgement (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S3AnUnacknowledgedCommitWritesNoContext: S3 a commit never acknowledged writes no context
+[ok] mutant sink-change-before-commit (platsinks8, platsinks8): 4 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+[ok] mutant sink-change-unacknowledged (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[ok] mutant sink-owed-unwritten (platsinks8): 17 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 the change done again reaches input 7's context
+[ok] mutant sink-owed-before-acknowledgement (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[ok] mutant sink-owed-from-its-own-commit (platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 1 holds none
+[ok] mutant sink-input-zero-written (plat, platsinks8): 5 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not input 0
+[ok] mutant sink-crf-input-written (plat, platsinks8): 5 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a CRF input
+[ok] mutant sink-other-type-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a STREAM_OUTPUT
+[ok] mutant sink-other-interface-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+[ok] mutant sink-other-configuration-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not an input of a configuration not in force
+[ok] mutant sink-short-descriptor-read (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a descriptor too short to hold its interface
+[ok] mutant sink-format-halves-swapped (plat, platsinks8): 25 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-talker-selected (plat, platsinks8): 27 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-restored (plat, platsinks8): 8 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-read (plat): 2 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant set-format-bound-accepted (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+mutants: 19 of 19 caught
+sink campaign: PASS
