@@ -27,6 +27,7 @@
 #include "mbx_hal.h"
 #include "mbx_wire.h"
 #ifdef CTRL_MBX_BASE
+#include "../plat/ctrl_cc.h"
 #include "../plat/mbx_mmio.h"
 #endif
 #ifdef CTRL_MBX_DMA_BASE
@@ -530,7 +531,10 @@ static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, ui
 	}
 }
 
-bool mbx_tx_commit(unsigned ch)
+// A record's commit: its payload's move judged, then its head advanced (mbx_tx_commit). Mbx_tx_begin ends the
+// record before its own through it inline, so a transmit calls nothing and saves no registers for a call (#665:
+// a notice's recipients each paid for both).
+static CTRL_CC_INLINE bool tx_commit(unsigned ch)
 {
 	struct tx_ring *t = &tx[ch];
 	const uint16_t moving = t->moving;
@@ -551,6 +555,11 @@ bool mbx_tx_commit(unsigned ch)
 	return true;
 }
 
+bool mbx_tx_commit(unsigned ch)
+{
+	return tx_commit(ch);
+}
+
 enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
 {
 	if (ch >= MBX_N_CH) {
@@ -562,7 +571,7 @@ enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *fra
 	}
 	// the record before it, which also ends its move: a window access waits for a move, and that wait can hold the
 	// move up. A record whose move failed is reported for itself, and nothing is started after it (#665)
-	if (!mbx_tx_commit(ch)) {
+	if (!tx_commit(ch)) {
 		return MBX_STATUS_LOST;
 	}
 	const uint32_t words = t->words;

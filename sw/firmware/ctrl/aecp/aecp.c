@@ -616,26 +616,20 @@ void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 }
 
 // A recipient's fields of a notice's frame (Milan v1.2 5.4.5.1; IEEE 1722.1-2021 7.5.2, 9.2.1.1): its MAC as the
-// destination, its interface's as the source, its entity ID as the controller_entity_id and its sequence_id, each
-// byte stored once from the two words that hold it (#665: through the put helpers' calls these were a third of a
-// recipient's cost).
-static inline void address(uint8_t *f, const struct aecp_registration *r, uint64_t source)
+// destination, its entity ID as the controller_entity_id and its sequence_id, each byte stored once from the words
+// that hold it, each read before the stores, which could alias it (#665: through the put helpers' calls these were a
+// third of a recipient's cost).
+static inline void address(uint8_t *f, const struct aecp_registration *r)
 {
 	const uint32_t mac_hi = (uint32_t)(r->mac >> 32), mac_lo = (uint32_t)r->mac;
-	const uint32_t src_hi = (uint32_t)(source >> 32), src_lo = (uint32_t)source;
 	const uint32_t id_hi = (uint32_t)(r->controller >> 32), id_lo = (uint32_t)r->controller;
+	const uint16_t sequence = r->sequence;
 	f[0] = (uint8_t)(mac_hi >> 8);
 	f[1] = (uint8_t)mac_hi;
 	f[2] = (uint8_t)(mac_lo >> 24);
 	f[3] = (uint8_t)(mac_lo >> 16);
 	f[4] = (uint8_t)(mac_lo >> 8);
 	f[5] = (uint8_t)mac_lo;
-	f[6] = (uint8_t)(src_hi >> 8);
-	f[7] = (uint8_t)src_hi;
-	f[8] = (uint8_t)(src_lo >> 24);
-	f[9] = (uint8_t)(src_lo >> 16);
-	f[10] = (uint8_t)(src_lo >> 8);
-	f[11] = (uint8_t)src_lo;
 	f[26] = (uint8_t)(id_hi >> 24);
 	f[27] = (uint8_t)(id_hi >> 16);
 	f[28] = (uint8_t)(id_hi >> 8);
@@ -644,8 +638,22 @@ static inline void address(uint8_t *f, const struct aecp_registration *r, uint64
 	f[31] = (uint8_t)(id_lo >> 16);
 	f[32] = (uint8_t)(id_lo >> 8);
 	f[33] = (uint8_t)id_lo;
-	f[34] = (uint8_t)(r->sequence >> 8);
-	f[35] = (uint8_t)r->sequence;
+	f[34] = (uint8_t)(sequence >> 8);
+	f[35] = (uint8_t)sequence;
+}
+
+// A notice's frame's source, its interface's MAC (IEEE 1722.1-2021 9.2.1.1). A buffer keeps it from one recipient to
+// the next, so a walk stores it only where the buffer last held another interface's (#665: every recipient paid for
+// it).
+static inline void source(uint8_t *f, uint64_t mac)
+{
+	const uint32_t hi = (uint32_t)(mac >> 32), lo = (uint32_t)mac;
+	f[6] = (uint8_t)(hi >> 8);
+	f[7] = (uint8_t)hi;
+	f[8] = (uint8_t)(lo >> 24);
+	f[9] = (uint8_t)(lo >> 16);
+	f[10] = (uint8_t)(lo >> 8);
+	f[11] = (uint8_t)lo;
 }
 
 // A notice to every recipient from a->recipient on, true while one is left: the
@@ -672,6 +680,11 @@ static bool fan_out(struct aecp *a, uint8_t *frame, size_t bytes, uint64_t reque
 		memcpy(other, frame, bytes);
 	}
 	aecp_port_begin(a);
+	// the port's calls and context, read once for the walk: a frame's byte stores could alias them (#665)
+	void *const ctx = a->ports->ctx;
+	enum aecp_fan (*const fan_to)(void *, unsigned, const uint8_t *, size_t) = a->ports->fan;
+	bool (*const send)(void *, unsigned, const uint8_t *, size_t, uint32_t) = a->ports->send;
+	unsigned frame_if = ~0u, other_if = ~0u; // the interface whose MAC each buffer's source holds, none at first
 	unsigned k = *at;
 	while (!owed && k < total) {
 		const unsigned i = k / AECP_REGISTRATIONS;
@@ -681,9 +694,13 @@ static bool fan_out(struct aecp *a, uint8_t *frame, size_t bytes, uint64_t reque
 			if ((slots & 1u) == 0u || r->controller == requester) {
 				continue;
 			}
-			address(frame, r, a->cfg.mac[i]);
-			const enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, bytes) :
-				a->ports->send(a->ports->ctx, i, frame, bytes, a->tx_cookie) ? AECP_FAN_TAKEN : AECP_FAN_REFUSED;
+			if (frame_if != i) {
+				source(frame, a->cfg.mac[i]);
+				frame_if = i;
+			}
+			address(frame, r);
+			const enum aecp_fan taken = fan ? fan_to(ctx, i, frame, bytes) :
+				send(ctx, i, frame, bytes, a->tx_cookie) ? AECP_FAN_TAKEN : AECP_FAN_REFUSED;
 			if (taken != AECP_FAN_TAKEN) {
 				owed = true;
 				lost = taken == AECP_FAN_LOST;
@@ -693,6 +710,9 @@ static bool fan_out(struct aecp *a, uint8_t *frame, size_t bytes, uint64_t reque
 				uint8_t *next = other;
 				other = frame;
 				frame = next;
+				const unsigned next_if = other_if;
+				other_if = frame_if;
+				frame_if = next_if;
 				held = k;
 				held_r = r;
 			} else {
