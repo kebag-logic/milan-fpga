@@ -1,0 +1,10 @@
+# CPU budget harness images, arm A (legs.py build, as run.py builds by default), on the composition d98dd322
+1x1 none rc=0 55484254e638ed7f05ada7c8d6e36fd18791d42d0a45d2c5f7f2bf0d30516e58
+8x8-1if none rc=0 175418f4b5b1a9d463607792be769c1c8f7cc9c612cc1b0f970c6179a8e14093
+# the train's record at b1f1161b (round 1's budget/image-hashes-arm-a.txt, from the train's own regrade receipt)
+1x1 none composition 55484254e638ed7f train 55484254e638ed7f EQUAL
+8x8-1if none composition 175418f4b5b1a9d4 train 175418f4b5b1a9d4 EQUAL
+
+# the budget images' sources, train b1f1161b against the composition d98dd322 (git diff --stat; empty = unchanged)
+(end of diff)
+# sw/litex/ctrl_memory.py changes only LEDGERED entries and their comment (the plan's tiles); the images above are its link's output and are byte-identical

@@ -1,0 +1,50 @@
+# Sinks at 8x8/1if: round 1's platform (66c6edf3's ctrl_plat.c) with round 2's test_plat_sinks.cpp (as 548324b5). S6 reproduces R868-1-F1's stale observation; S8 and S9 pin the timeout and redo paths, which round 1 already held.
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+  [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 that input's context alone is written
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+  [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+  [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT writes no context
+[  FAILED  ] Sinks.S5AChangeOfAnotherKindWritesNoContext (1 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the input keeps its format
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the input's context keeps its format
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+[  FAILED  ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 the input keeps its format
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 the input's context keeps its format
+[  FAILED  ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION is accepted
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 2 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 3 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 4 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 5 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 6 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 7 holds none
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION writes no other context
+[  FAILED  ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (2 ms)
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[  FAILED  ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[  FAILED  ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[  FAILED  ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[  FAILED  ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+ 5 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 10   failures: 5 ==
+  verdict: FAIL (its tallies report 5 failure(s) across 10 checks, exit 1)

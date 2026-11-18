@@ -1,0 +1,10 @@
+# the split boot simulation, the train head b1f1161b (round 1's receipts boot/train-b1f1161b-*, the same head) against the round-2 composition d98dd322
+8x8 train:       ready at bus cycle 6,713,381 (67.134 ms), 21 window writes before ready
+8x8 composition: ready at bus cycle 6,732,848 (67.328 ms), 49 window writes before ready
+8x8 delta: +28 writes (SEL k, FMT_LO 02006000, FMT_HI 02050220, SEL back, for k = 1 to 7), +19,467 bus cycles (0.195 ms) to ready, against the 20,000 ms bound
+8x8 the context writes: bus cycles 6,460,821 to 6,463,843 (3,022)
+8x8 the other 21 writes: identical to the train's, in order (offset and value)
+1x1 train:       ready at bus cycle 2,798,059 (27.981 ms), 21 window writes before ready
+1x1 composition: ready at bus cycle 2,793,627 (27.936 ms), 21 window writes before ready
+1x1 delta: no context write (no AAF input above 0 at 1x1), -4,432 bus cycles (-0.044 ms) to ready
+# the 1x1 image does strictly more before ready than the train's (the descriptor scan) yet reaches it 4,432 bus cycles sooner, so ready varies by at least that much for reasons outside this change (code layout against the loop's timers); these figures bound the cost, they do not resolve it below that

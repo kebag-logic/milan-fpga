@@ -1,0 +1,22 @@
+# the composition d98dd322's sweep, scripts/run_all_suites.sh --shard k/4, four units (native-shards.py); pinned Verilator 5.050
+shard 0: shard: 0/4   selected suites: 15
+shard 0: suites: 15   passed: 15   failed: 0   timed out: 0
+shard 0: checks: 361461   in-suite failures: 0
+shard 1: shard: 1/4   selected suites: 17
+shard 1: suites: 17   passed: 17   failed: 0   timed out: 0
+shard 1: checks: 2046591   in-suite failures: 0
+shard 2: shard: 2/4   selected suites: 17
+shard 2: suites: 17   passed: 17   failed: 0   timed out: 0
+shard 2: checks: 284336   in-suite failures: 0
+shard 3: shard: 3/4   selected suites: 16
+shard 3: suites: 16   passed: 16   failed: 0   timed out: 0
+shard 3: checks: 20734   in-suite failures: 0
+total: 65 suites, 65 passed, 0 failed, 0 timed out; checks 2,713,122, in-suite failures 0
+declared skip (shard 3): SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+declared skip (shard 3): SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+declared skip (shard 3): SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+declared skip (shard 3): SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+shard 0: head d98dd322, exit 0, finished 23:11:21
+shard 1: head d98dd322, exit 0, finished 23:08:26
+shard 2: head d98dd322, exit 0, finished 23:11:48
+shard 3: head d98dd322, exit 0, finished 23:01:11

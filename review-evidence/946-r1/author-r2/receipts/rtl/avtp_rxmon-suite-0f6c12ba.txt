@@ -1,0 +1,47 @@
+# make -C tb/verilator/avtp_rxmon (pinned Verilator) at 0f6c12ba; no input of this suite changes after it (548324b5 touches sw/litex, the boot and ledger scripts and docs only). Result lines; the full log is 211197 B.
+HEAD 0f6c12ba start 21:54:05
+Verilator 5.050 2026-07-01 rev v5.050
+KL_avtp_rx_monitor: 97 checks, 0 failures
+NxN RX stack: 218 checks, 0 failures
+[PASS] the unmutated context engine still passes the lockstep harness
+[PASS] mutant caught: lost increment: a pulse that lands on a queued dispatch drops out of the queue count - breaks "[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU"
+[PASS] mutant caught: torn read: the mirror takes a write's high half one cycle after its low half - breaks "[H2] GET_COUNTERS read identical to the reference in every cycle of the update window"
+[PASS] mutant caught: wrong stream index: the GET_COUNTERS read ignores the sink - breaks "[GC] every sink answers its own row and column (seeded signatures)"
+[PASS] mutant caught: missed reset: the bundle queue's count survives a reset - breaks "[H4] no bundle queued before a reset is served after it"
+[PASS] mutant caught (planted in the engine and the reference): silence: the watchdog's unlock is never marked an interruption (#762) - breaks "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): gap: a sequence gap of two lost PDUs no longer interrupts (#762) - breaks "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): unbind: an unbind's unlock is counted as an interruption (#762) - breaks "[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): consume race: an unbind erases a silence already expired, before its walk counts it (#762) - breaks "boundary (an unbind, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped: a stopped input's silence is marked an interruption (#762) - breaks "[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): stop at the walk: the stopped state is read when the walk counts, not at the expiry (#762) - breaks "boundary (a STOP, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped gap: a stopped input's sequence gap is counted an interruption (#762) - breaks "[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): sticky stop: a STOP disarms the gap until the next bind, START never re-arms it (#762) - breaks "[SI] after START a sequence gap counts STREAM_INTERRUPTED again"
+[PASS] mutant caught (planted in the engine and the reference): gap stop late: a gap's stopped state is read one cycle after its verdict (#762) - breaks "gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped"
+14 checks: 14 PASS, 0 FAIL
+[PASS] the unmutated context engine still passes the N=4 harness
+[PASS] mutant caught: family compare: the channel count is not compared (the reading #765 replaces) - breaks "[UF2a] a 2-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: low byte: only channels_per_frame[7:0] is compared - breaks "[UF3a] a 264-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: inverted: a matching channel count is rejected - breaks "[UF1a] a matching 8-channel PDU is accepted"
+[PASS] mutant caught: fixed count: the compare reads a constant, not the current format - breaks "[UF4a] with a 2-channel current format, a 2-channel PDU is accepted"
+[PASS] mutant caught: stream 0: the channel word of fmt0_i is not loaded - breaks "[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict"
+[PASS] mutant caught: no advance: a discarded PDU leaves prev_seq (the defect #775 fixes) - breaks "[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"
+[PASS] mutant caught: whole state: a discarded PDU writes an accepted PDU's MON_STATE - breaks "[SQ2d] MEDIA_RESET unchanged"
+[PASS] mutant caught: accepted walk: a discarded PDU also writes the timestamp words - breaks "[SQ1d] ...and it writes no timestamp word (LAST_TSD)"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): lock set: a discarded PDU sets media_locked - breaks "[SQ4f] MEDIA_LOCKED +1 at the first accepted PDU"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): settle step: a discarded PDU steps the settle count - breaks "[SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed set: a discarded PDU sets the mr seed - breaks "[SQ6e] ...and counts no MEDIA_RESET: it seeds the reference"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed clear: a discarded PDU clears the mr seed - breaks "[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject"
+13 checks: 13 PASS, 0 FAIL
+[CF1] format words never written: every in-format PDU above 0 is UNSUPPORTED_FORMAT
+[CF2] the format written while unbound survives the bind's walk
+[CF3] each context judges against its own words (input k: k+1 channels)
+[CF4] written the cycle before the bind, then a PDU at once
+[CF5] an unbind keeps the format through the silence unlock: the next binding receives
+CTXFMT N=8: 96 checks, 0 failures
+[PASS] the unmutated context engine still passes the N=8 format contract
+[PASS] mutant caught: bind walk provisions every stream: streams above 0 take fmt0_i's words at the bind - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: stream 0's alias: a stream above 0 is judged against fmt0_i's channel count - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: another context: the window's write lands in the neighbouring stream's words - breaks "[CF2] the first in-format PDU is accepted"
+[PASS] mutant caught: an unbind's walk writes over the format: the unlock's MON_STATE write lands in FMT_HI - breaks "[CF5] the rebound input's first PDU is accepted"
+5 checks: 5 PASS, 0 FAIL
+rc=0 END 21:59:21

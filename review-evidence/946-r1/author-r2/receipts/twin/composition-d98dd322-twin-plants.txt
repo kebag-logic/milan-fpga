@@ -1,0 +1,46 @@
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+plant srp-plus-k: REFUSED by "MSRP Talker Advertise stream_id 024b4c4b4c010001"
+plant srp-plus-k: REFUSED by "MSRP Talker Advertise stream_id 024b4c4b4c010001"
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+plant uncovered-field: written to split-uncovered-field.json
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+plant vanished-owed: written to split-vanished-owed.json
+plant vanished-owed: REFUSED by "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66"
+plant vanished-owed: REFUSED by "owed row stream-output-0-dest-mac: the difference has gone"
+plant output-notice-dropped: written to split-output-notice-dropped.json
+plant output-notice-dropped: REFUSED by "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first controller"
+plant output-notice-dropped: REFUSED by "owed row stream-output-0-dest-mac does not hold"
+plant command-byte: written to split-command-byte.json
+plant command-byte: REFUSED by "AECP command 0 differs at byte 33"
+plant command-byte: REFUSED by "AECP command 0 differs at byte 33"
+plant command-sequence: written to split-command-sequence.json
+plant command-sequence: REFUSED by "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0"
+plant command-sequence: REFUSED by "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0"
+plant response-sequence: written to split-response-sequence.json
+plant response-sequence: REFUSED by "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1"
+plant response-sequence: REFUSED by "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1"
+plant table-10-3: written to split-table-10-3.json
+plant table-10-3: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+plant table-10-3: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+plant received-join: written to split-received-join.json
+plant received-join: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant received-join: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant leave-all-declaration: written to split-leave-all-declaration.json
+plant leave-all-declaration: REFUSED by "MSRP declarations at the LeaveAll boundaries differ"
+plant leave-all-declaration: REFUSED by "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]"
+plant leave-all-omission: written to split-leave-all-omission.json
+plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+plant mvrp-join-in: written to split-mvrp-join-in.json
+plant mvrp-join-in: REFUSED by "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt"
+plant mvrp-join-in: REFUSED by "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt"
+plant mvrp-received-join: written to split-mvrp-received-join.json
+plant mvrp-received-join: REFUSED by "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant mvrp-received-join: REFUSED by "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant talker-failed-back: written to split-talker-failed-back.json
+plant talker-failed-back: REFUSED by "MSRP declarations at the LeaveAll boundaries differ"
+plant talker-failed-back: REFUSED by "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1"
+twin-plants rc=0 22:21:00
