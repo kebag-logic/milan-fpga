@@ -3,8 +3,8 @@
 //
 // test_plat_sinks.cpp - each Stream Input's current format in its
 // receive-monitor context (#946; plat/ctrl_plat.c's receive-monitor formats,
-// plat/ctrl_plat_csr.c), on the host: ctrl_plat.c's boot and composition on the mailbox model, F1's flash
-// model and the CSR window of plat_bus.hpp, at the generated shape it is built
+// plat/ctrl_plat_csr.c), on the host: ctrl_plat.c's boot and composition on the mailbox model, the saved-state
+// flash model and the CSR window of plat_bus.hpp, at the generated shape it is built
 // for (PLAT_TEST_SHAPE).
 //
 // The window is read as the datapath decodes it (REGISTER_MAP.md, 0x800
@@ -13,7 +13,11 @@
 // receive monitor judges every PDU of a stream above 0 against those words,
 // and a PDU not in them counts UNSUPPORTED_FORMAT and is discarded (Milan v1.2
 // Table 5.6, 4.4.2.2; KL_avtp_rx_monitor_ctx), so each AAF input above 0 must
-// hold its current format there before a stream of its binding arrives:
+// hold its current format whenever a stream of its binding can arrive. Every
+// case watches each mailbox access for it (Coherence): while an input's binding
+// has a stream published, its context holds the input's current format, from
+// the access that publishes it, the first a PDU of that stream can follow; and
+// no SET_STREAM_FORMAT answered SUCCESS leaves before its context holds it.
 //
 //   S1  at READY every AAF STREAM_INPUT above 0 holds its current format,
 //       written after the face's acknowledged commit and before ADP starts;
@@ -25,15 +29,29 @@
 //   S3  a commit the datapath never acknowledges writes no context
 //   S4  a SET_STREAM_FORMAT whose commit is not acknowledged waits, IN_PROGRESS,
 //       and writes nothing; once acknowledged it is done again, answered
-//       SUCCESS, and its format reaches the input's context
-//   S5  a change of another kind (SET_NAME, a STREAM_OUTPUT's format) leaves
-//       every context at its format in force, rewritten at the poll after its
-//       acknowledged commit
+//       SUCCESS, and its format reaches the input's context before that answer
+//   S5  a change of another kind (SET_NAME, a STREAM_OUTPUT's format, one that
+//       waited) writes no context, and nor does a pass with no change
+//   S6  a SET_STREAM_FORMAT waits; its input is bound and its stream published
+//       meanwhile; acknowledged, the change is not done again: the input keeps
+//       its format and context, and the command is answered ENTITY_MISBEHAVING
+//       at the wait's bound (IEEE 1722.1-2021 7.4.9, aecp.h applied). Unbound,
+//       the same change is taken and a rebind publishes its stream on it
+//   S7  as S6, acknowledged while the input is bound and its probe unanswered
+//   S8  as S6, never acknowledged within the wait: the timeout keeps the format
+//       in force, the late acknowledgement moves no context, and the refusal
+//       ends with the wait (another input's change is taken)
+//   S9  bound and unbound again while the change waits: acknowledged, it is
+//       done again, its context written before its SUCCESS, and a rebind
+//       publishes its stream on the new format
+//   S10 SET_CONFIGURATION writes every context at its format in force; one that
+//       waits while an input is bound meanwhile is not done again
 
 #include <gtest/gtest.h>
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdio>
 #include <map>
 #include <string>
 #include <vector>
@@ -76,7 +94,11 @@ constexpr std::uint64_t kTwoChannels = 0x0205022000806000ull;  // AAF PCM32 48 k
 // IEEE 1722.1-2021 Table 7-126
 constexpr unsigned kSuccess = 0u;
 constexpr unsigned kInProgress = 9u;
+constexpr unsigned kEntityMisbehaving = 10u;
 constexpr unsigned kStreamIsRunning = 12u;
+// IEEE 1722.1-2021 Table 7-125
+constexpr std::uint16_t kSetConfiguration = 0x0006u;
+constexpr std::uint16_t kSetStreamFormat = 0x0008u;
 
 // One mailbox access, with the CSR accesses before it.
 struct Mbx {
@@ -159,18 +181,102 @@ std::uint64_t be(const std::uint8_t* p, unsigned n) {
     return v;
 }
 
+// The current configuration's AAF STREAM_INPUTs above 0 on interface 0, which each have a receive-monitor
+// context, by index: their current formats.
+std::map<unsigned, std::uint64_t> context_formats() {
+    std::map<unsigned, std::uint64_t> out;
+    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+    for (std::size_t k = 0; k < model->count; ++k) {
+        const aecp_descriptor& d = model->descriptors[k];
+        if (d.type == kStreamInput && d.configuration == ctrl_plat.aecp.core.configuration && d.index != 0u &&
+            d.length >= kInterfaceAt + 2u && d.value[kFormatAt] == kAaf && be(d.value + kInterfaceAt, 2) == 0u) {
+            out[d.index] = be(d.value + kFormatAt, 8);
+        }
+    }
+    return out;
+}
+
+// What the formats are for, watched at every mailbox access once on: the listener contexts' words, decoded from
+// the bus log as the window takes them from the boot on, against each input's current format whenever ACMP has
+// its binding's stream published (from the access that publishes it, the first a PDU of it can follow, a
+// boundary), and against each SET_STREAM_FORMAT of such an input answered SUCCESS when that answer leaves.
+struct Coherence {
+    bool on = false;
+    std::size_t upto = 0;
+    std::uint32_t sel = kOtherSelection;
+    std::map<unsigned, std::uint32_t> lo, hi;
+    std::map<unsigned, std::uint64_t> stream;   // each context's stream as last published
+    unsigned checks = 0, stale = 0, boundaries = 0, answers = 0, early = 0;
+    std::string first;                          // the first stale observation
+    bool holds(unsigned n) const { return lo.count(n) != 0u && hi.count(n) != 0u; }
+    std::uint64_t words(unsigned n) const {
+        return holds(n) ? static_cast<std::uint64_t>(hi.at(n)) << 32 | lo.at(n) : 0u;
+    }
+    void feed() {
+        for (; upto < bus().log.size(); ++upto) {
+            const auto& a = bus().log[upto];
+            if (!a.write || a.address < kCsr || a.address >= kCsr + 0x10000u) continue;
+            const auto offset = static_cast<std::uint32_t>(a.address - kCsr);
+            if (offset == CTRL_PLAT_CSR_STRM_SEL) {
+                sel = a.value;
+            } else if ((sel & 0x100u) == 0u && offset == CTRL_PLAT_CSR_STRMW_FMT_LO) {
+                lo[sel & 0xFu] = a.value;
+            } else if ((sel & 0x100u) == 0u && offset == CTRL_PLAT_CSR_STRMW_FMT_HI) {
+                hi[sel & 0xFu] = a.value;
+            }
+        }
+    }
+    void observe() {
+        if (!on) return;
+        feed();
+        for (const auto& [n, format] : context_formats()) {
+            const acmp_sink& s = ctrl_plat.app.acmp.acmp.sinks[n];
+            const std::uint64_t sid = s.published_bound ? s.published_stream : 0u;
+            if (sid != 0u) {
+                ++checks;
+                if (stream[n] == 0u) ++boundaries;
+                if (words(n) != format && stale++ == 0u) {
+                    char text[96];
+                    std::snprintf(text, sizeof text, "input %u: current %016llx, context %016llx", n,
+                                  static_cast<unsigned long long>(format),
+                                  static_cast<unsigned long long>(words(n)));
+                    first = text;
+                }
+            }
+            stream[n] = sid;
+        }
+    }
+    void sent(const mbx_model_tx* t) {
+        if (!on || t == nullptr || t->len < 50u || t->bytes[14] != 0xfbu || (t->bytes[15] & 0xfu) != 1u ||
+            be(t->bytes + 36, 2) != kSetStreamFormat || (be(t->bytes + 16, 2) >> 11) != kSuccess ||
+            be(t->bytes + 38, 2) != kStreamInput) {
+            return;
+        }
+        feed();
+        const auto n = static_cast<unsigned>(be(t->bytes + 40, 2));
+        if (context_formats().count(n) == 0u) return;
+        ++answers;
+        if (words(n) != be(t->bytes + 42, 8)) ++early;
+    }
+};
+Coherence seen;
+
 }  // namespace
 
 // mbx_hal.h on the model, every access in the shared order
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
+    seen.observe();
     const std::uint32_t value = mbx_model_read(&fabric, offset);
     mailbox.push_back({bus().log.size(), false, offset, value});
     return value;
 }
 
 extern "C" void mbx_hal_write32(std::uint32_t offset, std::uint32_t value) {
+    seen.observe();
     mailbox.push_back({bus().log.size(), true, offset, value});
+    const std::uint32_t sent = fabric.tx_sent;
     mbx_model_write(&fabric, offset, value, 0xFu);
+    for (std::uint32_t k = sent; k < fabric.tx_sent; ++k) seen.sent(mbx_model_tx_frame(&fabric, k));
 }
 
 extern "C" void mbx_hal_wait(void) {}
@@ -186,6 +292,7 @@ struct Sinks : ::testing::Test {
     void SetUp() override {
         bus().reset();
         bus().csr[CTRL_PLAT_CSR_STRM_SEL] = kOtherSelection;
+        seen = Coherence{};
         mailbox.clear();
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
@@ -208,6 +315,7 @@ struct Sinks : ::testing::Test {
     }
     // SRP keeps its one instance as its timer's owner (srp_mbx.h), so each case destroys it
     void TearDown() override {
+        seen.on = false;
         srp_mbx_destroy(&ctrl_plat.srp);
         mbx_model_far_bind(&fabric, nullptr);
     }
@@ -318,21 +426,113 @@ struct Sinks : ::testing::Test {
         }
         return -1;
     }
-    // SET_STREAM_FORMAT (IEEE 1722.1-2021 7.4.9.1) of descriptor {type, n}: its final status
-    int set_format(std::uint16_t type, unsigned n, std::uint64_t format, std::uint16_t seq) {
+    // SET_STREAM_FORMAT's payload (IEEE 1722.1-2021 7.4.9.1) for descriptor {type, n}
+    static std::vector<std::uint8_t> format_payload(std::uint16_t type, unsigned n, std::uint64_t format) {
         std::vector<std::uint8_t> payload(12, 0);
         for (unsigned k = 0; k < 2; ++k) payload[k] = static_cast<std::uint8_t>(type >> (8u * (1u - k)));
         for (unsigned k = 0; k < 2; ++k) payload[2 + k] = static_cast<std::uint8_t>(n >> (8u * (1u - k)));
         for (unsigned k = 0; k < 8; ++k) payload[4 + k] = static_cast<std::uint8_t>(format >> (8u * (7u - k)));
-        return send(0x0008u, payload, seq) ? final_status(0x0008u, seq) : -1;
+        return payload;
+    }
+    // SET_STREAM_FORMAT of descriptor {type, n}: its final status
+    int set_format(std::uint16_t type, unsigned n, std::uint64_t format, std::uint16_t seq) {
+        return send(kSetStreamFormat, format_payload(type, n, format), seq) ? final_status(kSetStreamFormat, seq) : -1;
     }
     int set_format(unsigned n, std::uint64_t format, std::uint16_t seq) { return set_format(kStreamInput, n, format, seq); }
-    // Whether a commit the face made lies between bus log positions from and p.
-    bool committed_between(std::size_t from, std::size_t p) const {
-        for (const std::size_t c : far.commits) {
-            if (mailbox[c - 1u].plat >= from && mailbox[c - 1u].plat <= p) return true;
+    // SET_CONFIGURATION (7.4.7.1) of the configuration in force
+    bool set_configuration(std::uint16_t seq) {
+        std::vector<std::uint8_t> payload(4, 0);
+        payload[2] = static_cast<std::uint8_t>(ctrl_plat.aecp.core.configuration >> 8);
+        payload[3] = static_cast<std::uint8_t>(ctrl_plat.aecp.core.configuration);
+        return send(kSetConfiguration, payload, seq);
+    }
+    // The boot to READY, then every mailbox access watched (Coherence).
+    bool ready() {
+        if (ctrl_plat_boot(&env) != CTRL_PLAT_READY) return false;
+        seen.on = true;
+        return true;
+    }
+    // A command `cmd` sent, its commit held: true once its one response, IN_PROGRESS, has left and the change waits.
+    bool held(std::uint16_t cmd, std::uint16_t seq) {
+        for (unsigned turn = 0; turn < 200u && statuses(cmd, seq).empty(); ++turn) ctrl_plat_step();
+        const auto s = statuses(cmd, seq);
+        return s.size() == 1u && s.front() == static_cast<int>(kInProgress) && ctrl_plat.aecp.core.waiting;
+    }
+    bool hold_format(unsigned n, std::uint64_t to, std::uint16_t seq) {
+        far.ack = false;
+        return send(kSetStreamFormat, format_payload(kStreamInput, n, to), seq) && held(kSetStreamFormat, seq);
+    }
+    // The datapath acknowledges the commit it held.
+    void acknowledge() {
+        far.ack = true;
+        mbx_model_face_ack(&fabric, 0);
+    }
+    // A waiting command's final status at the wait's bound (AECP_WAIT_MS after it, the clock not moved since),
+    // or -2 if one left before it.
+    int at_bound(std::uint16_t cmd, std::uint16_t seq) {
+        steps(20);
+        for (const int status : statuses(cmd, seq)) {
+            if (status != static_cast<int>(kInProgress)) return -2;
+        }
+        mbx_model_advance_ms(&fabric, AECP_WAIT_MS);
+        return final_status(cmd, seq);
+    }
+    // A controller's ACMP command `msg` (IEEE 1722.1-2021 8.2.1) to the entity's listener n, as the datapath
+    // delivers it.
+    bool acmp(std::uint8_t msg, unsigned n) {
+        acmp_test::Pdu c;
+        c.msg = msg;
+        c.controller = acmp_test::kCtl1;
+        c.talker = acmp_test::kTkA;
+        c.listener = ctrl_plat.config.entity->entity_id;
+        c.listener_uid = static_cast<std::uint16_t>(n);
+        const auto frame = acmp_test::acmpdu(c);
+        return mbx_model_rx(&fabric, frame.data(), frame.size(), 0);
+    }
+    static acmp_sink_view sink(unsigned n) {
+        acmp_sink_view v{};
+        (void)acmp_view(&ctrl_plat.app.acmp.acmp, n, &v);
+        return v;
+    }
+    // BIND_RX (true) or UNBIND_RX of listener n, stepped until taken.
+    bool bind(unsigned n, bool bound) {
+        if (!acmp(bound ? spec::MSG_BIND_RX_COMMAND : spec::MSG_UNBIND_RX_COMMAND, n)) return false;
+        for (unsigned turn = 0; turn < 400u && sink(n).bound != bound; ++turn) ctrl_plat_step();
+        steps(20);  // the responses and a bind's probe leave, one owed frame a pass
+        return sink(n).bound == bound;
+    }
+    // The talker's answer to the newest PROBE_TX_COMMAND of listener n sent from frame `since` on (Milan v1.2
+    // 5.5.3.5.3), stepped until the binding settles with its stream.
+    bool answer_probe(unsigned n, std::uint32_t since) {
+        for (std::uint32_t k = fabric.tx_sent; k-- > since;) {
+            const auto* tx = mbx_model_tx_frame(&fabric, k);
+            if (tx == nullptr || tx->len < 70u || tx->bytes[14] != 0xfcu ||
+                (tx->bytes[15] & 15u) != spec::MSG_PROBE_TX_COMMAND || be(tx->bytes + 52, 2) != n) {
+                continue;
+            }
+            acmp_test::Pdu r;
+            r.msg = spec::MSG_PROBE_TX_RESPONSE;
+            r.controller = acmp_test::kCtl1;
+            r.talker = acmp_test::kTkA;
+            r.listener = ctrl_plat.config.entity->entity_id;
+            r.listener_uid = static_cast<std::uint16_t>(n);
+            r.seq = static_cast<std::uint16_t>(be(tx->bytes + 62, 2));
+            r.stream_id = acmp_test::kSid;
+            r.dest_mac = acmp_test::kDa;
+            r.vlan = 2u;
+            const auto frame = acmp_test::acmpdu(r);
+            if (!mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) return false;
+            for (unsigned turn = 0; turn < 400u && !sink(n).settled; ++turn) ctrl_plat_step();
+            return sink(n).settled && sink(n).stream.stream_id == acmp_test::kSid;
         }
         return false;
+    }
+    // While watched, every published stream's context held its input's current format, and no SET_STREAM_FORMAT's
+    // SUCCESS left before its context held it.
+    static void coherent(const char* label) {
+        EXPECT_EQ(seen.stale, 0u) << label << " a published stream's context holds its input's current format ("
+                                  << seen.first << ")";
+        EXPECT_EQ(seen.early, 0u) << label << " no SET_STREAM_FORMAT's SUCCESS leaves before its context holds it";
     }
     // Every context written since `from` holds the format in force, and every context was written.
     void every_context_in_force(std::size_t from, const char* what) {
@@ -340,15 +540,14 @@ struct Sinks : ::testing::Test {
         const Window w = window(from, kOtherSelection);
         for (const unsigned n : contexts()) {
             if (!w.holds(n)) {
-                ADD_FAILURE() << "S5 " << what << " rewrites every context at its format in force: input " << n
-                              << " holds none";
+                ADD_FAILURE() << what << " rewrites every context at its format in force: input " << n << " holds none";
                 continue;
             }
-            EXPECT_EQ(w.format(n), all.at(n).format)
-                << "S5 " << what << " rewrites every context at its format in force: input " << n;
+            EXPECT_EQ(w.format(n), all.at(n).format) << what << " rewrites every context at its format in force: input "
+                                                     << n;
         }
-        EXPECT_EQ(w.lo.size(), contexts().size()) << "S5 " << what << " writes no other context";
-        EXPECT_TRUE(w.restored) << "S5 the selection another writer left is written back";
+        EXPECT_EQ(w.lo.size(), contexts().size()) << what << " writes no other context";
+        EXPECT_TRUE(w.restored) << what << ": the selection another writer left is written back";
     }
 };
 
@@ -387,7 +586,7 @@ TEST_F(Sinks, S1EveryAafInputAboveZeroHoldsItsFormatAtReady) {
 }
 
 TEST_F(Sinks, S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses) {
-    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    ASSERT_TRUE(ready());
     const auto want = contexts();
     if (want.empty()) {
         // no AAF input above 0 at this shape: input 0's SET_STREAM_FORMAT, its first, is a change the face
@@ -431,6 +630,7 @@ TEST_F(Sinks, S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses) {
     EXPECT_EQ(set_format(n, was, 0x0202u), static_cast<int>(kStreamIsRunning))
         << "S2 a bound input refuses SET_STREAM_FORMAT";
     EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S2 a refused change writes no context";
+    coherent("S2");
 }
 
 TEST_F(Sinks, S3AnUnacknowledgedCommitWritesNoContext) {
@@ -441,17 +641,14 @@ TEST_F(Sinks, S3AnUnacknowledgedCommitWritesNoContext) {
 }
 
 TEST_F(Sinks, S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce) {
-    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    ASSERT_TRUE(ready());
     const auto want = contexts();
     const unsigned n = want.empty() ? 0u : want.back();
     const std::uint64_t to = want.empty() ? inputs().at(0).format : kTwoChannels;
     const std::size_t from = bus().log.size();
     far.ack = false;
-    std::vector<std::uint8_t> payload(12, 0);
-    payload[1] = kStreamInput;
-    payload[3] = static_cast<std::uint8_t>(n);
-    for (unsigned k = 0; k < 8; ++k) payload[4 + k] = static_cast<std::uint8_t>(to >> (8u * (7u - k)));
-    ASSERT_TRUE(send(0x0008u, payload, 0x0301u)) << "S4 the command reaches the mailbox";
+    ASSERT_TRUE(send(kSetStreamFormat, format_payload(kStreamInput, n, to), 0x0301u))
+        << "S4 the command reaches the mailbox";
     for (unsigned turn = 0; turn < 200u && statuses(0x0008u, 0x0301u).empty(); ++turn) ctrl_plat_step();
     steps(50);
     const auto first = statuses(0x0008u, 0x0301u);
@@ -473,12 +670,15 @@ TEST_F(Sinks, S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce) {
     }
     ASSERT_TRUE(w.holds(n)) << "S4 the change done again reaches input " << n << "'s context";
     EXPECT_EQ(w.format(n), to) << "S4 the change done again reaches input " << n << "'s context";
-    EXPECT_TRUE(committed_between(acked, w.at.at(n))) << "S4 written after a commit the datapath acknowledged";
+    EXPECT_EQ(w.lo.size(), 1u) << "S4 that input's context alone is written";
+    // written after `acked`, the acknowledgement of the change's own commit, and before its SUCCESS left
+    EXPECT_EQ(seen.answers, 1u) << "S4 its SUCCESS leaves once its context holds it";
     EXPECT_TRUE(w.restored) << "S4 the selection another writer left is written back";
+    coherent("S4");
 }
 
-TEST_F(Sinks, S5AChangeOfAnotherKindLeavesEveryContextInForce) {
-    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+TEST_F(Sinks, S5AChangeOfAnotherKindWritesNoContext) {
+    ASSERT_TRUE(ready());
     // SET_NAME (IEEE 1722.1-2021 7.4.17.1) of the ENTITY's name: a persisted setting, which the face commits
     std::vector<std::uint8_t> name(72, 0);
     name[8] = 'S';
@@ -489,8 +689,9 @@ TEST_F(Sinks, S5AChangeOfAnotherKindLeavesEveryContextInForce) {
     EXPECT_EQ(final_status(0x0010u, 0x0401u), static_cast<int>(kSuccess)) << "S5 SET_NAME is accepted";
     steps(20);
     EXPECT_GT(far.commits.size(), commits) << "S5 SET_NAME's setting is committed";
-    every_context_in_force(from, "SET_NAME");
-    // STREAM_OUTPUT 0's SET_STREAM_FORMAT, its first, so a change the face publishes
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S5 SET_NAME writes no context";
+    // STREAM_OUTPUT 0's SET_STREAM_FORMAT, its first, so a change the face publishes; its commit held, it waits
+    // and is done again once acknowledged
     const aecp_descriptor* out = nullptr;
     const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
     for (std::size_t k = 0; k < model->count; ++k) {
@@ -500,11 +701,160 @@ TEST_F(Sinks, S5AChangeOfAnotherKindLeavesEveryContextInForce) {
     ASSERT_NE(out, nullptr) << "S5 the image holds STREAM_OUTPUT 0";
     from = bus().log.size();
     commits = far.commits.size();
-    EXPECT_EQ(set_format(6u, 0u, be(out->value + kFormatAt, 8), 0x0402u), static_cast<int>(kSuccess))
-        << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT is accepted";
+    far.ack = false;
+    ASSERT_TRUE(send(kSetStreamFormat, format_payload(6u, 0u, be(out->value + kFormatAt, 8)), 0x0402u))
+        << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT reaches the mailbox";
+    ASSERT_TRUE(held(kSetStreamFormat, 0x0402u)) << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT waits, IN_PROGRESS";
+    acknowledge();
+    EXPECT_EQ(final_status(kSetStreamFormat, 0x0402u), static_cast<int>(kSuccess))
+        << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT is done again and accepted";
     steps(20);
     EXPECT_GT(far.commits.size(), commits) << "S5 the output's format is committed";
-    every_context_in_force(from, "a STREAM_OUTPUT's SET_STREAM_FORMAT");
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty())
+        << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT writes no context";
+    // passes with no change, the clock moved past every module's timers
+    from = bus().log.size();
+    steps(50);
+    mbx_model_advance_ms(&fabric, 2000u);
+    steps(50);
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S5 a pass with no change writes no context";
+    coherent("S5");
+}
+
+// The cases below bind an input whose change waits: at a shape with no AAF input above 0 there is none to bind.
+#define SINKS_CONTEXT_OR_RETURN(label)                                                                          \
+    const auto want = contexts();                                                                                \
+    if (want.empty()) {                                                                                          \
+        EXPECT_TRUE(window(0, kOtherSelection).selected.empty()) << label " no input has a context at this shape"; \
+        return;                                                                                                  \
+    }
+
+TEST_F(Sinks, S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S6")
+    const unsigned n = want.back();
+    const std::uint64_t was = inputs().at(n).format;
+    ASSERT_NE(was, kTwoChannels);
+    const std::size_t from = bus().log.size();
+    ASSERT_TRUE(hold_format(n, kTwoChannels, 0x0601u)) << "S6 the change waits, IN_PROGRESS";
+    EXPECT_EQ(inputs().at(n).format, was) << "S6 the waiting change is undone";
+    std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S6 the bind is taken while the change waits";
+    ASSERT_TRUE(answer_probe(n, since)) << "S6 the probe is answered and the binding settles with its stream";
+    acknowledge();
+    EXPECT_EQ(at_bound(kSetStreamFormat, 0x0601u), static_cast<int>(kEntityMisbehaving))
+        << "S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound";
+    EXPECT_EQ(inputs().at(n).format, was) << "S6 the input keeps its format";
+    const Window w = window(from, kOtherSelection);
+    EXPECT_TRUE(!w.holds(n) || w.format(n) == was) << "S6 the input's context keeps its format";
+    EXPECT_TRUE(sink(n).settled) << "S6 the binding stays settled";
+    EXPECT_GT(seen.checks, 0u) << "S6 watched while its stream is published";
+    // unbound, the same change is taken, and a rebind publishes its stream on it
+    ASSERT_TRUE(bind(n, false)) << "S6 the unbind is taken";
+    ASSERT_EQ(set_format(n, kTwoChannels, 0x0602u), static_cast<int>(kSuccess)) << "S6 unbound, the change is taken";
+    since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S6 the rebind is taken";
+    ASSERT_TRUE(answer_probe(n, since)) << "S6 the rebind settles with its stream";
+    EXPECT_EQ(seen.words(n), kTwoChannels) << "S6 the rebind's stream is published on the new format";
+    EXPECT_EQ(seen.boundaries, 2u) << "S6 both streams are published while watched";
+    coherent("S6");
+}
+
+TEST_F(Sinks, S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S7")
+    const unsigned n = want.back();
+    const std::uint64_t was = inputs().at(n).format;
+    ASSERT_TRUE(hold_format(n, kTwoChannels, 0x0701u)) << "S7 the change waits, IN_PROGRESS";
+    const std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S7 the bind is taken while the change waits";
+    acknowledge();
+    steps(20);
+    ASSERT_TRUE(answer_probe(n, since)) << "S7 the probe answered after the acknowledgement settles the binding";
+    EXPECT_EQ(at_bound(kSetStreamFormat, 0x0701u), static_cast<int>(kEntityMisbehaving))
+        << "S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound";
+    EXPECT_EQ(inputs().at(n).format, was) << "S7 the input keeps its format";
+    EXPECT_EQ(seen.words(n), was) << "S7 the input's context keeps its format";
+    EXPECT_EQ(seen.boundaries, 1u) << "S7 its stream is published while watched";
+    coherent("S7");
+}
+
+TEST_F(Sinks, S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S8")
+    const unsigned n = want.back();
+    const std::uint64_t was = inputs().at(n).format;
+    ASSERT_TRUE(hold_format(n, kTwoChannels, 0x0801u)) << "S8 the change waits, IN_PROGRESS";
+    const std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S8 the bind is taken while the change waits";
+    ASSERT_TRUE(answer_probe(n, since)) << "S8 the probe is answered and the binding settles with its stream";
+    EXPECT_EQ(at_bound(kSetStreamFormat, 0x0801u), static_cast<int>(kEntityMisbehaving))
+        << "S8 a change never acknowledged within its wait is answered ENTITY_MISBEHAVING at the wait's bound";
+    EXPECT_EQ(inputs().at(n).format, was) << "S8 the input keeps its format";
+    const std::size_t late = bus().log.size();
+    acknowledge();
+    steps(50);
+    const Window w = window(late, kOtherSelection);
+    EXPECT_TRUE(!w.holds(n) || w.format(n) == was) << "S8 the late acknowledgement moves no context";
+    EXPECT_EQ(seen.words(n), was) << "S8 the input's context keeps its format";
+    // the refusal ends with the wait: another input's change is taken
+    const unsigned m = want.front();
+    if (m != n) {
+        const std::size_t from = bus().log.size();
+        EXPECT_EQ(set_format(m, kTwoChannels, 0x0802u), static_cast<int>(kSuccess))
+            << "S8 the refusal ends with the wait: another input's change is taken";
+        const Window other = window(from, kOtherSelection);
+        EXPECT_TRUE(other.holds(m) && other.format(m) == kTwoChannels)
+            << "S8 the refusal ends with the wait: another input's change reaches its context";
+    }
+    EXPECT_EQ(seen.boundaries, 1u) << "S8 its stream is published while watched";
+    coherent("S8");
+}
+
+TEST_F(Sinks, S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S9")
+    const unsigned n = want.back();
+    ASSERT_TRUE(hold_format(n, kTwoChannels, 0x0901u)) << "S9 the change waits, IN_PROGRESS";
+    std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S9 the bind is taken while the change waits";
+    ASSERT_TRUE(answer_probe(n, since)) << "S9 the probe is answered and the binding settles with its stream";
+    ASSERT_TRUE(bind(n, false)) << "S9 the unbind is taken while the change waits";
+    acknowledge();
+    EXPECT_EQ(final_status(kSetStreamFormat, 0x0901u), static_cast<int>(kSuccess))
+        << "S9 unbound again before its acknowledgement, the change is done again and answered SUCCESS";
+    EXPECT_EQ(inputs().at(n).format, kTwoChannels) << "S9 the input takes the new format";
+    EXPECT_EQ(seen.words(n), kTwoChannels) << "S9 the change done again reaches input " << n << "'s context";
+    EXPECT_EQ(seen.answers, 1u) << "S9 its SUCCESS leaves once its context holds it";
+    since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S9 the rebind is taken";
+    ASSERT_TRUE(answer_probe(n, since)) << "S9 the rebind settles with its stream";
+    EXPECT_EQ(seen.boundaries, 2u) << "S9 both streams are published while watched";
+    coherent("S9");
+}
+
+TEST_F(Sinks, S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput) {
+    ASSERT_TRUE(ready());
+    SINKS_CONTEXT_OR_RETURN("S10")
+    const unsigned n = want.back();
+    // its first, so a change: its commit held, it waits, and an input is bound meanwhile
+    far.ack = false;
+    ASSERT_TRUE(set_configuration(0x0a01u)) << "S10 SET_CONFIGURATION reaches the mailbox";
+    ASSERT_TRUE(held(kSetConfiguration, 0x0a01u)) << "S10 SET_CONFIGURATION waits, IN_PROGRESS";
+    const std::uint32_t since = fabric.tx_sent;
+    ASSERT_TRUE(bind(n, true)) << "S10 the bind is taken while the change waits";
+    ASSERT_TRUE(answer_probe(n, since)) << "S10 the probe is answered and the binding settles with its stream";
+    acknowledge();
+    EXPECT_EQ(at_bound(kSetConfiguration, 0x0a01u), static_cast<int>(kEntityMisbehaving))
+        << "S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound";
+    // unbound, it is taken: every context at its format in force
+    ASSERT_TRUE(bind(n, false)) << "S10 the unbind is taken";
+    const std::size_t from = bus().log.size();
+    ASSERT_TRUE(set_configuration(0x0a02u)) << "S10 SET_CONFIGURATION reaches the mailbox";
+    EXPECT_EQ(final_status(kSetConfiguration, 0x0a02u), static_cast<int>(kSuccess))
+        << "S10 SET_CONFIGURATION is accepted";
+    every_context_in_force(from, "S10 SET_CONFIGURATION");
+    coherent("S10");
 }
 
 }  // namespace
