@@ -127,6 +127,80 @@ static uint32_t random_value(void *ctx)
 	return mbx_now_ms();
 }
 
+// ---- the receive monitor's formats on the datapath CSR window (#946) -------
+//
+// The monitor judges every PDU of a stream above 0 against its context's
+// format words, which nothing but this window writes, and a PDU not in them is
+// UNSUPPORTED_FORMAT and discarded (Milan v1.2 Table 5.6, 4.4.2.2). So each
+// AAF STREAM_INPUT above 0 (ctrl_plat_csr_sink_context) takes the current
+// format in force, the one a controller reads (aecp_face.h, applied): after
+// the open's acknowledged publication; after an acknowledged commit of a
+// SET_STREAM_FORMAT, in the same call; and, for a change the face publishes
+// later (an owed interface republished whole) or one of another kind (a
+// configuration's move), at the platform's next poll after that commit is
+// acknowledged. A format moves only while its input is unbound (SET_STREAM_
+// FORMAT and SET_CONFIGURATION refuse a bound one), and a stream reaches the
+// context only once its binding's stream_id is published, after the probe.
+
+#define STREAM_INPUT 5u  // IEEE 1722.1-2021 Table 7-1
+
+// The face's change port this wraps, whether a change is owed to the poll, and
+// the face's commit count before the last such change
+static struct {
+	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
+	bool owed;
+	uint32_t commits;
+} sinks;
+
+// The model's STREAM_INPUTs with a context of their own in the configuration
+// in force take their current format there: every one (SINK_ALL), or the one
+// of descriptor index `only`.
+#define SINK_ALL 0x10000u
+static void sink_write(uint32_t only)
+{
+	const struct aecp *core = &ctrl_plat.aecp.core;
+	const struct aecp_model *m = core->cfg.model;
+	for (size_t n = 0; n < m->count; ++n) {
+		const struct aecp_descriptor *d = &m->descriptors[n];
+		uint64_t format = 0;
+		if ((only == SINK_ALL || d->index == only) &&
+		    ctrl_plat_csr_sink_context(d->value, d->length, d->configuration, core->configuration, &format)) {
+			ctrl_plat_csr_sink_format(ctrl_plat.env->csr, d->index, format);
+		}
+	}
+}
+
+// The face's change port, wrapped: a SET_STREAM_FORMAT of a STREAM_INPUT is
+// in force once its commit is acknowledged, which interface 0 owing nothing
+// after the call means (aecp_face.c, publish: a commit refused or late leaves
+// the interface owed), and is written at once. Any other change, and one the
+// face could not commit now, is owed to the poll, from the commit count
+// before it.
+static void sink_changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t index)
+{
+	const struct aecp_face *f = &ctrl_plat.face;
+	uint32_t commits = f->commits;
+	sinks.changed(ctx, kind, type, index);
+	if (kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT && !f->owed[0]) {
+		sink_write(index);
+	} else {
+		sinks.owed = true;
+		sinks.commits = commits;
+	}
+}
+
+// The platform's poll: what is owed, once a commit after it is acknowledged,
+// then the console.
+static bool plat_poll(void *ctx)
+{
+	struct ctrl_plat *p = ctx;
+	if (sinks.owed && p->face.commits != sinks.commits) {
+		sinks.owed = false;
+		sink_write(SINK_ALL);
+	}
+	return ctrl_plat_console_poll(&p->console);
+}
+
 // ---- SRP -------------------------------------------------------------------
 
 static void licence(void *ctx, unsigned interface, unsigned n, bool active)
@@ -262,6 +336,10 @@ static bool compose(struct ctrl_plat *p)
 #endif
 	p->aecp_platform = (struct aecp_ports){.random = random_value};
 	aecp_face_init(&p->face, &p->aecp_platform);
+	// the receive monitor's formats follow the face's changes (#946)
+	sinks.changed = p->face.ports.changed;
+	sinks.owed = false;
+	p->face.ports.changed = sink_changed;
 	return ctrl_app_compose(&p->app, &p->config) &&
 	       ctrl_app_compose_aecp(&p->app, &p->bridge, &p->aecp, &p->aecp_config, &p->face.ports, &p->state) &&
 	       ctrl_app_aecp_attach_face(&p->bridge, &p->face);
@@ -291,10 +369,11 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	if (!compose(p)) {
 		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: composition refused; entity disabled\r\n");
 	}
-	// The console's poll, before SRP's two. It is refused only by a full table,
+	// The platform's poll, the formats owed (#946) then the console, before
+	// SRP's two. It is refused only by a full table,
 	// and ctrl_app_attach_srp below refuses unless two more slots are free, so
 	// a composition that leaves the console no slot stops at SRP, by name
-	(void)ctrl_loop_add_poll(&p->app.loop, ctrl_plat_console_poll, &p->console);
+	(void)ctrl_loop_add_poll(&p->app.loop, plat_poll, p);
 	// Steps 6-7: the saved state, bindings first, before anything opens. The
 	// store's tick is the loop's first centisecond consumer, bound before the
 	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
@@ -317,6 +396,9 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	if (!ctrl_app_open_aecp(&p->bridge)) {
 		return reach(p, CTRL_PLAT_AECP, "Milan split: AECP not released; entity disabled\r\n");
 	}
+	// every interface acknowledged the face: each input's format in force, before any stream is bound (#946)
+	sinks.owed = false;
+	sink_write(SINK_ALL);
 	// Step 9: ADP last, once AECP and ACMP accept requests
 	ctrl_app_release_adp(&p->app);
 	// With a reset port, every channel's take behind the REBOOT's gate

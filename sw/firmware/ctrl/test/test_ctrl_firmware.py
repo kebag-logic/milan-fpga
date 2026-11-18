@@ -96,6 +96,11 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            on the models; the whole platform cross-compiled for RV32I; and its
            CSR initialisation against milan_baremetal.c's, every shipped
            config, with planted controls.
+  platsinks
+           each AAF Stream Input above 0 holds its current format in its
+           receive-monitor context on the CSR window, at 8x8/1if and the
+           shipping 1x1/1if (plat_arms.arm_platsinks, test_plat_sinks.cpp;
+           #946).
 
 Every arm but rv32, srpcmp, hot and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.
@@ -201,6 +206,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
     outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))
+    outcomes.extend(plat_arms.sink_arms(tree))
     return outcomes
 
 
@@ -270,6 +276,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
         outcomes.extend(srp_arms.listener_arms(tree, lwsrp.resolve()))
         outcomes.extend(aecp_arms.all_arms(tree))
         outcomes.extend(plat_arms.coverage_arms(tree))
+        outcomes.extend(plat_arms.sink_arms(tree))
     except Refusal as exc:
         print(f"REFUSED: {exc}")
         return 2

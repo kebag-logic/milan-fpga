@@ -88,6 +88,12 @@ DUT_READER_DISPOSITIONS = {
         "format word not loaded) into a copy and requires its named [UF] check of the N=4 harness to "
         "fail; expected values come from the Milan v1.2 Table 6.2 formats the harness drives, never "
         "from the text",
+    "tb/verilator/avtp_rxmon/ctxfmt_mutants.py":
+        "mutation campaign; it plants one of four #946 context-format defects (the bind walk taking "
+        "fmt0_i's words, a stream above 0 judged against fmt0_i's count, the window's write landing in "
+        "another context, an unlock walk writing over the format) into a copy and requires its named "
+        "[CF] check of the N=8 harness to fail; expected values come from the formats the harness "
+        "writes and drives, never from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
         "mutation campaign; it plants one of three source-table and skid defects into a copy and "
         "requires its named lockstep check to fail; expected samples come from the harness's own "

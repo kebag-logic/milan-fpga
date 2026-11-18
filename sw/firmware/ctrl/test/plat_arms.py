@@ -117,6 +117,51 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
     return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))
 
 
+#: The sink-format arm's shapes (#946), each with the AAF Stream Inputs above 0 it holds: 8x8/1if, whose inputs 1
+#: to 7 each have a receive-monitor context of their own, and the shipping 1x1/1if, which has none.
+SINK_SHAPES = ((ROOT / "configs/endstation_ax7101_8x8.yaml", 7), (SHIPPING, 0))
+
+
+def arm_platsinks(tree: Tree, config: Path, aaf_above_0: int) -> Outcome:
+    """Each AAF Stream Input above 0 holds its current format in its receive-monitor context (#946): ctrl_plat.c's
+    boot and composition at one interface, built as arm_platboot builds it, with the sink suite
+    (test_plat_sinks.cpp). The platform's units are those the tree holds, the PHY poll's among them where it has
+    one."""
+    from aecp_arms import AECP_SOURCES
+    from ctrl_arms import lwsrp_pin
+    from srp_arms import LWSRP_SOURCES, prepared
+    out = tree.out / f"platsinks-{config.stem}"
+    variant, inc = prepared(tree, 1, out, config)
+    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+    lw = ROOT / "third_party/lwSRP"
+    lwsrp_pin(lw)
+    inc += ["-DLWSRP_MILAN=1", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}"]
+    store = nvm_tree(tree)
+    plat = [n for n in ("plat/ctrl_plat.c", *CSR_CONSOLE, "plat/ctrl_plat_phy.c") if (tree.src / n).is_file()]
+    firmware = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
+    firmware += [tree.src / "aecp" / n for n in (*AECP_SOURCES, "aecp_mbx.c", "aecp_face.c", "aecp_nvm.c")]
+    firmware += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c", *plat)]
+    firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
+    models = [tree.src / n for n in HOST if n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
+    labels = [f"-DPLAT_TEST_SHAPE=\"{config.stem} if1\"", f"-DPLAT_SINKS_MIN={aaf_above_0}"]
+    try:
+        objs = fw_gtest.compile_c(tree.build, C_FLAGS, inc, firmware, out / "fw")
+        objs += fw_gtest.compile_c(tree.build, C_FLAGS, inc, models, out / "models", measured=False)
+        objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
+                                   [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
+        # the stack's ACMPDU builder (acmp_fake.hpp) for S2's bind, last, so it shadows no firmware header
+        objs += fw_gtest.compile_tests(tree.build, [*inc, *labels, f"-I{STACK_TESTS}"],
+                                       [HERE / "plat_bus.cpp", HERE / "test_plat_sinks.cpp"], out / "tests")
+    except fw_gtest.BuildError as exc:
+        raise Refusal(str(exc)) from exc
+    return execute("platsinks", link(tree, f"test_plat_sinks_{config.stem}", objs))
+
+
+def sink_arms(tree: Tree) -> list[Outcome]:
+    """The sink-format arm at each of its shapes, as the suites and the coverage run run it."""
+    return [arm_platsinks(tree, config, n) for config, n in SINK_SHAPES]
+
+
 #: The compiler's 64-bit logical shift, which no field write of the split platform calls (tsn-c-stack#27).
 SHIFT_HELPER = "__lshrdi3"
 
