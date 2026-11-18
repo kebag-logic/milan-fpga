@@ -89,6 +89,15 @@ struct srp_interface {
     uint32_t talkers;
     uint32_t readdressed;
     bool sources_owed;
+    // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of its declaration (#936; Milan v1.2 5.4.5.2, Table 5.22:
+    // the Talker declaration state, the failure code, the stream VLAN ID), bit s source s: shown and shown_advertise
+    // hold talkers and its Talker Advertises as declare_sources last published them, shown_vid the VID they carry,
+    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID
+    // since the composition last took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
+    uint32_t shown;
+    uint32_t shown_advertise;
+    uint32_t noticed;
+    uint16_t shown_vid;
     // srp_mbx_gate's base at its last call, once one was taken: a call with
     // that base and the gate it left changes nothing, so it returns at once
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the

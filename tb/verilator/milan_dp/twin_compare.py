@@ -71,7 +71,8 @@ PLANT_WORDS = {
     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
                             "to the second controller",
     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
-    "vanished-owed": "owed row stream-output-0-notices: the difference has gone",
+    "vanished-owed": "owed row stream-output-0-dest-mac: the difference has gone",
+    "output-notice-dropped": "owed row stream-output-0-dest-mac does not hold",
     "command-byte": "AECP command 0 differs at byte 33",
     "command-sequence": "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0",
     "response-sequence": "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its "
@@ -97,12 +98,15 @@ PLANT_WORDS = {
 }
 #: the words of the control against the unplanted capture, where they differ
 SELF_WORDS = {
-    "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
+    "vanished-owed": "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66",
+    "output-notice-dropped": "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first "
+                             "controller",
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
     "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ",
 }
 PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
-                    "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
+                    "uncovered-field": "AECP", "vanished-owed": "AECP", "output-notice-dropped": "AECP",
+                    "command-byte": "AECP",
                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
                     "talker-failed-back": "MSRP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP"}
@@ -400,22 +404,27 @@ OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "024b4c4b4c010000" "
                               "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
 OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
-#: Since #895 the split's Talker declares after the PROBE_TX and withdraws, as the fabric's does (IEEE 802.1Q-2018
-#: 35.2.2.8), with no notice at either change; the step that owes the notices is not yet named (#929)
-SRP_NOTICE = ("the split's Talker Advertise for STREAM_OUTPUT 0's stream is declared after the PROBE_TX and withdrawn "
-              "(#895), and the split sends no GET_STREAM_INFO notice of STREAM_OUTPUT 0 at either change")
-SRP_NOTICE_OWED = "#665, its step not yet named (#929)"
+#: the split's declared notice since #936: the fabric's fields with stream_dest_mac 0, its STREAM_DEST_MAC_VALID set
+OUT0_DECLARED_SPLIT = OUT0_DECLARED.replace("91e0f0000100", "000000000000")
+SPLIT_DEST_MAC = ("the split datapath answers a STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's "
+                  "address, which the split does not build (milan_datapath.sv, g_no_maap, and gsi_answer's selector "
+                  "4), so a declaring STREAM_OUTPUT reads 0")
 
 #: The owed-difference list, apart from the ledger (#665): each row names the
 #: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
 OWED = (
-    Row("stream-output-0-notices", "Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed",
+    Row("stream-output-0-dest-mac",
+        "Milan v1.2 5.4.2.10.2, Table 5.11: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's",
         lambda h: notices(h, 0x000F, (6, 0)),
         lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
         == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
-        lambda h, sel: sel == [],
+        lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
+        == [(FIRST, OUT0_DECLARED_SPLIT), (SECOND, OUT0_DECLARED_SPLIT), (FIRST, OUT0_WITHDRAWN),
+            (SECOND, OUT0_WITHDRAWN)],
         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
-        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_NOTICE, SRP_NOTICE_OWED),
+        "PROBE_TX, stream_dest_mac 91e0f0000100, and as it withdraws",
+        "the same notices at the same changes, the declared ones with stream_dest_mac 000000000000", shown_aecp,
+        SPLIT_DEST_MAC, "#943"),
 )
 
 

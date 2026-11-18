@@ -28,7 +28,7 @@ from pathlib import Path
 import arm_path
 import notice_window
 import observers
-import talker_window
+import talker_notice
 import poll_items
 import save_window
 
@@ -99,7 +99,7 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
-    **poll_items.PLANTS, **save_window.PLANTS,
+    **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -232,7 +232,7 @@ VARIANTS = {
          '    ctrl_loop_run(&image_app.loop);'),
     ],
 }
-VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
+VARIANTS.update(talker_notice.VARIANTS)
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
 VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 

@@ -1442,16 +1442,22 @@ a finding too: the lane that fixes it deletes the row.
 
 | Row | Fabric | Split | Owed to |
 |---|---|---|---|
-| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | #665, its step not yet named (#929) |
+| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #943 |
 
-It is the split's. Since #895 its Talker Advertise for STREAM_OUTPUT
-0's stream is declared after the PROBE_TX and withdrawn, as the fabric's is,
-and the split sends no notice at either change (Milan v1.2 5.4.5.2, Table
-5.22).
+It is the split datapath's. Its GET_STREAM_INFO face answers a
+STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's address. The
+split does not build that engine, so a declaring output reads 0
+(`hdl/milan/milan_datapath.sv`, `g_no_maap` and `gsi_answer`'s selector 4;
+Milan v1.2 5.4.2.10.2, Table 5.11).
+#936 deleted the row before it, `stream-output-0-notices`. It owed the split's
+missing notices of STREAM_OUTPUT 0, whose Talker Advertise since #895 is declared
+after the PROBE_TX and withdrawn, as the fabric's is (#929). The split now sends
+the fabric's four, at the same changes, to the same controllers
+([SRP README, Talker declarations](../../../sw/firmware/ctrl/srp/README.md)).
 The fabric's ENTITY available_index row (#858) went with processor 801ef228
 (#893), which serves the last ENTITY_AVAILABLE's value: both halves now read 1.
 
-A third row, `split-talker-failed`, held the split's Talker Failed for both
+Another row, `split-talker-failed`, held the split's Talker Failed for both
 sources from boot, never withdrawn, against the fabric's Talker Advertise for
 source 0. Its cause, no SRP adapter entry taking MAAP's allocation, went with
 #895 (`srp_mbx_allocation`): at its head the split declares no Talker Failed in
@@ -1474,7 +1480,7 @@ item 2).
 
 ### The plants
 
-`make twin-plants` runs fifteen plants. Each must be refused by its words
+`make twin-plants` runs sixteen plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1492,7 +1498,8 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
 | `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 024b4c4b4c010001` |
 | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
 | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
-| `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
+| `vanished-owed` | an owed difference gone: the split's STREAM_OUTPUT 0 notices replaced by the fabric's | `owed row stream-output-0-dest-mac: the difference has gone` |
+| `output-notice-dropped` | #936's defect back: the split's STREAM_OUTPUT 0 notices dropped | `owed row stream-output-0-dest-mac does not hold` |
 | `command-byte` | one byte other than `sequence_id` of the first CONTROLLER_AVAILABLE to the first controller | `AECP command 0 differs at byte 33` |
 | `command-sequence` | the second CONTROLLER_AVAILABLE to the second controller given the first's `sequence_id` | `the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0` |
 | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |

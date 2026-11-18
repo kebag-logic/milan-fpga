@@ -60,12 +60,21 @@ static bool deliver(void *ctx)
     if (app->srp->loop != &app->loop) {
         return false;
     }
+    // The sources whose Talker declaration SRP changed since this delivery last ran, each its STREAM_OUTPUT's
+    // GET_STREAM_INFO notice, which the AECP bridge raises in the next pass: so a pass that takes one owes output and
+    // is not the loop's idle pass (#936; ctrl_loop.h, the polls; Milan v1.2 5.4.5.2, Table 5.22)
+    bool noticed = false;
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+        noticed = noticed || app->srp->ifs[interface].noticed != 0u;
+        app->srp_noticed |= app->srp->ifs[interface].noticed;
+        app->srp->ifs[interface].noticed = 0u;
+    }
     // A Talker is declared while its destination is valid (#895; Milan v1.2 4.3.3.1, 5.3.7.4): the MAAP adapter's DA
     // gate, refreshed by MAAP's poll before this one, with the range MAAP holds on the interface
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
         (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],app->maap.ifs[interface].core.base);
     }
-    bool pending = false;
+    bool pending = noticed;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
         unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
@@ -131,6 +140,8 @@ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp)
         channels |= 1u << MBX_CH_ACMP;
         app->srp = srp;
         memset(app->srp_requests,0,sizeof(app->srp_requests));
+        // a recomposed application keeps no record of the SRP instance it attached before (#936)
+        app->srp_noticed = 0u;
         app->acmp_owner = app->acmp.acmp.env;
         app->acmp_delivery = (struct acmp_env){app,locked,source,request,persist,changed};
         app->acmp.acmp.env = &app->acmp_delivery;

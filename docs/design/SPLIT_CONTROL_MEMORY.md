@@ -653,6 +653,19 @@ The parenthesis is `16ba667d`'s. The commit adds 2,168 B of `rom` to every platf
 
 The parentheses are the seventh step's and the sixth's; the sixth's `sram` and `ctrl_plat` are the seventh's. #923's commit adds 2,168 B of `rom` at every point, as at #923's head, and no `ctrl_plat` byte: its edit port takes 4 B in two members whose padding holds them. The train's earlier steps took `ctrl_plat` 320 B past #923's base at 8x8 with two interfaces and each image half a tile past the entries they stated, so each entry is its measured tiles by the owner's rule of 2026-11-15. The size fixture's 8x8 image with two interfaces needs 129,920 to 130,424 B of `rom` over the harness's six arms at the seventh step (113,440 to 113,504 B of `sram`), 60.0 RAMB36, past the 129,024 B that 59.5 holds, and 130,472 to 130,968 B at the eighth (114,288 to 114,352 B of `sram`), still 60.0. #925's changes take `ctrl_plat` 128 to 832 B more at the four points, and at 8x8 with two interfaces its `sram` past 56 granules, as at #925's head.
 
+**At #936's head**, each image linked from the same inputs as at its base `70f4056f`, the fixture and its two harness arms by the CPU budget harness's `build.firmware()` on each shape's split export's flash map, the platform's by `plat_ledger.py` (which passes at every point):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 112,624 / 55,216 | 41.0 | 117,688 / 56,224 | 43.0 | 17,536 |
+| 1x1, two interfaces | 114,216 / 57,408 | 42.5 | 119,304 / 58,464 | 44.0 | 19,136 |
+| 8x8, one interface | 125,280 / 96,320 | 55.0 | 130,392 / 97,328 | 56.0, accepted | 18,240 |
+| 8x8, two interfaces (largest) | 126,832 / 113,280 | 59.0, within its 59.5 | 131,976 / 114,288 | 60.5, its ledger's | 20,416 |
+
+SRP's record of the STREAM_OUTPUT notices and its report as owed output add 192 to 232 B of `rom` an image, the most at the 1x1 two-interface points, and 0 to 64 B of `sram`: 16 or 32 B in the fixture's images, none in the platform's one-interface images and 64 B in its two-interface images, its `ctrl_plat`.
+The harness's `answering-every-port` arm at 8x8 with two interfaces needs 127,140 B in 129,024, 59.5, its `valid-destinations` arm 126,992 B and its `talker-notices` arm 127,048 B, each in 129,024, 59.5: each past the 59.0 entry, which the owner's decision of 2026-11-15 raises to 59.5 as debt owed to S14 ([section 3](#3-named-refusals)). The `talker-notices` arm runs at one interface, where it needs 112,808 B at 1x1 (41.5) and 125,464 B at 8x8 (55.0). The fixture needs 126,832 B (144 B to spare at 59.0).
+The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120, 1,144 B left at its 60.5. Its 8x8 one-interface image holds 130,392 B in 131,072 at 56.0 (680 B), and its 1x1 one-interface image 117,688 B at 43.0. Both product images keep their banks: 64, 32, 16 and 4 KiB at 1x1/1if and one 128 KiB bank at 8x8/1if.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.

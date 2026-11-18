@@ -37,7 +37,7 @@
 #   make twin   - #665: the two-placement simulation, one stimulus on the
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
-#   make twin-plants - its twenty plants, each refused by its own words
+#   make twin-plants - its sixteen plants, each refused by its own words
 #   make twin-maps - #923: the split image's audio maps reach the render
 #                 store, the format verdict follows them, a saved map is
 #                 restored to it; twin-maps-plants plants the defect
@@ -1022,8 +1022,8 @@ twin: build-twin
 # Talker Failed again (#929); the fabric's for an owed fabric defect gone, of
 # which none is left (TWIN_FABRIC_PLANTS)
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
-TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
-  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join \
+TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed output-notice-dropped command-byte command-sequence \
+  response-sequence table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join \
   talker-failed-back
 # none at this head: processor 801ef228 (#893) fixed the owed fabric defects (#857, #858, #860) they planted
 TWIN_FABRIC_PLANTS =

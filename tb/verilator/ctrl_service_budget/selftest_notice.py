@@ -177,4 +177,64 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
                 wrong.append(group.name)
     out.append(('every retried notice group binds before its load, floods and holds every channel across the '
                 "port's answer, and grades its held records from the load's mark", not wrong, str(wrong)))
+    return out + talker_checks(points)
+
+
+def talker_checks(points: list[scenario.Point]) -> list[Check]:
+    """The declared and withdrawn Talker's notice rows (#936, talker_notice.py): each timed from its event's commit to
+    its last registration's notice against 20 ms, inside its load; a row later than that, or with no notice, fails the
+    run; and the dropped and delayed plants are caught only when both rows of every group fail for their reason."""
+    import talker_notice
+    names = talker_notice.names()
+    wrong = []
+    for p in points:
+        everyone = scenario.registrations() * p.interfaces
+        own = scenario.listener_ready(p).hex()
+        for group in talker_notice.groups(p):
+            rows = {probe.path: probe for probe in group.probes}
+            steps = group.steps
+            ok = set(rows) == set(talker_notice.PATHS) and all(
+                probe.family == 'notify' and grade.budget_ms(probe) == scenario.T_SVC_MS and
+                len(probe.recipients) == everyone and probe.ends[-1] == f'notify:{AECP}:000f:6:{talker_notice.SOURCE}'
+                for probe in rows.values())
+            for probe in rows.values():
+                mark, event = steps.index(f'mark {probe.name}'), next(
+                    n for n, s in enumerate(steps) if s.endswith(probe.name) and not s.startswith('mark '))
+                flood = steps.index('flood gm 1', mark)
+                ok = ok and mark < flood < event < steps.index('flood gm 0', event) < steps.index(f'mark {probe.until}')
+            ok = ok and rows[talker_notice.DECLARED].start == f"rxc:{scenario.CH['acmp']}" and \
+                rows[talker_notice.WITHDRAWN].start == f"rxc:{scenario.CH['maap']}" and \
+                not any(own in s for s in steps)
+            if not ok:
+                wrong.append(f'{p.label} {group.name}')
+    out = [("every talker-notice group times its declaration from the PROBE_TX's commit and its withdrawal from the "
+            "ANNOUNCE's to source 0's STREAM_OUTPUT notice to every registration against 20 ms, each event inside its "
+            "load, with no Listener Ready for the entity's own stream", not wrong, str(wrong))]
+    groups = talker_notice.groups(points[0])
+    rows = [probe.name for g in groups for probe in g.probes]
+    measured = lambda name, ms: dict(probe=name, path=[talker_notice.DECLARED if '.declared.' in name else
+                                                       talker_notice.WITHDRAWN, 0], status='measured', ms=ms,
+                                     budget_ms=20.0, within_budget=ms <= 20.0, fanout=dict(recipients=16))
+    results = lambda ms: [dict(group=g.name, probes=[measured(probe.name, ms) for probe in g.probes]) for g in groups]
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    verdicts = tuple(quietly(lambda ms=ms: run.verdict(args, groups, [], [], [], run.notice_misses(results(ms), 1)))
+                     for ms in (12.0, 21.0))
+    out.append(("a declared or withdrawn Talker's notice later than its bound fails the run whatever the options "
+                'record, and one within it passes', verdicts == (0, 1), str(verdicts)))
+    dropped = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-dropped', record_budget_findings=True,
+                                 record_share_findings=True)
+    delayed = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-delayed', record_budget_findings=True,
+                                 record_share_findings=True)
+    never = [f'{name}: no end: no notification to [x]' for name in rows]
+    late = run.notice_misses(results(25.0), 1)
+    caught = tuple(quietly(lambda c=c, r=r, m=m: run.verdict(c, groups, r, [], [], m)) for c, r, m in (
+        (dropped, never, []), (dropped, never[1:], []), (dropped, [*never, 'x.held.srp.if0: refused'], []),
+        (dropped, [], late), (delayed, [], late), (delayed, [], late[1:]), (delayed, never, [])))
+    out.append(("the dropped notice's plant is caught only when both rows of every group have no notice, with no other "
+                "refusal, and the delayed one's only when both are later than their bound", caught == (0, 1, 1, 1, 0, 1,
+                                                                                                      1), str(caught)))
+    out.append(("both plants run every group of the talker-notices arm, and that arm's run takes them alone",
+                all(build.MUTATIONS[m][3:] == (','.join(names), 'talker-notices') for m in talker_notice.CONTROLS)
+                and [x.name for x in run.all_groups(points[0], dict(variant='talker-notices'))] == names, ''))
     return out

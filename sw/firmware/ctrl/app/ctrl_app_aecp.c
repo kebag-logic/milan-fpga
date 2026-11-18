@@ -207,6 +207,18 @@ static bool deliver(void *ctx)
 		publish_store(c);
 		pending = aecp_face_poll(c->face) || pending;
 	}
+	// A Talker declared, withdrawn, swapped between Advertise and Failed or declared on another VID: its
+	// STREAM_OUTPUT's GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the
+	// release processor sends one at each declaration and withdrawal. SRP's delivery took the change from SRP.
+	uint32_t noticed = c->app->srp_noticed;
+	if (noticed != 0u) {
+		c->app->srp_noticed = 0u;
+		for (uint16_t n = 0; noticed != 0u; ++n, noticed >>= 1) {
+			if ((noticed & 1u) != 0u) {
+				aecp_changed(&c->aecp->core, 6, n, 1u);
+			}
+		}
+	}
 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
 		if ((c->bindings & (1u << n)) != 0u) {
 			c->bindings &= ~(1u << n);

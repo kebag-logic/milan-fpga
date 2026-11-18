@@ -702,7 +702,7 @@ DEFECTS = (
            'r->pending = true;', 'r->pending = true; (void)deliver(app);',
            'callback only queues the binding', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-poll-adds-access','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
-           'bool pending = false;', 'bool pending = false; (void)mbx_irq_status();',
+           'bool pending = noticed;', 'bool pending = noticed; (void)mbx_irq_status();',
            'binding poll makes no mailbox access', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-interface-lost','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
            'app->srp,interface,sink,r->bound',

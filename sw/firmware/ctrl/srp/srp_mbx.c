@@ -307,6 +307,7 @@ static void domain(struct msrp_ctx *ctx, uint8_t port, const struct msrp_domain 
 static bool declare_sources(struct srp_interface *i, unsigned how)
 {
     struct srp_mbx *m = i->owner;
+    uint32_t advertise = 0;
     uint64_t used = 0;
     bool done = true;
     // A join rewrites the value of the attribute a registration shares (#665).
@@ -373,6 +374,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
         i->admitted[n] = advertised && (i->talkers & bit) != 0u;
         if (i->admitted[n]) {
             used += slope;
+            advertise |= bit;
         }
     }
     // The admitted bandwidth (IDLE_SLOPE) and the declared sources
@@ -383,6 +385,20 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     (void)mbx_pub_talker_decl(i->index,i->talkers);
     // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations
     i->sources_owed = !done;
+    // Each source whose declaration changed against what its STREAM_OUTPUT last showed is noticed (#936; Milan v1.2
+    // 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): declared or withdrawn, or still declared with its type swapped or
+    // on another VID (an adopted Domain's). A failed creation returns before this, so what it joined is noticed once
+    // it succeeds. A Talker Failed's code follows the source's allocation, which only a withdrawal changes
+    // (srp_mbx_gate).
+    const uint32_t kept = i->talkers & i->shown;
+    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);
+    if (i->domain.vid != i->shown_vid) {
+        moved |= kept;
+    }
+    i->noticed |= moved;
+    i->shown = i->talkers;
+    i->shown_advertise = advertise;
+    i->shown_vid = i->domain.vid;
     return done;
 }
 

@@ -837,6 +837,68 @@ TEST_F(AppStore, TheRestoredMapsReachTheStoreBeforeAecpOpens)
     EXPECT_EQ(edits[1],Edit(false,14,{saved}))<<"the saved set added";
     EXPECT_TRUE(adapter.core.open);EXPECT_TRUE(same_rows(pools[0],{saved}));
 }
+
+// #936: SRP's record of a source whose Talker declaration changed is its STREAM_OUTPUT's GET_STREAM_INFO notice
+// (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the SRP delivery takes it and the bridge raises the
+// notice of that STREAM_OUTPUT, which every registered controller is sent once (Milan v1.2 5.4.5.1). A source the
+// record does not name, and a pass with no record, are notified nothing.
+TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);service();
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    unsigned before=fabric.tx_sent;
+    reservation.ifs[0].noticed=1u;service();
+    EXPECT_EQ(reservation.ifs[0].noticed,0u)<<"the SRP delivery takes SRP's record";
+    EXPECT_EQ(application.srp_noticed,0u)<<"the bridge raises every STREAM_OUTPUT the delivery took";
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,0,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,last,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+    before=fabric.tx_sent;service();mbx_model_advance_ms(&fabric,50);service();
+    EXPECT_EQ(notices(before,0,CTLR)+notices(before,last,CTLR),0u)<<"a pass with no record notifies nothing";
+    before=fabric.tx_sent;
+    reservation.ifs[MBX_N_IF-1u].noticed=1u<<last;service();
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,last,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+}
+
+// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps in mbx_hal_wait()): from the
+// pass that takes SRP's record to its STREAM_OUTPUT's notice committed to every registered controller, no pass
+// reports the loop idle. Each pass is stepped alone, from an idle loop, until one returns 0.
+TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
+{
+    aem(36);aem(36,{},CTLR+1);
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
+    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+    for(auto [interface,source]:{std::pair{0u,0u},std::pair{MBX_N_IF-1u,last}}){
+        const unsigned before=fabric.tx_sent;
+        reservation.ifs[interface].noticed=1u<<source;
+        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+        for(uint64_t controller:{CTLR,CTLR+1}){
+            EXPECT_EQ(notices(before,source,controller),1u)
+                <<"no pass is idle while a STREAM_OUTPUT's notice is owed";
+        }
+    }
+}
 #endif
 
 namespace {
