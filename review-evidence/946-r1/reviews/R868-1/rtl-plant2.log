@@ -1,0 +1,111 @@
+== LCTX format contract, N=8 (#946) ==
+
+[CF1] format words never written: every in-format PDU above 0 is UNSUPPORTED_FORMAT
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 0 = 1
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 0 = 0
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 1 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 1 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 2 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 2 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 3 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 3 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 4 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 4 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 5 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 5 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 6 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 6 = 1
+  [ ok ] [CF1] accept verdicts for the in-format PDU: input 7 = 0
+  [ ok ] [CF1] UNSUPPORTED_FORMAT: input 7 = 1
+
+[CF2] the format written while unbound survives the bind's walk
+  [ ok ] [CF2] the first in-format PDU is accepted: input 0 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 0 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 0 = 0
+  [FAIL] [CF2] the first in-format PDU is accepted: input 1 got=0 exp=1
+  [FAIL] [CF2] FRAMES_RX counts it: input 1 got=0 exp=1
+  [FAIL] [CF2] UNSUPPORTED_FORMAT stays 0: input 1 got=1 exp=0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 2 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 2 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 2 = 0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 3 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 3 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 3 = 0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 4 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 4 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 4 = 0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 5 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 5 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 5 = 0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 6 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 6 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 6 = 0
+  [ ok ] [CF2] the first in-format PDU is accepted: input 7 = 1
+  [ ok ] [CF2] FRAMES_RX counts it: input 7 = 1
+  [ ok ] [CF2] UNSUPPORTED_FORMAT stays 0: input 7 = 0
+  [FAIL] [CF2] FMT_LO reads back as written: input 1 got=0 exp=33579008
+  [FAIL] [CF2] FMT_HI reads back as written: input 1 got=0 exp=33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 2 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 2 = 33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 3 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 3 = 33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 4 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 4 = 33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 5 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 5 = 33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 6 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 6 = 33882656
+  [ ok ] [CF2] FMT_LO reads back as written: input 7 = 33579008
+  [ ok ] [CF2] FMT_HI reads back as written: input 7 = 33882656
+
+[CF3] each context judges against its own words (input k: k+1 channels)
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 1 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 2 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 3 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 4 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 5 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 6 got=0 exp=1
+  [FAIL] [CF3] a PDU of the input's own channel count is accepted: input 7 got=0 exp=1
+  [ ok ] [CF3] a PDU of another input's channel count is discarded: input 1 = 0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 1 = 1
+  [FAIL] [CF3] a PDU of another input's channel count is discarded: input 2 got=1 exp=0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 2 = 1
+  [ ok ] [CF3] a PDU of another input's channel count is discarded: input 3 = 0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 3 = 1
+  [FAIL] [CF3] a PDU of another input's channel count is discarded: input 4 got=1 exp=0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 4 = 1
+  [ ok ] [CF3] a PDU of another input's channel count is discarded: input 5 = 0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 5 = 1
+  [FAIL] [CF3] a PDU of another input's channel count is discarded: input 6 got=1 exp=0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 6 = 1
+  [ ok ] [CF3] a PDU of another input's channel count is discarded: input 7 = 0
+  [ ok ] [CF3] ...and counts UNSUPPORTED_FORMAT: input 7 = 1
+
+[CF4] written the cycle before the bind, then a PDU at once
+  [FAIL] [CF4] the first PDU after the bind is accepted: input 1 got=0 exp=1
+  [ ok ] [CF4] the first PDU after the bind is accepted: input 2 = 1
+  [ ok ] [CF4] the first PDU after the bind is accepted: input 3 = 1
+  [FAIL] [CF4] the first PDU after the bind is accepted: input 4 got=0 exp=1
+  [ ok ] [CF4] the first PDU after the bind is accepted: input 5 = 1
+  [FAIL] [CF4] the first PDU after the bind is accepted: input 6 got=0 exp=1
+  [ ok ] [CF4] the first PDU after the bind is accepted: input 7 = 1
+
+[CF5] an unbind keeps the format through the silence unlock: the next binding receives
+  [FAIL] [CF5] the rebound input's first PDU is accepted: input 1 got=0 exp=1
+  [FAIL] [CF5] UNSUPPORTED_FORMAT stays 0: input 1 got=1 exp=0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 2 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 2 = 0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 3 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 3 = 0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 4 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 4 = 0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 5 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 5 = 0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 6 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 6 = 0
+  [ ok ] [CF5] the rebound input's first PDU is accepted: input 7 = 1
+  [ ok ] [CF5] UNSUPPORTED_FORMAT stays 0: input 7 = 0
+
+======================================================================
+CTXFMT N=8: 96 checks, 20 failures
+RESULT: FAIL

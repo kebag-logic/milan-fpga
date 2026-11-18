@@ -1,0 +1,38 @@
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[ RUN      ] Sinks.DeferredFormatMustNotMoveAnAlreadySettledBinding
+STALE: bound=1 published_sid=5544332211002233 current=0205022000806000 LCTX=0205022002006000
+PROBE: input=7 bound=1 settled=1 final_status=0 old=0205022002006000 current=0205022000806000 window=0205022000806000
+<packet>/scratch/deferred-bind/tests/test_plat_sinks.cpp:609: Failure
+Expected equality of these values:
+  stale_observations
+    Which is: 3
+  0u
+    Which is: 0
+A settled binding must not remain published while its current format differs from its LCTX format
+
+  [FAIL] Sinks.DeferredFormatMustNotMoveAnAlreadySettledBinding: A settled binding must not remain published while its current format differs from its LCTX format
+[  FAILED  ] Sinks.DeferredFormatMustNotMoveAnAlreadySettledBinding (1 ms)
+[----------] 6 tests from Sinks (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Sinks.DeferredFormatMustNotMoveAnAlreadySettledBinding
+
+ 1 FAILED TEST
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 6   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 6 checks, exit 1)

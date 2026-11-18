@@ -1,0 +1,21 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 5 tests.
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

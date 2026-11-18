@@ -1,0 +1,84 @@
+EXPECTED: Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+RC: 1; named catch: True
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:413: Failure
+Value of: after_acknowledged_commit(w.at.at(n))
+  Actual: false
+Expected: true
+S2 written after the change's acknowledged commit
+
+  [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:461: Failure
+Value of: window(from, kOtherSelection).selected.empty()
+  Actual: false
+Expected: true
+S4 a change waiting for its acknowledgement writes no context
+
+  [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+
+ 2 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 5 checks, exit 1)
+EXPECTED: Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+RC: 1; named catch: True
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:413: Failure
+Value of: after_acknowledged_commit(w.at.at(n))
+  Actual: false
+Expected: true
+S2 written after the change's acknowledged commit
+
+  [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:461: Failure
+Value of: window(from, kOtherSelection).selected.empty()
+  Actual: false
+Expected: true
+S4 a change waiting for its acknowledgement writes no context
+
+  [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+
+ 2 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 5 checks, exit 1)

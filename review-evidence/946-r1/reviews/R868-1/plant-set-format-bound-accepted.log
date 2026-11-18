@@ -1,0 +1,43 @@
+EXPECTED: Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+RC: 1; named catch: True
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:431: Failure
+Expected equality of these values:
+  set_format(n, was, 0x0202u)
+    Which is: 0
+  static_cast<int>(kStreamIsRunning)
+    Which is: 12
+S2 a bound input refuses SET_STREAM_FORMAT
+
+  [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+<repository>/sw/firmware/ctrl/test/test_plat_sinks.cpp:433: Failure
+Value of: window(from, kOtherSelection).selected.empty()
+  Actual: false
+Expected: true
+S2 a refused change writes no context
+
+  [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a refused change writes no context
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce
+[       OK ] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce (0 ms)
+[----------] 5 tests from Sinks (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+
+ 1 FAILED TEST
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)

@@ -1,0 +1,63 @@
+EXPECTED: Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+RC: 1; named catch: True
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+[       OK ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores (0 ms)
+[ RUN      ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+<repository>/sw/firmware/ctrl/test/test_plat.cpp:179: Failure
+Value of: ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)
+  Actual: true
+Expected: false
+C6 not another interface's input
+
+  [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+[  FAILED  ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[----------] 12 tests from Plat (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+
+ 1 FAILED TEST
+== ctrl split platform CSR window and console (host bus): checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

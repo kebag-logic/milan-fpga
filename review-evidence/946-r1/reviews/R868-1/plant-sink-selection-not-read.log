@@ -1,0 +1,72 @@
+EXPECTED: Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 the selection is read before the window is moved
+RC: 1; named catch: True
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (1 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+<repository>/sw/firmware/ctrl/test/test_plat.cpp:132: Failure
+Expected equality of these values:
+  bus().writes()
+    Which is: { (2048, 5), (2084, 33579008), (2088, 33882656), (2048, 0) }
+  (Writes{{0x800u, 5u}, {0x824u, 0x02006000u}, {0x828u, 0x02050220u}, {0x800u, 0x103u}})
+    Which is: { (2048, 5), (2084, 33579008), (2088, 33882656), (2048, 259) }
+C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+
+  [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+<repository>/sw/firmware/ctrl/test/test_plat.cpp:135: Failure
+Value of: !bus().log[0].write && bus().log[0].address == kCsr + 0x800u
+  Actual: false
+Expected: true
+C5 the selection is read before the window is moved
+
+  [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 the selection is read before the window is moved
+[  FAILED  ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores (0 ms)
+[ RUN      ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+[       OK ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[----------] 12 tests from Plat (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+
+ 1 FAILED TEST
+== ctrl split platform CSR window and console (host bus): checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
