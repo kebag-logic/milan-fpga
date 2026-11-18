@@ -134,9 +134,17 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: by the rule, over 8x8/2if's 365, until a Listener's change walked no registrar (#930): on that image it is 32,936,
 #: 350 us, within 365, so 8x8/2if's supplies it again, as the cut's own measurement states the cost it moves. So with
 #: 1x1/1if's record.srp, 290 us for that group's 27,170 cycles before the cut and 280 after it, over its 23,503.
-OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 175}}
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
+#: record.maap 16,682 CPU cycles (the valid-destinations arm, srp-talker-loss), 180 us; 8x8/2if event.AECP 11,404 CPU
+#: cycles (the answering-every-port arm, notice-burst-6: aecp.c arm()'s walk of the registry and the live notices),
+#: 120 us; 8x8/2if events_none 4,069 CPU cycles (the valid-destinations arm, srp-talker-held), 45 us; 8x8/2if
+#: record.maap 14,770 CPU cycles (the valid-destinations arm, srp-talker-loss), 160 us, each by the rule.
+#: 8x8/1if's record.srp there, 35,547 CPU cycles (the valid-destinations arm, srp-talker-held), 375 us by the rule,
+#: is not restated: ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US states it (srp_unit), a header constant a restatement does
+#: not move (the same ruling, item 2), so its statement stays 365 until the owner decides.
+OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 180}}
 OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
-                            'record.maap': (16_323, 'the valid-destinations arm, srp-talker-loss')}}
+                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
@@ -207,9 +215,9 @@ STATED_US = {
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
-                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 55,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.retained': 365, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 160,
+                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 55,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.retained': 365, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
@@ -258,9 +266,9 @@ STATED_US_DONOR = {
                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
-                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
+                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 85,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 345, 'item.reclaim': 40, 'item.retained': 365,
                 'item.mrpdu': 1215, 'item.acmp': 70, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,

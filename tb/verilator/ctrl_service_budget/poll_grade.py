@@ -123,7 +123,10 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: 345 at 8x8/1if and 280 at 1x1/1if, an SRP record's there, 285 since AECP's REBOOT merged on the tiers (#871),
 #: which 1x1/1if's states (ONE). Measured on that image over every group of every arm,
 #: 8x8/1if's reclaim is 3,446 cycles in srp-talker-held, 40 us by the rule.
-EIGHT_ONE = dict(base=280, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=345, mrpdu=0, acmp=80, aecp=145,
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if base
+#: 28,417 CPU cycles (the valid-destinations arm, srp-talker-held), 300 us; 8x8/1if retained 35,350 CPU cycles (the
+#: valid-destinations arm, srp-talker-held), 375 us, each by the rule.
+EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}

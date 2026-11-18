@@ -45,7 +45,10 @@ if TYPE_CHECKING:
 #: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
 #: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
 #: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
-PACED = {'1x1/1if': {'a one-row edit': 295, 'an accepted SET_CONFIGURATION': 305},
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 1x1/1if a
+#: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
+#: each by the rule.
+PACED = {'1x1/1if': {'a one-row edit': 310, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.
