@@ -80,6 +80,9 @@ static void publish(struct aecp_face *f, unsigned i, bool settings, const struct
 		f->owed[i] = true;
 		return;
 	}
+	// the STREAM_INPUT entries this commit carries, for the sink port once it is acknowledged (#946)
+	const struct aecp_descriptor *inputs[MBX_N_PUB_SINKS + 1u];
+	unsigned carried = 0;
 	if (settings) {
 		write_settings(f, i);
 	}
@@ -89,13 +92,22 @@ static void publish(struct aecp_face *f, unsigned i, bool settings, const struct
 							  (uint16_t)(input ? k : k - MBX_N_PUB_SINKS));
 		if (d != NULL && interface_of(f, d) == i) {
 			write_stream(f, i, d);
+			if (input) {
+				inputs[carried++] = d;
+			}
 		}
 	}
 	if (stream != NULL) {
 		write_stream(f, i, stream);
+		if (stream->type == STREAM_INPUT) {
+			inputs[carried++] = stream;
+		}
 	}
 	if (mbx_face_commit(i) == MBX_STATUS_OK) {
 		++f->commits;
+		for (unsigned k = 0; f->sink != NULL && k < carried; ++k) {
+			f->sink(f->sink_ctx, i, inputs[k]->index, wire_be64(inputs[k]->value + FORMAT_AT));
+		}
 	} else {
 		++f->late;
 		f->owed[i] = true;
@@ -282,6 +294,13 @@ void aecp_face_init(struct aecp_face *f, const struct aecp_ports *platform)
 void aecp_face_attach(struct aecp_face *f, struct aecp *core)
 {
 	f->core = core;
+}
+
+void aecp_face_sinks(struct aecp_face *f, void (*sink)(void *ctx, unsigned interface, uint16_t index, uint64_t format),
+		     void *ctx)
+{
+	f->sink = sink;
+	f->sink_ctx = ctx;
 }
 
 void aecp_face_status(struct aecp_face *f, uint32_t restore, uint32_t nvm, bool dirty)

@@ -126,6 +126,28 @@ static uint32_t random_value(void *ctx)
 	return mbx_now_ms();
 }
 
+// IEEE 1722-2016 Table 6: the AAF subtype, a stream format's first byte
+#define AAF_SUBTYPE 0x02u
+
+// The face's sink port (aecp_face_sinks; #946): an AAF STREAM_INPUT above 0
+// takes the current format the acknowledged commit published into its
+// receive-monitor context on the CSR window (ctrl_plat_csr_sink_format), which
+// is its context's only writer. Stream 0's format reaches the monitor from the
+// publication itself. A CRF input has no context there. The datapath has one
+// window, interface 0's, so another interface's write is dropped and counted.
+static void sink_format(void *ctx, unsigned interface, uint16_t index, uint64_t format)
+{
+	struct ctrl_plat *p = ctx;
+	if (index == 0u || (unsigned)(format >> 56) != AAF_SUBTYPE) {
+		return;
+	}
+	if (interface != 0u) {
+		++p->csr_dropped;
+		return;
+	}
+	ctrl_plat_csr_sink_format(p->env->csr, index, format);
+}
+
 // ---- SRP -------------------------------------------------------------------
 
 static void licence(void *ctx, unsigned interface, unsigned n, bool active)
@@ -223,6 +245,7 @@ static bool compose(struct ctrl_plat *p)
 #endif
 	p->aecp_platform = (struct aecp_ports){.random = random_value};
 	aecp_face_init(&p->face, &p->aecp_platform);
+	aecp_face_sinks(&p->face, sink_format, p);
 	return ctrl_app_compose(&p->app, &p->config) &&
 	       ctrl_app_compose_aecp(&p->app, &p->bridge, &p->aecp, &p->aecp_config, &p->face.ports, &p->state) &&
 	       ctrl_app_aecp_attach_face(&p->bridge, &p->face);

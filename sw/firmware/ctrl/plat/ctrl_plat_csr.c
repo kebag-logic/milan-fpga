@@ -67,6 +67,16 @@ void ctrl_plat_csr_status(uintptr_t csr, struct ctrl_plat_status *s)
 	s->pp_stat = rd(csr, CTRL_PLAT_CSR_PP_STAT);
 }
 
+void ctrl_plat_csr_sink_format(uintptr_t csr, unsigned n, uint64_t format)
+{
+	uint32_t selection = rd(csr, CTRL_PLAT_CSR_STRM_SEL);
+	// dir 0, the listener contexts: index n
+	wr(csr, CTRL_PLAT_CSR_STRM_SEL, n & 0xFu);
+	wr(csr, CTRL_PLAT_CSR_STRMW_FMT_LO, (uint32_t)format);
+	wr(csr, CTRL_PLAT_CSR_STRMW_FMT_HI, (uint32_t)(format >> 32));
+	wr(csr, CTRL_PLAT_CSR_STRM_SEL, selection);
+}
+
 bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns)
 {
 	wr(csr, CTRL_PLAT_CSR_PTP_CMD, CTRL_PLAT_PTP_SNAPSHOT);

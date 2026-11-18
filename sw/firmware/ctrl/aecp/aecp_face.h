@@ -56,6 +56,9 @@ struct aecp_face {
 	uint32_t commits;                       // commits the datapath acknowledged
 	uint32_t late;                          // commits it did not acknowledge within the bound
 	uint32_t unanswered;                    // window reads with no answer within the bound
+	// The platform's sink port, or NULL (aecp_face_sinks)
+	void (*sink)(void *ctx, unsigned interface, uint16_t index, uint64_t format);
+	void *sink_ctx;
 };
 
 // Does not touch the mailbox. platform supplies random.
@@ -74,6 +77,17 @@ bool aecp_face_open(struct aecp_face *);
 // Publish again, whole, each owed interface whose block is free; true while
 // one is still owed.
 bool aecp_face_poll(struct aecp_face *);
+// The sink port (#946): once the datapath has acknowledged a commit, each
+// STREAM_INPUT entry it carried, in the order written, with the interface,
+// the descriptor's index and the current format the entry published. So the
+// port sees a format exactly when it is the one in force: a commit not
+// acknowledged calls nothing, and the interface's republication calls it
+// once acknowledged. A format moves only while its input is unbound
+// (SET_STREAM_FORMAT and SET_CONFIGURATION refuse a bound one), so the port
+// runs before any stream of the input's next binding. Set after
+// aecp_face_init, before the face opens.
+void aecp_face_sinks(struct aecp_face *, void (*sink)(void *ctx, unsigned interface, uint16_t index, uint64_t format),
+		     void *ctx);
 
 #ifdef __cplusplus
 }

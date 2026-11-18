@@ -11,6 +11,9 @@
 //   C3  the status words, read in milan_status_handler()'s order
 //   C4  the time of day: snapshot first, HI LO HI, a torn read retried, and
 //       a read that never agrees refused after CTRL_PLAT_TOD_TRIES
+//   C5  a STREAM_INPUT's format into its receive-monitor context (#946): the
+//       selection read, the listener selection of the input, FMT_LO then
+//       FMT_HI with the format's halves, then the selection written back
 //   K1  milan_status answers the grader's two lines and the time, field for
 //       field, with AEM loaded or disabled
 //   K2  milan_gettime answers TAI_NS, or no number when the read is torn
@@ -27,6 +30,8 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "fw_gtest.hpp"
 #include "plat_bus.hpp"
@@ -113,6 +118,23 @@ TEST_F(Plat, C4TimeOfDayIsSnapshotThenAgreeingHighWords) {
     ns = 7;
     EXPECT_FALSE(ctrl_plat_csr_tod(kCsr, &ns)) << "C4 a read that never agrees is refused";
     EXPECT_EQ(ns, 7u) << "C4 a refused read writes no time";
+}
+
+TEST_F(Plat, C5SinkFormatSelectsTheInputWritesItsFormatAndRestores) {
+    using Writes = std::vector<std::pair<std::uint32_t, std::uint32_t>>;
+    // a selection another writer left: talker 3 (MAAP's destination writes select dir 1)
+    bus().csr[CTRL_PLAT_CSR_STRM_SEL] = 0x103u;
+    ctrl_plat_csr_sink_format(kCsr, 5u, 0x0205022002006000ull);
+    EXPECT_EQ(bus().writes(), (Writes{{0x800u, 5u}, {0x824u, 0x02006000u}, {0x828u, 0x02050220u}, {0x800u, 0x103u}}))
+        << "C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back";
+    ASSERT_FALSE(bus().log.empty());
+    EXPECT_TRUE(!bus().log[0].write && bus().log[0].address == kCsr + CTRL_PLAT_CSR_STRM_SEL)
+        << "C5 the selection is read before the window is moved";
+    bus().reset();
+    bus().csr[CTRL_PLAT_CSR_STRM_SEL] = 0u;
+    ctrl_plat_csr_sink_format(kCsr, 7u, 0x0205022000806000ull);
+    EXPECT_EQ(bus().writes(), (Writes{{0x800u, 7u}, {0x824u, 0x00806000u}, {0x828u, 0x02050220u}, {0x800u, 0u}}))
+        << "C5 another input and format, the park selection written back";
 }
 
 TEST_F(Plat, K1MilanStatusAnswersTheGradersLines) {
