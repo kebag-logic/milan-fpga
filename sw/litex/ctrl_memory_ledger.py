@@ -7,8 +7,9 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 documented memory exceptions and the owner's rule of 2026-11-15: at 8x8 with two interfaces the size fixture's at
 59.5 RAMB36 and the target platform's at 61.0 (60.5, the owner's decision's cap of 2026-11-12, before the receive
 monitor's formats, #946), and the target platform's 8x8 image with one interface, a product image, at 56.5 (the
-formats, #946); each is refused half a tile past. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
-function here takes, and grades what these return.
+formats, #946); each is refused half a tile past. A `Case` here is what the ledger reads of one image.
+test_ctrl_memory.py writes each as an ELF, through the `write` callable every function here takes, and grades what
+these return.
 syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
 (#665 S9); `mapper_arms` grades that override and plants three defects in it.
 """
