@@ -135,7 +135,7 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 62.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
@@ -156,9 +156,10 @@ Each binding's latest Talker kind (#925, `srp_mbx.h`'s `latest_kind`) adds 64 B 
 The StreamIDs held with their latest Talker kind (#925, `srp_mbx.h`'s `srp_held`: half the SRP pool's medium and large blocks, 16, 32, 40 and 81 entries of 10 B) add 192, 320, 384 and 832 B: 17,728, 19,392, 18,624 and 21,248 B. At 8x8 with two interfaces the image's `sram` is then 115,120 B, 432 B past 56 granules, so it plans 61.0 RAMB36, and its entry is 61.0 by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745): an image past its entry raises it to its measured size, at the next half tile, as debt owed to S14. With the receive filter's hold of a changed declaration, `rom` is 552 B more at 1x1 and 520 B more at 8x8 (`plat_ledger.py` at #925's round-3 head: 118,128, 119,712, 130,752 and 132,304 B); the other three points plan 43.0, 44.0 and 56.0 as before, the 8x8 one-interface image with 320 B of `rom` before its next granule.
 In the composed flip train (#665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235)), measured by `plat_ledger.py` and the CPU budget harness's builds ([section 5](#5-fit)), the size fixture's entry is 60.0: with the map edits' commit (#923) every arm's image needs 129,920 to 130,424 B of `rom`, past the 129,024 B that 59.5 holds, and with #925's changes on them 130,472 to 130,968 B, within the 131,072 B that 60.0 holds.
 With the largest legal record's cut ([section 13](#the-largest-legal-record-on-the-composed-flip-train-665)) the entry is 60.5, by the same rule and #665's [ruling of 2026-11-17, amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243): the harness's `answering-ports` arm needs 131,128 B of `rom`, 56 B past the 131,072 B that 60.0 holds, and the other five arms 130,624 to 130,948 B, within it; ROM debt of 4.5 RAMB36 owed to S14.
-The platform's two-interface entry is 62.5, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
-Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, 137,472 B of `rom`, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
-Each image is refused half a tile past its entry, at 61.0, 63.0 and 58.5.
+The platform's two-interface entry is 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946): its `rom` is 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its 115,504 B of `sram`, with `ctrl_plat` unchanged.
+It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
+Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
+Each image is refused half a tile past its entry, at 61.0, 63.5 and 58.5.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -183,8 +184,8 @@ It requires `add_ctrl_memory` to plan each ledgered point's image at its own ent
 It also plants each override on the same image's other points, on the other overrides' images, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 Ten planted ledgers each widen one entry to another point or image, or past its tiles.
-The platform's two-interface entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 63.0.
-The fixture's loses `image_allocation`, or plans the platform's 62.5.
+The platform's two-interface entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 63.5.
+The fixture's loses `image_allocation`, or plans the platform's 63.0.
 The one-interface entry loses `ctrl_plat`, takes the 1x1 one-interface image's symbols or the two-interface `ctrl_plat`, or plans 58.0.
 Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
@@ -300,13 +301,13 @@ At #923's head the entries are:
 
 In the composed flip train (measured [below](#5-fit)) the entries are:
 
-- the target platform's 8x8 image with two interfaces, 62.5 RAMB36, a debt of 6.5, 26,624 B of cold code to move;
+- the target platform's 8x8 image with two interfaces, 63.0 RAMB36, a debt of 7.0, 28,672 B of cold code to move;
 - the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
 - the target platform's 8x8 image with one interface, a product image, 58.0, a debt of 2.0, 8,192 B, its own entry, which the product SoC build plans it at by its symbols;
 - every other point stays at or under 56.
 
 S14 is the first lane after the flip.
-`ctrl_memory.LEDGERED` holds the platform's two-interface entry at 62.5 in the composed flip train (#665), its measured tiles with the StreamIDs held with their latest Talker kind (#925) on the train's other changes, 62.0 with the map edits' commit (#923) before them, 61.5 on the train before the commit, 61.0 since the PHY poll's merge (#919), at #923's head and at #925's, 60.5 before them, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), and 60.0 before that; the platform's one-interface entry at 57.5 in the composed train, 57.0 on the train before the commit, 56.5 with the PHY poll (#919) and at #923's head; and the size fixture's at 60.0 in the composed train, 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), and at #923's head, 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below). Each is refused half a tile past ([section 3](#3-named-refusals)).
+`ctrl_memory.LEDGERED` holds the platform's two-interface entry at 63.0 in the composed flip train (#665), its measured tiles with each AAF Stream Input's current format written into its receive-monitor context (#946), 62.5 with the StreamIDs held with their latest Talker kind (#925) on the train's other changes, 62.0 with the map edits' commit (#923) before them, 61.5 on the train before the commit, 61.0 since the PHY poll's merge (#919), at #923's head and at #925's, 60.5 before them, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), and 60.0 before that; the platform's one-interface entry at 58.0 in the composed train with the largest legal record's cut and the hot list relearned on it, 57.5 before them, 57.0 on the train before the commit, 56.5 with the PHY poll (#919) and at #923's head; and the size fixture's at 60.5 in the composed train with the largest legal record's cut, 60.0 before it, 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), and at #923's head, 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below). Each is refused half a tile past ([section 3](#3-named-refusals)).
 These figures are planned, not mapped.
 
 The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
@@ -676,6 +677,17 @@ The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120
 | 8x8, two interfaces (largest) | 139,048 / 115,504 | 62.5 | 21,568 | at its entry's 62.5, S14's debt, 216 B of `rom` left |
 
 #936 adds 64 B of `ctrl_plat` at 1x1 with one interface and at 8x8 with two. The 8x8 one-interface image needs 256 B past the 137,216 B that 57.5 holds, so its entry is 58.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's 8x8 image with two interfaces needs 130,952 to 131,448 B of `rom` over the harness's six arms (114,320 to 114,384 B of `sram`), within its 60.5.
+
+**At the composed train's twelfth step** (#947's head `66c6edf3` merged on the eleventh: each AAF Stream Input's current format written into its receive-monitor context, #946), planned the same way:
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+|---|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 125,792 / 56,736 | 45.0 | 18,048 | within 56 |
+| 1x1, two interfaces | 127,400 / 59,040 | 46.0 | 19,712 | within 56 |
+| 8x8, one interface (shipping) | 138,432 / 98,160 | 58.0 | 18,944 | at its entry's 58.0, S14's debt, 832 B of `rom` left |
+| 8x8, two interfaces (largest) | 140,008 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 1,304 B of `rom` left |
+
+The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
