@@ -1,0 +1,123 @@
+HEAD 0297a19a056ee3d5d705bc502c4ae7808689ede7
+TREE e3e4dbefc89e29cc646fd5e2cf757338ba3877a9
+Public archive manifest hashes verified: 646 receipt files; unextracted narratives not read
+Carried HDL from 5d098172 : ['hdl/common/README-tests.md', 'hdl/common/cdc_pair_fifo.sv'] ; changed HDL executable tokens equal
+Carried HDL from 338ece89 : [] ; changed HDL executable tokens equal
+ROUTES: published per-corner summaries, not rerouted
+f2-1x1-fill-ExtraPostPlacementOpt WNS 0.049 WHS 0.036 PASS all 4 corners; fully routed, zero errors
+f2-8x8-fill-ExtraPostPlacementOpt WNS 0.213 WHS 0.033 PASS all 4 corners; fully routed, zero errors
+h2-1x1-AltSpreadLogic_high WNS 0.126 WHS 0.033 PASS all 4 corners; fully routed, zero errors
+h2-1x1-ExtraPostPlacementOpt WNS 0.081 WHS 0.036 PASS all 4 corners; fully routed, zero errors
+h2-1x1-ExtraTimingOpt WNS 0.135 WHS 0.033 PASS all 4 corners; fully routed, zero errors
+h2-8x8-AltSpreadLogic_high WNS 0.058 WHS 0.034 PASS all 4 corners; fully routed, zero errors
+h2-8x8-ExtraPostPlacementOpt WNS 0.293 WHS 0.033 PASS all 4 corners; fully routed, zero errors
+h2-8x8-ExtraTimingOpt WNS 0.073 WHS 0.029 PASS all 4 corners; fully routed, zero errors
+rel2-head-1x1-tdm8-release WNS 0.553 WHS 0.023 PASS all 4 corners; fully routed, zero errors
+BUDGET: public source-head evidence only
+1x1 11 checkout inputs match reviewed head; changed vs base: ['checkout:hdl/milan/mailbox/KL_mbx_dma.sv']
+1x1 control firmware ELF hash identical to base
+1x1 BUDGET lines 7 not present verbatim in published base sample 0
+1x1 STATED lines 0 not present verbatim in published base sample 0
+96 groups graded, 0 refusals, 7 budget misses (7 of 950 probe instances, 4 of 92 paths), 0 of 130341 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+8x8-1if 11 checkout inputs match reviewed head; changed vs base: ['checkout:hdl/milan/mailbox/KL_mbx_dma.sv']
+8x8-1if control firmware ELF hash identical to base
+8x8-1if BUDGET lines 7 not present verbatim in published base sample 0
+8x8-1if STATED lines 11 not present verbatim in published base sample 2
+UNPAIRED BASE SAMPLE: STATED save-held: a pass's polls base of 23,756 CPU cycles, over its stated 22,500
+UNPAIRED BASE SAMPLE: STATED save-starved: a pass's polls base of 23,756 CPU cycles, over its stated 22,500
+95 groups graded, 0 refusals, 7 budget misses (7 of 947 probe instances, 4 of 85 paths), 0 of 270769 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+NATIVE SOURCE SWEEP: published exact-head summaries
+sweep-shard0-summary.log
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+PASS     milan_dp
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 361064   in-suite failures: 0
+logs: <scratch>/sweep/out-0297a19a/shard-0/logs
+
+sweep-shard1-summary.log
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 2046229   in-suite failures: 0
+logs: <scratch>/sweep/out-0297a19a/shard-1/logs
+
+sweep-shard2-summary.log
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     capture_coherence
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+PASS     maap
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 284233   in-suite failures: 0
+logs: <scratch>/sweep/out-0297a19a/shard-2/logs
+
+sweep-shard3-summary.log
+shard: 3/4   selected suites: 16
+PASS     aaf_audio_loop
+PASS     avtp_stream
+PASS     cdc
+PASS     chmap_capture
+PASS     crf_rx
+PASS     crf_tx
+PASS     follow_ring
+PASS     ifg
+PASS     media_nco
+PASS     media_phase
+PASS     mmcm_servo
+PASS     pcmlpf
+PASS     reboot_ctrl
+PASS     tdm
+PASS     tdm_render
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 21575   in-suite failures: 0
+logs: <scratch>/sweep/out-0297a19a/shard-3/logs
+
+PUBLIC RECEIPT AUDIT COMPLETE

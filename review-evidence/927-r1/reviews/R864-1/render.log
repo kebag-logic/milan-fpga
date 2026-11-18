@@ -1,0 +1,44 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 FIRST EVENT: silence for 90 frame(s), then ordinal 0 with 0 counted skip(s), its slot 0 at +0.6 ns from its presentation time (the frame period 20833.555 ns; the domain events measured 20833.560 ns apart)
+  [i]    first decoded ordinal 270; 360 events had been injected when collection opened
+  [i]    839 frames graded, 0 repeat(s), 0 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    T6 PRESENTATION: 6712 slot grades, the largest |pin - presentation time| 7.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1302 underruns 0 skips 0 overruns 0 epochs 1 (skips before the window 0, underruns before 0)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 2064..2065 axis cycles (20.640..20.650 us) over 838 frames, 1 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 20.559..20.569 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 20.549..20.559 us of serial-domain wait, so 20.569..20.579 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 0 -> 3, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 2064 axis cycles (20.640 us)
+  [i]    T6 FASTER CLOCK: 23 frames, 0 repeats, 0 skipped events, underruns 0
+== tdm8_render: checks: 68   failures: 0 ==
+RESULT: PASS
+
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 FIRST EVENT: silence for 93 frame(s), then ordinal 0 with 0 counted skip(s), its slot 0 at +62500.6 ns from its presentation time (the frame period 20833.555 ns; the domain events measured 20833.560 ns apart)
+  [FAIL] T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps
+  [i]    first decoded ordinal 267; 360 events had been injected when collection opened
+  [i]    839 frames graded, 0 repeat(s), 0 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    T6 PRESENTATION: 6712 slot grades, the largest |pin - presentation time| 62502.9 ns (+/-5 % of Ps is 1041.7 ns)
+  [FAIL] T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1302 underruns 0 skips 0 overruns 0 epochs 1 (skips before the window 0, underruns before 0)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 2064..2065 axis cycles (20.640..20.650 us) over 838 frames, 1 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 20.559..20.569 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 20.549..20.559 us of serial-domain wait, so 20.569..20.579 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 0 -> 3, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 2064 axis cycles (20.640 us)
+  [i]    T6 FASTER CLOCK: 23 frames, 0 repeats, 0 skipped events, underruns 0
+== tdm8_render: checks: 68   failures: 2 ==
+RESULT: FAIL
+
+NAMED MUTATION CAUGHT the render FIFO's distributed storage read at the write pointer
+FOCUSED PASS render

@@ -1,0 +1,16 @@
+Review source: 0297a19a056ee3d5d705bc502c4ae7808689ede7
+Base: 70f4056f
+Verilator 5.050 2026-07-01 rev v5.050
+Pinned launcher SHA256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+
+Reproduce in a disposable exact-head clone under packet/scratch, with the four required submodules initialized at their pins.
+Set VERILATOR to the verified 5.050 executable.
+python3 focused_checks.py <clone> <packet>
+python3 equivalence_checks.py <clone> <packet>
+python3 audit_receipts.py <review-clone> <public-archive-root>
+python3 verify_checkout.py <review-clone>
+
+The focused runner waits for all four independent tasks in the foreground. Compilation is limited to three jobs per task; the DMA mutation campaign uses four workers with one compilation job each. No concurrent synthesis runs. The equivalence runner executes after the focused tasks have finished.
+Execution receipts preserve full command output with review-local paths normalized to <review-clone>, <review-packet>, <tools>, and <home>. A mutant RESULT: FAIL is expected and is accepted only with the required named rejection and nonzero exit. Each campaign-level rc is separate.
+The equivalence checker constructs disposable comparison modules, leaving production source bytes untouched. It compares every output at the falling clock edge and checks the two internal algebraic invariants. The FIFO exercise uses two asynchronous clocks and both RAM mappings alongside the base. These are bounded simulation checks, not an exhaustive formal proof or hardware measurement.
+No public-state mutation, source fix, commit, push, full bank, or hardware run was performed.
