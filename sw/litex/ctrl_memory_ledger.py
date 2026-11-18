@@ -11,11 +11,12 @@ interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read com
 owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
 poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, and 62.5 with the
 StreamIDs held with their latest Talker kind, #925), and the
-target platform's 8x8 image with one interface, a product image, at 57.5 (56.5 with the PHY poll, 57.0 on the composed
-train, 57.5 with the commit); each is refused half a tile past. A measurement names its point, and the product SoC
-build plans an image at the point whose symbols it carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps
-it for the composed train). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py writes each as an
-ELF, through the `write` callable every function here takes, and grades what these return.
+target platform's 8x8 image with one interface, a product image, at 58.0 (56.5 with the PHY poll, 57.0 on the composed
+train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it); each is refused
+half a tile past. A measurement names its point, and the product SoC build plans an image at the point whose symbols it
+carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps it for the composed train). A `Case` here is what
+the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+here takes, and grades what these return.
 syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
 (#665 S9); `mapper_arms` grades that override and plants three defects in it.
 """
@@ -40,7 +41,7 @@ STAGE_1X1, STAGE_8X8 = 3454, 13594
 FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces", "platform-8x8-one-interface"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_984, 19_712, 18_944, 21_504
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_712, 18_944, 21_568
 
 
 class Case(NamedTuple):
@@ -55,11 +56,11 @@ class Case(NamedTuple):
 
 #: Each ledgered point's own image, at its ledgered tiles.
 OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 60.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 62.5),
-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 57.5)}
+       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 58.0)}
 #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
 HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 60.5),
         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 62.5),
-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 57.5)}
+        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 58.0)}
 #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
 #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
 #: symbols, and names the ledger does not hold.
@@ -80,14 +81,14 @@ REFUSED = (
     ("an 8x8 image with no ctrl_plat at 62.5", PLATFORM, Case(STAGE_8X8, None, None, 62.5)),
     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
     ("the size fixture's 8x8 two-interface image at 62.5", PLATFORM, OWN[FIXTURE]._replace(tiles=62.5)),
-    ("its own image at 58.0 RAMB36, half a tile past its 57.5", PRODUCT, OWN[PRODUCT]._replace(tiles=58.0)),
-    ("the platform's 1x1 one-interface image at 57.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 57.5)),
-    ("the platform's 1x1 two-interface image at 57.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 57.5)),
-    ("the platform's 8x8 two-interface image at 57.5", PRODUCT, OWN[PLATFORM]._replace(tiles=57.5)),
-    ("an image with the point's ctrl_plat and the 1x1 stage at 57.5", PRODUCT,
-     Case(STAGE_1X1, None, PLAT_8X8_1, 57.5)),
-    ("an 8x8 image with no ctrl_plat at 57.5", PRODUCT, Case(STAGE_8X8, None, None, 57.5)),
-    ("the size fixture's 8x8 one-interface image at 57.5", PRODUCT, Case(STAGE_8X8, 1, None, 57.5)),
+    ("its own image at 58.5 RAMB36, half a tile past its 58.0", PRODUCT, OWN[PRODUCT]._replace(tiles=58.5)),
+    ("the platform's 1x1 one-interface image at 58.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 58.0)),
+    ("the platform's 1x1 two-interface image at 58.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 58.0)),
+    ("the platform's 8x8 two-interface image at 58.0", PRODUCT, OWN[PLATFORM]._replace(tiles=58.0)),
+    ("an image with the point's ctrl_plat and the 1x1 stage at 58.0", PRODUCT,
+     Case(STAGE_1X1, None, PLAT_8X8_1, 58.0)),
+    ("an 8x8 image with no ctrl_plat at 58.0", PRODUCT, Case(STAGE_8X8, None, None, 58.0)),
+    ("the size fixture's 8x8 one-interface image at 58.0", PRODUCT, Case(STAGE_8X8, 1, None, 58.0)),
     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
      OWN[FIXTURE]),
     ("the image of the point it names, a name the ledger does not hold", "8x8-one-interface",
@@ -167,7 +168,7 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
              ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
-             ("the product entry at 58.0 RAMB36", PRODUCT, {"tiles": 58.0}),
+             ("the product entry at 58.5 RAMB36", PRODUCT, {"tiles": 58.5}),
              ("the product entry at the two-interface ctrl_plat", PRODUCT,
               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]

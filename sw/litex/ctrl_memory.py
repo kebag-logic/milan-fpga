@@ -253,8 +253,9 @@ class Ledgered:
 #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
 #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
 #: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
-#: 58.0, its entry at 57.5 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
-#: composed train before the commit, 57.5 with it. The platform's image is linked at
+#: 58.5, its entry at 58.0 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
+#: composed train before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned
+#: on it (#665). The platform's image is linked at
 #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
@@ -283,7 +284,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
                                          "ROM debt of 4.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_504)), 62.5,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_568)), 62.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -314,9 +315,12 @@ LEDGERED: dict[str, Ledgered] = {
                                             "granule, 61.0 at #925's head; and 62.5 with them on the composed "
                                             "train, 138,560 B of rom and 115,440 B of sram, 752 B past the 56 "
                                             "granules 62.0 held, ctrl_plat at its measured 21,504 B, by the same "
-                                            "rule: debt of 6.5 RAMB36 owed to S14"),
+                                            "rule: debt of 6.5 RAMB36 owed to S14; ctrl_plat 64 B more with SRP's "
+                                            "record of the STREAM_OUTPUT notices (#936) on that train, 21,568 B, "
+                                            "and with the largest legal record's cut and the hot list relearned "
+                                            "on it (#665) its rom 139,048 B, within the 62.5"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 57.5,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.0,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -330,7 +334,10 @@ LEDGERED: dict[str, Ledgered] = {
                                            "2026-11-16, #665's of 2026-11-17): ROM debt of 1.5 RAMB36 owed to "
                                            "S14; still 57.5 with the StreamIDs held with their latest Talker "
                                            "kind (#925) on that train, 136,984 B of rom and 98,096 B of sram, "
-                                           "ctrl_plat at its measured 18,944 B"),
+                                           "ctrl_plat at its measured 18,944 B; 58.0 with the largest legal "
+                                           "record's cut and the hot list relearned on it on that train with "
+                                           "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
+                                           "by the same rule: ROM debt of 2.0 RAMB36 owed to S14"),
 }
 
 
