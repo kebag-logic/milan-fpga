@@ -1,0 +1,133 @@
+9c0e1974bebedf9a86d599d2530cab5ef4c55586
+877c99e417d2b50a057cc7b9a852e1018a53541f 394612c55148b43354359daeab2aa88d4f019ec2
+Merge #918 (394612c5) into the flip train: hold an AECP command its channel has no token for until the next refill (#917)
+
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+remerge CONFLICT (content): Merge conflict in docs/design/MAILBOX_SPLIT.md
+index 6ad147f843..04eda0d2f8 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -1818,13 +1818,8 @@ each fail by their kind:
+ | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
+ | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
+ | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+ | the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); a change the datapath never takes answered within 120 ms of its IN_PROGRESS and 240 ms of its command, the service bound included, on the model's millisecond clock (`Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`), the expired lock read and refused as its owner's until then (`Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease`), SET_SYSTEM_UNIQUE_ID refused as every change is (`Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs`), and the final response leaving on the interface its command came in on (`Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn`); every window read within its bound; GET_AS_PATH's count and each entry through its AVB interface's own window, SUCCESS at 0, 1 and several entries, `AECP_PATH_ITEMS` carried whole and a count past it failing the port at the count (`Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow`, `Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt`), a word with no answer failing it there (`Face.AnUnansweredAsPathWordFailsItsPortThere`), and AS_PATH_CHANGED's notice carrying the sequence the datapath then serves (`AppFace.AnAsPathChangeNotifiesTheDatapathsSequence`; #897); the store's words; the face events' Table 5.22 notifications |
+-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; twelve of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+-=======
+-| the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); a change the datapath never takes answered within 120 ms of its IN_PROGRESS and 240 ms of its command, the service bound included, on the model's millisecond clock (`Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`), the expired lock read and refused as its owner's until then (`Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease`), SET_SYSTEM_UNIQUE_ID refused as every change is (`Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs`), and the final response leaving on the interface its command came in on (`Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
+ | planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; thirteen of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model, the held frame's (#917) among them |
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
+ 
+ ## Default build
+ 
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/build.py
+index 7edbc03e33..d0511874cb 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -6,13 +6,8 @@ The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on the ru
+ (through runtime_ssp.py, #723). Its saved-state flash port is compiled against the split SoC's own map (flash_map():
+ gen_flash_port.py over the csr.csv milan_soc.py exports for the shape, #665), and the test SoC places the flash and
+ timer0 there. Every input of the native model and of its run is hashed into build.json: the checkout's sources, the
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+ firmware source trees the image is compiled from, the image, its runtime archives and the ROM files the model reads at
+ run time, the exported SoC Verilog and the CPU netlist. A reused or regraded build is refused when any of them
+-=======
+-firmware source trees the image is compiled from, the image, its runtime archives and the ROM files the model reads
+-at run time, the exported SoC Verilog and the CPU netlist. A reused or regraded build is refused when any of them
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
+ changed, is missing, or is recorded under a key that does not resolve (reused()).
+ """
+ from __future__ import annotations
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/grade.py
+index cfca25f72e..7cd9e31f3f 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -35,11 +35,8 @@ import re
+ from dataclasses import dataclass, field
+ 
+ import answers
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+-import join_grade
+-=======
+ import held
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
++import join_grade
+ import mrpdu_grade
+ import poll_grade
+ import round_grade
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/run.py
+index 1662ea2e63..fec5c22545 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -37,10 +37,7 @@ from pathlib import Path
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+ sys.path.insert(0, str(HERE))
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+-=======
+ #: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
+ POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
+           '8x8-1if': ('endstation_ax7101_8x8', 1)}
+ 
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/scenario.py
+index 77f3279593..ef74e537e6 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -993,12 +993,7 @@ def all_groups(p: Point, build: dict) -> list[Group]:
+     import held   # #917's held record: held.py imports this module
+     if build.get('variant') == 'shutdown-entry':
+         return shutdown_groups(p)
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+               *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
+-              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build)]
+-=======
+-    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build), *maap_groups(p),
+-              *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build), *held.groups(p)]
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
++              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p)]
+     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/selftest.py
+index 316d0a1100..0680c7cb8a 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -737,14 +737,8 @@ def build_checks() -> list[Check]:
+     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
+               if (shape, n) not in run.POINTS.values()}
+     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+             named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
+             named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
+-=======
+-            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None}
+-            and named['8x8'] in ctrl_memory.LEDGERED
+-            and not any(others.values()), f'{named}; other points {others}')]
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
+     with tempfile.TemporaryDirectory() as tmp:
+         failed = []
+         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/selftest_mutants.py
+index bbdf43f790..b887a78a09 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -23,11 +23,8 @@ import arm_path
+ import build
+ import flip_grade
+ import grade
+-<<<<<<< 877c99e417 (Merge #914 (e1ecce20) into the flip train: the 8x8/1if tier rows, THE RETRY keyed on the shape, and 8x8/1if's TX figure held at 75 ms (#930, #894))
+-import join_grade
+-=======
+ import held
+->>>>>>> 394612c551 (Hold FR_NFR.md as a page gated code reads, now that the mailbox generator checks its margin table (#917))
++import join_grade
+ import load_grade
+ import long_notice
+ import mrpdu_grade

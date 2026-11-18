@@ -1,0 +1,46 @@
+22a820384bba571cdba89e04ff65c831e759125f
+6fef44b8d11016d1f4801afadb3dd53485753541 372556835d03b70134b2e76567b63b25c4cca005
+Merge #935 (37255683) into the flip train: split gates at the base, the twin's Talker row restated and two SRP startup tests sized by shape (#929)
+
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/srp_arms.py
+index 258ae34fb2..1cff02d4e3 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -104,17 +104,16 @@ def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+                     config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
+ 
+ 
+-<<<<<<< 6fef44b8d1 (Keep the composed harness within the Python idiom ratchet: rewrap three build.py comments and inline one grade.parse comment, words and code unchanged)
+ def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+     """SRP's Listener copies against the reference walk (#930): srp_listeners.cpp at 1x1/1if and 8x8/1if."""
+     return [arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp"),
+             arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
+-=======
++
++
+ def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+     """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
+     source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""
+     return [arm_srp(tree, lwsrp, i, config=ROOT / "configs/endstation_ax7101_8x8.yaml") for i in (1, 2)]
+->>>>>>> 372556835d (Wrap a restated twin plant's words within the Python idiom gate's 120 columns (#929))
+ 
+ 
+ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 577eede582..a0333cac65 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -196,11 +196,8 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+                           "srp_latency.cpp", "srp_walk.cpp"):
+                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
+-<<<<<<< 6fef44b8d1 (Keep the composed harness within the Python idiom ratchet: rewrap three build.py comments and inline one grade.parse comment, words and code unchanged)
+         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+-=======
+         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
+->>>>>>> 372556835d (Wrap a restated twin plant's words within the Python idiom gate's 120 columns (#929))
+         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+     outcomes.extend(aecp_arms.all_arms(tree))
+     outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))

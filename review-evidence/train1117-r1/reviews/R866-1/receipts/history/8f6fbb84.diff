@@ -1,0 +1,523 @@
+8f6fbb848ccb7c702b154aae6a90838bbf5fdeca
+6ad5c2592ae11e61e6424d84fc98332947c7b31c 544fd72cefbd27379ae756c6ce02ae8b7ba15f2c
+Merge #934 (544fd72c) into the flip train: dev 6b66f66d synced into dev-soft-core, the gPTP fixes, the #840 identity and #893 on the split
+
+diff --git a/docs/design/CSR_REGISTER_NOTES.md b/docs/design/CSR_REGISTER_NOTES.md
+index 5a3b18aa75..45cbb6092c 100644
+--- a/docs/design/CSR_REGISTER_NOTES.md
++++ b/docs/design/CSR_REGISTER_NOTES.md
+@@ -161,7 +161,7 @@ Latched event bits before masking
+ 
+ `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+ 
+-Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status` from MDIO on every boot path that reached `nvm_boot()`, persistence disabled included (`phy_link_tick()` runs inside `nvm_heartbeat_tick()`, with or without an admitted writer, #70). After a CSR identity mismatch nothing writes it, and MAC_STATUS keeps its reset value: link up, 1000 Mb/s, full duplex. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The existing CDC carries this publication to MAC_STATUS. Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges. The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer). Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
++Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status` from MDIO on every boot path that reached `nvm_boot()`, persistence disabled included (`phy_link_tick()` runs inside `nvm_heartbeat_tick()`, with or without an admitted writer, #70). After a CSR identity mismatch nothing writes it, and MAC_STATUS keeps its reset value: link up, 1000 Mb/s, full duplex. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The split placement's control firmware does the same, one Clause-22 frame per THE STEP's call ([the PHY](../../sw/firmware/ctrl/plat/README.md#the-phy), #919). The existing CDC carries this publication to MAC_STATUS. Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges. The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer). Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
+ 
+ **Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s reset value is 1, so before 2026-07-26 a 100 Mb/s port reported gigabit to every `is_1g` consumer until software wrote the register - and `is_1g` sets the lwSRP bandwidth-gate admission limit (750 vs 75 Mb/s) and the CBS sendSlope denominator, so a 100 Mb/s port admitted reservations against a 10x-too-large budget. `MAC_CTRL[5]` exists to pin the rate by hand when the MAC's speed report cannot be trusted.
+ 
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+remerge CONFLICT (content): Merge conflict in docs/reference/REGISTER_MAP.md
+index 4e7e446211..3bfcb7d688 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -289,17 +289,7 @@ Constant magic word that identifies the Milan CSR block.
+ 
+ RTL name: `A_ID`.
+ 
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+-It reads Clause-22 link, speed and duplex over bit-bang MDIO.
+-The split placement's control firmware does the same, one Clause-22 frame per THE STEP's call ([the PHY](../../sw/firmware/ctrl/plat/README.md#the-phy), #919).
+-The existing CDC carries this publication to MAC_STATUS.
+-Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
+-The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+-Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+-=======
+ ![ID bit fields](../diagrams/regmap/ident/ID.svg)
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ 
+ | Bit | Field | Type | Reset | Description |
+ |---|---|---|---|---|
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+index ec822c0a6b..533265cee7 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -167,19 +167,6 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+ - **A participant** is an interface and an MRP application, told by its MRPDU's EtherType.
+ - **A join interval** is the time from one of its MRPDUs' commit to the next, where that next is a frame a join timer's run-out between them released (lwSRP's `on_join_timer`; the frames of the builds after it, `mrpdu_grade.released`, as THE TRANSMIT's row reads them, wherever they come, with no horizon: [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 4) and neither the periodic nor the LeaveAll timer ran out between them. lwSRP arms the join timer at a commit alone (`mrp_mad.c`), so that is the timer the first commit armed.
+ - **A run-out with nothing to send** releases nothing, its builds sending no frame, and the MRPDU a later request then sends at once, its join timer idle, ends no interval: the `srp` group's after its Listener Ready, 714.82 ms after the one before at 1x1, is that.
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-- **Every MRP timer's run-out** is resolved by its builds (`mrpdu_grade.resolve`): released, empty where its first build sends nothing, late where its first frame, or its first build where it sends none, comes past THE TRANSMIT's 49 ms, absent where no build follows it in a log that runs on past that, and unresolved where the log ends first. A build's frames include what it left owed, which the poll sends before the next build.
+-- **Each group's shortest and longest**, and its run-outs by outcome, print on a `JOINS` line. An interval under 181.0 ms or over 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end since the harness sees commits (the egress ruling's item 1), or a late or absent build, prints `STATED` and fails the run whatever findings it records.
+-[`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
+-`backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
+-[FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
+-- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the larger of the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states both measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
+-- **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
+-- **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
+-- **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
+-- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses fourteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, and a figure at the merged image's measurement where the composed one is larger.
+-
+-=======
+ - **Every MRP timer's run-out** is resolved by its builds (`mrpdu_grade.resolve`), judged on its owner alone: the participant the testbench recorded at the expiry (below), with its opportunity derived from the posted TICKs as above ([PR #934's internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6938623769); [its second external review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6942847358)). A build's frames include what it left owed, which the poll sends before the next build.
+   - Only a build that can be the owner's settles the run-out (`mrpdu_grade.settle`, `candidate`; [its third internal review](https://github.com/kebag-logic/milan-fpga/pull/934#issuecomment-6945831260)). The testbench records each build's participant at the build itself (`ENTRY <cycle> build_mrpdu if0 MVRP`): `srp_mbx.c`'s `build_mrpdu` builds exactly one participant's MRPDU, by its slot.
+   - The builds after the run-out are taken in turn. A build recorded as another participant's never settles it, and neither does any build before the owner's opportunity.
+@@ -210,7 +197,15 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+   - It holds at commit, not on the wire, which `T_egress` covers.
+   - For every MRP timer's run-out, a join, periodic or LeaveAll timer's: the testbench recorded its owner at the expiry; and against the owner's first transmit opportunity, the first build that can be the owner's after it, recorded as the owner's or with no participant recorded, at or after the opportunity, settles it within 49 ms of it: the owner's first frame committed within 49 ms, or the owner's own build that sends nothing run within 49 ms. Where no build can settle it and the log ends within 49 ms of the opportunity, it is unresolved; otherwise the run fails, late or absent.
+ - **Each group's shortest and longest**, and its run-outs by outcome, print on a `JOINS` line. An interval under 181.0 ms or over 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end since the harness sees commits (the egress ruling's item 1), or a late, absent or unowned run-out, prints `STATED` and fails the run whatever findings it records.
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++[`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
++`backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
++[FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
++- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the larger of the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states both measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
++- **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
++- **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
++- **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
++- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses fourteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, and a figure at the merged image's measurement where the composed one is larger.
++
+ [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+ Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+ That is the column at this tree's TSN stack pin. A second, `STATED_US_DONOR`, is measured with tsn-c-stack #32 applied at the pin in a scratch build (the ACMP core walking only the sinks an entry changed), each cost stated at every point. The gate holds 1x1/1if in both columns, the pin's being the image that merges and the donor's the load the pin move owes (#665), each named in what it finds (`load_grade.COLUMNS`), and reports both.
+@@ -271,11 +266,7 @@ python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest
+ ```
+ 
+ 
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against THE TRANSMIT's bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.BUDGET_MS`, never typed; [#894's round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc before; a timer that ends with nothing to send has a build that sends no frame, and no row. The self-test holds a row at the bound within it and one 1 ms over it a miss.
+-=======
+-[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, against T_svc. The row runs from its owner's transmit opportunity to the commit of the owner's frames of the builds after the run-out; another participant's frame in the same builds, or in the same commit, neither times nor ends it. The opportunity is the TICK that ran the timer out, or, where the owner's join timer still runs then, the TICK that runs that out ([#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1: a protocol-mandated wait is not CPU service time; the bound is unchanged). A timer that ends with nothing to send has a build that sends no frame, and no row.
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, against THE TRANSMIT's bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.BUDGET_MS`, never typed; [#894's round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc before. The row runs from its owner's transmit opportunity to the commit of the owner's frames of the builds after the run-out; another participant's frame in the same builds, or in the same commit, neither times nor ends it. The opportunity is the TICK that ran the timer out, or, where the owner's join timer still runs then, the TICK that runs that out ([#665's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6930885185), Q1: a protocol-mandated wait is not CPU service time; the bound is unchanged). A timer that ends with nothing to send has a build that sends no frame, and no row. The self-test holds a row at the bound within it and one 1 ms over it a miss.
+ A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
+ They run in the labelled `answering-later` arm, at each point:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/grade.py
+index bdb7ce8aff..85e29b92b6 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -216,18 +216,11 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
+         elif kind == 'RXE':
+             pending_rx.append((*rxs, int(rest[0])))
+         elif kind == 'RXC':
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+             log.rxc.append(held.commit(log, pending_rx, int(rest[0]), int(rest[1])))
+         elif kind in ('RXH', 'RXR'):
+             held.observe(kind, rest, pending_rx, log)
+-        elif kind == 'ENTRY':
+-            log.entries.append((int(rest[0]), rest[1]))
+-=======
+-            cycle = int(rest[0])
+-            log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
+         elif kind in ('ENTRY', 'PARTICIPANT'):
+             entry(log, kind, rest)
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+         elif kind in ('SPAN', 'CALL'):
+             # The saved-state store's traced calls (#665): nvm_split_target grades them; this grader reads none.
+             log.traced.append((kind, *rest))
+diff --git a/tb/verilator/ctrl_service_budget/mrpdu_grade.py b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/mrpdu_grade.py
+index d9e5498241..c0e11b0e66 100644
+--- a/tb/verilator/ctrl_service_budget/mrpdu_grade.py
++++ b/tb/verilator/ctrl_service_budget/mrpdu_grade.py
+@@ -1,18 +1,14 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """THE TRANSMIT's row (#665; ctrl_loop.h; FR_NFR.md 3.4.1): under every channel at its refill rate, each MRPDU a join,
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-periodic or LeaveAll timer made owed, timed from the deadline, the centisecond whose TICK ran the timer out, to the TX
+-commit of the frame that answers it. Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives
+-it (BUDGET_MS; #894's held-egress ruling, item (b)(i)), where the family's T_svc held it before THE TIERS.
+-=======
+ periodic or LeaveAll timer made owed, timed from its owner's transmit opportunity to the TX commit of the owner's frame
+ that answers it. The opportunity is the deadline, the centisecond whose TICK ran the timer out, where the participant's
+ join timer has run out by then; and where it still runs, the centisecond whose TICK runs it out, since an MRPDU a timer
+ requests goes out at the participant's next transmit opportunity, the join timer's expiry (IEEE 802.1Q-2018 10.7.4.1;
+ #665's ruling of 2026-11-16, Q1). A participant is an interface and an MRP application, told by its MRPDU's EtherType;
+ lwSRP arms its join timer at a commit alone, CTRL_LOOP_JOIN_CS centiseconds (mrp_mad.c, mrp_transmit).
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++Its budget is THE TRANSMIT's bound, CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (BUDGET_MS; #894's held-egress
++ruling, item (b)(i)), where the family's T_svc held it before THE TIERS.
+ 
+ A timer that runs out with nothing to send owes nothing, and lwSRP reports no such thing: a build after it that sends
+ no frame shows it. So a timer's run-out is resolved by the builds that follow it, wherever they come, with no horizon
+@@ -63,18 +59,13 @@ BUILD = 'build_mrpdu'
+ #: MBX_EV_TYPE_TICK (mbx_contract.h): a TICK event's type, the low byte of its first word.
+ TICK = 4
+ PATH = 'mrpdu'
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ #: THE TRANSMIT's bound in ms as ctrl_loop.h derives it (CTRL_LOOP_TX_BOUND_MS, tier1_rows.tx_budget_ms), never typed:
+ #: a run-out's build past it is late, and a log that runs on past it with no build after a run-out has none.
+-LATE_MS = tx_budget_ms((Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text())
++_HEADER = (Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
++LATE_MS = tx_budget_ms(_HEADER)
+ #: The row's harness budget in ms: that bound, read once (LATE_MS), where the family's T_svc held it before THE TIERS
+ #: (#894's held-egress ruling, item (b)(i): the MRP timer budget's lateness).
+ BUDGET_MS = LATE_MS
+-=======
+-#: THE TRANSMIT's bound in ms as ctrl_loop.h derives it (CTRL_LOOP_TX_BOUND_MS, tier1_rows.tx_budget_ms): a run-out's
+-#: build past it is late, and a log that runs on past it with no build after a run-out has none.
+-_HEADER = (Path(__file__).resolve().parents[3] / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
+-LATE_MS = tx_budget_ms(_HEADER)
+ #: CTRL_LOOP_JOIN_CS (ctrl_loop.h): the centiseconds of the join timer a participant's commit arms; the TICK that runs
+ #: it out is the participant's next transmit opportunity (IEEE 802.1Q-2018 10.7.4.1).
+ JOIN_CS = join_cs(_HEADER)
+@@ -88,7 +79,6 @@ LEAVE_ALL = 'on_la_timer'
+ #: The outcomes of a LeaveAll timer's run-out by its LeaveAll (leave_alls), and those that fail a run.
+ LEAVE_ALL_OUTCOMES = ('sent', 'skipped', 'late', 'absent', 'unresolved', 'unowned')
+ LEAVE_ALL_FAILING = ('skipped', 'late', 'absent', 'unowned')
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ #: The outcomes of a timer's run-out (resolve), and those that fail a run.
+ OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved', 'unowned')
+ FAILING = ('late', 'absent', 'unowned')
+@@ -377,17 +367,12 @@ def outcomes(log: grade.Log) -> list[tuple[int, str, str]]:
+     return [(entry, TIMERS[name], resolve(log, entry)[0]) for entry, name in log.entries if name in TIMERS]
+ 
+ 
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ def wait_ms() -> float:
+     """The row's normative wait W (FR_NFR.md 3.4.1): what brings its family's budget, min(T_svc, the srp ceiling), to
+     BUDGET_MS (grade.budget_ms)."""
+     return BUDGET_MS - min(scenario.T_SVC_MS, scenario.CEILING_MS['srp'])
+ 
+ 
+-def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
+-    """A held group's timer rows: for each timer and interface the longest, each a row of its own, held to
+-    BUDGET_MS."""
+-=======
+ def owner(log: grade.Log, entry: int) -> str | None:
+     """The participant that owns a LeaveAll timer's run-out at entry, as the testbench recorded it at the expiry
+     (grade.Log.owners), or None where it recorded none or recorded the owner unresolved."""
+@@ -427,9 +412,9 @@ def tick_at(log: grade.Log, at: int) -> int:
+ 
+ 
+ def rows(grader: grade.Grader, group: scenario.Group) -> list[dict]:
+-    """A held group's timer rows: for each timer and interface the longest, each a row of its own, on its owner's
+-    frames from its owner's transmit opportunity (served, begin); a LeaveAll's on its owner's LeaveAll (leave_alls)."""
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++    """A held group's timer rows: for each timer and interface the longest, each a row of its own, held to BUDGET_MS, on
++    its owner's frames from its owner's transmit opportunity (served, begin); a LeaveAll's on its owner's LeaveAll
++    (leave_alls)."""
+     if not group.save or not group.save.get('loaded'):
+         return []
+     log = grader.log
+diff --git a/tb/verilator/ctrl_service_budget/observe.vlt b/tb/verilator/ctrl_service_budget/observe.vlt
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/observe.vlt
+index 60e7223c14..9cc1c07526 100644
+--- a/tb/verilator/ctrl_service_budget/observe.vlt
++++ b/tb/verilator/ctrl_service_budget/observe.vlt
+@@ -1,16 +1,10 @@
+ `verilator_config
+ // Passive observation only: committed PCs, the CPU's fetch bus (cacheless,
+ // or the instruction cache's refills) and data bus (cacheless, or the data
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ // cache's IO bus), the mailbox's receive commit, the hold of a record its bucket
+-// had no token for and that record's commit at the refill (#917), and its
+-// event-ring writes.
+-// No source changes.
+-=======
+-// cache's IO bus), the mailbox's receive commit and its event-ring writes,
+-// and the CPU's register file, read at a few function entries (sim_main.cpp,
+-// note_owner). No source changes.
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++// had no token for and that record's commit at the refill (#917), its event-ring
++// writes, and the CPU's register file, read at a few function entries
++// (sim_main.cpp, note_owner). No source changes.
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/Makefile
+index fa8350e771..8c9a48333b 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -1018,25 +1018,15 @@ twin: build-twin
+ # (twin_plants.py, through twin_compare.py --make-plant): the split's for a
+ # difference no row covers, an owed difference gone, the entity's commands and
+ # their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ # out a declared attribute, the LeaveAll declarations and the Talker declared as
+-# Talker Failed again (#929); the fabric's for its owed defects gone (#857, #858, #860), and
+-# for the #860 rows' exact traces
++# Talker Failed again (#929); the fabric's for an owed fabric defect gone, of
++# which none is left (TWIN_FABRIC_PLANTS)
+ TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+ TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
+   table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join \
+   talker-failed-back
+-TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
+-  vanished-vid2-join-in vid2-registrar-in
+-=======
+-# out a declared attribute and the LeaveAll declarations; the fabric's for an owed
+-# fabric defect gone, of which none is left (TWIN_FABRIC_PLANTS)
+-TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+-TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
+-  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
+ # none at this head: processor 801ef228 (#893) fixed the owed fabric defects (#857, #858, #860) they planted
+ TWIN_FABRIC_PLANTS =
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ twin-plants: build-twin
+ 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
+ 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/README.md
+index eb72d1f752..aa95be546a 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -108,17 +108,10 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+ - **[The #858 ENTITY available_index (the AIDX section of obj_notify)](#the-858-entity-available_index-the-aidx-section-of-obj_notify)** -- READ_DESCRIPTOR(ENTITY)'s available_index against the last ENTITY_AVAILABLE on the wire, through advertisements, a departure and a re-enable, with its four planted arms
+ - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
+-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty-one plants and what it finds
++- **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+ - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+ - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
+-=======
+-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-eight planted defects and its make -j8 gate from a clean tree
+-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, fourteen plants and what it finds
+-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+ - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -1448,26 +1441,14 @@ a finding too: the lane that fixes it deletes the row.
+ 
+ | Row | Fabric | Split | Owed to |
+ |---|---|---|---|
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ | `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | #665, its step not yet named (#929) |
+-| `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
+ 
+-The first is the split's. Since #895 its Talker Advertise for STREAM_OUTPUT
++It is the split's. Since #895 its Talker Advertise for STREAM_OUTPUT
+ 0's stream is declared after the PROBE_TX and withdrawn, as the fabric's is,
+ and the split sends no notice at either change (Milan v1.2 5.4.5.2, Table
+-5.22). The second is the fabric's: its AECP engine serves the image's ENTITY
+-descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
+-6.2.2.15).
+-=======
+-| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
+-| `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+-
+-Both have one cause: the split's sources stay unallocated until an
+-SRP adapter entry takes MAAP's range
+-([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
++5.22).
+ The fabric's ENTITY available_index row (#858) went with processor 801ef228
+ (#893), which serves the last ENTITY_AVAILABLE's value: both halves now read 1.
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ 
+ A third row, `split-talker-failed`, held the split's Talker Failed for both
+ sources from boot, never withdrawn, against the fabric's Talker Advertise for
+@@ -1492,11 +1473,7 @@ item 2).
+ 
+ ### The plants
+ 
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-`make twin-plants` runs twenty-one plants. Each must be refused by its words
+-=======
+-`make twin-plants` runs fourteen plants. Each must be refused by its words
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++`make twin-plants` runs fifteen plants. Each must be refused by its words
+ twice. Against the unplanted capture of the half it plants, every finding must
+ be about the planted protocol. That control also counts each grade finding the
+ plant adds to the planted half, or takes from it. Between the placements, the
+@@ -1511,11 +1488,7 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
+ | Plant | What it changes | Refused by, between the placements |
+ |---|---|---|
+ | `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 0200000000010001` |
+-=======
+-| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 024b4c4b4c010001` |
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 024b4c4b4c010001` |
+ | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
+ | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
+ | `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
+@@ -1524,14 +1497,9 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
+ | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
+ | `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
+ | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]` |
+-| `talker-failed-back` | the split's Talker declared as Talker Failed again, as before #895: each Talker Advertise vector re-encoded in place as Talker Failed of the same StreamID and events, code 2 | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1` |
+-| `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
+-=======
+-| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
++| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]` |
++| `talker-failed-back` | the split's Talker declared as Talker Failed again, as before #895: each Talker Advertise vector re-encoded in place as Talker Failed of the same StreamID and events, code 2 | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1` |
+ | `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
+ | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+ 
+@@ -1839,7 +1807,6 @@ make -C tb/verilator/milan_dp srptx-plants
+ make -C tb/verilator/milan_dp srptx-mutants
+ ```
+ 
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ ## The split image's audio maps on the render store (`obj_twin_maps`, #923)
+ 
+ `make twin-maps` runs the split half's binary with `--maps`
+@@ -1864,7 +1831,8 @@ the core's edit port after the boot, so no map edit reaches the store. The run
+ must exit 1 and print the `MAPS-STORE`, `MAPS-FORMAT` (4 channels) and
+ `MAPS-EDIT` failures by their words (`TWIN_MAPS_PLANT_WORDS`). Like the twin and
+ `srptx`, these targets are this leg's own, outside the suite's `run` inventory.
+-=======
++
++
+ ## The #839 station MAC from reset (`obj_bootsa`)
+ 
+ The defect: the processor's SRP engine runs from reset. The firmware writes
+@@ -1991,7 +1959,6 @@ frame's source. The others:
+   own check.
+ 
+ What it does not grade: `nvm_boot()`'s own CSR traffic.
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ 
+ ## GM step re-base leg (#387)
+ 
+diff --git a/tb/verilator/milan_dp/twin_compare.py b/tb/verilator/milan_dp/twin_compare.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/twin_compare.py
+index 5574206b3c..254f057495 100644
+--- a/tb/verilator/milan_dp/twin_compare.py
++++ b/tb/verilator/milan_dp/twin_compare.py
+@@ -67,11 +67,7 @@ TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
+ #: each plant's words, which its refusal against the all-fabric capture must carry
+ PLANT_WORDS = {
+     "byte-flip": "ADP frame 1 differs at byte 34",
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-    "srp-plus-k": "MSRP Talker Advertise stream_id 0200000000010001",
+-=======
+-    "srp-plus-k": "MSRP Talker Failed stream_id 024b4c4b4c010001",
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++    "srp-plus-k": "MSRP Talker Advertise stream_id 024b4c4b4c010001",
+     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
+                             "to the second controller",
+     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
+@@ -85,24 +81,15 @@ PLANT_WORDS = {
+     "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
+                      "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
+                      "nothing",
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+-                             "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+-                             "split's [{Talker Advertise stream_id 0200000000010000; Domain value 06030002} x1, "
++                             "stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
++                             "split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, "
+                              "{Domain value 06030002} x1, {none} x3]",
+-    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
+-                          "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
+-    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+-                          "stream_id 0200000000010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+-                          "split's [{Talker Failed stream_id 0200000000010000; Domain value 06030002} x1",
+-    "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
+-    "vanished-available-index": "owed row entity-available-index: the difference has gone",
+-=======
+-    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
+-                             "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
+     "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an "
+                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
++                          "stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
++                          "split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1",
+     "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table "
+                     "10-3's tx! sends JoinMt",
+     "mvrp-received-join": "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with "
+@@ -112,33 +99,13 @@ PLANT_WORDS = {
+ SELF_WORDS = {
+     "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
+     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+     "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ",
+-    "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
+-    "vanished-available-index": "AECP response 13 differs at byte 81",
+-    "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
+-                           "ms 1000",
+-    "domain-trace-moved": "[MRP] all-fabric MSRP Domain value 06030002: JoinIn at ms 1000 is not an Applicant's "
+-                          "message",
+-    "vanished-vid2-join-in": "the planted half no longer makes: [MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200",
+-    "vid2-registrar-in": "[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN "
+-                         "with the Registrar IN",
+-=======
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ }
+ PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
+                     "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
+                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
+                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+-                    "talker-failed-back": "MSRP",
+-                    "vanished-mvrp-leave-all": "MVRP",
+-                    "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
+-                    "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
+-                    "vid2-registrar-in": "MVRP"}
+-=======
+-                    "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP"}
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
++                    "talker-failed-back": "MSRP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP"}
+ 
+ 
+ # ---- the ordered raw-byte comparison ---------------------------------------
+@@ -433,24 +400,11 @@ OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "024b4c4b4c010000" "
+                               "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
+ OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
+                                "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+ #: Since #895 the split's Talker declares after the PROBE_TX and withdraws, as the fabric's does (IEEE 802.1Q-2018
+ #: 35.2.2.8), with no notice at either change; the step that owes the notices is not yet named (#929)
+ SRP_NOTICE = ("the split's Talker Advertise for STREAM_OUTPUT 0's stream is declared after the PROBE_TX and withdrawn "
+               "(#895), and the split sends no GET_STREAM_INFO notice of STREAM_OUTPUT 0 at either change")
+ SRP_NOTICE_OWED = "#665, its step not yet named (#929)"
+-FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
+-                "image's constant 0, and never reads ADP's")
+-=======
+-#: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
+-#: Advertise for source 0, the split's Talker Failed for both sources
+-FABRIC_TALKER = (1, "024b4c4b4c01000091e0f00001000002004900017000000000")
+-SPLIT_TALKERS = ((2, "024b4c4b4c010000000000000000000200d9000170000000000000024b4c4b4c0102"),
+-                 (2, "024b4c4b4c0100010000000000000002001d000170000000000000024b4c4b4c0102"))
+-SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
+-               "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
+-SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ 
+ #: The owed-difference list, apart from the ledger (#665): each row names the
+ #: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
+@@ -461,29 +415,7 @@ OWED = (
+         == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
+         lambda h, sel: sel == [],
+         "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
+-<<<<<<< 6ad5c2592a (Let THE STEP's extra-step plant build: its condition keeps owes() referenced, so -Werror compiles it and B12 catches it by name)
+         "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_NOTICE, SRP_NOTICE_OWED),
+-    Row("entity-available-index",
+-        "IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's",
+-        lambda h: responses(h, 25),
+-        lambda h, sel: entity_read(h, sel, 0),
+-        lambda h, sel: entity_read(h, sel, 1),
+-        "the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1",
+-        "the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's", shown_aecp, FABRIC_INDEX,
+-        "#858 (a release-image defect)"),
+-=======
+-        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
+-    # the split's count follows lwSRP's LeaveAll draws, seeded from the interface MAC (srp_mbx.c, mrp_port_configure)
+-    Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
+-        lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
+-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+-        == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
+-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+-        == [(SPLIT_TALKERS[0], "New x2, JoinMt x90"), (SPLIT_TALKERS[1], "New x2, JoinMt x90")],
+-        "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
+-        "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
+-        SRP_ROUND),
+->>>>>>> 544fd72cef (List the four build-association mutants in the harness README's mutant table with the checks that catch them (#665))
+ )
+ 
+ 

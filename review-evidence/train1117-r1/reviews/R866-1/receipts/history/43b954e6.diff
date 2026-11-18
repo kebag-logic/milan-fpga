@@ -1,0 +1,1008 @@
+43b954e6488b946f9d1bbee166c83bbcaa47d236
+cb96336d7aaacbaec76990ab07ef64148808d4ac d3e61e37aa9ff50949d3561bc061bc610163ffbc
+Merge #881 (d3e61e37) into the flip train: AECP REBOOT on the split CPU and the reset port (#871)
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index d04c6c31f6..fe9fe98113 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -134,27 +134,18 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,352 B | 60.5 |
+-=======
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.0 |
+ | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 60.5 |
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+ With GET_AS_PATH's read through the face composed on them (#897), the image plans 60.5 too, 992 B of `rom` past 60.0 (168 B on the tiers alone), and [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes that entry as it stands.
++With AECP's REBOOT merged on #894's tiers (#871) the image plans 60.5 too, past the 60.0, and by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the entry is raised to it, at the next half tile, as ROM debt owed to S14. That decision makes no ledger cap a stop for the flip lanes; the image must still fit the device and the build meet timing at every corner.
+ The size fixture's entry is 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before it: the CPU budget harness's 8x8/2if arms, the size fixture with their test ports, need 127,096 to 127,416 B of `rom`, past the 126,976 B that 59.0 holds, and by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) an image past its entry raises it to the next half tile, as named debt owed to S14, the caps no longer a stop ([section 5](#5-fit)). The platform's entry is 60.5; each image is refused half a tile past its entry, at 60.0 and 61.0.
+ SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit). GET_AS_PATH's read adds none to `ctrl_plat` at any point (#897).
+-=======
+-The platform's entry is 60.5 since the merge of #894's tiers into AECP's REBOOT (#871): the composed image plans 60.5, past the 60.0, so by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the entry is raised to it, at the next half tile, as ROM debt owed to S14. That decision makes no ledger cap a stop for the flip lanes; the image must still fit the device and the build meet timing at every corner.
+-The entries are 59.0 for the size fixture's point and 60.5 for the platform's; each image is refused half a tile past its entry, at 59.5 and 61.0.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -278,21 +269,12 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
+ **The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
+ The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
+ 
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, which [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes for GET_AS_PATH's read on them (#897): a debt of 4.5 RAMB36, the cap fully used;
++- the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, which [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes for GET_AS_PATH's read on them (#897), and the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) for AECP's REBOOT on them (#871): a debt of 4.5 RAMB36, the cap fully used;
+ - the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and since GET_AS_PATH's read composed with SRP's Talker declarations 59.5, by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) (#897): a debt of 3.5 RAMB36;
+ - every other point, including every 1x1/1if point, stays at or under 56.
+ 
+ S14 is the first lane after the flip.
+-`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), 60.0 before it, and the size fixture's at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+-=======
+-- the target platform's image may plan 60.0 RAMB36, capped at 60.5, and since AECP's REBOOT (#871) 60.5, by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745); its debt is 4.5 RAMB36, 18,432 B of cold code to move;
+-- the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2;
+-- every other point, including every 1x1/1if point, stays at or under 56.
+-
+-S14 is the first lane after the flip.
+-`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, 60.0 before AECP's REBOOT (#871), and the size fixture's at 59.0, its cap since the tiers' merge (#894), 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++`ctrl_memory.LEDGERED` holds the platform's entry at 60.5, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), 60.0 before it, and the size fixture's at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+ These figures are planned, not mapped.
+ 
+ The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
+@@ -2333,17 +2315,10 @@ Before the tiers, a search of the loop's choices (`ctrl_retry_search.py`) held t
+ 
+ | Bound | 1x1/1if | 8x8/2if |
+ |---|---:|---:|
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.72 ms by every source at this head, held to 20 (14.66 at #894's head; 14.60 at `12180198`'s 1,200 us slice) | 21.11 ms by every source at this head, stated 22 (20.93 at #894's head; 20.25 at `12180198`) |
+-| every notice queued behind it (`AECP_QUEUED_MS`) | 136.65 ms by every source at this head, held to 140 (127.21, held to 130, at #894's head; 91.59, held to 125, at `12180198`'s 1,200 us slice) | 857.77 ms by every source at this head, stated 62, ceiling 70 (806.60 at #894's head; 647.23 at `12180198`) |
+-
+-At 1x1/1if the first notice's bound is decision D's 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)), and the last's is 140 ms at this head (`AECP_QUEUED_MS`), the queued rule's figure for its row ([#895's ruling of 2026-11-15 on round 7B's stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1), [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874)'s 130 ms on #894's head and decision D's 125 before it; at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), its rows by every source reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+-=======
+-| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.69 ms by every source, held to 20, with AECP's REBOOT (#871; 14.66 at `41ca9f87`, 14.60 at `12180198`'s 1,200 us slice) | 20.93 ms by every source, stated 22 (20.25 at `12180198`) |
+-| every notice queued behind it (`AECP_QUEUED_MS`) | 134.74 ms by every source, held to 135, with AECP's REBOOT (#871; 127.21, held to 130, at `41ca9f87`; 91.59, held to 125, at `12180198`'s 1,200 us slice) | 806.60 ms by every source, stated 62, ceiling 70 (647.23 at `12180198`) |
++| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.72 ms by every source at this head, held to 20 (14.69 with AECP's REBOOT merged on #894's head, #871; 14.66 at #894's head; 14.60 at `12180198`'s 1,200 us slice) | 21.11 ms by every source at this head, stated 22 (20.93 at #894's head; 20.25 at `12180198`) |
++| every notice queued behind it (`AECP_QUEUED_MS`) | 136.65 ms by every source at this head, held to 140 (134.74, held to 135, with AECP's REBOOT merged on #894's head, #871; 127.21, held to 130, at #894's head; 91.59, held to 125, at `12180198`'s 1,200 us slice) | 857.77 ms by every source at this head, stated 62, ceiling 70 (806.60 at #894's head; 647.23 at `12180198`) |
+ 
+-At 1x1/1if the first notice's bound is decision D's 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)), and the last's is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874)'s, 135 ms with AECP's REBOOT (#871), its row rounded up to the next 5 ms (`AECP_QUEUED_MS`; 130 ms at #894's head, decision D's 125 before the amendment); at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), its rows by every source reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++At 1x1/1if the first notice's bound is decision D's 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)), and the last's is 140 ms at this head (`AECP_QUEUED_MS`), the queued rule's figure for its row ([#895's ruling of 2026-11-15 on round 7B's stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1), [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874)'s 130 ms on #894's head (135 ms with AECP's REBOOT merged on it, #871) and decision D's 125 before it; at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), its rows by every source reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+ 
+ ### The polls by source
+ 
+@@ -2486,13 +2461,8 @@ The slice at 1x1/1if was first the one with the largest least relative margin ov
+ 
+ | Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms; 135 at 1x1/1if) |
+ |---|---:|---:|---:|---:|---:|---:|
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ | 1x1/1if | 900 us | 13.40 | 76.10 | 73.61 | 14.73 | 136.99, within 140 (over 125; [below](#get_as_path-on-srps-talker-declarations-897)) |
+ | 8x8/2if | 1,300 us | 45.06 | 209.00 | 198.71 | 21.11 | 857.77 |
+-=======
+-| 1x1/1if | 950 us | 13.23 | 74.81 | 72.88 | 14.69 | 134.74, within 135 (over 125) |
+-| 8x8/2if | 1,300 us | 44.24 | 206.45 | 196.31 | 20.93 | 806.60 |
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ The 1x1/1if row is the head's with AECP's REBOOT merged (#871), its costs restated by the rule over every 1x1/1if leg; at #894's head `41ca9f87` it was 13.10, 74.07, 69.86, 14.66 and 127.21 ms, within 130.
+ At the 800 us slice and the merged costs they were 12.80, 74.80, 69.91, 14.44 and **137.79** ms at 1x1/1if, the last queued notice over its 125 ms, waiting for SRP's records in each pass's slice at their merged cost (its largest term, 26.88 ms); before the merge of #810's `084cf7a8`, 12.26, 57.73, 55.99, 14.20 and 102.71 ms at 1x1/1if, and 42.47, 187.97, 178.28, 20.25 and 647.23 ms at 8x8/2if.
+@@ -2522,17 +2492,13 @@ The built design is the option's, then at the slice ruling's 800 us (900 us at t
+ | And the slice rule's 950 us built: the 9 ms pace ([below](#the-rules-slice-built-895)) | 13.16 | 203.58, within 238 | 29.34 | 27.61 | 27.70 | 14.70 | 74.52 | 72.58 | 127.83, within 130, **over 125** | 33.69, within 49 | 48.37, within 49, **over 40** |
+ | SET_CONFIGURATION's record cut and paced, the paced class at 300 us: an 8 ms pace ([below](#set_configurations-record)) | 13.01 | 188.41, within 238 | 28.80 | 27.17 | 27.29 | 14.59 | 73.80 | 69.60 | 127.86, within 130, **over 125** | 33.21, within 49 | 48.23, within 49, **over 40** |
+ | The final pass's restatements, AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and a TICK at 55, the SRP drain at the load gate's record cost: an 8 ms pace ([below](#the-final-passs-restatements)) | 13.05 | 188.43, within 238 | 28.90 | 27.25 | 27.37 | 14.61 | 74.02 | 69.81 | **132.71, over 130** | 33.33, within 49 | 48.38, within 49, **over 40** |
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ | On #894's head: the slice rule's choice there, 950 us ([below](#the-final-passs-restatements)), an 8 ms pace | 13.10 | 188.48, within 238 | 28.95 | 27.30 | 27.42 | 14.66 | 74.07 | 69.86 | 127.21, within 130, **over 125** | 33.38, within 49 | 48.43, within 49, **over 40** |
+ | On #894's head with GET_AS_PATH read through the face (#897), an ordinary AECP record at 245 us and the paced class at 305: an 8 ms pace, the slice rule's 950 us ([below](#get_as_path-through-the-face)) | 13.25 | 188.48, within 238 | 29.14 | 27.49 | 27.61 | 14.67 | 74.32 | 72.41 | 127.52, within 130, **over 125** | 33.57, within 49 | 48.61, within 49, **over 40** |
++| On #894's head with AECP's REBOOT merged (#871), its image's hot code moved: SRP's record and the drain's unit at 285 us, AECP's ordinary record at 240, the paced class at 305 and a pass's events' fixed part at 40, the last queued notice's bound at the 135 ms its row rules; 950 us and an 8 ms pace still the rules' choices | 13.23 | 188.51, within 238 | 29.22 | 27.53 | 27.65 | 14.69 | 74.81 | 72.88 | 134.74, within 135, **over 125** | 33.66, within 49 | 48.75, within 49, **over 40** |
+ | SRP's Talker declarations composed with #894's SET_CONFIGURATION cut, each cost the side's that moved it: the 9 ms pace ([below](#the-rules-slice-built-895)) | 13.25 | 203.59, within 238 | 29.51 | 27.78 | 27.88 | 14.75 | 74.98 | 73.04 | **134.74, over 130** | 33.88, within 49 | 48.40, within 49, **over 40** |
+ | And measured again after the one cut, the polls' base at 225 us: the 9 ms pace ([below](#the-composition-with-894s-set_configuration-cut-895)) | 13.30 | 203.62, within 238 | 29.68 | 27.91 | 28.01 | 14.77 | 75.89 | 73.41 | **135.43, over 130** | 34.05, within 49 | 48.63, within 49, **over 40** |
+ | The last queued notice's bound at its row's 140 ms and the slice rule's 900 us: the 9 ms pace ([below](#the-bound-and-the-slice-at-140-ms-895)) | 13.25 | 203.57, within 238 | 29.63 | 27.86 | 27.96 | 14.72 | 75.84 | 73.36 | 136.65, within 140, **over 125** | 34.00, within 49 | 48.58, within 49, **over 40** |
+ | On #901's merge `70f4056f` with GET_AS_PATH read through the face, an ordinary AECP record at 245 us and the paced class at 305, each the side's that moved it: the 9 ms pace, the slice rule's 900 us ([below](#get_as_path-on-srps-talker-declarations-897)) | 13.40 | 203.57, within 238 | 29.82 | 28.05 | 28.15 | 14.73 | 76.10 | 73.61 | 136.99, within 140, **over 125** | 34.20, within 49 | 48.77, within 49, **over 40** |
+-=======
+-| The slice rule's choice, 950 us ([below](#the-final-passs-restatements)): an 8 ms pace | 13.10 | 188.48, within 238 | 28.95 | 27.30 | 27.42 | 14.66 | 74.07 | 69.86 | 127.21, within 130, **over 125** | 33.38, within 49 | 48.43, within 49, **over 40** |
+-| AECP's REBOOT merged (#871), its image's hot code moved: SRP's record and the drain's unit at 285 us, AECP's ordinary record at 240, the paced class at 305 and a pass's events' fixed part at 40, the last queued notice's bound at the 135 ms its row rules; 950 us and an 8 ms pace still the rules' choices | 13.23 | 188.51, within 238 | 29.22 | 27.53 | 27.65 | 14.69 | 74.81 | 72.88 | 134.74, within 135, **over 125** | 33.66, within 49 | 48.75, within 49, **over 40** |
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ So at the merged costs, the join timer at 20 cs and the 800 us slice, the flip check refused 1x1/1if: the last queued notice and txL were over their bounds, and `tier_grid.py` held no design (420 candidates solved, 126 refused by their own rules, none holding every row and the load). After the contingent moves ([below](#the-contingent-moves-908)) it held every row, and `tier_grid.py` held 6 of the 420, choosing the built design at 900 us.
+ 
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+remerge CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+index 62906c999b..fe308fb436 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -380,20 +380,11 @@ ACMP's, ADP's and MAAP's take 30 ms, by the [ruling of 2026-11-13 on the owner's
+ The largest legal notice is counted in AECP's R4L row and in THE TRANSMIT's MRPDU row with every AECP notice the largest legal one (txL), whose bound the specs set (below; IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3; [#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391)); every other row counts an AECP notice at its stated cost.
+ THE TRANSMIT's MRPDU rows, tx and txL, take the bound the specs leave after the join time the split arms: Milan v1.2 Table 4.3's 240 ms JoinTime maximum less that time and the 1 ms egress allowance below, since IEEE 802.1Q-2018 10.7.11's requested opportunity is on the wire (10.7.11 lets an implementation modify the timer values). The split arms it at 19 cs, 190 ms, within Table 4.3's 180 to 240 ms, so those rows take 49 ms, derived in the code as 240 ms less the armed value and `T_egress` and never typed (`CTRL_LOOP_JOIN_CS`, `CTRL_LOOP_T_EGRESS_MS`, `CTRL_LOOP_TX_BOUND_MS`, `sw/firmware/ctrl/loop/ctrl_loop.h`); by [#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, since at 20 cs, and its 40 ms, txL was over at every pace that holds R4L within 240 ms, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1, which counts `T_egress`. #908 stays open until the join time is 20 cs again with txL within 40 ms. The CPU budget harness holds every join interval it sees, commit to commit, to 181.0 to 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end (`join_grade.py`; the contingent ruling's item 4 and the egress ruling's item 1); the bench capture holds the wire to 180.0 to 240.0 ms.
+ In those two rows every AECP command is one that the largest legal notice answers, at the costs the CPU budget harness measures for it ([#894's slice ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512); `long_notice.py`): its record, and the poll that sends its notice.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 305 us at 1x1/1if since GET_AS_PATH's read (#897; 300 before it) (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). With GET_AS_PATH read through the face (#897; [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 4) an ordinary AECP record at 1x1/1if is 245 us and the paced class 305, the same work with its fetches moved by the read's code, and on its merge of `dev-soft-core` `70f4056f` each cost is the side's that moved it from their merge base `234bc149`: every 1x1/1if row holds by every source at the built 900 us, the last queued notice 136.99 ms within its 140, ACMP 29.82 and txL 48.77 ms, the pace stays 9 ms and the slice rule still chooses 900 us (#897). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION, its SET_STREAM_INFO and its GET_AS_PATH answered with its entries (`tb/verilator/ctrl_service_budget/record_classes.py`).
++Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 305 us at 1x1/1if since GET_AS_PATH's read (#897) and AECP's REBOOT's merge on #894's head (#871), each alone (300 before them) (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). With GET_AS_PATH read through the face (#897; [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 4) an ordinary AECP record at 1x1/1if is 245 us and the paced class 305, the same work with its fetches moved by the read's code, and on its merge of `dev-soft-core` `70f4056f` each cost is the side's that moved it from their merge base `234bc149`: every 1x1/1if row holds by every source at the built 900 us, the last queued notice 136.99 ms within its 140, ACMP 29.82 and txL 48.77 ms, the pace stays 9 ms and the slice rule still chooses 900 us (#897). With AECP's REBOOT merged on #894's head ([#871](https://github.com/kebag-logic/milan-fpga/issues/871)), whose image moves the hot code, the survey over every 1x1/1if leg restated by the rule SRP's record at 285 us, and the SRP drain's unit with it, AECP's ordinary record at 240, the paced class's at 305 and a pass's events' fixed part at 40: there the slice rule still chose 950 us, 8 ms still held txL, 48.75 ms, and R4L, 188.51 ms, and every 1x1/1if row held by every source (ACMP 29.22 ms, the last queued notice 134.74, so its bound was 135 ms). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION, its SET_STREAM_INFO and its GET_AS_PATH answered with its entries, and its accepted REBOOT and a refused one (`tb/verilator/ctrl_service_budget/record_classes.py`).
+ The rows cover legal notices only: a control_data_length of at most 524 (IEEE 1722.1-2021 9.2.2.6). A command past it is [#903](https://github.com/kebag-logic/milan-fpga/issues/903)'s, and its behaviour is unchanged.
+ Each path's measured service keeps T_svc, as the table below states.
+ At 1x1/1if every notice queued behind the first is committed within 140 ms (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`; 130 ms on #894's head), and the first within its 20 ms: the rows by every source hold both at the built design's slice (`tb/verilator/ctrl_service_budget/rows_tiers.py`, `flip_grade.py`), and the CPU budget harness fails a run whose measured queue passes either (`notice_window.py`).
+-The 130 ms is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2: after #908's cuts the last queued notice's row was 125.84 ms (127.21 at #894's head), over decision D's 125 ms, half of the 250 ms a controller waits on an AECP command, and the bound is that row rounded up to the next 5 ms, never over 140 ms (`tb/verilator/ctrl_service_budget/queued_bound.py` derives it and the flip check refuses any other statement). Composed with SRP's Talker declarations (#895), the row is 135.43 ms at the 950 us slice after the one cut of [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886) (item 3): 10.43 ms over decision D's 125, 5.43 over #894's amended 130, and 4.57 within the amendment's 140. So by [#895's ruling of 2026-11-15 on that composition](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1, the bound follows its row in #895 alone, 140 ms at one interface, and #894's head keeps 130; at the slice rule's 900 us there the row is 136.65 ms, which rules the same 140. #908 stays open while it is over 125 ms.
+-=======
+-Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 305 us at 1x1/1if (300 before AECP's REBOOT's merge, below; `edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, which the built slice now is ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms holds txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row holds by every source (the last queued notice 127.21 ms, ACMP 28.95). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and its accepted REBOOT and a refused one (`tb/verilator/ctrl_service_budget/record_classes.py`).
+-With AECP's REBOOT merged on the tiers ([#871](https://github.com/kebag-logic/milan-fpga/issues/871)), whose image moves the hot code, the survey over every 1x1/1if leg restated by the rule SRP's record at 285 us, and the SRP drain's unit with it, AECP's ordinary record at 240, the paced class's at 305 and a pass's events' fixed part at 40: the slice rule still chooses 950 us, 8 ms still holds txL, 48.75 ms, and R4L, 188.51 ms, and every 1x1/1if row holds by every source (ACMP 29.22 ms, the last queued notice 134.74, so its bound is 135 ms, below).
+-The rows cover legal notices only: a control_data_length of at most 524 (IEEE 1722.1-2021 9.2.2.6). A command past it is [#903](https://github.com/kebag-logic/milan-fpga/issues/903)'s, and its behaviour is unchanged.
+-Each path's measured service keeps T_svc, as the table below states.
+-At 1x1/1if every notice queued behind the first is committed within 135 ms (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`), and the first within its 20 ms: the rows by every source hold both at the built design's slice (`tb/verilator/ctrl_service_budget/rows_tiers.py`, `flip_grade.py`), and the CPU budget harness fails a run whose measured queue passes either (`notice_window.py`).
+-The bound is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2: after #908's cuts the last queued notice's row was 125.84 ms (127.21 at #894's head, so 130 ms there; 134.74 with AECP's REBOOT, #871, so 135 ms), over decision D's 125 ms, half of the 250 ms a controller waits on an AECP command, and the bound is that row rounded up to the next 5 ms, never over 140 ms (`tb/verilator/ctrl_service_budget/queued_bound.py` derives it and the flip check refuses any other statement). #908 stays open while it is over 125 ms.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++The 130 ms is [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2: after #908's cuts the last queued notice's row was 125.84 ms (127.21 at #894's head; 134.74 with AECP's REBOOT merged on it, #871, so 135 ms there), over decision D's 125 ms, half of the 250 ms a controller waits on an AECP command, and the bound is that row rounded up to the next 5 ms, never over 140 ms (`tb/verilator/ctrl_service_budget/queued_bound.py` derives it and the flip check refuses any other statement). Composed with SRP's Talker declarations (#895), the row is 135.43 ms at the 950 us slice after the one cut of [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886) (item 3): 10.43 ms over decision D's 125, 5.43 over #894's amended 130, and 4.57 within the amendment's 140. So by [#895's ruling of 2026-11-15 on that composition](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1, the bound follows its row in #895 alone, 140 ms at one interface, and #894's head keeps 130; at the slice rule's 900 us there the row is 136.65 ms, which rules the same 140. #908 stays open while it is over 125 ms.
+ Each stated cost of a notice, of a round's cold start and of a pass given whole is the most measured over every instance plus 5 %, and the CPU budget harness fails a round or a pass given whole over its stated cost; a refused attempt's, `AECP_ATTEMPT_US`, is held by that round check and not restated.
+ One exception, by the [maintainer-delegated decision of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6842347916): a round's cold start at 8x8/2if, `AECP_ROUND_COLD_US`, is 185 us, 2.7 % over the most measured, 180.16 us, not 5 %.
+ Its reason was the loop search's, before THE TIERS retired it: 185 us was the most THE RETRY's search held the first notice of a queue to 22 ms at, and 186 us failed it then. Under THE TIERS the 8x8/2if first queued notice is a tier row, 21.11 ms by every source at this head (20.93 at #894's), stated 22 ms and reported (#890); the decision and its 185 us stand.
+diff --git a/sw/firmware/ctrl/aecp/README.md b/sw/firmware/ctrl/aecp/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/aecp/README.md
+index 1ae7884484..f2d5af7bcd 100644
+--- a/sw/firmware/ctrl/aecp/README.md
++++ b/sw/firmware/ctrl/aecp/README.md
+@@ -117,11 +117,7 @@ The first two are the line over every round the CPU budget harness measured, plu
+ A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
+ While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
+ So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 140 ms at 1x1/1if (`queued_bound.py`'s rule, the built design's row rounded up to the next 5 ms and never over 140, for the row's 136.65 ms by every source at the slice rule's 900 us, [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 130 ms on #894's head, decision D's 125 ms rounded up from its row after #908's cuts by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+-=======
+-A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 135 ms at 1x1/1if (decision D's 125 ms, rounded up to the next 5 ms from the last queued notice's row by every source after #908's cuts, 134.74 ms with AECP's REBOOT, #871, 127.21 at #894's head, by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2; `queued_bound.py`) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 140 ms at 1x1/1if (`queued_bound.py`'s rule, the built design's row rounded up to the next 5 ms and never over 140, for the row's 136.65 ms by every source at the slice rule's 900 us, [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 135 ms on AECP's REBOOT's merge on #894's head, its row 134.74 ms by every source, #871; 130 ms on #894's head, decision D's 125 ms rounded up from its row after #908's cuts by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+ `aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, the owed-notice queue holds one, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
+ 
+ **The owed-notice queue** (#894; IEEE 1722.1-2021 7.5.2 and 9.3.5.4, Milan v1.2 5.4.5.1 and 5.4.5.2).
+diff --git a/sw/firmware/ctrl/aecp/aecp_mbx.h b/sw/firmware/ctrl/aecp/aecp_mbx.h
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/aecp/aecp_mbx.h
+index e89cdbb60b..9cb90217d8 100644
+--- a/sw/firmware/ctrl/aecp/aecp_mbx.h
++++ b/sw/firmware/ctrl/aecp/aecp_mbx.h
+@@ -63,27 +63,17 @@ extern "C" {
+ // decision of 2026-11-09 and decision D). A queue's first notice is tier 1's and commits within AECP_QUEUED_FIRST_MS of
+ // its port's answer, 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1
+ // and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's bound: decision D's 125 ms, half of
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if by #894's amendment of
+ // 2026-11-13 to its contingent ruling, item 2, the built design's row rounded up to the next 5 ms, never over
+-// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, and 140 ms
+-// at SRP's Talker declarations' composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling
+-// of 2026-11-15 on that composition, item 1). The rows by every source hold both at
+-=======
+-// the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if 130 ms by #894's amendment
+-// of 2026-11-13 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+-// next 5 ms (queued_bound.py derives it; #908 stays open while it is over 125): 135 ms since AECP's REBOOT's merge
+-// on the tiers (#871), whose image's restated costs put that row at 134.74 ms. The rows by every source hold both at
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, 135 ms on
++// AECP's REBOOT's merge on the tiers (#871), its row 134.74 ms, and 140 ms at SRP's Talker declarations'
++// composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
++// composition, item 1). The rows by every source hold both at
+ // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
+ // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
+ // source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
+ #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 140u : 62u)
+-=======
+-#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 135u : 62u)
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ // The owed-notice queue's slots an integrator gives AECP (aecp_config.owed, #894): the AECP channel's burst at one
+ // interface, so its last record never waits on a full queue; none at two, whose ledger has no room for them
+ // (docs/design/SPLIT_CONTROL_MEMORY.md section 5), so there the next record waits for every notice, as before.
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/loop/ctrl_loop.h
+index 4b42631934..4e415fbf6c 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -205,13 +205,8 @@
+ // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
+ // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
+ // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ // 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 140 ms (aecp_mbx.h; the queued
+ // rule's figure for its row, #895's ruling of 2026-11-15, item 1).
+-=======
+-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 135 ms (aecp_mbx.h; #894's
+-// amendment of 2026-11-13 to its contingent ruling, item 2).
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ //
+ // THE TICK. A TICK event carries the centiseconds the fabric counted since
+ // the previous one; the loop calls every registered centisecond consumer
+diff --git a/sw/firmware/ctrl/plat/README.md b/sw/firmware/ctrl/plat/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/plat/README.md
+index 20e85baaf0..4a7bcd708a 100644
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@ -77,15 +77,11 @@ A command's name is compared only as far as its terminator, so a received NUL (a
+ - **MAAP.** `maap_csr_allocation` ([MAAP](../maap/README.md#integration)) runs on interface 0's CSR window. The datapath has one window, so another interface's writes are dropped and counted. The platform records each report after the window has it.
+   The image draws its first range at random. Only a simulation defines `CTRL_PLAT_MAAP_PREFERRED` to pin it: the two-placement simulation in `tb/verilator/milan_dp` pins both placements at one range.
+ - **ACMP's talker sources.** Source *n*'s stream is the entity's MAC and its STREAM_OUTPUT's unique ID (IEEE 1722.1-2021 7.2.3), on the SR class VID, at address base + *n* once MAAP holds its interface's range (Milan v1.2 5.5.4.1).
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ - **SRP.** Every source is configured on every interface with its generated TSpec and class, and declares nothing until its destination is valid: MAAP's range held and a probe of the last 15 s or a registered Listener, the MAAP adapter's DA gate, which the composition passes to SRP (#895; Milan v1.2 4.3.3.1). It then declares Talker Advertise at base + n on its own interface, and withdraws when the gate closes ([SRP](../srp/README.md)). The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
+ - **AECP.** `random` is the loop's millisecond clock. Every observation is the face's ([`aecp_face.c`](../aecp/aecp_face.c)), the platform's only `random`.
+   GET_AS_PATH reads its AVB interface's GSI window, kind 2: the count, then each ClockIdentity of the path sequence by its ordinal, at most `AECP_PATH_ITEMS`, so it answers SUCCESS with the sequence the datapath serves (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897).
+   A window that does not answer, or a count past `AECP_PATH_ITEMS`, fails that port, and the core answers as for GET_AVB_INFO's.
+   AS_PATH_CHANGED leads to the unsolicited GET_AS_PATH response, which reads the window again (Milan v1.2 Table 5.22).
+-=======
+-- **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
+-- **AECP.** `random` is the loop's millisecond clock. GET_AS_PATH has no split source at this base and answers unavailable.
+ - **The REBOOT's reset port** (#871). `env.reboot` is the split SoC's `ctrl_reboot_req` CSR (`milan_soc.CtrlReboot`), which reaches `KL_reboot_ctrl` through a `MultiReg` ([REBOOT_RESET.md](../../../../docs/design/REBOOT_RESET.md#8-the-split-placement)). With it AECP answers a REBOOT of the ENTITY (IEEE 1722.1-2021 7.4.43); with 0 it answers NOT_IMPLEMENTED.
+   The window from the SUCCESS to the port behaves as the processor's (REQ-FWX-001; the processor's `06_aecp_engine.md` section 6.11):
+   - From the SUCCESS no received frame of any channel is taken. Every channel's take is behind a gate on `aecp_reboot_accepted`, set at boot with the channel's own binding behind it, so a frame stays in its ring and the mailbox drops whole one that finds no room.
+@@ -95,7 +91,6 @@ A command's name is compared only as far as its terminator, so a received NUL (a
+ 
+   From the loop's last pass the platform services the saved-state store on its own centisecond and its F_NVM, and, once every other ring has drained, ADP's poll until the port fires. So a journal write in progress completes and the drain sees it, and no frame is taken that could start another write during the PHY hold.
+   The sequence has no deadline: a ring the datapath never drains holds the port back, as the processor's MAC holds its request.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ ## Generated inputs
+ 
+@@ -133,19 +128,11 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
+ `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
+ 
+ - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; and GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B11, #897);
++- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
+ - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
+ - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+ 
+-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 42 defects, each caught by a named test on its own words.
+-=======
+-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
+-- `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
+-- `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+-
+-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 62 defects, each caught by a named test on its own words.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 64 defects, each caught by a named test on its own words.
+ They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
+ The REBOOT's twenty-two include the port fired before the response or the DEPARTING has left, an owed DEPARTING ignored, the request ignored, the store stopped once the loop stops, the loop serviced after the port, frames taken after the SUCCESS on all channels or on any one of the five, acceptance only once the SUCCESS has passed to the mailbox, transmissions after the DEPARTING, and a DEPARTING sent before the other rings drain or past any one of the ACMP, MAAP and SRP rings.
+ 
+diff --git a/sw/firmware/ctrl/test/plat_mutants.py b/sw/firmware/ctrl/test/plat_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/plat_mutants.py
+index bd837740da..db96fe37aa 100644
+--- a/sw/firmware/ctrl/test/plat_mutants.py
++++ b/sw/firmware/ctrl/test/plat_mutants.py
+@@ -191,13 +191,10 @@ def boot_mutants(mutant: type) -> tuple:
+           "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a revocation clears it"),
+         m("plat-source-vid", PLAT, "\t\t\tv->vlan_id = (uint16_t)p->env->policy->sr_vid;\n", "",
+           "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+         # GET_AS_PATH is the datapath's sequence through the face (#897): the old stub's unavailable answer restored
+         m("plat-as-path-unavailable", FACE, AS_PATH_COUNT, AS_PATH_COUNT.replace("if (!gsi(", "if (f != NULL || !gsi("),
+-          "platboot1", "Boot.B11GetAsPathAnswersTheDatapathsSequence", "B11 GET_AS_PATH answers SUCCESS",
+-          also=(("platboot2", "Boot.B11GetAsPathAnswersTheDatapathsSequence", "B11 GET_AS_PATH answers SUCCESS"),)),
+-    )
+-=======
++          "platboot1", "Boot.B24GetAsPathAnswersTheDatapathsSequence", "B24 GET_AS_PATH answers SUCCESS",
++          also=(("platboot2", "Boot.B24GetAsPathAnswersTheDatapathsSequence", "B24 GET_AS_PATH answers SUCCESS"),)),
+     ) + reboot_mutants(mutant)
+ 
+ 
+@@ -330,4 +327,3 @@ def channel_wait_mutants(mutant: type) -> tuple:
+                         f"\t\t\tif (ch != MBX_CH_ADP && ch != {const} && !drained(ch)) {{\n",
+                         "platboot1", B21, f"B21 no ENTITY_DEPARTING while the {name} ring holds a frame")
+                  for const, name in CHANNELS if name not in ("ADP", "AECP"))
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+diff --git a/sw/firmware/ctrl/test/test_plat_boot.cpp b/sw/firmware/ctrl/test/test_plat_boot.cpp
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_plat_boot.cpp
+index 60fb7d12c5..13e8a5bcc8 100644
+--- a/sw/firmware/ctrl/test/test_plat_boot.cpp
++++ b/sw/firmware/ctrl/test/test_plat_boot.cpp
+@@ -32,11 +32,6 @@
+ //   B10 a controller's bind after READY is written back to the flash by the
+ //       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
+ //       acmp_nvm.h's boot order)
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-//   B11 GET_AS_PATH on every AVB_INTERFACE answers SUCCESS with the count and
+-//       path_sequence its datapath serves through the GSI window, kind 2
+-//       (IEEE 1722.1-2021 7.4.41, Milan v1.2 5.4.2.24; #897)
+-=======
+ //
+ // THE REBOOT (IEEE 1722.1-2021 7.4.43; #871; ctrl_plat.h). The reset port is a
+ // register on the host bus; a write of 1 to it is the reset's request:
+@@ -91,7 +86,11 @@
+ //   TheGateHoldsWhileTheResponseCannotBeHandedOver: with AECP's transmit ring
+ //       full, so the SUCCESS is not handed over, a frame on each of the five
+ //       channels stays in its ring
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++//
++// GET_AS_PATH through the face (#897), numbered after THE REBOOT's tests:
++//   B24 GET_AS_PATH on every AVB_INTERFACE answers SUCCESS with the count and
++//       path_sequence its datapath serves through the GSI window, kind 2
++//       (IEEE 1722.1-2021 7.4.41, Milan v1.2 5.4.2.24; #897)
+ 
+ #include <gtest/gtest.h>
+ 
+@@ -667,65 +666,6 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
+     EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
+ }
+ 
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-TEST_F(Boot, B11GetAsPathAnswersTheDatapathsSequence) {
+-    far.path = {0x001bc5fffe001122ull, 0x001bc5fffe334455ull, 0x0200fffe00000001ull};
+-    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+-    // every AVB_INTERFACE the image holds on an interface the build has
+-    std::vector<unsigned> interfaces;
+-    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+-    for (std::size_t n = 0; n < model->count; ++n) {
+-        const aecp_descriptor& d = model->descriptors[n];
+-        if (d.type == 9u && d.configuration == ctrl_plat.aecp.core.configuration && d.index < MBX_N_IF) {
+-            interfaces.push_back(d.index);
+-        }
+-    }
+-    ASSERT_FALSE(interfaces.empty()) << "B11 the image holds an AVB_INTERFACE";
+-    for (const unsigned i : interfaces) {
+-        // GET_AS_PATH (IEEE 1722.1-2021 7.4.41.1) to the entity, as the datapath delivers it
+-        std::vector<std::uint8_t> frame(42, 0);
+-        const auto be = [&](std::size_t at, std::uint64_t v, unsigned n) {
+-            for (unsigned k = 0; k < n; ++k) frame[at + k] = static_cast<std::uint8_t>(v >> (8u * (n - 1u - k)));
+-        };
+-        be(0, ctrl_plat.config.entity->mac, 6);
+-        be(6, 0x020000000081ull, 6);
+-        be(12, 0x22f0u, 2);
+-        frame[14] = 0xfbu;
+-        be(16, 16u, 2);
+-        be(18, ctrl_plat.config.entity->entity_id, 8);
+-        be(26, 0x1020304050607080ull, 8);
+-        be(34, 0x4321u + i, 2);
+-        be(36, 0x0028u, 2);
+-        be(38, i, 2);
+-        const std::uint32_t before = fabric.tx_sent;
+-        ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), i)) << "B11 the command reaches the mailbox";
+-        const mbx_model_tx* response = nullptr;
+-        for (unsigned k = 0; k < 200u && response == nullptr; ++k) {
+-            ctrl_plat_step();
+-            for (std::uint32_t n = before; n < fabric.tx_sent && response == nullptr; ++n) {
+-                const auto* t = mbx_model_tx_frame(&fabric, n);
+-                if (t != nullptr && t->len >= 42u && t->bytes[14] == 0xfbu && (t->bytes[15] & 0xfu) == 1u &&
+-                    t->bytes[36] == 0x00u && t->bytes[37] == 0x28u) {
+-                    response = t;
+-                }
+-            }
+-        }
+-        ASSERT_NE(response, nullptr) << "B11 GET_AS_PATH is answered";
+-        const auto get = [&](std::size_t at, unsigned n) {
+-            std::uint64_t v = 0;
+-            for (unsigned k = 0; k < n; ++k) v = v << 8 | response->bytes[at + k];
+-            return v;
+-        };
+-        EXPECT_EQ(get(16, 2) >> 11, 0u) << "B11 GET_AS_PATH answers SUCCESS on AVB interface " << i;
+-        EXPECT_EQ(get(38, 2), i) << "B11 its descriptor_index";
+-        ASSERT_EQ(get(40, 2), far.path.size()) << "B11 the count the datapath serves";
+-        for (std::size_t k = 0; k < far.path.size(); ++k) {
+-            EXPECT_EQ(get(42 + 8 * k, 8), far.path[k]) << "B11 path_sequence entry " << k << ", in order";
+-        }
+-    }
+-}
+-
+-=======
+ // ---- THE REBOOT (#871) ------------------------------------------------------
+ 
+ namespace {
+@@ -1185,5 +1125,61 @@ TEST_F(Boot, B23TheGateHoldsWhileTheResponseCannotBeHandedOver) {
+             << "B23 no " << c.name << " frame is taken while the REBOOT's SUCCESS waits to be handed over";
+ }
+ 
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++TEST_F(Boot, B24GetAsPathAnswersTheDatapathsSequence) {
++    far.path = {0x001bc5fffe001122ull, 0x001bc5fffe334455ull, 0x0200fffe00000001ull};
++    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
++    // every AVB_INTERFACE the image holds on an interface the build has
++    std::vector<unsigned> interfaces;
++    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
++    for (std::size_t n = 0; n < model->count; ++n) {
++        const aecp_descriptor& d = model->descriptors[n];
++        if (d.type == 9u && d.configuration == ctrl_plat.aecp.core.configuration && d.index < MBX_N_IF) {
++            interfaces.push_back(d.index);
++        }
++    }
++    ASSERT_FALSE(interfaces.empty()) << "B24 the image holds an AVB_INTERFACE";
++    for (const unsigned i : interfaces) {
++        // GET_AS_PATH (IEEE 1722.1-2021 7.4.41.1) to the entity, as the datapath delivers it
++        std::vector<std::uint8_t> frame(42, 0);
++        const auto be = [&](std::size_t at, std::uint64_t v, unsigned n) {
++            for (unsigned k = 0; k < n; ++k) frame[at + k] = static_cast<std::uint8_t>(v >> (8u * (n - 1u - k)));
++        };
++        be(0, ctrl_plat.config.entity->mac, 6);
++        be(6, 0x020000000081ull, 6);
++        be(12, 0x22f0u, 2);
++        frame[14] = 0xfbu;
++        be(16, 16u, 2);
++        be(18, ctrl_plat.config.entity->entity_id, 8);
++        be(26, 0x1020304050607080ull, 8);
++        be(34, 0x4321u + i, 2);
++        be(36, 0x0028u, 2);
++        be(38, i, 2);
++        const std::uint32_t before = fabric.tx_sent;
++        ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), i)) << "B24 the command reaches the mailbox";
++        const mbx_model_tx* response = nullptr;
++        for (unsigned k = 0; k < 200u && response == nullptr; ++k) {
++            ctrl_plat_step();
++            for (std::uint32_t n = before; n < fabric.tx_sent && response == nullptr; ++n) {
++                const auto* t = mbx_model_tx_frame(&fabric, n);
++                if (t != nullptr && t->len >= 42u && t->bytes[14] == 0xfbu && (t->bytes[15] & 0xfu) == 1u &&
++                    t->bytes[36] == 0x00u && t->bytes[37] == 0x28u) {
++                    response = t;
++                }
++            }
++        }
++        ASSERT_NE(response, nullptr) << "B24 GET_AS_PATH is answered";
++        const auto get = [&](std::size_t at, unsigned n) {
++            std::uint64_t v = 0;
++            for (unsigned k = 0; k < n; ++k) v = v << 8 | response->bytes[at + k];
++            return v;
++        };
++        EXPECT_EQ(get(16, 2) >> 11, 0u) << "B24 GET_AS_PATH answers SUCCESS on AVB interface " << i;
++        EXPECT_EQ(get(38, 2), i) << "B24 its descriptor_index";
++        ASSERT_EQ(get(40, 2), far.path.size()) << "B24 the count the datapath serves";
++        for (std::size_t k = 0; k < far.path.size(); ++k) {
++            EXPECT_EQ(get(42 + 8 * k, 8), far.path[k]) << "B24 path_sequence entry " << k << ", in order";
++        }
++    }
++}
++
+ }  // namespace
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index c49e2e551b..994cdefdb7 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -243,18 +243,14 @@ class Ledgered:
+ #: that struct refuses the override until the size is measured again here.
+ #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+ #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #: 60.0, its entry at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before
+ #: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image,
+ #: and the platform's at 61.0, its entry at 60.5, the owner's decision's cap (#665), which #895's ruling of
+ #: 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, and #897's ruling of
+ #: 2026-11-15 takes for the image with GET_AS_PATH's read on them, as #665's ruling of 2026-11-12 ledgered the
+-#: size fixture's at its cap. The
+-=======
+-#: 59.5, its entry at 59.0, the cap #894's ruling of 2026-11-13 raises the owner's 58.5 to for the composed image,
+-#: and the platform's at 61.0, its entry at 60.5 since AECP's REBOOT (#871), by the owner's decision of 2026-11-15
+-#: (#665): an image past its entry raises it to its measured size, at the next half tile, as debt owed to S14. The
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++#: size fixture's at its cap, and AECP's REBOOT (#871) for its image on the tiers by the owner's decision of
++#: 2026-11-15 (#665): an image past its entry raises it to its measured size, at the next half tile, as debt
++#: owed to S14. The
+ #: platform's image is linked at every point with the override its point takes, against this ledger, by
+ #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+ #: where it happens.
+@@ -276,28 +272,20 @@ LEDGERED: dict[str, Ledgered] = {
+                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
+                                          "(#665): an image past its entry raises it"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_352)), 60.5,
+-=======
+                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 60.5,
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+                                             "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+                                             "(#665 decision D3); ctrl_plat 64 B more with SRP's Talker "
+                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
+                                             "declarations composed on the control loop's tiers, 184 B of rom past "
+                                             "60.0, by #895's ruling of 2026-11-14, item 4, and with GET_AS_PATH's "
+                                             "read through the face composed on them, 992 B of rom past 60.0, "
+                                             "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
+-                                            "RAMB36 owed to the hybrid XIP work, the cap fully used"),
+-=======
+-                                            "(#665 decision D3); 60.5 with AECP's REBOOT composed on it (#871), by "
+-                                            "the owner's decision of 2026-11-15: an image past its entry raises "
+-                                            "it, at the next half tile, as debt owed to S14"),
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++                                            "RAMB36 owed to the hybrid XIP work, the cap fully used; 60.5 with "
++                                            "AECP's REBOOT composed on the tiers (#871), by the "
++                                            "owner's decision of 2026-11-15"),
+ }
+ 
+ 
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index cb194e806a..da84db0423 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -4,19 +4,11 @@
+ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ only by its own name, under #665's documented memory exceptions: the size fixture's at 59.5 RAMB36 and the target
+-platform's at 60.5 (the owner's decision of 2026-11-12, its cap), each refused half a tile past. A `Case` here is
++platform's at 60.5 (the owner's decision of 2026-11-12, its cap, and of 2026-11-15: an image past its entry raises it
++to its measured size, at the next half tile, as debt owed to S14), each refused half a tile past. A `Case` here is
+ what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+ function here takes, and grades what these return.
+-=======
+-only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
+-platform's at 60.5 (the owner's decisions of 2026-11-12 and 2026-11-15: an image past its entry raises it to its
+-measured size, at the next half tile, as debt owed to S14; 60.0 before AECP's REBOOT, #871), each refused half a tile
+-past. A `Case` here is what the
+-ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+-here takes, and grades what these return.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+ (#665 S9); `mapper_arms` grades that override and plants three defects in it.
+ """
+@@ -41,11 +33,7 @@ STAGE_1X1, STAGE_8X8 = 3454, 13594
+ FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
+ #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+ #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
+-=======
+ PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_136, 18_304, 20_416
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ 
+ class Case(NamedTuple):
+@@ -59,15 +47,9 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 59.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.5)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.5),
+-=======
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 59.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.5)}
+-#: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.0),
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 60.5)}
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+@@ -79,11 +61,7 @@ REFUSED = (
+     ("the size fixture's 8x8 one-interface image at 59.5", FIXTURE, Case(STAGE_8X8, 1, None, 59.5)),
+     ("an 8x8 image with no image_allocation at 59.5", FIXTURE, Case(STAGE_8X8, None, None, 59.5)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+     ("the platform's 8x8 two-interface image at 59.5", FIXTURE, OWN[PLATFORM]._replace(tiles=59.5)),
+-=======
+-    ("the platform's 8x8 two-interface image at 59.0", FIXTURE, OWN[PLATFORM]._replace(tiles=59.0)),
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+     ("its own image at 61.0 RAMB36, half a tile past its 60.5", PLATFORM, OWN[PLATFORM]._replace(tiles=61.0)),
+     ("the platform's 1x1 one-interface image at 60.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 60.5)),
+     ("the platform's 1x1 two-interface image at 60.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 60.5)),
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+index fa12dcefd7..985b532a94 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -18,11 +18,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces) plans
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+      its 59.5 or 60.5 by name and is refused without its override, through
+-=======
+-     its 59.0 or 60.5 by name and is refused without its override, through
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+      add_ctrl_memory and half a tile past; each override is refused on every
+      other point, on the other's image and on an image with one of its two
+      symbols. Six planted ledgers, each widening an entry to another point or
+@@ -335,11 +331,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+                                           f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+-=======
+-                                          f"platform's 8x8 images with two interfaces at 59.0 and 60.5 ({held})")
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+index e6ab2ca06d..8b8d1d1947 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -169,11 +169,7 @@ In R4 SRP's records are THE DRAIN's first, so every one that arrives before the
+ A retained SRP record's retry is counted at the retry's own rule, at most one a centisecond (`srp_mbx.c`), so one before the window's first centisecond and one after each, and one a pass (`rows_grade.retained_retries`), in R4 alone: a retained record holds SRP's channel, each up to `SRP_RX_RETRY_MS`, which is SRP's storage rule and not the CPU's service, so SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage and count neither that hold nor the retry (`rows_grade.RETAINED_ROWS`).
+ The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted, each named with its reason (`rows_grade.EXCLUDED`): no group stages them, so no cost of theirs is stated, and the notices they mark are counted.
+ `rows_grade.rule_findings` holds these rules against the tree at every point: the retry's rule as `srp_mbx.c` states it (`load_grade.RETRY_RULE`), R4's retries and SRP records against the rules' own counts at several windows (`rows_grade.rule_windows`: under, at and over each row's bound on SRP's 2 ms refill grid; each solved row's W at the point, off it; and a microsecond either side of R4's 20 ms bound plus R4's own record, the window at which the refill at that bound is the first R4's record no longer precedes, so a window off by a record or more counts an SRP record fewer or more there), no retry in an SRP row, and every event type of the contract counted or excluded; `flip_grade.py --check` prints what it finds.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`. At 1x1/1if the last is held to 140 ms, `AECP_QUEUED_MS` there, for the built design's row, 136.65 ms by every source ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 130 ms on #894's head by [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling's item 2): [`queued_bound.py`](queued_bound.py) derives it, the built design's row rounded up to the next 5 ms and never over 140 ms, and the flip check refuses any other statement (`queued_bound.controls`).
+-=======
+-R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`. At 1x1/1if the last is held to 135 ms (130 at #894's head), `AECP_QUEUED_MS` there, by [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling's item 2: [`queued_bound.py`](queued_bound.py) derives it, the built design's row after #908's cuts rounded up to the next 5 ms and never over 140 ms, and the flip check refuses any other statement (`queued_bound.controls`).
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`. At 1x1/1if the last is held to 140 ms, `AECP_QUEUED_MS` there, for the built design's row, 136.65 ms by every source ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 135 ms on AECP's REBOOT's merge on #894's head, #871, and 130 ms on #894's head by [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling's item 2): [`queued_bound.py`](queued_bound.py) derives it, the built design's row rounded up to the next 5 ms and never over 140 ms, and the flip check refuses any other statement (`queued_bound.controls`).
+ The flip at 1x1/1if must pass the check at that point; with the built design it passes there, every row within its bound ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-tiers)), and fails at 8x8/2if, whose rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872; with `--design as-built` it fails at 1x1/1if at R4:
+ 
+ ```sh
+@@ -201,11 +197,7 @@ python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+ python3 -B tb/verilator/ctrl_service_budget/tier_grid.py --point 1x1/1if
+ ```
+ 
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-A final pass holds its AECP records by class, and itself to every group they depend on ([`record_classes.py`](record_classes.py); #894: the one-row map edit's record grew past `record.aecp` unseen in `aecp-fanout`, the one group that measures it, which the gate passes after that growth did not run). Each record of the AECP handler (`aecp_mbx.c`, `frame`) is named by the first solicited response committed at or after its start and before the next record's, else it is unanswered, and held by the rule to its class at the leg's point: `aecp-largest-notice`'s to `LONG_RECORD_US`; an ADD or REMOVE_AUDIO_MAPPINGS, or a SET_CONFIGURATION answered SUCCESS or IN_PROGRESS, elsewhere to `EDIT_RECORD_US` where it is paced, the next AECP record more than `AECP_PACE_MS` less 1 ms after it; every other record, and one of those that is not paced, to `record.aecp`. The legs held are the formal measurement's: arm A, the answering-every-port arm, and the answering-ports arm's `aecp` and `aecp-largest-notice`, and in its `aecp-fanout` the paced records, over which `EDIT_RECORD_US` is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches; every other record is reported by class. The pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (`run.all_groups`), and unless its answering-ports leg at 1x1/1if ran `aecp-fanout`'s accepted SET_CONFIGURATION and its SET_STREAM_INFO, and in its `aecp` group a GET_AS_PATH answered SUCCESS with the entries the arm's `path` port answers (#897), an ordinary record held to `record.aecp`: that port reads the window as the product's does and answers `arm_path.ENTRIES` ([`arm_path.py`](arm_path.py)), so the response's control_data_length is `ANSWERED_LENGTH`, 80 (16 and 8 an entry, IEEE 1722.1-2021 7.4.41.2), and that record is the answered GET_AS_PATH's, which no other arm reaches. Any GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused, and the self-test refuses a build whose answering-ports arm does not put `arm_path.py`'s port in the face's `path` port (`port_findings`). Its planted controls (a group missing, an unpaced edit, an edit, an ordinary and a long record over their records, a labelled arm's record held, arm B's SET_CONFIGURATION or SET_STREAM_INFO missing, an unpaced SET_CONFIGURATION charged as ordinary, a SET_CONFIGURATION over the paced record, a record named by a later record's response, arm B's GET_AS_PATH missing, a GET_AS_PATH over `record.aecp`, a GET_AS_PATH answered SUCCESS with no entries) run in the harness self-test (`load_grade.ceiling_checks`):
+-=======
+-A final pass holds its AECP records by class, and itself to every group they depend on ([`record_classes.py`](record_classes.py); #894: the one-row map edit's record grew past `record.aecp` unseen in `aecp-fanout`, the one group that measures it, which the gate passes after that growth did not run). Each record of the AECP handler (`aecp_mbx.c`, `frame`) is named by the first solicited response committed at or after its start and before the next record's, else it is unanswered, and held by the rule to its class at the leg's point: `aecp-largest-notice`'s to `LONG_RECORD_US`; an ADD or REMOVE_AUDIO_MAPPINGS, or a SET_CONFIGURATION answered SUCCESS or IN_PROGRESS, elsewhere to `EDIT_RECORD_US` where it is paced, the next AECP record more than `AECP_PACE_MS` less 1 ms after it; every other record, and one of those that is not paced, to `record.aecp`. The legs held are the formal measurement's: arm A, the answering-every-port arm, and the answering-ports arm's `aecp` and `aecp-largest-notice`, and in its `aecp-fanout` the paced records, over which `EDIT_RECORD_US` is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches, and in its `aecp-reboot` every REBOOT, accepted and refused, an ordinary record (#871): that arm alone gives the fixture a reset port, so only there is a REBOOT accepted; every other record is reported by class. The pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (`run.all_groups`), and unless its answering-ports leg at 1x1/1if ran `aecp-fanout`'s accepted SET_CONFIGURATION and its SET_STREAM_INFO, and `aecp-reboot`'s accepted REBOOT and a refused one. Its planted controls (a group missing, an unpaced edit, an edit, an ordinary and a long record over their records, a labelled arm's record held, arm B's SET_CONFIGURATION or SET_STREAM_INFO missing, an unpaced SET_CONFIGURATION charged as ordinary, a SET_CONFIGURATION over the paced record, a record named by a later record's response, arm B's accepted or refused REBOOT missing, a REBOOT over `record.aecp`) run in the harness self-test (`load_grade.ceiling_checks`):
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++A final pass holds its AECP records by class, and itself to every group they depend on ([`record_classes.py`](record_classes.py); #894: the one-row map edit's record grew past `record.aecp` unseen in `aecp-fanout`, the one group that measures it, which the gate passes after that growth did not run). Each record of the AECP handler (`aecp_mbx.c`, `frame`) is named by the first solicited response committed at or after its start and before the next record's, else it is unanswered, and held by the rule to its class at the leg's point: `aecp-largest-notice`'s to `LONG_RECORD_US`; an ADD or REMOVE_AUDIO_MAPPINGS, or a SET_CONFIGURATION answered SUCCESS or IN_PROGRESS, elsewhere to `EDIT_RECORD_US` where it is paced, the next AECP record more than `AECP_PACE_MS` less 1 ms after it; every other record, and one of those that is not paced, to `record.aecp`. The legs held are the formal measurement's: arm A, the answering-every-port arm, and the answering-ports arm's `aecp` and `aecp-largest-notice`, and in its `aecp-fanout` the paced records, over which `EDIT_RECORD_US` is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches, and in its `aecp-reboot` every REBOOT, accepted and refused, an ordinary record (#871): that arm alone gives the fixture a reset port, so only there is a REBOOT accepted; every other record is reported by class. The pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (`run.all_groups`), and unless its answering-ports leg at 1x1/1if ran `aecp-fanout`'s accepted SET_CONFIGURATION and its SET_STREAM_INFO, `aecp-reboot`'s accepted REBOOT and a refused one, and in its `aecp` group a GET_AS_PATH answered SUCCESS with the entries the arm's `path` port answers (#897), an ordinary record held to `record.aecp`: that port reads the window as the product's does and answers `arm_path.ENTRIES` ([`arm_path.py`](arm_path.py)), so the response's control_data_length is `ANSWERED_LENGTH`, 80 (16 and 8 an entry, IEEE 1722.1-2021 7.4.41.2), and that record is the answered GET_AS_PATH's, which no other arm reaches. Any GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused, and the self-test refuses a build whose answering-ports arm does not put `arm_path.py`'s port in the face's `path` port (`port_findings`). Its planted controls (a group missing, an unpaced edit, an edit, an ordinary and a long record over their records, a labelled arm's record held, arm B's SET_CONFIGURATION or SET_STREAM_INFO missing, an unpaced SET_CONFIGURATION charged as ordinary, a SET_CONFIGURATION over the paced record, a record named by a later record's response, arm B's accepted or refused REBOOT missing, a REBOOT over `record.aecp`, arm B's GET_AS_PATH missing, a GET_AS_PATH over `record.aecp`, a GET_AS_PATH answered SUCCESS with no entries) run in the harness self-test (`load_grade.ceiling_checks`):
+ 
+ ```sh
+ python3 -I tb/verilator/ctrl_service_budget/record_classes.py BUILD/results ...
+@@ -1520,11 +1512,7 @@ A record within that margin, one at the same cost or cheaper, a refusal in eithe
+ With `--reuse-build` or `--regrade` the run reuses `reference` as it reuses the planted build, and refuses it unless it is this point's unplanted image.
+ 
+ The load gate has twelve planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost raised at 1x1/1if that the gate's own ceiling must hold (`load_grade.CEILING`) and at 8x8/2if that the flip check's must (`flip_grade.FLIP`), an ACMP record's cost raised in the pin's column alone until its load at 1x1/1if passes 0.70, which the gate must refuse naming the pin's column and not the donor's, a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, the retry's rule planted in a copy of `srp_mbx.c` as a retry with nothing changed since the refusal and as a retry every pass a change allows (each leaves SRP's term with no source, `load_grade.RETRY_RULE`), AECP's owed frame charged once for every source rather than by what each sends (a dearer probe must raise the term by every registration's retries of it, a dearer notice by the records' share alone), a timer slot counted once a pass rather than at its expiry rate, a term with no source in the term list, a cost the graded column (tsn-c-stack #32's) states below the pin's though #32 does not move it, an SRP record's (`load_grade.WALK` names the costs it moves), and a column's name bound to the other column's table, which `--check` itself refuses (`load_grade.unbound`): the head's own binding must hold, and the tables swapped, the donor's column dropped and an equal copy of the donor's table must each be refused (`load_grade.binding_controls`); and for each period the load reads from the tree (each channel's refill, `tick_ms`, `holdoff_ms`, `SRP_JOIN_CS`, `CTRL_LOOP_STEP_AGE`, `ACMP_TMR_NO_RESP_MS`, `MAAP_PROBE_BASE_MS`, `ADP_ADVERTISE_MS` and a registration's probe retry), the period halved, which must raise the terms it sets (`load_grade.PERIODS`). Each must be refused; one that is not prints `ESCAPED`.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ The flip check has six for the load, and for the rows by every source a control for each row at each point, which the self-test runs (`flip_grade.flip_checks`, through `load_grade.ceiling_checks`) and `flip_grade.py --selftest` prints: the 8x8/2if row at the pin against a ceiling a thousandth under its load, which must be refused, and a thousandth over it, which must pass; a cost raised over the ceiling; a cost the load needs missing; the ceiling other than 0.70 at 8x8/2if; and the column graded with tsn-c-stack #32 read instead of the pin's. Then each row at each point against a bound a hundredth of a millisecond under its W, which must be refused, and over it, which must pass; each source a solved row counts left out, which must shorten its W; an SRP record's cost raised in the pin's column, which must lengthen R5; the rows read on the column graded with tsn-c-stack #32; `AECP_QUEUED_MS` planted in a copy of `aecp_mbx.h` past its 140 ms bound (at 1,250 ms) at 1x1/1if; a source the method's docstring names that a row does not count; and the bounds or the points other than decision D's. Then the arrival rules (`flip_grade.rule_controls`): the head's own rows holding every rule (`rows_grade.rule_findings` empty), a retained record retried once a pass, the earlier rule, which must be refused and lengthen 1x1/1if's R4, SRP's arrivals ahead of R4's record cut by AECP's whole burst, the earlier rule, which must be refused and shorten it, SRP's arrivals counted over the window less two records of AECP, an error of one record that moves no row at this head and that only a window off SRP's refill grid sees, which must be refused, a retained record's retry counted in an SRP row, the retry's rule planted out of a copy of `srp_mbx.c` (a retry every pass a change allows), and a datapath event dropped from the excluded list, each refused by name. For the built design's rows (`flip_grade.built_controls`): each row at each point against a bound a hundredth under its W and over it, each source a solved row counts left out, the built design breaking its own rules (`rows_tiers.broken`), and a default design other than the built one. For the rows #894's ruling of 2026-11-13 adds (`flip_grade.channel_controls`): a channel the loop serves with its rows dropped, which must fail the check; `ctrl_loop.h` stating THE TRANSMIT's figure under its row; and an added row's bound, or THE TRANSMIT's, other than the ruling's.
+-=======
+-The flip check has six for the load, and for the rows by every source a control for each row at each point, which the self-test runs (`flip_grade.flip_checks`, through `load_grade.ceiling_checks`) and `flip_grade.py --selftest` prints: the 8x8/2if row at the pin against a ceiling a thousandth under its load, which must be refused, and a thousandth over it, which must pass; a cost raised over the ceiling; a cost the load needs missing; the ceiling other than 0.70 at 8x8/2if; and the column graded with tsn-c-stack #32 read instead of the pin's. Then each row at each point against a bound a hundredth of a millisecond under its W, which must be refused, and over it, which must pass; each source a solved row counts left out, which must shorten its W; an SRP record's cost raised in the pin's column, which must lengthen R5; the rows read on the column graded with tsn-c-stack #32; `AECP_QUEUED_MS` planted in a copy of `aecp_mbx.h` past its 135 ms bound (at 1,250 ms) at 1x1/1if; a source the method's docstring names that a row does not count; and the bounds or the points other than decision D's. Then the arrival rules (`flip_grade.rule_controls`): the head's own rows holding every rule (`rows_grade.rule_findings` empty), a retained record retried once a pass, the earlier rule, which must be refused and lengthen 1x1/1if's R4, SRP's arrivals ahead of R4's record cut by AECP's whole burst, the earlier rule, which must be refused and shorten it, SRP's arrivals counted over the window less two records of AECP, an error of one record that moves no row at this head and that only a window off SRP's refill grid sees, which must be refused, a retained record's retry counted in an SRP row, the retry's rule planted out of a copy of `srp_mbx.c` (a retry every pass a change allows), and a datapath event dropped from the excluded list, each refused by name. For the built design's rows (`flip_grade.built_controls`): each row at each point against a bound a hundredth under its W and over it, each source a solved row counts left out, the built design breaking its own rules (`rows_tiers.broken`), and a default design other than the built one. For the rows #894's ruling of 2026-11-13 adds (`flip_grade.channel_controls`): a channel the loop serves with its rows dropped, which must fail the check; `ctrl_loop.h` stating THE TRANSMIT's figure under its row; and an added row's bound, or THE TRANSMIT's, other than the ruling's.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ 
+ Three controls run the full harness, here on the cacheless core S2 measured them on:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/build.py
+index 85734405ed..2c5b9c4d65 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -118,32 +118,19 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
+ 
+ 
+ #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never the formal measurement.
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. All four are contract
+ #: 2.3's face block (aecp_face.c: stream, avb, path and counters, each a bounded window read that the datapath, held
+-#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core
+-#: takes them, path with arm_path.py's. With the unmodified fixture, AECP retries each pending change notice 1 ms
+-#: later forever (aecp.c, retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry:
+-#: the linked image never disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the
+-#: SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream
+-#: observation stays unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS
+-#: notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and
+-#: every later one answers zeroed values, so the port answers just after a retry failed: the retried notice's row
+-#: (notice_window.py) starts there. valid-destinations (#895): the fixture's ACMP source port reports destinations as
+-#: the platform's does, so its group's probes open DA gates and SRP declares Talkers.
+-=======
+-#: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. Three are contract 2.3's
+-#: face block (aecp_face.c: stream, avb and counters, each a bounded window read that the datapath, held idle here,
+-#: never answers); the arm replaces those three in the face's ports, before the core takes them, and makes the fixture's
+-#: own path port answer an empty sequence, and gives AECP a reset port, so a REBOOT is accepted as on the platform
+-#: (ctrl_plat.c; #871). With the unmodified fixture, AECP retries each pending change notice 1 ms later forever (aecp.c,
+-#: retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry: the linked image never
+-#: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the SHUTDOWN path
++#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core takes
++#: them, path with arm_path.py's, and gives AECP a reset port, so a REBOOT is accepted as on the platform (ctrl_plat.c;
++#: #871). With the unmodified fixture, AECP retries each pending change notice 1 ms later forever (aecp.c, retry_at =
++#: now + 1), and this arm separates that retry from each path's cost. shutdown-entry: the linked image never disables
++#: ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the SHUTDOWN path
+ #: (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream observation stays
+ #: unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS notice_window.ANSWER_MS fails;
+ #: that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and every later one answers zeroed
+ #: values, so the port answers just after a retry failed: the retried notice's row (notice_window.py) starts there.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++#: valid-destinations (#895): the fixture's ACMP source port reports destinations as the platform's does, so its group's
++#: probes open DA gates and SRP declares Talkers.
+ VARIANTS = {
+     'answering-ports': [
+         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/edit_rows.py
+index 2935a9faa1..d68e251131 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -34,14 +34,10 @@ if TYPE_CHECKING:
+ #: of one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; at 8x8/2if 30,563, a
+ #: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
+ #: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #: rule (33,724 at 9606b3a9, 355), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py),
+ #: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
+-#: 595 (78,332, 825), and 55,631 with that port.
+-=======
+-#: rule (33,724 at 9606b3a9, 355); at 8x8/2if 56,474, 595 (78,332, 825); with AECP's REBOOT merged on the tiers (#871),
+-#: whose image moves the hot code, at 1x1/1if 28,750, 305.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++#: 595 (78,332, 825), and 55,631 with that port; with AECP's REBOOT merged on the tiers (#871), whose image moves the
++#: hot code, at 1x1/1if 28,750, 305.
+ PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
+          '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
+ #: The paced class's record at each point: the dearest of its members'.
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/load_grade.py
+index 7909b41aa5..2d875ce2a2 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -121,7 +121,6 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
+ #: ADP's timer slot 115 (110), the TICK 40 to 45 and a pass's events' fixed part 25 to 30; at 8x8/2if AECP's timer
+ #: slot 105 (95) and a notice 275 (270), on the plan that 8x8/2if image is measured with (section 5);
+ #: on the merge of the TSN stack pin move to 715589c (#665), each cost the larger of that measurement and this
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #: table's (the polls' and AECP's own at poll_grade.py's, which the redelivery's ACMP item restates), and again on the
+ #: merge of dev-soft-core 0fb66211 (#665), 8x8/2if on the image whose round's cold start is 185 us, each cost the larger
+ #: of that measurement and this table's; and again with SRP's Talker declarations (#895), every group of arm A, the
+@@ -156,43 +155,23 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
+ #: the answering-every-port arm and arm B's legs on #894's tiers (234bc149), an AECP record at 1x1/1if 235 to 245, both
+ #: columns, 23,051 CPU cycles, that arm's SET_NAME in each of its sixteen groups (22,236 at 234bc149, the same work,
+ #: its fetches moved by the read's code), and on its merge of dev-soft-core 70f4056f (#901) each cost the one of the
+-#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897).
++#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897);
++#: and on the merge of #894's tiers into AECP's REBOOT (#871), whose image moves the hot code, over every 1x1/1if
++#: leg (all of arm A, the answering-every-port arm and arm B), both columns, each the larger of that and this
++#: table's: SRP's record 285 us (26,865 CPU cycles in arm A's backlog-adp@blank-aged1-2), AECP's 240 (22,531, a
++#: SET_NAME in the answering-every-port arm's notice-burst-0), a pass's events' fixed part 40 (3,627 in its
++#: notice-burst-1), and a retained record's retry at SRP's record cost, 285; on that lane's merge of dev-soft-core
++#: cb96336d (#898) each cost the one of the side that moved it from their merge base 41ca9f87, the larger where
++#: both did: an AECP record at 1x1/1if #897's 245, a pass's events' fixed part #871's 40 (#871).
+ #: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the
+ #: save groups, each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry,
+ #: an owed MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build
+ #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
+ #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+ STATED_US = {
+-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
+-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
+-=======
+-#: table's (the polls' and AECP's own at poll_grade.py's, which the redelivery's ACMP item restates), and again on
+-#: the merge of dev-soft-core 0fb66211 (#665), 8x8/2if on the image whose round's cold start is 185 us, each cost the
+-#: larger of that measurement and this table's; under #894's edit cut a TICK at 1x1/1if 45 to 50 us, the larger of this
+-#: table's and one TICK of 4,617 CPU cycles in arm A's backlog-adp@program-0 at 7398ec0a, AECP's sink sending an owed
+-#: frame inside it (the same TICK under the one-row edit's cut is 3,242; its most in the cut's arm A 4,612), and ACMP's
+-#: owed frame 50 to 55 us (poll_grade.py); at 8x8/2if, on its legs, a pass's events' fixed part 30 to 35 (2,859 cycles
+-#: in notice-every-0; 2,093 at 5b264bf2) and ACMP's owed frame 65 to 70; and under #894's SET_CONFIGURATION cut
+-#: (f275b619, paced at fe0cef5b), over every group of arm A and of the answering-every-port arm, AECP's timer slot at
+-#: 1x1/1if 65 to 70, both columns, the larger of this table's and 6,206 CPU cycles in that arm's notice-burst-5 (5,753
+-#: at 9606b3a9, the same work, its fetches moved by the cut's code), and with the SRP drain's record cost at the load
+-#: gate's (ctrl_loop.h, a47cd3f2) a TICK at 1x1/1if 50 to 55, both columns, 4,784 CPU cycles in arm A's
+-#: backlog-adp@program-0; and on the merge of #894's tiers into AECP's REBOOT (#871), whose image moves the hot
+-#: code, over every 1x1/1if leg (all of arm A, the answering-every-port arm and arm B), both columns, each the larger
+-#: of that and this table's: SRP's record 285 us (26,865 CPU cycles in arm A's backlog-adp@blank-aged1-2), AECP's 240
+-#: (22,531, a SET_NAME in the answering-every-port arm's notice-burst-0), a pass's events' fixed part 40 (3,627 in its
+-#: notice-burst-1), and a retained record's retry at SRP's record cost, 285. 32x32/2if is measured on the 32x32
+-#: simulation shape (#859), arm A's groups but the save groups, each cost the larger of
+-#: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
+-#: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
+-#: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
+-#: ctrl_loop.h's two-interface cost.
+-STATED_US = {
+-    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+-                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 70, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+                 'item.aecp.response': 60, 'item.aecp.probe': 60},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
+                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 55,
+@@ -240,17 +219,10 @@ STATED_US = {
+ #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
+ #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
+ STATED_US_DONOR = {
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
+-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
+-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,
+-=======
+-    '1x1/1if': {'record.srp': 285, 'record.aecp': 240, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+-                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 70, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
+-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 205, 'item.reclaim': 25, 'item.retained': 285,
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
+                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
+                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/poll_grade.py
+index dd87f0f834..73bfedf97d 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -87,7 +87,6 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: declined offer 1,589 and 1,550, at 1x1/1if and 8x8/2if. Under #894's edit cut ACMP's item at 1x1/1if is 55 us, the
+ #: larger of this table's and its send of 4,890 CPU cycles in backlog-owed under the one-row edit's cut (4,723 at
+ #: 7398ec0a), the code after the map edit's moved by the cut, and at 8x8/2if 70 us, its send of 6,193 cycles in
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+ #: backlog-owed (6,239 at 5b264bf2). With SRP's Talker declarations (#895), measured on their merge with that
+ #: cut, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
+ #: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
+@@ -98,11 +97,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+ #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+ #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+-STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+-=======
+-#: backlog-owed (6,239 at 5b264bf2).
+-STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,
+                     aecp=210, aecp_long=365, acmp_declined=20),
+              2: dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=70,
+                     aecp=275, aecp_long=700, acmp_declined=20)}
+diff --git a/tb/verilator/ctrl_service_budget/record_classes.py b/tb/verilator/ctrl_service_budget/record_classes.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/record_classes.py
+index 14bacbf34d..46ef40bdc9 100644
+--- a/tb/verilator/ctrl_service_budget/record_classes.py
++++ b/tb/verilator/ctrl_service_budget/record_classes.py
+@@ -21,24 +21,17 @@ The legs held are the formal measurement's (#665, README: the labelled arms are
+ answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
+ aecp-largest-notice, which the 8x8 shape runs there, and in its aecp-fanout the paced records, over which
+ EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-(arm A's observation ports never answer); the rest (arm B's other records, the 8x8-1if point) are reported by class,
+-not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
+-each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
+-ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and its aecp group a GET_AS_PATH answered
+-SUCCESS with the entries the arm's path port reads (#897): that port reads the window as the product's does and
+-answers arm_path.ENTRIES (arm_path.py), so the response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021
+-7.4.41.2: 16 and 8 an entry), and that record, an ordinary one held to record.aecp, is the answered GET_AS_PATH's,
+-which no other arm reaches. Every GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused,
+-and so is a pass whose build does not put arm_path.py's port in that arm's path port (port_findings).
+-=======
+ (arm A's observation ports never answer), and in its aecp-reboot every REBOOT, accepted and refused, an ordinary
+ record, whose accepted path needs that arm's reset port (#871); the rest (arm B's other records, the 8x8-1if point)
+ are reported by class, not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the
+ arm (run.all_groups), each stated cost measured over the arm depending on every one of them, and unless its
+-answering-ports leg at 1x1/1if ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and
+-aecp-reboot's accepted REBOOT and a refused one.
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++answering-ports leg at 1x1/1if ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, aecp-reboot's
++accepted REBOOT and a refused one, and its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path
++port reads (#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so
++the response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that
++record, an ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches. Every
++GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused, and so is a pass whose build does
++not put arm_path.py's port in that arm's path port (port_findings).
+ 
+ usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
+                                                       its parent)
+@@ -58,17 +51,13 @@ sys.path.insert(0, str(HERE))
+ import arm_path  # noqa: E402
+ 
+ EDITS = {0x2C: 'ADD_AUDIO_MAPPINGS', 0x2D: 'REMOVE_AUDIO_MAPPINGS'}
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH = 0x06, 0x0E, 0x28
++SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH, REBOOT = 0x06, 0x0E, 0x28, 0x2A
+ #: The ordinary records a line names by their command (the rest by their command_type).
+ NAMED = {GET_AS_PATH: 'GET_AS_PATH'}
+ #: The control_data_length of the GET_AS_PATH response the answering-ports arm's path port answers: its
+ #: controller_entity_id, sequence_id, command_type, descriptor_index and count, 16 B, and 8 B an entry (IEEE
+ #: 1722.1-2021 7.4.41.2), arm_path.ENTRIES of them.
+ ANSWERED_LENGTH = 16 + 8 * arm_path.ENTRIES
+-=======
+-SET_CONFIGURATION, SET_STREAM_INFO, REBOOT = 0x06, 0x0E, 0x2A
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+ #: The statuses of an accepted SET_CONFIGURATION, which stamps the pace (aecp_commands.c): SUCCESS, IN_PROGRESS.
+ ACCEPTED = (0, 9)
+ #: The answering-ports arm's aecp-fanout records the formal measurement holds whatever their class, and a pass must run.
+@@ -84,13 +73,9 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
+             "a labelled arm's record held", "a pass missing arm B's SET_CONFIGURATION",
+             "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
+             'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-            "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
+-            'a GET_AS_PATH answered SUCCESS with no entries')
+-=======
+             "a pass missing arm B's accepted REBOOT", "a pass missing arm B's refused REBOOT",
+-            'a REBOOT over record.aecp')
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++            'a REBOOT over record.aecp', "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
++            'a GET_AS_PATH answered SUCCESS with no entries')
+ 
+ 
+ @dataclass
+@@ -232,7 +217,12 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
+                 what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                 out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
+                            'aecp-fanout, whose accepted path no other arm reaches')
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
++        reboots = [r for leg in ports for r in leg.groups.get(REBOOT_GROUP, []) if r.command == REBOOT]
++        for what, ran in (('accepted', any(r.status == 0 for r in reboots)),
++                          ('refused', any(r.status not in (0, None) for r in reboots))):
++            if not ran:
++                out.append(f"the pass is missing arm B's {what} REBOOT: no answering-ports leg at 1x1/1if ran one in "
++                           f'{REBOOT_GROUP}, whose accepted path needs that arm\'s reset port')
+         if not [r for leg in ports for r in leg.groups.get('aecp', []) if answered_path(r)]:
+             out.append("the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH "
+                        f'answered SUCCESS with its {arm_path.ENTRIES} entries (control_data_length {ANSWERED_LENGTH}) '
+@@ -244,14 +234,6 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
+                     'reads and answers (arm_path.py): its record is not the answered read\'s'
+                     for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0
+                     and not answered_path(r)]
+-=======
+-        reboots = [r for leg in ports for r in leg.groups.get(REBOOT_GROUP, []) if r.command == REBOOT]
+-        for what, ran in (('accepted', any(r.status == 0 for r in reboots)),
+-                          ('refused', any(r.status not in (0, None) for r in reboots))):
+-            if not ran:
+-                out.append(f"the pass is missing arm B's {what} REBOOT: no answering-ports leg at 1x1/1if ran one in "
+-                           f'{REBOOT_GROUP}, whose accepted path needs that arm\'s reset port')
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+     for leg in legs:
+         stated = stated_at(leg.point) if leg.point != '8x8/1if' else stated_at('1x1/1if')
+         for group in sorted(leg.groups):
+@@ -275,13 +257,9 @@ def fanout(spans: list[tuple[float, int]], answers: list[tuple[float, int, int]]
+ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
+     """A complete pass whose every record is within its class, the arm's group list, and statements: arm A's REMOVE
+     at 240 us by the rule, over record.aecp and within the paced record, paced by the ADD 9 ms after it; arm B's
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+     accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; arm B's GET_AS_PATH at
+-    210, answered with its entries, held as an ordinary record; and arm B's SET_NAME at 350 reported, not held."""
+-=======
+-    accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; arm B's SET_NAME at
+-    350 reported, not held; and arm B's REBOOTs, refused at 160 and accepted at 210, held as ordinary records."""
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++    210, answered with its entries, held as an ordinary record; arm B's SET_NAME at 350 reported, not held; and arm
++    B's REBOOTs, refused at 160 and accepted at 210, held as ordinary records."""
+     hz = 100_000_000
+     stated = {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8}
+     a = fanout([(0, 20_000), (10, 22_500), (19, 21_000), (28, 15_000)],
+@@ -289,13 +267,9 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
+     arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 18_000, 0x10, 0)],
+                                           LONG_GROUP: [Record(0, 91_000, 0x2D, 0)]})
+     b = fanout([(0, 33_000), (10, 28_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+-    ports = Leg('1x1/1if', 'answering-ports', hz, hz,
+-                {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0, ANSWERED_LENGTH)]})
+-=======
+     reboot = fanout([(0, 15_000), (10, 20_000)], [(0.1, REBOOT, 11), (10.1, REBOOT, 0)])
+-    ports = Leg('1x1/1if', 'answering-ports', hz, hz, {'aecp-fanout': b, REBOOT_GROUP: reboot})
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
++    ports = Leg('1x1/1if', 'answering-ports', hz, hz,
++                {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0, ANSWERED_LENGTH)], REBOOT_GROUP: reboot})
+     return [arm, ports], ['aecp-fanout', 'aecp', LONG_GROUP], stated
+ 
+ 
+@@ -332,17 +306,14 @@ def controls() -> list[str]:
+         (lambda p: setattr(p[1].groups['aecp-fanout'][2], 'start', 17 * MS - 1), 'SET_CONFIGURATION not paced'),
+         (lambda p: setattr(p[1].groups['aecp-fanout'][1], 'cycles', 29_000), '(SET_CONFIGURATION, paced)'),
+         (unanswered, 'command unanswered'),
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
++        (lambda p: p[1].groups[REBOOT_GROUP].pop(1), "missing arm B's accepted REBOOT"),
++        (lambda p: p[1].groups[REBOOT_GROUP].pop(0), "missing arm B's refused REBOOT"),
++        (lambda p: setattr(p[1].groups[REBOOT_GROUP][1], 'cycles', 23_000), f'{REBOOT_GROUP}: a record of 23,000'),
+         (lambda p: p[1].groups['aecp'].pop(0), "missing arm B's GET_AS_PATH"),
+         (lambda p: setattr(p[1].groups['aecp'][0], 'cycles', 22_400), "over the other record's 235 us (command "
+                                                                        'GET_AS_PATH)'),
+         (lambda p: setattr(p[1].groups['aecp'][0], 'length', 16), 'a GET_AS_PATH answered SUCCESS with '
+                                                                   'control_data_length 16, not the'),
+-=======
+-        (lambda p: p[1].groups[REBOOT_GROUP].pop(1), "missing arm B's accepted REBOOT"),
+-        (lambda p: p[1].groups[REBOOT_GROUP].pop(0), "missing arm B's refused REBOOT"),
+-        (lambda p: setattr(p[1].groups[REBOOT_GROUP][1], 'cycles', 23_000), f'{REBOOT_GROUP}: a record of 23,000'),
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+     )
+     for name, entry in zip(CONTROLS, plants):
+         if entry is not None and not refused(*entry):
+diff --git a/tb/verilator/ctrl_service_budget/selftest_notice.py b/tb/verilator/ctrl_service_budget/selftest_notice.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/selftest_notice.py
+index 61b2343f97..32f8c8ab4e 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_notice.py
++++ b/tb/verilator/ctrl_service_budget/selftest_notice.py
+@@ -83,17 +83,10 @@ def queue_checks() -> list[Check]:
+              within_budget=last <= bound)])]
+     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
+                      ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
+-<<<<<<< cb96336d7a (Merge PR #898: Merge #898: GET_AS_PATH on the split from the datapath's AS path (#897))
+                       (19.5, 141.0, 1)))
+     return [("a queued notice's bound is the constants', the last queued notice's 140 ms at one interface (its row "
+              "rounded up by the queued rule, #895's ruling of 2026-11-15, item 1; 130 by #894's amendment of "
+              "2026-11-13 to decision D's 125) and 62 ms at two", got == (140, 62), str(got)),
+-=======
+-                      (19.5, 136.0, 1)))
+-    return [("a queued notice's bound is the constants', the last queued notice's 135 ms at one interface (#894's "
+-             "amendment of 2026-11-13 to decision D's 125, its row with AECP's REBOOT, #871) and 62 ms at two",
+-             got == (135, 62), str(got)),
+->>>>>>> d3e61e37aa (Restore the polls table's round-22 figure for the retained retry, 285 (250), and rewrap three comments to their neighbours' width with their words unchanged (#871))
+             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
+              first == (20, 22), str(first)),
+             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",

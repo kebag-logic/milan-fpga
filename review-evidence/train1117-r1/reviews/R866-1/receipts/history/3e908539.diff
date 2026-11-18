@@ -1,0 +1,44 @@
+3e9085392b4f9c5cc9a302ee276471d6f5df10cb
+c8ff391ac25997389af6f7ad29fd7ef13bb9c8d7 0297a19a056ee3d5d705bc502c4ae7808689ede7
+Merge #939 (0297a19a) into the flip train as step 11: the 8x8 EDIT-window timing cut, the render FIFO's storage and the AAF clock meter, on the step-10 candidate c8ff391a (#665's ruling of 2026-11-18, issuecomment-6975966775)
+
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/milan_dp/README.md
+index 2ffd3e066b..dcbccd8ffd 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1219,29 +1219,19 @@ starts long before the link.
+ python3 tb/verilator/milan_dp/split_parallel.py --selftest
+ ```
+ 
+-<<<<<<< c8ff391ac2 (Hold every 8x8/1if record and event in run.py's self-test at 8x8/2if's raised to 8x8/1if's own where OWN states one, its SRP record its own since the unit follows it (#665's ruling of 2026-11-18, re-ruled, item 2b))
+-`make split-mutants` runs `split_mutants.py`. It plants twenty-eight defects
++`make split-mutants` runs `split_mutants.py`. It plants thirty-one defects
+ into copies of the datapath's split branch and the #839 transmit gate on its
+ control lane, `KL_mbx_cdc`, its window and `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
+-=======
+-`make split-mutants` runs `split_mutants.py`. It plants twenty-nine defects
+-into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
+-`KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
+->>>>>>> 0297a19a05 (Plant the render FIFO's distributed storage read at the write pointer, which the drained crossing shows three frames late where a write at the read pointer showed nothing (#927))
+ check it names, after a clean control passes. Eleven of them hold the Talker
+ declaration's encoding, the tap's tuples and its drop count, and the
+ datapath's own count wired to `PP_DIAG[15:8]`. Two hold the licence's path to
+ the stream gate: the licence on the next source's ACTIVE term, and the CRF
+-<<<<<<< c8ff391ac2 (Hold every 8x8/1if record and event in run.py's self-test at 8x8/2if's raised to 8x8/1if's own where OWN states one, its SRP record its own since the unit follows it (#665's ruling of 2026-11-18, re-ruled, item 2b))
+ source's licence term on source 0's gate (#867). Two hold #839's transmit
+ gate on the firmware's control lane: the lane taken past the gate, and the
+-gate opened by the low half alone.
+-=======
+-source's licence term on source 0's gate (#867). Three hold the `EDIT`
+-record's capture-source word, which the split registers (#927): the window
+-raising req in the clock its fields load, the word registered a clock late,
+-and the word encoded from the record's stream channel.
+->>>>>>> 0297a19a05 (Plant the render FIFO's distributed storage read at the write pointer, which the drained crossing shows three frames late where a write at the read pointer showed nothing (#927))
++gate opened by the low half alone. Three hold the `EDIT` record's
++capture-source word, which the split registers (#927): the window raising
++req in the clock its fields load, the word registered a clock late, and the
++word encoded from the record's stream channel.
+ 
+ `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
+ the primitives as blackboxes. Every flop's inputs, every output and every

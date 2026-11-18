@@ -1,0 +1,1253 @@
+6a8126e40dd6020968e920fdc605f3e70ca6f273
+7431b6babeefb193f56ce8066a48e7bb826b4597 d06ded5ad3d6eb26bfd79787260adcdcc7d3f80b
+Merge #931 (d06ded5a) into the flip train: map edits committed through the EDIT window, the ledger planned by own_point as ruled (#923, #924)
+
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+remerge CONFLICT (content): Merge conflict in docs/design/MAILBOX_SPLIT.md
+index 7296a6b91a..bb88efb734 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -2207,7 +2207,6 @@ report_timing_summary -delay_type max
+   ([The split's control face](#the-splits-control-face)). They stay on the
+   face as firmware-written state until the flip (issuecomment-6716584453,
+   item 2), each with its ledger row.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ - **The AECP REBOOT request** (#787) is carried by the platform's reset
+   port, not by the face block (S11, #871). A face-block level would add a
+   field to `mailbox.yaml`, a contract change, and the port needs none: one
+@@ -2217,19 +2216,6 @@ report_timing_summary -delay_type max
+   all-fabric exclusion ([Every port, one class](#every-port-one-class)), and
+   the split census holds the net to that one port. The firmware's sequence
+   is in [REBOOT_RESET.md](REBOOT_RESET.md#8-the-split-placement).
+-- **The audio maps on the datapath.** The AECP owner holds the maps and does
+-  not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
+-  the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
+-  placement switch's.
+-=======
+-- **The AECP REBOOT request** (#787) has no carrier in the split: the
+-  firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
+-  request its carrier, a face-block level being the expected end state, decided
+-  in that lane; until then the split ties `reboot_req_i` to
+-  0. Its split elaboration must then pass the port census without the REBOOT
+-  exclusion ([Every port, one class](#every-port-one-class)). The split
+-  census proves the hold.
+ - **The live map writes on the datapath.** The AECP owner applies every map
+   change to the datapath's store through the `EDIT` window (#923); the live
+   map writes `AMAP_LIVE_WRITE` counts are still counted only.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index bc522448c7..0a30b3c3d9 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -129,45 +129,33 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
+ The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
+ An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-Three images may plan past the budget (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and the owner's rule of 2026-11-15 as [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) applies it).
+-Two are 8x8 with two interfaces, each planned there only by its own name. The third is the target platform's 8x8 image with one interface, a shipping image, a product entry. [Section 5](#5-fit) ledgers all three as owed to lane S14:
+-=======
+-Three images may plan past the budget, each only as its own point (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) under the owner's rule of 2026-11-15 that the control memory's ROM may overflow as debt owed to S14).
+-Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image. [Section 5](#5-fit) ledgers all three as owed to lane S14:
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++Three images may plan past the budget, each only as its own point (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and the owner's rule of 2026-11-15 as [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) applies it, which #665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235) keeps for the composed flip train: the control memory's ROM may overflow as debt owed to S14).
++Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image, a shipping one. [Section 5](#5-fit) ledgers all three as owed to lane S14:
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 59.5 |
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,480 B | 61.0 |
+-| `platform-8x8-one-interface` (product) | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,304 B | 56.5 |
+-=======
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,416 B | 61.0 |
+-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,240 B | 56.5 |
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.0 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,672 B | 62.0 |
++| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,496 B | 57.5 |
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+ The size fixture's entry is 58.5 since the merge of the pin move's round 4 head, by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP, within the owner's cap: KLJ3's stage takes its `sram` a 56th granule ([section 5](#5-fit)).
+ It is 59.0 since the merge of #810's `084cf7a8` into #894's tiers, by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2: the composed fixture's image is over 58.5, so its cap is raised to 59.0 as debt owed to S14, with no hold ([section 5](#5-fit)).
+ The platform's entry is 60.5 since SRP's Talker declarations' merge with the tiers, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4: the composed image plans 60.5, 184 B of `rom` past the 131,072 B that 60.0 holds, so its entry is raised to the owner's cap, as the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) raised the size fixture's to its own; ROM debt of 4.5 RAMB36 owed to S14 ([section 5](#5-fit)).
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ With GET_AS_PATH's read through the face composed on them (#897), the image plans 60.5 too, 992 B of `rom` past 60.0 (168 B on the tiers alone), and [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes that entry as it stands.
+ With AECP's REBOOT merged on #894's tiers (#871) the image plans 60.5 too, past the 60.0, and by the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) the entry is raised to it, at the next half tile, as ROM debt owed to S14. That decision makes no ledger cap a stop for the flip lanes; the image must still fit the device and the build meet timing at every corner.
+ The size fixture's entry is 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before it: the CPU budget harness's 8x8/2if arms, the size fixture with their test ports, need 127,096 to 127,416 B of `rom`, past the 126,976 B that 59.0 holds, and by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) an image past its entry raises it to the next half tile, as named debt owed to S14, the caps no longer a stop ([section 5](#5-fit)). Its image is refused half a tile past it, at 60.0. The platform's entry held #895's cap, 60.5, refused at 61.0, until the PHY poll's merge.
+ The platform's entry is 61.0 since the split's PHY poll and its 1000BASE-T-only advertisement (#919, #840) merged with SRP's Talker declarations (dev-soft-core `70f4056f`). The composed image plans 61.0, 652 B of `rom` past the 133,120 B that 60.5 holds, with `ctrl_plat` 64 B more. Its entry is raised to that measurement by the owner's rule of 2026-11-15, which supersedes the 60.5 cap until S14 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)). That is ROM debt of 5.0 RAMB36 owed to S14, and the image is refused at 61.5 ([section 5](#5-fit)).
+-The platform's 8x8 image with one interface plans 56.5 by the same composition, 1,132 B of `rom` past the 131,072 B that 56.0 holds. A product entry ledgers it at 56.5, refused at 57.0, by the same rule: ROM debt of half a tile owed to S14, cold code to flash (decision D3).
++The platform's 8x8 image with one interface plans 56.5 by the same composition, 1,132 B of `rom` past the 131,072 B that 56.0 holds. Its own entry ledgered it at 56.5, refused at 57.0, by the same rule: ROM debt of half a tile owed to S14, cold code to flash (decision D3).
+ SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit). GET_AS_PATH's read adds none to `ctrl_plat` at any point (#897).
+ Within that cap, the saved-state store's name marks over layout 3's id space and its step a pass (#920) add 296 to 304 B of `rom` to every image over those, and to `ctrl_plat` 128 B at 1x1 with one interface or two and at 8x8 with two, and 64 B at 8x8 with one, where the 36 words take padding the other changes left: 17,664, 19,200, 18,304 and 20,480 B; the platform's 8x8 image with two interfaces holds 132,040 B of `rom` in its 60.5 RAMB36 ([the saved-state store's burst](#a-burst-of-names-and-a-change-in-flight-920)).
+-=======
+-The caps were 59.0 for the size fixture's point and 60.5 for the platform's.
+ Since #923 (the map edits' commit through the `EDIT` window, 2,168 B of `rom` at every platform point) each entry is its image's measured tiles, by #923's ruling of 2026-11-16: the owner's rule of 2026-11-15 supersedes the 60.5 cap until S14.
+-The size fixture's is 59.5, the platform's two-interface image's 61.0 with `ctrl_plat` at 20,416 B, and the platform's one-interface image, which was 56.0 with 888 B of `rom` spare, has its own entry at 56.5 ([section 5](#5-fit)).
+-Each image is refused half a tile past its entry, at 60.0, 61.5 and 57.0.
+-SRP's Talker declarations following each source's validity (#895) add 64 B to `ctrl_plat` at both two-interface points on the tiers' image (#894), and none at one interface, where the 64 B the tiers add take the same padding: 17,536, 19,072, 18,176 and 20,352 B. The gate and base `srp_mbx_gate` keeps from its last call (#895's one cut, [section 13](#the-composition-with-894s-set_configuration-cut-895)) add 64 B at 8x8 with one interface, 18,240 B, and none at the other three, where they take the padding; their images at this branch's head are planned in [section 5](#5-fit).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++At #923's head the size fixture's was 59.5, the platform's two-interface image's 61.0 with `ctrl_plat` at 20,416 B, and the platform's one-interface image, which was 56.0 with 888 B of `rom` spare, had its own entry at 56.5.
++In the composed flip train (#665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235)), measured by `plat_ledger.py` and the CPU budget harness's builds ([section 5](#5-fit)), the size fixture's entry is 60.0: every arm's image needs 129,920 to 130,424 B of `rom`, past the 129,024 B that 59.5 holds.
++The platform's two-interface entry is 62.0, with `ctrl_plat` at 20,672 B: 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds.
++Its one-interface entry is 57.5, with `ctrl_plat` at 18,496 B: 136,304 B of `rom`, 1,136 B past the 135,168 B that 57.0 holds.
++Each image is refused half a tile past its entry, at 60.5, 62.5 and 58.0.
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -175,13 +163,8 @@ The second is the image's own object, sized by the two interfaces.
+ For the size fixture it is the per-interface table `image_allocation`, 8 bytes per interface.
+ For the platform it is its one static object, `struct ctrl_plat`, whose size follows the interface count and the shape's streams.
+ A change to that struct changes the size, so the override refuses the image until its entry is measured again.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-Only a point's own measurement names a two-interface override, through `ctrl_memory.py plan --ledgered-point`, `ctrl_srp_image.py --ledgered-point` or `ctrl_plat_image.py --ledgered-point`.
+-The product SoC build names a point only by a product entry: `add_ctrl_memory` plans an image with `ctrl_memory.product_point`, the product entry whose symbols the image carries at their sizes. So the platform's 8x8 one-interface image is planned at its 56.5, and every other image is held to 56 RAMB36 (#923's ruling). `ctrl_plat_image.py` without `--ledgered-point` plans the same way. `plan` itself names no point.
+-=======
+ A point's own measurement names its override, through `ctrl_memory.py plan --ledgered-point`, `ctrl_srp_image.py --ledgered-point` or `ctrl_plat_image.py --ledgered-point`.
+-The product SoC build plans an image at the entry whose every symbol it carries at its listed size (`ctrl_memory.own_point`, called by `add_ctrl_memory`; #923's ruling of 2026-11-16), and every other image at the budget, so every unledgered product SoC build is still held to 56 RAMB36.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++The product SoC build plans an image at the entry whose every symbol it carries at its listed size (`ctrl_memory.own_point`, called by `add_ctrl_memory`; #923's ruling of 2026-11-16), and every other image at the budget, so every unledgered product SoC build is still held to 56 RAMB36. `ctrl_plat_image.py` without `--ledgered-point` plans the same way. `plan` itself names no point.
+ The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md) names the size fixture's for that point only, for its image and its SoC plan (`build.py`, `LEDGERED_POINTS`).
+ The platform image's ledger gate, [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py), links the platform's image at every point and names each override at its own point only, at both 8x8 points ([section 6](#6-reproduce)).
+ `budget` refuses either override on any other image, the other override's image among them, and refuses its point past its tiles.
+@@ -193,25 +176,13 @@ So `entry bytes` reads them as well as the sections: the first word at the reset
+ 
+ [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
+ It plans each ledgered point's image at its tiles by name; [`ctrl_memory_ledger.py`](../../sw/litex/ctrl_memory_ledger.py) holds the cases.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-It requires `budget` to refuse that image without the override and half a tile past its tiles, and through `add_ctrl_memory` for the two-interface points.
+-`add_ctrl_memory` plans the product entry's image at its 56.5 by its symbols. It refuses that image half a tile past and with a `ctrl_plat` of another size, and names no point for either two-interface image.
++It requires `add_ctrl_memory` to plan each ledgered point's image at its own entry, and `budget` to refuse that image without the override and half a tile past its tiles, directly and through `add_ctrl_memory`; `add_ctrl_memory` also refuses an unledgered 8x8 image at 56.5, one with another `ctrl_plat` and one with none, and the product image half a tile past and with a `ctrl_plat` of another size.
+ It also plants each override on the same image's other points, on the other overrides' images, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
+ An override name the ledger does not hold is refused by `budget` too.
+-Thirteen planted ledgers each widen one entry to another point or image, past its tiles, or make an entry a product entry or not one.
+-The platform's two-interface entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, plans 61.5, or becomes a product entry.
+-The fixture's loses `image_allocation`, plans the platform's 61.0, or becomes a product entry.
+-The one-interface entry stops being a product entry, plans 57.0, loses `ctrl_plat`, or takes the two-interface `ctrl_plat`.
+-Four more rebuilds name no product point, make every entry a product entry, match a product entry by its staging buffer alone, or plan the SoC build with no product point.
+-=======
+-It requires `add_ctrl_memory` to plan each ledgered point's image at its own entry, and `budget` to refuse that image without the override and half a tile past its tiles, directly and through `add_ctrl_memory`; `add_ctrl_memory` also refuses an unledgered 8x8 image at 56.5, one with another `ctrl_plat` and one with none.
+-It also plants each override on the same image's other points, on the other overrides' images, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
+-An override name the ledger does not hold is refused by `budget` too.
+-Nine planted ledgers each widen one entry to another point or image, or past its tiles.
+-The platform's two-interface entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 61.5.
+-The fixture's loses `image_allocation`, or plans the platform's 61.0.
+-The one-interface entry loses `ctrl_plat`, takes the 1x1 one-interface image's symbols, or plans 57.0.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++Ten planted ledgers each widen one entry to another point or image, or past its tiles.
++The platform's two-interface entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 62.5.
++The fixture's loses `image_allocation`, or plans the platform's 62.0.
++The one-interface entry loses `ctrl_plat`, takes the 1x1 one-interface image's symbols or the two-interface `ctrl_plat`, or plans 58.0.
+ Each must turn the test red with the ledger's own entries, which the test pins, set aside.
+ It also requires this table to equal `ctrl_memory.RULES`.
+ For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
+@@ -305,13 +276,13 @@ RV32I has no compressed instructions. Two compactions were measured on throwaway
+ Together they would leave 119,672 B, still 57.5.
+ The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
+ The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412739248), then a tile and a half (#665, 6425357821).
+-Only that point's measurement plans it, by name ([section 3](#3-named-refusals)); a SoC build plans past 56 only the product entry's image (below).
++Only that point's measurement plans it, by name ([section 3](#3-named-refusals)); a SoC build plans past 56 only an image at the entry whose symbols it carries (below).
+ **The flip's ROM criterion is the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581)** (option A), which supersedes, for the flip only, the requirement of 56 RAMB36 or fewer at every point with S14 merged.
+ The flip proceeds with the two 8x8 points with two interfaces held as named ROM debt owed to S14, the move of cold code and the descriptor image to QSPI flash (decision D3):
+ 
+ - the target platform's image may plan 60.0 RAMB36, capped at 60.5; its debt is 4.0 RAMB36, 16,384 B of cold code to move, and since SRP's Talker declarations' merge with the tiers 60.5, the cap, by [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4, which [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes for GET_AS_PATH's read on them (#897), and the owner's [decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) for AECP's REBOOT on them (#871): a debt of 4.5 RAMB36, the cap fully used; since the PHY poll and its advertisement merged with them (#919), 61.0, by the owner's rule of 2026-11-15, which supersedes the cap until S14 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)): a debt of 5.0 RAMB36, 20,480 B;
+ - the size fixture's image may plan 58.0, capped at 58.5, and since #894's composed image 59.0, the cap of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and since GET_AS_PATH's read composed with SRP's Talker declarations 59.5, by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745) (#897): a debt of 3.5 RAMB36;
+-- the target platform's 8x8 image with one interface, a shipping image, may plan 56.5 by the same rule, a product entry the product SoC build plans by the image's symbols (#919): a debt of half a tile;
++- the target platform's 8x8 image with one interface, a shipping image, may plan 56.5 by the same rule, its own entry, which the product SoC build plans by the image's symbols (#919): a debt of half a tile;
+ - every other point, including every 1x1/1if point, stays at or under 56.
+ 
+ **Since #923** the owner's rule of 2026-11-15 governs, under [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024): the control memory's ROM may overflow for now as debt owed to S14, and a measured overflow raises its entry and names the debt, with no stop.
+@@ -324,12 +295,15 @@ At #923's head the entries are:
+ - the target platform's 8x8 image with one interface, a product image, 56.5, a debt of 0.5 RAMB36, 1,280 B of `rom`, its own entry, which the product SoC build plans it at by its symbols;
+ - every other point stays at or under 56.
+ 
++In the composed flip train (measured [below](#5-fit)) the entries are:
++
++- the target platform's 8x8 image with two interfaces, 62.0 RAMB36, a debt of 6.0, 24,576 B of cold code to move;
++- the size fixture's 8x8 image with two interfaces, 60.0, a debt of 4.0;
++- the target platform's 8x8 image with one interface, a product image, 57.5, a debt of 1.5, 6,144 B, its own entry, which the product SoC build plans it at by its symbols;
++- every other point stays at or under 56.
++
+ S14 is the first lane after the flip.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-`ctrl_memory.LEDGERED` holds the platform's entry at 61.0 since the PHY poll's merge (#919), 60.5 before it, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), 60.0 before that, the platform's one-interface product entry at 56.5 (#919), and the size fixture's at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below), each refused half a tile past ([section 3](#3-named-refusals)).
+-=======
+-`ctrl_memory.LEDGERED` holds the platform's two-interface entry at 61.0 since #923, 60.5, its cap, since SRP's Talker declarations' merge with the tiers (#895), and 60.0 before it; the size fixture's at 59.5 since #923, 59.0, its cap, since the tiers' merge (#894), and 58.5 before it by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below); and the platform's one-interface entry at 56.5 since #923. Each is refused half a tile past ([section 3](#3-named-refusals)).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++`ctrl_memory.LEDGERED` holds the platform's two-interface entry at 62.0 in the composed flip train (#665), its measured tiles with the map edits' commit (#923) on the train's other changes, 61.5 on the train before the commit, 61.0 since the PHY poll's merge (#919) and at #923's head, 60.5 before them, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), and 60.0 before that; the platform's one-interface entry at 57.5 in the composed train, 57.0 on the train before the commit, 56.5 with the PHY poll (#919) and at #923's head; and the size fixture's at 60.0 in the composed train, 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), and at #923's head, 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below). Each is refused half a tile past ([section 3](#3-named-refusals)).
+ These figures are planned, not mapped.
+ 
+ The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
+@@ -453,7 +427,7 @@ The size fixture's 8x8 image with two interfaces holds 125,792 B of `rom` in 126
+ |---|---:|---:|---:|---|
+ | 1x1, one interface (shipping) | 119,500 (117,488) / 56,288 (56,224) | 43.5 (43.0) | 17,600 (17,536) | within 56 |
+ | 1x1, two interfaces | 121,084 (119,072) / 58,464 (58,400) | 44.5 (44.0) | 19,136 (19,072) | within 56 |
+-| 8x8, one interface (shipping) | 132,204 (130,200) / 97,392 (97,328) | 56.5 (56.0) | 18,240 (18,240) | at its product entry's 56.5, S14's debt, 916 B of `rom` left |
++| 8x8, one interface (shipping) | 132,204 (130,200) / 97,392 (97,328) | 56.5 (56.0) | 18,240 (18,240) | at its entry's 56.5, S14's debt, 916 B of `rom` left |
+ | 8x8, two interfaces (largest) | 133,772 (131,752) / 114,352 (114,224) | 61.0 (60.5) | 20,416 (20,352) | at its entry's 61.0, S14's debt, 1,396 B of `rom` left |
+ 
+ By file, from the two link maps, `rom` grows only in the platform's own objects:
+@@ -461,7 +435,7 @@ By file, from the two link maps, `rom` grows only in the platform's own objects:
+ - `ctrl_plat.o`, 60 to 68 B: the poll's arm, its THE STEP binding and the refused stage's call;
+ - `ctrl_plat_main.o`, 12 B: the bus map's three PHY addresses.
+ 
+-That is 2,011 to 2,019 B an image. `struct ctrl_plat` takes the poll's state, which the 64-byte aligned struct's padding holds at 8x8 with one interface and which takes one more alignment unit, 64 B, at the other three points. The 8x8 one-interface image passes 56.0 with the poll alone, as #895's declarations merged with it. Its product entry is the owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)), as the two-interface entry's 61.0 is.
++That is 2,011 to 2,019 B an image. `struct ctrl_plat` takes the poll's state, which the 64-byte aligned struct's padding holds at 8x8 with one interface and which takes one more alignment unit, 64 B, at the other three points. The 8x8 one-interface image passes 56.0 with the poll alone, as #895's declarations merged with it. Its entry is the owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)), as the two-interface entry's 61.0 is.
+ 
+ Before #810's merge the size fixture's images were 40.5, 41.0, 53.5 and 58.0 RAMB36 and the platform's 42.0, 43.0, 55.5 and 59.5 with #904's checks and THE PACE, and 40.0, 41.0, 53.5 and 58.0 and 42.0, 43.0, 55.5 and 59.5 without them; before the slots grew and the queue was compiled out, 38.5, 41.0, 52.0 and 58.0 and 40.5, 43.0, 54.0 and 59.5.
+ 
+@@ -620,11 +594,7 @@ Measured in round 4 against #894's head `5b264bf2`, each image linked from the s
+ The platform's 8x8 image with two interfaces held 131,464 B of `rom` there, 392 B past the 131,072 that 60.0 holds, so its entry is 60.5, the cap of the owner's decision: 1,656 B of `rom` left then, a debt of 4.5 RAMB36 owed to S14, and the cap fully used, so any further growth at that point past its granule is a stop.
+ The size fixture's 8x8 image with two interfaces held 126,320 B in 126,976 there (656 B to spare), the harness's `answering-every-port` arm 126,628 B (348 B) and its `valid-destinations` arm 126,488 B (488 B), each within the 59.0 #894's entry carries; 58.5 is out of reach, #894's own fixture being 59.0. Every other point of both images was within 56, the platform's 8x8 one-interface image at 56.0 with 1,144 B of `rom` to spare.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-**At #901's head, merged into `dev-soft-core` as `70f4056f`** (its images identical by sha256 to its round 9's `449d29d2`, [section 13](#the-transmits-figure-at-two-interfaces-895)), planned the same way (`ledger.sh` on a clean clone; `plat_ledger.py` passes at every point):
+-=======
+-**At #895's head, #901's review head `16ba667d`** (its images identical by sha256 to round 9's `449d29d2`, [section 13](#the-transmits-figure-at-two-interfaces-895)), planned the same way (`ledger.sh` on a clean clone; `plat_ledger.py` passes at every point):
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++**At #895's head, #901's review head `16ba667d`, merged into `dev-soft-core` as `70f4056f`** (its images identical by sha256 to its round 9's `449d29d2`, [section 13](#the-transmits-figure-at-two-interfaces-895)), planned the same way (`ledger.sh` on a clean clone; `plat_ledger.py` passes at every point):
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+ |---|---:|---:|---:|---:|---:|
+@@ -635,7 +605,6 @@ The size fixture's 8x8 image with two interfaces held 126,320 B in 126,976 there
+ 
+ The platform's 8x8 image with two interfaces holds 131,752 B of `rom` in 133,120, 1,368 B left at 60.5 RAMB36, its debt of 4.5 RAMB36 owed to S14. The size fixture's 8x8 image with two interfaces holds 126,608 B in 126,976 (368 B to spare), the harness's `answering-every-port` arm 126,916 B (60 B) and its `valid-destinations` arm 126,776 B (200 B), each 59.0. The platform's 8x8 one-interface image holds 130,200 B in 131,072 at 56.0 (872 B), its `ctrl_plat` 18,240 B since the gate's kept gate and base (#895's one cut). Every other point of both images is within 56.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ **At the merge of #894's tiers at its round-13 head, `894-tiers` `234bc149`, with GET_AS_PATH read through the face's GSI window** (#897: the platform's stub and the fixture's removed), planned the same way, the platform's by `plat_ledger.py`, one runtime for both, the change against the same plan at `234bc149`:
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+@@ -657,7 +626,7 @@ The read adds no `sram` and moves no writable object: every symbol of `.data`, `
+ | 8x8, two interfaces (largest) | 126,928 (+320) / 113,248 | 59.0, within its 59.5 entry | 132,064 (+312) / 114,224 | 60.5, its entry, the owner's cap | 20,352 |
+ 
+ The read adds the same 304 to 320 B of `rom` it adds on #894's tiers alone, and no `sram` and no `ctrl_plat` at any point. It moves no writable object: every symbol of `.data`, `.bss` and the stack has the address and size it has at `70f4056f`, in both images at the four points ([#909](https://github.com/kebag-logic/milan-fpga/issues/909)). The platform's 8x8 image with two interfaces holds 132,064 B of `rom` in 133,120, 992 B past the 131,072 that 60.0 holds and 1,056 B left at 60.5 RAMB36, its entry, the owner's cap, with a debt of 4.5 RAMB36 owed to S14: within the 133,120 B [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 3, grades the composed image of #901 and #898 against. The size fixture's 8x8 image with two interfaces holds 126,928 B in 126,976, 48 B before its next granule, and the CPU budget harness's arms on it, the fixture with their test ports, plan 59.5: the answering-ports arm 127,416 B, the `answering-every-port` arm 127,252 and the `valid-destinations` arm 127,096, in 129,024, so the entry is 59.5, raised to the next half tile as named debt owed to S14 by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745); its 1x1 image with one interface takes another 2 KiB granule, 41.5. Every other point of both images is within 56; the platform's 8x8 image with one interface holds 130,504 B of the 131,072 its 56.0 holds, 568 B before the budget's next granule.
+-=======
++
+ **At #923's head**, the map edits' commit through the `EDIT` window, the images at `16ba667d` and at the head, each linked from one runtime and one flash map per shape (the CPU budget harness's 1x1 and 8x8 builds):
+ 
+ | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+@@ -668,7 +637,17 @@ The read adds the same 304 to 320 B of `rom` it adds on #894's tiers alone, and
+ | 8x8, two interfaces (largest) | 128,784 / 113,248 | 59.5 (59.0), its entry's | 133,912 / 114,288 | 61.0 (60.5), its entry's | 20,416 |
+ 
+ The parenthesis is `16ba667d`'s. The commit adds 2,168 B of `rom` to every platform image and 2,176 to 2,232 B to every fixture image, `sram` only at the platform's two-interface point (64 B, `ctrl_plat`'s next line), all of it the change's own code. In text compiled for the split image (`rv32im -Os`) it is `aecp_maps.c` +1,720 B (the command's commit 144 B, the restored maps' commit 1,124 B), `aecp_face.c` +1,012 B (the `EDIT` window's transaction), `ctrl_app_aecp.c` +68, `aecp_mbx.c` +60, `mbx.c` +44 and `aecp_commands.c` +12. The platform's 8x8 one-interface image had 888 B of `rom` left at 56.0, so it takes its next granule. No compaction is taken (#923's ruling).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++
++**In the composed flip train** (#665: the frozen PRs merged in order on `dev-soft-core` `cb96336d`, under #665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235)), planned the same way. Its platform images are linked by `plat_ledger.py` and its size fixture's by the CPU budget harness's 8x8/2if build in every arm. Before #923's commit is the train's sixth step; with it, its seventh:
++
++| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
++|---|---:|---:|---:|---|
++| 1x1, one interface (shipping) | 123,576 (121,408) / 56,544 | 44.5 (44.0) | 17,856 (17,856) | within 56 |
++| 1x1, two interfaces | 125,184 (123,016) / 58,720 | 45.5 (45.0) | 19,392 (19,392) | within 56 |
++| 8x8, one interface (shipping) | 136,304 (134,136) / 97,648 | 57.5 (57.0) | 18,496 (18,496) | at its entry's 57.5, S14's debt, 912 B of `rom` left |
++| 8x8, two interfaces (largest) | 137,888 (135,720) / 114,608 | 62.0 (61.5) | 20,672 (20,672) | at its entry's 62.0, S14's debt, 1,376 B of `rom` left |
++
++The parenthesis is the sixth step's. The commit adds 2,168 B of `rom` at every point, as at #923's head, and no `ctrl_plat` byte: its edit port takes 4 B in two members whose padding holds them. The train's earlier steps took `ctrl_plat` 320 B past #923's base at 8x8 with two interfaces and each image half a tile past the entries they stated, so each entry is its measured tiles by the owner's rule of 2026-11-15. The size fixture's 8x8 image with two interfaces needs 129,920 to 130,424 B of `rom` over the harness's six arms (113,440 to 113,504 B of `sram`), 60.0 RAMB36, past the 129,024 B that 59.5 holds.
+ 
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+@@ -702,7 +681,7 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
+ It names the platform's own override, under which it plans 60.0 RAMB36, the 60.0 ledgered; half a tile more is refused under its override too, and without it, or with the fixture's, it is refused.
+ Its report (`$OUT/size.json`) holds the plan and the five largest `.bss` objects, with `ctrl_plat` counted by member.
+ 
+-Link the platform's image at all four points against the ledger, each against its shape's own split SoC export and flash map, then grade the seven planted ledgers on the images it linked:
++Link the platform's image at all four points against the ledger, each against its shape's own split SoC export and flash map, then grade the nine planted ledgers on the images it linked:
+ 
+ ```sh
+ python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir "$OUT" --self-test
+@@ -2861,7 +2840,6 @@ So at this head every 1x1/1if row holds by every source at the built slice, the
+ - **The survey corrected** reads the paced class under its key, gives `held` the record's command and counts `record.aecp` like every other statement. At each point it holds 63 statements: 57 measured, each within by the rule, and 6 derived and not staged (the probe's item; the polls' owed MRPDU, and in the donor column the owed MRPDU and a build of both MRPDUs; and the pass given whole's build). The rows also read `aecp_mbx.h`'s round costs, which each leg's round check holds, and `CTRL_LOOP_TICK_US`, a floor under the centisecond the survey holds.
+ - **Planted on the same path.** An accepted SET_CONFIGURATION raised over the paced record (40,000 cycles at 1x1/1if, 60,000 at 8x8/2if), and a SET_STREAM_INFO raised over the ordinary record (30,000 at each point), each in a copy of arm B's leg. The class grader over every leg refuses each, naming the record, and the corrected survey refuses each (UNDER 1). Round 8's survey passed all four: the two defects, each now caught.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ ### GET_AS_PATH through the face
+ 
+ At round 6's head `b15da60a`, on #894's tiers `234bc149`, superseded by the subsection below: the figures are that image's.
+@@ -3107,7 +3085,7 @@ A save alone's longest gap between flash steps is its blank check, whose read-ba
+ On this branch's own base the marks over layout 3's space and the store's join and step a pass add 296 to 304 B of `rom` to an image, 304 B to each of the platform's, and 64 to 144 B of `sram`; `struct ctrl_plat` grows 64 B at one interface and 128 B at two.
+ Merged with `dev-soft-core` `70f4056f` they add 296 to 304 B of `rom` to every image over that tree's, and `ctrl_plat` is 17,664, 19,200, 18,304 and 20,480 B ([section 3](#3-named-refusals)).
+ On this branch alone the target platform's 8x8 image with two interfaces held 131,224 B of `rom`, past the 131,072 B its 60.0 RAMB36 held; merged with SRP's Talker declarations (#895), which took the entry to 60.5, the owner's cap, it holds 132,040 B there, debt owed to S14 ([section 3](#3-named-refusals)).
+-=======
++
+ ### The map edits' commit (#923)
+ 
+ Each accepted ADD or REMOVE_AUDIO_MAPPINGS commits the mappings that change the map to the datapath's map store through the `EDIT` window before the core's map moves ([#923](https://github.com/kebag-logic/milan-fpga/issues/923); `aecp_maps.c`, `aecp_face.c`). A transaction of n records is 2n + 3 beats. The CPU budget harness answers each beat at the contract's bound with every beat accepted (`split_soc.slowest_edit`), so each edit's record is measured with the longest wait the contract allows. Measured at `16ba667d` and at #923's head, on the same legs, in CPU cycles:
+@@ -3125,7 +3103,6 @@ Each accepted ADD or REMOVE_AUDIO_MAPPINGS commits the mappings that change the
+ - **No statement the tier model reads moves.** `LONG_RECORD_US` stays 975 and 1,650 us and `EDIT_RECORD_US` 300 and 595 us, so `rows_tiers.py` prints the same table at `16ba667d` and at the head: every row, the load, the pace and the slice stand (`load_grade.py --check` and `flip_grade.py --check --point 1x1/1if` pass). The paced members' statements follow the measurement: the one-row edit is 295 us at 1x1/1if (260 before) and 355 us at 8x8/2if (325 before) (`edit_rows.PACED`).
+ - **THE SHARE** at 8x8/2if: 2 of 140 work passes of `aecp-largest-notice` are over 2 ms, the longest 240,969 cycles (2 of 140 at `16ba667d`, 233,702). At 8x8/1if, reported and not held, 2 of 107, the longest 228,776 (2 of 106, 223,194), where the largest legal command's record is 169,021 cycles (162,969). Every edit group of arm A and arm B at 1x1/1if has no pass over it.
+ - **At two interfaces** the harness answered no edit before this head: its verdicts, one constant slice an interface, formed a block of constants that no event runs in the simulation, so each read 0 and each edit answered NOT_SUPPORTED with no notice. They are now a constant on the port, the same 1 that one interface reads.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ 
+ ### What is left
+ 
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+remerge CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+index 20885fa6c4..8af612bf4e 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -380,11 +380,7 @@ ACMP's, ADP's and MAAP's take 30 ms, by the [ruling of 2026-11-13 on the owner's
+ The largest legal notice is counted in AECP's R4L row and in THE TRANSMIT's MRPDU row with every AECP notice the largest legal one (txL), whose bound the specs set (below; IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3; [#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391)); every other row counts an AECP notice at its stated cost.
+ THE TRANSMIT's MRPDU rows, tx and txL, take the bound the specs leave after the join time the split arms: Milan v1.2 Table 4.3's 240 ms JoinTime maximum less that time and the 1 ms egress allowance below, since IEEE 802.1Q-2018 10.7.11's requested opportunity is on the wire (10.7.11 lets an implementation modify the timer values). The split arms it at 19 cs, 190 ms, within Table 4.3's 180 to 240 ms, so those rows take 49 ms, derived in the code as 240 ms less the armed value and `T_egress` and never typed (`CTRL_LOOP_JOIN_CS`, `CTRL_LOOP_T_EGRESS_MS`, `CTRL_LOOP_TX_BOUND_MS`, `sw/firmware/ctrl/loop/ctrl_loop.h`); by [#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, since at 20 cs, and its 40 ms, txL was over at every pace that holds R4L within 240 ms, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1, which counts `T_egress`. #908 stays open until the join time is 20 cs again with txL within 40 ms. The CPU budget harness holds every join interval it sees, commit to commit, to 181.0 to 239.0 ms, Table 4.3's 180.0 to 240.0 ms less `T_egress` at each end (`join_grade.py`; the contingent ruling's item 4 and the egress ruling's item 1); the bench capture holds the wire to 180.0 to 240.0 ms.
+ In those two rows every AECP command is one that the largest legal notice answers, at the costs the CPU budget harness measures for it ([#894's slice ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6845846512); `long_notice.py`): its record, and the poll that sends its notice.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 305 us at 1x1/1if since GET_AS_PATH's read (#897) and AECP's REBOOT's merge on #894's head (#871), each alone (300 before them) (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). With GET_AS_PATH read through the face (#897; [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 4) an ordinary AECP record at 1x1/1if is 245 us and the paced class 305, the same work with its fetches moved by the read's code, and on its merge of `dev-soft-core` `70f4056f` each cost is the side's that moved it from their merge base `234bc149`: every 1x1/1if row holds by every source at the built 900 us, the last queued notice 136.99 ms within its 140, ACMP 29.82 and txL 48.77 ms, the pace stays 9 ms and the slice rule still chooses 900 us (#897). With AECP's REBOOT merged on #894's head ([#871](https://github.com/kebag-logic/milan-fpga/issues/871)), whose image moves the hot code, the survey over every 1x1/1if leg restated by the rule SRP's record at 285 us, and the SRP drain's unit with it, AECP's ordinary record at 240, the paced class's at 305 and a pass's events' fixed part at 40: there the slice rule still chose 950 us, 8 ms still held txL, 48.75 ms, and R4L, 188.51 ms, and every 1x1/1if row held by every source (ACMP 29.22 ms, the last queued notice 134.74, so its bound was 135 ms). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION, its SET_STREAM_INFO and its GET_AS_PATH answered with its entries, and its accepted REBOOT and a refused one (`tb/verilator/ctrl_service_budget/record_classes.py`).
+-=======
+-Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 300 us at 1x1/1if (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and #923's commit of each edit to the datapath's map store through the `EDIT` window at 275 and 295 us (`edit_rows.PACED`), and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION and its SET_STREAM_INFO (`tb/verilator/ctrl_service_budget/record_classes.py`).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++Every ADD or REMOVE_AUDIO_MAPPINGS that is checked, and every SET_CONFIGURATION accepted, is paced ([#904](https://github.com/kebag-logic/milan-fpga/issues/904), [#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6883864236); `AECP_PACE_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`): AECP's next record waits in its ring, never dropped, until the pace after the paced record was taken. The gate compares whole milliseconds, the edit stamped with the clock read as it is taken, so two edits are taken more than the pace less 1 ms apart and a window of w ms holds at most ceil((w + 1) / P) of them (`paced_rows.edits`, held to a simulation of the gate; [#894's egress ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 2): txL charges that many at the largest legal command's record and every other AECP arrival at an ordinary record's cost, and R4L's burst takes one a pace. The pace must be the smallest whole ms, at most 13, that holds txL within its bound and R4L within 238 ms at 1x1/1if (`tb/verilator/ctrl_service_budget/paced_rows.py`): 8 ms held it before the merge of #810's re-measured costs; at those costs none held it within 40 ms; with the join time at 19 cs and txL's bound at 50 ms 6 ms held it; with `T_egress` counted (49 ms, above) and the largest legal command's record re-measured under the bounded map work (975 us), 7 ms held it, txL 47.98 ms; and with AMAP_LIVE_WRITE's cost re-measured at 30 us ([#894's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6870437042), item 4), 8 ms held it, txL 48.09 ms and R4L 188.39 ms (#894, #908). Every other row charges each AECP record it counts at an ordinary record's cost and at most that many of them as paced records, each at the paced class's record, the dearer of a one-row edit's and an accepted SET_CONFIGURATION's, 305 us at 1x1/1if since GET_AS_PATH's read (#897) and AECP's REBOOT's merge on #894's head (#871), each alone (300 before them) (`edit_rows.EDIT_RECORD_US`; [#894's class-split amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878532871) and its ruling of 2026-11-14, item 3): #904's one-pass check had raised the edit's past the ordinary 235 us, its cut leaving it at 240 us for an input map and 260 for an output map, and #923's commit of each edit to the datapath's map store through the `EDIT` window at 275 and 295 us (`edit_rows.PACED`), and SET_CONFIGURATION's, which the answering-ports arm's ports reach, is 300 us after its own cut, its running check reading one window word a stream and its stream entries written only when its index moves. With it, a TICK at 50 us and ACMP's owed frame at 55 us, 8 ms then held txL, 48.23 ms, and R4L, 188.41 ms, and every 1x1/1if row held by every source (ACMP 28.80 ms, the last queued notice 127.86). The final pass then restated AECP's timer slot at 70 us, a LINK at 155, a build of one at 735 and, once the SRP drain's record cost (`CTRL_LOOP_SRP_UNIT_US`) was the load gate's 280 us, a TICK at 55: the last queued notice at 1x1/1if was then 132.71 ms, over its 130 ms, at the 900 us slice, and the slice rule chose 950 us, the built slice on #894's head `07ed787e` ([#894's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6888782796)): there 8 ms held txL, 48.43 ms, and R4L, 188.48 ms, and every 1x1/1if row held by every source (the last queued notice 127.21 ms, ACMP 28.95). Composed with SRP's Talker declarations' costs (#895), each the side's that moved it, 9 ms held txL at #894's edit cut, 47.97 ms, and R4L, 203.49; with the polls' base and a pass's events' fixed part measured again on that composition (215 and 35 us at 1x1/1if) the last queued notice was 134.94 ms at 900 us, and the loop was built at the slice rule's 950 us ([#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6886630886), item 1), where every row held; composed with #894's SET_CONFIGURATION cut the pace by the rule was 9 ms at round 7B's merge `7e3db6b9` (txL 52.09 ms at 8, 48.40 at 9) and at 950 us the last queued notice was 134.74 ms, over its 130; measured again after the ruling's one cut (item 3), the polls' base was 225 us, as at this head, and the last queued notice 135.43 ms at 950 us, over its 130 at every slice from 650 to 1,100 us, the ruling's stop. By [#895's ruling of 2026-11-15 on that stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675) the bound follows the row to 140 ms and the slice rule takes 900 us there, where 9 ms holds txL, 48.58 ms, and R4L, 203.57, and every 1x1/1if row holds by every source, the last queued notice 136.65 ms (#895). With GET_AS_PATH read through the face (#897; [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 4) an ordinary AECP record at 1x1/1if is 245 us and the paced class 305, the same work with its fetches moved by the read's code, and on its merge of `dev-soft-core` `70f4056f` each cost is the side's that moved it from their merge base `234bc149`: every 1x1/1if row holds by every source at the built 900 us, the last queued notice 136.99 ms within its 140, ACMP 29.82 and txL 48.77 ms, the pace stays 9 ms and the slice rule still chooses 900 us (#897). With AECP's REBOOT merged on #894's head ([#871](https://github.com/kebag-logic/milan-fpga/issues/871)), whose image moves the hot code, the survey over every 1x1/1if leg restated by the rule SRP's record at 285 us, and the SRP drain's unit with it, AECP's ordinary record at 240, the paced class's at 305 and a pass's events' fixed part at 40: there the slice rule still chose 950 us, 8 ms still held txL, 48.75 ms, and R4L, 188.51 ms, and every 1x1/1if row held by every source (ACMP 29.22 ms, the last queued notice 134.74, so its bound was 135 ms). A final pass holds each AECP record it measures to its class, runs every group of arm A, and runs the answering-ports arm's accepted SET_CONFIGURATION, its SET_STREAM_INFO and its GET_AS_PATH answered with its entries, and its accepted REBOOT and a refused one (`tb/verilator/ctrl_service_budget/record_classes.py`).
+ The rows cover legal notices only: a control_data_length of at most 524 (IEEE 1722.1-2021 9.2.2.6). A command past it is [#903](https://github.com/kebag-logic/milan-fpga/issues/903)'s, and its behaviour is unchanged.
+ Each path's measured service keeps T_svc, as the table below states.
+ At 1x1/1if every notice queued behind the first is committed within 140 ms (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`, stated for each shape as `CTRL_LOOP_QUEUED_MS` in THE SHAPES, `sw/firmware/ctrl/loop/ctrl_loop.h`; 130 ms on #894's head, and 130 ms at 8x8/1if, its own, never 1x1/1if's), and the first within its 20 ms: the rows by every source hold both at the built design's slice (`tb/verilator/ctrl_service_budget/rows_tiers.py`, `flip_grade.py`), and the CPU budget harness fails a run whose measured queue passes either (`notice_window.py`).
+diff --git a/sw/firmware/ctrl/aecp/aecp.h b/sw/firmware/ctrl/aecp/aecp.h
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/aecp/aecp.h
+index 90e045a404..e403b47acf 100644
+--- a/sw/firmware/ctrl/aecp/aecp.h
++++ b/sw/firmware/ctrl/aecp/aecp.h
+@@ -427,7 +427,6 @@ void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
+ // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
+ void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);
+ bool aecp_locked(struct aecp *, uint64_t *owner);
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ // IEEE 1722.1-2021 7.4.43 (#871): true once an accepted REBOOT's SUCCESS, its
+ // notifications and every response owed with them have completed
+ // (aecp_tx_complete). The platform then resets the entity.
+@@ -435,7 +434,6 @@ bool aecp_reboot_due(struct aecp *);
+ // True from an accepted REBOOT's SUCCESS until the reset (#871). The platform
+ // then takes no received frame of any channel (REQ-FWX-001).
+ bool aecp_reboot_accepted(const struct aecp *);
+-=======
+ // The restored maps into the edit port's store (#923): once the restore's terminal and the restored formats reach
+ // it, before AECP opens. The store then holds each dynamic port's reset set as the restored formats clip it
+ // (aecp_restore_settle), so each port of the configuration in force whose map differs has that set removed and,
+@@ -444,7 +442,6 @@ bool aecp_reboot_accepted(const struct aecp *);
+ // the removal is refused; else its reset set added back, or none where that is refused too. Nothing with no edit
+ // port.
+ void aecp_restore_commit(struct aecp *);
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ 
+ #ifdef CTRL_REENTRY_ASSERT
+ void ctrl_reentry_assert(const char *module);
+diff --git a/sw/firmware/ctrl/aecp/aecp_face.h b/sw/firmware/ctrl/aecp/aecp_face.h
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/aecp/aecp_face.h
+index 4ea45d4c4b..6e977dc899 100644
+--- a/sw/firmware/ctrl/aecp/aecp_face.h
++++ b/sw/firmware/ctrl/aecp/aecp_face.h
+@@ -33,10 +33,6 @@
+ //             capacity (AECP_PATH_ITEMS): a count past it fails the port
+ //             (IEEE 1722.1-2021 7.4.41.2; #897)
+ //   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-// Every window read is bounded (mbx_win_read); a read that finds no answer
+-// fails its port. random is the platform's, forwarded.
+-=======
+ //   edit      an accepted ADD or REMOVE_AUDIO_MAPPINGS, and the restored maps,
+ //             into the datapath's map store through interface 0's EDIT window,
+ //             the transaction the release's processor ran: begin, validate
+@@ -45,8 +41,7 @@
+ //             BAD_ARGUMENTS, no answer ENTITY_MISBEHAVING, the store unchanged
+ //             (#923; Milan v1.2 5.4.2.27, 5.4.2.28)
+ // Every window read is bounded (mbx_win_read, mbx_win_ask); a read that finds
+-// no answer fails its port. random and path are the platform's, forwarded.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++// no answer fails its port. random is the platform's, forwarded.
+ #ifndef CTRL_AECP_FACE_H
+ #define CTRL_AECP_FACE_H
+ #include "aecp.h"
+diff --git a/sw/firmware/ctrl/plat/README.md b/sw/firmware/ctrl/plat/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/plat/README.md
+index 5cebd16457..50df7ff45e 100644
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@ -137,16 +137,10 @@ An image on the stand-in `generated/csr.h` alone boots to ready and passes the s
+ The refusal reads that both headers are there, not what they say.
+ Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-At 8x8 with two interfaces the image carries the control loop's tiers (#894), SRP's Talker declarations (#895), GET_AS_PATH's read through the face (#897), AECP's REBOOT (#871) and the PHY poll with its advertisement (#919, #840). It planned 61.0 RAMB36 on #919's head, 652 B of `rom` past 60.5, with 1,396 B left, and 60.5 on dev-soft-core `cb96336d`, 992 B of `rom` past 60.0, with 1,056 B left (680 B past at #901's merge `70f4056f`). Its entry ledgers 61.0. That is the owner's rule of 2026-11-15, which supersedes the 60.5 cap of [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305) (item 4, which [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, took) until S14 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024); `ctrl_memory.LEDGERED`).
++At 8x8 with two interfaces the image carries the control loop's tiers (#894), SRP's Talker declarations (#895), GET_AS_PATH's read through the face (#897), AECP's REBOOT (#871), the PHY poll with its advertisement (#919, #840), the saved-state store's name marks (#920) and the map edits' commit through the `EDIT` window (#923). In the composed flip train it plans 62.0 RAMB36, 672 B of `rom` past 61.5, with 1,376 B left, and 61.5 before the commit. It planned 61.0 RAMB36 on #919's head, 652 B of `rom` past 60.5, with 1,396 B left, and 60.5 on dev-soft-core `cb96336d`, 992 B of `rom` past 60.0, with 1,056 B left (680 B past at #901's merge `70f4056f`). Its entry ledgers 62.0, its measured tiles. That is the owner's rule of 2026-11-15, which supersedes the 60.5 cap of [#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305) (item 4, which [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, took) until S14 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024); `ctrl_memory.LEDGERED`).
+ The owner's ruling (#665, 6505997821), and since 2026-11-12 the owner's flip decision, ledger that point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
+-At 8x8 with one interface, a shipping image, the image plans 56.5 RAMB36, 1,132 B of `rom` past 56.0, with 916 B left. A product entry ledgers it by the same rule (`platform-8x8-one-interface`). The product SoC build (`milan_soc.add_ctrl_memory`) and this link without `--ledgered-point` plan it there by its symbols (`ctrl_memory.product_point`). Every image no entry names stays refused past 56.
+-Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+-=======
+-At 8x8 with two interfaces the image plans 61.0 RAMB36 with the control loop's tiers (#894), SRP's Talker declarations (#895) and the map edits' commit through the `EDIT` window (#923), and its entry ledgers its measured 61.0 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024), under the owner's rule of 2026-11-15 that supersedes the 60.5 cap of 2026-11-12 until S14; `ctrl_memory.LEDGERED`), owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
+-At 8x8 with one interface, a shipping image, it plans 56.5 since #923, 1,280 B of `rom` past what 56.0 held, and has its own entry at 56.5, owed to S14 by the same ruling: its command adds `--ledgered-point platform-8x8-one-interface`, and the product SoC build plans it at that entry by its symbols (`ctrl_memory.own_point`).
++At 8x8 with one interface, a shipping image, the image plans 57.5 RAMB36 in the composed train, 1,136 B of `rom` past 57.0, with 912 B left, and 57.0 before the commit (56.5 with the PHY poll, 1,132 B of `rom` past 56.0). Its own entry ledgers it at 57.5 by the same rule, owed to S14, so its command adds `--ledgered-point platform-8x8-one-interface`. The product SoC build (`milan_soc.add_ctrl_memory`) and this link without `--ledgered-point` plan an image at the entry whose symbols it carries (`ctrl_memory.own_point`). Every image no entry names stays refused past 56.
+ Every 1x1 point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ 
+ ## Tests and evidence
+ 
+@@ -171,10 +165,6 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
+ ## Not yet done
+ 
+ - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-- **The 8x8 images' block RAM.** At 8x8 with two interfaces the image plans 61.0 RAMB36 with the control loop's tiers (#894), SRP's Talker declarations (#895) and GET_AS_PATH's read through the face (#897), and the PHY poll and its advertisement (#919, #840). That is past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip and past that decision's 60.5 cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4). Its entry is 61.0, as [#897's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/897#issuecomment-6890824581), item 1, takes it, refused at 61.5, by the owner's rule of 2026-11-15 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)): ROM debt of 5.0 RAMB36 owed to lane S14 (decision D3), 20,480 B of cold code to move to flash. At 8x8 with one interface the image plans 56.5, and its product entry 56.5 is refused at 57.0: ROM debt of half a tile owed to S14. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+-=======
+-- **The 8x8 points' block RAM.** At 8x8 with two interfaces the image plans 61.0 RAMB36 with the control loop's tiers (#894), SRP's Talker declarations (#895) and the map edits' commit (#923), its entry at 61.0 by [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024), refused at 61.5: ROM debt of 5.0 RAMB36 owed to lane S14 (decision D3), 20,480 B of cold code to move to flash. At 8x8 with one interface it plans 56.5, its own entry by the same ruling: 0.5 RAMB36, 1,280 B, owed to S14. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++- **The 8x8 images' block RAM.** At 8x8 with two interfaces the image plans 62.0 RAMB36 in the composed flip train, with the control loop's tiers (#894), SRP's Talker declarations (#895), GET_AS_PATH's read through the face (#897), the PHY poll and its advertisement (#919, #840) and the map edits' commit (#923). That is past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip and past that decision's 60.5 cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4). Its entry is 62.0, refused at 62.5, by the owner's rule of 2026-11-15 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)): ROM debt of 6.0 RAMB36 owed to lane S14 (decision D3), 24,576 B of cold code to move to flash. At 8x8 with one interface it plans 57.5, its own entry by the same rule, refused at 58.0: ROM debt of 1.5 RAMB36, 6,144 B, owed to S14. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+ - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
+ - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.
+diff --git a/sw/firmware/ctrl/test/ctrl_plat_image.py b/sw/firmware/ctrl/test/ctrl_plat_image.py
+index 3dad2eec05..252838e4e3 100644
+--- a/sw/firmware/ctrl/test/ctrl_plat_image.py
++++ b/sw/firmware/ctrl/test/ctrl_plat_image.py
+@@ -197,8 +197,8 @@ def main() -> int:
+         if any(name not in sections for name in (".text", ".rodata", ".bss", ".stack")):
+             raise Refusal("missing measured sections")
+         linked = image.ctrl_memory.read_elf(elf)
+-        # the point named, else a product entry's by the image's symbols, as the product SoC build plans it
+-        plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.product_point(linked))
++        # the point named, else the entry whose symbols the image carries, as the product SoC build plans it
++        plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.own_point(linked))
+         report = {"shape": args.config.stem, "interfaces": args.interfaces, "entry": "plat/ctrl_plat_main.c",
+                   "sections": {name: length for name, (_, length) in sections.items()},
+                   "largest_bss": largest_bss(symbols, sections, members), "ctrl_plat_members": members,
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_aecp.cpp
+index 13fa68d42c..fd4e4020c7 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -4182,9 +4182,11 @@ struct Far {
+     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
+         auto &f=*static_cast<Far*>(p);++f.requests[w];
+         if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
+-        *d=word(i,w,r,f.verdict);return f.reply;
++        *d=word(i,w,r,f.verdict);
++        mbx_model_reply reply=f.reply;
++        if(w==MBX_WIN_EDIT)*d=f.edit(r,&reply);
++        return reply;
+     }
+     //! GET_AS_PATH's words (kind 2), the processor face's layout: selector 0 the count, 8 the entry at the ordinal.
+     uint64_t path(unsigned i,uint32_t sel) const {
+@@ -4192,11 +4194,6 @@ struct Far {
+         const unsigned ord=(sel>>8)&255u;
+         if(word_sel==0u)return asp_count!=~0ull?asp_count:asp.at(i).size();
+         return word_sel==8u&&ord<asp.at(i).size()?asp.at(i)[ord]:0u;
+-=======
+-        mbx_model_reply reply=f.reply;
+-        if(w==MBX_WIN_EDIT)*d=f.edit(r,&reply);
+-        return reply;
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+     }
+     static bool commit(void *p,unsigned i,const uint32_t *b) {
+         auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
+@@ -4468,7 +4465,6 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
+     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+ }
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ namespace {
+ //! A GET_AS_PATH command (IEEE 1722.1-2021 7.4.41.1): descriptor_index, then reserved.
+ Bytes as_path(unsigned index) { Bytes b(4);put(b,0,index,2);return b; }
+@@ -4587,7 +4583,10 @@ TEST_F(Face, AnUnansweredAsPathWordFailsItsPortThere)
+             EXPECT_EQ(s.calls,answered+1u)<<"nothing is read after the word with no answer";
+             EXPECT_EQ(face.unanswered-before,1u)<<"the read is counted unanswered";
+             EXPECT_EQ(n,9u)<<"a failed port reports no count";
+-=======
++        }
++    }
++}
++
+ // #923: an accepted ADD or REMOVE_AUDIO_MAPPINGS runs the release processor's transaction on interface 0's EDIT window
+ // (KL_aecp_engine's transaction face; Milan v1.2 5.4.2.27, 5.4.2.28): begin, each record validated, the commit begun,
+ // each record committed, finished. EDIT_REQ is written once a transaction, the record as its two wire quadlets and
+@@ -4690,13 +4689,10 @@ TEST_F(Face, ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing)
+             EXPECT_EQ(face.unanswered,before+1u)<<"the lost reply is counted";
+             EXPECT_EQ(maps[0].count,cmd==44u?2u:0u)<<"the edit stands in the map";
+             agree(14);
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+         }
+     }
+ }
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-=======
+ // #923: the store takes the mappings that change the map as the core picks them, not the command's first ones: an ADD
+ // of a held and a new mapping validates and commits the new one alone, and a REMOVE naming a mapping twice commits
+ // each distinct mapping once. GET_AUDIO_MAP and the store then hold the same mappings.
+@@ -4758,7 +4754,6 @@ TEST_F(Face, RestoredMapsReachTheStoreThroughTheEditWindow)
+     adapter.core.open=true;agree(14);
+ }
+ 
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ // The running check reads one GSI word a stream, selector 0, whose answer proves the window answers; bound and
+ // running are their owners' (#894). A SET_CONFIGURATION naming the index in force still answers STREAM_IS_RUNNING
+ // while an output streams, and ENTITY_MISBEHAVING while its observation cannot be made (Milan v1.2 5.4.2.5; IEEE
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index 1f84e6e73e..9ff10e7779 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -5,21 +5,12 @@
+ sw/firmware/ctrl/acmp/acmp_mbx.c  lines 106/106  branches 42/42
+ sw/firmware/ctrl/acmp/acmp_nvm.c  lines 38/38  branches 10/10
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ sw/firmware/ctrl/aecp/aecp.c  lines 629/629  branches 560/560
+ sw/firmware/ctrl/aecp/aecp_commands.c  lines 494/494  branches 411/411
+ sw/firmware/ctrl/aecp/aecp_face.c  lines 180/180  branches 166/166
+ sw/firmware/ctrl/aecp/aecp_image.c  lines 77/77  branches 80/80
+ sw/firmware/ctrl/aecp/aecp_maps.c  lines 289/289  branches 351/351
+ sw/firmware/ctrl/aecp/aecp_mbx.c  lines 136/136  branches 74/74
+-=======
+-sw/firmware/ctrl/aecp/aecp.c  lines 615/615  branches 538/538
+-sw/firmware/ctrl/aecp/aecp_commands.c  lines 477/477  branches 404/404
+-sw/firmware/ctrl/aecp/aecp_face.c  lines 212/212  branches 188/188
+-sw/firmware/ctrl/aecp/aecp_image.c  lines 77/77  branches 80/80
+-sw/firmware/ctrl/aecp/aecp_maps.c  lines 339/339  branches 419/419
+-sw/firmware/ctrl/aecp/aecp_mbx.c  lines 140/140  branches 76/76
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ sw/firmware/ctrl/aecp/aecp_nvm.c  lines 113/113  branches 90/90
+ sw/firmware/ctrl/aecp/aecp_state.c  lines 63/63  branches 69/69
+ sw/firmware/ctrl/app/ctrl_app.c  lines 54/54  branches 43/43
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index a6fdcd47a1..14caecf0b5 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -227,47 +227,13 @@ class Ledgered:
+     symbols: tuple[tuple[str, int], ...]    # (symbol, size): what makes an image that point
+     tiles: float                            # what it may plan
+     owed: str                               # the lane that recovers the tiles, and the ruling
+-    product: bool = False                   # the product SoC build plans its image here by its symbols
+-
+-
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-#: The only images `plan` may let past BUDGET_TILES, each only when its own
+-#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py,
+-#: ctrl_plat_image.py). The product SoC build (milan_soc.add_ctrl_memory) and
+-#: the platform image's link without --ledgered-point name a point only where
+-#: an entry is a product entry and the image carries its symbols
+-#: (`product_point`, #919 and #923): the target platform's
+-#: 8x8 image with one interface, a shipping image; every unledgered image stays
+-#: refused past 56 RAMB36. The measurement harness names the size
+-#: fixture's for that point only (its image and SoC plan,
+-#: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
+-#: point when it carries every listed symbol at its listed size: the 8x8 shape's
+-#: staging buffer, and the image's own object sized by two interfaces. The size
+-#: fixture's is its per-interface table (ctrl_aecp_image.c,
+-#: `uint64_t image_allocation[MBX_N_IF]`). The target platform's is its one
+-#: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
+-#: MBX_N_IF and the shape's streams) at its size in that image, so a change to
+-#: that struct refuses the override until the size is measured again here.
+-#: All are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+-#: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
+-#: 60.0, its entry at 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before
+-#: it, the cap #894's ruling of 2026-11-13 raised the owner's 58.5 to for the composed image;
+-#: the platform's two-interface image at 61.5, its entry at 61.0: 60.5, the owner's decision's cap (#665), which
+-#: #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker declarations on the tiers, #897's ruling of
+-#: 2026-11-15 takes for the image with GET_AS_PATH's read on them, and the owner's decision of 2026-11-15 for AECP's
+-#: REBOOT on them (#871), as #665's ruling of 2026-11-12 ledgered the size fixture's at its cap, then 61.0 with the
+-#: PHY poll (#919) on that image, by the owner's rule of 2026-11-15 (an image past its entry raises it to its
+-#: measured size, at the next half tile, as debt owed to S14), which supersedes the cap until the hybrid XIP work
+-#: (#665 decision D3); and the platform's one-interface image at 57.0, its entry at 56.5, by the same rule (#919:
+-#: #895's declarations and the PHY poll). The
+-#: platform's image is linked at every point with the override its point takes, against this ledger, by
+-#: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+-#: where it happens.
+-=======
++
++
+ #: The only images `plan` may let past BUDGET_TILES. A measurement names its point (`plan --ledgered-point`,
+-#: ctrl_srp_image.py, ctrl_plat_image.py); the product SoC build plans an image at the entry whose symbols it carries
+-#: (`own_point`, add_ctrl_memory), so every unledgered product build is still held to 56 RAMB36 (#923's ruling of
+-#: 2026-11-16); the measurement harness names the size fixture's for that point only (its image and SoC plan,
++#: ctrl_srp_image.py, ctrl_plat_image.py); the product SoC build (milan_soc.add_ctrl_memory) and the platform image's
++#: link without --ledgered-point plan an image at the entry whose symbols it carries (`own_point`, #923's ruling of
++#: 2026-11-16, kept for the composed train by #665's ruling of 2026-11-17), so every unledgered image is still held
++#: to 56 RAMB36; the measurement harness names the size fixture's for that point only (its image and SoC plan,
+ #: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the point when it carries every listed
+ #: symbol at its listed size: the 8x8 shape's staging buffer, and the image's own object. The size fixture's is its
+ #: per-interface table (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The target platform's is its one
+@@ -275,16 +241,23 @@ class Ledgered:
+ #: size in that image, so a change to that struct refuses the override until the size is measured again here. Each
+ #: is owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5; every other point
+ #: stays within 56. Each entry is its image's measured tiles, under the owner's rule of 2026-11-15 that the control
+-#: memory's ROM may overflow as debt owed to the cold-code-to-flash work, which supersedes the 60.5 cap of 2026-11-12
+-#: until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past: the size fixture's at
+-#: 60.0, its entry at 59.5, the target platform's 8x8 two-interface image at 61.5, its entry at 61.0, and its 8x8
+-#: one-interface image, a product image, at 57.0, its entry at 56.5. The platform's image is linked at every point with
+-#: the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale
+-#: ctrl_plat size or a plan past its tiles is refused where it happens.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++#: memory's ROM may overflow as debt owed to the cold-code-to-flash work (S14), which supersedes the 60.5 cap of
++#: 2026-11-12 until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past. The size
++#: fixture's is refused at 60.5, its entry at 60.0 with the map edits' commit through the EDIT window (#923) composed
++#: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
++#: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
++#: image is refused at 62.5, its entry at 62.0 with the map edits' commit composed on the flip train's other changes:
++#: 60.5, the owner's decision's cap (#665), which #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker
++#: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
++#: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
++#: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
++#: 58.0, its entry at 57.5 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
++#: composed train before the commit, 57.5 with it. The platform's image is linked at
++#: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
++#: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
+ LEDGERED: dict[str, Ledgered] = {
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+-                                   59.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
++                                   60.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
+                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
+                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
+@@ -293,22 +266,18 @@ LEDGERED: dict[str, Ledgered] = {
+                                          "(#665); 59.0 with the control loop's tiers composed on it (#894), the "
+                                          "fallback of #894's ruling of 2026-11-13 on the tier-1 rows, item 2: the "
+                                          "cap raised to 59.0 as debt owed to S14, no hold; SRP's Talker "
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+                                          "declarations plan within it (#895); 59.5 with GET_AS_PATH's read "
+                                          "composed on them (#897): the CPU budget harness's arms on it, the size "
+                                          "fixture with their test ports, need 127,096 to 127,416 B of rom, past "
+                                          "the 126,976 B 59.0 holds, so the entry is raised to the next half tile "
+                                          "as named debt owed to S14 by the owner's decision of 2026-11-15 "
+-                                         "(#665): an image past its entry raises it"),
++                                         "(#665): an image past its entry raises it; 60.0 with the map edits' "
++                                         "commit through the EDIT window composed on them (#923): every arm's "
++                                         "fixture needs 129,920 to 130,424 B of rom, past the 129,024 B 59.5 "
++                                         "holds, by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
++                                         "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to S14"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_480)), 61.0,
+-=======
+-                                         "declarations plan within it (#895); 59.5 with the map edits' commit "
+-                                         "through the EDIT window (#923), by #923's ruling of 2026-11-16 under the "
+-                                         "owner's rule of 2026-11-15"),
+-    "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_416)), 61.0,
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_672)), 62.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+@@ -316,7 +285,6 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "(#665 decision D3); ctrl_plat 64 B more with SRP's Talker "
+                                             "declarations (#895); 60.5, the cap, with SRP's Talker "
+                                             "declarations composed on the control loop's tiers, 184 B of rom past "
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+                                             "60.0, by #895's ruling of 2026-11-14, item 4, and with GET_AS_PATH's "
+                                             "read through the face composed on them, 992 B of rom past 60.0, "
+                                             "as #897's ruling of 2026-11-15, item 1, takes it: ROM debt of 4.5 "
+@@ -326,42 +294,30 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "poll and its 1000BASE-T-only advertisement on that image (#919, "
+                                             "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
+                                             "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
+-                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; and the "
+-
++                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; the "
+                                             "saved-state store's name marks over layout 3's id space and its step "
+-                                            "a pass (#920), ctrl_plat 128 B more and 296 B more rom"),
++                                            "a pass (#920), 296 B more rom; 61.5 measured on the composed flip train "
++                                            "before the commit below (#665), 135,720 B of rom; and 62.0 with "
++                                            "the map edits' commit through the EDIT window (#923) on that train, "
++                                            "137,888 B of "
++                                            "rom, 672 B past the 137,216 B 61.5 holds, ctrl_plat at its measured "
++                                            "20,672 B, by the owner's rule of 2026-11-15 (#923's ruling of "
++                                            "2026-11-16, #665's of 2026-11-17): ROM debt of 6.0 RAMB36 owed to "
++                                            "S14"),
+     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_304)), 56.5,
++                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_496)), 57.5,
+                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+-                                           "a shipping image, with SRP's Talker declarations (#895) and the PHY "
++                                           "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+                                            "rom past 56.0, by the owner's rule of 2026-11-15 (#923's ruling of "
+                                            "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
+-                                           "S14", product=True),
+-}
+-
+-
+-def product_point(image: Image) -> str | None:
+-    """The product entry whose symbols `image` carries at their sizes, the point the product SoC build plans it
+-    as; None for every other image, which the build holds to BUDGET_TILES."""
+-    for name, point in LEDGERED.items():
+-        if point.product and all(image.symbols.get(s, (0, None))[1] == size for s, size in point.symbols):
+-            return name
+-    return None
+-=======
+-                                            "60.0, by #895's ruling of 2026-11-14, item 4: ROM debt of 4.5 RAMB36 "
+-                                            "owed to the hybrid XIP work, the cap fully used; 61.0, its measured "
+-                                            "tiles, with the map edits' commit through the EDIT window and "
+-                                            "ctrl_plat 64 B more (#923), by #923's ruling of 2026-11-16 under the "
+-                                            "owner's rule of 2026-11-15 superseding the cap: ROM debt of 5.0 "
+-                                            "RAMB36"),
+-    "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_240)), 56.5,
+-                                           "lane S14, the hybrid XIP (#665 decision D3): a product image; 56.0 with "
+-                                           "888 B of rom spare before the map edits' commit through the EDIT window "
+-                                           "(#923) took 2,168 B, so 56.5, its measured tiles, by #923's ruling of "
+-                                           "2026-11-16 under the owner's rule of 2026-11-15: ROM debt of 0.5 "
+-                                           "RAMB36, 1,280 B of rom"),
++                                           "S14; 57.0 measured on the composed flip train before the commit below "
++                                           "(#665), 134,136 B of rom; and 57.5 with "
++                                           "the map edits' commit through the EDIT window (#923) on that train, "
++                                           "136,304 B of rom, 1,136 B past the 135,168 B 57.0 holds, ctrl_plat "
++                                           "at its measured 18,496 B, by the same rule (#923's ruling of "
++                                           "2026-11-16, #665's of 2026-11-17): ROM debt of 1.5 RAMB36 owed to "
++                                           "S14"),
+ }
+ 
+ 
+@@ -370,7 +326,6 @@ def own_point(image: Image) -> str | None:
+     build plans it at (add_ctrl_memory, #923's ruling of 2026-11-16), every other image staying at the budget."""
+     return next((name for name, point in LEDGERED.items()
+                  if all(image.symbols.get(symbol, (0, None))[1] == size for symbol, size in point.symbols)), None)
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ 
+ 
+ def ledgered_tiles(image: Image, name: str) -> float:
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index daae28e144..8814a8e62a 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -3,24 +3,17 @@
+ """The memory test's ledgered points (#665): each override's own image, the images it must refuse, the
+ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-`ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, under #665's documented memory exceptions and
+-the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the size fixture's at 8x8 with two interfaces at 59.5
+-RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations, #897) and the target platform's at 61.0
+-(60.5, the owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, AECP's REBOOT, #871, and the
+-saved-state store's name marks, #920, then 61.0 with the PHY poll and its advertisement, #919), each only by its own
+-name; and the target platform's at 8x8 with one interface, a shipping image, at 56.5, a product entry, which the product
+-SoC build plans by the image's symbols (`ctrl_memory.product_point`). Each is refused half a tile past. A `Case` here is
+-what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+-=======
+ `ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, each only as its own point, under #665's
+ documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): at 8x8 with two
+-interfaces the size fixture's at 59.5 RAMB36 and the target platform's at 61.0, and the target platform's 8x8 image
+-with one interface, a product image, at 56.5; each is refused half a tile past. A measurement names its point, and
+-the product SoC build plans an image at the point whose symbols it carries (`ctrl_memory.own_point`). A `Case` here
+-is what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+-function here takes, and grades what these return.
++interfaces the size fixture's at 60.0 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
++#897, 59.5 before the map edits' commit through the EDIT window, #923) and the target platform's at 62.0 (60.5, the
++owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
++poll and its advertisement, #919, 61.5 on the composed flip train, #665, and 62.0 with the commit, #923), and the
++target platform's 8x8 image with one interface, a product image, at 57.5 (56.5 with the PHY poll, 57.0 on the composed
++train, 57.5 with the commit); each is refused half a tile past. A measurement names its point, and the product SoC
++build plans an image at the point whose symbols it carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps
++it for the composed train). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py writes each as an
++ELF, through the `write` callable every function here takes, and grades what these return.
+ syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+ (#665 S9); `mapper_arms` grades that override and plants three defects in it.
+ """
+@@ -42,19 +35,10 @@ from typing import NamedTuple
+ import ctrl_memory
+ 
+ STAGE_1X1, STAGE_8X8 = 3454, 13594
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-FIXTURE, PLATFORM, PLATFORM_1 = "8x8-two-interfaces", "platform-8x8-two-interfaces", "platform-8x8-one-interface"
+-#: The product entries: the points the product SoC build plans by the image's symbols.
+-PRODUCT = {PLATFORM_1}
+-#: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+-#: it: 1x1 with one and two interfaces, 8x8 with one and two.
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_200, 18_304, 20_480
+-=======
+ FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces", "platform-8x8-one-interface"
+ #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+ #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_416
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_856, 19_392, 18_496, 20_672
+ 
+ 
+ class Case(NamedTuple):
+@@ -68,70 +52,48 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 59.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 61.0),
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-       PLATFORM_1: Case(STAGE_8X8, None, PLAT_8X8_1, 56.5)}
+-#: What the ledger must hold for each: the symbols that make an image that point, its tiles, and whether the
+-#: product SoC build plans it.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.5, False),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 61.0, False),
+-        PLATFORM_1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 56.5, True)}
+-=======
+-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 56.5)}
++OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 60.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 62.0),
++       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 57.5)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 59.5),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 61.0),
+-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 56.5)}
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 60.0),
++        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 62.0),
++        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 57.5)}
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+ REFUSED = (
+-    ("its own image at 60.0 RAMB36, half a tile past its 59.5", FIXTURE, OWN[FIXTURE]._replace(tiles=60.0)),
+-    ("the size fixture's 1x1 one-interface image at 59.5", FIXTURE, Case(STAGE_1X1, 1, None, 59.5)),
+-    ("the size fixture's 1x1 two-interface image at 59.5", FIXTURE, Case(STAGE_1X1, 2, None, 59.5)),
+-    ("the size fixture's 8x8 one-interface image at 59.5", FIXTURE, Case(STAGE_8X8, 1, None, 59.5)),
+-    ("an 8x8 image with no image_allocation at 59.5", FIXTURE, Case(STAGE_8X8, None, None, 59.5)),
++    ("its own image at 60.5 RAMB36, half a tile past its 60.0", FIXTURE, OWN[FIXTURE]._replace(tiles=60.5)),
++    ("the size fixture's 1x1 one-interface image at 60.0", FIXTURE, Case(STAGE_1X1, 1, None, 60.0)),
++    ("the size fixture's 1x1 two-interface image at 60.0", FIXTURE, Case(STAGE_1X1, 2, None, 60.0)),
++    ("the size fixture's 8x8 one-interface image at 60.0", FIXTURE, Case(STAGE_8X8, 1, None, 60.0)),
++    ("an 8x8 image with no image_allocation at 60.0", FIXTURE, Case(STAGE_8X8, None, None, 60.0)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+-    ("the platform's 8x8 two-interface image at 59.5", FIXTURE, OWN[PLATFORM]._replace(tiles=59.5)),
+-    ("its own image at 61.5 RAMB36, half a tile past its 61.0", PLATFORM, OWN[PLATFORM]._replace(tiles=61.5)),
+-    ("the platform's 1x1 one-interface image at 61.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 61.0)),
+-    ("the platform's 1x1 two-interface image at 61.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 61.0)),
+-    ("the platform's 8x8 one-interface image at 61.0", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 61.0)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 61.0", PLATFORM,
+-     Case(STAGE_1X1, None, PLAT_8X8_2, 61.0)),
+-    ("an 8x8 image with no ctrl_plat at 61.0", PLATFORM, Case(STAGE_8X8, None, None, 61.0)),
++    ("the platform's 8x8 two-interface image at 60.0", FIXTURE, OWN[PLATFORM]._replace(tiles=60.0)),
++    ("its own image at 62.5 RAMB36, half a tile past its 62.0", PLATFORM, OWN[PLATFORM]._replace(tiles=62.5)),
++    ("the platform's 1x1 one-interface image at 62.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 62.0)),
++    ("the platform's 1x1 two-interface image at 62.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 62.0)),
++    ("the platform's 8x8 one-interface image at 62.0", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 62.0)),
++    ("an image with the point's ctrl_plat and the 1x1 stage at 62.0", PLATFORM,
++     Case(STAGE_1X1, None, PLAT_8X8_2, 62.0)),
++    ("an 8x8 image with no ctrl_plat at 62.0", PLATFORM, Case(STAGE_8X8, None, None, 62.0)),
+     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
+-    ("the size fixture's 8x8 two-interface image at 61.0", PLATFORM, OWN[FIXTURE]._replace(tiles=61.0)),
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-    ("its own image at 57.0 RAMB36, half a tile past its 56.5", PLATFORM_1, OWN[PLATFORM_1]._replace(tiles=57.0)),
+-    ("the platform's 8x8 two-interface image at 56.5", PLATFORM_1, OWN[PLATFORM]._replace(tiles=56.5)),
+-    ("the platform's 1x1 one-interface image at 56.5", PLATFORM_1, Case(STAGE_1X1, None, PLAT_1X1_1, 56.5)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 56.5", PLATFORM_1,
+-     Case(STAGE_1X1, None, PLAT_8X8_1, 56.5)),
+-    ("an 8x8 image with no ctrl_plat at 56.5", PLATFORM_1, Case(STAGE_8X8, None, None, 56.5)),
+-    ("the size fixture's 8x8 one-interface image at 56.5", PLATFORM_1, Case(STAGE_8X8, 1, None, 56.5)),
+-=======
+-    ("its own image at 57.0 RAMB36, half a tile past its 56.5", PRODUCT, OWN[PRODUCT]._replace(tiles=57.0)),
+-    ("the platform's 1x1 one-interface image at 56.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 56.5)),
+-    ("the platform's 1x1 two-interface image at 56.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 56.5)),
+-    ("the platform's 8x8 two-interface image at 56.5", PRODUCT, OWN[PLATFORM]._replace(tiles=56.5)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 56.5", PRODUCT,
+-     Case(STAGE_1X1, None, PLAT_8X8_1, 56.5)),
+-    ("an 8x8 image with no ctrl_plat at 56.5", PRODUCT, Case(STAGE_8X8, None, None, 56.5)),
+-    ("the size fixture's 8x8 one-interface image at 56.5", PRODUCT, Case(STAGE_8X8, 1, None, 56.5)),
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++    ("the size fixture's 8x8 two-interface image at 62.0", PLATFORM, OWN[FIXTURE]._replace(tiles=62.0)),
++    ("its own image at 58.0 RAMB36, half a tile past its 57.5", PRODUCT, OWN[PRODUCT]._replace(tiles=58.0)),
++    ("the platform's 1x1 one-interface image at 57.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 57.5)),
++    ("the platform's 1x1 two-interface image at 57.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 57.5)),
++    ("the platform's 8x8 two-interface image at 57.5", PRODUCT, OWN[PLATFORM]._replace(tiles=57.5)),
++    ("an image with the point's ctrl_plat and the 1x1 stage at 57.5", PRODUCT,
++     Case(STAGE_1X1, None, PLAT_8X8_1, 57.5)),
++    ("an 8x8 image with no ctrl_plat at 57.5", PRODUCT, Case(STAGE_8X8, None, None, 57.5)),
++    ("the size fixture's 8x8 one-interface image at 57.5", PRODUCT, Case(STAGE_8X8, 1, None, 57.5)),
+     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
+      OWN[FIXTURE]),
+     ("the image of the point it names, a name the ledger does not hold", "8x8-one-interface",
+-     Case(STAGE_8X8, 1, None, 59.5)),
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
++     Case(STAGE_8X8, 1, None, 60.0)),
+     ("the platform's 8x8 two-interface image, a name the ledger does not hold", "platform-1x1-one-interface",
+      OWN[PLATFORM]),
+-=======
+     ("the platform's 1x1 one-interface image, a name the ledger does not hold", "platform-1x1-one-interface",
+      Case(STAGE_1X1, None, PLAT_1X1_1, 56.5)),
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ )
+ 
+ 
+@@ -144,7 +106,7 @@ def refusals(write: Callable[[Case], Path]) -> list[tuple[str, str, Callable[[],
+     return [*(("budget", f"the {name} point's image, {own.tiles} RAMB36, planned without its override", attempt(own))
+               for name, own in OWN.items()),
+             *(("budget", f"the {name} point's image with a ctrl_plat of another size, planned without an override",
+-               attempt(own._replace(plat=own.plat + 64))) for name, own in OWN.items() if name in PRODUCT),
++               attempt(own._replace(plat=own.plat + 64))) for name, own in OWN.items() if name == PRODUCT),
+             *(("budget", f"the {name} override on {what}", attempt(case, name)) for what, name, case in REFUSED)]
+ 
+ 
+@@ -173,22 +135,17 @@ def facts(write: Callable[[Case], Path]) -> Iterator[tuple[bool, str]]:
+ 
+ def product_facts(write: Callable[[Case], Path], build: Callable[[Path], object]) -> Iterator[tuple[bool, str]]:
+     """(holds, what): the product SoC build (`build`: milan_soc.add_ctrl_memory on a written image, its plan or the
+-    Refusal it raised) plans each product entry's own image at that entry's tiles by its symbols, names no point for
+-    any other entry's image, and refuses the product entry's image half a tile past and with a ctrl_plat of
+-    another size, each by `budget`."""
+-    for name in sorted(PRODUCT):
+-        own = OWN[name]
+-        got = build(write(own))
+-        yield ((getattr(got, "ledgered", None), getattr(got, "tiles", None)) == (name, own.tiles),
+-               f"the product SoC build plans the {name} point's image at its {own.tiles} RAMB36 by its symbols ({got})")
+-        for what, case in (("half a tile past", own._replace(tiles=own.tiles + 0.5)),
+-                           ("with a ctrl_plat of another size", own._replace(plat=own.plat + 64))):
+-            got = build(write(case))
+-            yield (isinstance(got, ctrl_memory.Refusal) and got.rule == "budget",
+-                   f"the product SoC build refuses the {name} point's image {what} ({got})")
+-    for name in sorted(set(OWN) - PRODUCT):
+-        point = ctrl_memory.product_point(ctrl_memory.read_elf(write(OWN[name])))
+-        yield point is None, f"the product SoC build names no point for the {name} point's image ({point})"
++    Refusal it raised) plans the product image at its entry's tiles by its symbols, and refuses it half a tile past
++    and with a ctrl_plat of another size, each by `budget`."""
++    own = OWN[PRODUCT]
++    got = build(write(own))
++    yield ((getattr(got, "ledgered", None), getattr(got, "tiles", None)) == (PRODUCT, own.tiles),
++           f"the product SoC build plans the {PRODUCT} point's image at its {own.tiles} RAMB36 by its symbols ({got})")
++    for what, case in (("half a tile past", own._replace(tiles=own.tiles + 0.5)),
++                       ("with a ctrl_plat of another size", own._replace(plat=own.plat + 64))):
++        got = build(write(case))
++        yield (isinstance(got, ctrl_memory.Refusal) and got.rule == "budget",
++               f"the product SoC build refuses the {PRODUCT} point's image {what} ({got})")
+ 
+ 
+ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
+@@ -202,25 +159,15 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
+              ("the platform's entry without ctrl_plat", PLATFORM, {"symbols": (stage,)}),
+              ("the platform's entry at the 8x8 one-interface ctrl_plat", PLATFORM,
+               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_1))}),
+-             ("the platform's entry at 61.5 RAMB36", PLATFORM, {"tiles": 61.5}),
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-             ("the platform's two-interface entry a product entry", PLATFORM, {"product": True}),
++             ("the platform's entry at 62.5 RAMB36", PLATFORM, {"tiles": 62.5}),
+              ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
+-             ("the size fixture's entry at the platform's 61.0", FIXTURE, {"tiles": 61.0}),
+-             ("the size fixture's entry a product entry", FIXTURE, {"product": True}),
+-             ("the platform's one-interface entry not a product entry", PLATFORM_1, {"product": False}),
+-             ("the platform's one-interface entry at 57.0 RAMB36", PLATFORM_1, {"tiles": 57.0}),
+-             ("the platform's one-interface entry without ctrl_plat", PLATFORM_1, {"symbols": (stage,)}),
+-             ("the platform's one-interface entry at the two-interface ctrl_plat", PLATFORM_1,
+-              {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
+-=======
+-             ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
+-             ("the size fixture's entry at the platform's 61.0", FIXTURE, {"tiles": 61.0}),
++             ("the size fixture's entry at the platform's 62.0", FIXTURE, {"tiles": 62.0}),
+              ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
+              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
+               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
+-             ("the product entry at 57.0 RAMB36", PRODUCT, {"tiles": 57.0}))
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++             ("the product entry at 58.0 RAMB36", PRODUCT, {"tiles": 58.0}),
++             ("the product entry at the two-interface ctrl_plat", PRODUCT,
++              {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
+     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]
+ 
+ 
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+remerge CONFLICT (content): Merge conflict in sw/litex/milan_soc.py
+index e11969c155..57cd75d550 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -3375,13 +3375,8 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
+                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
+                                   f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
+     soc.ctrl_image = ctrl_memory.read_elf(firmware)
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-    # a product entry's image at its own entry, by its symbols; every other image at the budget (#923's ruling)
+-    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.product_point(soc.ctrl_image))
+-=======
+     # a ledgered image at its own entry, by its symbols; every other image at the 56-RAMB36 budget (#923)
+     soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.own_point(soc.ctrl_image))
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+     for region, banks, words, mode in (
+             (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
+             (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+index fca631f027..6350c74475 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -16,25 +16,17 @@ block RAM the SoC builds from them. This file grades nine things:
+      truncated ELF, writable data running in rom, a CPU with other origins and
+      a load segment carrying fewer bytes than its sections claim.
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-     Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py) plans
+-     its tiles by name and is refused without its override and half a tile
+-     past; each override is refused on every other point and image. The SoC
+-     build plans the one product entry's image by its symbols (#923's ruling)
+-     and refuses the others'. Thirteen planted ledgers, each widening an entry
+-     or making it a product entry or not, must each turn the ledger red.
+-=======
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces and the
+-     platform's 8x8 image with one) plans its 59.5, 61.0 or 56.5 by name, and
+-     through add_ctrl_memory at its own entry by its symbols, and is refused
+-     without its override and half a tile past, through add_ctrl_memory too;
+-     add_ctrl_memory refuses an unledgered image past 56. Each override is
++     platform's 8x8 image with one) plans its 60.0, 62.0 or 57.5 by name, and
++     through add_ctrl_memory at its own entry by its symbols (#923's ruling),
++     and is refused without its override and half a tile past, through
++     add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56,
++     and the product image with a ctrl_plat of another size. Each override is
+      refused on every other point, on the others' images and on an image with
+-     one of its two symbols. Nine planted ledgers, each widening an entry to
+-     another point or image, must each turn the ledger red with its pin set
+-     aside.
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++     one of its two symbols. Ten planted ledgers, each widening an entry to
++     another point or image or past its tiles, must each turn the ledger red
++     with its pin set aside.
+   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
+      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
+      at the first and last word of every bank and drops a write; sram writes
+@@ -242,13 +234,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
+ 
+ 
+ def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
+-    """A ledger case written: the good image with three tiles of .text more and of .bss less, still 56 RAMB36,
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 62.0, past the 61.5
+-    half a tile beyond the platform's 61.0."""
++    """A ledger case written: the good image with four tiles of .text more and of .bss less, still 56 RAMB36,
++    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.0, past the
++    platform's 62.5, half a tile past its 62.0."""
+     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
+-                                  text=GOOD.text + 6 * GRANULE,
+-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 6) * GRANULE))
++                                  text=GOOD.text + 8 * GRANULE,
++                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 8) * GRANULE))
+ 
+ 
+ def soc_plan(path: Path) -> object:
+@@ -260,13 +251,6 @@ def soc_plan(path: Path) -> object:
+     except ctrl_memory.Refusal as exc:
+         return exc
+     return soc.ctrl_plan
+-=======
+-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 62.0, past the
+-    platform's 61.5, half a tile past its 61.0."""
+-    return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
+-                                  text=GOOD.text + 6 * GRANULE,
+-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 6) * GRANULE))
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ 
+ 
+ def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
+@@ -344,17 +328,12 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
+          plan(GOOD._replace(bss=215_000))),
+         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
+         *ledgers.refusals(partial(ledger_elf, tmp)),
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-        *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image", soc(own))
+-          for name, own in ledgers.OWN.items() if name not in ledgers.PRODUCT),
+-=======
+         *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image half a tile past its entry",
+            soc(own._replace(tiles=own.tiles + 0.5))) for name, own in ledgers.OWN.items()),
+         ("budget", "the SoC build's add_ctrl_memory given an unledgered 8x8 image at 56.5, its ctrl_plat another's",
+          soc(ledgers.Case(ledgers.STAGE_8X8, None, ledgers.PLAT_8X8_1 + 64, 56.5))),
+         ("budget", "the SoC build's add_ctrl_memory given an 8x8 image with no ctrl_plat at 56.5",
+          soc(ledgers.Case(ledgers.STAGE_8X8, None, None, 56.5))),
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
+         ("stage size", "PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage)",
+          stage(GOOD, STAGE_8X8)),
+@@ -369,19 +348,14 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     The refusals (no override, the SoC build, half a tile more, every other
+     point and image, an unknown name) are refusal_arms rows under `budget`.
+     """
+-    held = {name: (p.symbols, p.tiles, p.product) for name, p in ctrl_memory.LEDGERED.items()}
++    held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-                                          f"platform's 8x8 images with two interfaces at 59.5 and 61.0 and the "
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-                                          f"platform's with one at 56.5, the one product entry ({held})")
++                                          f"platform's 8x8 images with two interfaces at 60.0 and 62.0 and the "
++                                          f"platform's 8x8 image with one at 57.5 ({held})")
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
+         check(problems, holds, what)
+-=======
+-                                          f"platform's 8x8 image with one at 56.5 ({held})")
+-    for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+-        check(problems, holds, what)
+     for name, own in ledgers.OWN.items():
+         soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
+         accepted(problems, lambda: milan_soc.add_ctrl_memory(soc, ledger_elf(tmp, own)),
+@@ -390,7 +364,6 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+         got = None if plan is None else (plan.tiles, plan.ledgered)
+         check(problems, got == (own.tiles, name),
+               f"the SoC build plans the {name} point's image at its own entry, {own.tiles} RAMB36 ({got})")
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+     check(problems, not {"ledgered", "ledgered_tiles"} & set(good),
+           f"a plan without the override names no ledgered point ({sorted(good)})")
+@@ -807,7 +780,6 @@ class Mutant(NamedTuple):
+ 
+ #: What the mutants target besides ctrl_memory.RULES: the documented behaviour that is not a refusal.
+ PROPERTIES = {
+-    "product point": "the product SoC build plans a product entry's image at its entry by its symbols, and no other",
+     "load address": "a section's load address is read through its segment",
+     "bank order": "banks are largest first",
+     "decode width": "a region decodes its whole window",
+@@ -833,7 +805,6 @@ _ERR = "hole.err.eq(hole.cyc & hole.stb & ~hole.err)"
+ _HOLE = "slaves.append((lambda a: a[:low] >= first, hole))"
+ _BIOS = "kwargs.update(integrated_rom_size=0, integrated_sram_size=0)"
+ _LEDGER = "if carried != dict(point.symbols):"
+-_PRODUCT = "if point.product and all("
+ MUTANTS = tuple(Mutant(*row) for row in (
+     ("elf class weakened", "elf class", "ctrl_memory", "read_elf",
+      'if data[:6] != b"\\x7fELF\\x01\\x01":', 'if data[:4] != b"\\x7fELF":', "checks"),
+@@ -874,12 +845,6 @@ MUTANTS = tuple(Mutant(*row) for row in (
+     ("budget 1.5 tiles slack", "budget", "ctrl_memory", "plan", "if need.tiles > budget:",
+      "if need.tiles > budget + 1.5:", "checks"),
+     ("an override on any image", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER, "if False:", "checks"),
+-    ("no product point", "product point", "ctrl_memory", "product_point", _PRODUCT, "if False and all(", "checks"),
+-    ("every entry a product entry", "product point", "ctrl_memory", "product_point", _PRODUCT, "if all(", "checks"),
+-    ("a product point by its staging buffer alone", "product point", "ctrl_memory", "product_point",
+-     "for s, size in point.symbols):", "for s, size in point.symbols[:1]):", "checks"),
+-    ("the SoC build plans no product point", "product point", "milan_soc", "add_ctrl_memory",
+-     "ledgered=ctrl_memory.product_point(soc.ctrl_image))", "ledgered=None)", "checks"),
+     ("an override on any image carrying its symbols", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,
+      "if None in carried.values():", "checks"),
+     ("an override on any image with its staging buffer", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+index f5001ab6ea..585092dc3c 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -327,11 +327,7 @@ That is a CI change, outside this lane.
+   It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
+   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
+ - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+   At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 59.5 RAMB36 (`split_soc.ledgered_plan`; 59.0 until the arms on the size fixture, with GET_AS_PATH's read composed on SRP's Talker declarations, needed 59.5, #897).
+-=======
+-  At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 59.5 RAMB36 (`split_soc.ledgered_plan`).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+   `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
+   The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/edit_rows.py
+index 14e2cea4fb..9a2cb27a83 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -29,24 +29,6 @@ import paced_rows
+ if TYPE_CHECKING:
+     from rows_tiers import Inputs
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-#: Each paced member's record in us at each point (above). A one-row edit's under #894's one-row edit cut, bc971054:
+-#: at 1x1/1if 24,360 CPU cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE
+-#: of one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; at 8x8/2if 30,563, a
+-#: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
+-#: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
+-#: rule (33,724 at 9606b3a9, 355), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py),
+-#: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
+-#: 595 (78,332, 825), and 55,631 with that port; with AECP's REBOOT merged on the tiers (#871), whose image moves the
+-#: hot code, at 1x1/1if 28,750, 305.
+-#: At 8x8/1if, one interface's 8x8 streams, on the image that merges #902's 234bc149 (#894's shape ruling, item (b);
+-#: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
+-#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
+-#: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
+-PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
+-         '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595},
+-         '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
+-=======
+ #: Each paced member's record in us at each point (above). A one-row edit's under #894's one-row edit cut, bc971054: at
+ #: 1x1/1if 24,360 CPU cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of
+ #: one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; with its commit to the
+@@ -55,10 +37,17 @@ PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305
+ #: REMOVE of one output row, 325 (30,124 under that cut), and with its commit 33,481, 355 (28,627 at that base). An
+ #: accepted SET_CONFIGURATION's under #894's cut of it (f275b619, paced at fe0cef5b), in the answering-ports arm's
+ #: aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the rule (33,724 at 9606b3a9, 355; 28,076 at #923's head, 295, the
+-#: larger kept); at 8x8/2if 56,474, 595 (78,332, 825; 55,928 at #923's head, 590).
+-PACED = {'1x1/1if': {'a one-row edit': 295, 'an accepted SET_CONFIGURATION': 300},
+-         '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595}}
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++#: larger kept), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py), the same work, its
++#: fetches moved by the port's code (28,357 with the port answering at once), and with AECP's REBOOT merged on the tiers
++#: (#871), whose image moves the hot code, 28,750, 305; at 8x8/2if 56,474, 595 (78,332, 825; 55,928 at #923's head,
++#: 590), and 55,631 with that port.
++#: At 8x8/1if, one interface's 8x8 streams, on the image that merges #902's 234bc149 (#894's shape ruling, item (b);
++#: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
++#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
++#: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
++PACED = {'1x1/1if': {'a one-row edit': 295, 'an accepted SET_CONFIGURATION': 305},
++         '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
++         '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
+ #: The paced class's record at each point: the dearest of its members'.
+ EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
+ #: The planted defects controls() plants (rows_tiers.CONTROLS names them).
+diff --git a/tb/verilator/ctrl_split_boot/README.md b/tb/verilator/ctrl_split_boot/README.md
+index 4a05019fc6..c5f557b1e0 100644
+--- a/tb/verilator/ctrl_split_boot/README.md
++++ b/tb/verilator/ctrl_split_boot/README.md
+@@ -130,7 +130,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
+ Both boots at this head are within the 20 s ADP valid time.
+ Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
+ A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
+-The 8x8 image with two interfaces plans 61.0 RAMB36. The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers 61.0, owed to lane S14. The 8x8 image with one interface plans 56.5, its product entry's, which the product SoC build plans by the image's symbols.
++The 8x8 image with two interfaces plans 62.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and the map edits' commit through the `EDIT` window (#923) on the composed train to 62.0. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 57.5, at its own entry, which the product SoC build plans by the image's symbols.
+ At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
+ 
+ The smoke grader's verdicts on the simulated UART:
+@@ -170,7 +170,7 @@ Each image is graded on four checks, each apart, so that one finding does not hi
+ - `LEDGER`: every override of the platform's image is linked at a point.
+ 
+ A stale `ctrl_plat` key refused that image by its key for three rounds of #665, and hid that its plan had passed the tiles its override then held.
+-So `--self-test` grades seven planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 8x8 one-interface plan (`TILES` there), the override not taken (`LINK`, `TILES`, `LEDGER`) and an override no point links (`LEDGER`).
++So `--self-test` grades nine planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 1x1 two-interface plan (`TILES` there), the override not taken at the 8x8 image with two interfaces and at the one with one (`LINK`, `TILES`, `LEDGER`), and an override no point links, at a point's own `ctrl_plat` and at a size no image has (`LEDGER`).
+ 
+ ```sh
+ python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir /tmp/plat-ledger --self-test
+diff --git a/tb/verilator/ctrl_split_boot/plat_ledger.py b/tb/verilator/ctrl_split_boot/plat_ledger.py
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_split_boot/plat_ledger.py
+index ac551a5a0c..5ac76fe0c7 100644
+--- a/tb/verilator/ctrl_split_boot/plat_ledger.py
++++ b/tb/verilator/ctrl_split_boot/plat_ledger.py
+@@ -57,12 +57,8 @@ class Point(NamedTuple):
+ 
+ 
+ #: The four points the ledger names (ctrl_memory_ledger.PLAT_*): the shipping 1x1 shape and the 8x8 one, each with
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-#: one and two interfaces; each 8x8 image takes the platform's override, the one-interface image its product entry,
+-#: which the product build plans by the image's symbols (#919, #923's ruling of 2026-11-16).
+-=======
+-#: one and two interfaces; each 8x8 image takes its own override, the one-interface one a product image's (#923).
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++#: one and two interfaces; each 8x8 image takes its own override, the one-interface one a product image's, which the
++#: product build plans by the image's symbols too (#919, #923's ruling of 2026-11-16).
+ POINTS = (Point('endstation_ax7101_1x1_tdm8', 1, None, 'PLAT_1X1_1'),
+           Point('endstation_ax7101_1x1_tdm8', 2, None, 'PLAT_1X1_2'),
+           Point('endstation_ax7101_8x8', 1, 'platform-8x8-one-interface', 'PLAT_8X8_1'),
+@@ -215,15 +211,12 @@ class Control(NamedTuple):
+     want: frozenset[tuple[str, str]]
+ 
+ 
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+ LAST, FIRST, TWO1, ONE8 = name(POINTS[-1]), name(POINTS[0]), name(POINTS[1]), name(POINTS[2])
+-=======
+-LAST, FIRST, TWO1 = name(POINTS[-1]), name(POINTS[0]), name(POINTS[1])
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
+ #: The planted ledgers: a stale key alone, a plan past its tiles alone, both at once (the case that hid, #665), a
+ #: stale record in ctrl_memory_ledger.py, the budget under the plan of the largest point it holds (read by TILES; the
+ #: link plans against ctrl_memory.plan's own default, which a rebinding of the name does not move), each override
+-#: not taken, and an override of the platform's image that no point links.
++#: not taken, and an override of the platform's image that no point links, at a point's own ctrl_plat and at a size no
++#: image has.
+ CONTROLS = {
+     'stale-key': Control(lambda out: planted(ctrl_memory, 'LEDGERED', entry(stale)),
+                          frozenset({('LINK', LAST), ('KEY', LAST)})),
+@@ -245,13 +238,12 @@ CONTROLS = {
+                                                                POINTS[3])),
+                                           frozenset({('LINK', ONE8), ('TILES', ONE8), ('LEDGER', '')})),
+     'override-unlinked': Control(lambda out: planted(ctrl_memory, 'LEDGERED', {
+-<<<<<<< 7431b6babe (Keep the composed harness within the Python idiom gate: fold grade.grade's interfaces and shape into one parameter, rewrap one comment, and move #920's burst mutants to their own module)
+-        **ctrl_memory.LEDGERED, 'platform-planted-unlinked': dataclasses.replace(
+-            ctrl_memory.LEDGERED[POINTS[-1].override], symbols=(('ctrl_plat', ledgers.PLAT_8X8_1 + 64),))}),
+-=======
+         **ctrl_memory.LEDGERED, 'platform-1x1-two-interfaces': dataclasses.replace(
+             ctrl_memory.LEDGERED[POINTS[-1].override], symbols=(('ctrl_plat', ledgers.PLAT_1X1_2),))}),
+->>>>>>> d06ded5ad3 (Hold the face to the mappings the core picks: an ADD of a held and a new mapping and a REMOVE naming one twice commit those alone, the store and GET_AUDIO_MAP agreeing, a face reading the command's first records caught by name (#923))
++        frozenset({('LEDGER', '')})),
++    'override-unlinked-no-image': Control(lambda out: planted(ctrl_memory, 'LEDGERED', {
++        **ctrl_memory.LEDGERED, 'platform-planted-unlinked': dataclasses.replace(
++            ctrl_memory.LEDGERED[POINTS[-1].override], symbols=(('ctrl_plat', ledgers.PLAT_8X8_1 + 64),))}),
+         frozenset({('LEDGER', '')})),
+ }
+ 

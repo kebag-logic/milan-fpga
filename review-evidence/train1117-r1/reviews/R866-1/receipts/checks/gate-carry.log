@@ -1,0 +1,37 @@
+PASS four firmware shards carry through step 11: only trailing blank removed, all firmware bytes otherwise unchanged
+PASS completed run self-test at 4374cc27: entire CPU-budget harness unchanged at final head
+PASS step-11 twin, mailbox, datapath, meter and render gates: no changes to their RTL, test or firmware inputs through final head
+r5-p11-dp.log.stub.txt published rc=0 hash/tail stub
+  END rc=0 11:54:18
+r5-p11-fw0.log published rc=0 full log
+      srp_wire_compare.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding PASS
+      ctrl_hot.py --self-test:
+      self-test: 0 failure(s)
+  test_ctrl_firmware: PASS
+  END rc=0 11:48:13
+r5-p11-fw1.log published rc=0 full log
+  mutants: 797 of 797 caught
+  test_ctrl_firmware: PASS
+  END rc=0 12:10:44
+r5-p11-fw2.log.stub.txt published rc=0 hash/tail stub
+  test_ctrl_firmware: PASS
+  END rc=0 11:58:29
+r5-p11-fw3.log.stub.txt published rc=0 hash/tail stub
+  test_ctrl_firmware: PASS
+  END rc=0 11:59:33
+r5-p11-img.log published rc=0 full log
+r5-p11-mbx.log published rc=0 full log
+  mbx record mover mutants: 25 of 25 caught
+  mbx mutants: 13 of 13 caught
+  mbx record mover mutants: 25 of 25 caught
+  END rc=0 11:40:33
+r5-p11-meter.log published rc=0 full log
+  aaf_clock_meter mutants: 38/38 as required
+  aaf_clock_meter mutants: 38/38 as required
+  END rc=0 12:00:36
+r5-p11-render.log published rc=0 full log
+  32 checks: 32 PASS, 0 FAIL
+  END rc=0 13:27:53
+r5-p11-twin.log.stub.txt published rc=0 hash/tail stub
+  END rc=0 11:50:02
+Published evidence inventory and input carry complete
