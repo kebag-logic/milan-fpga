@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // test_plat_sinks.cpp - each Stream Input's current format in its
-// receive-monitor context (#946; plat/ctrl_plat.c's sink port, the face's
-// acknowledged publication in aecp/aecp_face.c, plat/ctrl_plat_csr.c), on the
-// host: ctrl_plat.c's boot and composition on the mailbox model, F1's flash
+// receive-monitor context (#946; plat/ctrl_plat.c's receive-monitor formats,
+// plat/ctrl_plat_csr.c), on the host: ctrl_plat.c's boot and composition on the mailbox model, F1's flash
 // model and the CSR window of plat_bus.hpp, at the generated shape it is built
 // for (PLAT_TEST_SHAPE).
 //
@@ -24,8 +23,12 @@
 //       to the new format, after that change's acknowledged commit; bound, the
 //       input refuses it (STREAM_IS_RUNNING) and no context is written
 //   S3  a commit the datapath never acknowledges writes no context
-//   S4  the port drops a write for another interface, which has no window, and
-//       counts it
+//   S4  a SET_STREAM_FORMAT whose commit is not acknowledged waits, IN_PROGRESS,
+//       and writes nothing; once acknowledged it is done again, answered
+//       SUCCESS, and its format reaches the input's context
+//   S5  a change of another kind (SET_NAME, a STREAM_OUTPUT's format) leaves
+//       every context at its format in force, rewritten at the poll after its
+//       acknowledged commit
 
 #include <gtest/gtest.h>
 
@@ -70,7 +73,7 @@ constexpr unsigned kInterfaceAt = 126u;              // its avb_interface_index
 constexpr std::uint8_t kAaf = 0x02u;                 // IEEE 1722-2016 Table 6
 constexpr std::uint32_t kOtherSelection = 0x103u;    // talker 3, as MAAP's destination writes leave it
 constexpr std::uint64_t kTwoChannels = 0x0205022000806000ull;  // AAF PCM32 48 kHz 2ch, in the Base family
-constexpr unsigned kSuccess = 0u, kStreamIsRunning = 12u, kInProgress = 25u;  // IEEE 1722.1-2021 Table 7-126
+constexpr unsigned kSuccess = 0u, kInProgress = 9u, kStreamIsRunning = 12u;  // IEEE 1722.1-2021 Table 7-126
 
 // One mailbox access, with the CSR accesses before it.
 struct Mbx {
@@ -243,6 +246,21 @@ struct Sinks : ::testing::Test {
         for (const std::size_t c : far.commits) commit = commit || c == last + 1u;
         return commit && last + 1u < mailbox.size() && !mailbox[last + 1u].write && mailbox[last + 1u].plat <= p;
     }
+    // The bus log position after the face's first publication with F_CTRL.READY set (the open's,
+    // aecp_face_open) was committed and acknowledged: its READY write, then an F_COMMIT, then the read that
+    // found it taken; SIZE_MAX for none.
+    std::size_t ready_published() const {
+        const std::uint32_t ctrl = MBX_FACE_BASE + MBX_FACE_REG_F_CTRL;
+        const std::uint32_t commit = MBX_FACE_BASE + MBX_FACE_REG_F_COMMIT;
+        std::size_t k = 0;
+        while (k < mailbox.size() && !(mailbox[k].write && mailbox[k].offset == ctrl &&
+                                       ((mailbox[k].value >> MBX_F_CTRL_READY_LSB) & 1u) != 0u)) {
+            ++k;
+        }
+        while (k < mailbox.size() && !(mailbox[k].write && mailbox[k].offset == commit)) ++k;
+        while (k < mailbox.size() && mailbox[k].write) ++k;
+        return k < mailbox.size() ? mailbox[k].plat : SIZE_MAX;
+    }
     // The bus log position at the first write to TMR_CMD arming interface 0's ADP slot (ADP starts).
     std::size_t adp_start() const {
         for (const auto& a : mailbox) {
@@ -254,10 +272,12 @@ struct Sinks : ::testing::Test {
         }
         return bus().log.size();
     }
-    // SET_STREAM_FORMAT (IEEE 1722.1-2021 7.4.9.1) of STREAM_INPUT n, as the datapath delivers it; the
-    // response's status once it is final, or -1 for none within the turns
-    int set_format(unsigned n, std::uint64_t format, std::uint16_t seq) {
-        std::vector<std::uint8_t> f(50, 0);
+    void steps(unsigned n) {
+        for (unsigned k = 0; k < n; ++k) ctrl_plat_step();
+    }
+    // An AEM command (IEEE 1722.1-2021 9.2.1.2) to the entity, as the datapath delivers it.
+    bool send(std::uint16_t cmd, const std::vector<std::uint8_t>& payload, std::uint16_t seq) {
+        std::vector<std::uint8_t> f(38, 0);
         const auto put = [&](std::size_t at, std::uint64_t v, unsigned bytes) {
             for (unsigned k = 0; k < bytes; ++k) f[at + k] = static_cast<std::uint8_t>(v >> (8u * (bytes - 1u - k)));
         };
@@ -265,29 +285,67 @@ struct Sinks : ::testing::Test {
         put(6, 0x020000000081ull, 6);
         put(12, 0x22f0u, 2);
         f[14] = 0xfbu;                   // AECP, AEM_COMMAND
-        put(16, 24u, 2);                 // control_data_length: controller, sequence, command and 12 payload bytes
+        put(16, 12u + payload.size(), 2);  // control_data_length: controller, sequence, command and the payload
         put(18, ctrl_plat.config.entity->entity_id, 8);
         put(26, 0x1020304050607080ull, 8);
         put(34, seq, 2);
-        put(36, 0x0008u, 2);             // SET_STREAM_FORMAT
-        put(38, kStreamInput, 2);
-        put(40, n, 2);
-        put(42, format, 8);
-        const std::uint32_t before = fabric.tx_sent;
-        if (!mbx_model_rx(&fabric, f.data(), f.size(), 0)) return -1;
-        for (unsigned turn = 0; turn < 400u; ++turn) {
+        put(36, cmd, 2);
+        f.insert(f.end(), payload.begin(), payload.end());
+        return mbx_model_rx(&fabric, f.data(), f.size(), 0);
+    }
+    // The statuses of the entity's AEM responses to `cmd` with `seq`, in the order they left.
+    std::vector<int> statuses(std::uint16_t cmd, std::uint16_t seq) const {
+        std::vector<int> out;
+        for (std::uint32_t k = 0; k < fabric.tx_sent; ++k) {
+            const auto* t = mbx_model_tx_frame(&fabric, k);
+            if (t != nullptr && t->len >= 38u && t->bytes[14] == 0xfbu && (t->bytes[15] & 0xfu) == 1u &&
+                be(t->bytes + 34, 2) == seq && be(t->bytes + 36, 2) == cmd) {
+                out.push_back(static_cast<int>(be(t->bytes + 16, 2) >> 11));
+            }
+        }
+        return out;
+    }
+    // Step until the command's final (not IN_PROGRESS) response has left: its status, or -1 within the turns.
+    int final_status(std::uint16_t cmd, std::uint16_t seq, unsigned turns = 400u) {
+        for (unsigned turn = 0; turn < turns; ++turn) {
             ctrl_plat_step();
-            for (std::uint32_t k = before; k < fabric.tx_sent; ++k) {
-                const auto* t = mbx_model_tx_frame(&fabric, k);
-                if (t == nullptr || t->len < 50u || t->bytes[14] != 0xfbu || (t->bytes[15] & 0xfu) != 1u ||
-                    be(t->bytes + 34, 2) != seq || be(t->bytes + 36, 2) != 0x0008u) {
-                    continue;
-                }
-                const auto status = static_cast<int>(be(t->bytes + 16, 2) >> 11);
+            for (const int status : statuses(cmd, seq)) {
                 if (status != static_cast<int>(kInProgress)) return status;
             }
         }
         return -1;
+    }
+    // SET_STREAM_FORMAT (IEEE 1722.1-2021 7.4.9.1) of descriptor {type, n}: its final status
+    int set_format(std::uint16_t type, unsigned n, std::uint64_t format, std::uint16_t seq) {
+        std::vector<std::uint8_t> payload(12, 0);
+        for (unsigned k = 0; k < 2; ++k) payload[k] = static_cast<std::uint8_t>(type >> (8u * (1u - k)));
+        for (unsigned k = 0; k < 2; ++k) payload[2 + k] = static_cast<std::uint8_t>(n >> (8u * (1u - k)));
+        for (unsigned k = 0; k < 8; ++k) payload[4 + k] = static_cast<std::uint8_t>(format >> (8u * (7u - k)));
+        return send(0x0008u, payload, seq) ? final_status(0x0008u, seq) : -1;
+    }
+    int set_format(unsigned n, std::uint64_t format, std::uint16_t seq) { return set_format(kStreamInput, n, format, seq); }
+    // Whether a commit the face made lies between bus log positions from and p.
+    bool committed_between(std::size_t from, std::size_t p) const {
+        for (const std::size_t c : far.commits) {
+            if (mailbox[c - 1u].plat >= from && mailbox[c - 1u].plat <= p) return true;
+        }
+        return false;
+    }
+    // Every context written since `from` holds the format in force, and every context was written.
+    void every_context_in_force(std::size_t from, const char* what) {
+        const auto all = inputs();
+        const Window w = window(from, kOtherSelection);
+        for (const unsigned n : contexts()) {
+            if (!w.holds(n)) {
+                ADD_FAILURE() << "S5 " << what << " rewrites every context at its format in force: input " << n
+                              << " holds none";
+                continue;
+            }
+            EXPECT_EQ(w.format(n), all.at(n).format)
+                << "S5 " << what << " rewrites every context at its format in force: input " << n;
+        }
+        EXPECT_EQ(w.lo.size(), contexts().size()) << "S5 " << what << " writes no other context";
+        EXPECT_TRUE(w.restored) << "S5 the selection another writer left is written back";
     }
 };
 
@@ -299,6 +357,8 @@ TEST_F(Sinks, S1EveryAafInputAboveZeroHoldsItsFormatAtReady) {
         << "S1 the shape holds its AAF inputs above 0 (" PLAT_TEST_SHAPE ")";
     ASSERT_FALSE(far.commits.empty()) << "S1 the face is committed before AECP opens";
     const std::size_t adp = adp_start();
+    const std::size_t ready = ready_published();
+    ASSERT_NE(ready, SIZE_MAX) << "S1 the face publishes READY and it is acknowledged";
     const Window w = window(0, kOtherSelection);
     for (const unsigned n : want) {
         if (!w.holds(n)) {
@@ -306,8 +366,7 @@ TEST_F(Sinks, S1EveryAafInputAboveZeroHoldsItsFormatAtReady) {
             continue;
         }
         EXPECT_EQ(w.format(n), all.at(n).format) << "S1 every AAF input above 0 holds its current format: input " << n;
-        EXPECT_TRUE(after_acknowledged_commit(w.at.at(n)))
-            << "S1 written after the face's acknowledged commit: input " << n;
+        EXPECT_GE(w.at.at(n), ready) << "S1 written after the open's acknowledged publication: input " << n;
         EXPECT_LT(w.at.at(n), adp) << "S1 written before ADP starts: input " << n;
     }
     for (const unsigned n : w.selected) {
@@ -378,19 +437,71 @@ TEST_F(Sinks, S3AnUnacknowledgedCommitWritesNoContext) {
     EXPECT_TRUE(window(0, kOtherSelection).selected.empty()) << "S3 a commit never acknowledged writes no context";
 }
 
-TEST_F(Sinks, S4AnotherInterfacesWriteIsDroppedAndCounted) {
+TEST_F(Sinks, S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    ASSERT_NE(ctrl_plat.face.sink, nullptr) << "S4 the platform binds the face's sink port";
-    const std::size_t at = bus().log.size();
-    const std::uint32_t dropped = ctrl_plat.csr_dropped;
-    ctrl_plat.face.sink(ctrl_plat.face.sink_ctx, 1u, 3u, 0x0205022002006000ull);
-    EXPECT_EQ(bus().log.size(), at) << "S4 another interface's write reaches no window";
-    EXPECT_EQ(ctrl_plat.csr_dropped, dropped + 1u) << "S4 and is counted";
-    ctrl_plat.face.sink(ctrl_plat.face.sink_ctx, 0u, 3u, 0x0205022002006000ull);
-    const Window w = window(at, kOtherSelection);
-    ASSERT_TRUE(w.holds(3u)) << "S4 interface 0's write reaches its window";
-    EXPECT_EQ(w.format(3u), 0x0205022002006000ull) << "S4 interface 0's write reaches its window";
-    EXPECT_EQ(ctrl_plat.csr_dropped, dropped + 1u) << "S4 interface 0's write is not counted";
+    const auto want = contexts();
+    const unsigned n = want.empty() ? 0u : want.back();
+    const std::uint64_t to = want.empty() ? inputs().at(0).format : kTwoChannels;
+    const std::size_t from = bus().log.size();
+    far.ack = false;
+    std::vector<std::uint8_t> payload(12, 0);
+    payload[1] = kStreamInput;
+    payload[3] = static_cast<std::uint8_t>(n);
+    for (unsigned k = 0; k < 8; ++k) payload[4 + k] = static_cast<std::uint8_t>(to >> (8u * (7u - k)));
+    ASSERT_TRUE(send(0x0008u, payload, 0x0301u)) << "S4 the command reaches the mailbox";
+    for (unsigned turn = 0; turn < 200u && statuses(0x0008u, 0x0301u).empty(); ++turn) ctrl_plat_step();
+    steps(50);
+    const auto first = statuses(0x0008u, 0x0301u);
+    ASSERT_FALSE(first.empty()) << "S4 the change waits, IN_PROGRESS";
+    EXPECT_EQ(first.front(), static_cast<int>(kInProgress)) << "S4 the change waits, IN_PROGRESS (" << first.size()
+                                                             << " responses, last " << first.back() << ")";
+    EXPECT_TRUE(window(from, kOtherSelection).selected.empty())
+        << "S4 a change waiting for its acknowledgement writes no context";
+    const std::size_t acked = bus().log.size();
+    far.ack = true;
+    mbx_model_face_ack(&fabric, 0);
+    EXPECT_EQ(final_status(0x0008u, 0x0301u), static_cast<int>(kSuccess))
+        << "S4 once acknowledged the change is done again and answered SUCCESS";
+    steps(20);
+    const Window w = window(acked, kOtherSelection);
+    if (want.empty()) {
+        EXPECT_TRUE(w.selected.empty()) << "S4 input 0's change writes no context";
+        return;
+    }
+    ASSERT_TRUE(w.holds(n)) << "S4 the change done again reaches input " << n << "'s context";
+    EXPECT_EQ(w.format(n), to) << "S4 the change done again reaches input " << n << "'s context";
+    EXPECT_TRUE(committed_between(acked, w.at.at(n))) << "S4 written after a commit the datapath acknowledged";
+    EXPECT_TRUE(w.restored) << "S4 the selection another writer left is written back";
+}
+
+TEST_F(Sinks, S5AChangeOfAnotherKindLeavesEveryContextInForce) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    // SET_NAME (IEEE 1722.1-2021 7.4.17.1) of the ENTITY's name: a persisted setting, which the face commits
+    std::vector<std::uint8_t> name(72, 0);
+    name[8] = 'S';
+    name[9] = '5';
+    std::size_t from = bus().log.size();
+    std::size_t commits = far.commits.size();
+    ASSERT_TRUE(send(0x0010u, name, 0x0401u)) << "S5 SET_NAME reaches the mailbox";
+    EXPECT_EQ(final_status(0x0010u, 0x0401u), static_cast<int>(kSuccess)) << "S5 SET_NAME is accepted";
+    steps(20);
+    EXPECT_GT(far.commits.size(), commits) << "S5 SET_NAME's setting is committed";
+    every_context_in_force(from, "SET_NAME");
+    // STREAM_OUTPUT 0's SET_STREAM_FORMAT, its first, so a change the face publishes
+    const aecp_descriptor* out = nullptr;
+    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+    for (std::size_t k = 0; k < model->count; ++k) {
+        const aecp_descriptor& d = model->descriptors[k];
+        if (d.type == 6u && d.index == 0u && d.configuration == ctrl_plat.aecp.core.configuration) out = &d;
+    }
+    ASSERT_NE(out, nullptr) << "S5 the image holds STREAM_OUTPUT 0";
+    from = bus().log.size();
+    commits = far.commits.size();
+    EXPECT_EQ(set_format(6u, 0u, be(out->value + kFormatAt, 8), 0x0402u), static_cast<int>(kSuccess))
+        << "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT is accepted";
+    steps(20);
+    EXPECT_GT(far.commits.size(), commits) << "S5 the output's format is committed";
+    every_context_in_force(from, "a STREAM_OUTPUT's SET_STREAM_FORMAT");
 }
 
 }  // namespace

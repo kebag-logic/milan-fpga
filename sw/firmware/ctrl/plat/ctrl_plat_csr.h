@@ -22,6 +22,7 @@
 #define CTRL_PLAT_CSR_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -146,6 +147,18 @@ bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns);
 // CSR holds off the selection's write until the engine has taken FMT_HI, so
 // both words are in the context when the call returns.
 void ctrl_plat_csr_sink_format(uintptr_t csr, unsigned n, uint64_t format);
+
+// Whether a descriptor of configuration `configuration` (IEEE 1722.1-2021
+// 7.2.6; `value` its `length` bytes, from descriptor_type) is a STREAM_INPUT
+// with a receive-monitor context of its own in this window, and then its
+// current format into *format (#946): an AAF input (IEEE 1722-2016 Table 6,
+// subtype 0x02) above index 0 on AVB_INTERFACE 0, the interface whose
+// datapath this window is, in configuration `in_force`, the one in force.
+// Stream 0's format reaches the monitor from the face's publication, a CRF
+// input has its own receiver, and a descriptor too short to hold its interface
+// field is no input here.
+bool ctrl_plat_csr_sink_context(const uint8_t *value, size_t length, uint16_t configuration, uint16_t in_force,
+				uint64_t *format);
 
 #ifdef __cplusplus
 }
