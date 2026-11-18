@@ -142,8 +142,11 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: 8x8/1if's record.srp there, 35,547 CPU cycles (the valid-destinations arm, srp-talker-held), 375 us by the rule,
 #: and ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US with it (srp_unit), the unit following its record on the image that
 #: carries it (#665's ruling of 2026-11-18, re-ruled, item 2b).
-OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 180, 'record.srp': 375}}
-OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
+#: record.adp 12,779 CPU cycles (arm A, backlog-adp-refill, on the image that carries the unit at 375 us), 135 us,
+#: each by the rule.
+OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 180, 'record.srp': 375}}
+OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, unit 375 us'),
                             'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss'),
                             'record.srp': (35_547, 'the valid-destinations arm, srp-talker-held')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
@@ -712,12 +715,14 @@ def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
     escaped = []
     if own_findings(root):
         return ["8x8/1if's own ADP record not stated", "8x8/1if's own ADP record not its measurement's by the rule"]
+    # the measurement's statement by the rule, read from OWN_MEASURED, so a measurement restated moves the control too
+    measured = rule_us(OWN_MEASURED['8x8/1if']['record.adp'][0])
     with mock.patch.dict(OWN, {'8x8/1if': {}}):
-        if not any("8x8/1if: record.adp is 125 us with tsn-c-stack#32, under its measurement's 130 us" in f
+        if not any(f"8x8/1if: record.adp is 125 us with tsn-c-stack#32, under its measurement's {measured} us" in f
                    for f in findings(root, base, fit)):
             escaped.append("8x8/1if's own ADP record not stated")
     with mock.patch.dict(OWN, {'8x8/1if': {'record.adp': 125}}):
-        if not any("8x8/1if: its own record.adp is stated 125 us, not its measurement's 130 us" in f
+        if not any(f"8x8/1if: its own record.adp is stated 125 us, not its measurement's {measured} us" in f
                    for f in findings(root, base, fit)):
             escaped.append("8x8/1if's own ADP record not its measurement's by the rule")
     return escaped
