@@ -100,9 +100,10 @@ def findings(i: Inputs) -> list[str]:
 
 
 def controls(root: Path) -> list[str]:
-    """The planted defects not refused, each refused by name and shortening a held row at 1x1/1if: an unpaced edit
-    charged at the non-edit record (the term taken as the pace's count where no pace holds), unpaced; and an unpaced
-    SET_CONFIGURATION charged as ordinary (the class's record its edits' alone, the command left out of the pace)."""
+    """The planted defects not refused, each refused by name and shortening ACMP's row: an unpaced edit charged at the
+    non-edit record (the term taken as the pace's count where no pace holds), unpaced, at 1x1/1if; and an unpaced
+    SET_CONFIGURATION charged as ordinary (the class's record its edits' alone, the command left out of the pace), at
+    the first point whose SET_CONFIGURATION is the class's dearer member."""
     from unittest import mock
 
     import rows_tiers as rt
@@ -117,11 +118,17 @@ def controls(root: Path) -> list[str]:
         planted = rt.solve('ACMP', bare, rt.BUILT)[0]
     if not named or plain is None or planted is None or not planted < plain:
         escaped.append(CONTROLS[0])
-    plain = rt.solve('ACMP', i, rt.BUILT)[0]
-    edits_only = {**EDIT_RECORD_US, '1x1/1if': PACED['1x1/1if']['a one-row edit']}
+    # The second is planted where an accepted SET_CONFIGURATION is the class's dearer member, so that leaving it out
+    # moves the class's record: 1x1/1if while it is there, else the first point where it is (at 1x1/1if a one-row
+    # edit measured past it on #665's final head, where the defect would change no figure)
+    point = next(p for p in ('1x1/1if', '8x8/2if', '8x8/1if')
+                 if PACED[p]['an accepted SET_CONFIGURATION'] > PACED[p]['a one-row edit'])
+    at = i if point == '1x1/1if' else rt.point_inputs(root, point)
+    plain = rt.solve('ACMP', at, rt.BUILT)[0]
+    edits_only = {**EDIT_RECORD_US, point: PACED[point]['a one-row edit']}
     with mock.patch.object(module, 'EDIT_RECORD_US', edits_only):
-        named = any(f.startswith('an accepted SET_CONFIGURATION charged below its record') for f in findings(i))
-        planted = rt.solve('ACMP', i, rt.BUILT)[0]
+        named = any(f.startswith('an accepted SET_CONFIGURATION charged below its record') for f in findings(at))
+        planted = rt.solve('ACMP', at, rt.BUILT)[0]
     if not named or plain is None or planted is None or not planted < plain:
         escaped.append(CONTROLS[1])
     return escaped
