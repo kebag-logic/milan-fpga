@@ -157,46 +157,31 @@ static struct {
 	bool redo;
 } sinks;
 
-// Whether descriptor d has a context of its own in the configuration in
-// force, and its current format
-static bool sink_context(const struct aecp_descriptor *d, uint64_t *format)
+// The model's STREAM_INPUTs with a context of their own in the configuration
+// in force whose context a change of `kind` moves: a SET_STREAM_FORMAT's its
+// own, a SET_CONFIGURATION's every one (it refuses any bound input,
+// aecp_commands.c), any other change's none. Each takes its current format
+// there (write), or the result is whether one is bound.
+static bool sinks_of(enum aecp_change kind, uint16_t type, uint16_t index, bool write)
 {
-	return ctrl_plat_csr_sink_context(d->value, d->length, d->configuration, ctrl_plat.aecp.core.configuration,
-					  format);
-}
-
-// The model's STREAM_INPUTs with a context take their current format there:
-// every one (SINK_ALL), or the one of descriptor index `only`.
-#define SINK_ALL 0x10000u
-static void sink_write(uint32_t only)
-{
-	const struct aecp_model *m = ctrl_plat.aecp.core.cfg.model;
-	for (size_t n = 0; n < m->count; ++n) {
-		const struct aecp_descriptor *d = &m->descriptors[n];
-		uint64_t format = 0;
-		if ((only == SINK_ALL || d->index == only) && sink_context(d, &format)) {
-			ctrl_plat_csr_sink_format(ctrl_plat.env->csr, d->index, format);
-		}
-	}
-}
-
-// Whether the change the core holds undone may move the context of a bound
-// input: that input's format (SET_STREAM_FORMAT), or every input's
-// (SET_CONFIGURATION, which refuses any bound input, aecp_commands.c)
-static bool sink_held(const struct aecp *core)
-{
+	const struct aecp *core = &ctrl_plat.aecp.core;
 	const struct aecp_model *m = core->cfg.model;
-	bool every = core->noted == AECP_CHANGE_CONFIGURATION;
-	bool one = core->noted == AECP_CHANGE_FORMAT && core->noted_type == STREAM_INPUT;
+	bool every = kind == AECP_CHANGE_CONFIGURATION;
+	bool one = kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT;
 	bool bound = false;
 	for (size_t n = 0; n < m->count; ++n) {
 		const struct aecp_descriptor *d = &m->descriptors[n];
 		uint64_t format = 0;
-		if ((every || (one && d->index == core->noted_index)) && sink_context(d, &format)) {
-			// an input with a context is one of ACMP's sinks: the generated shape's
-			struct acmp_sink_view v = {0};
-			(void)acmp_view(&ctrl_plat.app.acmp.acmp, d->index, &v);
-			bound |= v.bound;
+		if ((every || (one && d->index == index)) &&
+		    ctrl_plat_csr_sink_context(d->value, d->length, d->configuration, core->configuration, &format)) {
+			if (write) {
+				ctrl_plat_csr_sink_format(ctrl_plat.env->csr, d->index, format);
+			} else {
+				// an input with a context is one of ACMP's sinks: the generated shape's
+				struct acmp_sink_view v = {0};
+				(void)acmp_view(&ctrl_plat.app.acmp.acmp, d->index, &v);
+				bound |= v.bound;
+			}
 		}
 	}
 	return bound;
@@ -204,29 +189,26 @@ static bool sink_held(const struct aecp *core)
 
 // The face's applied port, wrapped: a waiting change that would move a bound
 // input's context is not applied. Applied, the core does it again at once,
-// before any other port (aecp.c, the waiting command)
+// before any other port (aecp.c, the waiting command: the change it noted)
 static bool sink_applied(void *ctx)
 {
 	const struct aecp *core = &ctrl_plat.aecp.core;
-	bool applied = sinks.applied(ctx) && !(core->waiting && sink_held(core));
+	bool applied = sinks.applied(ctx) &&
+		       !(core->waiting && sinks_of(core->noted, core->noted_type, core->noted_index, false));
 	sinks.redo = applied && core->waiting;
 	return applied;
 }
 
 // The face's change port, wrapped: a change the core keeps, one done again or
 // one the face applied (else the core waits, the change undone), moves its
-// contexts now: an input's format its own, a configuration every one
+// contexts now
 static void sink_changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t index)
 {
 	bool redo = sinks.redo;
 	sinks.redo = false;
 	sinks.changed(ctx, kind, type, index);
 	if (redo || sinks.applied(ctx)) {
-		if (kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT) {
-			sink_write(index);
-		} else if (kind == AECP_CHANGE_CONFIGURATION) {
-			sink_write(SINK_ALL);
-		}
+		(void)sinks_of(kind, type, index, true);
 	}
 }
 
@@ -385,8 +367,9 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	if (!ctrl_app_open_aecp(&p->bridge)) {
 		return reach(p, CTRL_PLAT_AECP, "Milan split: AECP not released; entity disabled\r\n");
 	}
-	// every interface acknowledged the face: each input's format in force, before any stream is bound (#946)
-	sink_write(SINK_ALL);
+	// every interface acknowledged the face: each input's format in force, before any stream is bound (#946),
+	// every one, as a configuration's change writes them
+	(void)sinks_of(AECP_CHANGE_CONFIGURATION, 0, 0, true);
 	// Step 9: ADP last, once AECP and ACMP accept requests
 	ctrl_app_release_adp(&p->app);
 	return reach(p, CTRL_PLAT_READY, CTRL_PLAT_READY_LINE);
