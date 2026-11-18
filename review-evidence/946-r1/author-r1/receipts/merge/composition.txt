@@ -1,0 +1,40 @@
+# step 12 composition, scratch clone only: git merge-tree --write-tree b1f1161b 0749e0d8
+train head: b1f1161b  lane head: 0749e0d8
+235e65fec425ea65086235d3aaf1aea8d9ab9cb9
+exit: 0
+composition commit (scratch only): 8dbd0a48
+
+# the composition's diff against the train head
+ scripts/measure_test_evidence_readers.py      |   6 +
+ sw/firmware/ctrl/plat/README.md               |   9 +-
+ sw/firmware/ctrl/plat/ctrl_plat.c             |  86 ++++-
+ sw/firmware/ctrl/plat/ctrl_plat_csr.c         |  36 ++
+ sw/firmware/ctrl/plat/ctrl_plat_csr.h         |  26 ++
+ sw/firmware/ctrl/test/ctrl_mutants.py         |   5 +-
+ sw/firmware/ctrl/test/plat_arms.py            |  45 +++
+ sw/firmware/ctrl/test/sink_mutants.py         | 106 ++++++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py   |   7 +
+ sw/firmware/ctrl/test/test_plat.cpp           |  72 ++++
+ sw/firmware/ctrl/test/test_plat_sinks.cpp     | 510 ++++++++++++++++++++++++++
+ tb/verilator/avtp_rxmon/Makefile              |  15 +-
+ tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv |   7 +-
+ tb/verilator/avtp_rxmon/ctxfmt_mutants.py     | 137 +++++++
+ tb/verilator/avtp_rxmon/sim_ctxfmt.cpp        | 309 ++++++++++++++++
+ 15 files changed, 1368 insertions(+), 8 deletions(-)
+
+# release-image inputs touched (hdl syn constraints configs avdecc sw/litex sw/firmware/milan_baremetal sw/builder, submodules):
+(none)
+
+# CPU-budget image inputs touched (aecp, mbx, loop, app, srp, maap, acmp, adp, ctrl_nvm, test/ctrl_aecp_image.c, test/ctrl_srp_image.py, tb/verilator/ctrl_service_budget):
+(none)
+
+# the platform files the CPU-budget images link or include (mbx_plat_mmio.c, ctrl_mem.c, the split link script, hot list and reset entry, the MMIO and DMA headers, ctrl_cc.h):
+(none)
+
+# which sources include the changed headers (ctrl_plat.h, ctrl_plat_csr.h): platform-internal only
+  sw/firmware/ctrl/plat/ctrl_plat.c
+  sw/firmware/ctrl/plat/ctrl_plat_console.c
+  sw/firmware/ctrl/plat/ctrl_plat_csr.c
+  sw/firmware/ctrl/plat/ctrl_plat_main.c
+  sw/firmware/ctrl/plat/ctrl_plat_csr.h
+  sw/firmware/ctrl/plat/ctrl_plat.h

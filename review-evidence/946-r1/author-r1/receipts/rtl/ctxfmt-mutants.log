@@ -1,0 +1,12 @@
+[PASS] the unmutated context engine still passes the N=8 format contract
+[PASS] mutant caught: bind walk provisions every stream: streams above 0 take fmt0_i's words at the bind - breaks "[CF3] a PDU of the input's own channel count is accepted"
+    it broke 42 check(s); first: [CF1] accept verdicts for the in-format PDU: input 1
+[PASS] mutant caught: stream 0's alias: a stream above 0 is judged against fmt0_i's channel count - breaks "[CF3] a PDU of the input's own channel count is accepted"
+    it broke 28 check(s); first: [CF3] a PDU of the input's own channel count is accepted: input 1
+[PASS] mutant caught: another context: the window's write lands in the neighbouring stream's words - breaks "[CF2] the first in-format PDU is accepted"
+    it broke 20 check(s); first: [CF2] the first in-format PDU is accepted: input 1
+[PASS] mutant caught: an unbind's walk writes over the format: the unlock's MON_STATE write lands in FMT_HI - breaks "[CF5] the rebound input's first PDU is accepted"
+    it broke 14 check(s); first: [CF5] the rebound input's first PDU is accepted: input 1
+
+5 checks: 5 PASS, 0 FAIL
+rc=0

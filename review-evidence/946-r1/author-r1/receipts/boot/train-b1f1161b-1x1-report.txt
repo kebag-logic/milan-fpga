@@ -1,0 +1,9 @@
+1:HEAD b1f1161b start 20:29:07
+18:NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+19:BOOT ready at bus cycle 2798059 (2798059 CPU cycles): 27.981 ms against 20000 ms; banners 1
+20:TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+21:UART milan_status: 305 bytes; span 5.384 ms; to the first byte 0.643 ms; longest gap between bytes 0.304 ms; against 500 ms and T_svc 20 ms
+22:UART milan_gettime: 27 bytes; span 0.405 ms; to the first byte 0.237 ms; longest gap between bytes 0.148 ms; against 500 ms and T_svc 20 ms
+23:UART milan_gettime: 27 bytes; span 0.403 ms; to the first byte 0.194 ms; longest gap between bytes 0.189 ms; against 500 ms and T_svc 20 ms
+42:ctrl_split_boot: PASS (0 finding(s))
+43:rc=0 END 20:32:28

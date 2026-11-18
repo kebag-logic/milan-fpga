@@ -1,0 +1,23 @@
+# the platform's open write removed (the shipped firmware writes no context), 8x8/1if and 1x1/1if
+===== platsinks8 rc=1
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 1 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 2 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 3 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 4 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 5 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 6 holds none
+  [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 7 holds none
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 1 ==
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)
+===== platsinks1 rc=0
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 5   failures: 0 ==
+  verdict: PASS (5 tests, 0 failures, exit 0)
+# the format-change wrapper removed, 8x8/1if
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 3 holds none
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 4 holds none
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 5 holds none
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 6 holds none
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 7 holds none
+  [FAIL] Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT writes no other context
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 3 ==
+  verdict: FAIL (its tallies report 3 failure(s) across 5 checks, exit 1)

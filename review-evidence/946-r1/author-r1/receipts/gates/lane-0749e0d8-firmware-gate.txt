@@ -1,0 +1,81 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 on the lane 0749e0d8 (code and tests as 66c6edf3)
+suite verdicts PASS: 75, FAIL: 0, REFUSED: 0
+planted defects reported caught ([ok] lines, the control, AECP and SRP campaigns): 1546; ESCAPED: 0
+mutants: 736 of 736 caught
+test_ctrl_firmware: PASS
+rc=0
+
+# the arms' tallies
+== ADP debug re-entry: checks: 122   failures: 0 ==
+== ADP release re-entry: checks: 122   failures: 0 ==
+== AECP core: checks: 151   failures: 0 ==
+== AECP core: checks: 1   failures: 0 ==
+== AECP core: checks: 2   failures: 0 ==
+== AECP debug callback contract: checks: 1   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== ctrl ACMP adapter on the two-interface contract (host model): checks: 38   failures: 0 ==
+== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+== ctrl ACMP core and adapter (fake ports and host model): checks: 165   failures: 0 ==
+== ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+== ctrl ADP ACMP MAAP SRP composition: checks: 76   failures: 0 ==
+== ctrl ADP ACMP MAAP SRP composition: checks: 7   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+== ctrl ADP MAAP SRP composition: checks: 10   failures: 0 ==
+== ctrl ADP MAAP SRP composition: checks: 8   failures: 0 ==
+== ctrl ADP slice (fake ports and host model): checks: 54   failures: 0 ==
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+== ctrl H-MAAP mailbox: checks: 21   failures: 0 ==
+== ctrl H-MAAP mailbox: checks: 22   failures: 0 ==
+== ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+== ctrl MAAP Annex B: checks: 37   failures: 0 ==
+== ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+== ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==
+== ctrl mailbox driver with the record mover (host register model): checks: 9   failures: 0 ==
+== ctrl memory primitives (host): checks: 5   failures: 0 ==
+== ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+== ctrl port, driver and loop (host model): checks: 51   failures: 0 ==
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+== ctrl service bounds: checks: 46   failures: 0 ==
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 11   failures: 0 ==
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 11   failures: 0 ==
+== ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+== ctrl split platform CSR window and console (host bus): checks: 12   failures: 0 ==
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+== ctrl split platform RV32I build: checks: 1   failures: 0 ==
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 5   failures: 0 ==
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 5   failures: 0 ==
+== ctrl SRP debug guard: checks: 3   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== ctrl SRP mailbox: checks: 74   failures: 0 ==
+== ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+== ctrl SRP receive recovery: checks: 21   failures: 0 ==
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+== ctrl SRP Talker declarations: checks: 12   failures: 0 ==
+== ctrl units on the HAL and port-layer mocks: checks: 26   failures: 0 ==
+== mbx (host model): checks: 25   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+
+# the sink defects
+[ok] mutant sink-open-unwritten (platsinks8): 7 check(s) failed
+[ok] mutant sink-change-unfollowed (platsinks8): 18 check(s) failed
+[ok] mutant sink-open-before-acknowledgement (platsinks8): 1 check(s) failed
+[ok] mutant sink-change-before-commit (platsinks8, platsinks8): 4 check(s) failed
+[ok] mutant sink-change-unacknowledged (platsinks8): 2 check(s) failed
+[ok] mutant sink-owed-unwritten (platsinks8): 17 check(s) failed
+[ok] mutant sink-owed-before-acknowledgement (platsinks8): 1 check(s) failed
+[ok] mutant sink-owed-from-its-own-commit (platsinks8): 8 check(s) failed
+[ok] mutant sink-input-zero-written (plat, platsinks8): 5 check(s) failed
+[ok] mutant sink-crf-input-written (plat, platsinks8): 5 check(s) failed
+[ok] mutant sink-other-type-written (plat): 1 check(s) failed
+[ok] mutant sink-other-interface-written (plat): 1 check(s) failed
+[ok] mutant sink-other-configuration-written (plat): 1 check(s) failed
+[ok] mutant sink-short-descriptor-read (plat): 1 check(s) failed
+[ok] mutant sink-format-halves-swapped (plat, platsinks8): 25 check(s) failed
+[ok] mutant sink-talker-selected (plat, platsinks8): 27 check(s) failed
+[ok] mutant sink-selection-not-restored (plat, platsinks8): 8 check(s) failed
+[ok] mutant sink-selection-not-read (plat): 2 check(s) failed
+[ok] mutant set-format-bound-accepted (platsinks8): 2 check(s) failed

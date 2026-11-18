@@ -1,0 +1,12 @@
+# the 8x8 split boot simulation, the train head b1f1161b against the composition (b180fda5; its image inputs are d6d71354's)
+train:       ready at bus cycle 6,713,381 (67.134 ms), 21 window writes before ready
+composition: ready at bus cycle 6,724,060 (67.241 ms), 49 window writes before ready
+delta: +28 writes (SEL, FMT_LO, FMT_HI, SEL back for each of inputs 1 to 7), +10,679 bus cycles (0.107 ms) to ready, against the 20,000 ms bound
+the writes themselves: bus cycles 6,454,509 to 6,457,367 (2,858)
+the first 21 writes: identical on both (see the two csr-writes files)
+diff of the first 21 (offset, value): none
+
+# the 1x1 split boot simulation, the train head b1f1161b against the composition d6d71354
+train:       ready at bus cycle 2,798,059 (27.981 ms), 21 window writes before ready
+composition: ready at bus cycle 2,802,219 (28.022 ms), 21 window writes before ready
+delta: no write (no AAF input above 0 at 1x1), +4,160 bus cycles (0.042 ms) to ready: the model's scan
