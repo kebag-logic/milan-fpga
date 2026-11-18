@@ -27,12 +27,12 @@ SLOTS = 'for (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS);
 
 ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
     ('notice-source-of-the-first-interface', 'aecp.c',
-     'address(frame, r, a->cfg.mac[i]);',
-     'address(frame, r, a->cfg.mac[0]);',
+     'source(frame, a->cfg.mac[i]);',
+     'source(frame, a->cfg.mac[0]);',
      (CORE, ADDRESSED),
      (FAN, "through the fan port carries its recipient's addresses and sequence")),
     ('notice-sequence-low-byte-unwritten', 'aecp.c',
-     '\tf[35] = (uint8_t)r->sequence;\n',
+     '\tf[35] = (uint8_t)sequence;\n',
      '',
      (CORE, ADDRESSED)),
     ('notice-controller-halves-swapped', 'aecp.c',
