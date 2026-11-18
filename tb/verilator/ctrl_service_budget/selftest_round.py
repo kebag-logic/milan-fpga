@@ -214,10 +214,13 @@ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: i
              held(limit + 1, shape) == [('base', limit + 1)] and held(limit, shape.interfaces) == [('base', limit)],
              str((own, count))),
             ("8x8/1if's load takes its polls' base and items at its shape's stated costs in both columns, its records "
-             "and events at 8x8/2if's (load_grade.stated, NEAREST)",
+             "and events at 8x8/2if's, each raised to 8x8/1if's own where OWN states one (load_grade.stated, NEAREST; "
+             "its SRP record its own since #665's ruling of 2026-11-18, re-ruled, item 2b)",
              all(load_grade.stated(scenario.ROOT, '8x8/1if', column)['base' if k == 'base' else f'item.{k}'] == own[k]
                  for column in (load_grade.STATED_US, load_grade.STATED_US_DONOR) for k in load_grade.ITEMS) and
-             load_grade.stated(scenario.ROOT, '8x8/1if')['record.srp'] == load_grade.GRADED['8x8/2if']['record.srp'],
+             all(load_grade.stated(scenario.ROOT, '8x8/1if')[k] ==
+                 max(us, load_grade.OWN.get('8x8/1if', {}).get(k, 0))
+                 for k, us in load_grade.GRADED['8x8/2if'].items() if k.startswith(('record.', 'event.'))),
              str(load_grade.stated(scenario.ROOT, '8x8/1if')))]
 
 
