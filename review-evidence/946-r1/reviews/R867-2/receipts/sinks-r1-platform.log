@@ -1,0 +1,186 @@
+=== endstation_ax7101_8x8: rc=1
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:673: Failure
+Expected equality of these values:
+  w.lo.size()
+    Which is: 7
+  1u
+    Which is: 1
+S4 that input's context alone is written
+
+  [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 that input's context alone is written
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:692: Failure
+Value of: window(from, kOtherSelection).selected.empty()
+  Actual: false
+Expected: true
+S5 SET_NAME writes no context
+
+  [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:713: Failure
+Value of: window(from, kOtherSelection).selected.empty()
+  Actual: false
+Expected: true
+S5 a STREAM_OUTPUT's SET_STREAM_FORMAT writes no context
+
+  [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 a STREAM_OUTPUT's SET_STREAM_FORMAT writes no context
+[  FAILED  ] Sinks.S5AChangeOfAnotherKindWritesNoContext (1 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:745: Failure
+Expected equality of these values:
+  at_bound(kSetStreamFormat, 0x0601u)
+    Which is: -2
+  static_cast<int>(kEntityMisbehaving)
+    Which is: 10
+S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:747: Failure
+Expected equality of these values:
+  inputs().at(n).format
+    Which is: 145524899430031360
+  was
+    Which is: 145524899455197184
+S6 the input keeps its format
+
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the input keeps its format
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:749: Failure
+Value of: !w.holds(n) || w.format(n) == was
+  Actual: false
+Expected: true
+S6 the input's context keeps its format
+
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the input's context keeps its format
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:533: Failure
+Expected equality of these values:
+  seen.stale
+    Which is: 73
+  0u
+    Which is: 0
+S6 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+
+  [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+[  FAILED  ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:774: Failure
+Expected equality of these values:
+  at_bound(kSetStreamFormat, 0x0701u)
+    Which is: -2
+  static_cast<int>(kEntityMisbehaving)
+    Which is: 10
+S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:776: Failure
+Expected equality of these values:
+  inputs().at(n).format
+    Which is: 145524899430031360
+  was
+    Which is: 145524899455197184
+S7 the input keeps its format
+
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 the input keeps its format
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:777: Failure
+Expected equality of these values:
+  seen.words(n)
+    Which is: 145524899430031360
+  was
+    Which is: 145524899455197184
+S7 the input's context keeps its format
+
+  [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 the input's context keeps its format
+[  FAILED  ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (1 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:848: Failure
+Expected equality of these values:
+  at_bound(kSetConfiguration, 0x0a01u)
+    Which is: -2
+  static_cast<int>(kEntityMisbehaving)
+    Which is: 10
+S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:854: Failure
+Expected equality of these values:
+  final_status(kSetConfiguration, 0x0a02u)
+    Which is: -1
+  static_cast<int>(kSuccess)
+    Which is: 0
+S10 SET_CONFIGURATION is accepted
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION is accepted
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 2 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 2 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 3 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 3 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 4 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 4 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 5 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 5 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 6 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 6 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:543: Failure
+Failed
+S10 SET_CONFIGURATION rewrites every context at its format in force: input 7 holds none
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 7 holds none
+<clone>/sw/firmware/ctrl/test/test_plat_sinks.cpp:549: Failure
+Expected equality of these values:
+  w.lo.size()
+    Which is: 0
+  contexts().size()
+    Which is: 7
+S10 SET_CONFIGURATION writes no other context
+
+  [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION writes no other context
+[  FAILED  ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (2 ms)
+[----------] 10 tests from Sinks (11 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (11 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[  FAILED  ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[  FAILED  ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[  FAILED  ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[  FAILED  ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+
+ 5 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 10   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 10 checks, exit 1)

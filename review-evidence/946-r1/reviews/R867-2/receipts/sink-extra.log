@@ -1,0 +1,12 @@
+[ESCAPED] mutant rv-redo-outside-wait (platsinks8): 8 check(s) failed, none named platsinks8: Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses on 'S2'
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[ESCAPED] mutant rv-redo-never-cleared (platsinks8): 0 check(s) failed, none named platsinks8: Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce on 'S4'
+[ok] mutant rv-immediate-unwritten (platsinks8): 14 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ESCAPED] mutant rv-held-published (platsinks8): 0 check(s) failed, none named platsinks8: Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered on 'S7'
+[ok] mutant rv-held-stream (platsinks8): 3 check(s) failed
+    first: [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant rv-refuse-every-wait (platsinks8): 7 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 once acknowledged the change is done again and answered SUCCESS
+[ESCAPED] mutant rv-held-any-kind (platsinks8): 0 check(s) failed, none named platsinks8: Sinks.S5AChangeOfAnotherKindWritesNoContext on 'S5'
+mutants: 3 of 7 caught

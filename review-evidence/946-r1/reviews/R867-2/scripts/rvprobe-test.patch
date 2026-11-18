@@ -1,0 +1,43 @@
+--- a/sw/firmware/ctrl/test/test_plat_sinks.cpp	2026-11-18 23:40:27.786643648 +0100
++++ b/sw/firmware/ctrl/test/test_plat_sinks.cpp	2026-11-18 23:49:48.947657475 +0100
+@@ -858,3 +858,40 @@
+ }
+ 
+ }  // namespace
++
++// Reviewer probe (not part of the head): the wrap's refusal and writes are keyed on the change's kind and type,
++// at an index that has a context. STREAM_OUTPUT n's SET_STREAM_FORMAT while STREAM_INPUT n is bound is taken and
++// writes no context; SET_NAME of the bound STREAM_INPUT n writes no context.
++TEST_F(Sinks, RvOutputAndNameAtAContextIndex) {
++    ASSERT_TRUE(ready());
++    SINKS_CONTEXT_OR_RETURN("RV")
++    const unsigned n = want.back();
++    const aecp_descriptor* out = nullptr;
++    const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
++    for (std::size_t k = 0; k < model->count; ++k) {
++        const aecp_descriptor& d = model->descriptors[k];
++        if (d.type == 6u && d.index == n && d.configuration == ctrl_plat.aecp.core.configuration) out = &d;
++    }
++    ASSERT_NE(out, nullptr) << "RV the image holds STREAM_OUTPUT n";
++    ASSERT_TRUE(bind(n, true)) << "RV input n is bound";
++    std::size_t from = bus().log.size();
++    far.ack = false;
++    ASSERT_TRUE(send(kSetStreamFormat, format_payload(6u, n, be(out->value + kFormatAt, 8)), 0x0b01u))
++        << "RV output n's SET_STREAM_FORMAT reaches the mailbox";
++    ASSERT_TRUE(held(kSetStreamFormat, 0x0b01u)) << "RV output n's SET_STREAM_FORMAT waits";
++    acknowledge();
++    EXPECT_EQ(final_status(kSetStreamFormat, 0x0b01u), static_cast<int>(kSuccess))
++        << "RV output n's SET_STREAM_FORMAT is taken while input n is bound";
++    steps(20);
++    EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "RV output n's format change writes no context";
++    std::vector<std::uint8_t> name(72, 0);
++    name[1] = 5u;
++    name[3] = static_cast<std::uint8_t>(n);
++    name[8] = 'R';
++    from = bus().log.size();
++    ASSERT_TRUE(send(0x0010u, name, 0x0b02u)) << "RV SET_NAME reaches the mailbox";
++    EXPECT_EQ(final_status(0x0010u, 0x0b02u), static_cast<int>(kSuccess)) << "RV SET_NAME of bound input n is taken";
++    steps(20);
++    EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "RV SET_NAME of input n writes no context";
++    coherent("RV");
++}
