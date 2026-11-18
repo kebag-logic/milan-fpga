@@ -54,7 +54,11 @@ static bool deliver(void *ctx)
         unsigned interface = app->acmp.acmp.cfg.source_interface[source];
         bool present = app->srp->loop == &app->loop && source < CTRL_SRP_SOURCES &&
                        app->srp->ifs[interface].listener_present[source];
-        (void)acmp_listener_registered(&app->acmp.acmp,interface,source,present);
+        // ACMP is told a Listener's presence where its flag differs: the call sets that flag and nothing else, so a
+        // pass that changes no source's paid it for every source each pass (#665)
+        if (app->acmp.acmp.sources[source].listener_registered != present) {
+            (void)acmp_listener_registered(&app->acmp.acmp,interface,source,present);
+        }
     }
     // Destroy detaches SRP. The caller stops service before releasing storage.
     if (app->srp->loop != &app->loop) {
