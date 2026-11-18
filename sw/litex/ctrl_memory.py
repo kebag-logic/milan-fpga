@@ -251,7 +251,7 @@ class Ledgered:
 #: on them, as #665's ruling of 2026-11-12 ledgered the size fixture's at its cap; and its 8x8 one-interface
 #: image, a product image, at 57.0, its entry at 56.5 with the receive monitor's formats (#946). Both entries
 #: past a cap are the owner's rule of 2026-11-15: an image past its entry raises it to its measured half tile, as
-#: named debt owed to S14 (#665). The
+#: named debt owed to the hybrid XIP work, the cold-code and descriptor flash migration (#665 decision D3). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
