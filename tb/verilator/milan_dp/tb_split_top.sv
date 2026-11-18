@@ -109,6 +109,18 @@ module tb_split_top
   output wire                     p_crf_emit,
   output wire  [7:0]              p_n_talkers,        //! the stream gate's width: the shape's talkers
   output wire                     p_crf_tk,           //! the shape has a CRF talker, the gate's top bit
+  //! ---- the map edit (#927): the live output map's words at STREAM_OUTPUT 0
+  //! channels 0 and 1, channel 1's cluster, the talkers' streaming levels,
+  //! and from the shape: STREAM_PORT_OUTPUT 0's cluster count and the
+  //! capture-source words of its clusters 0 to 2
+  output wire  [12:0]             p_omap_word0,
+  output wire  [12:0]             p_omap_word1,
+  output wire  [15:0]             p_omap_cluster1,
+  output wire  [15:0]             p_streaming,
+  output wire  [7:0]              p_opcls0,
+  output wire  [12:0]             p_ocsrc0,
+  output wire  [12:0]             p_ocsrc1,
+  output wire  [12:0]             p_ocsrc2,
   //! ---- u_tap: its receive tap and its byte side, the bench's own
   input  wire  [63:0]             tap_tdata,
   input  wire  [7:0]              tap_tkeep,
@@ -402,6 +414,14 @@ module tb_split_top
   localparam int unsigned NTK = $bits(u_dp.lwsrp_stream_gate);
   assign p_n_talkers    = 8'(NTK);
   assign p_crf_tk       = (u_dp.SRP_CRF_TK_C != 0);
+  assign p_omap_word0   = u_dp.cmap_flat_w[0 +: 13];
+  assign p_omap_word1   = u_dp.cmap_flat_w[13 +: 13];
+  assign p_omap_cluster1 = u_dp.amap_out_cluster_r[16 +: 16];
+  assign p_streaming    = 16'(u_dp.tkd_streaming_w);
+  assign p_opcls0       = 8'(u_dp.ADP_DMAP_OUT_PCLS_C[0]);
+  assign p_ocsrc0       = u_dp.ADP_DMAP_OUT_CSRC_C[32'(u_dp.ADP_DMAP_OUT_PCBASE_C[0])];
+  assign p_ocsrc1       = u_dp.ADP_DMAP_OUT_CSRC_C[32'(u_dp.ADP_DMAP_OUT_PCBASE_C[0]) + 1];
+  assign p_ocsrc2       = u_dp.ADP_DMAP_OUT_CSRC_C[32'(u_dp.ADP_DMAP_OUT_PCBASE_C[0]) + 2];
 
   // ---- u_tap: the tap alone, on the datapath clock --------------------------------
   KL_ctrl_split u_tap (

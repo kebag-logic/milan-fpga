@@ -179,8 +179,20 @@ module KL_mbx_dma
   assign left_next_w      = left_r - 11'(chunk_r);
   assign word_addr_next_w = word_addr_r + 30'(chunk_r);
 
-  logic [MBX_ADDR_W_C-1:0]   ring_addr_w;      //! the ring word index_r names
-  assign ring_addr_w     = base_r + MBX_ADDR_W_C'(index_r & mask_r);
+  //! the ring word an index names: the ring's word 0 and the index wrapped by the ring's mask
+  function automatic logic [MBX_ADDR_W_C-1:0] ring_word(input logic [MBX_ADDR_W_C-1:0] base,
+                                                         input logic [15:0] mask, input logic [15:0] index);
+    return base + MBX_ADDR_W_C'(index & mask);
+  endfunction
+
+  // The ring word index_r names, held in a register that moves with index_r:
+  // loaded with the start's operands and, at each answer, with the next
+  // index's word, so it is ring_word(base_r, mask_r, index_r) in every cycle.
+  // KL_mbx's host decode reads it for every register's write enable, so the
+  // mask and the add stay off those paths (#927).
+  logic [MBX_ADDR_W_C-1:0]   ring_addr_r;      //! the ring word index_r names
+  logic [MBX_ADDR_W_C-1:0]   ring_addr_next_w; //! the ring word after this cycle's answer
+  assign ring_addr_next_w = ring_word(base_r, mask_r, index_r + 16'd1);
 
   // ---- the ring side: one request, then its answer, as KL_mbx_wb presents them -----------
   // A request's address, direction and data hold through the cycle of its
@@ -215,7 +227,7 @@ module KL_mbx_dma
   always_comb begin : host_mux
     host_req_o   = 1'b0;
     host_we_o    = 1'b0;
-    host_addr_o  = ring_addr_w;
+    host_addr_o  = ring_addr_r;
     host_wdata_o = '0;
     host_be_o    = 4'hF;
     if (mover_w) begin
@@ -282,6 +294,7 @@ module KL_mbx_dma
       base_r       <= '0;
       mask_r       <= '0;
       index_r      <= '0;
+      ring_addr_r  <= '0;
       word_addr_r  <= '0;
       left_r       <= '0;
       tail_be_r    <= 4'hF;
@@ -305,6 +318,7 @@ module KL_mbx_dma
               base_r      <= ring_base_i;
               mask_r      <= ring_mask_i;
               index_r     <= ring_index_i;
+              ring_addr_r <= ring_word(ring_base_i, ring_mask_i, ring_index_i);
               word_addr_r <= mem_addr_i[31:2];
               left_r      <= start_words_w;
               tail_be_r   <= start_tail_be_w;
@@ -319,8 +333,9 @@ module KL_mbx_dma
         FILL_S: begin
           // the answer to last cycle's read: the word, and the next index
           if (hold_r) begin
-            index_r <= index_r + 16'd1;
-            count_r <= count_r + 5'd1;
+            index_r     <= index_r + 16'd1;
+            ring_addr_r <= ring_addr_next_w;
+            count_r     <= count_r + 5'd1;
             if (count_r + 5'd1 == chunk_r) begin
               count_r <= '0;
               state_r <= AW_S;
@@ -364,7 +379,10 @@ module KL_mbx_dma
             end
           end
           // the answer to last cycle's ring write: the next index
-          if (hold_r) index_r <= index_r + 16'd1;
+          if (hold_r) begin
+            index_r     <= index_r + 16'd1;
+            ring_addr_r <= ring_addr_next_w;
+          end
           if (chunk_end_w) begin
             left_r      <= left_next_w;
             word_addr_r <= word_addr_next_w;

@@ -180,6 +180,8 @@ module KL_aaf_clock_meter
   //! 16 PDUs = 96 samples = the CRF timestamp_interval (Milan v1.2 7.3.2)
   localparam int unsigned GRP_LOG2_C = 4;
   localparam int unsigned GRP_NS_C   = PDU_NS_C << GRP_LOG2_C;
+  //! the group's last PDU's nominal offset from its PDU 0
+  localparam int unsigned GRP_LAST_NS_C = GRP_NS_C - PDU_NS_C;
   //! snapshots every 256 group intervals (512 ms, the servo's window), 8 of
   //! them in the ring: the E8 span is 4.096 s
   localparam int unsigned SNAP_LOG2_C = 8;
@@ -301,11 +303,15 @@ module KL_aaf_clock_meter
   //! mr and tu references, seeded by an era's first consumed PDU
   logic        prev_mr_r, mr_seeded_r;
   logic        prev_tu_r, tu_seeded_r;
-  //! the open group: PDU 0's timestamp, the next PDU's nominal offset, the
-  //! running deviation sum, its group id
+  //! the open group: the next PDU's nominal timestamp, ts_0 + i x PDU_NS_C
+  //! exact mod 2^32, the running deviation sum, its group id. Each
+  //! deviation is then one subtraction, and the reference is loaded through
+  //! the adder of whichever of its two updates applies, not copied from
+  //! another register (#927: PDU 0's timestamp copied from s2_ts_r had no
+  //! logic level, so a placement across a clock-region boundary held it
+  //! under the hold floor)
   logic        grp_act_r;
-  logic [31:0] grp_ts0_r;
-  logic [20:0] grp_off_r;
+  logic [31:0] grp_ref_r;
   logic signed [19:0] grp_sum_r;
   logic [3:0]  grp_id_r;
   //! group-end candidate handed to the history sequence
@@ -320,7 +326,7 @@ module KL_aaf_clock_meter
   logic [7:0]  restart_cnt_r;
 
   //! deviation of the S1 PDU against its group's PDU 0 (exact mod 2^32)
-  wire [31:0] s1_dev_w = s1_ts_r - grp_ts0_r - 32'(grp_off_r);
+  wire [31:0] s1_dev_w = s1_ts_r - grp_ref_r;
   wire        s1_gap_w = have_seq_r && (s1_seq_r != last_seq_r + 8'd1);
   //! |deviation| as an unsigned magnitude (2^31 itself reads 2^31)
   wire [31:0] s2_abs_w = s2_dev_r[31] ? 32'(-s2_dev_r) : 32'(s2_dev_r);
@@ -415,7 +421,7 @@ module KL_aaf_clock_meter
       last_seq_r <= '0; have_seq_r <= 1'b0; settle_r <= '0;
       prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0;
       prev_tu_r <= 1'b0; tu_seeded_r <= 1'b0;
-      grp_act_r <= 1'b0; grp_ts0_r <= '0; grp_off_r <= '0; grp_sum_r <= '0;
+      grp_act_r <= 1'b0; grp_ref_r <= '0; grp_sum_r <= '0;
       grp_id_r <= '0;
       pc_v_r <= 1'b0; pc_ts0_r <= '0; pc_sum_r <= '0; pc_id_r <= '0;
       pdu_restart_r <= 1'b0;
@@ -482,8 +488,7 @@ module KL_aaf_clock_meter
         //! the jump bound restarts the history at once
         if (s2_pos_w == 4'd0) begin
           grp_act_r <= 1'b1;
-          grp_ts0_r <= s2_ts_r;
-          grp_off_r <= 21'(PDU_NS_C);
+          grp_ref_r <= s2_ts_r + 32'(PDU_NS_C);
           grp_sum_r <= '0;
           grp_id_r  <= s2_gid_w;
         end else if (s2_gap_r || !grp_act_r || s2_tu_edge_w) begin
@@ -497,12 +502,12 @@ module KL_aaf_clock_meter
           end else if (s2_pos_w == 4'd15) begin
             grp_act_r <= 1'b0;
             pc_v_r    <= 1'b1;
-            pc_ts0_r  <= grp_ts0_r;
+            pc_ts0_r  <= grp_ref_r - 32'(GRP_LAST_NS_C);
             pc_sum_r  <= grp_sum_r + 20'(s2_dev_r);
             pc_id_r   <= grp_id_r;
           end else begin
             grp_sum_r <= grp_sum_r + 20'(s2_dev_r);
-            grp_off_r <= grp_off_r + 21'(PDU_NS_C);
+            grp_ref_r <= grp_ref_r + 32'(PDU_NS_C);
           end
         end
         if (s2_tu_edge_w) pdu_restart_r <= 1'b1;

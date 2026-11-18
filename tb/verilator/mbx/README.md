@@ -37,10 +37,12 @@
    each request's fields held through its answer, every length the 12-bit
    field takes, 4092 to 4095 included, and a CPU register read answered at
    its two-cycle answer, alone, behind a move and in the cycle a move starts,
-   with no request on the port while one awaits its answer); then its 24
+   with no request on the port while one awaits its answer); then its 25
    planted defects ([`dma_mutants.py`](dma_mutants.py)), each caught by the
    check it names, `cpu-answer-one-cycle` among them: the one-cycle answer
-   routing that `KL_mbx`'s two-cycle register read broke.
+   routing that `KL_mbx`'s two-cycle register read broke; and
+   `ring-address-a-step-behind`, the ring address register a word behind its
+   index (#927).
 
 `make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)
 `--check --selftest` (#665, comments 6092086337, 6094461419, 6097292237 and

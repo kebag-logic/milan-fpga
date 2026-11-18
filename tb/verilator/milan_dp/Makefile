@@ -157,6 +157,9 @@ CLKV_SRC ?= $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 # #447: the TDM master render serializer, overridable the same way so
 # tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
+# #927: the dual-clock pair FIFO, overridable the same way so
+# tdm8_render_mutants.py elaborates a MUTATED copy of the render's storage.
+PAIRFIFO_SRC ?= $(RTL_DIR)/common/cdc_pair_fifo.sv
 # #653: the CRF Media Clock Input engine, overridable the same way so
 # unb_mutants.py elaborates a MUTATED copy through the notify recipe.
 CRFRX_SRC ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
@@ -245,7 +248,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_latency_taps.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_latency_tap_bank.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_media_adv.sv \
-       $(RTL_DIR)/common/cdc_pair_fifo.sv \
+       $(PAIRFIFO_SRC) \
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
        $(CSR_SRC) \
