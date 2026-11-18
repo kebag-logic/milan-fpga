@@ -38,7 +38,8 @@ BEFORE = "\tbool now = " + NOW + ";\n\tif (now) {\n\t\tsink_write(index);\n\t}\n
 POLL = "\tif (sinks.owed && p->face.commits != sinks.commits) {"
 #: The window's writes, as ctrl_plat_csr.c holds them.
 LO = "\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_LO - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)format);\n"
-HI = "\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)(format >> 32));\n"
+HI = ("\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_CSR_STRM_SEL), "
+      "(uint32_t)(format >> 32));\n")
 
 
 def mutants(mutant: type) -> tuple:

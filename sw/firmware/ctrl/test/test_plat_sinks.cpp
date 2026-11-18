@@ -73,7 +73,10 @@ constexpr unsigned kInterfaceAt = 126u;              // its avb_interface_index
 constexpr std::uint8_t kAaf = 0x02u;                 // IEEE 1722-2016 Table 6
 constexpr std::uint32_t kOtherSelection = 0x103u;    // talker 3, as MAAP's destination writes leave it
 constexpr std::uint64_t kTwoChannels = 0x0205022000806000ull;  // AAF PCM32 48 kHz 2ch, in the Base family
-constexpr unsigned kSuccess = 0u, kInProgress = 9u, kStreamIsRunning = 12u;  // IEEE 1722.1-2021 Table 7-126
+// IEEE 1722.1-2021 Table 7-126
+constexpr unsigned kSuccess = 0u;
+constexpr unsigned kInProgress = 9u;
+constexpr unsigned kStreamIsRunning = 12u;
 
 // One mailbox access, with the CSR accesses before it.
 struct Mbx {

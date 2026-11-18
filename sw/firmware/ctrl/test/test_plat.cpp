@@ -158,7 +158,8 @@ std::vector<std::uint8_t> input_descriptor(std::uint16_t type, std::uint16_t ind
 }
 
 TEST_F(Plat, C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero) {
-    constexpr std::uint64_t kAaf = 0x0205022002006000ull, kCrf = 0x041060010000BB80ull;
+    constexpr std::uint64_t kAaf = 0x0205022002006000ull;
+    constexpr std::uint64_t kCrf = 0x041060010000BB80ull;
     std::uint64_t format = 0;
     auto d = input_descriptor(5u, 3u, kAaf, 0u);
     EXPECT_TRUE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 an AAF input above 0 has a context";

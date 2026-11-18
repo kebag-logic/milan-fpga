@@ -47,7 +47,10 @@ constexpr int kStreams = 8;
 constexpr int kIval = 2000;                     // the wrap's IVAL_CYC_P
 constexpr int kLctxTimeoutCycles = 64;
 constexpr int kSilenceCycles = 10500;            // past the 100 ms unlock at the wrap's 100 kHz clock
-constexpr int W_FMT_LO = 2, W_FMT_HI = 3, W_UF = 22, W_FRX = 25;
+constexpr int W_FMT_LO = 2;                     // LCTX words: the format, then UNSUPPORTED_FORMAT and FRAMES_RX
+constexpr int W_FMT_HI = 3;
+constexpr int W_UF = 22;
+constexpr int W_FRX = 25;
 //! AAF PCM32 48 kHz with `ch` channels (Milan v1.2 Table 6.2): HI word {subtype, sv/ut/nsr, format, depth}
 constexpr uint32_t kFmtHi = 0x02050220u;
 constexpr uint32_t fmt_lo(unsigned ch) { return (ch << 22) | 0x6000u; }
@@ -70,7 +73,8 @@ class CtxFmt {
 
  private:
     std::unique_ptr<Vavtp_rxmon_nx_wrap> dut = std::make_unique<Vavtp_rxmon_nx_wrap>();
-    long checks = 0, fails = 0;
+    long checks = 0;
+    long fails = 0;
     std::array<long, kStreams> accepts{};
     std::array<uint8_t, kStreams> seq{};
 
