@@ -314,10 +314,12 @@ extern "C" {
 // and never on the interface count (#894's retry-cost ruling,
 // item 1). A shape not listed fails the build. Both two-interface shapes keep
 // the costs measured at 8x8/2if, and 1x1/1if its own. At 8x8/1if the unit is
-// the load gate's record.srp there, 8x8/2if's 365 us, whose records that point
-// takes (load_grade.py, NEAREST), over 8x8/1if's heaviest, a Listener Ready
-// that licenses a declared Talker, 32,936 CPU cycles once a Listener's change
-// walks no registrar (#930; 42,663 before); and at 1x1/1if 285 us, the load
+// the load gate's record.srp there, 375 us, its heaviest record, a Listener
+// Ready that licenses a declared Talker, 35,547 CPU cycles on #665's final
+// head with its cuts, plus 5 % (#665's ruling of 2026-11-18, item 2b: the unit
+// follows its record, measured on the image that carries it; 8x8/2if's 365 us,
+// whose records that point otherwise takes, NEAREST, held 32,936 cycles once a
+// Listener's change walked no registrar, #930); and at 1x1/1if 285 us, the load
 // gate's record.srp there since AECP's REBOOT merged on the tiers (#871), over
 // that group's 23,503 cycles (#930; 27,170 before).
 // THE RETRY's costs there are the line over its rounds measured on that tree,
@@ -334,8 +336,10 @@ extern "C" {
 // every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
 // bound): 1x1/1if's, 140 and 35 ms, are #895's (its rulings of 2026-11-15) and
 // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them),
-// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row's 74.26 ms
-// rounded up, 75 ms, and both two-interface shapes 8x8/2if's, 62 and 105 ms.
+// 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
+// up, 77 ms for the 76.81 ms of #665's final head (#665's ruling of 2026-11-18,
+// item 2a; 75 for #894's 74.26), at most 80 so a withdrawn Talker's hold-off
+// stays 8 cs (srp_mbx.c), and both two-interface shapes 8x8/2if's, 62 and 105 ms.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -358,11 +362,11 @@ extern "C" {
 #define CTRL_LOOP_SLICE_US 1475u
 #define CTRL_LOOP_BUILD_PASS_US 1795u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
-#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_SRP_UNIT_US 375u
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #define CTRL_LOOP_QUEUED_MS 130u
-#define CTRL_LOOP_TX_MS 75u
+#define CTRL_LOOP_TX_MS 77u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u

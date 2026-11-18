@@ -140,11 +140,12 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: 120 us; 8x8/2if events_none 4,069 CPU cycles (the valid-destinations arm, srp-talker-held), 45 us; 8x8/2if
 #: record.maap 14,770 CPU cycles (the valid-destinations arm, srp-talker-loss), 160 us, each by the rule.
 #: 8x8/1if's record.srp there, 35,547 CPU cycles (the valid-destinations arm, srp-talker-held), 375 us by the rule,
-#: is not restated: ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US states it (srp_unit), a header constant a restatement does
-#: not move (the same ruling, item 2), so its statement stays 365 until the owner decides.
-OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 180}}
+#: and ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US with it (srp_unit), the unit following its record on the image that
+#: carries it (#665's ruling of 2026-11-18, re-ruled, item 2b).
+OWN = {'8x8/1if': {'record.adp': 130, 'record.maap': 180, 'record.srp': 375}}
 OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
-                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss')}}
+                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss'),
+                            'record.srp': (35_547, 'the valid-destinations arm, srp-talker-held')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
