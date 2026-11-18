@@ -26,8 +26,8 @@
 
 #include "mbx_hal.h"
 #include "mbx_wire.h"
-#ifdef CTRL_MBX_BASE
 #include "../plat/ctrl_cc.h"
+#ifdef CTRL_MBX_BASE
 #include "../plat/mbx_mmio.h"
 #endif
 #ifdef CTRL_MBX_DMA_BASE
