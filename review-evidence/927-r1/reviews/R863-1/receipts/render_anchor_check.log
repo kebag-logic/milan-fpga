@@ -1,0 +1,22 @@
+ok   shape    [1] wrong physical base: the identity projection
+ok   datapath [1] wrong slot order: the bank walk runs backwards
+ok   datapath [1] shared identity corruption: one pdu bit of EVERY channel
+ok   render   [1] one-bit phase slip: the bit for position p, not p + 1
+ok   render   [1] drop NEWEST: the prefetch keeps the have-next guard
+ok   render   [1, 1] the epoch request does not RETAIN across a reset
+ok   render   [1, 1] ungated commit: a closed epoch admits frames anyway
+ok   render   [1, 1, 1, 1] the serial reset rebuilt from two reconverged levels, with arrival skew
+ok   render   [1] the epoch request races the acknowledgement instead of waiting
+ok   render   [1] the epoch gate reaches the FIFO but not the adapter
+ok   render   [1] the graceful flush tears the frame in flight
+ok   fifo     [1] the render FIFO's distributed storage read at the write pointer
+ok   datapath [1] the render out-lead one frame long
+ok   datapath [1] the domain event's instant not back-dated
+ok   render   [1, 1, 1, 1, 1] modelled bit-arrival skew, raw binary transport
+ok   datapath [1] A2-a removed: the aligner is not engaged at INTERNAL
+ok   datapath [1] the render out-lead one frame long, at every [LAW] phase
+ok   datapath [1] the settle recentre never pulses
+ok   datapath [1] the bind-fall mask is not stream qualified
+ok   datapath [1] the lane's stream set ignores the mapping's stream field
+ok   datapath [1] the CSR protocol-store mirror gated on the physical projection
+21 arms; 0 with an anchor not found exactly once

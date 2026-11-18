@@ -1,0 +1,7 @@
+branch DIST_RAM_P!=0: 412 bytes; branch else: 380 bytes
+attribute occurrences: first 1, second 0
+PASS: the branches differ only in the ram_style attribute
+base has 'mem_r[wptr_bin_r[LOG2D-1:0]] <= wdata_i;': 1; head has it 2 times (once per branch)
+base has 'rdata_o <= mem_r[rptr_bin_r[LOG2D-1:0]];': 1; head has it 2 times (once per branch)
+base guard 'if (wen_i && !wfull_o)': 1
+base guard 'if (ren_i && !rempty_o)': 1

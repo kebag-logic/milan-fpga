@@ -1,0 +1,9 @@
+# job rp-meter-dma in <packet>/scratch/t3 at 0297a19a056ee3d5d705bc502c4ae7808689ede7
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: sh -c for n in meter-pc-ts0-one-pdu-off meter-pc-ts0-unsubtracted dma-ring-addr-not-loaded-at-start dma-ring-addr-stuck-to-ring; do python3 -I <packet>/scripts/reviewer_plants.py <packet>/scratch/t3 <packet>/scratch/plants $n; done
+# start: 2026-11-18T10:42:56Z
+ESCAPED meter-pc-ts0-one-pdu-off: []
+ESCAPED meter-pc-ts0-unsubtracted: []
+caught dma-ring-addr-not-loaded-at-start: ["  [FAIL] D1 memory holds the record's bytes in ring order, line word 0, 1 bytes, index 509, stall 0%", "  [FAIL] D2 the ring holds the record's words, the lanes past len zero, line word 0, 1 bytes, index 509, stall 0%", '  [FAIL] D2 no other ring word is written, line word 0, 1 bytes, index 509, stall 0%']
+caught dma-ring-addr-stuck-to-ring: ["  [FAIL] D2 the ring holds the record's words, the lanes past len zero, line word 0, 5 bytes, index 513, stall 0%", "  [FAIL] D2 the ring holds the record's words, the lanes past len zero, line word 0, 6 bytes, index 514, stall 0%", "  [FAIL] D2 the ring holds the record's words, the lanes past len zero, line word 0, 7 bytes, index 515, stall 0%"]
+# end: 2026-11-18T10:48:31Z rc=0

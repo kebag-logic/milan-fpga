@@ -1,0 +1,11 @@
+# job t5-render-fifo-arm in <packet>/scratch/t5 at 0297a19a056ee3d5d705bc502c4ae7808689ede7
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: sh -c make -C tb/verilator/milan_dp_render tdm8render-build tdm8render-multi-build >/dev/null 2>&1; echo "## build rc=$?"; PYTHONUNBUFFERED=1 python3 <packet>/scripts/render_one_arm.py <packet>/scratch/t5 "the render FIFO's distributed storage read at the write pointer"
+# start: 2026-11-18T10:51:46Z
+## build rc=0
+leg rc 1; 2 [FAIL] line(s):
+      [FAIL] T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps
+      [FAIL] T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps
+[PASS] mutant caught (ship --serial-only): the render FIFO's distributed storage read at the write pointer - breaks "T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps" and 1 more
+arms: 1 caught, 0 not caught
+# end: 2026-11-18T10:53:17Z rc=0

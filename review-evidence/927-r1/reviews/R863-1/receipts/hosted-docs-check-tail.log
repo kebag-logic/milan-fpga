@@ -1,0 +1,40 @@
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6497361Z   include-hidden-files: false
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6497655Z env:
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6497975Z   PIP_CONSTRAINT: <home>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6498415Z   CI_BUILD_JOBS: 4
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6498652Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6498946Z   CI_CAMPAIGN_JOBS: 4
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6499187Z   VERILATOR_JOBS: 4
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6499490Z   SIM_JOBS: 4
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6499895Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.6500292Z ##[endgroup]
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.7809785Z (node:2338) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.7810414Z (Use `node --trace-deprecation ...` to show where the warning was created)
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.7827453Z With the provided path, there will be 1 file uploaded
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.7838066Z Artifact name is valid!
+docs-check	UNKNOWN STEP	2026-11-17T01:42:15.7838829Z Root directory input is valid!
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.2130285Z Beginning upload of artifact content to blob storage
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.2257334Z (node:2338) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.5556036Z Uploaded bytes 766
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.6465645Z Finished uploading artifact content to blob storage!
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.6466451Z SHA256 digest of uploaded artifact zip is 5c8c4349422221bf0fd47c041a0604ebc4305134e7746ad7f2bb0c3a107a5029
+docs-check	UNKNOWN STEP	2026-11-17T01:42:16.6467466Z Finalizing artifact upload
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.1690066Z Artifact job-evidence-docs-docs-check-0-d64937675879aa74cc6158b0648d1abe501dfed3.zip successfully finalized. Artifact ID 14290851550
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.1707132Z Artifact job-evidence-docs-docs-check-0-d64937675879aa74cc6158b0648d1abe501dfed3 has been successfully uploaded! Final size is 766 bytes. Artifact ID is 14290851550
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.1707946Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/43983640552/artifacts/14290851550
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.1857965Z Post job cleanup.
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2518876Z [command]/usr/bin/git version
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2553594Z git version 2.56.1
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2584708Z Temporarily overriding HOME='<home>/work/_temp/c3de65f6-1dc5-4566-9e33-131f3420d09e' before making global git config changes
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2585769Z Adding repository directory to the temporary git global config as a safe directory
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2590006Z [command]/usr/bin/git config --global --add safe.directory <home>/work/milan-fpga/milan-fpga
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2619890Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2644746Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2810553Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2839306Z http.https://github.com/.extraheader
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2841374Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.2862924Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.3020560Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.3043004Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.3312415Z Cleaning up orphan processes
+docs-check	UNKNOWN STEP	2026-11-17T01:42:17.3549289Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: http

@@ -1,0 +1,20 @@
+== 133752995348
+Union milan_dp	UNKNOWN STEP	2026-11-17T02:42:23.4112258Z ##[group]Run set -euo pipefail
+Union milan_dp	UNKNOWN STEP	2026-11-17T02:42:23.4112523Z ^[[36;1mset -euo pipefail^[[0m
+Union milan_dp	UNKNOWN STEP	    "result": "cancelled",
+Union milan_dp	UNKNOWN STEP	2026-11-17T02:42:29.1461901Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'run_full': 'true', 'rtl': 'true', 'target_sha': 'd64937675879aa74cc6158b0648d1abe501dfed3'}}, 'verilator-shards': {'result': 'cancelled', 'outputs': {}}}
+== 133777940181
+verilator-suites	UNKNOWN STEP	2026-11-17T02:47:30.5094031Z ##[group]Run set -euo pipefail
+verilator-suites	UNKNOWN STEP	2026-11-17T02:47:30.5094318Z ^[[36;1mset -euo pipefail^[[0m
+verilator-suites	UNKNOWN STEP	2026-11-17T02:47:34.4916732Z   FAIL expected 19 shard director(y/ies), the worker matrix size, found 5: a missing or surplus shard is a failure, not a skip
+verilator-suites	UNKNOWN STEP	2026-11-17T02:47:34.5024787Z ##[error]Process completed with exit code 1.
+== 133779937380
+yosys-portability	UNKNOWN STEP	2026-11-17T02:48:48.4474646Z ##[group]Run set -euo pipefail
+yosys-portability	UNKNOWN STEP	2026-11-17T02:48:48.4475160Z ^[[36;1mset -euo pipefail^[[0m
+yosys-portability	UNKNOWN STEP	2026-11-17T02:48:48.8595121Z   FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+yosys-portability	UNKNOWN STEP	2026-11-17T02:48:48.8595727Z   FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+== 133780403006
+Collect CI manifest	UNKNOWN STEP	2026-11-17T02:53:23.3659813Z ##[group]Run set -euo pipefail
+Collect CI manifest	UNKNOWN STEP	2026-11-17T02:53:23.3660183Z ^[[36;1mset -euo pipefail^[[0m
+Collect CI manifest	UNKNOWN STEP	2026-11-17T02:53:27.9094358Z   fail-on-cache-miss: false
+Collect CI manifest	UNKNOWN STEP	2026-11-17T02:53:32.0663392Z - job-evidence-rtl-ci-fail-fast-0-d64937675879aa74cc6158b0648d1abe501dfed3 (ID: 14290047926, Size: 705, Expected Digest: sha256:1bfa7c57afd9756f7c28cc2898ac47aa082c6823a19383f8b00eab6898c9d037)
