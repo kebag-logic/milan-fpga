@@ -578,4 +578,3 @@ def advertisement_mutants(mutant: type) -> tuple:
           OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
     )
-
