@@ -1,0 +1,38 @@
+================ hunk 1
+--- OURS (13 lines)
+  - **The AECP REBOOT request** (#787) is carried by the platform's reset
+    port, not by the face block (S11, #871). A face-block level would add a
+    field to `mailbox.yaml`, a contract change, and the port needs none: one
+    CSR bit of the split SoC (`milan_soc.CtrlReboot`), crossed into the
+    datapath's clock by a `MultiReg` onto `i_reboot_req` and so onto
+    `reboot_ctrl.reboot_req_i`. `reboot_req_o` therefore stays G with its
+    all-fabric exclusion ([Every port, one class](#every-port-one-class)), and
+    the split census holds the net to that one port. The firmware's sequence
+    is in [REBOOT_RESET.md](REBOOT_RESET.md#8-the-split-placement).
+  - **The audio maps on the datapath.** The AECP owner holds the maps and does
+    not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
+    the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
+    placement switch's.
+--- BASE (11 lines)
+  - **The AECP REBOOT request** (#787) has no carrier in the split: the
+    firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
+    request its carrier, a face-block level being the expected end state, decided
+    in that lane; until then the split ties `reboot_req_i` to
+    0. Its split elaboration must then pass the port census without the REBOOT
+    exclusion ([Every port, one class](#every-port-one-class)). The split
+    census proves the hold.
+  - **The audio maps on the datapath.** The AECP owner holds the maps and does
+    not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
+    the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
+    placement switch's.
+--- THEIRS (10 lines)
+  - **The AECP REBOOT request** (#787) has no carrier in the split: the
+    firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
+    request its carrier, a face-block level being the expected end state, decided
+    in that lane; until then the split ties `reboot_req_i` to
+    0. Its split elaboration must then pass the port census without the REBOOT
+    exclusion ([Every port, one class](#every-port-one-class)). The split
+    census proves the hold.
+  - **The live map writes on the datapath.** The AECP owner applies every map
+    change to the datapath's store through the `EDIT` window (#923); the live
+    map writes `AMAP_LIVE_WRITE` counts are still counted only.

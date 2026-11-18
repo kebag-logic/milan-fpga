@@ -1,0 +1,16 @@
+================ hunk 1
+--- OURS (6 lines)
+  def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+      """SRP's Listener copies against the reference walk (#930): srp_listeners.cpp at 1x1/1if and 8x8/1if."""
+      return [arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp"),
+              arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
+  
+  
+--- BASE (0 lines)
+--- THEIRS (6 lines)
+  def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+      """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
+      source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""
+      return [arm_srp(tree, lwsrp, i, config=ROOT / "configs/endstation_ax7101_8x8.yaml") for i in (1, 2)]
+  
+  

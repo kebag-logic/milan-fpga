@@ -1,0 +1,8 @@
+================ hunk 1
+--- OURS (1 lines)
+              result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape)
+--- BASE (1 lines)
+              result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
+--- THEIRS (2 lines)
+              result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'],
+                                   journal_of(out, group) if group.save.get('journal') else None)

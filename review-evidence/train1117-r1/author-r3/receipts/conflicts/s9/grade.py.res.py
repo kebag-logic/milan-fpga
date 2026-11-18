@@ -1,0 +1,1 @@
+R = ["            log.rxc.append(held.commit(log, pending_rx, int(rest[0]), int(rest[1])))\n        elif kind in ('RXH', 'RXR'):\n            held.observe(kind, rest, pending_rx, log)\n        elif kind in ('ENTRY', 'PARTICIPANT'):\n            entry(log, kind, rest)\n"]

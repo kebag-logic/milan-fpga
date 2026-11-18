@@ -1,0 +1,40 @@
+A final pass's AECP records held to their stated costs by class, and the pass held to every group they depend on
+(#894: the one-row map edit's record grew past record.aecp unseen, in the one group that measures it,
+aecp-fanout, which the gate passes after that growth did not run).
+
+Each AECP record is a span of the record handler (aecp_mbx.c, frame), from entry to return; its command and status
+are those of the first solicited AECP response committed at or after its start and before the next record's
+(grade.parse, Log.tx): a response the owed-notice queue does not take is committed by the pass's poll, after the
+span, and a record that answers nothing before the next one starts is unanswered, never named by a later record's
+response. Each is held, by the rule (its cycles at the CPU clock, plus 5 %, rounded up to 5 us), to its class's
+stated cost at the leg's point:
+  long    every record of aecp-largest-notice, the largest legal command's: rows_tiers.LONG_RECORD_US;
+  paced   elsewhere, an ADD or REMOVE_AUDIO_MAPPINGS, or a SET_CONFIGURATION answered SUCCESS or IN_PROGRESS, that is
+          paced, the next AECP record starting more than AECP_PACE_MS - 1 ms after it (the gate compares whole
+          milliseconds, aecp_mbx.c, ready), or none following: edit_rows.EDIT_RECORD_US, which the tier model charges
+          at most edits(w, P) of in a window;
+  other   every other record, and one of those that is not paced, which the pace's count does not bound:
+          load_grade.GRADED's record.aecp.
+The legs held are the formal measurement's (#665, README: the labelled arms are never it): arm A's, every group, the
+answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
+aecp-largest-notice, which the 8x8 shape runs there, and in its aecp-fanout the paced records, over which
+EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches
+(arm A's observation ports never answer), and in its aecp-reboot every REBOOT, accepted and refused, an ordinary
+record, whose accepted path needs that arm's reset port (#871); the rest (arm B's other records) are reported by
+class, not held. Each leg is held at its own point's statements, 8x8/1if's at 8x8/1if's (THE SHAPES; #894's shape
+ruling, item (b)), never at another point's. A pass is refused unless, at each point it is held at (COMPLETE) where it
+runs any leg, it runs arm A there, its arm A legs together ran every group of the arm (run.all_groups), each stated
+cost measured over the arm depending on every one of them, and its answering-ports leg there ran aecp-fanout's
+accepted SET_CONFIGURATION and its SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such
+point is refused. So a pass of 8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if
+leg is held complete there too. At 1x1/1if its answering-ports leg must also have run aecp-reboot's accepted REBOOT
+and a refused one, and in its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path port reads
+(#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so the
+response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that record,
+an ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches. Every GET_AS_PATH the
+answering-ports arm answers SUCCESS at another length is refused, and so is a pass whose build does not put
+arm_path.py's port in that arm's path port (port_findings).
+
+usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
+                                                      its parent)
+       python3 -I record_classes.py --selftest

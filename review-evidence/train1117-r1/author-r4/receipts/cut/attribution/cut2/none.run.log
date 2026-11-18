@@ -1,0 +1,5 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/attr/clones/cut2/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/attr/b/cut2/none --reuse-build --out <scratch>/attr/b/cut2/none/part0 --groups acmp-notk,aecp-largest-notice,datapath-events --record-budget-findings --record-share-findings --jobs 3 start 21:28:16
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMANDCOMMAND <scratch>/attr/b/cut2/none/native/Vsim <scratch>/attr/b/cut2/none/part0/aecp-largest-notice.txt -
+COMMAND <scratch>/attr/b/cut2/none/native/Vsim <scratch>/attr/b/cut2/none/part0/datapath-events.txt - 
+<scratch>/attr/b/cut2/none/native/Vsim <scratch>/attr/b/cut2/none/part0/acmp-notk.txt -

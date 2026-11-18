@@ -1,0 +1,8 @@
+{"ordinary costs": 0, "long costs": 0, "datapath": 0, "compare ordinary": 1} | long: item.aecp_long (the polls): 32,152 CPU cycles, 340 us by the rule, against aecp_long 365 us at 1x1/1if: within; none-part0/aecp-largest-notice; the notice kind (aecp_kinds.py): 32,152 CPU cycles, 340 us by the rule, against aecp_long 365 us at 1x1/1if: within; none-part0/aecp-largest-notice (15 frame(s))
+5 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+event.AECP                                     7,519    75.19    80     75 OVER-raw load_grade.stated(1x1/1if) GRADED event.AECP; TIMER#3, 8898 taken
+event.AECP                                     7,519    75.19    80     75 OVER-raw load_grade.stated(1x1/1if) STATED_US event.AECP; TIMER#3, 8898 taken
+event.MAAP                                    15,744   157.44   170    165 OVER     load_grade.stated(1x1/1if) STATED_US event.MAAP; TIMER#2, 336 taken
+event.AS_PATH_CHANGED                          3,571    35.71    40     35 OVER-raw rows_tiers.DATAPATH_US[1x1/1if] AS_PATH_CHANGED; datapath-events.log@70762651
+event.AVB_INFO_CHANGED                         3,480    34.80    40     35 OVER     rows_tiers.DATAPATH_US[1x1/1if] AVB_INFO_CHANGED; datapath-events.log@67558725
+

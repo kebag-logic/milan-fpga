@@ -1,0 +1,97 @@
+vivado-slot: slot 2 (/tmp/milan-vivado-slot-2.lock), MemAvailable 75 GB, 2026-11-18T15:02:04+01:00
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Wed Nov 18 15:02:05 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source cdc.tcl
+# set tag [lindex $argv 0]
+# set dcp [lindex $argv 1]
+# set_param general.maxThreads 8
+# open_checkpoint $dcp
+Command: open_checkpoint <scratch>/r5fitP11/route/split/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.414 ; gain = 7.938 ; free physical = 68884 ; free virtual = 113597
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.18 ; elapsed = 00:00:00.18 . Memory (MB): peak = 1943.031 ; gain = 0.000 ; free physical = 68000 ; free virtual = 112788
+INFO: [Netlist 29-17] Analyzing 3738 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 2065.719 ; gain = 5.250 ; free physical = 67882 ; free virtual = 112669
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+  synth.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 2707.188 ; gain = 5.539 ; free physical = 66433 ; free virtual = 111237
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2708.188 ; gain = 1.000 ; free physical = 66432 ; free virtual = 111237
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2708.188 ; gain = 0.000 ; free physical = 66432 ; free virtual = 111237
+Read placeStorage: Time (s): cpu = 00:00:00.94 ; elapsed = 00:00:00.97 . Memory (MB): peak = 2776.805 ; gain = 68.617 ; free physical = 66361 ; free virtual = 111165
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2776.805 ; gain = 0.000 ; free physical = 66361 ; free virtual = 111165
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.88 ; elapsed = 00:00:00.31 . Memory (MB): peak = 2784.805 ; gain = 8.000 ; free physical = 66286 ; free virtual = 111091
+Read Physdb Files: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2784.805 ; gain = 83.156 ; free physical = 66286 ; free virtual = 111091
+Restored from archive | CPU: 1.990000 secs | Memory: 65.421516 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2784.805 ; gain = 83.156 ; free physical = 66286 ; free virtual = 111091
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2805.078 ; gain = 0.000 ; free physical = 66254 ; free virtual = 111058
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 391 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+  RAM128X1D => RAM128X1D (MUXF7(x2), RAMD64E(x4)): 7 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 9 instances
+  RAM16X1S => RAM32X1S (RAMS32): 32 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 227 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 22 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 27 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:15 . Memory (MB): peak = 2813.113 ; gain = 1377.605 ; free physical = 66248 ; free virtual = 111052
+# set fh [open fcdc-$tag-cells.txt w]
+# set all [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc*}]
+# puts $fh "checkpoint: [file tail [file dirname $dcp]]/[file tail $dcp]; primitives named for u_fcdc: [llength $all]"
+# foreach inst [get_cells -hier -quiet -filter {NAME =~ *u_fcdc && !IS_PRIMITIVE}] {
+#   puts $fh "instance $inst ([get_property ORIG_REF_NAME $inst] [get_property REF_NAME $inst])"
+# }
+# set ram [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc* && (REF_NAME =~ RAMD* || REF_NAME =~ RAMS* || REF_NAME =~ RAMB*)}]
+# set rd  [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc*rdata_o_reg*}]
+# set rdhier [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc/rdata_o_reg*}]
+# puts $fh "storage leaf cells: [llength $ram] ([lsort -unique [get_property REF_NAME $ram]]), e.g. [lindex $ram 0]"
+# puts $fh "read register cells: [llength $rd], e.g. [lindex $rd 0]"
+# set wclk [lsort -unique [get_clocks -quiet -of_objects [get_pins -quiet -of_objects $ram -filter {REF_PIN_NAME == CLK || REF_PIN_NAME == CLKARDCLK || REF_PIN_NAME == CLKBWRCLK}]]]
+# set rclk [lsort -unique [get_clocks -quiet -of_objects [get_pins -quiet -of_objects $rd -filter {REF_PIN_NAME == C}]]]
+# puts $fh "storage write clock(s): $wclk"
+# puts $fh "read register clock(s): $rclk"
+# foreach w $wclk { foreach r $rclk {
+#   puts $fh "clock interaction $w -> $r: [get_property -quiet INTER_CLOCK_EXCEPTION [get_clocks $w]]"
+# } }
+# close $fh
+# report_clock_interaction -delay_type min_max -significant_digits 3 -file fcdc-$tag-clock-interaction.txt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+# if {[llength $ram] && [llength $rd]} {
+#   report_cdc -details -from $ram -to $rd -file fcdc-$tag-cdc-path.txt
+#   report_exceptions -from $ram -to $rd -file fcdc-$tag-exceptions.txt
+#   report_timing -from $ram -to $rd -max_paths 4 -nworst 1 -unique_pins -delay_type max -file fcdc-$tag-timing.txt
+#   report_timing -from $ram -to $rd -max_paths 1 -delay_type min -file fcdc-$tag-timing.txt -append
+# } else {
+#   set f [open fcdc-$tag-cdc-path.txt w]; puts $f "no u_fcdc storage-to-read-register path in this image (storage [llength $ram], read register [llength $rd])"; close $f
+# }
+ERROR: [Vivado 12-4169] The -from option supports only clocks
+INFO: [Common 17-206] Exiting Vivado at Wed Nov 18 15:02:27 2026...

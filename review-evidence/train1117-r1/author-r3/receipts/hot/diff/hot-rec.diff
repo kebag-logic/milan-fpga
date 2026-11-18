@@ -1,0 +1,693 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index 22146feb8f..0525d4e553 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -26,12 +26,27 @@ SECTIONS
+ 		 * refuses a split image whose map has no section for an entry, and
+ 		 * a list that is not the order ctrl_split_hot.txt records. */
+ 		_ctrl_hot_start = .;
+-		*-mbx.o(.text.mbx_rx_waiting)
+ 		*-ctrl_loop.o(.text.ctrl_loop_service)
++		*-ctrl_loop.o(.text.ctrl_loop_step)
++		*-mbx_plat_mmio.o(.text.mbx_hal_wait)
++		*-ctrl_loop.o(.text.ctrl_loop_run)
++		*-nvm_store.o(.text.nvm_store_clock)
++		*-nvm_store.o(.text.nvm_now)
++		*-nvm_flash_litespi.o(.text.ls_now_us)
+ 		*-aecp_mbx.o(.text.retry_aged)
+ 		*-aecp.o(.text.aecp_retry_aged)
++		*-aecp.o(.text.aecp_enter)
+ 		*-srp_mbx.o(.text.transmit_aged)
++		*-mbx.o(.text.mbx_rx_mark)
++		*-ctrl_loop.o(.text.dispatch_ticks)
++		*-mbx.o(.text.mbx_event_take)
++		*-ctrl_loop.o(.text.service_rx)
++		*-aecp_mbx.o(.text.ready)
++		*-aecp.o(.text.aecp_ready)
+ 		*-mbx.o(.text.mbx_rx_take)
++		*-acmp_mbx.o(.text.on_rx_ready)
++		*-srp_mbx.o(.text.rx_ready)
++		*-mbx.o(.text.mbx_rx_waiting)
+ 		*-adp_mbx.o(.text.on_poll)
+ 		*-adp.o(.text.adp_poll)
+ 		*-adp.o(.text.reject_reentry)
+@@ -51,98 +66,79 @@ SECTIONS
+ 		*-maap_mbx.o(.text.declaring)
+ 		*-aecp_mbx.o(.text.poll)
+ 		*-aecp.o(.text.aecp_poll)
+-		*-aecp.o(.text.aecp_enter)
+ 		*-aecp.o(.text.now)
+ 		*-aecp_mbx.o(.text.now)
+ 		*-mbx.o(.text.mbx_now_ms)
+-		*-aecp.o(.text.scan)
++		*-aecp.o(.text.transmit)
+ 		*-aecp.o(.text.arm)
+ 		*-aecp_mbx.o(.text.timer)
+ 		*-ctrl_app_aecp.o(.text.deliver)
+ 		*-aecp_nvm.o(.text.aecp_nvm_poll)
++		*-ctrl_app_aecp.o(.text.publish_store)
++		*-nvm_store.o(.text.nvm_store_status)
++		*-ctrl_app_aecp.o(.text.ctrl_app_aecp_store_words)
++		*-aecp_face.o(.text.aecp_face_status)
++		*-aecp_face.o(.text.aecp_face_poll)
+ 		*-srp_mbx.o(.text.poll)
+ 		*-srp_mbx.o(.text.enter)
+ 		*-mbx.o(.text.mbx_link_up)
+ 		*-srp_mbx.o(.text.snapshot)
+ 		*-srp_mbx.o(.text.capture)
+-		*-srp_mbx.o(.text.transmit)
+-		*-mrp_mad.o(.text.mrp_transmit)
+-		*-mrp_mad.o(.text.map_replay)
++		*-srp_mbx.o(.text.reclaim)
+ 		*-ctrl_app_srp.o(.text.deliver)
+ 		*-acmp.o(.text.acmp_listener_registered)
+-		*-ctrl_loop.o(.text.ctrl_loop_step)
+-		*-mbx_plat_mmio.o(.text.mbx_hal_wait)
+-		*-ctrl_loop.o(.text.ctrl_loop_run)
+-		*-ctrl_loop.o(.text.dispatch_ticks)
+-		*-mbx.o(.text.mbx_event_take)
+-		*-aecp_mbx.o(.text.ready)
+-		*-aecp.o(.text.aecp_ready)
+-		*-srp_mbx.o(.text.rx_ready)
++		*-srp_mbx.o(.text.srp_mbx_gate)
++		*-ctrl_loop.o(.text.round_of)
++		*-aecp_mbx.o(.text.retry)
++		*-aecp.o(.text.aecp_retry)
++		*-aecp.o(.text.round_waits)
++		*-aecp.o(.text.scan)
++		*-nvm_store.o(.text.nvm_store_step)
+ 		*-srp_mbx.o(.text.tick)
+ 		*-timer.o(.text.shlan_timer_tick)
+-		*-nvm_store.o(.text.nvm_store_service)
+-		*-nvm_store.o(.text.nvm_now)
+-		*-nvm_flash_litespi.o(.text.ls_now_us)
+-		*-nvm_store.o(.text.nvm_publish)
++		*-mrp_mad.o(.text.mrp_port_status)
++		*-nvm_store.o(.text.nvm_store_tick)
+ 		*-adp_mbx.o(.text.on_event)
+ 		*-acmp_mbx.o(.text.on_event)
+ 		*-maap_mbx.o(.text.event)
+ 		*-aecp_mbx.o(.text.event)
++		*-ctrl_app_aecp.o(.text.face_event)
+ 		*-srp_mbx.o(.text.on_event)
++		*-nvm_store.o(.text.nvm_store_service)
++		*-nvm_store.o(.text.nvm_publish)
+ 		*-adp.o(.text.adp_gm_change)
+ 		*-adp.o(.text.enter_delay)
+ 		*-adp_mbx.o(.text.port_timer_start)
+ 		*-mbx.o(.text.mbx_timer_arm)
+-		*-acmp_mbx.o(.text.on_adp_frame)
+-		*-adp_mbx.o(.text.on_frame)
+-		*-adp.o(.text.adp_rx)
+-		*-acmp_mbx.o(.text.on_frame)
+-		*-acmp.o(.text.acmp_rx)
+-		*-acmp.o(.text.wire_be64)
+-		*-acmp.o(.text.wire_be32)
+-		*-acmp.o(.text.echo)
+-		*-ctrl_mem.o(.text.memcpy)
+-		*-ctrl_mem.o(.text.forward)
+-		*-acmp.o(.text.respond)
+-		*-acmp.o(.text.build)
+-		*-acmp.o(.text.wire_put_be)
+-		*-acmp.o(.text.transmit)
+-		*-acmp.o(.text.publish)
+-		*-acmp.o(.text.p_send)
+-		*-acmp_mbx.o(.text.port_send)
+-		*-mbx.o(.text.mbx_tx_send)
+-		*-acmp.o(.text.finish)
+-		*-acmp.o(.text.record_of)
+-		*-acmp.o(.text.view_of)
+ 		*-aecp_mbx.o(.text.frame)
+ 		*-aecp.o(.text.aecp_rx)
+ 		*-aecp.o(.text.wire_be32)
+ 		*-aecp.o(.text.wire_be64)
+ 		*-aecp.o(.text.header)
+ 		*-aecp.o(.text.aecp_put48)
++		*-aecp.o(.text.aecp_put32)
+ 		*-aecp.o(.text.aecp_put64)
++		*-aecp.o(.text.applied)
++		*-aecp_mbx.o(.text.applied)
++		*-ctrl_app_aecp.o(.text.applied)
++		*-aecp_face.o(.text.applied)
++		*-mbx.o(.text.mbx_face_busy)
+ 		*-aecp_commands.o(.text.aecp_command)
+ 		*-aecp_commands.o(.text.body)
++		*-ctrl_mem.o(.text.memcpy)
++		*-ctrl_mem.o(.text.forward)
+ 		*-aecp_commands.o(.text.aecp_find)
+ 		*-aecp.o(.text.aecp_port_begin)
+ 		*-aecp_mbx.o(.text.available_index)
+ 		*-ctrl_app_aecp.o(.text.available_index)
+ 		*-aecp.o(.text.aecp_port_end)
+-		*-maap_mbx.o(.text.receive)
+-		*-maap.o(.text.maap_rx)
+-		*-maap.o(.text.mac_at)
+-		*-maap.o(.text.enqueue)
+-		*-maap.o(.text.wire_put_be)
+-		*-maap_mbx.o(.text.send_frame)
+-		*-aecp.o(.text.transmit)
+-		*-aecp_mbx.o(.text.fan)
+-		*-aecp_mbx.o(.text.fan_end)
++		*-aecp.o(.text.finish)
++		*-aecp_mbx.o(.text.send)
++		*-mbx.o(.text.mbx_tx_send)
+ 		*-mbx.o(.text.mbx_tx_begin)
+ 		*-mbx.o(.text.mbx_tx_commit)
+-		*-aecp_mbx.o(.text.send)
+-		*-mbx_plat_mmio.o(.text.mbx_hal_read32)
++		*-aecp.o(.text.sent_frame)
+ 		*-srp_mbx.o(.text.reset_interface)
+-		*-mbx.o(.text.mbx_rx_mark)
+ 		*-srp_mbx.o(.text.publish_licence)
+ 		*-mbx.o(.text.mbx_pub_licence)
+ 		*-mbx.o(.text.mbx_pub_talker_decl)
+@@ -152,6 +148,19 @@ SECTIONS
+ 		*-shlan_port.o(.text.shlan_free)
+ 		*-ctrl_pool.o(.text.ctrl_pool_free)
+ 		*-mvrp.o(.text.mvrp_app_destroy)
++		*-mbx.o(.text.mbx_rx_before)
++		*-adp.o(.text.adp_link_change)
++		*-adp.o(.text.timer_stop)
++		*-adp_mbx.o(.text.port_timer_stop)
++		*-mbx.o(.text.mbx_timer_cancel)
++		*-maap.o(.text.maap_port_operational)
++		*-maap.o(.text.stop_timer)
++		*-maap_mbx.o(.text.cancel)
++		*-maap.o(.text.publish)
++		*-maap_mbx.o(.text.range)
++		*-mbx.o(.text.mbx_filter_set_maap_range)
++		*-mbx.o(.text.mbx_pub_da_gate)
++		*-ctrl_aecp_image.o(.text.allocation)
+ 		*-srp_mbx.o(.text.open_interface)
+ 		*-msrp.o(.text.msrp_app_create)
+ 		*-mrp_mad.o(.text.mrp_app_create)
+@@ -174,64 +183,119 @@ SECTIONS
+ 		*-mrp_mad.o(.text.deliver_event_changed)
+ 		*-mrp_mad.o(.text.reg_event)
+ 		*-mrp_mad.o(.text.observe.isra.0)
++		*-srp_mbx.o(.text.moved_msrp)
+ 		*-srp_mbx.o(.text.moved)
+ 		*-mvrp.o(.text.mvrp_declare)
+ 		*-mvrp.o(.text.mvrp_attr_len)
++		*-srp_mbx.o(.text.moved_mvrp)
+ 		*-srp_mbx.o(.text.declare_sources)
+-		*-msrp.o(.text.msrp_attr_cmp)
+-		*-ctrl_mem.o(.text.memcmp)
++		*-srp_mbx.o(.text.wire_put_be)
+ 		*-mbx.o(.text.mbx_pub_idle_slope)
+-		*-mbx.o(.text.mbx_rx_before)
++		*-srp_mbx.o(.text.hold)
+ 		*-mrp_mad.o(.text.mrp_attr_visit)
+ 		*-srp_mbx.o(.text.registrations)
+-		*-srp_mbx.o(.text.same)
+ 		*-mrp_mad.o(.text.mrp_reclaim)
+-		*-adp.o(.text.adp_link_change)
+-		*-adp.o(.text.timer_stop)
+-		*-adp_mbx.o(.text.port_timer_stop)
+-		*-mbx.o(.text.mbx_timer_cancel)
+-		*-maap.o(.text.maap_port_operational)
+-		*-maap.o(.text.stop_timer)
+-		*-maap_mbx.o(.text.cancel)
+-		*-maap.o(.text.publish)
+-		*-maap_mbx.o(.text.range)
+-		*-mbx.o(.text.mbx_filter_set_maap_range)
+-		*-mbx.o(.text.mbx_pub_da_gate)
+-		*-ctrl_aecp_image.o(.text.allocation)
++		*-acmp_mbx.o(.text.on_frame)
++		*-acmp.o(.text.acmp_rx)
++		*-acmp.o(.text.wire_be64)
++		*-acmp.o(.text.wire_be32)
++		*-acmp.o(.text.echo)
++		*-acmp.o(.text.respond)
++		*-acmp.o(.text.build)
++		*-acmp.o(.text.wire_put_be)
++		*-acmp.o(.text.transmit)
++		*-acmp.o(.text.publish)
++		*-acmp.o(.text.p_send)
++		*-acmp_mbx.o(.text.port_send)
++		*-acmp.o(.text.finish)
++		*-maap_mbx.o(.text.receive)
++		*-maap.o(.text.maap_rx)
++		*-maap.o(.text.mac_at)
++		*-acmp_mbx.o(.text.on_adp_frame)
++		*-adp_mbx.o(.text.on_frame)
++		*-adp.o(.text.adp_rx)
+ 		*-srp_mbx.o(.text.receive)
+-		*-aecp.o(.text.aecp_tx_complete)
+-		*-aecp_commands.o(.text.aecp_stream_read)
+-		*-aecp_mbx.o(.text.stream)
+-		*-ctrl_app_aecp.o(.text.stream)
+-		*-srp_mbx.o(.text.apply_receive)
+-		*-mrp_mad.o(.text.mrp_rx)
+-		*-mrp_pdu.o(.text.mrpdu_parse)
+-		*-mrp_pdu.o(.text.parse_pass)
+-		*-msrp.o(.text.msrp_attr_len)
+-		*-msrp.o(.text.msrp_attr_has_subtype)
+-		*-msrp.o(.text.msrp_decode_attr)
+-		*-msrp.o(.text.increment_stream)
+-		*-mrp_mad.o(.text.rx_on_attr)
+-		*-srp_mbx.o(.text.interested_msrp)
+-		*-msrp.o(.text.msrp_join_ind)
+-		*-srp_mbx.o(.text.listener)
+-		*-msrp.o(.text.msrp_map_join)
+-		*-mrp_mad.o(.text.mrp_attr_registered_ports)
+-		*-msrp.o(.text.all_ports_except)
+-		*-mrp_mad.o(.text.mrp_app_n_ports)
+-		*-acmp.o(.text.acmp_adp_rx)
+-		*-acmp_mbx.o(.text.port_gptp)
+-		*-mbx.o(.text.mbx_gm_id)
++		*-srp_mbx.o(.text.transmit)
++		*-ctrl_app_srp.o(.text.locked)
++		*-ctrl_app_aecp.o(.text.locked)
++		*-aecp.o(.text.aecp_locked)
++		*-acmp.o(.text.mark)
++		*-acmp.o(.text.bind_response)
++		*-acmp_mbx.o(.text.port_publish)
++		*-mbx.o(.text.mbx_pub_sink_binding)
++		*-acmp.o(.text.probe)
++		*-acmp.o(.text.send_probe)
+ 		*-acmp.o(.text.now)
+ 		*-acmp_mbx.o(.text.port_now)
+-		*-acmp.o(.text.delay)
+-		*-acmp_mbx.o(.text.port_seed)
+ 		*-acmp_mbx.o(.text.port_timer)
++		*-acmp_mbx.o(.text.port_admit)
++		*-mbx.o(.text.mbx_filter_set_bound_talker)
++		*-acmp.o(.text.record_of)
++		*-ctrl_app_srp.o(.text.persist)
++		*-ctrl_app_aecp.o(.text.persist)
++		*-ctrl_aecp_image.o(.text.notice)
++		*-acmp.o(.text.view_of)
+ 		*-ctrl_app_srp.o(.text.changed)
+ 		*-ctrl_app_aecp.o(.text.acmp_changed)
+-		*-ctrl_aecp_image.o(.text.notice)
++		*-nvm_store.o(.text.nvm_store_changed)
++		*-nvm_klj2.o(.text.nvm_rec_id_of)
++		*-nvm_store.o(.text.nvm_mark)
++		*-nvm_store.o(.text.nvm_open_set)
+ 		*-acmp.o(.text.acmp_change_pending)
+ 		*-aecp.o(.text.aecp_changed)
++		*-aecp_face.o(.text.publish)
++		*-aecp_face.o(.text.current.isra.0)
++		*-mbx.o(.text.mbx_face_write)
++		*-mbx.o(.text.mbx_face_commit)
++		*-aecp_commands.o(.text.aecp_stream_read)
++		*-aecp_commands.o(.text.observe)
++		*-aecp_mbx.o(.text.stream)
++		*-ctrl_app_aecp.o(.text.stream)
++		*-aecp_face.o(.text.stream)
++		*-aecp_face.o(.text.gsi)
++		*-mbx.o(.text.mbx_win_read)
++		*-mbx.o(.text.mbx_win_ask)
++		*-acmp.o(.text.acmp_adp_rx)
++		*-acmp_mbx.o(.text.port_gptp)
++		*-mbx.o(.text.mbx_gm_id)
++		*-acmp.o(.text.tk_departed)
++		*-aecp.o(.text.monitor)
++		*-aecp_mbx.o(.text.random_value)
++		*-ctrl_app_aecp.o(.text.random_value)
++		*-aecp_face.o(.text.random_value)
++		*-ctrl_aecp_image.o(.text.a_random)
++		*-aecp_maps.o(.text.aecp_map_command)
++		*-aecp_commands.o(.text.aecp_foreign_lock)
++		*-aecp_commands.o(.text.aecp_other_lock)
++		*-aecp.o(.text.aecp_put16)
++		*-aecp_maps.o(.text.wire_be32)
++		*-aecp_maps.o(.text.legal)
++		*-aecp_maps.o(.text.wire_be64)
++		*-aecp_maps.o(.text.mark)
++		*-aecp_mbx.o(.text.edit)
++		*-ctrl_app_aecp.o(.text.edit)
++		*-aecp_face.o(.text.edit)
++		*-aecp_face.o(.text.beat)
++		*-aecp_face.o(.text.record)
++		*-aecp_face.o(.text.wire_be32)
++		*-aecp_commands.o(.text.aecp_note)
++		*-aecp_mbx.o(.text.changed)
++		*-ctrl_app_aecp.o(.text.changed)
++		*-aecp_nvm.o(.text.aecp_nvm_changed)
++		*-aecp_nvm.o(.text.mark)
++		*-aecp_face.o(.text.changed)
++		*-aecp.o(.text.owe)
++		*-aecp.o(.text.owed_drain)
++		*-aecp.o(.text.fan_out)
++		*-nvm_store.o(.text.nvm_store_changed_id)
++		*-nvm_klj2.o(.text.nvm_rec_id_known)
++		*-adp.o(.text.adp_timer_expired)
++		*-adp.o(.text.advertise)
++		*-adp.o(.text.send)
++		*-adp.o(.text.adp_build)
++		*-adp_mbx.o(.text.port_gptp)
++		*-adp.o(.text.wire_put_be)
++		*-adp_mbx.o(.text.port_send)
+ 		_ctrl_hot_end = .;
+ 		*(.text .text.*)
+ 	} > rom
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 3f6d39cdeb..fa0f2e6a60 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -30,12 +30,33 @@
+ # entry for entry, and every entry to name a section of the linked image.
+ # One entry a line: the object, then the function's section name. A firmware
+ # object is its source's stem; a runtime archive's member is <archive>:<member>.
+-mbx mbx_rx_waiting
++#
++# Relearned for decision 3 (#665, ruling of 2026-11-17) by the procedure above on the step-9 tip of the
++# flip train (scratch, not committed); the traces' sha256:
++#   backlog      69448cb4763d5604cd5b2b9729234c9129984e954a4680c538684a11c06e2df6
++#   backlog-adp  043b196458685d44a8b5c9feb71d12d2a4134035575b75d771a1b797df6c572c
++#   aecp-largest-notice 3f312e0f6b8149d4d6148aa35e9f31d76c0b74f1280d905623159598f6688c33
+ ctrl_loop ctrl_loop_service
++ctrl_loop ctrl_loop_step
++mbx_plat_mmio mbx_hal_wait
++ctrl_loop ctrl_loop_run
++nvm_store nvm_store_clock
++nvm_store nvm_now
++nvm_flash_litespi ls_now_us
+ aecp_mbx retry_aged
+ aecp aecp_retry_aged
++aecp aecp_enter
+ srp_mbx transmit_aged
++mbx mbx_rx_mark
++ctrl_loop dispatch_ticks
++mbx mbx_event_take
++ctrl_loop service_rx
++aecp_mbx ready
++aecp aecp_ready
+ mbx mbx_rx_take
++acmp_mbx on_rx_ready
++srp_mbx rx_ready
++mbx mbx_rx_waiting
+ adp_mbx on_poll
+ adp adp_poll
+ adp reject_reentry
+@@ -55,98 +76,79 @@ maap pump
+ maap_mbx declaring
+ aecp_mbx poll
+ aecp aecp_poll
+-aecp aecp_enter
+ aecp now
+ aecp_mbx now
+ mbx mbx_now_ms
+-aecp scan
++aecp transmit
+ aecp arm
+ aecp_mbx timer
+ ctrl_app_aecp deliver
+ aecp_nvm aecp_nvm_poll
++ctrl_app_aecp publish_store
++nvm_store nvm_store_status
++ctrl_app_aecp ctrl_app_aecp_store_words
++aecp_face aecp_face_status
++aecp_face aecp_face_poll
+ srp_mbx poll
+ srp_mbx enter
+ mbx mbx_link_up
+ srp_mbx snapshot
+ srp_mbx capture
+-srp_mbx transmit
+-mrp_mad mrp_transmit
+-mrp_mad map_replay
++srp_mbx reclaim
+ ctrl_app_srp deliver
+ acmp acmp_listener_registered
+-ctrl_loop ctrl_loop_step
+-mbx_plat_mmio mbx_hal_wait
+-ctrl_loop ctrl_loop_run
+-ctrl_loop dispatch_ticks
+-mbx mbx_event_take
+-aecp_mbx ready
+-aecp aecp_ready
+-srp_mbx rx_ready
++srp_mbx srp_mbx_gate
++ctrl_loop round_of
++aecp_mbx retry
++aecp aecp_retry
++aecp round_waits
++aecp scan
++nvm_store nvm_store_step
+ srp_mbx tick
+ timer shlan_timer_tick
+-nvm_store nvm_store_service
+-nvm_store nvm_now
+-nvm_flash_litespi ls_now_us
+-nvm_store nvm_publish
++mrp_mad mrp_port_status
++nvm_store nvm_store_tick
+ adp_mbx on_event
+ acmp_mbx on_event
+ maap_mbx event
+ aecp_mbx event
++ctrl_app_aecp face_event
+ srp_mbx on_event
++nvm_store nvm_store_service
++nvm_store nvm_publish
+ adp adp_gm_change
+ adp enter_delay
+ adp_mbx port_timer_start
+ mbx mbx_timer_arm
+-acmp_mbx on_adp_frame
+-adp_mbx on_frame
+-adp adp_rx
+-acmp_mbx on_frame
+-acmp acmp_rx
+-acmp wire_be64
+-acmp wire_be32
+-acmp echo
+-ctrl_mem memcpy
+-ctrl_mem forward
+-acmp respond
+-acmp build
+-acmp wire_put_be
+-acmp transmit
+-acmp publish
+-acmp p_send
+-acmp_mbx port_send
+-mbx mbx_tx_send
+-acmp finish
+-acmp record_of
+-acmp view_of
+ aecp_mbx frame
+ aecp aecp_rx
+ aecp wire_be32
+ aecp wire_be64
+ aecp header
+ aecp aecp_put48
++aecp aecp_put32
+ aecp aecp_put64
++aecp applied
++aecp_mbx applied
++ctrl_app_aecp applied
++aecp_face applied
++mbx mbx_face_busy
+ aecp_commands aecp_command
+ aecp_commands body
++ctrl_mem memcpy
++ctrl_mem forward
+ aecp_commands aecp_find
+ aecp aecp_port_begin
+ aecp_mbx available_index
+ ctrl_app_aecp available_index
+ aecp aecp_port_end
+-maap_mbx receive
+-maap maap_rx
+-maap mac_at
+-maap enqueue
+-maap wire_put_be
+-maap_mbx send_frame
+-aecp transmit
+-aecp_mbx fan
+-aecp_mbx fan_end
++aecp finish
++aecp_mbx send
++mbx mbx_tx_send
+ mbx mbx_tx_begin
+ mbx mbx_tx_commit
+-aecp_mbx send
+-mbx_plat_mmio mbx_hal_read32
++aecp sent_frame
+ srp_mbx reset_interface
+-mbx mbx_rx_mark
+ srp_mbx publish_licence
+ mbx mbx_pub_licence
+ mbx mbx_pub_talker_decl
+@@ -156,6 +158,19 @@ timer shlan_timer_remove
+ shlan_port shlan_free
+ ctrl_pool ctrl_pool_free
+ mvrp mvrp_app_destroy
++mbx mbx_rx_before
++adp adp_link_change
++adp timer_stop
++adp_mbx port_timer_stop
++mbx mbx_timer_cancel
++maap maap_port_operational
++maap stop_timer
++maap_mbx cancel
++maap publish
++maap_mbx range
++mbx mbx_filter_set_maap_range
++mbx mbx_pub_da_gate
++ctrl_aecp_image allocation
+ srp_mbx open_interface
+ msrp msrp_app_create
+ mrp_mad mrp_app_create
+@@ -178,61 +193,116 @@ msrp msrp_attr_mem_len
+ mrp_mad deliver_event_changed
+ mrp_mad reg_event
+ mrp_mad observe.isra.0
++srp_mbx moved_msrp
+ srp_mbx moved
+ mvrp mvrp_declare
+ mvrp mvrp_attr_len
++srp_mbx moved_mvrp
+ srp_mbx declare_sources
+-msrp msrp_attr_cmp
+-ctrl_mem memcmp
++srp_mbx wire_put_be
+ mbx mbx_pub_idle_slope
+-mbx mbx_rx_before
++srp_mbx hold
+ mrp_mad mrp_attr_visit
+ srp_mbx registrations
+-srp_mbx same
+ mrp_mad mrp_reclaim
+-adp adp_link_change
+-adp timer_stop
+-adp_mbx port_timer_stop
+-mbx mbx_timer_cancel
+-maap maap_port_operational
+-maap stop_timer
+-maap_mbx cancel
+-maap publish
+-maap_mbx range
+-mbx mbx_filter_set_maap_range
+-mbx mbx_pub_da_gate
+-ctrl_aecp_image allocation
++acmp_mbx on_frame
++acmp acmp_rx
++acmp wire_be64
++acmp wire_be32
++acmp echo
++acmp respond
++acmp build
++acmp wire_put_be
++acmp transmit
++acmp publish
++acmp p_send
++acmp_mbx port_send
++acmp finish
++maap_mbx receive
++maap maap_rx
++maap mac_at
++acmp_mbx on_adp_frame
++adp_mbx on_frame
++adp adp_rx
+ srp_mbx receive
+-aecp aecp_tx_complete
+-aecp_commands aecp_stream_read
+-aecp_mbx stream
+-ctrl_app_aecp stream
+-srp_mbx apply_receive
+-mrp_mad mrp_rx
+-mrp_pdu mrpdu_parse
+-mrp_pdu parse_pass
+-msrp msrp_attr_len
+-msrp msrp_attr_has_subtype
+-msrp msrp_decode_attr
+-msrp increment_stream
+-mrp_mad rx_on_attr
+-srp_mbx interested_msrp
+-msrp msrp_join_ind
+-srp_mbx listener
+-msrp msrp_map_join
+-mrp_mad mrp_attr_registered_ports
+-msrp all_ports_except
+-mrp_mad mrp_app_n_ports
+-acmp acmp_adp_rx
+-acmp_mbx port_gptp
+-mbx mbx_gm_id
++srp_mbx transmit
++ctrl_app_srp locked
++ctrl_app_aecp locked
++aecp aecp_locked
++acmp mark
++acmp bind_response
++acmp_mbx port_publish
++mbx mbx_pub_sink_binding
++acmp probe
++acmp send_probe
+ acmp now
+ acmp_mbx port_now
+-acmp delay
+-acmp_mbx port_seed
+ acmp_mbx port_timer
++acmp_mbx port_admit
++mbx mbx_filter_set_bound_talker
++acmp record_of
++ctrl_app_srp persist
++ctrl_app_aecp persist
++ctrl_aecp_image notice
++acmp view_of
+ ctrl_app_srp changed
+ ctrl_app_aecp acmp_changed
+-ctrl_aecp_image notice
++nvm_store nvm_store_changed
++nvm_klj2 nvm_rec_id_of
++nvm_store nvm_mark
++nvm_store nvm_open_set
+ acmp acmp_change_pending
+ aecp aecp_changed
++aecp_face publish
++aecp_face current.isra.0
++mbx mbx_face_write
++mbx mbx_face_commit
++aecp_commands aecp_stream_read
++aecp_commands observe
++aecp_mbx stream
++ctrl_app_aecp stream
++aecp_face stream
++aecp_face gsi
++mbx mbx_win_read
++mbx mbx_win_ask
++acmp acmp_adp_rx
++acmp_mbx port_gptp
++mbx mbx_gm_id
++acmp tk_departed
++aecp monitor
++aecp_mbx random_value
++ctrl_app_aecp random_value
++aecp_face random_value
++ctrl_aecp_image a_random
++aecp_maps aecp_map_command
++aecp_commands aecp_foreign_lock
++aecp_commands aecp_other_lock
++aecp aecp_put16
++aecp_maps wire_be32
++aecp_maps legal
++aecp_maps wire_be64
++aecp_maps mark
++aecp_mbx edit
++ctrl_app_aecp edit
++aecp_face edit
++aecp_face beat
++aecp_face record
++aecp_face wire_be32
++aecp_commands aecp_note
++aecp_mbx changed
++ctrl_app_aecp changed
++aecp_nvm aecp_nvm_changed
++aecp_nvm mark
++aecp_face changed
++aecp owe
++aecp owed_drain
++aecp fan_out
++nvm_store nvm_store_changed_id
++nvm_klj2 nvm_rec_id_known
++adp adp_timer_expired
++adp advertise
++adp send
++adp adp_build
++adp_mbx port_gptp
++adp wire_put_be
++adp_mbx port_send

@@ -1,0 +1,64 @@
+HEAD 838e2d21 shard 2/4 start 18:26:06
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9/sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9/sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9/sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9/sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/tmp/ctrl-fw-q4kekxrn/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/shape/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1727 live invocations in exactly one shard; shard sizes [85, 798, 362, 482]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 347, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 338, in main
+    failed = run_selected(args, tree, out)
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 244, in run_selected
+    failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
+             ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/aecp_mutants.py", line 955, in campaign
+    aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/aecp_arms.py", line 102, in core_arm
+    groups.append(saved_state(tree, config, out))
+                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl/test/aecp_arms.py", line 49, in saved_state
+    shape = nvm_bench.shape_inputs(config, out / "shape")
+  File "<scratch>/clones/r3-s9/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 268, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9/sw/builder/endstation_builder.py', '<scratch>/clones/r3-s9/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '<scratch>/tmp/ctrl-fw-q4kekxrn/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/shape/builder']' returned non-zero exit status 1.
+END rc=1 18:26:08

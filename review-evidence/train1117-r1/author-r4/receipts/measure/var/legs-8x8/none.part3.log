@@ -1,0 +1,32 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-var-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/var/8x8/none --reuse-build --out <scratch>/r4meas/var/8x8/none/part3 --groups acmp-notk,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-7,backlog-adp@blank-aged2-7,backlog-adp@program-7,backlog-adp@program-aged1-7,backlog-adp@program-aged2-7,backlog-adp@verify-7,backlog-adp@verify-aged1-7,backlog-adp@verify-aged2-7,backlog-adp-refill,acmp-cmd --record-budget-findings --record-share-findings --jobs 1 start 22:01:34
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/acmp-notk.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@program-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@verify-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@blank-aged2-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@blank-aged1-0.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@blank-aged1-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@program-aged2-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@program-aged1-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@verify-aged2-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp@verify-aged1-7.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/backlog-adp-refill.txt -
+COMMAND <scratch>/r4meas/var/8x8/none/native/Vsim <scratch>/r4meas/var/8x8/none/part3/acmp-cmd.txt -
+STEPS 6163 passes carry the store's step; the longest 117,953 CPU cycles (1.180 ms), acmp-notk; the longest step 79,937 (0.799 ms), backlog-adp@program-aged1-7
+SLICES 177226 tier-2 slices; the longest SRP's records 103,882, THE TRANSMIT's build 30,029, THE RETRY's round 9,779 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS acmp-notk: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 46 released, 44 empty
+JOINS backlog-adp@program-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@blank-aged2-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@blank-aged1-0: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@blank-aged1-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@program-aged2-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@program-aged1-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-aged2-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-aged1-7: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp-refill: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 12 empty
+JOINS acmp-cmd: 6 join interval(s), the shortest 187.260 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 6 released, 4 empty
+AGED 7 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 9.590 ms, backlog-adp@program-aged2-7.service.srp.last.if1 at 10.410 ms
+12 groups graded, 0 refusals, 0 budget misses (0 of 128 probe instances, 0 of 30 paths), 0 of 12743 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 02:46:32

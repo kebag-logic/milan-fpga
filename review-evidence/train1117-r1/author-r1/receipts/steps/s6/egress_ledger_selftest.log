@@ -1,0 +1,91 @@
+CMD python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --selftest
+HEAD f3ebf667 START 09:26:08
+PASS [in process] the ledger is section 13's table, row for row and figure for figure: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [in process] section 13's measurement is the one the ledger derives from: {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 62.04905}
+PASS [in process] section 13's three measurements are the three images': ({'backlog.owed.if0': 63.2371, 'backlog.owed_behind0.if0': 63.45889, 'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746, 'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386, 'backlog-owed.service.aecp.last.if0': 61.84625}, {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 61.75319}, {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681, 'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987, 'backlog-owed.service.acmp.last.if0': 62.4008, 'backlog-owed.service.aecp.last.if0': 62.04905})
+PASS [in process] each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [in process] the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it: 60
+PASS [in process] the unchanged ledger, every row at its figure, passes: rc 0
+PASS [in process] section 13's measurement passes: rc 0
+PASS [in process] backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed.if0 a large increase over its figure (100.62000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind0.if0 one cycle over its figure (64.10001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind0.if0 a large increase over its figure (100.86000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind1.if0 one cycle over its figure (64.36001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind1.if0 a large increase over its figure (101.12000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind2.if0 one cycle over its figure (64.61001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind2.if0 a large increase over its figure (101.37000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind3.if0 one cycle over its figure (64.86001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind3.if0 a large increase over its figure (101.62000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.acmp.last.if0 one cycle over its figure (62.62001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.acmp.last.if0 a large increase over its figure (99.38000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.aecp.last.if0 one cycle over its figure (62.16001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.aecp.last.if0 a large increase over its figure (98.92000 ms) exits nonzero naming it: rc 1
+PASS [in process] a miss of another row is new and fails, named: rc 1
+PASS [in process] another row within its budget passes: rc 0
+PASS [in process] a ledger row with no instance fails, named: rc 1
+PASS [in process] a ledger row not measured fails, named: rc 1
+PASS [in process] a ledger row never answered, within its figure, fails: rc 1
+PASS [in process] a ledger row's name in another group is a new miss: rc 1
+PASS [in process] a log's rows a printed microsecond under their figures pass: rc 0
+PASS [in process] a log of section 13's measurement passes: rc 0
+PASS [in process] a log's row printed at its figure fails: its log does not show it within: rc 1
+PASS [in process] a log with no summary fails: rc 1
+PASS [in process] a log with a refusal fails: rc 1
+PASS [in process] a log with a BUDGET line short of the summary fails: rc 1
+PASS [in process] a results directory whose run refused a group fails: rc 1
+PASS [in process] a results directory with no results.json fails: rc 1
+PASS [in process] a point with no ledger is refused: rc 2
+PASS [as a process] the ledger is section 13's table, row for row and figure for figure: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [as a process] section 13's measurement is the one the ledger derives from: {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 62.04905}
+PASS [as a process] section 13's three measurements are the three images': ({'backlog.owed.if0': 63.2371, 'backlog.owed_behind0.if0': 63.45889, 'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746, 'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386, 'backlog-owed.service.aecp.last.if0': 61.84625}, {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 61.75319}, {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681, 'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987, 'backlog-owed.service.acmp.last.if0': 62.4008, 'backlog-owed.service.aecp.last.if0': 62.04905})
+PASS [as a process] each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [as a process] the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it: 60
+PASS [as a process] the unchanged ledger, every row at its figure, passes: rc 0
+PASS [as a process] section 13's measurement passes: rc 0
+PASS [as a process] backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed.if0 a large increase over its figure (100.62000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind0.if0 one cycle over its figure (64.10001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind0.if0 a large increase over its figure (100.86000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind1.if0 one cycle over its figure (64.36001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind1.if0 a large increase over its figure (101.12000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 one cycle over its figure (64.61001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 a large increase over its figure (101.37000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 one cycle over its figure (64.86001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 a large increase over its figure (101.62000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 one cycle over its figure (62.62001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 a large increase over its figure (99.38000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 one cycle over its figure (62.16001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 a large increase over its figure (98.92000 ms) exits nonzero naming it: rc 1
+PASS [as a process] a miss of another row is new and fails, named: rc 1
+PASS [as a process] another row within its budget passes: rc 0
+PASS [as a process] a ledger row with no instance fails, named: rc 1
+PASS [as a process] a ledger row not measured fails, named: rc 1
+PASS [as a process] a ledger row never answered, within its figure, fails: rc 1
+PASS [as a process] a ledger row's name in another group is a new miss: rc 1
+PASS [as a process] a log's rows a printed microsecond under their figures pass: rc 0
+PASS [as a process] a log of section 13's measurement passes: rc 0
+PASS [as a process] a log's row printed at its figure fails: its log does not show it within: rc 1
+PASS [as a process] a log with no summary fails: rc 1
+PASS [as a process] a log with a refusal fails: rc 1
+PASS [as a process] a log with a BUDGET line short of the summary fails: rc 1
+PASS [as a process] a results directory whose run refused a group fails: rc 1
+PASS [as a process] a results directory with no results.json fails: rc 1
+PASS [as a process] a point with no ledger is refused: rc 2
+caught mutant 'a ledger row waived by its name whatever its size': backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant "a grade's figure read at its log's microsecond": backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant 'a ledger row at its figure failing': the unchanged ledger, every row at its figure, passes
+caught mutant 'a new miss waived': a miss of another row is new and fails, named
+caught mutant 'a ledger row with no instance passing': a ledger row with no instance fails, named
+caught mutant "a log's figure read as exact": a log's row printed at its figure fails: its log does not show it within
+caught mutant "a ledger figure a hundredth over section 13's": the ledger is section 13's table, row for row and figure for figure
+caught mutant 'a ledger figure with no 5 % on its service': the ledger is section 13's table, row for row and figure for figure
+caught mutant 'the 5 % on the whole row, the hold too': the ledger is section 13's table, row for row and figure for figure
+caught mutant "the hold not the scenario's": each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms
+caught mutant 'a measurement the ledger does not derive from': section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the merged image's measurement where the composed one is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the composed image's measurement where the Listener copies' is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a run's refusals not read": a results directory whose run refused a group fails
+caught mutant "a ledger row's name taken in any group": a ledger row's name in another group is a new miss
+RESULT: PASS: 15 mutants, 0 failure(s)
+rc=0

@@ -1,0 +1,40 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/s7p/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/budget/p1x1/none --reuse-build --out <scratch>/budget/p1x1/none/part2 --groups acmp-notk,backlog-adp@blank-aged1-1,backlog-adp@blank-aged2-1,backlog-adp@program-1,backlog-adp@program-aged1-1,backlog-adp@program-aged2-1,backlog-adp@verify-1,backlog-adp@verify-aged1-1,backlog-adp@verify-aged2-1,save-held,backlog-owed,acmp-cmd --record-budget-findings --record-share-findings --jobs 8 start 10:22:48
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/acmp-notk.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@program-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@verify-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@blank-aged2-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@blank-aged1-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@program-aged1-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@program-aged2-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@verify-aged2-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-adp@verify-aged1-1.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/save-held.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/backlog-owed.txt -
+COMMAND <scratch>/budget/p1x1/none/native/Vsim <scratch>/budget/p1x1/none/part2/acmp-cmd.txt -
+BUDGET backlog.owed.if0: 62.953 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.141 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.328 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.515 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.701 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.058 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.795 ms over its budget 20 ms
+STEPS 5293 passes carry the store's step; the longest 102,333 CPU cycles (1.023 ms), acmp-notk; the longest step 78,835 (0.788 ms), backlog-adp@program-aged1-1
+SLICES 290049 tier-2 slices; the longest SRP's records 74,841, THE TRANSMIT's build 33,717, THE RETRY's round 10,715 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS acmp-notk: 4 join interval(s), the shortest 188.701 ms and the longest 190.079 ms, against 181.0 to 239.0; MRP timers' run-outs: 26 released, 21 empty
+JOINS backlog-adp@program-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged2-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@blank-aged1-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged2-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@program-aged1-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged2-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS backlog-adp@verify-aged1-1: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 7 empty
+JOINS save-held: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 15 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 8 released, 5 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 188.701 ms and the longest 189.991 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 8.963 ms, backlog-adp@program-aged2-1.service.srp.last.if0 at 11.037 ms
+SAVE save-held: durable 1096.520 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 17.198 ms) within
+12 groups graded, 0 refusals, 7 budget misses (7 of 118 probe instances, 4 of 28 paths), 0 of 10919 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 12:01:35

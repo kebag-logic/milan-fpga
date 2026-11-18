@@ -1,0 +1,6 @@
+================ hunk 1
+--- OURS (1 lines)
+  	uintptr_t reboot;                           // the REBOOT reset port's register, 0 for none (#871)
+--- BASE (0 lines)
+--- THEIRS (1 lines)
+  	struct ctrl_plat_phy_bus phy;               // the MDIO pair and the link-status word (no MDIO: mdio_w 0)

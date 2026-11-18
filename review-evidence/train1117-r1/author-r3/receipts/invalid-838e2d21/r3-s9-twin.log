@@ -1,0 +1,370 @@
+HEAD 838e2d21 start 18:26:16
+== make twin 18:26:16
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_twin_af/aem-build
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+python3 gen_gptp_leg_ucode.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o gptp_ucode.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 95 programs
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 -B twin_fw.py --config ../../../configs/endstation_ax7101_1x1_tdm8.yaml --out obj_twin_fw --maap-preferred 0x91e0f0000100 
+usage: gen_gptp_ucode.py [-h] [-o OUT] [--seq-seed SEQ_SEED]
+                         [--sync-seq-seed SYNC_SEQ_SEED] [--mac MAC] [--p1 P1]
+                         [--clk-hz CLK_HZ] [--cease-ms CEASE_MS]
+gen_gptp_ucode.py: error: unrecognized arguments: --clock-accuracy 0x22
+gptp_ucode.hex: endstation_ax7101_1x1_tdm8.yaml: --mac 0x02A1B2C3D4E5 --p1 248 --clk-hz 2000000 --clock-accuracy 0x22 --cease-ms 3000
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 64, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 59, in main
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-o", str(args.out), *options], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', 'gptp_ucode.hex', '--mac', '0x02A1B2C3D4E5', '--p1', '248', '--clk-hz', '2000000', '--clock-accuracy', '0x22', '--cease-ms', '3000']' returned non-zero exit status 2.
+make: *** [Makefile:476: gptp_ucode.hex] Error 1
+make: *** Waiting for unfinished jobs....
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_af/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+make: *** [Makefile:976: obj_twin_af/aemi.bin] Error 1
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 137, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 133, in main
+    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs, replace)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 94, in build
+    inc = include_flags(config, out)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 65, in include_flags
+    inc += [f"-I{CTRL / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+                                                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl/test/plat_arms.py", line 77, in generated
+    shape = nvm_bench.shape_inputs(config, out / "shape")
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 268, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py', '<scratch>/clones/r3-s9-twin/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder']' returned non-zero exit status 1.
+make: *** [Makefile:973: twin-fw] Error 1
+== twin rc=2 18:26:18
+== make twin-plants 18:26:18
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_twin_af/aem-build
+python3 gen_gptp_leg_ucode.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o gptp_ucode.hex
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 -B twin_fw.py --config ../../../configs/endstation_ax7101_1x1_tdm8.yaml --out obj_twin_fw --maap-preferred 0x91e0f0000100 
+usage: gen_gptp_ucode.py [-h] [-o OUT] [--seq-seed SEQ_SEED]
+                         [--sync-seq-seed SYNC_SEQ_SEED] [--mac MAC] [--p1 P1]
+                         [--clk-hz CLK_HZ] [--cease-ms CEASE_MS]
+gen_gptp_ucode.py: error: unrecognized arguments: --clock-accuracy 0x22
+gptp_ucode.hex: endstation_ax7101_1x1_tdm8.yaml: --mac 0x02A1B2C3D4E5 --p1 248 --clk-hz 2000000 --clock-accuracy 0x22 --cease-ms 3000
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 64, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 59, in main
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-o", str(args.out), *options], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', 'gptp_ucode.hex', '--mac', '0x02A1B2C3D4E5', '--p1', '248', '--clk-hz', '2000000', '--clock-accuracy', '0x22', '--cease-ms', '3000']' returned non-zero exit status 2.
+make: *** [Makefile:476: gptp_ucode.hex] Error 1
+make: *** Waiting for unfinished jobs....
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/../../../sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_af/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+make: *** [Makefile:976: obj_twin_af/aemi.bin] Error 1
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 137, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 133, in main
+    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs, replace)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 94, in build
+    inc = include_flags(config, out)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 65, in include_flags
+    inc += [f"-I{CTRL / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+                                                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl/test/plat_arms.py", line 77, in generated
+    shape = nvm_bench.shape_inputs(config, out / "shape")
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 268, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py', '<scratch>/clones/r3-s9-twin/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder']' returned non-zero exit status 1.
+make: *** [Makefile:973: twin-fw] Error 1
+== twin-plants rc=2 18:26:20
+== make twin-maps 18:26:20
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 gen_gptp_leg_ucode.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o gptp_ucode.hex
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 -B twin_fw.py --config ../../../configs/endstation_ax7101_1x1_tdm8.yaml --out obj_twin_fw --maap-preferred 0x91e0f0000100 
+usage: gen_gptp_ucode.py [-h] [-o OUT] [--seq-seed SEQ_SEED]
+                         [--sync-seq-seed SYNC_SEQ_SEED] [--mac MAC] [--p1 P1]
+                         [--clk-hz CLK_HZ] [--cease-ms CEASE_MS]
+gen_gptp_ucode.py: error: unrecognized arguments: --clock-accuracy 0x22
+gptp_ucode.hex: endstation_ax7101_1x1_tdm8.yaml: --mac 0x02A1B2C3D4E5 --p1 248 --clk-hz 2000000 --clock-accuracy 0x22 --cease-ms 3000
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 64, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 59, in main
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-o", str(args.out), *options], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', 'gptp_ucode.hex', '--mac', '0x02A1B2C3D4E5', '--p1', '248', '--clk-hz', '2000000', '--clock-accuracy', '0x22', '--cease-ms', '3000']' returned non-zero exit status 2.
+make: *** [Makefile:476: gptp_ucode.hex] Error 1
+make: *** Waiting for unfinished jobs....
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 137, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 133, in main
+    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs, replace)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 94, in build
+    inc = include_flags(config, out)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 65, in include_flags
+    inc += [f"-I{CTRL / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+                                                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl/test/plat_arms.py", line 77, in generated
+    shape = nvm_bench.shape_inputs(config, out / "shape")
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 268, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py', '<scratch>/clones/r3-s9-twin/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder']' returned non-zero exit status 1.
+make: *** [Makefile:973: twin-fw] Error 1
+== twin-maps rc=2 18:26:22
+== make twin-maps-plants 18:26:22
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 gen_gptp_leg_ucode.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o gptp_ucode.hex
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 -B twin_fw.py --config ../../../configs/endstation_ax7101_1x1_tdm8.yaml --out obj_twin_fw --maap-preferred 0x91e0f0000100 
+usage: gen_gptp_ucode.py [-h] [-o OUT] [--seq-seed SEQ_SEED]
+                         [--sync-seq-seed SYNC_SEQ_SEED] [--mac MAC] [--p1 P1]
+                         [--clk-hz CLK_HZ] [--cease-ms CEASE_MS]
+gen_gptp_ucode.py: error: unrecognized arguments: --clock-accuracy 0x22
+gptp_ucode.hex: endstation_ax7101_1x1_tdm8.yaml: --mac 0x02A1B2C3D4E5 --p1 248 --clk-hz 2000000 --clock-accuracy 0x22 --cease-ms 3000
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 64, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/gen_gptp_leg_ucode.py", line 59, in main
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-o", str(args.out), *options], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', 'gptp_ucode.hex', '--mac', '0x02A1B2C3D4E5', '--p1', '248', '--clk-hz', '2000000', '--clock-accuracy', '0x22', '--cease-ms', '3000']' returned non-zero exit status 2.
+make: *** [Makefile:476: gptp_ucode.hex] Error 1
+make: *** Waiting for unfinished jobs....
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6357, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6328, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None),
+              placement=args.placement)
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6247, in build
+    d, out = _write_artifact_dir(art, outdir)
+             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py", line 6134, in _write_artifact_dir
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [sys.executable, str(generator), "-o", str(p_gptp_ucode),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         *gptp_ucode_args(cfg)],
+         ^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True, text=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/gptp-processor/hdl/ucode/gen_gptp_ucode.py', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex', '--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000', '--clock-accuracy', '0x22']' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 137, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 133, in main
+    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs, replace)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 94, in build
+    inc = include_flags(config, out)
+  File "<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/twin_fw.py", line 65, in include_flags
+    inc += [f"-I{CTRL / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+                                                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl/test/plat_arms.py", line 77, in generated
+    shape = nvm_bench.shape_inputs(config, out / "shape")
+  File "<scratch>/clones/r3-s9-twin/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 268, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clones/r3-s9-twin/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<home>/litex-milan/venv/bin/python3', '<scratch>/clones/r3-s9-twin/sw/builder/endstation_builder.py', '<scratch>/clones/r3-s9-twin/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '<scratch>/clones/r3-s9-twin/tb/verilator/milan_dp/obj_twin_fw/shape/builder']' returned non-zero exit status 1.
+make: *** [Makefile:973: twin-fw] Error 1
+== twin-maps-plants rc=2 18:26:24
+END rc=1 18:26:24

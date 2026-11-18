@@ -1,0 +1,11 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+[FAIL] ctrl coverage run
+    Which is: 17
+    frames + 1u
+    Which is: 18
+    [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call with no store step carries the PHY's frame
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 50   failures: 1 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 1 failure(s) across 50 checks, exit 1)
+test_ctrl_firmware coverage run: FAIL
+UNMEASURED: the ctrl gate failed in coverage mode (exit 1)

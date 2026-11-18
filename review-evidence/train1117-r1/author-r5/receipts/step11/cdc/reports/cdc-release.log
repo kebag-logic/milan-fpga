@@ -1,0 +1,149 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Wed Nov 18 15:03:52 2026
+# Process ID         : 83830
+# Current directory  : <scratch>/r5cdc
+# Command line       : vivado -mode batch -nojournal -log cdc-release.log -source cdc.tcl -tclargs release <scratch>/r5rel/work/ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp
+# Log file           : <scratch>/r5cdc/cdc-release.log
+# Journal file       : 
+# Running On         : <host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.350 MHz
+# CPU Physical cores : 48
+# CPU Logical cores  : 96
+# Host memory        : 86345 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 125000 MB
+# Available Virtual  : 119996 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source cdc.tcl
+# set tag [lindex $argv 0]
+# set dcp [lindex $argv 1]
+# set_param general.maxThreads 8
+# open_checkpoint $dcp
+Command: open_checkpoint <scratch>/r5rel/work/ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1448.414 ; gain = 7.938 ; free physical = 69286 ; free virtual = 114203
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.28 ; elapsed = 00:00:00.28 . Memory (MB): peak = 1989.766 ; gain = 0.000 ; free physical = 68198 ; free virtual = 113115
+INFO: [Netlist 29-17] Analyzing 6256 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2151.828 ; gain = 0.000 ; free physical = 67772 ; free virtual = 112689
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2831.477 ; gain = 0.000 ; free physical = 66413 ; free virtual = 111329
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2833.477 ; gain = 2.000 ; free physical = 66413 ; free virtual = 111329
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2833.477 ; gain = 0.000 ; free physical = 66413 ; free virtual = 111329
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2911.766 ; gain = 78.289 ; free physical = 66282 ; free virtual = 111199
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2911.766 ; gain = 0.000 ; free physical = 66282 ; free virtual = 111199
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.48 . Memory (MB): peak = 2940.766 ; gain = 29.000 ; free physical = 66198 ; free virtual = 111115
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2940.766 ; gain = 109.289 ; free physical = 66198 ; free virtual = 111115
+Restored from archive | CPU: 2.950000 secs | Memory: 89.109962 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2940.766 ; gain = 109.289 ; free physical = 66198 ; free virtual = 111115
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2972.820 ; gain = 0.000 ; free physical = 66157 ; free virtual = 111074
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1351 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 70 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 745 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 33 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 27 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:24 ; elapsed = 00:00:18 . Memory (MB): peak = 2980.855 ; gain = 1545.348 ; free physical = 66149 ; free virtual = 111066
+# set fh [open fcdc-$tag-cells.txt w]
+# puts $fh "checkpoint: [file tail [file dirname [file dirname $dcp]]]/[file tail [file dirname $dcp]]/[file tail $dcp]"
+# foreach inst [lsort [get_cells -hier -quiet -filter {!IS_PRIMITIVE && (ORIG_REF_NAME =~ cdc_pair_fifo* || REF_NAME =~ cdc_pair_fifo* || ORIG_REF_NAME =~ KL_tdm_render* || REF_NAME =~ KL_tdm_render*)}]] {
+#   puts $fh "census: $inst ([get_property ORIG_REF_NAME $inst] / [get_property REF_NAME $inst])"
+# }
+# set all [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc*}]
+# puts $fh "primitives named for u_fcdc: [llength $all]"
+# set ram [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc* && (REF_NAME =~ RAMD* || REF_NAME =~ RAMS* || REF_NAME =~ RAMB*)}]
+# set rd  [get_cells -hier -quiet -filter {IS_PRIMITIVE && NAME =~ *u_fcdc*rdata_o_reg*}]
+# set wclk {}
+# set rclk {}
+# if {[llength $ram]} {
+#   puts $fh "storage leaf cells: [llength $ram] ([lsort -unique [get_property REF_NAME $ram]]), e.g. [lindex $ram 0]"
+#   set wclk [lsort -unique [get_clocks -quiet -of_objects [get_pins -quiet -of_objects $ram -filter {REF_PIN_NAME == CLK || REF_PIN_NAME == CLKARDCLK || REF_PIN_NAME == CLKBWRCLK}]]]
+# } else { puts $fh "storage leaf cells: 0" }
+# if {[llength $rd]} {
+#   puts $fh "read register cells: [llength $rd], e.g. [lindex $rd 0]"
+#   set rclk [lsort -unique [get_clocks -quiet -of_objects [get_pins -quiet -of_objects $rd -filter {REF_PIN_NAME == C}]]]
+# } else { puts $fh "read register cells: 0" }
+# puts $fh "storage write clock(s): $wclk"
+# puts $fh "read register clock(s): $rclk"
+# close $fh
+# report_clock_interaction -delay_type min_max -significant_digits 3 -file fcdc-$tag-clock-interaction.txt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+report_clock_interaction: Time (s): cpu = 00:00:31 ; elapsed = 00:00:06 . Memory (MB): peak = 3291.859 ; gain = 311.004 ; free physical = 65536 ; free virtual = 110454
+# if {[llength $wclk] && [llength $rclk]} {
+#   report_cdc -details -from [get_clocks $wclk] -to [get_clocks $rclk] -file cdc-clocks-$tag.rpt
+#   if {[catch {report_exceptions -from $ram -to $rd -file fcdc-$tag-exceptions.txt} e]} {
+#     set f [open fcdc-$tag-exceptions.txt w]; puts $f "report_exceptions -from storage -to read register: $e"; close $f
+#   }
+#   report_timing -from $ram -to $rd -max_paths 4 -nworst 1 -unique_pins -delay_type max -file fcdc-$tag-timing.txt
+#   report_timing -from $ram -to $rd -max_paths 1 -delay_type min -file fcdc-$tag-timing.txt -append
+#   report_timing -from [get_clocks $wclk] -to [get_clocks $rclk] -max_paths 1 -file fcdc-$tag-timing-clocks.txt
+# }
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 4 -nworst 1 -delay_type max -sort_by slack.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+# report_cdc -details -file cdc-full-$tag.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_cdc -summary -file cdc-summary-$tag.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_methodology -file methodology-full-$tag.rpt
+Command: report_methodology -file methodology-full-release.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [DRC 23-133] Running Methodology with 8 threads
+INFO: [Vivado_Tcl 2-1520] The results of Report Methodology are in file <scratch>/r5cdc/methodology-full-release.rpt.
+report_methodology completed successfully
+report_methodology: Time (s): cpu = 00:01:00 ; elapsed = 00:00:12 . Memory (MB): peak = 3437.883 ; gain = 127.211 ; free physical = 67218 ; free virtual = 112209
+# close_design
+INFO: [Common 17-206] Exiting Vivado at Wed Nov 18 15:04:45 2026...

@@ -1,0 +1,8 @@
+================ hunk 1
+--- OURS (1 lines)
+  csr_register,ctrl_reboot_req,0xf0001800,1,rw
+--- BASE (0 lines)
+--- THEIRS (3 lines)
+  csr_register,milan_mac_phy_mdio_w,0xf0002004,1,rw
+  csr_register,milan_mac_phy_mdio_r,0xf0002008,1,ro
+  csr_register,milan_mac_link_status,0xf000201c,1,rw

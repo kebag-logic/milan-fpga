@@ -1,0 +1,32 @@
+================ hunk 1
+--- OURS (5 lines)
+  // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if by #894's amendment of
+  // 2026-11-13 to its contingent ruling, item 2, the built design's row rounded up to the next 5 ms, never over
+  // 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, and 140 ms
+  // at SRP's Talker declarations' composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling
+  // of 2026-11-15 on that composition, item 1). The rows by every source hold both at
+--- BASE (3 lines)
+  // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if 130 ms by #894's amendment
+  // of 2026-11-13 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+  // next 5 ms (queued_bound.py derives it; #908 stays open while it is over 125). The rows by every source hold both at
+--- THEIRS (4 lines)
+  // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if 130 ms by #894's amendment
+  // of 2026-11-13 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+  // next 5 ms (queued_bound.py derives it; #908 stays open while it is over 125): 135 ms since AECP's REBOOT's merge
+  // on the tiers (#871), whose image's restated costs put that row at 134.74 ms. The rows by every source hold both at
+--- RESOLVED (6 lines, res lines 66-71)
+  // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if by #894's amendment of
+  // 2026-11-13 to its contingent ruling, item 2, the built design's row rounded up to the next 5 ms, never over
+  // 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, 135 ms on
+  // AECP's REBOOT's merge on the tiers (#871), its row 134.74 ms, and 140 ms at SRP's Talker declarations'
+  // composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
+  // composition, item 1). The rows by every source hold both at
+================ hunk 2
+--- OURS (1 lines)
+  #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 140u : 62u)
+--- BASE (1 lines)
+  #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 130u : 62u)
+--- THEIRS (1 lines)
+  #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 135u : 62u)
+--- RESOLVED (1 lines, res lines 76-76)
+  #define AECP_QUEUED_MS (MBX_N_IF == 1u ? 140u : 62u)

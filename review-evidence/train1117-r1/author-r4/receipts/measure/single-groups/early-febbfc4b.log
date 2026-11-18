@@ -1,0 +1,10 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/febbfc4b/1x1/none/native/Vsim <scratch>/r4meas/febbfc4b/early-1x1/aecp-largest-notice.txt -
+COMMAND <scratch>/r4meas/febbfc4b/1x1/none/native/Vsim <scratch>/r4meas/febbfc4b/early-1x1/datapath-events.txt -
+STEPS 148 passes carry the store's step; the longest 21,219 CPU cycles (0.212 ms), aecp-largest-notice; the longest step 2,651 (0.027 ms), aecp-largest-notice
+SLICES 11027 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 31,781, THE RETRY's round 10,607 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.907 ms and the longest 189.995 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS datapath-events: 3 join interval(s), the shortest 187.907 ms and the longest 189.995 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 225 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 22:40:52

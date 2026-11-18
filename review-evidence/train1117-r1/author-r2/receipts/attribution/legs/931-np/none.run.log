@@ -1,0 +1,9 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/attr/clones/931-np/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/attr/b/931-np/none --reuse-build --out <scratch>/attr/b/931-np/none/part0 --groups aecp-largest-notice --record-budget-findings --record-share-findings --jobs 1 start 15:44:02
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/attr/b/931-np/none/native/Vsim <scratch>/attr/b/931-np/none/part0/aecp-largest-notice.txt -
+STEPS 78 passes carry the store's step; the longest 21,521 CPU cycles (0.215 ms), aecp-largest-notice; the longest step 2,322 (0.023 ms), aecp-largest-notice
+SLICES 5026 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 30,213, THE RETRY's round 2,072 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.725 ms and the longest 189.982 ms, against 181.0 to 239.0; MRP timers' run-outs: 4 released, 1 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 107 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 15:50:52

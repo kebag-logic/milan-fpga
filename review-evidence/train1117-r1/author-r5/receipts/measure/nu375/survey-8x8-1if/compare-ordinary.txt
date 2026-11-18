@@ -1,0 +1,56 @@
+# 8x8/1if at shape (1, 9, 9); its records and events NEAREST 8x8/2if's; record.aecp by class in record_classes.py (long 1715, paced 685, other 265 us)
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          21,338   213.38   225    280 within   load_grade.stated(8x8/1if) GRADED base; ap-part0/aecp-fanout
+base                                          21,338   213.38   225    280 within   load_grade.stated(8x8/1if) STATED_US base; ap-part0/aecp-fanout
+base                                          21,338   213.38   225    280 within   poll_grade.STATED_US[(1, 9, 9)] base; ap-part0/aecp-fanout
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) GRADED build; ap-part0/aecp-fanout
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) STATED_US build; ap-part0/aecp-fanout
+build                                              0     0.00     0   1795 within   whole_grade.stated_us((1, 9, 9)) build (ctrl_loop.h); ap-part0/aecp-fanout
+build_one                                     27,433   274.33   290   1475 within   load_grade.stated(8x8/1if) GRADED build_one; ap-part0/aecp-fanout
+build_one                                     27,433   274.33   290   1475 within   load_grade.stated(8x8/1if) STATED_US build_one; ap-part0/aecp-fanout
+build_one                                     27,433   274.33   290   1475 within   whole_grade.stated_us((1, 9, 9)) build-one (ctrl_loop.h); ap-part0/aecp-fanout
+centisecond                                    3,005    30.05    35    510 within   load_grade.stated(8x8/1if) GRADED centisecond; ap-part0/aecp-fanout.log
+centisecond                                    3,005    30.05    35    510 within   load_grade.stated(8x8/1if) STATED_US centisecond; ap-part0/aecp-fanout.log
+event.ADP                                      6,630    66.30    70    120 within   load_grade.stated(8x8/1if) GRADED event.ADP; TIMER#0, 2 taken
+event.ADP                                      6,630    66.30    70    120 within   load_grade.stated(8x8/1if) STATED_US event.ADP; TIMER#0, 2 taken
+event.LINK                                    15,197   151.97   160    300 within   rows_grade.ROW_COSTS[8x8/2if] event.LINK; LINK, 2 taken
+event.MAAP                                    12,482   124.82   135    225 within   load_grade.stated(8x8/1if) GRADED event.MAAP; TIMER#2, 2 taken
+event.MAAP                                    12,482   124.82   135    225 within   load_grade.stated(8x8/1if) STATED_US event.MAAP; TIMER#2, 2 taken
+event.TICK                                     2,084    20.84    25     85 within   load_grade.stated(8x8/1if) GRADED event.TICK; TICK, 162 taken
+event.TICK                                     2,084    20.84    25     55 within   load_grade.stated(8x8/1if) STATED_US event.TICK; TICK, 162 taken
+events_none                                    1,058    10.58    15     40 within   load_grade.stated(8x8/1if) GRADED events_none; ap-part0/aecp-fanout.log
+events_none                                    1,058    10.58    15     40 within   load_grade.stated(8x8/1if) STATED_US events_none; ap-part0/aecp-fanout.log
+item.acmp                                          0     0.00     0     80 within   load_grade.stated(8x8/1if) GRADED item.acmp; ap-part0/aecp-fanout
+item.acmp                                          0     0.00     0     80 within   load_grade.stated(8x8/1if) STATED_US item.acmp; ap-part0/aecp-fanout
+item.acmp                                          0     0.00     0     80 within   poll_grade.STATED_US[(1, 9, 9)] acmp; ap-part0/aecp-fanout
+item.acmp_declined                                 0     0.00     0     30 within   load_grade.stated(8x8/1if) GRADED item.acmp_declined; ap-part0/aecp-fanout
+item.acmp_declined                                 0     0.00     0     30 within   load_grade.stated(8x8/1if) STATED_US item.acmp_declined; ap-part0/aecp-fanout
+item.acmp_declined                                 0     0.00     0     30 within   poll_grade.STATED_US[(1, 9, 9)] acmp_declined; ap-part0/aecp-fanout
+item.acmp_kept                                     0     0.00     0    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; ap-part0/aecp-fanout
+item.aecp                                     13,184   131.84   140    145 within   poll_grade.STATED_US[(1, 9, 9)] aecp; ap-part0/aecp-fanout
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; ap-part0/aecp-fanout
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; ap-part0/aecp-fanout
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) GRADED item.mrpdu; ap-part0/aecp-fanout
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) STATED_US item.mrpdu; ap-part0/aecp-fanout
+item.mrpdu                                         0     0.00     0   1475 within   poll_grade.STATED_US[(1, 9, 9)] mrpdu; ap-part0/aecp-fanout
+item.rebuild                                       0     0.00     0    590 within   poll_grade.STATED_US[(1, 9, 9)] rebuild; ap-part0/aecp-fanout
+item.reclaim                                     297     2.97     5     40 within   load_grade.stated(8x8/1if) GRADED item.reclaim; ap-part0/aecp-fanout
+item.reclaim                                     297     2.97     5     40 within   load_grade.stated(8x8/1if) STATED_US item.reclaim; ap-part0/aecp-fanout
+item.reclaim                                     297     2.97     5     40 within   poll_grade.STATED_US[(1, 9, 9)] reclaim; ap-part0/aecp-fanout
+item.record                                        0     0.00     0    345 within   poll_grade.STATED_US[(1, 9, 9)] retained; ap-part0/aecp-fanout
+item.retained                                      0     0.00     0    345 within   load_grade.stated(8x8/1if) GRADED item.retained; ap-part0/aecp-fanout
+item.retained                                      0     0.00     0    345 within   load_grade.stated(8x8/1if) STATED_US item.retained; ap-part0/aecp-fanout
+item.retained                                      0     0.00     0    345 within   poll_grade.STATED_US[(1, 9, 9)] retained; ap-part0/aecp-fanout
+item.walk                                        647     6.47    10    120 within   load_grade.stated(8x8/1if) GRADED item.walk; ap-part0/aecp-fanout
+item.walk                                        647     6.47    10    120 within   load_grade.stated(8x8/1if) STATED_US item.walk; ap-part0/aecp-fanout
+item.walk                                        647     6.47    10    120 within   poll_grade.STATED_US[(1, 9, 9)] walk; ap-part0/aecp-fanout
+item.withdraw                                      0     0.00     0    110 within   poll_grade.STATED_US[(1, 9, 9)] withdraw; ap-part0/aecp-fanout
+record.acmp                                   20,380   203.80   215    305 within   load_grade.stated(8x8/1if) GRADED record.acmp; ap-part0/aecp-fanout.log
+record.acmp                                   20,380   203.80   215    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; ap-part0/aecp-fanout.log
+step                                               0     0.00     0   1030 within   load_grade.stated(8x8/1if) GRADED step; ap-part0/aecp-fanout
+step                                               0     0.00     0   1030 within   load_grade.stated(8x8/1if) STATED_US step; ap-part0/aecp-fanout
+step                                               0     0.00     0    975 within   whole_grade.stated_us((1, 9, 9)) step (ctrl_loop.h); ap-part0/aecp-fanout
+item.aecp.notice                              13,184   131.84   140    275 within   load_grade.stated(8x8/1if) GRADED item.aecp.notice; ap-part0/aecp-fanout (16 frame(s))
+item.aecp.notice                              13,184   131.84   140    275 within   load_grade.stated(8x8/1if) STATED_US item.aecp.notice; ap-part0/aecp-fanout (16 frame(s))
+
+# 0 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)

@@ -1,0 +1,61 @@
+results.json: 262958 bytes, sha256 195e0ff4bfc123ff9b636102757649c9455a7bf82230f6cf8688609e558712e4; over 200 KB, kept in scratch. Its last 60 lines:
+   "row": "backlog-adp@program-aged2-6.service.srp.last.if0",
+   "ms": 10.87398,
+   "budget_ms": 20.0,
+   "margin_ms": 9.12602
+  },
+  {
+   "age": 1,
+   "last_step_sys": 324426164,
+   "among": [],
+   "after": [],
+   "last_release_ms": 9.997,
+   "group": "backlog-adp@program-aged1-6",
+   "row": "backlog-adp@program-aged1-6.service.srp.last.if0",
+   "ms": 10.20986,
+   "budget_ms": 20.0,
+   "margin_ms": 9.79014
+  },
+  {
+   "age": 2,
+   "last_step_sys": 326423401,
+   "among": [
+    {
+     "start_ms": 4.289,
+     "cycles": 77773,
+     "ms": 0.77773,
+     "store": 76532,
+     "kind": "read-back",
+     "among": true
+    }
+   ],
+   "after": [],
+   "last_release_ms": 10.736,
+   "group": "backlog-adp@verify-aged2-6",
+   "row": "backlog-adp@verify-aged2-6.service.srp.last.if0",
+   "ms": 10.9495,
+   "budget_ms": 20.0,
+   "margin_ms": 9.0505
+  },
+  {
+   "age": 1,
+   "last_step_sys": 326423401,
+   "among": [],
+   "after": [],
+   "last_release_ms": 10.061,
+   "group": "backlog-adp@verify-aged1-6",
+   "row": "backlog-adp@verify-aged1-6.service.srp.last.if0",
+   "ms": 10.29254,
+   "budget_ms": 20.0,
+   "margin_ms": 9.70746
+  }
+ ],
+ "notices": [],
+ "notice_misses": [],
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ }
+}

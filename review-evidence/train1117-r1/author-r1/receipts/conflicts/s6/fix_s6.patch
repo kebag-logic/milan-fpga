@@ -1,0 +1,144 @@
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+index dddebbc977..125e1b4c50 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -685,10 +685,8 @@ DEFECTS = (
+            '\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n', '',
+            ('AppFace.FaceEventsDriveTheirTable522Notifications',
+             'a counter change notifies GET_COUNTERS')),
+-    # acknowledged state is the only truth a controller sees (#665): a change
+-    # the face has not taken waits undone behind IN_PROGRESS, then one final
+-    # response; no other change is taken meanwhile; an expiry is notified once
+-    # applied
++    # acknowledged state is the only truth a controller sees (#665): a change the face has not taken waits undone behind
++    # IN_PROGRESS, then one final response; no other change is taken meanwhile; an expiry is notified once applied
+     defect('unapplied-change-not-refused', 'aecp_commands.c',
+            'return a->refusing || aecp_other_lock(a);',
+            'return aecp_other_lock(a);',
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index 3c6c6d7ae5..50132e8452 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -940,12 +940,12 @@ def programmed(text: str) -> list[tuple[int, int, bytes]]:
+             for m in re.finditer(r'^FLASHDATA (\d+) ([0-9a-fA-F]+) ([0-9a-fA-F]*)$', text, re.M)]
+ 
+ 
+-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2,
+-          shape: shape_costs.Shape | None = None, journal: Path | None = None) -> dict:
++def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
++          at: int | shape_costs.Shape = 2, journal: Path | None = None) -> dict:
+     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish. The passes given
+-    whole, the polls and the slices are held to the costs stated at the image's shape (shape_costs.py, THE SHAPES), or
+-    with none given at that many interfaces at the shipping shape's streams."""
+-    stated_at = shape or interfaces
++    whole, the polls and the slices are held to the costs stated at `at`, the image's shape (shape_costs.py, THE
++    SHAPES), or an interface count, that many interfaces at the shipping shape's streams."""
++    stated_at = at
+     log = parse(text, sys_hz, cpu_hz)
+     log.programmed = programmed(text)
+     refuse_run(log, group)
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index f4622b4e6c..b108fa9e49 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -595,7 +595,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
+     for group, log in zip(groups, logs):
+         refusals += unstated(group)
+         try:
+-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'], shape,
++            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], shape or spec['interfaces'],
+                                  journal_of(out, group) if group.save.get('journal') else None)
+         except grade.Refusal as error:
+             refusals.append(str(error))
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 48291ef385..c06df66a3e 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -591,8 +591,7 @@ MUTANTS: dict[str, Patches] = {
+                                                                                    lambda self, n: n)],
+     'pass bound: it starts at the input, not at the running pass': lambda: [patch.object(
+         grade.Grader, 'pass_origin', lambda self, start: start)],
+-    "composition: the window's population is not checked": lambda: [patch.object(grade, 'check_load',
+-                                                                                 lambda *a: None)],
++    "composition: the window's population is not checked": lambda: [patch.object(grade, 'check_load', lambda *a: None)],
+     "composition: the composed maximum is the run's worst pass": lambda: [patch.object(
+         grade, 'composed_passes', lambda log, start, end: log.passes)],
+     "composition: the composed maximum is the window's first pass": _first_pass_only,
+@@ -604,8 +603,7 @@ MUTANTS: dict[str, Patches] = {
+         grade, 'check_load', _load_declared)],
+     "pacing: an AECP group's frames meet an empty token bucket": lambda: [patch.object(
+         scenario, 'paced', lambda g, channel: g)],
+-    'flash: a cached window is taken': lambda: [patch.object(
+-        build, 'flash_window_refusals', lambda spec: [])],
++    'flash: a cached window is taken': lambda: [patch.object(build, 'flash_window_refusals', lambda spec: [])],
+     'flash: the hybrid-XIP arm is held to the uncached window': lambda: [patch.object(
+         build, 'flash_window_refusals', lambda spec, f=build.flash_window_refusals: f({**spec, 'xip': False}))],
+     'opening: a backlog window opens without waiting for the drained event ring': lambda: [patch.object(
+@@ -826,8 +824,7 @@ MUTANTS: dict[str, Patches] = {
+     "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
+     "notice: the port answers before the load": lambda: [patch.object(
+         notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
+-    "transmit: the aged build's plant is judged as a budget control": lambda: [patch.object(
+-        build, 'SRP_CONTROLS', ())],
++    "transmit: the aged build's plant is judged as a budget control": lambda: [patch.object(build, 'SRP_CONTROLS', ())],
+     "transmit: any row over its bound catches the aged build's plant": lambda: [
+         patch.object(run, 'mrpdu_groups', lambda misses: {m.partition(':')[0].partition('.')[0] for m in misses})],
+     "transmit: a timer's row ends at the first build, with no frame": lambda: [patch.object(
+@@ -899,8 +896,7 @@ MUTANTS: dict[str, Patches] = {
+         poll_grade, 'sections', lambda traced, f=poll_grade.sections: [(s, e + 10_000, ss) for s, e, ss in f(traced)])],
+     'polls: an item nested in another is counted twice': lambda: [patch.object(
+         poll_grade, 'outermost', lambda found: [(kind, s, e - s) for s, e, kind in found])],
+-    "polls: an ACMP item carries the redelivery's offers (earlier rule)": lambda: [patch.object(
+-        poll_grade, 'offers',
++    "polls: an ACMP item carries the redelivery's offers (earlier rule)": lambda: [patch.object(poll_grade, 'offers',
+         lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: f(traced) if start < 0 else [])],
+     'polls: no offer is the kept record\'s re-offer, so none is told declined': lambda: [patch.object(
+         poll_grade, 'offers', lambda traced, start=-1, end=1 << 62, f=poll_grade.offers: [
+@@ -994,8 +990,7 @@ MUTANTS: dict[str, Patches] = {
+         save_window.PHASES, verify=('program 1', 10, 10))],
+     'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
+     'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
+-    'clock: the CPU is built on the Milan clock': _build_with(
+-        lambda core: dataclasses.replace(core, cpu_cd='milan')),
++    'clock: the CPU is built on the Milan clock': _build_with(lambda core: dataclasses.replace(core, cpu_cd='milan')),
+     "clock: build.json records the point's Milan clock as the CPU's": _build_recorded(
+         lambda spec: dict(spec, cpu_hz=spec['milan_hz'])),
+     'clock: no CPU clock refusal': lambda: [patch.object(build, 'cpu_clock_refusals', lambda spec: [])],
+diff --git a/tb/verilator/ctrl_service_budget/selftest_round.py b/tb/verilator/ctrl_service_budget/selftest_round.py
+index 858e5670df..8c40f19a68 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_round.py
++++ b/tb/verilator/ctrl_service_budget/selftest_round.py
+@@ -72,8 +72,8 @@ def round_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+                   for n in range(outside)]
+         lines += [f'CALL {2 * (start - 2 - n)} {start - 2 - n} {BUILT}' for n in range(outside)]
+         shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
+-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
+-                           shape)['passes']['rounds']
++        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
++                           shape or shape_costs.interfaces(interfaces))['passes']['rounds']
+ 
+     got = round_grade.stated_us(1), round_grade.stated_us(2)
+     out = [("each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32",
+@@ -137,8 +137,8 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
+                  'round': [f'PASS 1 {2 * start - 100} {start - 50} {cycles + 100} instr=10 store_mbx=1 '
+                            f'W {2 * start}:1:0', f'SPAN {2 * start} {start} {cycles} 00001000 {ROUND}']}[kind]
+         shape = interfaces if isinstance(interfaces, shape_costs.Shape) else None
+-        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(interfaces),
+-                           shape)['passes']['slices']
++        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
++                           shape or shape_costs.interfaces(interfaces))['passes']['slices']
+ 
+     kinds = lambda s: [o['kind'] for o in s['over']]
+     one = us[0] * cpu_hz // 1_000_000
+@@ -201,8 +201,9 @@ def polls_at_shape(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: i
+         lines = [f'PASS 1 {ratio * (start - 10)} {start - 10} {base + 600} instr=10 store_mbx=1 W {ratio * start}:1:0',
+                  f'SPAN {ratio * start} {start} 50 00002000 {poll_grade.FIRST}',
+                  f'SPAN {ratio * (start + base - 40)} {start + base - 40} 40 00002000 {poll_grade.LAST}']
+-        polls = grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz, shape_costs.interfaces(given),
+-                            given if isinstance(given, shape_costs.Shape) else None)['passes']['polls']
++        polls = grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz,
++                            given if isinstance(given, shape_costs.Shape)
++                            else shape_costs.interfaces(given))['passes']['polls']
+         return [(o['kind'], o['cycles']) for o in polls['over']]
+     own, count = poll_grade.stated_us(shape), poll_grade.stated_us(shape.interfaces)
+     limit = own['base'] * cpu_hz // 1_000_000

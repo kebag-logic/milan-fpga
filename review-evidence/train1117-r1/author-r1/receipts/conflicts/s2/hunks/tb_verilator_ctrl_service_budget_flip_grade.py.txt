@@ -1,0 +1,25 @@
+================ hunk 1
+--- OURS (1 lines)
+      figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 35u : 105u)'
+--- BASE (1 lines)
+      figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)'
+--- THEIRS (1 lines)
+      table = shape_costs.listed(text)
+================ hunk 2
+--- OURS (4 lines)
+      # each interface count's leg planted under its row alone, refused at its own point (8x8/2if's rows are reported,
+      # so its flip check exits 1 by design and only this control holds its statement)
+      for leg, point, said in (('34u : 105u', '1x1/1if', 34), ('35u : 104u', '8x8/2if', 104)):
+          under = {loop: text.replace(figure, figure.replace('35u : 105u', leg))}
+--- BASE (4 lines)
+      # each interface count's leg planted under its row alone, refused at its own point (8x8/2if's rows are reported,
+      # so its flip check exits 1 by design and only this control holds its statement)
+      for leg, point, said in (('33u : 105u', '1x1/1if', 33), ('34u : 104u', '8x8/2if', 104)):
+          under = {loop: text.replace(figure, figure.replace('34u : 105u', leg))}
+--- THEIRS (6 lines)
+      # each point's figure, stated for its shape (THE SHAPES), planted one under its row's alone and refused at its own
+      # point (8x8/2if's rows are reported, so its flip check exits 1 by design and only this control holds its statement)
+      for point in ('1x1/1if', '8x8/2if'):
+          at = shape_costs.of_point(point, root)
+          said = table[at][shape_costs.TX] - 1
+          under = {loop: shape_costs.planted_at(text, at, shape_costs.TX, said)}

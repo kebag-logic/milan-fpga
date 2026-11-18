@@ -1,0 +1,13 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/attr/clones/s9/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/attr/b/s9/none --reuse-build --out <scratch>/attr/b/s9/none/part0 --groups acmp-notk,aecp-largest-notice,datapath-events --record-budget-findings --record-share-findings --jobs 3 start 18:29:46
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/attr/b/s9/none/native/Vsim <scratch>/attr/b/s9/none/part0/acmp-notk.txt -
+COMMAND <scratch>/attr/b/s9/none/native/Vsim <scratch>/attr/b/s9/none/part0/aecp-largest-notice.txt -
+COMMAND <scratch>/attr/b/s9/none/native/Vsim <scratch>/attr/b/s9/none/part0/datapath-events.txt -
+STEPS 1306 passes carry the store's step; the longest 98,739 CPU cycles (0.987 ms), acmp-notk; the longest step 78,778 (0.788 ms), acmp-notk
+SLICES 75933 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 29,549, THE RETRY's round 11,561 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS acmp-notk: 3 join interval(s), the shortest 187.946 ms and the longest 189.958 ms, against 181.0 to 239.0; MRP timers' run-outs: 23 released, 22 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.946 ms and the longest 189.958 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS datapath-events: 3 join interval(s), the shortest 187.946 ms and the longest 189.958 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+3 groups graded, 0 refusals, 0 budget misses (0 of 6 probe instances, 0 of 6 paths), 0 of 3832 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 19:50:54

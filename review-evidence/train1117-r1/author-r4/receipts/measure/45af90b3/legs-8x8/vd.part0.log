@@ -1,0 +1,3 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-45af90b3-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/45af90b3/8x8/vd --reuse-build --out <scratch>/r4meas/45af90b3/8x8/vd/part0 --groups srp-talker --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 22:15:09
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/45af90b3/8x8/vd/native/Vsim <scratch>/r4meas/45af90b3/8x8/vd/part0/srp-talker.txt -

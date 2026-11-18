@@ -1,0 +1,22 @@
+docs_check                   rc=0  docs_check: 0 finding(s) across 220 md files + 1617 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style                    rc=0  documentation style: OK (23 current documents)
+doc_paths                    rc=0  doc path gate: OK (1178 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+toc                          rc=0  TOC selftest: PASS (1501/1501 arm(s))
+emdash                       rc=0  check_em_dash: 0 finding(s) over 659 added line(s) in 16 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cb96336d..HEAD]
+hygiene                      rc=0  HYGIENE RATCHET: PASS (3 population(s), 1471 file(s))
+py_idiom                     rc=0    over-long line: 0 <= 0
+cpp_idiom                    rc=0    build without warnings: 0 <= 0
+rows_tiers                   rc=0  rows_tiers: 1033 of 1033 planted controls refused
+record_classes               rc=0  record classes: 20 of 20 planted controls refused; the answering-ports arm's path port is arm_path.py's
+load_check                   rc=0  RESULT: PASS
+load_selftest                rc=0  load gate: 28 of 28 planted controls refused
+flip_check                   rc=1  RESULT: FAIL
+flip_check_1x1               rc=0  RESULT: PASS
+flip_selftest                rc=0  flip check: 616 of 616 planted controls refused
+ctrl_memory                  rc=0  RESULT: PASS
+shape_costs_check            rc=0  RESULT: PASS
+shape_costs_selftest         rc=0  the table of shapes: 25 of 25 planted controls refused
+egress_ledger_selftest       rc=0  RESULT: PASS: 15 mutants, 0 failure(s)
+mailbox_margins              rc=0  HEAD 6fef44b8 START 14:06:50
+fw_coverage_check            rc=0  firmware coverage: PASS (39 files)
+tree porcelain: 0

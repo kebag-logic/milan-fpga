@@ -1,0 +1,11 @@
+{"ordinary costs": 0, "long costs": 0, "datapath": 0, "compare ordinary": 1} | long: item.aecp_long (the polls): 30,216 CPU cycles, 320 us by the rule, against aecp_long 320 us at 8x8/1if: within; ap-part1/aecp-largest-notice; the notice kind (aecp_kinds.py): 30,216 CPU cycles, 320 us by the rule, against aecp_long 320 us at 8x8/1if: within; ap-part1/aecp-largest-notice (15 frame(s))
+8 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+base                                          29,933   299.33   315    280 OVER-raw load_grade.stated(8x8/1if) GRADED base; vd-part1/srp-talker-held
+base                                          29,933   299.33   315    280 OVER-raw load_grade.stated(8x8/1if) STATED_US base; vd-part1/srp-talker-held
+base                                          29,933   299.33   315    280 OVER-raw poll_grade.STATED_US[(1, 9, 9)] base; vd-part1/srp-talker-held
+event.MAAP                                    22,778   227.78   240    225 OVER-raw load_grade.stated(8x8/1if) GRADED event.MAAP; TIMER#2, 335 taken
+event.MAAP                                    22,778   227.78   240    225 OVER-raw load_grade.stated(8x8/1if) STATED_US event.MAAP; TIMER#2, 335 taken
+item.record                                   35,506   355.06   375    345 OVER-raw poll_grade.STATED_US[(1, 9, 9)] retained; vd-part1/srp-talker-held
+record.srp                                    35,805   358.05   380    365 OVER     load_grade.stated(8x8/1if) GRADED record.srp; vd-part1/srp-talker-held.log
+record.srp                                    35,805   358.05   380    365 OVER     load_grade.stated(8x8/1if) STATED_US record.srp; vd-part1/srp-talker-held.log
+

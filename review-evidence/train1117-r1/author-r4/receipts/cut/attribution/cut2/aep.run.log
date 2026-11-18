@@ -1,0 +1,5 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/attr/clones/cut2/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/attr/b/cut2/aep --reuse-build --out <scratch>/attr/b/cut2/aep/part0 --groups notice-burst-5,notice-burst-7,notice-every-7 --record-budget-findings --record-share-findings --jobs 3 --variant answering-every-port start 21:28:16
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/attr/b/cut2/aep/native/Vsim <scratch>/attr/b/cut2/aep/part0/notice-every-7.txt -
+COMMAND <scratch>/attr/b/cut2/aep/native/Vsim <scratch>/attr/b/cut2/aep/part0/notice-burst-5.txt -
+COMMAND <scratch>/attr/b/cut2/aep/native/Vsim <scratch>/attr/b/cut2/aep/part0/notice-burst-7.txt -

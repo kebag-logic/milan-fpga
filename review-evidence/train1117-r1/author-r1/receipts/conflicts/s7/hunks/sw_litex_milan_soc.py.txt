@@ -1,0 +1,9 @@
+================ hunk 1
+--- OURS (2 lines)
+      # a product entry's image at its own entry, by its symbols; every other image at the budget (#923's ruling)
+      soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.product_point(soc.ctrl_image))
+--- BASE (1 lines)
+      soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+--- THEIRS (2 lines)
+      # a ledgered image at its own entry, by its symbols; every other image at the 56-RAMB36 budget (#923)
+      soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.own_point(soc.ctrl_image))

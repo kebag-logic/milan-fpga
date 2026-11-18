@@ -1,0 +1,58 @@
+[
+ {
+  "table": "paced",
+  "point": "1x1/1if",
+  "key": "a one-row edit",
+  "us": 310,
+  "cycles": 29331,
+  "where": "the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS"
+ },
+ {
+  "table": "e1",
+  "point": "8x8/1if",
+  "key": "base",
+  "us": 300,
+  "cycles": 28417,
+  "where": "the valid-destinations arm, srp-talker-held"
+ },
+ {
+  "table": "e1",
+  "point": "8x8/1if",
+  "key": "retained",
+  "us": 375,
+  "cycles": 35350,
+  "where": "the valid-destinations arm, srp-talker-held"
+ },
+ {
+  "table": "own81",
+  "point": "8x8/1if",
+  "key": "record.maap",
+  "us": 180,
+  "cycles": 16682,
+  "where": "the valid-destinations arm, srp-talker-loss"
+ },
+ {
+  "table": "s2",
+  "point": "8x8/2if",
+  "key": "event.AECP",
+  "us": 120,
+  "cycles": 11404,
+  "where": "the answering-every-port arm, notice-burst-6: aecp.c arm()'s walk of the registry and the live notices"
+ },
+ {
+  "table": "s2",
+  "point": "8x8/2if",
+  "key": "events_none",
+  "us": 45,
+  "cycles": 4069,
+  "where": "the valid-destinations arm, srp-talker-held"
+ },
+ {
+  "table": "s2",
+  "point": "8x8/2if",
+  "key": "record.maap",
+  "us": 160,
+  "cycles": 14770,
+  "where": "the valid-destinations arm, srp-talker-loss"
+ }
+]

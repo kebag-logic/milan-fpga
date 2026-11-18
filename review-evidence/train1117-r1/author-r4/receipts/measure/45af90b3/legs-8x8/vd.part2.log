@@ -1,0 +1,9 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-45af90b3-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/45af90b3/8x8/vd --reuse-build --out <scratch>/r4meas/45af90b3/8x8/vd/part2 --groups srp-talker-loss --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 22:15:09
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/45af90b3/8x8/vd/native/Vsim <scratch>/r4meas/45af90b3/8x8/vd/part2/srp-talker-loss.txt -
+STEPS 728 passes carry the store's step; the longest 46,350 CPU cycles (0.464 ms), srp-talker-loss; the longest step 3,660 (0.037 ms), srp-talker-loss
+SLICES 21391 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 56,866, THE RETRY's round 13,859 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS srp-talker-loss: 19 join interval(s), the shortest 183.176 ms and the longest 190.268 ms, against 181.0 to 239.0; MRP timers' run-outs: 49 released, 32 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 11 probe instances, 0 of 11 paths), 0 of 7793 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 23:25:50

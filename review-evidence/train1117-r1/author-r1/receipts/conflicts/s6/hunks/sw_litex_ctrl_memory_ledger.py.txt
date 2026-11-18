@@ -1,0 +1,30 @@
+================ hunk 1
+--- OURS (9 lines)
+  `ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, under #665's documented memory exceptions
+  and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the size fixture's at 8x8 with two interfaces at
+  59.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations, #897) and the target platform's
+  at 61.0 (60.5, the owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and with AECP's
+  REBOOT, #871, then 61.0 with the PHY poll and its advertisement, #919), each only by its own name; and the target
+  platform's at 8x8 with one interface, a shipping image, at 56.5, a product entry, which the product SoC build plans
+  by the image's symbols (`ctrl_memory.product_point`). Each is refused half a tile past. A `Case` here is
+  what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+  function here takes, and grades what these return.
+--- BASE (5 lines)
+  `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+  only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
+  platform's at 60.5 (the owner's decision of 2026-11-12, its cap), each refused half a tile past. A `Case` here is
+  what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every
+  function here takes, and grades what these return.
+--- THEIRS (5 lines)
+  `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+  only by its own name, under #665's documented memory exceptions: the size fixture's at 59.0 RAMB36 and the target
+  platform's at 60.5 (the owner's decision of 2026-11-12, its cap; #895 and #920 took it there), each refused half a
+  tile past. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through
+  the `write` callable every function here takes, and grades what these return.
+================ hunk 2
+--- OURS (1 lines)
+  PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_136, 18_304, 20_416
+--- BASE (1 lines)
+  PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_536, 19_072, 18_240, 20_352
+--- THEIRS (1 lines)
+  PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_664, 19_200, 18_304, 20_480

@@ -1,0 +1,7 @@
+checkpoint: ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp; primitives named for u_fcdc: 1183
+instance milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo cdc_pair_fifo__parameterized0)
+storage leaf cells: 256 (RAMD32 RAMS32), e.g. milan_datapath/u_fcdc/g_mem.mem_r_reg_0_3_0_5/RAMA
+read register cells: 192, e.g. milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/g_mem.rdata_o_reg[0]
+storage write clock(s): milansoc_crg_clkout1
+read register clock(s): milansoc_crg_audio_mclk_raw
+clock interaction milansoc_crg_clkout1 -> milansoc_crg_audio_mclk_raw: 

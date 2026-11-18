@@ -1,0 +1,29 @@
+================ hunk 1
+--- OURS (7 lines)
+  The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on the runtime ctrl_image_runtime.py builds
+  (through runtime_ssp.py, #723). Its saved-state flash port is compiled against the split SoC's own map (flash_map():
+  gen_flash_port.py over the csr.csv milan_soc.py exports for the shape, #665), and the test SoC places the flash and
+  timer0 there. Every input of the native model and of its run is hashed into build.json: the checkout's sources, the
+  firmware source trees the image is compiled from, the image, its runtime archives and the ROM files the model reads at
+  run time, the exported SoC Verilog and the CPU netlist. A reused or regraded build is refused when any of them
+  changed, is missing, or is recorded under a key that does not resolve (reused()).
+--- BASE (11 lines)
+  The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on
+  the runtime ctrl_image_runtime.py builds (through runtime_ssp.py, #723).
+  Its saved-state flash port is compiled against the split SoC's own map
+  (flash_map(): gen_flash_port.py over the csr.csv milan_soc.py exports for the
+  shape, #665), and the test SoC places the flash and timer0 there.
+  Every input of the native model and of its run is hashed into build.json:
+  the checkout's sources, the firmware source trees the image is compiled
+  from, the image, its runtime archives and the ROM files the model reads at
+  run time, the exported SoC Verilog and the CPU netlist. A reused or
+  regraded build is refused when any of them changed, is missing, or is
+  recorded under a key that does not resolve (reused()).
+--- THEIRS (7 lines)
+  The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on the runtime ctrl_image_runtime.py builds
+  (through runtime_ssp.py, #723). Its saved-state flash port is compiled against the split SoC's own map (flash_map():
+  gen_flash_port.py over the csr.csv milan_soc.py exports for the shape, #665), and the test SoC places the flash and
+  timer0 there. Every input of the native model and of its run is hashed into build.json: the checkout's sources, the
+  firmware source trees the image is compiled from, the image, its runtime archives and the ROM files the model reads
+  at run time, the exported SoC Verilog and the CPU netlist. A reused or regraded build is refused when any of them
+  changed, is missing, or is recorded under a key that does not resolve (reused()).

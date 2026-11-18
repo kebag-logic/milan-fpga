@@ -1,0 +1,12 @@
+================ hunk 1
+--- OURS (6 lines)
+  	} else if (ctrl_plat.reboot != 0u) {
+  		depart(&ctrl_plat);
+  	} else if (aecp_reboot_due(&ctrl_plat.aecp.core)) {
+  		ctrl_plat.reboot = 1u;
+  	} else {
+  		ctrl_loop_step(&ctrl_plat.app.loop);
+--- BASE (0 lines)
+--- THEIRS (2 lines)
+  		// a refused stage's turn has no loop and no store step: a frame has the turn's share (THE PHY)
+  		(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);

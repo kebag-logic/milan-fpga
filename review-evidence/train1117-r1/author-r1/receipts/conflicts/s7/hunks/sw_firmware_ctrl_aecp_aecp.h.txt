@@ -1,0 +1,19 @@
+================ hunk 1
+--- OURS (7 lines)
+  // IEEE 1722.1-2021 7.4.43 (#871): true once an accepted REBOOT's SUCCESS, its
+  // notifications and every response owed with them have completed
+  // (aecp_tx_complete). The platform then resets the entity.
+  bool aecp_reboot_due(struct aecp *);
+  // True from an accepted REBOOT's SUCCESS until the reset (#871). The platform
+  // then takes no received frame of any channel (REQ-FWX-001).
+  bool aecp_reboot_accepted(const struct aecp *);
+--- BASE (0 lines)
+--- THEIRS (8 lines)
+  // The restored maps into the edit port's store (#923): once the restore's terminal and the restored formats reach
+  // it, before AECP opens. The store then holds each dynamic port's reset set as the restored formats clip it
+  // (aecp_restore_settle), so each port of the configuration in force whose map differs has that set removed and,
+  // every removal done, its own added, so a stream channel one output port gave up and another took is free when the
+  // taker's is added (Milan v1.2 5.3.10.1). A port the store refuses keeps what the store holds: its reset set where
+  // the removal is refused; else its reset set added back, or none where that is refused too. Nothing with no edit
+  // port.
+  void aecp_restore_commit(struct aecp *);

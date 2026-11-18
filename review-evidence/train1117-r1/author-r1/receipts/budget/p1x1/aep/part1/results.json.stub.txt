@@ -1,0 +1,61 @@
+results.json: 345635 bytes, sha256 9871c54fff24abd982edbd6562775ae82b1dcca78cf389eba45c8f384ee35c93; over 200 KB, kept in scratch. Its last 60 lines:
+   "ms": 5.1872,
+   "wait_ms": 120.0,
+   "passes": 8,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 140.0,
+   "ceiling_ms": 144.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315514634,
+    "last_sys": 315525111,
+    "per_recipient_cpu_cycles": 698
+   },
+   "bound_cpu_cycles": 544382,
+   "bound_ms": 5.44382,
+   "bound_within_budget": true,
+   "pass_cycles": 41100,
+   "pass_instr": 9134,
+   "pass_mbx_accesses": 62,
+   "pass_fetch_share": 0.3294,
+   "pass_fetch_wait_share": 0.1713,
+   "pass_regions": {
+    "rom": [
+     83,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     12,
+     50
+    ],
+    "csr": [
+     0,
+     55,
+     52
+    ]
+   },
+   "pass_modules": {
+    "aecp": 14474,
+    "mbx": 9024,
+    "ctrl_loop": 3199,
+    "srp_mbx": 2559,
+    "ctrl_app_aecp": 1784,
+    "aecp_commands": 1717
+   },
+   "status": "measured",
+   "group": "notice-burst-7"
+  }
+ ],
+ "notice_misses": [],
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ }
+}

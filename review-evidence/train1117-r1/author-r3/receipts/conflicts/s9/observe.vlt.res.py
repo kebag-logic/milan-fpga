@@ -1,0 +1,1 @@
+R = ["// cache's IO bus), the mailbox's receive commit, the hold of a record its bucket\n// had no token for and that record's commit at the refill (#917), its event-ring\n// writes, and the CPU's register file, read at a few function entries\n// (sim_main.cpp, note_owner). No source changes.\n"]

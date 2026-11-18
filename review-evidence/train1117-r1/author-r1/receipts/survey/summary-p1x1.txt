@@ -1,0 +1,50 @@
+## Parts
+p1-aep-0: rc=0; 8 groups graded, 0 refusals, 0 budget misses (0 of 140 probe instances, 0 of 7 paths), 0 of 10372 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-aep-1: rc=0; 8 groups graded, 0 refusals, 0 budget misses (0 of 140 probe instances, 0 of 7 paths), 0 of 10226 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-ap-0: rc=0; 2 groups graded, 0 refusals, 0 budget misses (0 of 19 probe instances, 0 of 18 paths), 0 of 232 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-ap-1: rc=0; 2 groups graded, 0 refusals, 0 budget misses (0 of 31 probe instances, 0 of 31 paths), 0 of 220 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-0: rc=0; 12 groups graded, 0 refusals, 0 budget misses (0 of 108 probe instances, 0 of 29 paths), 0 of 10800 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-1: rc=0; 12 groups graded, 0 refusals, 0 budget misses (0 of 104 probe instances, 0 of 20 paths), 0 of 33096 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-2: rc=0; 12 groups graded, 0 refusals, 7 budget misses (7 of 118 probe instances, 4 of 28 paths), 0 of 10919 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-3: rc=0; 12 groups graded, 0 refusals, 0 budget misses (0 of 111 probe instances, 0 of 23 paths), 0 of 52843 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-4: rc=0; 12 groups graded, 0 refusals, 0 budget misses (0 of 113 probe instances, 0 of 14 paths), 0 of 7258 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-5: rc=0; 13 groups graded, 0 refusals, 0 budget misses (0 of 143 probe instances, 0 of 44 paths), 0 of 7098 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-6: rc=0; 13 groups graded, 0 refusals, 0 budget misses (0 of 126 probe instances, 0 of 17 paths), 0 of 7954 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-none-7: rc=0; 13 groups graded, 0 refusals, 0 budget misses (0 of 144 probe instances, 0 of 23 paths), 0 of 7350 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-vd-0: rc=0; 1 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 0 of 2014 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-vd-1: rc=0; 1 groups graded, 0 refusals, 0 budget misses (0 of 3 probe instances, 0 of 3 paths), 0 of 654 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+p1-vd-2: rc=0; 1 groups graded, 0 refusals, 0 budget misses (0 of 11 probe instances, 0 of 10 paths), 0 of 1570 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+
+## Budget misses: 7
+p1-none-2: BUDGET backlog-owed.service.acmp.last.if0: 62.058 ms over its budget 20 ms
+p1-none-2: BUDGET backlog-owed.service.aecp.last.if0: 61.795 ms over its budget 20 ms
+p1-none-2: BUDGET backlog.owed.if0: 62.953 ms over its budget 20 ms
+p1-none-2: BUDGET backlog.owed_behind0.if0: 63.141 ms over its budget 20 ms
+p1-none-2: BUDGET backlog.owed_behind1.if0: 63.328 ms over its budget 20 ms
+p1-none-2: BUDGET backlog.owed_behind2.if0: 63.515 ms over its budget 20 ms
+p1-none-2: BUDGET backlog.owed_behind3.if0: 63.701 ms over its budget 20 ms
+
+## STATED: 0
+
+
+## REFUSED: 0
+
+
+## Queued notices: 192 measured; the longest 23.369 ms against 140 ms (p1-aep-0)
+
+## Saves: 5
+p1-none-1: SAVE save-starved: durable 4048.898 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 31.501 ms) within
+p1-none-2: SAVE save-held: durable 1096.520 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 17.198 ms) within
+p1-none-3: SAVE save-second: durable 6030.416 ms after its change (stated worst case 6,070 ms, 102 steps, longest gap between flash steps 30.898 ms) within
+p1-none-4: SAVE save: durable 1081.121 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 25.85 ms) within
+p1-vd-2: SAVE srp-talker-held: durable 1097.678 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 17.217 ms) within
+
+## Aged windows: 8
+p1-none-0: AGED 6 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 9.048 ms, backlog-adp@blank-aged2-3.service.srp.last.if0 at 10.952 ms
+p1-none-1: AGED 6 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 8.910 ms, backlog-adp@program-aged2-2.service.srp.last.if0 at 11.090 ms
+p1-none-2: AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 8.963 ms, backlog-adp@program-aged2-1.service.srp.last.if0 at 11.037 ms
+p1-none-3: AGED 6 windows opened with the step's age at its limit or one short of it, 0 aged steps among their records; the least margin 9.675 ms, backlog-adp@verify-aged1-0.service.srp.last.if0 at 10.325 ms
+p1-none-4: AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 8.873 ms, backlog-adp@verify-aged2-4.service.srp.last.if0 at 11.127 ms
+p1-none-5: AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 8.917 ms, backlog-adp@blank-aged2-5.service.srp.last.if0 at 11.083 ms
+p1-none-6: AGED 6 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 8.879 ms, backlog-adp@blank-aged2-6.service.srp.last.if0 at 11.121 ms
+p1-none-7: AGED 6 windows opened with the step's age at its limit or one short of it, 2 aged steps among their records; the least margin 9.052 ms, backlog-adp@program-aged2-7.service.srp.last.if0 at 10.948 ms

@@ -1,0 +1,14 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-fan-ed5855fe/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/fanout/ed5855fe --reuse-build --out <scratch>/r4meas/fanout/ed5855fe/part0 --groups aecp-fanout --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 23:07:42
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/fanout/ed5855fe/native/Vsim <scratch>/r4meas/fanout/ed5855fe/part0/aecp-fanout.txt -
+STEPS 102 passes carry the store's step; the longest 37,787 CPU cycles (0.378 ms), aecp-fanout; the longest step 3,091 (0.031 ms), aecp-fanout
+SLICES 3642 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 30,330, THE RETRY's round 39,769 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-fanout: 6 join interval(s), the shortest 187.180 ms and the longest 190.071 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 4 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 22 probe instances, 0 of 20 paths), 0 of 174 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED aecp-fanout: a aecp item of 27,738 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,536 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,839 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,557 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,839 CPU cycles, over its stated 27,500
+END rc=1 23:18:06

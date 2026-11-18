@@ -1,0 +1,33 @@
+[fit 1x1 08:51:38] head 3cdc613b669cca8e14f9ce2c47ae9cf452114311
+[fit 1x1 08:51:38] boot rc=0
+[fit 1x1 08:51:38] route_image done: image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3 <scratch>/r5fit/route/split/gateware/baseline_integrated.tcl done 
+[fit 1x1 09:25:13] integrated rc=0
+<scratch>/r5fit/route/split-ExtraPostPlacementOpt/baseline_implementation.tcl
+<scratch>/r5fit/route/split-ExtraTimingOpt/baseline_implementation.tcl
+<scratch>/r5fit/route/split-AltSpreadLogic_high/baseline_implementation.tcl
+[fit 1x1 09:33:32] ExtraTimingOpt rc=0
+[fit 1x1 09:43:02] AltSpreadLogic_high rc=0
+[fit 1x1 09:43:02] signoff split/gateware
+Slow_85C: WNS +0.119 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.119 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.032 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.032 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+[fit 1x1 09:43:02] signoff split-ExtraTimingOpt
+Slow_85C: WNS +0.002 ns (0 failing), WHS +0.053 ns (0 failing)
+Slow_0C: WNS +0.002 ns (0 failing), WHS +0.053 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+rc=1
+[fit 1x1 09:43:02] signoff split-AltSpreadLogic_high
+Slow_85C: WNS +0.147 ns (0 failing), WHS +0.053 ns (0 failing)
+Slow_0C: WNS +0.147 ns (0 failing), WHS +0.053 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.014 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+rc=1

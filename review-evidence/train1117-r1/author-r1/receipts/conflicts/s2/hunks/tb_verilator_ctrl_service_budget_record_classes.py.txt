@@ -1,0 +1,124 @@
+================ hunk 1
+--- OURS (11 lines)
+  (arm A's observation ports never answer), and in its aecp-reboot every REBOOT, accepted and refused, an ordinary
+  record, whose accepted path needs that arm's reset port (#871); the rest (arm B's other records, the 8x8-1if point)
+  are reported by class, not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the
+  arm (run.all_groups), each stated cost measured over the arm depending on every one of them, and unless its
+  answering-ports leg at 1x1/1if ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, aecp-reboot's
+  accepted REBOOT and a refused one, and its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path
+  port reads (#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so
+  the response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that
+  record, an ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches. Every
+  GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused, and so is a pass whose build does
+  not put arm_path.py's port in that arm's path port (port_findings).
+--- BASE (4 lines)
+  (arm A's observation ports never answer); the rest (arm B's other records, the 8x8-1if point) are reported by class,
+  not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
+  each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
+  ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO.
+--- THEIRS (7 lines)
+  (arm A's observation ports never answer); the rest (arm B's other records) are reported by class, not held. Each leg is
+  held at its own point's statements, 8x8/1if's at 8x8/1if's (THE SHAPES; #894's shape ruling, item (b)), never at
+  another point's. A pass is refused unless, at each point it is held at (COMPLETE) where it runs any leg, it runs arm A
+  there, its arm A legs together ran every group of the arm (run.all_groups), each stated cost measured over the arm
+  depending on every one of them, and its answering-ports leg there ran aecp-fanout's accepted SET_CONFIGURATION and its
+  SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such point is refused. So a pass of
+  8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if leg is held complete there too.
+================ hunk 2
+--- OURS (4 lines)
+              'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
+              "a pass missing arm B's accepted REBOOT", "a pass missing arm B's refused REBOOT",
+              'a REBOOT over record.aecp', "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
+              'a GET_AS_PATH answered SUCCESS with no entries')
+--- BASE (1 lines)
+              'a SET_CONFIGURATION over the paced record', "a record named by a later record's response")
+--- THEIRS (9 lines)
+              'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
+              "an 8x8/1if record over its class's record reported, not held",
+              "an 8x8/1if pass missing arm B's SET_CONFIGURATION",
+              "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
+  #: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
+  #: 8x8/1if gate (THE SHAPES).
+  COMPLETE = ('1x1/1if', '8x8/1if')
+  #: run.POINTS' label of each point a pass is held complete at.
+  LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if'}
+================ hunk 3
+--- OURS (6 lines)
+  def answered_path(r: Record) -> bool:
+      """Whether a record is a GET_AS_PATH answered SUCCESS with the entries the answering-ports arm's port answers."""
+      return r.command == GET_AS_PATH and r.status == 0 and r.length == ANSWERED_LENGTH
+  
+  
+  def findings(legs: list[Leg], groups_of_arm: list[str] | None,
+--- BASE (1 lines)
+  def findings(legs: list[Leg], groups_of_arm: list[str] | None,
+--- THEIRS (1 lines)
+  def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | None,
+================ hunk 4
+--- OURS (30 lines)
+          if not arm:
+              out.append('the pass runs no arm A leg at 1x1/1if')
+          ran = {g for leg in arm for g in leg.groups}
+          out += [f'the pass is missing {g}, a group of arm A at 1x1/1if, on which each stated cost measured over the '
+                  'arm depends' for g in groups_of_arm if g not in ran]
+          ports = [leg for leg in legs if leg.point == '1x1/1if' and leg.variant == 'answering-ports']
+          fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
+          for command, name in HELD_COMMANDS.items():
+              got = [r for r in fanout if r.command == command and (command != SET_CONFIGURATION or r.status in ACCEPTED)]
+              if not got:
+                  what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                  out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
+                             'aecp-fanout, whose accepted path no other arm reaches')
+          reboots = [r for leg in ports for r in leg.groups.get(REBOOT_GROUP, []) if r.command == REBOOT]
+          for what, ran in (('accepted', any(r.status == 0 for r in reboots)),
+                            ('refused', any(r.status not in (0, None) for r in reboots))):
+              if not ran:
+                  out.append(f"the pass is missing arm B's {what} REBOOT: no answering-ports leg at 1x1/1if ran one in "
+                             f'{REBOOT_GROUP}, whose accepted path needs that arm\'s reset port')
+          if not [r for leg in ports for r in leg.groups.get('aecp', []) if answered_path(r)]:
+              out.append("the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH "
+                         f'answered SUCCESS with its {arm_path.ENTRIES} entries (control_data_length {ANSWERED_LENGTH}) '
+                         'in aecp, whose answered read no other arm reaches')
+      for leg in legs:
+          if leg.variant == 'answering-ports':
+              out += [f'{leg.point} answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length '
+                      f'{r.length}, not the {ANSWERED_LENGTH} of the {arm_path.ENTRIES} entries the arm\'s path port '
+                      'reads and answers (arm_path.py): its record is not the answered read\'s'
+                      for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0
+                      and not answered_path(r)]
+--- BASE (13 lines)
+          if not arm:
+              out.append('the pass runs no arm A leg at 1x1/1if')
+          ran = {g for leg in arm for g in leg.groups}
+          out += [f'the pass is missing {g}, a group of arm A at 1x1/1if, on which each stated cost measured over the '
+                  'arm depends' for g in groups_of_arm if g not in ran]
+          ports = [leg for leg in legs if leg.point == '1x1/1if' and leg.variant == 'answering-ports']
+          fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
+          for command, name in HELD_COMMANDS.items():
+              got = [r for r in fanout if r.command == command and (command != SET_CONFIGURATION or r.status in ACCEPTED)]
+              if not got:
+                  what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                  out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
+                             'aecp-fanout, whose accepted path no other arm reaches')
+--- THEIRS (21 lines)
+          wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
+          points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))
+          if not points:
+              out.append(f'the pass runs no arm A leg at a point it is held at ({", ".join(COMPLETE)})')
+          for point in points:
+              groups = wanted.get(point, [])
+              arm = [leg for leg in legs if leg.point == point and leg.variant == 'none']
+              if not arm:
+                  out.append(f'the pass runs no arm A leg at {point}')
+              ran = {g for leg in arm for g in leg.groups}
+              out += [f'the pass is missing {g}, a group of arm A at {point}, on which each stated cost measured over '
+                      'the arm depends' for g in groups if g not in ran]
+              ports = [leg for leg in legs if leg.point == point and leg.variant == 'answering-ports']
+              fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
+              for command, name in HELD_COMMANDS.items():
+                  got = [r for r in fanout if r.command == command and
+                         (command != SET_CONFIGURATION or r.status in ACCEPTED)]
+                  if not got:
+                      what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                      out.append(f"the pass is missing arm B's {name}: no answering-ports leg at {point} ran {what} in "
+                                 'aecp-fanout, whose accepted path no other arm reaches')

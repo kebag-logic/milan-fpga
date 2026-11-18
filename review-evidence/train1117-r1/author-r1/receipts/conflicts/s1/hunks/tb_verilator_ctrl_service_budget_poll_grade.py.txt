@@ -1,0 +1,31 @@
+================ hunk 1
+--- OURS (11 lines)
+  #: backlog-owed (6,239 at 5b264bf2). With SRP's Talker declarations (#895), measured on their merge with that
+  #: cut, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
+  #: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
+  #: #894's own image measures 18,843 (200 us): MAAP's poll and SRP's delivery, which carry the Talker's declarations
+  #: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass; on its merge of
+  #: #894's SET_CONFIGURATION cut, with srp_mbx_gate's repeat call cut (#895), 225 us, 21,094 cycles in save-held
+  #: (19,793 before the merge), 262 instructions fewer and 49 more instruction refills in that pass than before, not
+  #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+  #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+  #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+  STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+--- BASE (2 lines)
+  #: backlog-owed (6,239 at 5b264bf2).
+  STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=280, mrpdu=735, acmp=55,
+--- THEIRS (2 lines)
+  #: backlog-owed (6,239 at 5b264bf2).
+  STATED_US = {1: dict(base=205, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,
+--- RESOLVED (11 lines, res lines 90-100)
+  #: backlog-owed (6,239 at 5b264bf2). With SRP's Talker declarations (#895), measured on their merge with that
+  #: cut, every group of arm A, the answering-every-port and valid-destinations arms and arm B's aecp groups, each
+  #: cost the larger of that and this table's: the polls' base at 1x1/1if 215 us, 20,282 CPU cycles in acmp-cmd, where
+  #: #894's own image measures 18,843 (200 us): MAAP's poll and SRP's delivery, which carry the Talker's declarations
+  #: and each source's stream_id (#905), and the polls around them, 79 instructions more in that pass; on its merge of
+  #: #894's SET_CONFIGURATION cut, with srp_mbx_gate's repeat call cut (#895), 225 us, 21,094 cycles in save-held
+  #: (19,793 before the merge), 262 instructions fewer and 49 more instruction refills in that pass than before, not
+  #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+  #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+  #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+  STATED_US = {1: dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=735, acmp=55,

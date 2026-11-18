@@ -1,0 +1,16 @@
+================ hunk 1
+--- OURS (1 lines)
+      figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 35u : 105u)'
+--- BASE (1 lines)
+      figure = '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 105u)'
+--- THEIRS (0 lines)
+================ hunk 2
+--- OURS (2 lines)
+      under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 34u : 104u)')}
+      if figure not in header or tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
+--- BASE (2 lines)
+      under = {loop: header.replace(figure, '#define CTRL_LOOP_TX_MS (MBX_N_IF == 1u ? 33u : 104u)')}
+      if figure not in header or tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
+--- THEIRS (2 lines)
+      under = {loop: shape_costs.planted_under(header, [shape_costs.of_point(p, root) for p in POINTS], shape_costs.TX)}
+      if tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):

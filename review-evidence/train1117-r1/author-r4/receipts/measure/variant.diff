@@ -1,0 +1,26 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index d4b3a2408a..687b01bb0d 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -284,8 +284,6 @@ SECTIONS
+ 		*-aecp_nvm.o(.text.aecp_nvm_changed)
+ 		*-aecp_nvm.o(.text.mark)
+ 		*-aecp_face.o(.text.changed)
+-		*-aecp.o(.text.owe)
+-		*-aecp.o(.text.owed_drain)
+ 		*-aecp.o(.text.fan_out)
+ 		*-nvm_store.o(.text.nvm_store_changed_id)
+ 		*-nvm_klj2.o(.text.nvm_rec_id_known)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 3456c19208..47b7609b4b 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -281,8 +281,6 @@ ctrl_app_aecp changed
+ aecp_nvm aecp_nvm_changed
+ aecp_nvm mark
+ aecp_face changed
+-aecp owe
+-aecp owed_drain
+ aecp fan_out
+ nvm_store nvm_store_changed_id
+ nvm_klj2 nvm_rec_id_known

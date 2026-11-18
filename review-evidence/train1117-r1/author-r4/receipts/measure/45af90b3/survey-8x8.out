@@ -1,0 +1,6 @@
+{"ordinary costs": 0, "long costs": 0, "datapath": 0, "compare ordinary": 1} | long: item.aecp_long (the polls): 64,312 CPU cycles, 680 us by the rule, against aecp_long 700 us at 8x8/2if: within; ap-part1/aecp-largest-notice; the notice kind (aecp_kinds.py): 64,312 CPU cycles, 680 us by the rule, against aecp_long 700 us at 8x8/2if: within; ap-part1/aecp-largest-notice (31 frame(s))
+3 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+item.aecp                                     28,802   288.02   305    275 OVER-raw poll_grade.STATED_US[(2, 9, 9)] aecp; ap-part0/aecp-fanout
+item.aecp.notice                              28,802   288.02   305    275 OVER-raw load_grade.stated(8x8/2if) GRADED item.aecp.notice; ap-part0/aecp-fanout (32 frame(s))
+item.aecp.notice                              28,802   288.02   305    275 OVER-raw load_grade.stated(8x8/2if) STATED_US item.aecp.notice; ap-part0/aecp-fanout (32 frame(s))
+

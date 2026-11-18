@@ -1,0 +1,61 @@
+r4-tip-fw3.log: 237071 bytes, sha256 e0e8c90e20b5e3d100c3017eb81bb29eed4478b247fd23bcedf08e8686964d9e; over 200 KB, kept in scratch. Its last 60 lines:
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+[ok] talker-gate-repeat-ignores-its-base: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ok] talker-notice-declaration-missed: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+[ok] talker-notice-withdrawal-missed: Talker.DeclarationAndWithdrawalAreNoticed / a withdrawal is noticed
+[ok] talker-notice-record-dropped: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+[ok] talker-notice-every-declared-source: Talker.TypeSwapIsNoticed / a Talker Failed withdrawn is noticed
+[ok] talker-notice-swap-missed: Talker.TypeSwapIsNoticed / a type swapped in place is noticed
+[ok] talker-notice-refused-swap-noticed: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+[ok] talker-notice-vid-missed: Talker.AdoptedDomainVidIsNoticed / a declared Talker carrying another VID is noticed
+[ok] talker-notice-vid-on-every-domain: Talker.AdoptedDomainVidIsNoticed / a Domain that keeps the VID notices nothing
+[ok] talker-notice-reset-forgets-what-was-shown: Talker.ResetNoticesNothingUnchanged / a source a reset declares again unchanged is not noticed
+[ok] talker-notice-not-taken: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / a probe's declaration notices its source
+[ok] talker-notice-kept-across-a-recomposition: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / an attached SRP instance starts with no record
+[ok] talker-notice-record-kept: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / the SRP delivery takes SRP's record
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-renew-not-recorded: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+[ok] feedback-latest-unknown-withdraws: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+[ok] feedback-latest-not-carried-in-place: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+[ok] feedback-latest-filter-holds-nothing: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+[ok] feedback-latest-filter-holds-nothing-acmp: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+[ok] feedback-latest-not-held: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-not-taken: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-for-another-stream: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+[ok] feedback-latest-held-with-one-kind: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+[ok] feedback-latest-held-past-a-leave: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-held-past-a-reset: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-stream-kinds-kept: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] feedback-latest-filter-failed-first: SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind / the latest kind precedes the withdrawal
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+END rc=0 00:13:24

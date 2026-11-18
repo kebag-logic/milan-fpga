@@ -1,0 +1,147 @@
+# p11 (3e908539, the RTL and images 74481d2e carries) split routes: signoff.py and paths3.py per directive; 13:16:01
+# routed firmware 1x1/1if: a00828fe5e1a98bb1b9cb6fb47773138eb11ec60ec419105bdc250840d9799f0
+
+== 1x1/1if split/gateware (2026-11-18T11:40:07+01:00 to 2026-11-18T12:09:48+01:00, rc 0)
+Slow_85C: WNS +0.141 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.141 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.033 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.033 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+design worst setup, Slow_85C: slack +0.141 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/u_evt/dl_r_reg[14][0]/CE
+    Data Path Delay:        9.737ns  (logic 2.075ns (21.310%)  route 7.662ns (78.690%))
+    Logic Levels:           14  (LUT2=4 LUT3=4 LUT4=1 LUT5=2 LUT6=3)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.141 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+    Destination:            KL_mbx/u_evt/dl_r_reg[14][0]/CE
+    Data Path Delay:        9.737ns  (logic 2.075ns (21.310%)  route 7.662ns (78.690%))
+    Logic Levels:           14  (LUT2=4 LUT3=4 LUT4=1 LUT5=2 LUT6=3)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.359 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_18/C
+util BlockRAMTile 80 59.26%
+util DSPs 11 4.58%
+util SliceLUTs 32610 51.44%
+util SliceRegisters 42626 33.62%
+
+== 1x1/1if split-ExtraTimingOpt (2026-11-18T12:09:48+01:00 to 2026-11-18T12:17:54+01:00, rc 0)
+Slow_85C: WNS +0.054 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.054 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+design worst setup, Slow_85C: slack +0.054 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[3]/C
+    Destination:            KL_mbx/face_f_pt_offset_r_reg[0][3][25]/CE
+    Data Path Delay:        9.634ns  (logic 1.916ns (19.888%)  route 7.718ns (80.112%))
+    Logic Levels:           13  (LUT2=6 LUT3=2 LUT5=1 LUT6=4)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.054 ns, group milansoc_crg_clkout0
+    Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[3]/C
+    Destination:            KL_mbx/face_f_pt_offset_r_reg[0][3][25]/CE
+    Data Path Delay:        9.634ns  (logic 1.916ns (19.888%)  route 7.718ns (80.112%))
+    Logic Levels:           13  (LUT2=6 LUT3=2 LUT5=1 LUT6=4)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+util BlockRAMTile 80 59.26%
+util DSPs 11 4.58%
+util SliceLUTs 32556 51.35%
+util SliceRegisters 42626 33.62%
+
+== 1x1/1if split-AltSpreadLogic_high (2026-11-18T13:07:19+01:00 to 2026-11-18T13:14:55+01:00, rc 0)
+Slow_85C: WNS +0.031 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.031 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+design worst setup, Slow_85C: slack +0.031 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+    Data Path Delay:        9.834ns  (logic 2.793ns (28.401%)  route 7.041ns (71.599%))
+    Logic Levels:           22  (LUT2=4 LUT3=3 LUT4=7 LUT5=2 LUT6=6)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.031 ns, group milansoc_crg_clkout0
+    Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]/C
+    Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+    Data Path Delay:        9.834ns  (logic 2.793ns (28.401%)  route 7.041ns (71.599%))
+    Logic Levels:           22  (LUT2=4 LUT3=3 LUT4=7 LUT5=2 LUT6=6)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +1.377 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_2/C
+util BlockRAMTile 80 59.26%
+util DSPs 11 4.58%
+util SliceLUTs 32585 51.40%
+util SliceRegisters 42630 33.62%
+# routed firmware 8x8/1if: 5edbba3a79a669eb7f5a4b5ebf52549689527dce9ec77fb78609a3f34d887a93
+
+== 8x8/1if split/gateware (2026-11-18T11:40:15+01:00 to 2026-11-18T12:17:13+01:00, rc 0)
+Slow_85C: WNS +0.073 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.073 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.034 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.034 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+design worst setup, Slow_85C: slack +0.073 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[12]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[12]/D
+    Data Path Delay:        9.852ns  (logic 3.080ns (31.262%)  route 6.772ns (68.738%))
+    Logic Levels:           20  (CARRY4=1 LUT2=2 LUT3=1 LUT5=5 LUT6=11)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.073 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/rd_off_r_reg[12]/C
+    Destination:            KL_mbx/reg_rdata_r_reg[12]/D
+    Data Path Delay:        9.852ns  (logic 3.080ns (31.262%)  route 6.772ns (68.738%))
+    Logic Levels:           20  (CARRY4=1 LUT2=2 LUT3=1 LUT5=5 LUT6=11)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.835 ns, group milansoc_crg_clkout1
+    Source:                 milan_datapath/pp_ctr_rr_r_reg[3]/C
+util BlockRAMTile 94.5 70.00%
+util DSPs 11 4.58%
+util SliceLUTs 43022 67.86%
+util SliceRegisters 50995 40.22%
+
+== 8x8/1if split-ExtraTimingOpt (2026-11-18T12:17:13+01:00 to 2026-11-18T12:26:34+01:00, rc 0)
+Slow_85C: WNS +0.064 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.064 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.412 ns (0 failing), WHS +0.027 ns (0 failing)
+Fast_0C: WNS +1.412 ns (0 failing), WHS +0.027 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+design worst setup, Slow_85C: slack +0.064 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[0]/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.869ns  (logic 4.421ns (44.797%)  route 5.448ns (55.203%))
+    Logic Levels:           23  (CARRY4=13 LUT2=3 LUT3=1 LUT4=1 LUT5=3 LUT6=2)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.064 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[0]/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.869ns  (logic 4.421ns (44.797%)  route 5.448ns (55.203%))
+    Logic Levels:           23  (CARRY4=13 LUT2=3 LUT3=1 LUT4=1 LUT5=3 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.989 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_20/C
+util BlockRAMTile 94.5 70.00%
+util DSPs 11 4.58%
+util SliceLUTs 42998 67.82%
+util SliceRegisters 50993 40.22%
+
+== 8x8/1if split-AltSpreadLogic_high (2026-11-18T12:57:43+01:00 to 2026-11-18T13:07:14+01:00, rc 0)
+Slow_85C: WNS +0.006 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.006 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.412 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.412 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+design worst setup, Slow_85C: slack +0.006 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[0]/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.927ns  (logic 4.421ns (44.534%)  route 5.506ns (55.466%))
+    Logic Levels:           23  (CARRY4=13 LUT2=3 LUT3=1 LUT4=1 LUT5=3 LUT6=2)
+worst setup at milansoc_crg_clkout0, Slow_85C: slack +0.006 ns, group milansoc_crg_clkout0
+    Source:                 KL_mbx/u_rx/ch_r_reg[0]/C
+    Destination:            KL_mbx/u_rx/vd_acc_r_reg/D
+    Data Path Delay:        9.927ns  (logic 4.421ns (44.534%)  route 5.506ns (55.466%))
+    Logic Levels:           23  (CARRY4=13 LUT2=3 LUT3=1 LUT4=1 LUT5=3 LUT6=2)
+worst setup at milansoc_crg_clkout1, Slow_85C: slack +0.989 ns, group milansoc_crg_clkout1
+    Source:                 FDPE_20/C
+util BlockRAMTile 94.5 70.00%
+util DSPs 11 4.58%
+util SliceLUTs 43000 67.82%
+util SliceRegisters 50993 40.22%

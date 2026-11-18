@@ -1,0 +1,55 @@
+{
+ "label": "hot-keep",
+ "record": [
+  {
+   "cycles": 94901,
+   "instr": 22199,
+   "us": 1000,
+   "cpi": 4.275,
+   "pass_cycles": 153406,
+   "pass_instr": 30783,
+   "pass_refills": 313,
+   "pass_fetch_wait": 26199
+  },
+  {
+   "cycles": 89443,
+   "instr": 22001,
+   "us": 940,
+   "cpi": 4.065,
+   "pass_cycles": 143853,
+   "pass_instr": 30330,
+   "pass_refills": 277,
+   "pass_fetch_wait": 23146
+  }
+ ],
+ "events": {
+  "event.MAAP": {
+   "cycles": 14353,
+   "instr": 2751,
+   "us": 155,
+   "cpi": 5.217,
+   "where": "none/acmp-notk"
+  },
+  "event.AECP": {
+   "cycles": 5454,
+   "instr": 1050,
+   "us": 60,
+   "cpi": 5.194,
+   "where": "aep/notice-burst-7"
+  },
+  "AVB_INFO_CHANGED": {
+   "cycles": 2591,
+   "instr": 359,
+   "us": 30,
+   "cpi": 7.217,
+   "where": "none/datapath-events"
+  },
+  "AS_PATH_CHANGED": {
+   "cycles": 3269,
+   "instr": 362,
+   "us": 35,
+   "cpi": 9.03,
+   "where": "none/datapath-events"
+  }
+ }
+}

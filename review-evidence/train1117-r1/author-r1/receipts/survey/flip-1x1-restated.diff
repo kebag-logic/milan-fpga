@@ -1,0 +1,44 @@
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index bbde385738..1747730c68 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -204,7 +204,7 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_210, 'arm A, backlog-adp-refill'),
+ #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+ STATED_US = {
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+-                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
++                'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 170, 'event.AECP': 80, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
+@@ -254,7 +254,7 @@ STATED_US = {
+ #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
+ STATED_US_DONOR = {
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+-                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
++                'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 80, 'event.TICK': 55,
+                 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
+                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
+diff --git a/tb/verilator/ctrl_service_budget/rows_tiers.py b/tb/verilator/ctrl_service_budget/rows_tiers.py
+index 1b1c382a8f..e8d843672b 100644
+--- a/tb/verilator/ctrl_service_budget/rows_tiers.py
++++ b/tb/verilator/ctrl_service_budget/rows_tiers.py
+@@ -98,7 +98,7 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
+ #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
+ #: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
+ #: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
+-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
++DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30},
+                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
+ #: The five rows decision D bounds, the slice rule's (slice_choice).
+ TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
+@@ -132,7 +132,7 @@ LONG_NOTICE_US = {point: poll_grade.stated_us(load_grade.POINTS[point]['n_if'])[
+ #: (965 us; refused 23,883 to 75,892), 156,716 at 8x8/2if in the answering-ports arm, whose output map it edits (147,843
+ #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
+ #: 1,510 us), 1,715 us (#904: one decode, one pass). record.aecp is shorter ones'.
+-LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1715}
++LONG_RECORD_US = {'1x1/1if': 1045, '8x8/2if': 1650, '8x8/1if': 1715}
+ #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
+ TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
+ #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.

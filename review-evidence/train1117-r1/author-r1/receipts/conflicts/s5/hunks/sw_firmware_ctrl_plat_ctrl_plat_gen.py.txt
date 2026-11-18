@@ -1,0 +1,34 @@
+================ hunk 1
+--- OURS (6 lines)
+      milan_csr and ctrl_mbx regions, the UART's four registers and the AECP
+      REBOOT's reset port (ctrl_reboot_req, milan_soc.CtrlReboot; #871). The address
+      map is independent of the image (docs/design/SPLIT_CONTROL_MEMORY.md
+      section 4), so an export with any image gives the image's map. A csr.csv
+      whose UART pops its receive FIFO on the RXTX read (rx_fifo_rx_we) is
+      refused: the console pops it through EV_PENDING.
+--- BASE (5 lines)
+      milan_csr and ctrl_mbx regions and the UART's four registers. The address
+      map is independent of the image (docs/design/SPLIT_CONTROL_MEMORY.md
+      section 4), so an export with any image gives the image's map. A csr.csv
+      whose UART pops its receive FIFO on the RXTX read (rx_fifo_rx_we) is
+      refused: the console pops it through EV_PENDING.
+--- THEIRS (8 lines)
+      milan_csr and ctrl_mbx regions and the UART's four registers; the PHY's
+      MDIO pair and link-status word (milan_mac_phy_mdio_w and _r,
+      milan_mac_link_status; #919), all three or none, none written as 0, a SoC
+      with no MDIO, whose image polls no PHY (ctrl_plat_phy.h). The address map is independent of the image
+      (docs/design/SPLIT_CONTROL_MEMORY.md section 4), so an export with any
+      image gives the image's map. A csr.csv whose UART pops its receive FIFO on
+      the RXTX read (rx_fifo_rx_we) is refused: the console pops it through
+      EV_PENDING. So is one with some but not all of the PHY's three rows.
+================ hunk 2
+--- OURS (2 lines)
+              ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"),
+              ("CTRL_PLAT_REBOOT", "csr_register", "ctrl_reboot_req"))
+--- BASE (1 lines)
+              ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"))
+--- THEIRS (4 lines)
+              ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"))
+  #: The PHY's rows (#919): macro -> csr.csv register, all three or none (ctrl_plat_phy.h).
+  PHY_ROWS = (("CTRL_PLAT_PHY_MDIO_W", "milan_mac_phy_mdio_w"), ("CTRL_PLAT_PHY_MDIO_R", "milan_mac_phy_mdio_r"),
+              ("CTRL_PLAT_LINK_STATUS", "milan_mac_link_status"))

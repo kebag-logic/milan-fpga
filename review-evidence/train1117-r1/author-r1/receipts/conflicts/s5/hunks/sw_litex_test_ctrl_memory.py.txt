@@ -1,0 +1,32 @@
+================ hunk 1
+--- OURS (7 lines)
+       Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+       size fixture's and the platform's 8x8 images with two interfaces) plans
+       its 59.5 or 60.5 by name and is refused without its override, through
+       add_ctrl_memory and half a tile past; each override is refused on every
+       other point, on the other's image and on an image with one of its two
+       symbols. Six planted ledgers, each widening an entry to another point or
+       image, must each turn the ledger red with its pin set aside.
+--- BASE (7 lines)
+       Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+       size fixture's and the platform's 8x8 images with two interfaces) plans
+       its 59.0 or 60.5 by name and is refused without its override, through
+       add_ctrl_memory and half a tile past; each override is refused on every
+       other point, on the other's image and on an image with one of its two
+       symbols. Six planted ledgers, each widening an entry to another point or
+       image, must each turn the ledger red with its pin set aside.
+--- THEIRS (6 lines)
+       Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py) plans
+       its tiles by name and is refused without its override and half a tile
+       past; each override is refused on every other point and image. The SoC
+       build plans the one product entry's image by its symbols (#923's ruling)
+       and refuses the others'. Thirteen planted ledgers, each widening an entry
+       or making it a product entry or not, must each turn the ledger red.
+================ hunk 2
+--- OURS (1 lines)
+                                            f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+--- BASE (1 lines)
+                                            f"platform's 8x8 images with two interfaces at 59.0 and 60.5 ({held})")
+--- THEIRS (2 lines)
+                                            f"platform's 8x8 images with two interfaces at 59.0 and 61.0 and the "
+                                            f"platform's with one at 56.5, the one product entry ({held})")

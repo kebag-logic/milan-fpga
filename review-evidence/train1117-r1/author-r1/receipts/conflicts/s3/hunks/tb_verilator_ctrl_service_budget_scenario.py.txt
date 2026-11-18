@@ -1,0 +1,11 @@
+================ hunk 1
+--- OURS (3 lines)
+      groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+                *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
+                *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build)]
+--- BASE (2 lines)
+      groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+                *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build)]
+--- THEIRS (2 lines)
+      groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build), *maap_groups(p),
+                *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build), *held.groups(p)]

@@ -1,0 +1,10 @@
+{"ordinary costs": 0, "long costs": 0, "datapath": 0, "compare ordinary": 1} | long: item.aecp_long (the polls): 63,828 CPU cycles, 675 us by the rule, against aecp_long 700 us at 8x8/2if: within; ap-part1/aecp-largest-notice; the notice kind (aecp_kinds.py): 63,828 CPU cycles, 675 us by the rule, against aecp_long 700 us at 8x8/2if: within; ap-part1/aecp-largest-notice (31 frame(s))
+7 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+event.AECP                                    11,166   111.66   120    115 OVER     load_grade.stated(8x8/2if) GRADED event.AECP; TIMER#6, 37953 taken
+event.AECP                                    11,166   111.66   120    115 OVER     load_grade.stated(8x8/2if) STATED_US event.AECP; TIMER#6, 37953 taken
+item.aecp                                     28,596   285.96   305    275 OVER-raw poll_grade.STATED_US[(2, 9, 9)] aecp; ap-part0/aecp-fanout
+record.maap                                   14,923   149.23   160    155 OVER     load_grade.stated(8x8/2if) GRADED record.maap; vd-part2/srp-talker-loss.log
+record.maap                                   14,923   149.23   160    155 OVER     load_grade.stated(8x8/2if) STATED_US record.maap; vd-part2/srp-talker-loss.log
+item.aecp.notice                              28,596   285.96   305    275 OVER-raw load_grade.stated(8x8/2if) GRADED item.aecp.notice; ap-part0/aecp-fanout (32 frame(s))
+item.aecp.notice                              28,596   285.96   305    275 OVER-raw load_grade.stated(8x8/2if) STATED_US item.aecp.notice; ap-part0/aecp-fanout (32 frame(s))
+
