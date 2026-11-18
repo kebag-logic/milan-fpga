@@ -1,0 +1,17 @@
+restated figure                          cycles   rule  spec  at the head
+1x1/1if  paced  a one-row edit    29,331    310   310    310  OK
+8x8/1if  e1     base              28,417    300   300    300  OK
+8x8/1if  e1     retained          35,350    375   375    375  OK
+8x8/1if  own81  record.maap       16,682    180   180    180  OK
+8x8/2if  s2     event.AECP        11,404    120   120    120  OK
+8x8/2if  s2     events_none        4,069     45    45     45  OK
+8x8/2if  s2     record.maap       14,770    160   160    160  OK
+8x8/1if  own81  record.adp        12,779    135   135    135  OK
+8x8/1if  own81  record.srp        35,547    375   375    375  OK
+208 survey rows checked (21 read from the receipt, their source not a table this reads)
+MOVED 41d2bc2b 1x1 item.mrpdu: receipt stated 735, head 0 (poll_grade.STATED_US[(1, 2, 2)] mrpdu; aep-part0/notice-ever)
+MOVED 41d2bc2b 8x8 item.mrpdu: receipt stated 1215, head 0 (poll_grade.STATED_US[(2, 9, 9)] mrpdu; aep-part0/notice-ever)
+MOVED unit375 8x8-1if item.mrpdu: receipt stated 1475, head 0 (poll_grade.STATED_US[(1, 9, 9)] mrpdu; aep-part0/notice-ever)
+MOVED unit375 8x8-1if record.adp: receipt stated 130, head 135 (load_grade.stated(8x8/1if) GRADED record.adp; none-part2/bac)
+MOVED unit375 8x8-1if record.adp: receipt stated 130, head 135 (load_grade.stated(8x8/1if) GRADED record.adp; none-part2/bac)
+RESULT: PASS

@@ -1,0 +1,8 @@
+# check_refactors.py (AST and imported-table identity) at the head's history:
+6fef44b8d1 build.py, grade.py AST IDENTICAL; 45708d9e1f plat_mutants.py AST IDENTICAL; 4a5bfb3269 grade.py AST IDENTICAL but docstrings
+b1af3b546f aecp_mutants.DEFECTS 361 entries before and after, EQUAL; afbbde5473 plat_mutants.mutants 121 entries, EQUAL
+# the two selftest_mutants moves, by source line (the table needs the processor submodule to import):
+7431b6babe -> selftest_mutants_burst.py: 18 removed lines, all present in the new module but one comment line
+4a5bfb3269 -> selftest_mutants_mrp.py: 86 removed lines, all present in the new module
+run.py --self-test at the head imports both tables and reports 0 failures (receipts/gates/run_selftest.log)
+082d0037dc declared_verdict moved run.py -> talker_notice.py: AST differs only by the self-import dropped and talker_notice.PATHS / talker_notice.CONTROLS read unqualified in their own module; behaviour identical
