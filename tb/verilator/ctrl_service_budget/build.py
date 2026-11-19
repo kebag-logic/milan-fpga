@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 
 import arm_path
+import declaring_outputs
 import notice_window
 import observers
 import talker_notice
@@ -99,7 +100,7 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
-    **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS,
+    **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -131,7 +132,9 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and every later one answers zeroed
 #: values, so the port answers just after a retry failed: the retried notice's row (notice_window.py) starts there.
 #: valid-destinations (#895): the fixture's ACMP source port reports destinations as the platform's does, so its group's
-#: probes open DA gates and SRP declares Talkers.
+#: probes open DA gates and SRP declares Talkers. declaring-outputs (#943): answering-ports with valid-destinations'
+#: source port and every STREAM_OUTPUT declaring, so the AECP bridge completes each whole observation of one
+#: (declaring_outputs.py).
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
@@ -233,8 +236,10 @@ VARIANTS = {
     ],
 }
 VARIANTS.update(talker_notice.VARIANTS)
+VARIANTS[declaring_outputs.NAME] = [*VARIANTS['answering-ports'], *declaring_outputs.FIXTURE_EDITS]
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
-VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
+VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',),
+                   declaring_outputs.NAME: (declaring_outputs.ENTRY,)}
 
 
 @dataclasses.dataclass(frozen=True)

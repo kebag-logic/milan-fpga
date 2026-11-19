@@ -610,13 +610,10 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
-                        help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
-                        "block's stream, avb, path and counters), shutdown-entry (the SHUTDOWN "
-                        "path's test-only input), answering-later (the face block's stream observation answers "
-                        "from NOW_MS notice_window.ANSWER_MS: the retried notice's row) or valid-destinations "
-                        "(the fixture's ACMP source port valid once MAAP holds the range: SRP's Talker "
-                        "declarations, #895) or talker-notices (valid-destinations with the stream observation "
-                        "answering: a declared or withdrawn Talker's STREAM_OUTPUT notice, #936)")
+                        help='a labelled test-code arm: answering-ports (the observation ports answer), '
+                        'shutdown-entry (the SHUTDOWN input), answering-later (the retried notice), '
+                        'answering-every-port, valid-destinations (#895), talker-notices (#936) or declaring-outputs '
+                        "(every STREAM_OUTPUT declaring, #943); build.py's VARIANTS states each")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')
@@ -876,6 +873,9 @@ def all_groups(point: object, spec: dict) -> list:
     if spec.get('variant') == 'talker-notices':
         import talker_notice
         return talker_notice.groups(point)
+    if spec.get('variant') == 'declaring-outputs':
+        import declaring_outputs
+        return declaring_outputs.groups(point, spec)
     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 
@@ -983,11 +983,14 @@ def main() -> int:
     for line in stated:
         print('STATED', line)
     import build as builder
+    import declaring_outputs
+    late += notice_misses(results, n_if) + declaring_outputs.findings(spec, out, groups)
+    if args.mutation in declaring_outputs.CONTROLS:
+        return declaring_outputs.verdict(args, out, late, refusals)
     if args.mutation in builder.REFERENCE_CONTROLS:
         return reference_verdict(args, results, refusals, reference_run(args, build_dir, shape, n_if))
     return verdict(args, groups, refusals, misses, shares,
-                   late + notice_misses(results, n_if)
-                   + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))
+                   late + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))
 
 
 if __name__ == '__main__':

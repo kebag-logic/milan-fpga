@@ -1444,16 +1444,17 @@ row names the difference, its cause and the step that owes the fix, and
 asserts its exact fabric and split values. A row whose difference has gone is
 a finding too: the lane that fixes it deletes the row.
 
-| Row | Fabric | Split | Owed to |
-|---|---|---|---|
-| `stream-output-0-dest-mac` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws, the declared ones with stream_dest_mac `91e0f0000100` | the same notices, the declared ones with stream_dest_mac 0 | #943 |
-
-It is the split datapath's. Its GET_STREAM_INFO face answers a
-STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's address. The
-split does not build that engine, so a declaring output reads 0
-(`hdl/milan/milan_datapath.sv`, `g_no_maap` and `gsi_answer`'s selector 4;
-Milan v1.2 5.4.2.10.2, Table 5.11).
-#936 deleted the row before it, `stream-output-0-notices`. It owed the split's
+It holds no row at this head. #943 deleted `stream-output-0-dest-mac`, the
+split's declared STREAM_OUTPUT 0 notices with stream_dest_mac 0 where the
+fabric's carry `91e0f0000100`. The split datapath's face answers a
+STREAM_OUTPUT's stream_dest_mac from the fabric MAAP engine's address, which
+the split does not build (`hdl/milan/milan_datapath.sv`, `g_no_maap` and
+`gsi_answer`'s selector 4). Since #943 the split's firmware answers it from
+the Talker's MAAP address, the ACMP source port's
+([AECP README](../../../sw/firmware/ctrl/aecp/README.md)), so both halves send
+the same four notices (Milan v1.2 5.4.2.10.2, Table 5.11), and
+`output-dest-mac-zero` plants the row's old behaviour.
+#936 deleted the row before that, `stream-output-0-notices`. It owed the split's
 missing notices of STREAM_OUTPUT 0, whose Talker Advertise since #895 is declared
 after the PROBE_TX and withdrawn, as the fabric's is (#929). The split now sends
 the fabric's four, at the same changes, to the same controllers
@@ -1502,8 +1503,8 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
 | `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Advertise stream_id 024b4c4b4c010001` |
 | `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
 | `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
-| `vanished-owed` | an owed difference gone: the split's STREAM_OUTPUT 0 notices replaced by the fabric's | `owed row stream-output-0-dest-mac: the difference has gone` |
-| `output-notice-dropped` | #936's defect back: the split's STREAM_OUTPUT 0 notices dropped | `owed row stream-output-0-dest-mac does not hold` |
+| `output-dest-mac-zero` | #943's defect back: the split's declared STREAM_OUTPUT 0 notices with stream_dest_mac 0, STREAM_DEST_MAC_VALID kept | `AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66` |
+| `output-notice-dropped` | #936's defect back: the split's STREAM_OUTPUT 0 notices dropped | `the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first controller` |
 | `command-byte` | one byte other than `sequence_id` of the first CONTROLLER_AVAILABLE to the first controller | `AECP command 0 differs at byte 33` |
 | `command-sequence` | the second CONTROLLER_AVAILABLE to the second controller given the first's `sequence_id` | `the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0` |
 | `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
@@ -1518,8 +1519,8 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
 ### What it finds at this head
 
 ADP, ACMP and MAAP are equal, byte for byte, in order. The AECP responses,
-notices and the entity's own commands are equal apart from the ledger and the
-owed rows. The notices' `sequence_id` runs without a gap or a repeat in both
+notices and the entity's own commands are equal apart from the ledger, and no
+owed row is left. The notices' `sequence_id` runs without a gap or a repeat in both
 halves. CONTROLLER_AVAILABLE's rises per controller in both: the fabric counts
 per controller (0 and 1 to the second, 0 to the first), the split per entity
 (0 and 2 to the second, 1 to the first). Both halves meet every timing bound.
@@ -1542,7 +1543,7 @@ declares its `LWSRP_TSPEC` word (`milan_datapath.sv`, the TSpec geometry's
 reset). Which of the two sets the 73 is not diagnosed here. Reported on #929,
 not held here.
 
-`make twin` exits 0: everything else is a ledger or an owed row. The split's
+`make twin` exits 0: everything else is a ledger row. The split's
 Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its
 VID 2 is JoinMt from 12 ms: the firmware declares it with Join!, not New!,
 which takes VO to VP, then AA, then QA. Both pass the Table 10-3 grade.

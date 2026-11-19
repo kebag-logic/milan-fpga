@@ -115,7 +115,9 @@ static bool observe(struct aecp *a, uint16_t type, uint16_t index, struct aecp_s
 
 bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
+	bool brief = out->brief;
 	memset(out, 0, sizeof *out);
+	out->brief = brief;
 	return observe(a, type, index, out);
 }
 
@@ -375,7 +377,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	if (d == NULL) {
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}
-	struct aecp_stream_info info;
+	struct aecp_stream_info info = {.brief = false};
 	if (!aecp_stream_read(a, type, index, &info)) {
 		return AECP_ENTITY_MISBEHAVING;
 	}

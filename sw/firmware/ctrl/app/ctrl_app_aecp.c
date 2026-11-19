@@ -3,6 +3,7 @@
 #include "ctrl_app_aecp.h"
 #include "mbx_wire.h"
 #include "nvm_store.h"
+#include "srp_mbx.h"
 #include <string.h>
 
 _Static_assert(CTRL_APP_AECP_SLOT < MBX_N_TIMERS, "AECP needs its own timer slot");
@@ -45,6 +46,26 @@ static uint32_t random_value(void *ctx)
 	return c->environment->random(c->environment->ctx);
 }
 
+// What the split datapath's face cannot answer of a STREAM_OUTPUT it reports declaring (its STREAM_DEST_MAC_VALID;
+// #943; Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11, 5.12): stream_dest_mac is its Talker's MAAP address, the ACMP source
+// port's that PROBE_TX_RESPONSE carries, and the Listener SRP registers for its stream_id on its interface, as the SRP
+// delivery reads it, sets REGISTERING whatever its declaration and REGISTERING_FAILED for Asking Failed (IEEE
+// 802.1Q-2018 35.2.2.7.2). The face leaves both 0 for an output.
+static bool output(struct ctrl_app_aecp *c, uint16_t index, struct aecp_stream_info *v)
+{
+	const struct acmp_config *a = &c->app->acmp.acmp.cfg;
+	if (index >= a->n_sources) return false;
+	struct acmp_source_state st = {0};
+	source(c, index, &st);
+	const struct srp_interface *i = c->app->srp != NULL && index < CTRL_SRP_SOURCES
+		? &c->app->srp->ifs[a->source_interface[index]] : NULL;
+	bool listening = i != NULL && i->listener_present[index];
+	v->dest_mac = st.dest_mac_valid ? st.stream.dest_mac : 0u;
+	v->flags |= listening && !i->registered[index] ? 0x40u : 0u;
+	v->flags_ex = listening ? 1u : 0u;
+	return true;
+}
+
 static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index, struct aecp_stream_info *v)
 {
 	struct ctrl_app_aecp *c = ctx;
@@ -61,6 +82,11 @@ static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index,
 			(s.registering_failed ? 0x08000040u : 0u) |
 			(s.bound ? 0x04000006u : 0u) | (s.bound && !s.started ? 8u : 0u);
 		v->flags_ex = s.talker_registered ? 1u : 0u;
+	} else if (!v->brief && (v->flags & 0x10000000u) != 0u) {
+		// a STREAM_OUTPUT (the core asks this port of STREAM_INPUTs and STREAM_OUTPUTs alone, aecp_commands.c observe)
+		// the face reports declaring, observed whole: undeclared, the face's answer is the fabric's, stream_dest_mac 0
+		// and neither flag, and a brief observation, a running check's, uses bound and running alone (aecp.h)
+		return output(c, index, v);
 	}
 	return true;
 }

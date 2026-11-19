@@ -164,15 +164,21 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
 #: ruling, item 1).
 EIGHT_ONE = ("Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:"
              "Mailbox.ARoundWithRoomPastARefusalGoesOnToTheNextPort")
+#: The application test of every STREAM_OUTPUT's GET_STREAM_INFO, its Talker's address and its Listener's
+#: registration, run at the 8x8 shape at one interface too, beside the shipping shape's full application (#943).
+OUTPUTS = "AppOutputs.*"
 
 
 def all_arms(tree: Tree) -> list[Outcome]:
     """Full application on both contracts, plus every builder image and the debug guard; and at the 8x8 shape at one
-    interface, the mailbox tests that read its own costs and counts (EIGHT_ONE)."""
+    interface, the mailbox tests that read its own costs and counts (EIGHT_ONE) and the application's STREAM_OUTPUT
+    test (OUTPUTS)."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+    eight = ROOT / "configs/endstation_ax7101_8x8.yaml"
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
-    results.append(core_arm(tree, ROOT / "configs/endstation_ax7101_8x8.yaml", 1, mode="mailbox",
-                            selected=EIGHT_ONE))
+    results.append(core_arm(tree, eight, 1, mode="mailbox", selected=EIGHT_ONE))
+    results.append(core_arm(Tree(tree.src, tree.out / "outputs", tree.reuse, tree.build, tree.stack), eight, 1,
+                            mode="app", selected=OUTPUTS))
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,

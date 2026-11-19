@@ -553,6 +553,7 @@ struct App : Nvm {
         setup.classes=srp_pool_classes;setup.n_classes=SRP_POOL_N_CLASSES;
         setup.maap_allocation=[](void*,unsigned,uint64_t,uint16_t,bool){};
         setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
+        connecting();
         ASSERT_TRUE(ctrl_app_compose(&application,&setup));
         composing();
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&ports,&owner));
@@ -567,6 +568,8 @@ struct App : Nvm {
         restored();
         ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
     }
+    //! Before the application's composition, with the streams' defaults set (#943).
+    virtual void connecting() {}
     //! Before AECP's composition, and between the saved-state walk and AECP's open (#923).
     virtual void composing() {}
     virtual void restored() {}
@@ -805,6 +808,148 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
     }
     auto rx=application.loop.rx[MBX_CH_SRP];application.loop.rx[MBX_CH_SRP].fn=nullptr;
     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
+}
+
+namespace {
+//! Every STREAM_OUTPUT of the shape as the platform composes it (ctrl_plat.c): output n on interface n % MBX_N_IF, its
+//! Talker's stream_id the entity's MAC and n, ACMP's source port reporting MAAP's address for it, BASE + n, the value
+//! PROBE_TX_RESPONSE carries. ACMP holds one source past SRP's generated shape. The face answers as the split
+//! datapath's does (#943): the output declaring while `declaring` says so, with stream_dest_mac 0 and flags_ex 0.
+struct AppOutputs : App {
+    static constexpr uint64_t BASE=0x91e0f0000100;
+    static constexpr unsigned OUTPUTS=CTRL_AEM_STREAM_OUTPUTS;
+    std::array<bool,CTRL_SRP_SOURCES+2u> declaring{};
+    bool allocated=true;
+    static uint64_t sid(unsigned n) { return MAC<<16|n; }
+    void connecting() override {
+        static_assert(OUTPUTS==CTRL_SRP_SOURCES,"SRP declares every STREAM_OUTPUT's Talker");
+        connection.n_sources=CTRL_SRP_SOURCES+1u;
+        for(unsigned n=0;n<connection.n_sources;++n)connection.source_interface[n]=uint8_t(n%MBX_N_IF);
+        for(unsigned i=0;i<MBX_N_IF;++i){
+            for(unsigned n=0;n<CTRL_SRP_SOURCES;++n)put(sources[i][n].value.stream_id.bytes,sid(n),8);
+            mbx_model_set_link(&fabric,i,true);
+        }
+        acmp_env_ports.ctx=this;
+        acmp_env_ports.source=[](void*p,unsigned n,acmp_source_state*v){
+            *v={static_cast<AppOutputs*>(p)->allocated,{sid(n),BASE+n,2},false};};
+        ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t type,uint16_t index,aecp_stream_info*v){
+            const bool on=type==6u&&index<declaring.size()&&declaring[index];
+            *v={on?sid(index):0u,0u,0u,on?0xf2000000u:0xa0000000u,2000000u,0u,uint16_t(on?2u:0u),0,0,0,false,false,
+                v->brief};
+            return true;});
+    }
+    //! A peer's MSRP Listener vector for `stream` on `interface`: one value, `event` (1 JoinIn, 5 Lv) and its
+    //! declaration (1 Asking Failed, 2 Ready, 3 Ready Failed; IEEE 802.1Q-2018 35.2.2.7.2, 35.2.2.7.4).
+    void listener(unsigned interface,uint64_t stream,unsigned event,unsigned declaration) {
+        Bytes f(60);put(f,0,0x0180c200000e,6);put(f,6,0x020304010203,6);put(f,12,0x22ea,2);
+        f[15]=3;f[16]=8;f[18]=14;f[20]=1;put(f,21,stream,8);
+        f[29]=uint8_t(event*36u);f[30]=uint8_t(declaration*64u);
+        ASSERT_TRUE(mbx_model_rx(&fabric,f.data(),f.size(),interface));settle(20);
+    }
+    void settle(unsigned ms) { for(unsigned k=0;k<ms;++k){mbx_model_advance_ms(&fabric,1);service(1);} }
+    struct Info { unsigned status=~0u;uint32_t flags=0;uint64_t dest=~0ull;uint32_t flags_ex=~0u; };
+    //! STREAM_OUTPUT n's GET_STREAM_INFO response as the first controller reads it (Milan v1.2 Figure 5.1).
+    Info info(unsigned n) {
+        const unsigned before=fabric.tx_sent;aem(15,target(6,n));
+        for(unsigned k=before;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&(p->bytes[15]&15)==1&&get(p->bytes+36,2)==15u&&
+               get(p->bytes+38,2)==6u&&get(p->bytes+40,2)==n)
+                return {unsigned(get(p->bytes+16,2)>>11),uint32_t(get(p->bytes+42,4)),get(p->bytes+66,6),
+                        uint32_t(get(p->bytes+86,4))};
+        }
+        ADD_FAILURE()<<"STREAM_OUTPUT "<<n<<"'s GET_STREAM_INFO is answered";
+        return {};
+    }
+};
+}
+
+// #943 (Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12; IEEE 1722.1-2021 7.4.16): at every STREAM_OUTPUT, while
+// the face reports it declaring, its GET_STREAM_INFO carries its Talker's MAAP address as stream_dest_mac and follows
+// the Listener registered for its stream_id on its own interface: REGISTERING for Ready, Ready Failed and Asking
+// Failed, REGISTERING_FAILED for Asking Failed alone, the face's flags otherwise (MSRP_FAILURE_VALID is a Talker
+// Failed's, never a Listener's); both clear when the Talker withdraws and when the Listener leaves, and neither
+// another output nor a Listener on another interface shows them.
+TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration)
+{
+    settle(200);
+    //! every other output, each read while it declares, shows no Listener: n's is not its own
+    auto quiet=[&](unsigned n,const char *step){
+        for(unsigned m=0;m<OUTPUTS;++m){
+            if(m==n)continue;
+            declaring[m]=true;
+            const Info o=info(m);
+            declaring[m]=false;
+            EXPECT_EQ(o.flags_ex,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
+            EXPECT_EQ(o.flags&0x40u,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
+        }
+    };
+    for(unsigned n=0;n<OUTPUTS;++n){
+        const unsigned interface=connection.source_interface[n];
+        const Info idle=info(n);
+        EXPECT_EQ(idle.status,0u);
+        EXPECT_EQ(idle.dest,0u)<<"an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers: "<<n;
+        declaring[n]=true;
+        const Info declared=info(n);
+        EXPECT_EQ(declared.flags,0xf2000000u)<<"the face's flags, and no REGISTERING_FAILED with no Listener: "<<n;
+        EXPECT_EQ(declared.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+        EXPECT_EQ(declared.flags_ex,0u)<<"no REGISTERING with no Listener: "<<n;
+        if(MBX_N_IF>1u){
+            // its stream's Listener, Asking Failed, on the interface its Talker is not declared on, kept registered
+            listener((interface+1u)%MBX_N_IF,sid(n),1u,1u);
+            const Info other=info(n);
+            EXPECT_EQ(other.flags_ex,0u)<<"another interface's Listener is not its own: output "<<n;
+            EXPECT_EQ(other.flags,0xf2000000u)<<"another interface's Listener is not its own: output "<<n;
+        }
+        for(auto [declaration,failed]:{std::pair{2u,false},std::pair{3u,false},std::pair{1u,true}}){
+            listener(interface,sid(n),1u,declaration);
+            const Info r=info(n);
+            EXPECT_EQ(r.flags_ex,1u)
+                <<"REGISTERING while declaring and registering a matching Listener (Table 5.8): output "<<n
+                <<", declaration "<<declaration;
+            EXPECT_EQ(r.flags,failed?0xf2000040u:0xf2000000u)
+                <<"REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never "
+                <<"MSRP_FAILURE_VALID, a Talker Failed's: output "<<n<<", declaration "<<declaration;
+            EXPECT_EQ(r.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+            quiet(n,"its Listener registered");
+        }
+        declaring[n]=false;
+        const Info withdrawn=info(n);
+        EXPECT_EQ(withdrawn.flags_ex,0u)<<"both clear once the Talker withdraws: "<<n;
+        EXPECT_EQ(withdrawn.flags&0x40u,0u)<<"both clear once the Talker withdraws: "<<n;
+        EXPECT_EQ(withdrawn.dest,0u)<<"an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers: "<<n;
+        declaring[n]=true;
+        EXPECT_EQ(info(n).flags&0x40u,0x40u)<<"REGISTERING_FAILED again as the Talker declares again: "<<n;
+        listener(interface,sid(n),5u,1u);
+        settle(1100);
+        const Info left=info(n);
+        EXPECT_EQ(left.flags_ex,0u)<<"both clear once the Listener leaves: "<<n;
+        EXPECT_EQ(left.flags&0x40u,0u)<<"both clear once the Listener leaves: "<<n;
+        EXPECT_EQ(left.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+        declaring[n]=false;
+    }
+    declaring[0]=true;
+    listener(connection.source_interface[0],sid(0),1u,1u);
+    allocated=false;
+    EXPECT_EQ(info(0).dest,0u)<<"no address MAAP does not hold";
+    allocated=true;
+    aecp_stream_info v{};
+    srp_mbx *srp=application.srp;application.srp=nullptr;
+    const bool answered=bridge.ports.stream(&bridge,0,6,0,&v);
+    application.srp=srp;
+    ASSERT_TRUE(answered)<<"without SRP, an output is still answered";
+    EXPECT_EQ(v.dest_mac,BASE)<<"without SRP, an output's address is still its Talker's";
+    EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"without SRP, no Listener is registered";
+    aecp_stream_info brief{};brief.brief=true;
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,0,&brief));
+    EXPECT_EQ(brief.dest_mac|brief.flags_ex|(brief.flags&0x40u),0u)
+        <<"a brief observation of an output, a running check's, is the face's: bound and running alone";
+    declaring[CTRL_SRP_SOURCES]=true;
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v))<<"a source past SRP's shape is answered";
+    EXPECT_EQ(v.dest_mac,BASE+CTRL_SRP_SOURCES)<<"a source past SRP's shape has its Talker's address";
+    EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"a source past SRP's shape registers no Listener";
+    declaring[connection.n_sources]=true;
+    EXPECT_FALSE(bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v))
+        <<"an output ACMP holds no source for is not answered";
 }
 
 namespace {
@@ -2070,6 +2215,10 @@ TEST_F(Core, TheRunningCheckObservesEveryStreamBriefly)
     EXPECT_TRUE(briefs.front())<<"SET_STREAM_FORMAT's running check is brief";
     briefs.clear();ask(15,target(6,0));
     EXPECT_EQ(briefs,std::vector<bool>{false})<<"GET_STREAM_INFO reads the stream whole";
+    // #943: an output map edit's check of its stream is a running check too (aecp_maps.c, idle)
+    auto map=target(15,0,16);put(map,4,1,2);put(map,10,1,2);put(map,12,1,2);
+    briefs.clear();ask(44,map);ASSERT_FALSE(briefs.empty());
+    EXPECT_EQ(briefs,std::vector<bool>(briefs.size(),true))<<"an output map edit's running check is brief";
 }
 
 // SET_CONFIGURATION's change names whether its index moved, which the face's stream entries follow; its notify
