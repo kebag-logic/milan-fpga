@@ -117,6 +117,7 @@ Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12), in every response and notice.
 Its `stream_dest_mac` is the Talker's MAAP address, the ACMP source port's that PROBE_TX_RESPONSE carries.
 REGISTERING (`flags_ex`) is set while SRP registers a matching Listener on the output's interface, of any declaration.
 REGISTERING_FAILED (`0x00000040`) is set while that Listener is Asking Failed. Undeclared, all three read 0, as the fabric answers.
+A brief observation, a running check's, stays the face's, and an output map edit's check of its stream is one (`aecp_maps.c`, `idle`).
 A Listener's registration change raises no notice of its own yet; the next response or notice carries it.
 `AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) plants its defects.
 Controller probes use a 30-60 s monitor interval,
