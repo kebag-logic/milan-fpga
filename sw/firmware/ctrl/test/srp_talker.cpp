@@ -5,8 +5,9 @@
 // Advertise with base + n and its TSpec, or Talker Failed, code 1, when its bandwidth does not fit (IEEE 802.1Q-2018
 // 35.2.2.8.7, Table 35-6); a source not valid declares nothing; a lapse withdraws, its licence and TALKER_DECL bit
 // first. MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): an unchanged destination may be declared
-// again at once, a changed one no sooner than two LeaveAllTime periods after the Leave (Table 10-7), a type swaps in
-// place, and a reset holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if (test_ctrl_firmware.py).
+// again at once, a changed one no sooner than two of the longest LeaveAll periods after the Leave (10.7.4.3, #951), a
+// type swaps in place, and a reset holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if
+// (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
 #include <algorithm>
 FW_TALLY_LABEL("ctrl SRP Talker declarations");
@@ -48,12 +49,14 @@ constexpr uint32_t kAdmittedBps=17024000u;
 // Two ranges MAAP may hold (IEEE 1722-2016 Table B.9's pool), base + n each source's destination.
 constexpr uint64_t kBaseA=0x91e0f000aa00ull;
 constexpr uint64_t kBaseB=0x91e0f000bb00ull;
-// The withdrawal's hold-off in ms: two LeaveAllTime periods (Table 10-7, 1000 cs each), and the hold-off as
-// srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's MRPDU by every source added in
-// whole centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS): 20,230 ms at 1x1/1if, 20,270 at 8x8/1if
-// and 20,300 at two interfaces.
-constexpr uint32_t kTwoLeaveAllMs=20000u;
-constexpr uint32_t kHoldOffMs=kTwoLeaveAllMs+10u*(CTRL_LOOP_JOIN_CS+(CTRL_LOOP_TX_MS+9u)/10u);
+// The withdrawal's hold-off in ms (#951): two of the longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
+// 802.1Q-2018 10.7.4.3 draws every leavealltimer below it) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30,000 ms,
+// and the hold-off as srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's MRPDU by every
+// source added in whole centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS): 30,230 ms at 1x1/1if,
+// 30,270 at 8x8/1if and 30,300 at two interfaces. Two LeaveAllTime periods, 20,000 ms, is the hold-off before #951.
+constexpr uint32_t kLeaveAllTimeMs=10000u;
+constexpr uint32_t kTwoLongestLeaveAllMs=2u*(kLeaveAllTimeMs+kLeaveAllTimeMs/2u);
+constexpr uint32_t kHoldOffMs=kTwoLongestLeaveAllMs+10u*(CTRL_LOOP_JOIN_CS+(CTRL_LOOP_TX_MS+9u)/10u);
 
 bool declares(unsigned event) { return event==0u || event==1u || event==3u; }
 
@@ -286,16 +289,16 @@ TEST_F(Talker, UnchangedDestinationIsDeclaredAgainAtOnce) {
 }
 
 // Change and re-allocation: a source valid again at another destination (MAAP's new range after a conflict) declares
-// it no sooner than two LeaveAllTime periods after its Leave, and nothing in between; once that has passed, a further
-// change is declared at once.
-TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriods) {
+// it no sooner than two of the longest LeaveAll periods after its Leave, and nothing in between; once that has
+// passed, a further change is declared at once.
+TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriods) {
     settle(); gate(1u,kBaseA); advance(400);
     trace();
     const uint32_t first=model.tx_sent;
     const uint32_t at=model.now_ms;
     gate(0u,kBaseA); advance(2000);
     gate(1u,kBaseB);
-    advance_to(at+kTwoLeaveAllMs);
+    advance_to(at+kTwoLongestLeaveAllMs);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
         const auto *lv=leave(ds,1);
@@ -311,11 +314,11 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriods) {
         const auto *adv=declared(ds,1,lv->time_ms+1u);
         ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
         EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
-            << "the changed destination comes no sooner than two LeaveAllTime periods after the Leave";
+        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
+            << "the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave";
     }
-    // a lapse, then a re-allocation more than two LeaveAllTime periods later: declared at once
-    gate(0u,kBaseB); advance_to(model.now_ms+21000u);
+    // a lapse, then a re-allocation more than the hold-off later: declared at once
+    gate(0u,kBaseB); advance_to(model.now_ms+kHoldOffMs+1000u);
     const uint32_t later=model.now_ms;
     const uint32_t next=model.tx_sent;
     gate(1u,kBaseA); advance(400);
@@ -332,9 +335,9 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriods) {
 // The hold-off counts from the Leave's request, so it must cover the latest the Leave can leave: lwSRP's join timer
 // runs out within a JoinTime of the request, and THE TRANSMIT commits its MRPDU within CTRL_LOOP_TX_MS of that
 // centisecond (ctrl_loop.h). With the request on a centisecond and the loop held that long after it, the changed
-// destination still comes no sooner than two LeaveAllTime periods after the Leave on the wire (IEEE 802.1Q-2018
-// 35.2.2.8, Table 10-7); a hold-off without THE TRANSMIT's term, or with it rounded down, comes sooner.
-TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave) {
+// destination still comes no sooner than two of the longest LeaveAll periods after the Leave on the wire (IEEE
+// 802.1Q-2018 35.2.2.8, 10.7.4.3); a hold-off without THE TRANSMIT's term, or with it rounded down, comes sooner.
+TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave) {
     settle(); gate(1u,kBaseA); advance(400);
     while (model.tick_div!=0u) advance(1);
     trace();
@@ -356,8 +359,9 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave)
         const auto *adv=declared(ds,1,lv->time_ms+1u);
         ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
         EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
-            << "the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave";
+        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
+            << "the changed destination comes no sooner than two of the longest LeaveAll periods after the "
+               "latest Leave";
     }
 }
 
@@ -378,8 +382,8 @@ TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
         const auto *adv=declared(ds,1,lv->time_ms+1u);
         ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
         EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
-            << "the new destination comes no sooner than two LeaveAllTime periods after the Leave";
+        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
+            << "the new destination comes no sooner than two of the longest LeaveAll periods after the Leave";
         for (const auto &d:ds) {
             if (d.time_ms>lv->time_ms && declares(d.event)) {
                 EXPECT_EQ(dest(d),kBaseB) << "no Talker carries the old destination after its Leave";
@@ -474,7 +478,7 @@ TEST_F(Talker, ResetKeepsAnUnchangedSourceAndHoldsAMovedOne) {
     settle();
     mbx_model_set_link(&model,last,true); settle();
     first=model.tx_sent;
-    advance_to(at+kTwoLeaveAllMs);
+    advance_to(at+kTwoLongestLeaveAllMs);
     EXPECT_EQ(declared(talker(last,0,first),1),nullptr)
         << "the new participants hold a source that moved before the reset";
     EXPECT_EQ(pub_of(model,last).talker_decl&1u,0u) << "TALKER_DECL holds it withdrawn while it waits";
