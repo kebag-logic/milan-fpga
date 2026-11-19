@@ -1,0 +1,51 @@
+HEAD 0839453f6d7135063e904bcaf4ac1852ad6b522a
+TREE 55b7e53dfe517a40d9ec638307d9ba6b54862edd
+source paths 23 composition paths 22
+unexpected composition paths []
+LEDGER different docs/design/SPLIT_CONTROL_MEMORY.md
+CARRIAGE equal scripts/measure_test_evidence_readers.py
+LEDGER different sw/firmware/ctrl/plat/README.md
+CARRIAGE equal sw/firmware/ctrl/plat/ctrl_plat.c
+CARRIAGE equal sw/firmware/ctrl/plat/ctrl_plat_csr.c
+CARRIAGE equal sw/firmware/ctrl/plat/ctrl_plat_csr.h
+CARRIAGE equal sw/firmware/ctrl/test/ctrl_mutants.py
+CARRIAGE equal sw/firmware/ctrl/test/ctrl_plat_image.py
+CARRIAGE equal sw/firmware/ctrl/test/plat_arms.py
+CARRIAGE equal sw/firmware/ctrl/test/sink_mutants.py
+CARRIAGE equal sw/firmware/ctrl/test/test_ctrl_firmware.py
+CARRIAGE equal sw/firmware/ctrl/test/test_plat.cpp
+CARRIAGE equal sw/firmware/ctrl/test/test_plat_sinks.cpp
+LEDGER different sw/litex/ctrl_memory.py
+LEDGER different sw/litex/ctrl_memory_ledger.py
+LEDGER different sw/litex/test_ctrl_memory.py
+CARRIAGE equal tb/verilator/avtp_rxmon/Makefile
+CARRIAGE equal tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv
+CARRIAGE equal tb/verilator/avtp_rxmon/ctxfmt_mutants.py
+CARRIAGE equal tb/verilator/avtp_rxmon/sim_ctxfmt.cpp
+LEDGER different tb/verilator/ctrl_split_boot/README.md
+CARRIAGE equal tb/verilator/ctrl_split_boot/boot_soc.py
+LEDGER different tb/verilator/ctrl_split_boot/plat_ledger.py
+MERGE d09c7118 b1f1161b0f72e6066f60c7e0fa5ba399e185493d 66c6edf3f0d05915ee8ddb7346302013833cf66a
+remerge paths []
+MERGE 7650a02d 967b1ca9357f8ca3e392acb0fe9c677708ba1fa5 9f4f3de03f99dc8c7a72f5f8884f00df82c965d2
+remerge paths ['diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md', 'diff --git a/sw/firmware/ctrl/plat/README.md b/sw/firmware/ctrl/plat/README.md', 'diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py', 'diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py', 'diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py', 'diff --git a/tb/verilator/ctrl_split_boot/README.md b/tb/verilator/ctrl_split_boot/README.md', 'diff --git a/tb/verilator/ctrl_split_boot/plat_ledger.py b/tb/verilator/ctrl_split_boot/plat_ledger.py']
+MERGE 0839453f6d7135063e904bcaf4ac1852ad6b522a 7650a02dd5ff55707d37d75f1bce039965e6f4d3 fe297847a3221997182fcb6a903b4e93a8997ef3
+remerge paths ['diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py']
+round2 retains first parent docs/design/SPLIT_CONTROL_MEMORY.md True
+round2 retains first parent sw/litex/ctrl_memory.py True
+round2 retains first parent sw/litex/ctrl_memory_ledger.py True
+round2 retains first parent sw/litex/test_ctrl_memory.py True
+round2 retains first parent tb/verilator/ctrl_split_boot/README.md True
+round2 retains first parent tb/verilator/ctrl_split_boot/plat_ledger.py True
+round3 ledger comment retains first parent True
+round3 exact delta sw/firmware/ctrl/plat/README.md
+round3 exact delta sw/firmware/ctrl/test/test_plat_sinks.cpp
+round3 exact delta sw/firmware/ctrl/test/sink_mutants.py
+unchanged dependency hdl
+unchanged dependency sw/mailbox
+unchanged dependency sw/firmware/ctrl/aecp
+unchanged dependency sw/firmware/ctrl/loop
+unchanged dependency tb/verilator/ctrl_service_budget
+published manifest verified 2503 files; no mismatch
+archive commit carries gpgsig False
+PASS composition carriage and archive digest audit
