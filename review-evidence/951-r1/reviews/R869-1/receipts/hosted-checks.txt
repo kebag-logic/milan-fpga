@@ -1,0 +1,15 @@
+# exact-head hosted contexts for 0d1eb8e4c5821e9431097950882659f2083d96ba, read only (check-runs API), 2026-11-19
+# executed vs not: the reviewer inspected; the manager owns hosted and act acceptance
+- elaborate-gates-1: failure, executed on refs/remotes/pull/952/merge (a86cffc4). Cause in its log: sw/builder/test_clock_constraints.py
+  -> test_shipping_clock_constraints.py -> milan_soc.py -> litex VexiiRiscv.args_read -> `sbt "runMain vexiiriscv.soc.litex.PythonArgsGen ..."`
+  returned non-zero in the runner's LiteX environment. No firmware or SRP step is involved.
+- docs-check: failure, "gate evidence refused: docs-gates-2: dependent job failed, cancelled or skipped" (a cascade, not a docs finding).
+- Union milan_dp / maap / pp_shadow / capture_coherence / milan_dp_mclk / milan_dp_render: failure, AssertionError that
+  verilator-shards was 'cancelled' (a cascade).
+- rtl-fast, firmware-unit, firmware-srp-mutants, firmware-control-mutants, firmware-aecp-mutants, firmware-boundary,
+  firmware-verilator, verilator-lint, Verilator shards, docs-gates-0..2, elaborate-gates-0/2/3/4, split-cdc: cancelled
+  ("Fail fast across this head").
+- full-ci-gate, bdd-conformance, changes, docs-check-no-git: success. Physical gPTP: skipped (nightly/manual).
+- For comparison the base 0839453f's contexts are also not all green (elaborate-gates-1 cancelled, firmware-boundary failure).
+So no hosted firmware context executed to completion at this head; the source-head execution evidence is the author's
+receipts and this review's own local runs.

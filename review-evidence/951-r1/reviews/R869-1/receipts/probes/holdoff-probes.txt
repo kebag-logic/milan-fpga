@@ -1,0 +1,84 @@
+== control: edits 0
+  srp_talker-1x1-1if: rc=0 passed=16 failed=[]
+  srp_talker-8x8-2if: rc=0 passed=16 failed=[]
+  SrpGate-8x8-2if: rc=0 passed=9 failed=[]
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== old-value: edits 1
+  srp_talker-1x1-1if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  srp_talker-8x8-2if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  SrpGate-8x8-2if: rc=1 passed=8 failed=['SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff']
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== longest-minus-1cs: edits 1
+  srp_talker-1x1-1if: rc=1 passed=15 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave']
+  srp_talker-8x8-2if: rc=1 passed=15 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave']
+  SrpGate-8x8-2if: rc=0 passed=9 failed=[]
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== equivalent-3-halves: edits 1
+  srp_talker-1x1-1if: rc=0 passed=16 failed=[]
+  srp_talker-8x8-2if: rc=0 passed=16 failed=[]
+  SrpGate-8x8-2if: rc=0 passed=9 failed=[]
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== overlong-1s: edits 1
+  srp_talker-1x1-1if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  srp_talker-8x8-2if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  SrpGate-8x8-2if: rc=1 passed=8 failed=['SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff']
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== leaveall-1100: edits 1
+  srp_talker-1x1-1if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  srp_talker-8x8-2if: rc=1 passed=12 failed=['Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods', 'Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave', 'Talker.DestinationChangeWhileValidWithdrawsTheOld', 'Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne']
+  SrpGate-8x8-2if: rc=1 passed=8 failed=['SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff']
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+== mirrored-literal: edits 1
+  srp_talker-1x1-1if: rc=0 passed=16 failed=[]
+  srp_talker-8x8-2if: rc=0 passed=16 failed=[]
+  SrpGate-8x8-2if: rc=0 passed=9 failed=[]
+  srp_mbx-1x1-1if: rc=0 passed=84 failed=[]
+
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/old-value/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/equivalent-3-halves/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/leaveall-1100/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/control/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/longest-minus-1cs/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/overlong-1s/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/951-r869-1-packet/scratch/probes/mirrored-literal/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
