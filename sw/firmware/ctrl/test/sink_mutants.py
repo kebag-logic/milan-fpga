@@ -10,10 +10,13 @@ each have a receive-monitor context.
 Each defect is one the platform's formats exist to exclude: the shipped firmware's state (nothing written after
 the open, or no change followed), in which every PDU of an input above 0 is UNSUPPORTED_FORMAT; a format written
 before its commit is acknowledged, or while it waits, so the monitor could judge against a format no controller
-sees; an owed change never written, or timed from after its own commit; the wrong descriptors taken for a context
+sees; a change done again and not written; a waiting change done again onto an input bound meanwhile (the
+refusal skipped, the wrong input checked, a binding counted only once settled, a configuration's change not
+checked, or the refusal outliving the wait); a configuration not written; a change writing more contexts than
+it moves, or one of another kind or a pass with no change writing any; the wrong descriptors taken for a context
 (input 0, a CRF input, another type, interface or configuration, a descriptor too short); the window's words
-wrong (halves swapped, the talker selection, the selection not read or not written back); and the AECP refusal the
-race argument rests on, a bound input accepting SET_STREAM_FORMAT.
+wrong (halves swapped, the talker selection, the selection not read or not written back); and the AECP refusal
+the race argument rests on, a bound input accepting SET_STREAM_FORMAT.
 """
 from __future__ import annotations
 
@@ -25,17 +28,29 @@ S1 = "Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady"
 S2 = "Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses"
 S3 = "Sinks.S3AnUnacknowledgedCommitWritesNoContext"
 S4 = "Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce"
-S5 = "Sinks.S5AChangeOfAnotherKindLeavesEveryContextInForce"
+S5 = "Sinks.S5AChangeOfAnotherKindWritesNoContext"
+S6 = "Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile"
+S7 = "Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered"
+S8 = "Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce"
+S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
+S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
 C6 = "Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero"
-#: The open's write and the wrapped change port's test, as ctrl_plat.c holds them.
-OPEN = "\t// every interface acknowledged the face: each input's format in force, before any stream is bound (#946)\n" \
-       "\tsinks.owed = false;\n\tsink_write(SINK_ALL);\n"
-NOW = "kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT && !f->owed[0]"
+#: The open's write, the wrapped ports' tests and the loop's step, as ctrl_plat.c holds them.
+ALL = "\t(void)sinks_of(AECP_CHANGE_CONFIGURATION, 0, 0, true);\n"
+OPEN = ("\t// every interface acknowledged the face: each input's format in force, before any stream is bound (#946),\n"
+        "\t// every one, as a configuration's change writes them\n" + ALL)
 CALL = "\tsinks.changed(ctx, kind, type, index);\n"
-AFTER = CALL + "\tif (" + NOW + ") {\n\t\tsink_write(index);\n\t} else {"
-BEFORE = "\tbool now = " + NOW + ";\n\tif (now) {\n\t\tsink_write(index);\n\t}\n" + CALL + "\tif (now) {\n\t} else {"
-POLL = "\tif (sinks.owed && p->face.commits != sinks.commits) {"
+KEPT = "\tif (redo || sinks.applied(ctx)) {"
+WRITE = "(void)sinks_of(kind, type, index, true);"
+WRITES = "\n\t\t" + WRITE + "\n\t}\n"
+#: The change port's writes after the change is forwarded to the face, and the same writes before it.
+AFTER = CALL + KEPT + WRITES
+BEFORE = KEPT + WRITES + CALL
+HELD = "sinks_of(core->noted, core->noted_type, core->noted_index, false)"
+REFUSE = "!(core->waiting && " + HELD + ")"
+EVERY = "\tbool every = kind == AECP_CHANGE_CONFIGURATION;\n"
+STEP = "\t\tctrl_loop_step(&ctrl_plat.app.loop);\n"
 #: The window's writes, as ctrl_plat_csr.c holds them.
 LO = "\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_LO - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)format);\n"
 HI = ("\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_CSR_STRM_SEL), "
@@ -52,21 +67,39 @@ def mutants(mutant: type) -> tuple:
         m("sink-change-unfollowed", PLAT, "\tp->face.ports.changed = sink_changed;\n", "\t(void)sink_changed;\n",
           "platsinks8", S2, "S2 SET_STREAM_FORMAT's new format reaches input 7's context"),
         m("sink-open-before-acknowledgement", PLAT, "\tif (!ctrl_app_open_aecp(&p->bridge)) {",
-          "\tsink_write(SINK_ALL);\n\tif (!ctrl_app_open_aecp(&p->bridge)) {",
+          ALL + "\tif (!ctrl_app_open_aecp(&p->bridge)) {",
           "platsinks8", S3, "S3 a commit never acknowledged writes no context"),
         m("sink-change-before-commit", PLAT, AFTER, BEFORE,
           "platsinks8", S2, "S2 written after the change's acknowledged commit",
           also=(("platsinks8", S4, "S4 a change waiting for its acknowledgement writes no context"),)),
-        m("sink-change-unacknowledged", PLAT, NOW, "kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT",
+        m("sink-change-unacknowledged", PLAT, KEPT, "\tif (redo || true) {",
           "platsinks8", S4, "S4 a change waiting for its acknowledgement writes no context"),
-        # what is owed, and when the poll writes it
-        m("sink-owed-unwritten", PLAT, POLL, "\tif (false && sinks.owed && p->face.commits != sinks.commits) {",
-          "platsinks8", S5, "S5 SET_NAME rewrites every context at its format in force: input 1 holds none"),
-        m("sink-owed-before-acknowledgement", PLAT, POLL, "\tif (sinks.owed) {",
-          "platsinks8", S4, "S4 a change waiting for its acknowledgement writes no context"),
-        m("sink-owed-from-its-own-commit", PLAT, "\tuint32_t commits = f->commits;\n" + CALL,
-          CALL + "\tuint32_t commits = f->commits;\n", "platsinks8", S5,
-          "S5 a STREAM_OUTPUT's SET_STREAM_FORMAT rewrites every context at its format in force: input 1 holds none"),
+        m("sink-redo-unwritten", PLAT, KEPT, "\tif ((redo && false) || sinks.applied(ctx)) {",
+          "platsinks8", S4, "S4 the change done again reaches input 7's context",
+          also=(("platsinks8", S9, "S9 the change done again reaches input 7's context"),)),
+        # a waiting change done again onto an input bound meanwhile
+        m("sink-redo-refusal-skipped", PLAT, REFUSE, "!(false && " + HELD + ")",
+          "platsinks8", S6, "S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING"),
+        m("sink-held-other-input", PLAT, "(one && d->index == index)", "(one && d->index != index)",
+          "platsinks8", S6, "S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING"),
+        m("sink-held-once-settled", PLAT, "\t\t\tbound |= v.bound;\n", "\t\t\tbound |= v.settled;\n",
+          "platsinks8", S7, "S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING"),
+        m("sink-held-configuration-unchecked", PLAT, REFUSE,
+          "!(core->waiting && core->noted != AECP_CHANGE_CONFIGURATION && " + HELD + ")",
+          "platsinks8", S10, "S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING"),
+        m("sink-held-outside-the-wait", PLAT, REFUSE, "!" + HELD,
+          "platsinks8", S8, "S8 the refusal ends with the wait: another input's change is taken"),
+        # what a change writes: its own context, a configuration every one, nothing else
+        m("sink-configuration-unwritten", PLAT, WRITE,
+          "(void)sinks_of(kind == AECP_CHANGE_CONFIGURATION ? AECP_CHANGE_NAME : kind, type, index, true);",
+          "platsinks8", S10, "S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none"),
+        m("sink-change-writes-every-context", PLAT, EVERY,
+          "\tbool every = kind == AECP_CHANGE_CONFIGURATION || kind == AECP_CHANGE_FORMAT;\n",
+          "platsinks8", S2, "S2 that input's context alone is written"),
+        m("sink-other-kind-writes-every-context", PLAT, EVERY, "\tbool every = kind != AECP_CHANGE_FORMAT;\n",
+          "platsinks8", S5, "S5 SET_NAME writes no context"),
+        m("sink-every-pass-rewrites", PLAT, STEP, STEP + "\t" + ALL,
+          "platsinks8", S5, "S5 a pass with no change writes no context"),
         # which descriptors have a context
         m("sink-input-zero-written", CSR, " && (key & 0xFFFFu) != 0u &&", " &&",
           "plat", C6, "C6 not input 0", also=(("platsinks8", S1, "S1 input 0 is never selected"),)),

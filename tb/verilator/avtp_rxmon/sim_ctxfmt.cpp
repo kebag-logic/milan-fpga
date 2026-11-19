@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // sim_ctxfmt.cpp - each Stream Input's format in its LCTX context, at the 8x8
-// shape's eight contexts (#946): the lane-A stack of avtp_rxmon_nx_wrap
+// shape's eight contexts (#946): the multi-stream receive stack of avtp_rxmon_nx_wrap
 // (KL_stream_table, avtp_stream_parser, KL_avtp_rx_monitor_ctx, the
 // depacketizer and the route) elaborated at N_STREAMS_P = 8.
 //

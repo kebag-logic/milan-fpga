@@ -97,7 +97,8 @@ def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
 
 #: The platform image's ledgered points (ctrl_memory.LEDGERED), each named only at its own point: the boot SoC plans
 #: that point's image to the override's tiles, as the image's own link does (run.image), and every other to 56.
-PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
+PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 1): 'platform-8x8-one-interface',
+                     ('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
