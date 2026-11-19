@@ -1,0 +1,56 @@
+=== endstation_ax7101_8x8: rc=1
+[==========] Running 11 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 11 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[       OK ] Sinks.S5AChangeOfAnotherKindWritesNoContext (1 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[       OK ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[       OK ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[       OK ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (1 ms)
+[ RUN      ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+$REVIEWS/r867-3-946/sw/firmware/ctrl/test/test_plat_sinks.cpp:902: Failure
+Expected equality of these values:
+  final_status(kSetStreamFormat, 0x0b01u)
+    Which is: -1
+  static_cast<int>(kSuccess)
+    Which is: 0
+S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+
+  [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+$REVIEWS/r867-3-946/sw/firmware/ctrl/test/test_plat_sinks.cpp:915: Failure
+Expected equality of these values:
+  final_status(0x0010u, 0x0b02u)
+    Which is: 10
+  static_cast<int>(kSuccess)
+    Which is: 0
+S11 SET_NAME of bound input 7 is taken
+
+  [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 SET_NAME of bound input 7 is taken
+[  FAILED  ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext (2 ms)
+[----------] 11 tests from Sinks (12 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 1 test suite ran. (12 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+
+ 1 FAILED TEST
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)

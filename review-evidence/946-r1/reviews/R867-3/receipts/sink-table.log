@@ -1,0 +1,57 @@
+[ok] mutant sink-open-unwritten (platsinks8): 15 check(s) failed
+    first: [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 1 holds none
+[ok] mutant sink-change-unfollowed (platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-open-before-acknowledgement (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S3AnUnacknowledgedCommitWritesNoContext: S3 a commit never acknowledged writes no context
+[ok] mutant sink-change-before-commit (platsinks8, platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+[ok] mutant sink-change-unacknowledged (platsinks8): 5 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[ok] mutant sink-redo-unwritten (platsinks8, platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 the change done again reaches input 7's context
+[ok] mutant sink-redo-refusal-skipped (platsinks8): 16 check(s) failed
+    first: [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-other-input (platsinks8): 16 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-held-once-settled (platsinks8): 3 check(s) failed
+    first: [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-configuration-unchecked (platsinks8): 10 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-outside-the-wait (platsinks8): 3 check(s) failed
+    first: [FAIL] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce: S8 the refusal ends with the wait: another input's change is taken
+[ok] mutant sink-output-taken-for-its-input (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+[ok] mutant sink-any-kind-of-an-input (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 SET_NAME of input 7 writes no context
+[ok] mutant sink-configuration-unwritten (platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+[ok] mutant sink-change-writes-every-context (platsinks8): 5 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+[ok] mutant sink-other-kind-writes-every-context (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+[ok] mutant sink-every-pass-rewrites (platsinks8): 9 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+[ok] mutant sink-input-zero-written (plat, platsinks8): 4 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not input 0
+[ok] mutant sink-crf-input-written (plat, platsinks8): 4 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a CRF input
+[ok] mutant sink-other-type-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a STREAM_OUTPUT
+[ok] mutant sink-other-interface-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+[ok] mutant sink-other-configuration-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not an input of a configuration not in force
+[ok] mutant sink-short-descriptor-read (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a descriptor too short to hold its interface
+[ok] mutant sink-format-halves-swapped (plat, platsinks8): 34 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-talker-selected (plat, platsinks8): 33 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-restored (plat, platsinks8): 7 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-read (plat): 2 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant set-format-bound-accepted (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+mutants: 28 of 28 caught

@@ -1,0 +1,8 @@
+=== endstation_ax7101_8x8: rc=2
+refused: ctrl_plat.c does not compile:
+$REVIEWS/946-r867-3-packet/scratch/ptype/work/ctrl/plat/ctrl_plat.c: In function ‘sinks_of’:
+$REVIEWS/946-r867-3-packet/scratch/ptype/work/ctrl/plat/ctrl_plat.c:165:54: error: unused parameter ‘type’ [-Werror=unused-parameter]
+  165 | static bool sinks_of(enum aecp_change kind, uint16_t type, uint16_t index, bool write)
+      |                                             ~~~~~~~~~^~~~
+cc1: all warnings being treated as errors
+
