@@ -1,0 +1,7 @@
+# the two plants R867-2-F-1 asks for, through ctrl_mutants.campaign (the tree as fe297847's sink_mutants.py): the type test dropped (a STREAM_OUTPUT's format taken for its input's) and the kind test dropped, each caught by S11 on its own words; the whole table, 28 of 28, is in the firmware gate's receipts
+2 defects selected
+[ok] mutant sink-output-taken-for-its-input (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+[ok] mutant sink-any-kind-of-an-input (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 SET_NAME of input 7 writes no context
+mutants: 2 of 2 caught

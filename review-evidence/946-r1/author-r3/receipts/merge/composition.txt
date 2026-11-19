@@ -1,0 +1,16 @@
+# step 12 composition at the lane's round-3 head fe297847, scratch clone only, by round 2's recipe (receipts/merge of round 2): merge onto b1f1161b; conflicts:
+CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+CONFLICT (content): Merge conflict in sw/firmware/ctrl/plat/README.md
+CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_split_boot/README.md
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_split_boot/plat_ledger.py
+
+# each takes the train's side (the platform README's two ROM hunks the train's text), then git apply --index composition-ledger-raise.patch (round 2's): f8694fdd
+
+# f8694fdd against round 2's composition d98dd322: exactly round 3's tests, plants and README (the ledger comment's file takes the train's side)
+ sw/firmware/ctrl/plat/README.md           |  2 +-
+ sw/firmware/ctrl/test/sink_mutants.py     | 19 +++++++--
+ sw/firmware/ctrl/test/test_plat_sinks.cpp | 64 +++++++++++++++++++++++++++++++
+ 3 files changed, 80 insertions(+), 5 deletions(-)
