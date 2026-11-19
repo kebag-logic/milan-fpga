@@ -13,10 +13,11 @@ before its commit is acknowledged, or while it waits, so the monitor could judge
 sees; a change done again and not written; a waiting change done again onto an input bound meanwhile (the
 refusal skipped, the wrong input checked, a binding counted only once settled, a configuration's change not
 checked, or the refusal outliving the wait); a configuration not written; a change writing more contexts than
-it moves, or one of another kind or a pass with no change writing any; the wrong descriptors taken for a context
-(input 0, a CRF input, another type, interface or configuration, a descriptor too short); the window's words
-wrong (halves swapped, the talker selection, the selection not read or not written back); and the AECP refusal
-the race argument rests on, a bound input accepting SET_STREAM_FORMAT.
+it moves, or one of another kind or a pass with no change writing any; a change of another type or kind at an
+input's index (a STREAM_OUTPUT's format, an input's SET_NAME) taken for that input's format change; the wrong
+descriptors taken for a context (input 0, a CRF input, another type, interface or configuration, a descriptor too
+short); the window's words wrong (halves swapped, the talker selection, the selection not read or not written
+back); and the AECP refusal the race argument rests on, a bound input accepting SET_STREAM_FORMAT.
 """
 from __future__ import annotations
 
@@ -34,6 +35,7 @@ S7 = "Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
 S8 = "Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce"
 S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
 S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
+S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
 C6 = "Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero"
 #: The open's write, the wrapped ports' tests and the loop's step, as ctrl_plat.c holds them.
@@ -50,6 +52,7 @@ BEFORE = KEPT + WRITES + CALL
 HELD = "sinks_of(core->noted, core->noted_type, core->noted_index, false)"
 REFUSE = "!(core->waiting && " + HELD + ")"
 EVERY = "\tbool every = kind == AECP_CHANGE_CONFIGURATION;\n"
+ONE = "\tbool one = kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT;\n"
 STEP = "\t\tctrl_loop_step(&ctrl_plat.app.loop);\n"
 #: The window's writes, as ctrl_plat_csr.c holds them.
 LO = "\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_LO - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)format);\n"
@@ -89,6 +92,14 @@ def mutants(mutant: type) -> tuple:
           "platsinks8", S10, "S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING"),
         m("sink-held-outside-the-wait", PLAT, REFUSE, "!" + HELD,
           "platsinks8", S8, "S8 the refusal ends with the wait: another input's change is taken"),
+        # a change of another type or kind at an index that has a context: a STREAM_OUTPUT's format taken for its
+        # STREAM_INPUT's (its waiting change refused while the input is bound), and any kind's change of an input
+        # taken for its format's (its context written)
+        m("sink-output-taken-for-its-input", PLAT, ONE,
+          "\tbool one = kind == AECP_CHANGE_FORMAT && (type == STREAM_INPUT || type == 6u);\n",
+          "platsinks8", S11, "S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound"),
+        m("sink-any-kind-of-an-input", PLAT, ONE, "\tbool one = type == STREAM_INPUT;\n",
+          "platsinks8", S11, "S11 SET_NAME of input 7 writes no context"),
         # what a change writes: its own context, a configuration every one, nothing else
         m("sink-configuration-unwritten", PLAT, WRITE,
           "(void)sinks_of(kind == AECP_CHANGE_CONFIGURATION ? AECP_CHANGE_NAME : kind, type, index, true);",
