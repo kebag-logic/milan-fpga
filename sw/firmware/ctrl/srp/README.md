@@ -222,20 +222,26 @@ its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
 Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
-the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
+the Leave's request: two of the longest LeaveAll periods, with a JoinTime and
 THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
-departs: 2,023 cs at 1x1/1if, 2,027 at 8x8/1if, whose figure is its own tx row's
-74.26 ms rounded up, 75 ms, and 2,030 at two, where the figure is 105 ms for the
-tx row's 104.25, each stated for its shape (THE SHAPES, `ctrl_loop.h`) and held
-to its row by `flip_grade.py --check` (`rows_tiers.tx_statements`, and at 8x8/1if
-`tx_held`, apart from that point's reported rows);
+departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (77 ms) and 3,030
+at two interfaces (105 ms), each figure stated for its shape (THE SHAPES,
+`ctrl_loop.h`) and held to its row by `flip_grade.py --check`
+(`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
+reported rows;
 [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
-items 1 and 2; 35.2.2.8 sets only the least, 2,000 cs); a destination that
-changes while valid withdraws the old one first. Two LeaveAllTime periods are
-read as twice the LeaveAllTime the participants are configured with, 1000 cs (Table 10-7), not as two drawn
-LeaveAll periods (10.7.4.3 draws each between LeaveAllTime and 1.5 times it):
-the hold-off is the 20 s floor of the 20 to 30 s two drawn periods span, as
-acceptance 2 of #895 words it. An admission change swaps the type in place, the new type joined
+items 1 and 2). A destination that changes while valid withdraws the old one
+first. 35.2.2.8 asks for at least two LeaveAllTime periods, and 10.7.4.3 draws
+each LeaveAll period between LeaveAllTime and 1.5 times it, so two periods
+span 20 to 30 s. The hold-off covers the longest two, 1.5 times the
+LeaveAllTime the participants are configured with (`SRP_LEAVEALL_CS`, 1000 cs,
+Table 10-7 and Milan v1.2 Table 4.3) each, 3,000 cs
+([#665's ruling of 2026-11-19](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447),
+item 2; #951). Before #951 it covered the shortest two, 2,000 cs, as acceptance
+2 of #895 words it; a longer hold still meets 35.2.2.8, which sets only the
+least. Each source counts its hold-off down in `held_cs`, 16 bits, and the
+adapter does not compile with a hold-off the count cannot hold. An admission
+change swaps the type in place, the new type joined
 before the old leaves, so a refused join keeps the old. A link reset destroys
 the participants with no Leave sent, so the new ones hold a source whose
 destination changed before it as its Leave would; an unchanged source declares
@@ -520,7 +526,9 @@ against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
 `SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
 and the 15 s expiry withdraws it, a registered Listener keeps it declared past
 the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
-range's destination declared only after the hold-off. A named test refuses each
+range's destination declared only after the hold-off, two of the longest
+LeaveAll periods after the Leave and not the two LeaveAllTime periods it was
+before #951. A named test refuses each
 allocation of a link restart's re-creation in turn, a source's join among
 them, so a creation that fails part way and still shows a declaration fails
 it too.

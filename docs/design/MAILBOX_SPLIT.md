@@ -1287,8 +1287,9 @@ them:
   as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
   lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
   bit set and the withdrawal owed until lwSRP takes it. A
-  changed destination is declared two LeaveAllTime periods after the Leave
-  (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
+  changed destination is declared two of the longest LeaveAll periods, 1.5
+  LeaveAllTime each, after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+  #951). The CRF talker's C-TAG reads this level. Its
   frames leave under the licence, which needs a declaration in both
   placements; with policing off (the AAF bypass or lwSRP disabled) both
   placements tag them only while the gate is open.
