@@ -1,0 +1,30 @@
+validated-1x1-if1 rc 0
+validated-1x1-if2 rc 0
+validated-8x8-if1 rc 0
+validated-8x8-if2 rc 0
+flip-grade-1x1-1if rc 0
+flip-grade-8x8-1if rc 0
+published archive manifest verified: 63 files
+published arm A AECP rows checked: 1x1 40 all within their printed bounds
+published arm A AECP rows checked: 8x8-1if 33 all within their printed bounds
+old production code failures: 1x1 ['AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration', 'Core.TheRunningCheckObservesEveryStreamBriefly']
+current failures: 1x1 []
+old production code failures: 8x8 ['AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration', 'Core.AnAcceptedEditReachesTheStoreBeforeTheMap', 'Core.MapEditsAreTheirDefinitionRowForRow', 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn', 'Core.MapTopologyFailuresAndEmptyPartitions', 'Core.MapsAreAtomicAndPaginated', 'Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore', 'Core.RestoreMapWholeSetClipAndDefaults', 'Core.RestoredMapsReachTheStoreRemovalsFirst', 'Core.RestoredOutputMapsHaveOneGlobalOwner', 'Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce', 'Core.TheRunningCheckObservesEveryStreamBriefly']
+current failures: 8x8 ['Core.AnAcceptedEditReachesTheStoreBeforeTheMap', 'Core.MapEditsAreTheirDefinitionRowForRow', 'Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn', 'Core.MapTopologyFailuresAndEmptyPartitions', 'Core.MapsAreAtomicAndPaginated', 'Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore', 'Core.RestoreMapWholeSetClipAndDefaults', 'Core.RestoredMapsReachTheStoreRemovalsFirst', 'Core.RestoredOutputMapsHaveOneGlobalOwner', 'Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce']
+independent named plants: 16 caught
+uninitialized gitlink retained: external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+initialized gitlink verified: gptp-processor 1616fc8f062fbf58c35ad31674b5b233207bbdb8
+initialized gitlink verified: protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041
+initialized gitlink verified: third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+initialized gitlink verified: third_party/tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376
+initialized gitlink verified: third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+tracked blob bytes and modes verified: 1933 ; index equals HEAD tree; working tree clean
+unchanged from base: sw/mailbox/mailbox.yaml
+unchanged from base: docs/design/MAILBOX_SPLIT.md
+unchanged from base: sw/firmware/ctrl/test/sink_mutants.py
+unchanged from base: tb/verilator/ctrl_service_budget/talker_notice.py
+unchanged from base: sw/firmware/ctrl/test/ctrl_configs.py
+post-evidence changes: docs/design/SPLIT_CONTROL_MEMORY.md            | 2 +-
+ sw/firmware/ctrl/aecp/README.md                | 1 +
+ tb/verilator/ctrl_service_budget/rows_tiers.py | 4 +---
+ 3 files changed, 3 insertions(+), 4 deletions(-)

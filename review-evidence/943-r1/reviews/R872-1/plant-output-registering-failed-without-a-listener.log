@@ -1,0 +1,126 @@
+Note: Google Test filter = AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:892: Failure
+Expected equality of these values:
+  declared.flags
+    Which is: 4060086336
+  0xf2000000u
+    Which is: 4060086272
+the face's flags, and no REGISTERING_FAILED with no Listener: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: the face's flags, and no REGISTERING_FAILED with no Listener: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 1, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 1, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 1, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 1, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 1, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 1, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:918: Failure
+Expected equality of these values:
+  left.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+both clear once the Listener leaves: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: both clear once the Listener leaves: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:892: Failure
+Expected equality of these values:
+  declared.flags
+    Which is: 4060086336
+  0xf2000000u
+    Which is: 4060086272
+the face's flags, and no REGISTERING_FAILED with no Listener: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: the face's flags, and no REGISTERING_FAILED with no Listener: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 0, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 0, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 0, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 0, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:882: Failure
+Expected equality of these values:
+  o.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+no other output shows its Listener: output 0, its Listener registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: no other output shows its Listener: output 0, its Listener registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:918: Failure
+Expected equality of these values:
+  left.flags&0x40u
+    Which is: 64
+  0u
+    Which is: 0
+both clear once the Listener leaves: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: both clear once the Listener leaves: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:933: Failure
+Expected equality of these values:
+  v.flags_ex|(v.flags&0x40u)
+    Which is: 64
+  0u
+    Which is: 0
+without SRP, no Listener is registered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: without SRP, no Listener is registered
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:941: Failure
+Expected equality of these values:
+  v.flags_ex|(v.flags&0x40u)
+    Which is: 64
+  0u
+    Which is: 0
+a source past SRP's shape registers no Listener
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape registers no Listener
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (3 ms)
+[----------] 1 test from AppOutputs (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

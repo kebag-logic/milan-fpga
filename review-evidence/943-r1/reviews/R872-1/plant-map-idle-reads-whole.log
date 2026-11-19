@@ -1,0 +1,27 @@
+Note: Google Test filter = Core.TheRunningCheckObservesEveryStreamBriefly
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.TheRunningCheckObservesEveryStreamBriefly
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2213: Failure
+Expected equality of these values:
+  briefs
+    Which is: { false }
+  std::vector<bool>(briefs.size(),true)
+    Which is: { true }
+an output map edit's running check is brief
+
+  [FAIL] Core.TheRunningCheckObservesEveryStreamBriefly: an output map edit's running check is brief
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

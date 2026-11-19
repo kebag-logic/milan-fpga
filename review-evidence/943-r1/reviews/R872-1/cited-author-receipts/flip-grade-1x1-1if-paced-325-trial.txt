@@ -1,0 +1,15 @@
+# a trial only, never committed: 1x1/1if's paced one-row edit restated to 325 us (the rule's answer at c637eb00 and cb71d1a7), flip_grade.py --check --point 1x1/1if at 211c1ede's harness otherwise; the 'last' queued-notice row goes over its 140 ms bound
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.46 | 20 | -6.54 | 5 | aecp 3.920, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 76.69 | 90 | -13.31 | 39 | others 11.520, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 74.19 | 90 | -15.81 | 37 | others 11.240, passes 9.805, srp 9.120 |
+| 1x1/1if | first | 14.76 | 20 | -5.24 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 141.54 | 140 | +1.54 | 73 | srp 27.930, passes 19.345, others 15.575 |
+| 1x1/1if | R4L | 203.58 | 238 | -34.42 | 3 | pace 195.000, timers 1.105, item.aecp 1.095 |
+| 1x1/1if | ACMP | 29.99 | 30 | -0.01 | 17 | aecp 5.145, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 28.20 | 30 | -1.80 | 13 | others 6.915, aecp 5.145, passes 3.445 |
+| 1x1/1if | MAAP | 28.29 | 30 | -1.71 | 13 | others 6.930, aecp 5.145, passes 3.445 |
+| 1x1/1if | tx | 34.36 | 49 | -14.64 | 17 | others 8.350, aecp 5.390, passes 4.505 |
+| 1x1/1if | txL | 48.89 | 49 | -0.11 | 23 | aecp 10.505, others 9.410, item.aecp 8.395 |
+rc=1

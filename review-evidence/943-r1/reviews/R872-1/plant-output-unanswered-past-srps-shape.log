@@ -1,0 +1,25 @@
+Note: Google Test filter = AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:939: Failure
+Value of: bridge.ports.stream(&bridge,0,6,2u,&v)
+  Actual: false
+Expected: true
+a source past SRP's shape is answered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape is answered
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (2 ms)
+[----------] 1 test from AppOutputs (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

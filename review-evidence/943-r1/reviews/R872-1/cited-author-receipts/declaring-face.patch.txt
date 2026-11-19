@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index d8a71d5cc2..714cd2cc9f 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -138,7 +138,7 @@ VARIANTS = {
+         ('static struct aecp_face image_face;\n',
+          'static struct aecp_face image_face;\n'
+          'static bool b_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
+-         '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'
++         '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); v->flags = t == 6u ? 0x10000000u : 0u; return true; }\n'
+          'static bool b_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)\n'
+          '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); return true; }\n'
+          + arm_path.B_PATH +

@@ -1,0 +1,126 @@
+Note: Google Test filter = AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:932: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE
+    Which is: 160395285233920
+without SRP, an output's address is still its Talker's
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: without SRP, an output's address is still its Talker's
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:940: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE+2u
+    Which is: 160395285233922
+a source past SRP's shape has its Talker's address
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape has its Talker's address
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (3 ms)
+[----------] 1 test from AppOutputs (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

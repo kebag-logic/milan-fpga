@@ -1,0 +1,335 @@
+COMMAND ['/usr/bin/python3', '-B', '$REVIEWS/r872-1-943/sw/firmware/ctrl/test/aecp_arms.py', '--app', '--config', '$REVIEWS/r872-1-943/configs/endstation_ax7101_8x8.yaml', '--interfaces', '2', '--filter', 'AppOutputs.*:Core.TheRunningCheckObservesEveryStreamBriefly:Core.*Map*:Face.TheRunningCheckReadsOneWindowWordAStream', '--output', '$REVIEWS/943-r872-1-packet/scratch/focused-8x8-if2']
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote $REVIEWS/943-r872-1-packet/scratch/focused-8x8-if2/aecp-mailbox-endstation_ax7101_8x8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/943-r872-1-packet/scratch/focused-8x8-if2/aecp-mailbox-endstation_ax7101_8x8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/943-r872-1-packet/scratch/focused-8x8-if2/aecp-mailbox-endstation_ax7101_8x8-if2/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = AppOutputs.*:Core.TheRunningCheckObservesEveryStreamBriefly:Core.*Map*:Face.TheRunningCheckReadsOneWindowWordAStream
+[==========] Running 18 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (10 ms)
+[----------] 1 test from AppOutputs (10 ms total)
+
+[----------] 16 tests from Core
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:1765: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&m,defaults.data(),4)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.RestoreMapWholeSetClipAndDefaults:     Which is: 0
+[  FAILED  ] Core.RestoreMapWholeSetClipAndDefaults (0 ms)
+[ RUN      ] Core.TheRunningCheckObservesEveryStreamBriefly
+[       OK ] Core.TheRunningCheckObservesEveryStreamBriefly (0 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2292: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  2u
+    Which is: 2
+GET returns the complete current page
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: GET returns the complete current page
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2293: Failure
+Expected equality of these values:
+  Bytes(out.begin()+50,out.end())
+    Which is: {}
+  Bytes(b.begin()+8,b.end())
+    Which is: { '\0', '\0', '\0', '\x1' (1), '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\x2' (2), '\0', '\0' }
+
+  [FAIL] Core.MapsAreAtomicAndPaginated:     Which is: { '\0', '\0', '\0', '\x1' (1), '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\x2' (2), '\0', '\0' }
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2295: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  2u
+    Which is: 2
+invalid final mapping leaves the entire old set
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: invalid final mapping leaves the entire old set
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2300: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  1u
+    Which is: 1
+duplicate removes affect the live set once
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: duplicate removes affect the live set once
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 8
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2306: Failure
+Expected equality of these values:
+  input[0].channel
+    Which is: 0
+  7u
+    Which is: 7
+format refusal leaves every mapped channel
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: format refusal leaves every mapped channel
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 8
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+[  FAILED  ] Core.MapsAreAtomicAndPaginated (1 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.MapCommandsEchoTheirDescriptorAndPage
+[       OK ] Core.MapCommandsEchoTheirDescriptorAndPage (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 43
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 43
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2694: Failure
+Expected equality of these values:
+  get(page,46,2)
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions:     Which is: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2696: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions:     Which is: 1
+[  FAILED  ] Core.MapTopologyFailuresAndEmptyPartitions (0 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2833: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&maps[0],rows,2)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore:     Which is: 0
+[  FAILED  ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2898: Failure
+Expected: (get(desc(type).value+12,2)) >= (4u), actual: 0 vs 4
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: Expected: (get(desc(type).value+12,2)) >= (4u), actual: 0 vs 4
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (0 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (0 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3065: Failure
+Value of: same_rows(maps[1],{{0,last,0,0}})&&same_rows(maps[0],{{0,0,0,last}})
+  Actual: false
+Expected: true
+a key at the domain's last channel is accepted
+
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: a key at the domain's last channel is accepted
+[  FAILED  ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (1 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3198: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&pools[0],channels,2)
+    Which is: 7
+  unsigned(AECP_SUCCESS)
+    Which is: 0
+
+  [FAIL] Core.RestoredOutputMapsHaveOneGlobalOwner:     Which is: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3199: Failure
+Expected equality of these values:
+  pools[0].count
+    Which is: 0
+  2u
+    Which is: 2
+a saved row that differs only in its cluster channel is its own
+
+  [FAIL] Core.RestoredOutputMapsHaveOneGlobalOwner: a saved row that differs only in its cluster channel is its own
+[  FAILED  ] Core.RestoredOutputMapsHaveOneGlobalOwner (1 ms)
+[ RUN      ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3215: Failure
+Expected equality of these values:
+  calls.size()
+    Which is: 0
+  1u
+    Which is: 1
+one store edit for the command
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: one store edit for the command
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap (0 ms)
+[ RUN      ] Core.RestoredMapsReachTheStoreRemovalsFirst
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3282: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&maps[0],in,2)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst:     Which is: 0
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst (0 ms)
+[ RUN      ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3408: Failure
+Expected equality of these values:
+  a.reentries
+    Which is: 0
+  reentries+1
+    Which is: 1
+the restore's commit from inside a port is refused
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce: the restore's commit from inside a port is refused
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3405: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Edit(true,14,0,_))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce:            Actual: never called - unsatisfied and active
+[  FAILED  ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce (1 ms)
+[----------] 16 tests from Core (15 ms total)
+
+[----------] 1 test from Face
+[ RUN      ] Face.TheRunningCheckReadsOneWindowWordAStream
+[       OK ] Face.TheRunningCheckReadsOneWindowWordAStream (1 ms)
+[----------] 1 test from Face (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 18 tests from 3 test suites ran. (26 ms total)
+[  PASSED  ] 8 tests.
+[  FAILED  ] 10 tests, listed below:
+[  FAILED  ] Core.RestoreMapWholeSetClipAndDefaults
+[  FAILED  ] Core.MapsAreAtomicAndPaginated
+[  FAILED  ] Core.MapTopologyFailuresAndEmptyPartitions
+[  FAILED  ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+[  FAILED  ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[  FAILED  ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst
+[  FAILED  ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+
+10 FAILED TESTS
+== AECP core: checks: 18   failures: 10 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 10 failure(s) across 18 checks, exit 1)

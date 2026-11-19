@@ -1,0 +1,1175 @@
+Note: Google Test filter = AppOutputs.*:Core.TheRunningCheckObservesEveryStreamBriefly:Core.*Map*:Face.TheRunningCheckReadsOneWindowWordAStream
+[==========] Running 18 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 0, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 0, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 1, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 1, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233922
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233922
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233922
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 2, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 2, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 2, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233922
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233922
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233923
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233923
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233923
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 3, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 3, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 3, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233923
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233923
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233924
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233924
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233924
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 4, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 4, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 4, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233924
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233924
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 4
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233925
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233925
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233925
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 5, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 5, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 5, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233925
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233925
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 5
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233926
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233926
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233926
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 6, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 6, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 6, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233926
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233926
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 6
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233927
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233927
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233927
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 7, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 7, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 7, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233927
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233927
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 7
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233928
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 2
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233928
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 3
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233928
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 8, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 8, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 8, declaration 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233928
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233928
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:932: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE
+    Which is: 160395285233920
+without SRP, an output's address is still its Talker's
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: without SRP, an output's address is still its Talker's
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:940: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE+9u
+    Which is: 160395285233929
+a source past SRP's shape has its Talker's address
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape has its Talker's address
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:943: Failure
+Value of: bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v)
+  Actual: true
+Expected: false
+an output ACMP holds no source for is not answered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: an output ACMP holds no source for is not answered
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (14 ms)
+[----------] 1 test from AppOutputs (14 ms total)
+
+[----------] 16 tests from Core
+[ RUN      ] Core.RestoreMapWholeSetClipAndDefaults
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:1765: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&m,defaults.data(),4)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.RestoreMapWholeSetClipAndDefaults:     Which is: 0
+[  FAILED  ] Core.RestoreMapWholeSetClipAndDefaults (1 ms)
+[ RUN      ] Core.TheRunningCheckObservesEveryStreamBriefly
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2213: Failure
+Expected equality of these values:
+  briefs
+    Which is: { false }
+  std::vector<bool>(briefs.size(),true)
+    Which is: { true }
+an output map edit's running check is brief
+
+  [FAIL] Core.TheRunningCheckObservesEveryStreamBriefly: an output map edit's running check is brief
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly (1 ms)
+[ RUN      ] Core.MapsAreAtomicAndPaginated
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2292: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  2u
+    Which is: 2
+GET returns the complete current page
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: GET returns the complete current page
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2293: Failure
+Expected equality of these values:
+  Bytes(out.begin()+50,out.end())
+    Which is: {}
+  Bytes(b.begin()+8,b.end())
+    Which is: { '\0', '\0', '\0', '\x1' (1), '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\x2' (2), '\0', '\0' }
+
+  [FAIL] Core.MapsAreAtomicAndPaginated:     Which is: { '\0', '\0', '\0', '\x1' (1), '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\x2' (2), '\0', '\0' }
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2295: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  2u
+    Which is: 2
+invalid final mapping leaves the entire old set
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: invalid final mapping leaves the entire old set
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2300: Failure
+Expected equality of these values:
+  get(out,46,2)
+    Which is: 0
+  1u
+    Which is: 1
+duplicate removes affect the live set once
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: duplicate removes affect the live set once
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 8
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 8
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2306: Failure
+Expected equality of these values:
+  input[0].channel
+    Which is: 0
+  7u
+    Which is: 7
+format refusal leaves every mapped channel
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: format refusal leaves every mapped channel
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 8
+status for command 44
+
+  [FAIL] Core.MapsAreAtomicAndPaginated: status for command 44
+[  FAILED  ] Core.MapsAreAtomicAndPaginated (1 ms)
+[ RUN      ] Core.StaticMapsPreventOrphaningFormats
+[       OK ] Core.StaticMapsPreventOrphaningFormats (0 ms)
+[ RUN      ] Core.OutputMappingsHaveOneGlobalOwner
+[       OK ] Core.OutputMappingsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.MapCommandsEchoTheirDescriptorAndPage
+[       OK ] Core.MapCommandsEchoTheirDescriptorAndPage (0 ms)
+[ RUN      ] Core.MapTopologyFailuresAndEmptyPartitions
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 43
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 43
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2694: Failure
+Expected equality of these values:
+  get(page,46,2)
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions:     Which is: 1
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2696: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Core.MapTopologyFailuresAndEmptyPartitions:     Which is: 1
+[  FAILED  ] Core.MapTopologyFailuresAndEmptyPartitions (1 ms)
+[ RUN      ] Core.BootMapFaultsCannotPartlyReplaceTheSet
+[       OK ] Core.BootMapFaultsCannotPartlyReplaceTheSet (0 ms)
+[ RUN      ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2833: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&maps[0],rows,2)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore:     Which is: 0
+[  FAILED  ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore (0 ms)
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:2898: Failure
+Expected: (get(desc(type).value+12,2)) >= (4u), actual: 0 vs 4
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: Expected: (get(desc(type).value+12,2)) >= (4u), actual: 0 vs 4
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (0 ms)
+[ RUN      ] Core.EveryAcceptedMapKeyIsItsOwn
+[       OK ] Core.EveryAcceptedMapKeyIsItsOwn (1 ms)
+[ RUN      ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3065: Failure
+Value of: same_rows(maps[1],{{0,last,0,0}})&&same_rows(maps[0],{{0,0,0,last}})
+  Actual: false
+Expected: true
+a key at the domain's last channel is accepted
+
+  [FAIL] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn: a key at the domain's last channel is accepted
+[  FAILED  ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn (1 ms)
+[ RUN      ] Core.RestoredOutputMapsHaveOneGlobalOwner
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3198: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&pools[0],channels,2)
+    Which is: 7
+  unsigned(AECP_SUCCESS)
+    Which is: 0
+
+  [FAIL] Core.RestoredOutputMapsHaveOneGlobalOwner:     Which is: 0
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3199: Failure
+Expected equality of these values:
+  pools[0].count
+    Which is: 0
+  2u
+    Which is: 2
+a saved row that differs only in its cluster channel is its own
+
+  [FAIL] Core.RestoredOutputMapsHaveOneGlobalOwner: a saved row that differs only in its cluster channel is its own
+[  FAILED  ] Core.RestoredOutputMapsHaveOneGlobalOwner (0 ms)
+[ RUN      ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 44
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: status for command 44
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3215: Failure
+Expected equality of these values:
+  calls.size()
+    Which is: 0
+  1u
+    Which is: 1
+one store edit for the command
+
+  [FAIL] Core.AnAcceptedEditReachesTheStoreBeforeTheMap: one store edit for the command
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap (0 ms)
+[ RUN      ] Core.RestoredMapsReachTheStoreRemovalsFirst
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3282: Failure
+Expected equality of these values:
+  aecp_map_restore(&a,&maps[0],in,2)
+    Which is: 7
+  0u
+    Which is: 0
+
+  [FAIL] Core.RestoredMapsReachTheStoreRemovalsFirst:     Which is: 0
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst (0 ms)
+[ RUN      ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce: status for command 45
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3408: Failure
+Expected equality of these values:
+  a.reentries
+    Which is: 0
+  reentries+1
+    Which is: 1
+the restore's commit from inside a port is refused
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce: the restore's commit from inside a port is refused
+$REVIEWS/r872-1-943/sw/firmware/ctrl/test/test_aecp.cpp:3405: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Edit(true,14,0,_))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce:            Actual: never called - unsatisfied and active
+[  FAILED  ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce (0 ms)
+[----------] 16 tests from Core (16 ms total)
+
+[----------] 1 test from Face
+[ RUN      ] Face.TheRunningCheckReadsOneWindowWordAStream
+[       OK ] Face.TheRunningCheckReadsOneWindowWordAStream (1 ms)
+[----------] 1 test from Face (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 18 tests from 3 test suites ran. (31 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 12 tests, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[  FAILED  ] Core.RestoreMapWholeSetClipAndDefaults
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly
+[  FAILED  ] Core.MapsAreAtomicAndPaginated
+[  FAILED  ] Core.MapTopologyFailuresAndEmptyPartitions
+[  FAILED  ] Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+[  FAILED  ] Core.MapKeysOutsideTheDomainAreRefusedAtTheirTurn
+[  FAILED  ] Core.RestoredOutputMapsHaveOneGlobalOwner
+[  FAILED  ] Core.AnAcceptedEditReachesTheStoreBeforeTheMap
+[  FAILED  ] Core.RestoredMapsReachTheStoreRemovalsFirst
+[  FAILED  ] Core.TheRestoreCommitsOnlyAClosedCoresMapsInForce
+
+12 FAILED TESTS
+== AECP core: checks: 18   failures: 12 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 12 failure(s) across 18 checks, exit 1)

@@ -1,0 +1,194 @@
+[
+  {
+    "plant": "output-dest-mac-the-faces",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address"
+      ]
+    ]
+  },
+  {
+    "plant": "output-listener-unread",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING while declaring and registering a matching Listener (Table 5.8)"
+      ],
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)"
+      ]
+    ]
+  },
+  {
+    "plant": "output-completed-undeclared",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers"
+      ],
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "both clear once the Talker withdraws"
+      ]
+    ]
+  },
+  {
+    "plant": "output-brief-completed",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "a brief observation of an output, a running check's, is the face's: bound and running alone"
+      ]
+    ]
+  },
+  {
+    "plant": "output-dest-mac-unallocated",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "no address MAAP does not hold"
+      ]
+    ]
+  },
+  {
+    "plant": "output-registering-ready-only",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING while declaring and registering a matching Listener (Table 5.8)"
+      ]
+    ]
+  },
+  {
+    "plant": "output-registering-failed-any-listener",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)"
+      ]
+    ]
+  },
+  {
+    "plant": "output-registering-failed-without-a-listener",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "the face's flags, and no REGISTERING_FAILED with no Listener"
+      ]
+    ]
+  },
+  {
+    "plant": "output-registering-without-a-listener",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "no REGISTERING with no Listener"
+      ],
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "both clear once the Listener leaves"
+      ]
+    ]
+  },
+  {
+    "plant": "output-listener-on-interface-zero",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING while declaring and registering a matching Listener (Table 5.8)"
+      ]
+    ]
+  },
+  {
+    "plant": "output-listener-of-output-zero",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "REGISTERING while declaring and registering a matching Listener (Table 5.8)"
+      ]
+    ]
+  },
+  {
+    "plant": "output-answered-past-acmps-sources",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "an output ACMP holds no source for is not answered"
+      ]
+    ]
+  },
+  {
+    "plant": "output-unanswered-without-srp",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "without SRP, an output is still answered"
+      ]
+    ]
+  },
+  {
+    "plant": "output-unanswered-past-srps-shape",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration",
+        "a source past SRP's shape is answered"
+      ]
+    ]
+  },
+  {
+    "plant": "map-idle-reads-whole",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "Core.TheRunningCheckObservesEveryStreamBriefly",
+        "an output map edit's running check is brief"
+      ]
+    ]
+  },
+  {
+    "plant": "stream-read-brief",
+    "caught": true,
+    "rc": 1,
+    "checks": [
+      [
+        "Core.TheRunningCheckObservesEveryStreamBriefly",
+        "GET_STREAM_INFO reads the stream whole"
+      ],
+      [
+        "Face.TheRunningCheckReadsOneWindowWordAStream",
+        "GET_STREAM_INFO reads its six"
+      ]
+    ]
+  }
+]
