@@ -22,6 +22,7 @@
 #define CTRL_PLAT_CSR_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -56,6 +57,9 @@ extern "C" {
 #define CTRL_PLAT_CSR_CLKV_STAT   0x77cu
 #define CTRL_PLAT_CSR_AS_PATH_CMD 0x7e4u
 #define CTRL_PLAT_CSR_GPTP_LAT    0x7f0u
+#define CTRL_PLAT_CSR_STRM_SEL    0x800u
+#define CTRL_PLAT_CSR_STRMW_FMT_LO 0x824u
+#define CTRL_PLAT_CSR_STRMW_FMT_HI 0x828u
 #define CTRL_PLAT_CSR_PP_CTRL     0x920u
 #define CTRL_PLAT_CSR_PP_STAT     0x924u
 
@@ -133,6 +137,28 @@ void ctrl_plat_csr_status(uintptr_t csr, struct ctrl_plat_status *s);
 // HI, LO, HI until both HI agree, at most CTRL_PLAT_TOD_TRIES times. False,
 // with *ns unwritten, when they never agree.
 bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns);
+
+// STREAM_INPUT n's current format into its receive-monitor context (#946):
+// the stream window's listener selection of n, then FMT_LO and FMT_HI (the
+// context's words 2 and 3, REGISTER_MAP.md, 0x800 window), then the selection
+// it held, {dir, idx}, written back. The monitor judges every PDU of a stream
+// above 0 against those words, which nothing else writes, and a PDU not in
+// them is UNSUPPORTED_FORMAT and discarded (Milan v1.2 Table 5.6, 4.4.2.2). The
+// CSR holds off the selection's write until the engine has taken FMT_HI, so
+// both words are in the context when the call returns.
+void ctrl_plat_csr_sink_format(uintptr_t csr, unsigned n, uint64_t format);
+
+// Whether a descriptor of configuration `configuration` (IEEE 1722.1-2021
+// 7.2.6; `value` its `length` bytes, from descriptor_type) is a STREAM_INPUT
+// with a receive-monitor context of its own in this window, and then its
+// current format into *format (#946): an AAF input (IEEE 1722-2016 Table 6,
+// subtype 0x02) above index 0 on AVB_INTERFACE 0, the interface whose
+// datapath this window is, in configuration `in_force`, the one in force.
+// Stream 0's format reaches the monitor from the face's publication, a CRF
+// input has its own receiver, and a descriptor too short to hold its interface
+// field is no input here.
+bool ctrl_plat_csr_sink_context(const uint8_t *value, size_t length, uint16_t configuration, uint16_t in_force,
+				uint64_t *format);
 
 #ifdef __cplusplus
 }

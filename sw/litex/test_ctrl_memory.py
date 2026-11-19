@@ -17,12 +17,13 @@ block RAM the SoC builds from them. This file grades nine things:
      a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
-     size fixture's and the platform's 8x8 images with two interfaces) plans
-     its 59.5 or 60.5 by name and is refused without its override, through
-     add_ctrl_memory and half a tile past; each override is refused on every
-     other point, on the other's image and on an image with one of its two
-     symbols. Six planted ledgers, each widening an entry to another point or
-     image, must each turn the ledger red with its pin set aside.
+     size fixture's and the platform's 8x8 images with two interfaces, and the
+     platform's 8x8 image with one) plans its 59.5, 61.0 or 56.5 by name and is
+     refused without its override, through add_ctrl_memory and half a tile
+     past; each override is refused on every other point, on the others' images
+     and on an image with one of its two symbols. Ten planted ledgers, each
+     widening an entry to another point or image or past its tiles, must each
+     turn the ledger red with its pin set aside.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
      at the first and last word of every bank and drops a write; sram writes
@@ -230,12 +231,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with two tiles of .text more and of .bss less, still 56 RAMB36, then
-    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 61.0, half a tile past the
-    platform's 60.5."""
+    """A ledger case written: the good image with three tiles of .text more and of .bss less, still 56 RAMB36, then
+    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 62.0, past the 61.5 half a
+    tile past the platform's 61.0."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 4 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 4) * GRANULE))
+                                  text=GOOD.text + 6 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 6) * GRANULE))
 
 
 def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
@@ -331,7 +332,8 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+                                          f"platform's 8x8 images with two interfaces at 59.5 and 61.0 and the "
+                                          f"platform's 8x8 image with one at 56.5 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
