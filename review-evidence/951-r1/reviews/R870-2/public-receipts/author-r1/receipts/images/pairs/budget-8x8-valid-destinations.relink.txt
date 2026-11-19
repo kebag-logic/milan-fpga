@@ -1,0 +1,15 @@
+base: relinked with -Wl,-q, loadable bytes EQUAL to the built image (52bcae321230cb4b)
+head: relinked with -Wl,-q, loadable bytes EQUAL to the built image (5d24156cd16f4598)
+canonical listings: 35424 base lines, 35425 head lines, 3 differ
+--- base
++++ head
+@@ -9794,7 +9794,8 @@
+ 	xori	a2,s5,-1
+ 	and	a3,a3,a2
+ 	sw	a3,644(s6)
+-	addi	a3,zero,2030
++	lui	a3,0x1
++	addi	a3,a3,-1066
+ 	sh	a3,0(s11)
+ <.L102>:
+ 	bne s7,zero  R_RISCV_BRANCH .L104+0x0

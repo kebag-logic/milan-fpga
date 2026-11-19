@@ -1,0 +1,24 @@
+| Probe | base ms | head ms | head-base | budget ms | verdict base / head | pass instructions base / head |
+|---|---:|---:|---:|---:|---|---|
+| `srp-talker-held/srp-talker-held.held.acmp.if0` | 2.293 | 2.294 | +0.001 | 20 | fits / fits | 15292 / 15295 |
+| `srp-talker-held/srp-talker-held.held.adp.if0` | 1.536 | 1.538 | +0.003 | 20 | fits / fits | 37613 / 37570 |
+| `srp-talker-held/srp-talker-held.held.aecp.if0` | 3.115 | 3.112 | -0.003 | 20 | fits / fits | 13704 / 13706 |
+| `srp-talker-held/srp-talker-held.held.maap.if0` | 1.898 | 1.899 | +0.001 | 20 | fits / fits | 15292 / 15295 |
+| `srp-talker-held/srp-talker-held.held.srp.if0` | 8.874 | 8.865 | -0.009 | 20 | fits / fits | 15145 / 15145 |
+| `srp-talker-held/srp-talker-held.mrpdu.join.if0` | 0.591 | 0.566 | -0.024 | 49 | fits / fits | None / None |
+| `srp-talker-held/srp-talker-held.mrpdu.periodic.if0` | 2.506 | 2.663 | +0.156 | 49 | fits / fits | None / None |
+| `srp-talker-held/srp.listener_ready.s0.if0` | 0.425 | 0.429 | +0.003 | 20 | fits / fits | 5833 / 5833 |
+| `srp-talker-held/srp.listener_ready.s1.if0` | 0.431 | 0.427 | -0.003 | 20 | fits / fits | 6037 / 6037 |
+| `srp-talker-held/srp.talker_declare.s0.if0` | 0.602 | 0.608 | +0.006 | 220 | fits / fits | 6663 / 6663 |
+| `srp-talker-held/srp.talker_declare.s1.if0` | 185.803 | 185.793 | -0.010 | 220 | fits / fits | 6467 / 6467 |
+| `srp-talker-loss/srp.talker_declare.s0.if0` | 0.602 | 0.608 | +0.006 | 220 | fits / fits | 6663 / 6663 |
+| `srp-talker-loss/srp.talker_declare.s1.if0` | 185.803 | 185.793 | -0.010 | 220 | fits / fits | 6467 / 6467 |
+| `srp-talker-loss/srp.talker_loss.if0` | 189.671 | 189.601 | -0.070 | 220 | fits / fits | 6586 / 6586 |
+| `srp-talker/srp.talker_declare.s0.if0` | 0.602 | 0.608 | +0.006 | 220 | fits / fits | 6663 / 6663 |
+| `srp-talker/srp.talker_declare.s1.if0` | 185.803 | 185.793 | -0.010 | 220 | fits / fits | 6467 / 6467 |
+
+probes: base 16, head 16, paired 16, only base 0, only head 0
+verdicts changed: 0
+misses each side: base 0, head 0
+largest differences: srp-talker-held/srp-talker-held.mrpdu.periodic.if0 +0.156 ms (2.506 -> 2.663, budget 49); srp-talker-loss/srp.talker_loss.if0 -0.070 ms (189.671 -> 189.601, budget 220); srp-talker-held/srp-talker-held.mrpdu.join.if0 -0.024 ms (0.591 -> 0.566, budget 49); srp-talker/srp.talker_declare.s1.if0 -0.010 ms (185.803 -> 185.793, budget 220); srp-talker-loss/srp.talker_declare.s1.if0 -0.010 ms (185.803 -> 185.793, budget 220)
+passes with another instruction count: 4 of 16 (srp-talker-held/srp-talker-held.held.acmp.if0 15292 -> 15295; srp-talker-held/srp-talker-held.held.adp.if0 37613 -> 37570; srp-talker-held/srp-talker-held.held.aecp.if0 13704 -> 13706; srp-talker-held/srp-talker-held.held.maap.if0 15292 -> 15295)

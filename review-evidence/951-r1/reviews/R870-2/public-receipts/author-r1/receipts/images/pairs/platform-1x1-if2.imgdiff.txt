@@ -1,0 +1,31 @@
+# image diff: base plat/1x1-if2 against head (same point)
+## 1. linked inputs: 44 base, 44 head, same names in the same order: True
+inputs that differ by sha256: 1 of 44: 35-srp_mbx.o
+## 2. 35-srp_mbx.o, normalised code: 3 line(s) differ; other sections' bytes: differ only in sections the link discards
+--- base/35-srp_mbx.o
++++ head/35-srp_mbx.o
+@@ -614,5 +614,6 @@
+ 	and	a3,a3,a2
+ 	sw	a3,204(s9)
+-	li	a3,2030
++	lui	a3,0x1
++	addi	a3,a3,-1066
+ 	sh	a3,0(s10)
+ <.L111>:
+--- base/35-srp_mbx.o
++++ head/35-srp_mbx.o
+@@ -42 +42 @@
+-.eh_frame (discarded by the link): 02940696 08980a9b 0d036002 0ac144c8
++.eh_frame (discarded by the link): 02940696 08980a9b 0d036402 0ac144c8
+## 3. link map: 689 placed input sections base, 689 head; same (object, section) order: True
+input sections whose size differs: 35-srp_mbx.o .text.declare_sources 1048 -> 1052 bytes
+  shift +0 B over 162 section(s): ctrl_split_start.o .text.start @0x0 .. 35-srp_mbx.o .text.declare_sources @0x8758
+  shift +4 B over 406 section(s): 35-srp_mbx.o .text.wire_put_be @0x8b70 .. 40-mvrp.o .text.mvrp_withdraw @0x1be14
+  shift +0 B over 121 section(s): 0-mbx.o .rodata.mbx_event_take @0x1be48 .. 40-mvrp.o .riscv.attributes @0x6b8
+## 4. output sections (base | head)
+  .text PROGBITS addr 0x00000000 size 0x01be44 | .text PROGBITS addr 0x00000000 size 0x01be48   <-
+  .rodata PROGBITS addr 0x0001be48 size 0x003396 | .rodata PROGBITS addr 0x0001be48 size 0x003396
+  .data PROGBITS addr 0x10000000 size 0x000080 | .data PROGBITS addr 0x10000000 size 0x000080
+  .bss NOBITS addr 0x10000080 size 0x00c620 | .bss NOBITS addr 0x10000080 size 0x00c620
+  .stack NOBITS addr 0x1000c6a0 size 0x002000 | .stack NOBITS addr 0x1000c6a0 size 0x002000
+loadable bytes sha256: base 4d6f48a2cef90dd5 head 0de4a5c01b08db77; whole ELF base 3e67aaea05f60da1 head dca35078398400d0

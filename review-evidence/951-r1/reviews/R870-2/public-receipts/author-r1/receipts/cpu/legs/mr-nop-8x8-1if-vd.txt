@@ -1,0 +1,9 @@
+HEAD 0839453f point 8x8-1if variant valid-destinations groups srp-talker,srp-talker-loss jobs 2 start 14:01:11
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2786 passes carry the store's step; the longest 41,670 CPU cycles (0.417 ms), srp-talker; the longest step 2,889 (0.029 ms), srp-talker
+SLICES 109618 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 102,446, THE RETRY's round 11,739 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker: 20 join interval(s), the shortest 187.140 ms and the longest 190.366 ms, against 181.0 to 239.0; MRP timers' run-outs: 67 released, 41 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS srp-talker-loss: 10 join interval(s), the shortest 187.140 ms and the longest 190.212 ms, against 181.0 to 239.0; MRP timers' run-outs: 25 released, 16 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 19 probe instances, 0 of 10 paths), 0 of 42007 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 15:16:16

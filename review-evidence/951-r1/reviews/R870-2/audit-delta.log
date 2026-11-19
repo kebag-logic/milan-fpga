@@ -1,0 +1,38 @@
+Published author packet hashes verified: 176
+Archive commit signature: ABSENT; hash integrity only, not cryptographic signer authentication
+Delta files: 8
+Only whole-line comments; equal line counts: sw/firmware/ctrl/srp/srp_mbx.c 1425 changed 6
+Only whole-line comments; equal line counts: sw/firmware/ctrl/test/srp_gate.hpp 409 changed 3
+Only whole-line comments; equal line counts: sw/firmware/ctrl/test/srp_talker.cpp 737 changed 2
+Python AST identical after removing module docstring
+RTL, interfaces, build drivers, mutations and gitlinks unchanged
+Published image hash pairs identical: budget-hashes.txt 12
+Published image hash pairs identical: platform-and-fixture-hashes.txt 8
+Published selected docs steps: e7b0272b 104/104 rc=0; tracked changes=0
+Published selected docs steps: f09d82e0 104/104 rc=0; tracked changes=0
+Independent count from 20 original pair receipts: .rodata shifts {0: 13, 8: 7}
+All 20 pairs: .text size +4; .data/.bss/.stack address and size unchanged; all 4 platform .rodata shifts zero
+budget-1x1-answering-every-port.imgdiff.txt rodata_shift 0
+budget-1x1-answering-ports.imgdiff.txt rodata_shift 0
+budget-1x1-none.imgdiff.txt rodata_shift 8
+budget-1x1-valid-destinations.imgdiff.txt rodata_shift 0
+budget-8x8-1if-answering-every-port.imgdiff.txt rodata_shift 0
+budget-8x8-1if-answering-ports.imgdiff.txt rodata_shift 0
+budget-8x8-1if-none.imgdiff.txt rodata_shift 8
+budget-8x8-1if-valid-destinations.imgdiff.txt rodata_shift 0
+budget-8x8-answering-every-port.imgdiff.txt rodata_shift 8
+budget-8x8-answering-ports.imgdiff.txt rodata_shift 8
+budget-8x8-none.imgdiff.txt rodata_shift 0
+budget-8x8-valid-destinations.imgdiff.txt rodata_shift 0
+fixture-1x1-if1.imgdiff.txt rodata_shift 8
+fixture-1x1-if2.imgdiff.txt rodata_shift 8
+fixture-8x8-if1.imgdiff.txt rodata_shift 8
+fixture-8x8-if2.imgdiff.txt rodata_shift 0
+platform-1x1-if1.imgdiff.txt rodata_shift 0
+platform-1x1-if2.imgdiff.txt rodata_shift 0
+platform-8x8-if1.imgdiff.txt rodata_shift 0
+platform-8x8-if2.imgdiff.txt rodata_shift 0
+Published focused test: srp-srp_talker-if1-endstation_ax7101_1x1_tdm8.log 16 passed
+Published focused test: srp-srp_talker-if2-endstation_ax7101_8x8.log 16 passed
+Published focused test: srp-test_acmp_mbx-if2-endstation_ax7101_8x8.log 9 passed
+AUDIT PASS

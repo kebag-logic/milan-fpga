@@ -1,0 +1,21 @@
+HEAD e5dee83b point 8x8-1if variant none groups srp,backlog-owed,datapath-events,aecp jobs 4 start 13:36:36
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMANDCOMMAND <scratch>/meas/head/8x8-1if/none/native/Vsim <scratch>/meas/head/8x8-1if/none/results/backlog-owed.txt -
+ <scratch>/meas/head/8x8-1if/none/native/Vsim <scratch>/meas/head/8x8-1if/none/results/aecp.txt -COMMAND 
+<scratch>/meas/head/8x8-1if/none/native/Vsim <scratch>/meas/head/8x8-1if/none/results/datapath-events.txt -
+BUDGET backlog.owed.if0: 63.285 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.501 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.717 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.934 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.195 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.262 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.592 ms over its budget 20 ms
+STEPS 698 passes carry the store's step; the longest 25,139 CPU cycles (0.251 ms), srp; the longest step 2,667 (0.027 ms), srp
+SLICES 41508 tier-2 slices; the longest SRP's records 130,648, THE TRANSMIT's build 44,954, THE RETRY's round 7,738 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 187.986 ms and the longest 189.987 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.986 ms and the longest 189.987 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS aecp: 3 join interval(s), the shortest 187.986 ms and the longest 189.987 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS datapath-events: 3 join interval(s), the shortest 187.986 ms and the longest 189.987 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+4 groups graded, 0 refusals, 7 budget misses (7 of 45 probe instances, 4 of 42 paths), 0 of 832 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 13:46:49
