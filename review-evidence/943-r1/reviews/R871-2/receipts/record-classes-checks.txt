@@ -1,0 +1,43 @@
+PASS the record classes refuse a pass missing a group of arm A - refused
+PASS the record classes refuse an unpaced edit charged at the edit record - refused
+PASS the record classes refuse an edit over its record - refused
+PASS the record classes refuse an ordinary record over record.aecp - refused
+PASS the record classes refuse a long record over its record - refused
+PASS the record classes refuse a labelled arm's record held - refused
+PASS the record classes refuse a pass missing arm B's SET_CONFIGURATION - refused
+PASS the record classes refuse a pass missing arm B's SET_STREAM_INFO - refused
+PASS the record classes refuse an unpaced SET_CONFIGURATION charged as ordinary - refused
+PASS the record classes refuse a SET_CONFIGURATION over the paced record - refused
+PASS the record classes refuse a record named by a later record's response - refused
+PASS the record classes refuse a pass missing arm B's accepted REBOOT - refused
+PASS the record classes refuse a pass missing arm B's refused REBOOT - refused
+PASS the record classes refuse a REBOOT over record.aecp - refused
+PASS the record classes refuse a pass missing arm B's GET_AS_PATH - refused
+PASS the record classes refuse a GET_AS_PATH over record.aecp - refused
+PASS the record classes refuse a GET_AS_PATH answered SUCCESS with no entries - refused
+PASS the record classes refuse a pass missing the declaring arm's answered GET_STREAM_INFO - refused
+PASS the record classes refuse a pass missing the declaring arm's accepted SET_STREAM_INFO - refused
+PASS the record classes refuse a pass missing the declaring arm's refused SET_STREAM_INFO - refused
+PASS the record classes refuse a declaring record that ran no completion counted as the completed path - refused
+PASS the record classes refuse a completed record over record.aecp - refused
+PASS the record classes refuse a declaring record that ran no completion held - refused
+PASS the record classes refuse an 8x8/1if record over its class's record reported, not held - refused
+PASS the record classes refuse an 8x8/1if pass missing arm B's SET_CONFIGURATION - refused
+PASS the record classes refuse a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION - refused
+PASS the answering-ports arm's path port is arm_path.py's, which reads the window - arm_path.B_PATH in build.VARIANTS
+PASS the declaring arm's fixture keeps brief and enters the source port through its entry - none
+PASS the declaring arm refuses a fixture that clears brief (R872-1-F2's) - the arm's stream observation does not keep the caller's brief across its memset
+PASS the declaring answers pass a sound set - none
+PASS the declaring answers refuse stream_dest_mac 0 - output 0's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+PASS the declaring answers refuse another base - output 1's response on if0: stream_dest_mac 91e0f0000107, not its interface's base + 1
+PASS the declaring answers refuse another output's REGISTERING - output 1's response on if0: flags_ex 00000001, flags f2000000: REGISTERING unexpected, REGISTERING_FAILED never
+PASS the declaring answers refuse the Listener's REGISTERING lost - output 0's response on if0: flags_ex 00000000, flags f2000000: REGISTERING expected, REGISTERING_FAILED never
+PASS the declaring answers refuse REGISTERING_FAILED for a Listener Ready - output 0's response on if0: flags_ex 00000001, flags f2000040: REGISTERING expected, REGISTERING_FAILED never
+PASS the declaring answers refuse no STREAM_DEST_MAC_VALID - output 0's notice on if0: stream_dest_mac 91e0f0000100, flags e2000000: not a MAAP address the completion answers
+PASS the declaring records pass a sound set - none
+PASS the declaring records refuse a GET_STREAM_INFO that ran no completion - g: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+PASS the declaring records refuse a refused SET_STREAM_INFO that ran two - g: a SET_STREAM_INFO of a STREAM_OUTPUT (status 3) whose record ran 2 completion(s), not one
+PASS the declaring records refuse a map edit that completed its brief check - g: a brief observation completed: a record of command 0x002d ran 1 completion(s)
+PASS the declaring records refuse a SET_CONFIGURATION's running check completed - g: a brief observation completed: a record of command 0x0006 ran 1 completion(s)
+checks 41 failures 0
+rc=0

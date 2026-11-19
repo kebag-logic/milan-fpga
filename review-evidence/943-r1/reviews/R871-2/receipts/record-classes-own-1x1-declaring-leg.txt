@@ -1,0 +1,14 @@
+results: 1x1/1if declaring-outputs, 2 groups, 53 AECP records
+1x1/1if reported other: the dearest 19,894 CPU cycles, 210 us by the rule, stated 245 us (declaring-outputs aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 23,330 CPU cycles, 245 us by the rule, stated 245 us (declaring-outputs aecp-fanout: command 0x000e)
+1x1/1if reported paced: the dearest 30,226 CPU cycles, 320 us by the rule, stated 310 us (declaring-outputs aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+REPORTED 1x1/1if declaring-outputs aecp-fanout: a record of 30,226 CPU cycles, 320 us by the rule, over the paced record's 310 us (REMOVE_AUDIO_MAPPINGS, paced)
+REPORTED 1x1/1if declaring-outputs aecp-fanout: a record of 29,535 CPU cycles, 315 us by the rule, over the paced record's 310 us (ADD_AUDIO_MAPPINGS, paced)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED the pass is missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if ran an accepted SET_CONFIGURATION in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's SET_STREAM_INFO: no answering-ports leg at 1x1/1if ran a SET_STREAM_INFO in aecp-fanout, whose accepted path no other arm reaches
+REFUSED the pass is missing arm B's accepted REBOOT: no answering-ports leg at 1x1/1if ran one in aecp-reboot, whose accepted path needs that arm's reset port
+REFUSED the pass is missing arm B's refused REBOOT: no answering-ports leg at 1x1/1if ran one in aecp-reboot, whose accepted path needs that arm's reset port
+REFUSED the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH answered SUCCESS with its 8 entries (control_data_length 80) in aecp, whose answered read no other arm reaches
+RESULT: FAIL
+rc=1
