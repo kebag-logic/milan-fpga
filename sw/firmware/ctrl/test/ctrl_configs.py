@@ -168,6 +168,8 @@ OUTSIDE = {
                                          "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
+    "sw/firmware/ctrl/test/sink_mutants.py": "the receive monitor's formats' planted defects (#946), which the "
+                                             "control campaign plants; it compiles nothing",
     "sw/firmware/ctrl/test/srp_talker_mutants.py": "SRP's Talker declarations' planted defects (#895), which the "
                                                    "SRP campaign (srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/test/srp_listener_mutants.py": "SRP's Listener copies' planted defects (#930), which the "
@@ -244,6 +246,9 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
                                                          "AECP_QUEUED_MS, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
                                                          "and AECP_NOTICES_MOST from the headers; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/talker_notice.py": "writes the talker-notice groups' stimulus (#936), grades "
+                                                         "their notices and names the planted defects build.py "
+                                                         "builds for its arm; it compiles nothing",
     "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
                                                        "costs from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
