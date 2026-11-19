@@ -1,0 +1,57 @@
+# run.py --self-test on the lane tree carrying a16899b1's harness: the declaring checks' lines and the verdict (full log 967660 bytes, sha256 c8f96ad1aa846556)
+PASS: a window short of its defined load is refused although it declares it
+PASS: every composed window declares its defined load
+PASS: the record classes refuse a pass missing a group of arm A
+PASS: the record classes refuse an unpaced edit charged at the edit record
+PASS: the record classes refuse an edit over its record
+PASS: the record classes refuse an ordinary record over record.aecp
+PASS: the record classes refuse a long record over its record
+PASS: the record classes refuse a labelled arm's record held
+PASS: the record classes refuse a pass missing arm B's SET_CONFIGURATION
+PASS: the record classes refuse a pass missing arm B's SET_STREAM_INFO
+PASS: the record classes refuse an unpaced SET_CONFIGURATION charged as ordinary
+PASS: the record classes refuse a SET_CONFIGURATION over the paced record
+PASS: the record classes refuse a record named by a later record's response
+PASS: the record classes refuse a pass missing arm B's accepted REBOOT
+PASS: the record classes refuse a pass missing arm B's refused REBOOT
+PASS: the record classes refuse a REBOOT over record.aecp
+PASS: the record classes refuse a pass missing arm B's GET_AS_PATH
+PASS: the record classes refuse a GET_AS_PATH over record.aecp
+PASS: the record classes refuse a GET_AS_PATH answered SUCCESS with no entries
+PASS: the record classes refuse a pass missing the declaring arm's answered GET_STREAM_INFO
+PASS: the record classes refuse a pass missing the declaring arm's accepted SET_STREAM_INFO
+PASS: the record classes refuse a pass missing the declaring arm's refused SET_STREAM_INFO
+PASS: the record classes refuse a declaring record that ran no completion counted as the completed path
+PASS: the record classes refuse a completed record over record.aecp
+PASS: the record classes refuse a declaring record that ran no completion held
+PASS: the record classes refuse an 8x8/1if record over its class's record reported, not held
+PASS: the record classes refuse an 8x8/1if pass missing arm B's SET_CONFIGURATION
+PASS: the record classes refuse a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION
+PASS: the declaring arm's fixture keeps brief and enters the source port through its entry
+PASS: the declaring arm refuses a fixture that clears brief (R872-1-F2's)
+PASS: the declaring answers pass a sound set
+PASS: the declaring answers refuse stream_dest_mac 0
+PASS: the declaring answers refuse another base
+PASS: the declaring answers refuse another output's REGISTERING
+PASS: the declaring answers refuse the Listener's REGISTERING lost
+PASS: the declaring answers refuse REGISTERING_FAILED for a Listener Ready
+PASS: the declaring answers refuse no STREAM_DEST_MAC_VALID
+PASS: the declaring records pass a sound set
+PASS: the declaring records refuse a GET_STREAM_INFO that ran no completion
+PASS: the declaring records refuse a refused SET_STREAM_INFO that ran two
+PASS: the declaring records refuse a map edit that completed its brief check
+PASS: the declaring records refuse a SET_CONFIGURATION's running check completed
+PASS: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond
+PASS: every talker-notice group times its declaration from the PROBE_TX's commit and its withdrawal from the ANNOUNCE's to source 0's STREAM_OUTPUT notice to every registration against 20 ms, each event inside its load, with no Listener Ready for the entity's own stream
+PASS: a declared or withdrawn Talker's notice later than its bound fails the run whatever the options record, and one within it passes
+MUTANT caught: composition: the load is the stimulus's own declaration (earlier rule): refused: synthetic: the composed window committed {'adp': 0, 'acmp': 2, 'aecp': 0, 'maap': 0, 'srp': 0, 'GM': 0, 'LINK': 0}, its load is {'adp': 0, 'acmp': 0, 'aecp': 0, 'maap': 0, 'srp': 0, 'GM': 0, 'LINK': 0}
+MUTANT caught: aged: the opening age counts TICK records, not their centiseconds: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, None, None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, [(0.01, 'read-back')], []), (2, [], [(0.01, 'read-ba)
+MUTANT caught: aged: the age counted from the window's lead, not from its last step: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), None, (2, [], [(0.01, 'read-ba)
+MUTANT caught: aged: a pass that took nothing before the window does not end the age: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), (2, [(0.01, 'read-back')], []), None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, )
+MUTANT caught: aged: a window opened at another age than its name declares is graded: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), (2, [(0.01, 'read-back')], []), (2, [(0.01, 'read-back')], []), None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, )
+MUTANT caught: aged: a window at the limit that drains before its aged step is refused: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, [(0.01, 'read-back')], []))
+MUTANT caught: aged: a window at the age limit with no aged step in it is graded: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, (2, [], []), None, (2, [(0.01, 'issue')], []), (1, [], []), (2, [(0.01, 'read-back')
+MUTANT caught: aged: a window that closed before its centisecond is refused: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, [(0.01, 'read-back')], []))
+MUTANT caught: aged: a step a pass that took nothing ran is not counted: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, None, None, (2, [(0.01, 'issue')], []), (1, [], []), (2, [(0.01, 'read-back')], []))
+MUTANT caught: aged: the program phase's aged step need not be a page's issue: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond ([(2, [(0.01, 'read-back')], []), None, (2, [(0.01, 'read-back')], []), None, None, (2, [(0.01, 'read-back')], []), (2, [(0.01, 'issue')], []), (1, [], []), (2, )
+self-test: 0 failures

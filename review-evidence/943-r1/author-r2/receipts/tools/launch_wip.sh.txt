@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# launch_wip.sh <name> <patch> <point> [run.py args...]: a scratch clone of the lane HEAD with <patch> applied (never
+# committed), then the CPU budget harness as unit milan-943-a800-wip-<name>; exit 1 if no CPU range is free
+set -u
+S=<scratch>; L=<lane>
+N=$1; PATCH=$(realpath "$2"); P=$3; shift 3
+C=$(python3 <tools>/cpu_ranges.py pick) || exit 1
+[ -n "$C" ] || exit 1
+D=$S/wip-$N
+if [ ! -d "$D" ]; then
+  H=$(git -C $L rev-parse HEAD)
+  git clone -q --shared --no-checkout $L $D && cd $D && git -c advice.detachedHead=false checkout -q --detach $H
+  for d in gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis; do git config submodule.$d.url $L/$d; done
+  git -c protocol.file.allow=always submodule update -q --init gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis
+  git apply "$PATCH" || { cd /; rm -rf "$D"; exit 4; }
+fi
+systemd-run --user --unit=milan-943-a800-wip-$N --collect -p MemoryMax=10G -p MemorySwapMax=0 -p WorkingDirectory=$D \
+  /usr/bin/taskset -c "$C" /usr/bin/bash -c "$S/tools/budget.sh $D $P $S/budget/wip-$N 8 $* > $S/budget/wip-$N.log 2>&1; echo \$? > $S/budget/wip-$N.rc"
+echo "launched wip-$N on $C"

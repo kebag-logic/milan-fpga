@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""probe_brief_r2.py <tree> <generated-dir> <work>: the declaring-outputs arm's stream observation (the b_stream body
+declaring_outputs.FIXTURE_EDITS puts in the fixture) under the tree's AECP bridge, as the external review's
+probe_brief.py builds the published round-1 body: a brief observation, then a whole one, of STREAM_OUTPUT 0, counting
+the ACMP owner's source port calls. Expected: the brief one keeps brief=1 and calls it 0 times; the whole one calls it
+once and answers the source's address."""
+import subprocess
+import sys
+from pathlib import Path
+
+tree, generated, work = (Path(a).resolve() for a in sys.argv[1:4])
+sys.path.insert(0, str(tree / 'tb/verilator/ctrl_service_budget'))
+import declaring_outputs  # noqa: E402
+
+body = next(new for old, new in declaring_outputs.FIXTURE_EDITS if old == declaring_outputs.ANSWERING_STREAM)
+body = body[body.index('static bool b_stream'):]
+source = r'''
+#include "ctrl_app_aecp.c"
+#include <stdio.h>
+static unsigned calls;
+bool acmp_view(const struct acmp *a, unsigned sink, struct acmp_sink_view *view)
+{ (void)a; (void)sink; (void)view; return false; }
+static void own_source(void *ctx, unsigned n, struct acmp_source_state *v)
+{ (void)ctx; (void)n; ++calls; v->dest_mac_valid = true; v->stream.dest_mac = 0x91e0f0000100ULL; }
+BODY
+static int read(struct ctrl_app_aecp *bridge, bool brief, unsigned want)
+{
+    struct aecp_stream_info v = {.brief = brief};
+    unsigned before = calls;
+    bool ok = stream(bridge, 0, 6, 0, &v);
+    printf("%s: answered=%u input_brief=%u returned_brief=%u source_calls=%u dest=%012llx flags=%08x\n",
+           brief ? "brief" : "whole", ok, brief, v.brief, calls - before, (unsigned long long)v.dest_mac,
+           (unsigned)v.flags);
+    return !(ok && v.brief == brief && calls - before == want && v.dest_mac == (want ? 0x91e0f0000100ULL : 0u));
+}
+int main(void)
+{
+    struct ctrl_app app = {0};
+    app.acmp.acmp.cfg.n_sources = 1;
+    struct acmp_env owner = {.source = own_source};
+    struct aecp_ports environment = {.stream = b_stream};
+    struct ctrl_app_aecp bridge = {.app = &app, .environment = &environment, .acmp_owner = &owner};
+    return read(&bridge, true, 0) | read(&bridge, false, 1);
+}
+'''
+work.mkdir(parents=True, exist_ok=True)
+c = work / 'probe.c'
+c.write_text(source.replace('BODY', body))
+ctrl = tree / 'sw/firmware/ctrl'
+inc = [ctrl / d for d in ('app', 'aecp', 'mbx', 'loop', 'port', 'adp', 'acmp', 'maap', 'srp')]
+inc += [tree / 'sw/firmware/ctrl_nvm', tree / 'third_party/tsn-c-stack/include', tree / 'third_party/lwSRP/src/include',
+        generated, generated / 'gen']
+subprocess.run(['cc', '-std=c11', '-O2', '-ffunction-sections', '-fdata-sections', '-include',
+                str(generated / 'srp_entity_gen.h'), *['-I' + str(p) for p in inc], str(c), '-Wl,--gc-sections',
+                '-o', str(work / 'probe')], check=True)
+print('the arm\'s b_stream:\n' + body, flush=True)
+sys.exit(subprocess.run([str(work / 'probe')]).returncode)

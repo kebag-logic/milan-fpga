@@ -1,0 +1,11 @@
+# ctrl_boundary.py --require-rv32 --selftest --without verilator (the LiteX venv's python3) on a clean clone of a16899b1
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (721 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (95 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (376 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (33 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (33 s)
+REFUSED: sw/firmware/ctrl/test/sink_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES); tb/verilator/ctrl_service_budget/talker_notice.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)

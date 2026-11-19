@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""sanitize.py <src> <dst> [regex] [header]: copy a log with its host paths replaced (<lane>, <scratch>, <tools>,
+<home>, <tmp>), keeping only the lines matching regex when one is given, with a header line first."""
+import re
+import sys
+from pathlib import Path
+
+SUBS = (('<lane>', '<lane>'), ('<scratch>', '<scratch>'),
+        ('<tools>', '<tools>'), ('<tools>', '<tools>'),
+        ('<tools>', '<tools>'), ('<home>', '<home>'), ('<scratch>', '<scratch>'),
+        ('<tmp>/', '<tmp>/'), ('<scratch>/', '<scratch>/'), ('<tools>', '<tools>'))
+src, dst = Path(sys.argv[1]), Path(sys.argv[2])
+pattern = re.compile(sys.argv[3]) if len(sys.argv) > 3 and sys.argv[3] else None
+text = src.read_text(errors='replace')
+lines = [ln for ln in text.splitlines() if pattern is None or pattern.search(ln)]
+out = '\n'.join(lines) + '\n'
+for a, b in SUBS:
+    out = out.replace(a, b)
+head = sys.argv[4] + '\n' if len(sys.argv) > 4 else ''
+dst.parent.mkdir(parents=True, exist_ok=True)
+dst.write_text(head + out)
+print(f'{dst.name}: {len(lines)} lines, {len(head + out)} bytes')

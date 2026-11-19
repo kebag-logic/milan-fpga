@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# unit_venv.sh (env.sh's PATH, the LiteX venv first) <name> <workdir> <command...>: run a command as unit milan-943-a800-<name> on a picked CPU range, its output
+# in <scratch>/r2/<name>.log and its exit status in <name>.rc
+set -u
+S=<scratch>; N=$1; W=$2; shift 2
+C=$(python3 <tools>/cpu_ranges.py pick) || exit 1
+[ -n "$C" ] || exit 1
+printf '%q ' "$@" > $S/r2/$N.cmd
+systemd-run --user --unit=milan-943-a800-$N --collect -p MemoryMax=12G -p MemorySwapMax=0 -p WorkingDirectory=$W \
+  /usr/bin/taskset -c "$C" /usr/bin/bash -c ". $S/tools/env.sh; export MAKEFLAGS='--no-print-directory'; cd $W; echo \"HEAD \$(git rev-parse --short=8 HEAD) start \$(date +%T)\"; $(cat $S/r2/$N.cmd) > $S/r2/$N.log 2>&1; rc=\$?; echo \$rc > $S/r2/$N.rc"
+echo "launched $N on $C"

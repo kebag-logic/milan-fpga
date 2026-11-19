@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# queue2.sh <seconds>: launch each queued line (a launcher command) as a CPU range frees, until the queue is empty or the time is up
+S=<scratch>; Q=$S/r2/queue.txt
+end=$(( $(date +%s) + ${1:-100} ))
+while [ -s $Q ] && [ $(date +%s) -lt $end ]; do
+  line=$(head -1 $Q)
+  if bash -c "$line" > /dev/null 2>&1; then echo "launched: $line"; sed -i 1d $Q; else sleep 10; fi
+done
+echo "queue left: $(wc -l < $Q)"

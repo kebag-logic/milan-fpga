@@ -1,0 +1,52 @@
+# every row of aecp_output_mutants.ROWS planted alone at 1x1-if1, AppOutputs and Core.TheRunningCheckObservesEveryStreamBriefly run on it (the internal review's probe_mutants.py, tools/probe_rows.py), on the tree of 106c7203; [ok] = failed on its named words
+[ok] output-dest-mac-the-faces rc=1 named=["a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address"]
+      fails: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address
+      fails: a source past SRP's shape has its Talker's address
+      fails: without SRP, an output's address is still its Talker's
+[ok] output-listener-unread rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)', 'REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never MSRP_FAILURE_VALID, a Talker Failed's
+[ok] output-completed-undeclared rc=1 named=["an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers", 'both clear once the Talker withdraws']
+      fails: an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers
+      fails: both clear once the Talker withdraws
+[ok] output-brief-completed rc=1 named=["a brief observation of an output, a running check's, is the face's: bound and running alone"]
+      fails: a brief observation of an output, a running check's, is the face's: bound and running alone
+[ok] output-dest-mac-unallocated rc=1 named=['no address MAAP does not hold']
+      fails: no address MAAP does not hold
+[ok] output-registering-ready-only rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never MSRP_FAILURE_VALID, a Talker Failed's
+[ok] output-registering-failed-any-listener rc=1 named=['REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)']
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never MSRP_FAILURE_VALID, a Talker Failed's
+[ok] output-registering-failed-msrp-failure-valid rc=1 named=['never MSRP_FAILURE_VALID']
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never MSRP_FAILURE_VALID, a Talker Failed's
+[ok] output-registering-failed-without-a-listener rc=1 named=["the face's flags, and no REGISTERING_FAILED with no Listener"]
+      fails: a source past SRP's shape registers no Listener
+      fails: both clear once the Listener leaves
+      fails: no other output shows its Listener
+      fails: the face's flags, and no REGISTERING_FAILED with no Listener
+      fails: without SRP, no Listener is registered
+[ok] output-registering-without-a-listener rc=1 named=['no REGISTERING with no Listener', 'both clear once the Listener leaves']
+      fails: a source past SRP's shape registers no Listener
+      fails: both clear once the Listener leaves
+      fails: no REGISTERING with no Listener
+      fails: no other output shows its Listener
+      fails: without SRP, no Listener is registered
+[ESCAPED] output-listener-on-interface-zero rc=0 named=["another interface's Listener is not its own"]
+[ok] output-listener-of-output-zero rc=1 named=['no other output shows its Listener']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never MSRP_FAILURE_VALID, a Talker Failed's
+      fails: no other output shows its Listener
+[ESCAPED] output-listener-any-interface rc=0 named=["another interface's Listener is not its own"]
+[ok] output-answered-past-acmps-sources rc=1 named=['an output ACMP holds no source for is not answered']
+      fails: an output ACMP holds no source for is not answered
+[ok] output-unanswered-without-srp rc=1 named=['without SRP, an output is still answered']
+      fails: without SRP, an output is still answered
+[ok] output-unanswered-past-srps-shape rc=1 named=["a source past SRP's shape is answered"]
+      fails: a source past SRP's shape is answered
+[ok] map-idle-reads-whole rc=1 named=["an output map edit's running check is brief"]
+      fails: an output map edit's running check is brief
+endstation_ax7101_1x1_tdm8 if1 rows shard 0/1: 17 planted, 2 escaped of named words

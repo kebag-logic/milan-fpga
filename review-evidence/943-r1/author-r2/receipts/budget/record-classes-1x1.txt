@@ -1,0 +1,15 @@
+# record_classes.py at a16899b1 over 1x1/1if's arm A (all 99 groups, merged; round 1, the same firmware), answering-ports and answering-every-port (round 1), and declaring-outputs (a16899b1)
+results-merged: 1x1/1if none, 99 groups, 5526 AECP records
+results: 1x1/1if answering-ports, 4 groups, 99 AECP records
+results: 1x1/1if answering-every-port, 16 groups, 1040 AECP records
+results: 1x1/1if declaring-outputs, 5 groups, 123 AECP records
+1x1/1if reported long: the dearest 91,494 CPU cycles, 965 us by the rule, stated 975 us (declaring-outputs aecp-largest-notice: the largest legal command's)
+1x1/1if held long: the dearest 91,706 CPU cycles, 965 us by the rule, stated 975 us (none aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 19,894 CPU cycles, 210 us by the rule, stated 245 us (declaring-outputs aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 23,330 CPU cycles, 245 us by the rule, stated 245 us (declaring-outputs aecp-fanout: command 0x000e)
+1x1/1if reported paced: the dearest 30,226 CPU cycles, 320 us by the rule, stated 310 us (declaring-outputs aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+1x1/1if held paced: the dearest 29,422 CPU cycles, 310 us by the rule, stated 310 us (answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+REPORTED 1x1/1if declaring-outputs aecp-fanout: a record of 30,226 CPU cycles, 320 us by the rule, over the paced record's 310 us (REMOVE_AUDIO_MAPPINGS, paced)
+REPORTED 1x1/1if declaring-outputs aecp-fanout: a record of 29,535 CPU cycles, 315 us by the rule, over the paced record's 310 us (ADD_AUDIO_MAPPINGS, paced)
+RESULT: PASS
+rc=0

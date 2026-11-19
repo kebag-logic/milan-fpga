@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# launch_fw.sh <k> : the firmware gate's shard k of 4 (test_ctrl_firmware.py --require-rv32 --self-test) on a fresh clone
+# of the lane HEAD at <scratch>/fwgate-<sha>/s<k>, as unit milan-943-a800-fw-<sha>-<k>; exit 1 if no CPU range is free
+set -u
+S=<scratch>; L=<lane>; K=$1
+H=$(git -C $L rev-parse HEAD); h=${H:0:8}; D=$S/fwgate-$h/s$K
+C=$(python3 <tools>/cpu_ranges.py pick) || exit 1
+[ -n "$C" ] || exit 1
+if [ ! -d "$D" ]; then
+  mkdir -p $S/fwgate-$h
+  git clone -q --shared --no-checkout $L $D && cd $D && git -c advice.detachedHead=false checkout -q --detach $H
+  for d in gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis; do git config submodule.$d.url $L/$d; done
+  git -c protocol.file.allow=always submodule update -q --init gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis
+fi
+systemd-run --user --unit=milan-943-a800-fw-$h-$K --collect -p MemoryMax=12G -p MemorySwapMax=0 -p WorkingDirectory=$D \
+  /usr/bin/taskset -c "$C" /usr/bin/bash -c ". $S/tools/env.sh; export PATH=/usr/bin:\$PATH; cd $D; echo HEAD \$(git rev-parse --short=8 HEAD) start \$(date +%T); python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard $K/4 --jobs 4 > $S/fwgate-$h/s$K.log 2>&1; echo \$? > $S/fwgate-$h/s$K.rc"
+echo "launched fw $h shard $K on $C"

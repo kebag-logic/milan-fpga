@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# launch_budget.sh <name> <point> [run.py args...]: a fresh clone of the lane head at <scratch>/bud-<name>, then the CPU
+# budget harness at <point> as unit milan-943-a800-bud-<name> on a picked CPU range; exit 1 if none is free
+set -u
+S=<scratch>; L=<lane>
+N=$1; P=$2; shift 2
+C=$(python3 <tools>/cpu_ranges.py pick) || exit 1
+[ -n "$C" ] || exit 1
+if [ ! -d "$S/bud-$N" ]; then
+  H=$(git -C $L rev-parse HEAD)
+  git clone -q --shared --no-checkout $L $S/bud-$N && cd $S/bud-$N && git -c advice.detachedHead=false checkout -q --detach $H
+  for d in gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis; do git config submodule.$d.url $L/$d; done
+  git -c protocol.file.allow=always submodule update -q --init gptp-processor protocol-processor third_party/lwSRP third_party/tsn-c-stack third_party/verilog-axis
+fi
+systemd-run --user --unit=milan-943-a800-bud-$N --collect -p MemoryMax=10G -p MemorySwapMax=0 -p WorkingDirectory=$S/bud-$N \
+  /usr/bin/taskset -c "$C" /usr/bin/bash -c "$S/tools/budget.sh $S/bud-$N $P $S/budget/$N 8 $* > $S/budget/$N.log 2>&1; echo \$? > $S/budget/$N.rc"
+echo "launched $N on $C"

@@ -1,0 +1,15 @@
+# record_classes.py at a16899b1 over 8x8/1if's arm A (all 98 groups, merged; round 1, the same firmware), answering-ports and answering-every-port (round 1), and declaring-outputs (a16899b1)
+results-merged: 8x8/1if none, 98 groups, 8999 AECP records
+results: 8x8/1if answering-ports, 4 groups, 97 AECP records
+results: 8x8/1if answering-every-port, 16 groups, 1040 AECP records
+results: 8x8/1if declaring-outputs, 5 groups, 128 AECP records
+8x8/1if reported long: the dearest 167,522 CPU cycles, 1760 us by the rule, stated 1720 us (declaring-outputs aecp-largest-notice: the largest legal command's)
+8x8/1if held long: the dearest 163,520 CPU cycles, 1720 us by the rule, stated 1720 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 18,936 CPU cycles, 200 us by the rule, stated 265 us (declaring-outputs aecp-fanout: command 0x0010)
+8x8/1if held other: the dearest 20,707 CPU cycles, 220 us by the rule, stated 265 us (declaring-outputs aecp-fanout: command 0x000e)
+8x8/1if reported paced: the dearest 56,832 CPU cycles, 600 us by the rule, stated 685 us (declaring-outputs aecp-fanout: SET_CONFIGURATION, paced)
+8x8/1if held paced: the dearest 56,779 CPU cycles, 600 us by the rule, stated 685 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REPORTED 8x8/1if declaring-outputs aecp-largest-notice: a record of 167,522 CPU cycles, 1760 us by the rule, over the long record's 1720 us (the largest legal command's)
+REPORTED 8x8/1if declaring-outputs aecp-largest-notice: a record of 163,814 CPU cycles, 1725 us by the rule, over the long record's 1720 us (the largest legal command's)
+RESULT: PASS
+rc=0

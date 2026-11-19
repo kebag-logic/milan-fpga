@@ -1,0 +1,15 @@
+# tools/probe_brief_r2.py: the declaring-outputs arm's b_stream (declaring_outputs.FIXTURE_EDITS at a16899b1) under the AECP bridge, as the external review's probe_brief.py builds round 1's: a brief, then a whole observation of STREAM_OUTPUT 0
+the arm's b_stream:
+static bool b_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)
+{
+    (void)ctx; (void)i; (void)n;
+    const bool brief = v->brief;
+    memset(v, 0, sizeof *v);
+    v->brief = brief;
+    v->flags = t == 6u ? 0xf2000000u : 0u;
+    return true;
+}
+
+brief: answered=1 input_brief=1 returned_brief=1 source_calls=0 dest=000000000000 flags=f2000000
+whole: answered=1 input_brief=0 returned_brief=0 source_calls=1 dest=91e0f0000100 flags=f2000000
+rc=0

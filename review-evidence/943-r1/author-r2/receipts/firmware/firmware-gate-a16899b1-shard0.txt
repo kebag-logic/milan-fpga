@@ -1,0 +1,97 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --shard 0/4 --jobs 4 on a clean clone of a16899b1; the verdict, campaign and [ok]/ESCAPED lines
+# full log: 9fa646d584a29381a89629f9d00bbc312a351e0b5f8a546a677c07e3274d786e 89158 bytes
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1806 live invocations in exactly one shard; shard sizes [88, 826, 384, 508]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+[ok] arm service_bounds
+[ok] arm model
+[ok] arm port
+[ok] arm portable
+[ok] arm adp
+[ok] arm unit
+[ok] arm walk
+[ok] arm acmp
+[ok] arm acmpwalk
+[ok] arm acmpnvm
+[ok] arm acmpif2
+[ok] arm entity
+[ok] arm rv32
+[ok] arm maap
+[ok] arm maap_debug
+[ok] arm maap_if2
+[ok] arm reentry_debug
+[ok] arm reentry_release
+[ok] arm srpcmp
+    18 planted defects caught: swapped-opportunities, collapsed-opportunities, plus-k-off-by-one, wrong-AttributeEvent, wrong-FourPackedEvent, dropped-declaration, extra-declaration, duplicated-declaration, LeaveAll-wrong-attribute-type, malformed-PDU-EndMark, malformed-list-EndMark, wrong-ProtocolVersion, wrong-AttributeLength, wrong-AttributeListLength, reserved-ThreePackedEvents, reserved-LeaveAllEvent, truncated-PDU-EndMark, oversized-frame
+[ok] arm hot
+[ok] arm lwsrp
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_talker-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_talker-if2-endstation_ax7101_8x8
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+[ok] arm srp-srp_listeners-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_listeners-if1-endstation_ax7101_8x8
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_8x8
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_8x8
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+[ok] arm srp-rv32-if1-endstation_arty_4x4
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+[ok] arm srp-rv32-if2-endstation_arty_4x4
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+[ok] arm srp-rv32-if1-endstation_arty_8ch
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+[ok] arm srp-rv32-if2-endstation_arty_8ch
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+[ok] arm srp-rv32-if1-endstation_arty_current
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+[ok] arm srp-rv32-if2-endstation_arty_current
+[ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-rv32-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-rv32-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+[ok] arm srp-rv32-if1-endstation_ax7101_8x8
+[ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+[ok] arm srp-rv32-if2-endstation_ax7101_8x8
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+[ok] arm aecp-mailbox-endstation_ax7101_8x8-if1
+[ok] arm aecp-mailbox-endstation_ax7101_8x8-if1
+[ok] arm aecp-image-endstation_arty_4x4
+[ok] arm aecp-image-endstation_arty_8ch
+[ok] arm aecp-image-endstation_arty_current
+[ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+[ok] arm aecp-image-endstation_ax7101_8x8
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-work-endstation_arty_4x4-if1
+[ok] arm aecp-work-endstation_arty_8ch-if1
+[ok] arm aecp-work-endstation_arty_current-if1
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+[ok] arm aecp-work-endstation_ax7101_8x8-if1
+[ok] arm aecp-work-keys-16x4-if1
+[ok] arm aecp-work-keys-16x32-if1
+[ok] arm plat
+[ok] arm platboot
+[ok] arm platboot
+[ok] arm platrv32
+[ok] arm plattrace
+[ok] arm platmap
+[ok] arm platsinks
+[ok] arm platsinks
+test_ctrl_firmware: PASS
