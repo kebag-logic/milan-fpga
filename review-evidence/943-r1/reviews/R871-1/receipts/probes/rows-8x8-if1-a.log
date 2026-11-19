@@ -1,0 +1,35 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-dest-mac-the-faces rc=1 named=["a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address"]
+      fails: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address
+      fails: a source past SRP's shape has its Talker's address
+      fails: without SRP, an output's address is still its Talker's
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-completed-undeclared rc=1 named=["an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers", 'both clear once the Talker withdraws']
+      fails: an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers
+      fails: both clear once the Talker withdraws
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-dest-mac-unallocated rc=1 named=['no address MAAP does not hold']
+      fails: no address MAAP does not hold
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-registering-failed-any-listener rc=1 named=['REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)']
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-registering-without-a-listener rc=1 named=['no REGISTERING with no Listener', 'both clear once the Listener leaves']
+      fails: a source past SRP's shape registers no Listener
+      fails: both clear once the Listener leaves
+      fails: no REGISTERING with no Listener
+      fails: no other output shows its Listener
+      fails: without SRP, no Listener is registered
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-listener-of-output-zero rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+      fails: no other output shows its Listener
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] output-unanswered-without-srp rc=1 named=['without SRP, an output is still answered']
+      fails: without SRP, an output is still answered
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] map-idle-reads-whole rc=1 named=["an output map edit's running check is brief"]
+      fails: an output map edit's running check is brief
+endstation_ax7101_8x8 if1 rows shard 0/2: 8 planted, 0 escaped of named words

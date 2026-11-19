@@ -1,0 +1,225 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+Note: Google Test filter = AppOutputs.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 2
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 3
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 0, declaration 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 0, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 0, declaration 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233920
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 0
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:893: Failure
+Expected equality of these values:
+  declared.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 2
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 2
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 3
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 3
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:898: Failure
+Expected equality of these values:
+  r.flags_ex
+    Which is: 0
+  1u
+    Which is: 1
+REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8): output 1, declaration 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:901: Failure
+Expected equality of these values:
+  r.flags&0x40u
+    Which is: 0
+  failed?0x40u:0u
+    Which is: 64
+REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 1, declaration 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output 1, declaration 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:904: Failure
+Expected equality of these values:
+  r.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:913: Failure
+Expected equality of these values:
+  info(n).flags&0x40u
+    Which is: 0
+  0x40u
+    Which is: 64
+REGISTERING_FAILED again as the Talker declares again: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:919: Failure
+Expected equality of these values:
+  left.dest
+    Which is: 0
+  BASE+n
+    Which is: 160395285233921
+a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: 1
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:932: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE
+    Which is: 160395285233920
+without SRP, an output's address is still its Talker's
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: without SRP, an output's address is still its Talker's
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:940: Failure
+Expected equality of these values:
+  v.dest_mac
+    Which is: 0
+  BASE+2u
+    Which is: 160395285233922
+a source past SRP's shape has its Talker's address
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape has its Talker's address
+<base-clone>/sw/firmware/ctrl/test/test_aecp.cpp:943: Failure
+Value of: bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v)
+  Actual: true
+Expected: false
+an output ACMP holds no source for is not answered
+
+  [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: an output ACMP holds no source for is not answered
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (3 ms)
+[----------] 1 test from AppOutputs (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
