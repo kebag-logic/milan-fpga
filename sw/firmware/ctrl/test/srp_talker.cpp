@@ -5,7 +5,7 @@
 // Advertise with base + n and its TSpec, or Talker Failed, code 1, when its bandwidth does not fit (IEEE 802.1Q-2018
 // 35.2.2.8.7, Table 35-6); a source not valid declares nothing; a lapse withdraws, its licence and TALKER_DECL bit
 // first. MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): an unchanged destination may be declared
-// again at once, a changed one no sooner than two of the longest LeaveAll periods after the Leave (10.7.4.3, #951), a
+// again at once, a changed one no sooner than two nominal longest LeaveAll periods after the Leave (10.7.4.3, #951), a
 // type swaps in place, and a reset holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if
 // (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
@@ -49,7 +49,7 @@ constexpr uint32_t kAdmittedBps=17024000u;
 // Two ranges MAAP may hold (IEEE 1722-2016 Table B.9's pool), base + n each source's destination.
 constexpr uint64_t kBaseA=0x91e0f000aa00ull;
 constexpr uint64_t kBaseB=0x91e0f000bb00ull;
-// The withdrawal's hold-off in ms (#951): two of the longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
+// The withdrawal's hold-off in ms (#951): two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
 // 802.1Q-2018 10.7.4.3 draws every leavealltimer below it) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30,000 ms,
 // and the hold-off as srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's MRPDU by every
 // source added in whole centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS): 30,230 ms at 1x1/1if,
