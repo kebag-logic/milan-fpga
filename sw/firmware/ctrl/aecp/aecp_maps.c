@@ -125,11 +125,10 @@ static bool legal(struct aecp *a, const struct geometry *g, const struct aecp_ma
 }
 
 // The check a legal mapping of an output port reads its port for, after every
-// other of its own: its stream must not be running.
+// other of its own: its stream must not be running, observed briefly (#943).
 static bool idle(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
 {
-	struct aecp_stream_info info;
-	return port->type == 14u || (aecp_stream_read(a, 6u, r->stream, &info) && !info.running);
+	return port->type == 14u || aecp_stream_idle(a, 6u, r->stream);
 }
 
 static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)

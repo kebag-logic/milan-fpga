@@ -129,6 +129,13 @@ static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
 }
 
+// A map edit's check of its output port's stream (aecp_maps.c, idle): a running check, so its observation is brief and
+// the ports read for bound and running alone (#943).
+bool aecp_stream_idle(struct aecp *a, uint16_t type, uint16_t index)
+{
+	return running(a, type, index) == AECP_SUCCESS;
+}
+
 static unsigned any_running(struct aecp *a)
 {
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {

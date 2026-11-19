@@ -30,6 +30,8 @@ void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 // Record the n bytes at a value a command is about to change (#665).
 void aecp_keep(struct aecp *, void *, size_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
+// The stream not running, observed briefly as a running check observes it; false when its observation fails.
+bool aecp_stream_idle(struct aecp *, uint16_t, uint16_t);
 // A response's Ethernet header and AECPDU common data, through command_type.
 #define AECP_HEADER_BYTES 38u
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output

@@ -3,7 +3,8 @@
 """aecp_output_mutants.py - the AECP campaign's planted defects in a STREAM_OUTPUT's GET_STREAM_INFO as the split's
 application bridge completes it (#943; Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12): its Talker's MAAP address
 and the Listener SRP registers for its stream. aecp_mutants.py plants each row; every named check must fail on its
-own words, in AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration at two interfaces."""
+own words, in AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (and, for the map edit's
+running check, Core.TheRunningCheckObservesEveryStreamBriefly) at two interfaces."""
 
 APP = 'app/ctrl_app_aecp.c'
 TEST = 'AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration'
@@ -62,4 +63,13 @@ ROWS = (
     ('output-unanswered-past-srps-shape', APP, GUARD,
      '\t\tif (index >= a->n_sources || index >= CTRL_SRP_SOURCES) return false;\n',
      (TEST, "a source past SRP's shape is answered")),
+    # a brief observation, a running check's, completed as a whole one: the work a map edit's or SET_CONFIGURATION's
+    # check of every output would pay, which none of them reads
+    ('output-brief-completed', APP, '\t} else if (!v->brief) {\n', '\t} else {\n',
+     (TEST, "a brief observation of an output, a running check's, is the face's: bound and running alone")),
+    # an output map edit's check of its stream read whole again, as before #943 (aecp_maps.c, idle)
+    ('map-idle-reads-whole', 'aecp_maps.c', '\treturn port->type == 14u || aecp_stream_idle(a, 6u, r->stream);\n',
+     '\tstruct aecp_stream_info info;\n'
+     '\treturn port->type == 14u || (aecp_stream_read(a, 6u, r->stream, &info) && !info.running);\n',
+     ('Core.TheRunningCheckObservesEveryStreamBriefly', "an output map edit's running check is brief")),
 )

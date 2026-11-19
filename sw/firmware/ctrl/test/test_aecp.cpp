@@ -931,6 +931,10 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
     ASSERT_TRUE(answered)<<"without SRP, an output is still answered";
     EXPECT_EQ(v.dest_mac,BASE)<<"without SRP, an output's address is still its Talker's";
     EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"without SRP, no Listener is registered";
+    aecp_stream_info brief{};brief.brief=true;
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,0,&brief));
+    EXPECT_EQ(brief.dest_mac|brief.flags_ex|(brief.flags&0x40u),0u)
+        <<"a brief observation of an output, a running check's, is the face's: bound and running alone";
     declaring[CTRL_SRP_SOURCES]=true;
     ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v))<<"a source past SRP's shape is answered";
     EXPECT_EQ(v.dest_mac,BASE+CTRL_SRP_SOURCES)<<"a source past SRP's shape has its Talker's address";
@@ -2202,6 +2206,10 @@ TEST_F(Core, TheRunningCheckObservesEveryStreamBriefly)
     EXPECT_TRUE(briefs.front())<<"SET_STREAM_FORMAT's running check is brief";
     briefs.clear();ask(15,target(6,0));
     EXPECT_EQ(briefs,std::vector<bool>{false})<<"GET_STREAM_INFO reads the stream whole";
+    // #943: an output map edit's check of its stream is a running check too (aecp_maps.c, idle)
+    auto map=target(15,0,16);put(map,4,1,2);put(map,10,1,2);put(map,12,1,2);
+    briefs.clear();ask(44,map);ASSERT_FALSE(briefs.empty());
+    EXPECT_EQ(briefs,std::vector<bool>(briefs.size(),true))<<"an output map edit's running check is brief";
 }
 
 // SET_CONFIGURATION's change names whether its index moved, which the face's stream entries follow; its notify
