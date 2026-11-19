@@ -62,7 +62,8 @@ static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index,
 			(s.registering_failed ? 0x08000040u : 0u) |
 			(s.bound ? 0x04000006u : 0u) | (s.bound && !s.started ? 8u : 0u);
 		v->flags_ex = s.talker_registered ? 1u : 0u;
-	} else if (type == 6u) {
+	} else {
+		// A STREAM_OUTPUT: the core asks this port of STREAM_INPUTs and STREAM_OUTPUTs alone (aecp_commands.c, observe).
 		// What the split datapath's face cannot answer of an output it reports declaring (its STREAM_DEST_MAC_VALID;
 		// #943; Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11, 5.12): stream_dest_mac is its Talker's MAAP address, the ACMP
 		// source port's that PROBE_TX_RESPONSE carries, and the Listener SRP registers for its stream_id on its
