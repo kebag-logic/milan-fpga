@@ -106,6 +106,82 @@ SOURCES = [
                                                    'gate-selftest.txt', 'pp_*_selftest.txt')],
     ('step11/gates/q-73272666', S / 'q/r5-73272666', '*'), ('step11/images', S / 'r5img/73272666', 'hashes-73272666.txt'),
     ('step11/images', S / 'logs', 'r5-img7327.log*'),
+    # the documentation audit at b1f1161b: where it went stale, the docs workflow's commands before and after
+    ('step11/docs', S / 'r5out', 'audit-bisect.txt'),
+    # each check's log ends in its rc; the CI runner's own self-test (98, act_ci) is the hosted CI's, not a docs check
+    ('step11/docs/q-docswf-73272666', S / 'q/r5-docswf-73272666', '73-docs_inventory-check.log'),
+    *[('step11/docs/q-docswf-pre', S / 'q/r5-docswf-pre', g) for g in ('[0-8][0-9]-*.log', '9[0-7]-*.log', '99-*.log',
+                                                                     '1[0-9][0-9]-*.log')],
+    ('step11/docs/q-docsx-pre', S / 'q/r5-docsx-pre', '*.log'),
+    ('step11/docs', S / 'logs', 'r5-docswf-*.log*'), ('step11/docs', S / 'logs', 'r5-docsx-*.log*'),
+    ('step11/gates/q-b1f1161b', S / 'q/r5-b1f1161b', '*'), ('step11/images', S / 'r5img/b1f1161b', 'hashes-b1f1161b.txt'),
+    ('step11/images', S / 'logs', 'r5-imgb1f1.log*'),
+    # step 12 (#947 at 66c6edf3): the ledger at both heads, the gates, the images, the release export, the routes
+    *[(f'step12/ledger/{h}', S / f'r5led{h}', g) for h in ('11', '12', '12b') for g in ('plat-ledger.log', 'ctrl_memory*.log')],
+    ('step12/logs', S / 'logs', 'r5-led1*.log*'), ('step12/logs', S / 'logs', 'r5-g12-*.log*'),
+    ('step12/logs', S / 'logs', 'r5-q12.log*'), ('step12/logs', S / 'logs', 'r5-img12.log*'), ('step12/logs', S / 'logs', 'r5-rel1*.log*'),
+    ('step12/gates/q-967b1ca9', S / 'q/r5-967b1ca9', '*.log'), ('step12/gates/q-docsx-967b1ca9', S / 'q/r5-docsx-967b1ca9', '*.log'),
+    *[('step12/gates/q-docswf-967b1ca9', S / 'q/r5-docswf-967b1ca9', g) for g in ('[0-8][0-9]-*.log', '9[0-7]-*.log', '99-*.log',
+                                                                                 '1[0-9][0-9]-*.log')],
+    ('step12/gates/splitboot', S / 'r5boot12', '*.log'),
+    ('step12/images', S / 'r5img/967b1ca9', 'hashes.txt'), ('step12/images', S / 'r5out', 'split-images-12.txt'),
+    ('step12/images', S / 'r5out', 'release-export-12.txt'), ('step12/images', S / 'r5out', 'split-gateware-12.txt'),
+    ('step12/fit/tools', S / 'r5fit12/tools', '*'), ('step12/fit', S / 'r5fit12', '*.log'),
+    *[(f'step12/fit/{w}/{d}', S / f'r5fit12/{w}/{d}', g) for w in ('route', 'route8')
+      for d in ('split/gateware', 'split-ExtraTimingOpt', 'split-AltSpreadLogic_high')
+      for g in ('route.rc', 'route.start', 'route.end', '*signoff*_timing.rpt', '*utilization_place.rpt')],
+    ('step12/fg4', S / 'r5out', 'fg4-analysis.txt'),
+    # F-G4: the diagnostic's quick test, the bench build scripts and logs, the candidates' runs before and after
+    ('step12/fg4/tools', S / 'fg4', '*.sh'), ('step12/fg4/tools', S / 'fg4', '*.py'), ('step12/fg4/tools', S / 'fg4', '*.c'),
+    ('step12/fg4/runs', S / 'fg4', 'pb-*.log*'), ('step12/fg4/runs', S / 'fg4', 'bench-*.log*'),
+    ('step12/fg4/runs', S / 'fg4', 'cb*.log*'),
+    *[(f'step12/fg4/bench-{p}', S / f'fg4/work{p}', g) for p in ('1x1', '8x8')
+      for g in ('boot.log', 'builder.log', 'image.log', 'flash-map.log', 'identity.log', 'artifacts.sha256',
+                'build.start', 'build.end', 'build.rc', 'build.log', 'BENCH_DONE')],
+    *[(f'step12/fg4/bench-{p}', S / f'fg4/work{p}/build_ExtraPostPlacementOpt', g) for p in ('1x1', '8x8')
+      for g in ('image_manifest.json', 'csr.csv', 'flashboot_layout.json')],
+    *[(f'step12/fg4/bench-{p}/gateware', S / f'fg4/work{p}/build_ExtraPostPlacementOpt/gateware', g)
+      for p in ('1x1', '8x8') for g in ('*utilization_place.rpt', '*signoff*_timing.rpt', '*route_status.rpt')],
+    # F-G4's second diagnostic (milan_mdio): its quick test's run and the two bench builds, as the first's
+    ('step12/fg4/runs', S / 'fg4', 'dq*.log'), ('step12/fg4/runs', S / 'fg4', 'bench2-*.log*'),
+    *[(f'step12/fg4/bench2-{p}', S / f'fg4/v2work{p}', g) for p in ('1x1', '8x8')
+      for g in ('boot.log', 'builder.log', 'image.log', 'flash-map.log', 'identity.log', 'artifacts.sha256',
+                'build.start', 'build.end', 'build.rc', 'build.log', 'BENCH_DONE')],
+    *[(f'step12/fg4/bench2-{p}', S / f'fg4/v2work{p}/build_ExtraPostPlacementOpt', g) for p in ('1x1', '8x8')
+      for g in ('image_manifest.json', 'csr.csv', 'flashboot_layout.json')],
+    *[(f'step12/fg4/bench2-{p}/gateware', S / f'fg4/v2work{p}/build_ExtraPostPlacementOpt/gateware', g)
+      for p in ('1x1', '8x8') for g in ('*utilization_place.rpt', '*signoff*_timing.rpt', '*route_status.rpt')],
+    # step 12 with #947's round 2 (7650a02d): the ledger, the gates, the images, the gateware question, the gating builds
+    ('step12b/ledger', S / 'r5led13', 'plat-ledger.log'), ('step12b/ledger', S / 'r5led13', 'ctrl_memory.log'),
+    ('step12b/ledger', S / 'r5led13', 'ledger.out*'), ('step12b/ledger/fx', S / 'r5led13/fx', '*.log'),
+    ('step12b/logs', S / 'logs', 'r5-g13-*.log*'), ('step12b/logs', S / 'logs', 'r5-q13.log*'),
+    ('step12b/logs', S / 'logs', 'r5-img13.log*'), ('step12b/logs', S / 'logs', 'r5-rel13.log*'),
+    ('step12b/gates/q-7650a02d', S / 'q/r5-7650a02d', '*.log'), ('step12b/gates/q-docsx-7650a02d', S / 'q/r5-docsx-7650a02d', '*.log'),
+    *[('step12b/gates/q-docswf-7650a02d', S / 'q/r5-docswf-7650a02d', g) for g in ('[0-8][0-9]-*.log', '9[0-7]-*.log', '99-*.log',
+                                                                                 '1[0-9][0-9]-*.log')],
+    ('step12b/gates/splitboot', S / 'r5boot13', '*.log'),
+    ('step12b/images', S / 'r5img/7650a02d', 'hashes.txt'), ('step12b/images', S / 'logs', 'release-export-13.txt'),
+    ('step12b/images', S / 'logs', 'gateware13.txt'), ('step12b/images', S / 'logs', 'split-images-13.txt'),
+    ('step12b/fit/tools', S / 'r5fit13/tools', '*'), ('step12b/fit', S / 'r5fit13', '*.log'),
+    *[(f'step12b/fit/{w}/{d}', S / f'r5fit13/{w}/{d}', g) for w in ('route', 'route8')
+      for d in ('split/gateware', 'split-ExtraTimingOpt', 'split-AltSpreadLogic_high')
+      for g in ('route.rc', 'route.start', 'route.end', '*signoff*_timing.rpt', '*utilization_place.rpt')],
+    ('step12b/gating/tools', S / 'gate13/tools', '*'), ('step12b/gating', S / 'gate13', 'gate-*.log*'),
+    *[(f'step12b/gating/{p}', S / f'gate13/work/g{p}', g) for p in ('1x1', '8x8')
+      for g in ('argv.txt', 'standin.log', 'identity.log', 'artifacts.sha256', 'signoff.txt', 'GATE_DONE',
+                'build_ExtraPostPlacementOpt.start', 'build_ExtraPostPlacementOpt.end', 'build_ExtraPostPlacementOpt.rc')],
+    *[(f'step12b/gating/{p}', S / f'gate13/work/g{p}/build_ExtraPostPlacementOpt', g) for p in ('1x1', '8x8')
+      for g in ('image_manifest.json', 'csr.csv', 'flashboot_layout.json')],
+    *[(f'step12b/gating/{p}/gateware', S / f'gate13/work/g{p}/build_ExtraPostPlacementOpt/gateware', g)
+      for p in ('1x1', '8x8') for g in ('*utilization_place.rpt', '*signoff*_timing.rpt', '*route_status.rpt')],
+    ('step12b', S / 'tools', 'gateware13.py'),
+    # step 12 at #947's frozen head (0839453f): the quick gates, the ledger, the images
+    ('step12c/ledger', S / 'r5led14', 'plat-ledger.log'), ('step12c/ledger', S / 'r5led14', 'ledger.out*'),
+    ('step12c/logs', S / 'logs', 'r5-g14-*.log*'), ('step12c/logs', S / 'logs', 'r5-q14.log*'),
+    ('step12c/logs', S / 'logs', 'r5-img14.log*'), ('step12c/logs', S / 'logs', 'r5-rel14.log*'),
+    ('step12c/gates/q-0839453f', S / 'q/r5-0839453f', '*.log'), ('step12c/gates/q-docsx-0839453f', S / 'q/r5-docsx-0839453f', '*.log'),
+    ('step12c/images', S / 'r5img/0839453f', 'hashes.txt'), ('step12c/images', S / 'logs', 'release-export-14.txt'),
+    ('step12c/images', S / 'logs', 'images-14.txt'),
     # tools
     ('tools', S / 'tools', 'collect5.py'), ('tools', S / 'tools', 'legs.py'), ('tools', S / 'bin', '*.sh'),
     ('tools', S / 'bin', '*.py'), ('tools', S / 'r4meas', '*.sh'), ('tools', S / 'r4meas', '*.py'),

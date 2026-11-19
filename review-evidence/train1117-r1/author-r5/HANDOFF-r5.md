@@ -1,8 +1,513 @@
 # HANDOFF, round 5: the final head and attempt 2 (#665), [A794]
 
-## Status (kept current, 15:16; final)
+## Status (kept current, 02:3x, 11-19)
 
-**The final head is `73272666` on `flip-train-1117-p11`: ready for the composition review.** RULING-1118f (#665
+**FINAL HEAD: `0839453f` on `flip-train-1117-p11`, ready for the train candidate and merge.** It was composed in the
+scratch clone `p11` and fetched into the lane repo. Nothing is pushed; the manager pushes.
+
+- **`0839453f`:** merges #947's frozen head `fe297847` `--no-ff` onto `7650a02d`.
+  - **Reviews:** R867-3 POSITIVE at `fe297847` (#947 issuecomment-6996096094) and R868-2 POSITIVE at `9f4f3de0`
+    (issuecomment-6993952183).
+  - **Round 3:** tests and docs only, 4 files.
+  - **Conflict:** one, in `ctrl_memory.py`'s ledger comment, which takes the train's side. Round 3's rename of the debt
+    owner is in a sentence that only #947's own comment has.
+  - **The other three files** carry round 3's diff line for line. The gitlinks stay `1616fc8f` / `801ef228`.
+  - RESOLUTIONS.md records it.
+- **The images: no product image differs, so there is no STOP.**
+  - **The platform images at all four points are byte-identical to `7650a02d`'s**, whole file.
+  - **Their loaded sections equal the gating bitstreams' firmware:** 1x1/1if `ff21e091…` and 8x8/1if `f2f81d5f…`. So
+    the gating run's `7650a02d` bitstreams are the final head's images.
+  - **The CPU budget images:** all 12 EQUAL to step 11's.
+  - **The release:** byte-identical where loaded, with `bios.bin` `603b9ca3…`, the AEM blob `bdfde7cf…`, and the
+    ROM, SRAM and memory init files equal. The Verilog is equal outside its comments.
+  - The comparison is in `receipts/step12c/images/`.
+- **The ledger:** `plat_ledger.py --self-test` PASS, controls 9 of 9; the points as at `7650a02d`.
+- **The quick gates at `0839453f`: ALL PASS**, with the same exceptions as `7650a02d` and step 12
+  (`receipts/step12c/`):
+  - **The control campaign (shard 1/4): 825 of 825 caught.** That is 823 plus round 3's 2, and no plant is removed.
+  - **Sinks at both shapes** (shard 0/4, the `platsinks` arms): 8x8/1if 11/0 and 1x1/1if 11/0. Shard 0 passes in full.
+  - **`fw_coverage --check`:** PASS (40 files).
+  - **Docs and checks:** the docs, style, paths, TOC and anchors, em dash, hygiene, the Python and C++ idioms,
+    `docs_inventory`, the generated checks and `git diff --check 7650a02d 0839453f` all PASS.
+    - The exceptions: `ci_tool_inventory_check` is CI-environment-bound, as before. `flip_grade --check`'s output is
+      identical to step 12's: the base eleven at 8x8/2if, reported and not held.
+  - **The ledger self-test:** PASS, 9 of 9 controls.
+- **PR-BODY.md:** step 12 is #947 at `fe297847` with both review links; the F-G4 withdrawal is recorded. Its Status
+  reads: final head, ready for the train candidate and merge.
+- **Housekeeping:**
+  - **Receipts:** collected, sanitized and indexed (2,502 files; INDEX.md 198,257 B), and the scrub found 0 findings.
+  - **Scratch: 37 GB.** This round's twelve CPU budget arms' Verilator builds were removed after their hashes were
+    taken, each logged in `disk-cleanup.log`.
+  - **Units:** no unit of this lane is running.
+  - **Lane worktree:** it stays on `flip-train-1117-p10`, clean. `refs/heads/flip-train-1117-p11` is
+    `0839453f6d7135063e904bcaf4ac1852ad6b522a`.
+
+---
+
+## Status (02:2x, 11-19; superseded above): STEP 12 WITH ROUND 2 DONE
+
+**STEP 12 WITH #947's ROUND 2: the head is `7650a02d` on `flip-train-1117-p11`** (composed in the scratch clone `p11`
+and fetched into the lane repo; nothing pushed, the manager pushes after #947's round-3 review).
+
+- **`7650a02d`:** merges #947's round-2 head `9f4f3de0` (R868-2 POSITIVE) `--no-ff` onto `967b1ca9`.
+  - **Conflicts:** seven files, all the ROM ledger's or its prose, as the #946 lane found. Each takes the train's side,
+    and the README's two ROM hunks take the train's text.
+  - **No raise is owed:** the train's side already holds 8x8/2if at 63.0.
+  - **Round 2's own delta is carried line for line** outside the ledger (RESOLUTIONS.md). The gitlinks stay
+    `1616fc8f` / `801ef228`.
+- **The ledger: PASS, controls 9 of 9.**
+  - 1x1 45 and 46 RAMB36, within 56.
+  - 8x8/1if 58 at its 58.0 entry.
+  - 8x8/2if 63 at its 63.0 entry.
+  - `test_ctrl_memory.py` 0 failures.
+- **The CPU budget images: all 12 EQUAL to step 11's** (and step 12's) by sha256.
+- **The release export: byte-identical where it is loaded.** `bios.bin` `603b9ca3…` and the AEM blob `bdfde7cf…` equal
+  step 12's, and the Verilog is equal outside its comments.
+- **The gating bench bitstreams** (the gating lane's own `gprep.sh`/`gbuild.sh`, copied with only the scratch path
+  changed; `--eth-port e2`, ExtraPostPlacementOpt, through `vivado-slot.sh`):
+  - **8x8/1if, READY (01:52):** `<scratch>/gate13/work/g8x8/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+    - **Bitstream sha256:** `b449f2caa3675d2a70a536e5dcd379bdef100da9240d0679dff4b71d796f730b`.
+    - **Platform image** `ctrl_app.elf`: `a2862a30900691c51323a9ca3de003fcf908c3746143053fe5cf32bd33a28a03`.
+    - **AEM blob:** `723225a5…`.
+    - **Checks:** the identity gate passes, with 0 routing errors, and all user timing constraints are met. The split
+      boot simulation PASSED on its clone.
+    - **#818's floor, met at every corner:** Slow WNS +0.176 / WHS +0.102 ns, Fast WNS +1.523 / WHS +0.036 ns. Both the
+      build gate's floor (WNS >= +0.030, WHS >= 0) and the ruling's (both >= +0.030) are met.
+    - **argv:** the recipe's, then `--eth-port e2 ... --place-directive ExtraPostPlacementOpt --vivado-max-threads 16
+      --build`.
+    - **Files:** the absolute path and the build directory are in `../fg4-bench-images.txt`'s gating section.
+  - **1x1/1if, READY (01:48):** `<scratch>/gate13/work/g1x1/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+    - **Bitstream sha256:** `550e2d8d3b72a8aca6feff387b83677dbf4ab7c6ea84a318d17bf1f5c66f6543`.
+    - **Platform image** `ctrl_app.elf`: `caec03c8807619d0384f0d523071490e02565e32b6dd655f1fa7dd1020923e31`.
+    - **AEM blob:** `bdfde7cf…`, the train's.
+    - **Checks:** the identity gate passes, with 0 routing errors, and all user timing constraints are met. The split
+      boot simulation PASSED on its clone.
+    - **#818's floor, met at every corner:** Slow WNS +0.276 / WHS +0.102 ns, Fast WNS +1.641 / WHS +0.036 ns. Both
+      floors are met.
+    - **argv:** the recipe's, then `--eth-port e2`, as for 8x8/1if.
+  - **The firmware in each bitstream is the train's.**
+    - **Loaded sections** (`.text`, `.rodata`, `.data`): byte-identical in the gating build, the ledger's link and
+      this lane's split export. That is `ff21e091…` at 1x1/1if and `f2f81d5f…` at 8x8/1if.
+    - **Whole-file hashes:** these differ only by symbol order, which follows the stand-in export's generation
+      timestamp. The gating lane traced the same at step 11.
+- **The gates at `7650a02d`: ALL PASS, with the same exceptions as step 12** (`receipts/step12b/`):
+
+  | Gate | Result |
+  |---|---|
+  | The four firmware shards | **all PASS**; the control campaign **823 of 823** caught (797 + #947's 26; no plant removed) |
+  | `fw_coverage --check` | PASS (40 files) |
+  | The twin and its plants (twin, twin-plants, twin-maps, twin-maps-plants) | **all PASS** |
+  | The receive monitor (`avtp_rxmon`, `make run`) | **PASS**: flat 97/0, N=4 stack 218/0, lockstep N=1 116/0 and N=8 119/0, lockstep mutants 14/14, format mutants 13/13, #947's N=8 format contract 96/0 and its mutants 5/5 |
+  | The split boot simulation at 1x1/1if and 8x8 | **both PASS** (0 findings); it passes on both gating clones too |
+  | `plat_ledger.py --self-test`, `test_ctrl_memory.py` | PASS, 9 of 9 controls; 0 failures |
+  | `run.py --self-test`, `load_grade --check` and `--selftest`, `flip_grade --check --point 1x1/1if` and `--selftest`, rows_tiers, record_classes, shape_costs, egress_ledger, mailbox_margins | **PASS** |
+  | `flip_grade --check` (every point) | rc 1, its output **identical to step 12's**: 8x8/2if's base eleven, reported and not held |
+  | Docs, style, paths, TOC and anchors, em dash, hygiene, the Python and C++ idioms, `docs_inventory --check`, `git diff --check`, the docs workflow's commands and the generated-table checks | **PASS**, except the CI-environment-bound checks, which are **the same set as step 12's**: no pinned HDL parser or wavedrom in the workflow venv, no `GITHUB_EVENT_PATH`, no checksum-pinned shfmt. The wavedrom, register-reference and HDL-reference checks pass in the generated-checks venv |
+- **The gateware question (item 4): UNCHANGED at both points, so no split routes are owed.** The split export at
+  `7650a02d` was compared with step 12's (`gateware13.py`).
+  - **At 1x1/1if and 8x8/1if:** the rom banks have the same depths, the Verilog is EQUAL outside its comments, and the
+    constraints are EQUAL.
+  - **What differs:** only the rom banks' init files, which are the firmware.
+  - **The split product images** (sha256, against step 12), each 8 B smaller:
+    - 1x1/1if `e937ca14…`;
+    - 1x1/2if `3e67aaea…`;
+    - 8x8/1if `4818bec6…`;
+    - 8x8/2if `9c67031d…`.
+
+    The CPU budget images inside the same exports are equal.
+
+**F-G4: WITHDRAWN** (the manager's resume of 01:2x; the bench's second reading).
+- The DUT's own PHY advertises 1000BASE-T full alone, and has no link with a 10BASE-T-half-only partner. The test
+  machine was negotiating with the inline capture tap.
+- It is recorded in RESOLUTIONS.md, and it has left the PR body's known limitations.
+- The diagnostic and candidate branches stay as scratch.
+- Candidate B's gap is listed as #495 residue for a later ticket.
+
+**Housekeeping:**
+- **Receipts** are collected, sanitized and indexed (2,444 files; INDEX.md 193,770 B), and the scrub found 0 findings.
+  - The index now drops its first-line column, to stay within 200 KB.
+  - The sanitizer now also replaces the gating lane's scratch path and the tap's product name and MAC. They occur in
+    the bench lane's copy `fg4-board-reading2.md`; its original stays in that lane's HANDOFF.
+- **Scratch: 37 GB**, within its cap. Every removal is logged in `disk-cleanup.log`, all of them build intermediates
+  whose verdicts are receipted:
+  - the F-G4 diagnostics' boot trees and checkpoints;
+  - steps 10 and 11's route checkpoints;
+  - step 12's and this round's CPU budget images' Verilator builds;
+  - this round's ledger fixture builds.
+- **Units and remote:** no unit of this lane is running. Nothing is pushed, and nothing is posted.
+
+---
+
+## Status (01:1x, 11-19; superseded above)
+
+**F-G4, THE ADDRESS FIX: STOP. No commit; `flip-train-1117-p11` stays `967b1ca9`.** The board reading, the board's
+pinout and the bench's topology contradict the premise that address 0 is not the negotiating PHY. Together they
+point to a device between the DUT and the test machine. As AGENTS.md section 2 requires, I am publishing the conflict
+rather than choosing between the two readings. A second diagnostic image, which settles it in one read, is built
+below.
+
+**1. The per-port answers, from the repository**
+(`sw/litex/platforms/alinx_ax7101.py:53-97`; `docs/integration/BOARD_PORTING_AX7101.md` sections 1 and 5;
+`sw/litex/milan_soc.py:4863,5085`):
+
+- **Which MDIO bus belongs to each port:**
+  - e1: MDC J17, MDIO L16.
+  - e2: MDC AB21, MDIO AB22. The platform records e2's pair as "already proven on this board".
+  - Each MDIO pin has its own pull-up.
+- **Whether the PHYs share a bus:** no. These are two separate buses, one RTL8211E each.
+- **What `--eth-port` selects:** `--eth-port e2` selects pad group 1 (`eth_phy_index=1`), which carries e2's GMII pins
+  and e2's MDIO pair together. So on these images the poll's bus is e2's bus, and nothing else is on it.
+- **Which PHY address belongs to each port:** the repository states none. It is not in the platform, the board doc,
+  the configs or #590. Both firmwares probe PHYID1 from address 0 upward and take the first address that answers.
+- **Whether address 0 is the other port's PHY, or a broadcast or alias address:** it cannot be the other port's PHY,
+  because the buses are separate. Whatever answers on e2's bus is e2's PHY. If address 0 is the part's broadcast
+  address rather than its strap address, it still reaches the same register file.
+
+**2. Correction: my "#590's hardware probe found the PHY at address 1" was wrong.**
+
+- #590's `mdio-phase.log` is the reviewer probe `probe_mdio_phase.py` run against a simulated peer. Its `true=` values
+  and its `phy_address=1` are the model's (#590's HANDOFF, its MDIO section). No board record gives an address.
+- The bench reading's point 5 ("the composition lane gives the PHY as address 1") rests on my error.
+- It is corrected in the 23:0x STOP below, in RESOLUTIONS.md and in `receipts/step12/fg4/fg4-analysis.txt`.
+
+**3. Why the reading contradicts the address hypothesis**
+
+The bench reading is `fg4-board-reading.md`; the test machine's `ethtool` is in the bench lane's
+`receipts/rel/fg4read.txt`.
+
+- **Address 0 is e2's PHY.** It is on e2's bus (item 1). It reports e2's link: down during the outage and up after it
+  (the reading's point 3). It holds every write (point 2).
+- **The pause bit.** Address 0's register 4 has pause (bit 10) set at every read: `05e1` at the cold boot, `0401` after
+  the write. No firmware clears it. Yet the test machine reads "Link partner advertised pause frame use: No" at every
+  point, the release image's cold-boot link included.
+- **1000BASE-T half.** At the cold boot, before any write, address 0's register 9 is `0200`, which does not advertise
+  half duplex. The partner shows 1000baseT/Half.
+- **So the device advertising to the test machine never carried address 0's register set**, not even the PHY's own
+  power-on defaults. Nor does it look like another board RTL8211E at those defaults (pause, no 1000 half). No address
+  change in the DUT's firmware can alter what that device advertises.
+- **The 10 Mb/s link.** With the test machine at 10BASE-T half alone, its carrier came up at 10 Mb/s half duplex. No PHY
+  advertising what address 0 holds (1000BASE-T full alone) can resolve that.
+- **The bench's topology.** The S12b gating HANDOFF has the bench's inline capture tap passing traffic, "link 1G both
+  sides", and the harness's Ethernet stop/start goes through it.
+  - An active tap has a PHY facing each side. The test machine's "Link partner advertised" is then the tap's PHY (six
+    modes, no pause), and the DUT's PHY negotiates with the tap's other side.
+  - That fits every point: the writes land and verify; address 0 follows the link; the wire view differs from address
+    0 even before the first write; the release behaves the same; and a 10 Mb/s link forms on the test machine's side.
+
+**4. What I did not do, and why**
+
+- **No port-derived address fix.** The repository states no address for either port, so a per-port table would be a
+  constant I chose. A fix keyed to "e2 is address 1" would also move the poll off the address that the board shows
+  holding e2's writes and reporting e2's link. If address 1 does not answer, the poll finds nothing and publishes link
+  down.
+- **No train tests, gates or fixed-head bench images**, because there is no fixed head. The two-PHY model the manager
+  asked for is written as the second diagnostic's host test, `diag_quick2.c`: two PHYs on one open-drain bus, at
+  addresses 1 and 3. The poll's writes land at the address it found, and the other PHY stays at its defaults. It
+  becomes a train test when there is a fix to pin.
+- **The release is unchanged.**
+
+**5. What decides it: one bench read, either of two ways**
+
+- **(i) Without recabling.** Flash the second diagnostic below. Type `milan_mdio` and `milan_phy` at point B, and once
+  while the test machine offers 10BASE-T half alone.
+  - **The tap.** Address 0 answers. Its R5 has the 10/100 bits set and both pause bits clear, and its R10 has bits 11
+    and 10 set (about `3c00`). R17 resolves 1000 full. During the 10 Mb/s phase the DUT stays at 1000 full
+    (`LINK=0000000d`, R17 at 1000) while the test machine sits at 10.
+  - **A direct cable.** R5 and R10 show the test machine's own advertisement: no 10/100 bits and R10 bit 11 alone at B,
+    then 10BASE-T half alone during the 10 Mb/s phase. Then point 3's contradiction stands unexplained. Look first at
+    the scan's other responders, and at an address that `MDIO_ACK` shows but the probe never reaches.
+- **(ii) By recabling.** Cable the DUT straight to the test machine, with any existing image (the release, or the first
+  diagnostic).
+  - **If the tap was the cause,** the test machine reads 1000baseT/Full only, with pause Symmetric (register 4's bit
+    10). With 10BASE-T half alone, no link forms.
+  - **The bench's acceptance check** ("the partner sees 1000baseT/Full only", "no link with 10BASE-T half alone") can
+    be judged on a direct cable only, never through an active tap.
+
+**6. What follows from each outcome**
+
+- **If the read shows the tap:** F-G4 is a bench-topology finding, not a defect of the train, the split or the release,
+  and the train needs no commit.
+  - Candidates A, B and C stay staged, none of them owed for F-G4.
+  - B's test still shows a real gap that wants its own ticket: through a 600 ms erase under constant input, the poll
+    published a loss only after the save.
+- **If the read shows a direct cable and another responder:** I will make the manager's fix, keyed to the address the
+  scan names, with its tests, gates and bench images. The release shares the source: `milan_baremetal.c` also probes
+  from address 0. So the release would take the same small change, with its resource gate re-run.
+- **If you rule the fix regardless,** name the address per port and I will make it.
+
+**7. The second diagnostic's bench images** (the bench lane flashes and reads them; this lane does not touch the bench):
+
+- **Source:** the scratch branch `fg4-diag2-967b1ca9` at `46af043b`, on top of the first diagnostic (`round5/fg4/
+  diagnostic2.diff`, README there). It is not `flip-train-1117-p11`, and nothing is pushed.
+- **Recipe:** as before, through `vivado-slot.sh`, with `--eth-port e2`, ExtraPostPlacementOpt and 16 threads.
+- **Checked:** `diag_quick2` PASS; the `platboot` arm 52 of 52; the split boot simulation PASS at both points.
+- **1x1/1if, READY (01:00):** `<scratch>/fg4/v2work1x1/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+  - **Bitstream sha256:** `4f49291d41875b733643904ee3c9ee55868365db4d577ae633d0c80a17cb900b`.
+  - **Platform image** `ctrl_app.elf`: `9de5397ae0b221296167c45a5ea1ca176e08e1e0cfa79fb6837132c7ab84e7a0`.
+  - **AEM blob:** `bdfde7cf…`, the train's.
+  - **Checks:** the identity gate passes, with 0 routing errors.
+  - **#818's floor, met at every corner:** Slow WNS +0.369 / WHS +0.102 ns, Fast WNS +1.641 / WHS +0.036 ns.
+- **8x8/1if, READY (01:05):** `<scratch>/fg4/v2work8x8/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+  - **Bitstream sha256:** `920e75e6e048ab68786bbf61a78f9c0e5044231524d92967ef88fe33261f40ef`.
+  - **Platform image** `ctrl_app.elf`: `5f5a3325545a21567586b1966dce2846d8d97d0094b40f60177be6b5011017c8`.
+  - **AEM blob:** `723225a5…`.
+  - **ROM:** the image is within the diagnostic's 58.5 entry.
+  - **Checks:** the identity gate passes, with 0 routing errors.
+  - **#818's floor, met at every corner:** Slow WNS +0.266 / WHS +0.135 ns, Fast WNS +1.691 / WHS +0.038 ns.
+- **Where the files are:** the absolute paths, manifests and the read recipe are in `../fg4-bench-images.txt`. The
+  first diagnostic's images are kept there too.
+
+**Scratch:** the five candidate boot-simulation trees (`cb-a`, `cb-b`, `cb-c`, `cbc-tdm8`, `cbc-8x8`, 920M) are
+removed. Their verdict logs were already in the receipts, and each removal is logged in `disk-cleanup.log`. That made
+room for these two builds. Scratch is at 40 GB, its cap, and no unit of this lane is running.
+
+---
+
+## Status (23:52, 11-18; superseded above)
+
+**F-G4 DIAGNOSTIC IMAGES (the manager's decision of 23:1x): building. The train is unchanged at `967b1ca9`.**
+
+- **Where the diagnostic lives:** the scratch branch `fg4-diag-967b1ca9`, off `967b1ca9`, in the scratch clone `d12`.
+  It is not `flip-train-1117-p11`, and nothing is pushed.
+  - `9cd6000c` and `6a95474e`: a new console command, `milan_phy`, printing one line. That leaves `milan_status`'s
+    graded lines untouched.
+  - `fcdb9f6c`: raises the 8x8 one-interface ROM entry to 58.5 for this image only. The command's code needs 92 B
+    of `rom` past 58.0, so that image has one more ROM bank than the train's.
+- **What `milan_phy` prints** (type it on the console):
+
+  `PHY_ARMED= FOUND= ADDR= STAGE= ADV= RENEG= POLLS= WRITES= RESTARTS= LINK= R4_BEFORE= R9_BEFORE= R4= R9= R9_NOW= R4_NOW= R0= SPIN=`
+
+  - the poll armed, the PHY found, and its address;
+  - its stage, and `adv` (0 verified, 1 or 3 owed, 4 a 10/100 PHY);
+  - the renegotiations, the polls started, the advertisement's write frames and their restarts;
+  - the last published link word (hex);
+  - registers 4 and 9 before the writes and their read-back;
+  - registers 9 and 4 as the latest poll's resolution read them, and register 0 before the restart;
+  - the half period's spin.
+
+  In the register fields, `fffffffe` means never read and `ffffffff` an unacknowledged read.
+- **Checked:**
+  - a quick host test: the real poll and console against a pin-level PHY at address 1 that changes only when a write
+    lands. It shows 3 writes and 1 restart, read-back `R4=00000001 R9=00000200`, and
+    `R9_NOW=00000200`;
+  - the harness's `platboot` arm: 52 of 52 pass;
+  - the split boot simulation: 1x1/1if PASS; 8x8/1if running inside its build.
+- **What the readout tells apart:**
+  - `POLLS` not rising between two reads 1 s apart: cause (b), the poll stalled;
+  - `WRITES` and `RESTARTS` rising each poll while `R4`/`R9` read back the defaults: cause (c), the writes never
+    land;
+  - `ADV=0`, read-back gigabit-only, but `R9_NOW` back at `00000300`: cause (a), the PHY returned to its defaults
+    after the boot's write;
+  - `ADV=0`, the read-back gigabit-only and `R9_NOW=00000200`, yet the partner sees every mode: the PHY does not
+    advertise what its registers hold. That one is hardware-side.
+- **The two bench bitstreams** (S9's recipe as the gating lane builds it, with the bench override `--eth-port e2`,
+  ExtraPostPlacementOpt, 16 threads, through `vivado-slot.sh`):
+  - **1x1/1if, READY (23:35):** `<scratch>/fg4/work1x1/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+    - bitstream sha256 `21aa68e11e8d9cb4cce0c43c5808dadd949448b4db452f2dcbaecbe325413814`;
+    - from `6a95474e`; platform image `ctrl_app.elf` sha256 `b615a9275a8c1c4a7e3a1cdb977bf8acb219f4275a8c2faabab95cde3aefe43f`;
+    - AEM blob `bdfde7cf…`, the train's; manifest and artifacts in `work1x1/artifacts.sha256`;
+    - the identity gate passes; 0 routing errors;
+    - #818's floor met at every corner: Slow WNS +0.156 / WHS +0.050 ns, Fast WNS +1.687 / WHS +0.016 ns;
+    - the boot simulation PASS.
+  - **8x8/1if, READY (23:44):** `<scratch>/fg4/work8x8/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit`
+    - bitstream sha256 `d4e4141fc54842785486025e96b67eaef866b066fb670d3901949655bdadee76`;
+    - from `fcdb9f6c`; platform image `ctrl_app.elf` sha256 `bfa21c32375fa023d0606b16e5165fff601d8b06cfe1cb4df51cc2abdcae0340`;
+    - AEM blob `723225a5…`; manifest and artifacts in `work8x8/artifacts.sha256`;
+    - the identity gate passes; 0 routing errors;
+    - #818's floor met at every corner: Slow WNS +0.064 / WHS +0.102 ns, Fast WNS +1.636 / WHS +0.036 ns;
+    - the boot simulation PASS.
+
+  `<scratch>` is this lane's scratch directory. The packet carries no host paths, so the absolute paths are in
+  `../fg4-bench-images.txt`, beside this round's folder and outside the packet.
+
+  Both are built as the gating lane builds them, with `--eth-port e2`. The bench lane flashes and reads them; this
+  lane does not touch the bench.
+
+**The fix candidates are staged**, one per cause, and none is committed to p11 (`round5/fg4/README.md`, the diffs
+beside it). Each diff applies to `967b1ca9`, and each has a test that fails on the old code by name and passes with
+the fix, in the `platboot` arm (53 of 53):
+
+| Candidate | Cause | Fix | Test, before and after | Boot simulation |
+|---|---|---|---|---|
+| A (`fg4-fix-a`, `63fb939d`) | (a) the PHY back at its defaults after the boot's write was verified, with no published loss | the advertisement re-verified by each poll's own register 9 read; no extra frame | P14B: FAIL, then PASS | 1x1/1if PASS (frame 145.43 us) |
+| B (`fg4-fix-b`, `f27ee40f`) | (b) the poll starved through a save under input, every aged call carrying the save's step | a poll a whole period late takes the call's frame ahead of the store's centisecond step. Needs #665's word on THE STEP's order | B13: FAIL (the loss published only after the save), then PASS | 1x1/1if PASS |
+| C (`fg4-fix-c`, `9af3e35a`) | (c) the split's bit lowering MDC and changing the data in one write | the release's bit; the frame's stated cost restated by the rule to 170 us (157.92 and 157.57 us measured) | P19: FAIL, then PASS | 1x1/1if and 8x8 PASS at 170 us |
+
+B's test shows a real gap in the model whatever the bench finds: through a 600 ms erase under constant input, the
+poll published a link loss only after the save. Each candidate still needs the full gates before it is a train
+commit: shards, coverage, twin, docs, the split routes and the image hashes.
+
+**Scratch cleanup (the manager's go-ahead):** the three ledger runs' build trees are removed, each exact path logged
+in `disk-cleanup.log`. They were `r5led11`, `r5led12` and `r5led12b`, each `pl/` (26M) and `fx/` (1.1G). The cited
+ELFs are kept first in `r5img/plat-b1f1161b`, `r5img/plat-967b1ca9` and `r5img/fx-967b1ca9`. Scratch is back at 40 GB, its cap, with the two diagnostic
+bench builds, which the bench needs until it has flashed them. No unit of this lane is running.
+
+**F-G4 (23:0x): STOP. The cause is not found in software, so there is no fix commit, and the head stays `967b1ca9`.** The
+bench reports that the PHY advertises every mode, so a 10BASE-T partner gets a silent 10 Mb/s link. I could not
+reproduce that in any model, and the code is correct against IEEE 802.3 22.2.4.5 (`receipts/step12/fg4/fg4-analysis.txt`):
+
+- **The split's write path is the release's**, frame for frame:
+  - ST 01, OP 01, PHYAD, REGAD, TA 10 and 16 data bits, all 64 driven after a 32-one preamble;
+  - the same MDIO pins and CSR bits;
+  - the same probe from address 0;
+  - the same register 9, 4 and 0 values.
+
+  The differences are the bit routine, the half period and the pacing:
+  - the split lowers MDC and changes the data in one CSR write; the data is still held a half period around each
+    rising edge;
+  - its half period is a calibrated spin rather than `cdelay(32)`;
+  - it takes one frame per step call.
+- **Every model lands the writes.** The host PHY model does. So does the split boot simulation, which runs the real
+  image on the real split CPU and bus, with LiteEth's MDIO logic and a PHY at address 1. At `967b1ca9` it shows the
+  boot's (9, 0x200), (4, 0x1), (0, 0x1200) and the writes after each loss landing. MDC is high 950 ns and low 1120 ns.
+  So the pins carry correct write frames.
+- **Two premises do not hold as stated:**
+  - The release's advertisement was never measured on hardware. #840 says "No hardware was used", and no later
+    record shows it on this board. So the release is no proof of the board's address or pins.
+  - The bench's LINK counts cannot show that the poll runs. The counters follow `eff_link = i_link_up & cfg_sw_link
+    & guard`, and the "+2 per flap" is the hardware link guard's own pair (`milan_datapath.sv:3404-3414`). The bench
+    never read MAC_STATUS or the published word.
+- ~~**What is known of the board:** #590's hardware probe found its RTL8211E at **address 1** (PHYID1 0x001c, BMSR
+  0x796d). So the address and pins are right for reads, and nothing points to the PHY strap or the board.~~
+  **CORRECTED 00:4x, 11-19: this was wrong.** #590's `mdio-phase.log` is a reviewer probe run against a simulated
+  peer, and its `phy_address=1` is the model's. No record gives a board PHY address. See the status at the top.
+- **Candidates the models cannot reach:**
+  - (a) the PHY drops writes it receives. One mechanism: the split's frames come within milliseconds of LiteEth's
+    256-cycle, 2.56 us PHY reset pulse at FPGA start, where the release's come after the BIOS. That would not explain
+    the writes after a later loss.
+  - (b) the poll is not running, or not publishing, on the board after boot. `i_link_up` would then sit at its reset
+    value (up) and the guard alone gate the link. That fits every bench observation.
+  - (c) the PHY handles a write frame in a way 22.2.4.5's model does not, sparing reads.
+- **What decides it:** one boot reading the poll's state. That is task 3's console field: the address and found flag,
+  stage, `adv` and `renegotiations`, polls started, the last published word and the last read-back of registers 4 and
+  9. It changes no mailbox contract and needs a new split image. **I have not made it**, since without the cause it
+  would ship an image change on its own. It is about a half-day with its tests and the gates. It waits for the
+  manager's word, and so does any fix.
+
+The step-12 state below is unchanged.
+
+**STEP 12: the head is `967b1ca9` on `flip-train-1117-p11`** (fetched into the lane repo; nothing pushed, the manager
+pushes after #947's reviews).
+
+**Scratch is at 41 GB, 1 GB past its 40 GB cap**, after the step-12 routes, ledgers and gate clones. Clearing the three
+ledger runs' build trees (`r5led11`, `r5led12`, `r5led12b`: `pl/` and `fx/`, about 3 GB) would bring it back under.
+Their verdicts are in their logs, which are collected. The cited platform ELFs would be kept beside the image hashes
+first. My removal was refused by the session's permission mode, so it waits for the manager's go-ahead. No unit of
+this lane is running.
+
+- `d09c7118`: #947's `66c6edf3`, fetched from origin's `946-ctx-fmt` and checked equal to its lane, merged `--no-ff`
+  on `b1f1161b`. No conflict: four files auto-merged in hunks apart. The gitlinks stay `1616fc8f` / `801ef228`.
+- `967b1ca9`: the one composition fix. The platform's 8x8 two-interface ROM entry goes 62.5 to 63.0: its image needs
+  140,008 B of `rom`, 744 B past the 139,264 B 62.5 holds beside its `sram`. That is S14 debt by the owner's rule.
+  The ledger's cases and planted ledgers move with it, and its case writer is re-anchored to reach 63.5 (it reached
+  63.0 at most). The S14 debt is recorded where the train records S14 debt: SPLIT_CONTROL_MEMORY.md section 5's list,
+  now 63.0 RAMB36, debt 7.0 (28,672 B), with the history in `ctrl_memory.py`. DEBT-640.md is the release image's area
+  debt, so it is not the place. Every other point holds its entry (`receipts/step12/ledger/`):
+
+| Ledger point at `967b1ca9` | `rom` / `sram`, B | RAMB36 | Its entry | Step 11 |
+|---|---|---:|---|---|
+| platform 1x1/1if (shipping) | 125,792 / 56,736 | 45.0 | within 56 | 124,832 B, 44.5 |
+| platform 1x1, two interfaces | 127,400 / 59,040 | 46.0 | within 56 | 126,432 B, 45.5 |
+| platform 8x8/1if (shipping) | 138,432 / 98,160 | 58.0 | its 58.0, 832 B of `rom` left | 137,472 B, 58.0 |
+| platform 8x8, two interfaces | 140,008 / 115,504 | 63.0 | its 63.0 (was 62.5), 1,304 B left | 139,048 B, 62.5 |
+| the size fixture, six arms | 130,952 to 131,448 / 114,320 to 114,384 | 60.0 to 60.5 | within its 60.5 | unchanged |
+
+| Gate at `967b1ca9` | Result |
+|---|---|
+| The four firmware shards | **all PASS**; the control campaign **816 of 816** caught (797 + #947's 19) |
+| `fw_coverage --check` | PASS (in the docs extras and the quick list) |
+| The twin and its plants (twin, twin-plants, twin-maps, twin-maps-plants) | **all PASS** |
+| The receive monitor's suite (`avtp_rxmon`, `make run`), the one RTL suite #947 touches | **PASS**: flat 97/0, N=4 stack 218/0, lockstep N=1 116/0 and N=8 119/0, lockstep mutants 14/14, format mutants 13/13, **#947's N=8 format contract 96/0 and its mutants 5/5** |
+| The split boot simulation (the platform image on the split SoC) at 1x1/1if and 8x8 | **both PASS** (0 findings) |
+| The platform ledger (`plat_ledger.py --self-test`) and `test_ctrl_memory.py` | PASS, 9 of 9 planted ledgers as required; 0 failures |
+| `run.py --self-test`, `load_grade --check`, `flip_grade --check --point 1x1/1if`, and the rest of the quick list | **PASS** |
+| `flip_grade --check` (every point) | its verdict lines are **identical to the candidate's**: 8x8/2if's base eleven and 8x8/1if's HELD line (76.81 of 77 ms) |
+| Docs, idiom, hygiene, `git diff --check`, `docs_inventory --check`, every command of the docs workflow, the other generated-table `--check`s | **all PASS**, but the CI-environment-bound ones, as at `b1f1161b` (`receipts/step12/gates/`) |
+
+| Image | Step 11 | Step 12 | |
+|---|---|---|---|
+| The CPU budget harness's twelve images | `hashes.txt` | equal, every one | so the CPU rows carry |
+| **The platform's split image 1x1/1if** (the bench's) | `a00828fe` | **`f04caf59`** | CHANGED |
+| **The platform's split image 8x8/1if** (the bench's) | `5edbba3a` | **`22ada381`** | CHANGED |
+| The platform's split image, 1x1 two interfaces | `76eae358` | `0a9a8201` | CHANGED |
+| The platform's split image, 8x8 two interfaces | `d090b8d6` | `dcec0148` | CHANGED |
+| The release (all-fabric) image | | **byte-identical** | `bios.bin`, the AEM blob, the ROM/SRAM/memory init files equal; `bios.elf` equal with debug stripped; the Verilog equal outside comments (`receipts/step12/images/release-export-12.txt`) |
+
+**The split GATEWARE changes, because the firmware is in it.** The control firmware is the control memory's block
+RAM: `rom` is initialised with the linked image and its banks are sized from it (SPLIT_CONTROL_MEMORY.md section 2).
+The bench builds its image with the split recipe: `ctrl_plat_image.py --interfaces 1`, then `milan_soc.py
+--ctrl-firmware <image> --build`. So a firmware change is a new synthesis input and a new bitstream. Nothing of the
+control firmware is in flash. Evidence (`receipts/step12/images/split-gateware-12.txt`):
+
+- **1x1/1if: the gateware itself changes.** `rom` passes a granule, so `rom_bank4` grows from 512 to 1,024 words: 5
+  Verilog lines outside comments (the bank, its address width, the decode). The routed design moves by +104 LUTs and
+  +10 registers, with block RAM totals equal. The constraints are the same set (clock-group pairs written in another
+  order).
+- **8x8/1if: only the firmware payload changes.** The bank depths, the Verilog outside comments and the constraints
+  are equal, and only the two banks' init contents differ. The integrated route's placed utilisation is identical to
+  step 11's in every line, with the same timing.
+
+**So the split routes were run** (three directives each, through the slots):
+
+| Point | ExtraPostPlacementOpt | ExtraTimingOpt | AltSpreadLogic_high | #818's floor |
+|---|---|---|---|---|
+| 1x1/1if | **+0.334 / +0.034** | +0.231 / +0.028 | +0.179 / +0.025 | met on all three (step 11: +0.141 best) |
+| 8x8/1if | **+0.073 / +0.034** | +0.064 / +0.027 | +0.006 / +0.036 | met on its best of three, **step 11's three figures exactly** |
+
+**What the bench must re-run.** Both split images are new bitstreams, and the release image is not.
+
+- **Rebuild both split images** from the pushed step-12 head, 1x1/1if and 8x8/1if, by the recipe. The loaded sections
+  of their `ctrl_app.elf` must equal this lane's (`f04caf59`, `22ada381`; the whole-file hash follows the stand-in
+  export's symbol order, as the gating lane found). Each meets the floor here on ExtraPostPlacementOpt, the recipe's
+  directive.
+- **8x8/1if, every item on the new image:**
+  - (a) flash, cold boot, banner and BOOTSTS/STAT;
+  - (b) identity, since the manifest's firmware hash changes;
+  - (c) enumeration;
+  - (d) gPTP for at least 10 minutes;
+  - **(e) streams: #946's acceptance.** Inputs 1 to 7 each receive, with FRAMES_RX rising and UNSUPPORTED_FORMAT +0.
+    Input 0, the CRF input and outputs 0 and 8 must pass as before. Include a SET_STREAM_FORMAT on an unbound input,
+    then its bind;
+  - (f) the 40 cold power cycles and (g) the 1-hour soak, which were pending;
+  - (h) as planned.
+- **1x1/1if, every item on the new image as well:** (a) to (g), (h) as planned. Its gateware changed (the larger
+  `rom` bank), and its firmware's boot path changed, although it writes no context at 1x1. Its (e) is a regression
+  check: 4 streams as before.
+- **The release (all-fabric) image: nothing.** It is byte-identical.
+- **The CPU budget rows: nothing.** Their images are hash-equal, so they carry.
+
+**Before (16:46): the final head was `b1f1161b` on `flip-train-1117-p11`**: `73272666` plus one docs-only commit. Nothing was pushed;
+the manager pushes.
+
+**Why:** the train candidate's builder failed on `docs_inventory.py --check` ("docs/DOCUMENTATION_AUDIT.md: STALE"),
+and it reproduced on `73272666`. Each first-parent commit's own script locates the cause
+(`receipts/step11/docs/audit-bisect.txt`):
+
+- the script and its page arrive with step 9, #934, fresh at #934's own head `544fd72c` (540 lines);
+- the step-9 merge `8f6fbb84` is the first stale commit (122 lines at the check), since steps 1 to 8's pages were
+  never inventoried; step 10's merge `49f005b9` adds one line more;
+- the heads of steps 10 and 11 (`d1aa4c44`, `0297a19a`) do not carry the script.
+
+My docs check list had no `docs_inventory`, so the stale page went unseen. That list now holds the docs workflow's
+every command.
+
+**`b1f1161b`** is `docs_inventory.py --write`: `docs/DOCUMENTATION_AUDIT.md` alone, +13 / -12 lines. It lists step 1's
+`tb/verilator/ctrl_reboot/README.md` (#881, not in #934's history). It restates six pages' cited paths
+(`MAILBOX_SPLIT`, `REBOOT_RESET`, `FR_NFR`, the plat, srp and split-boot READMEs) and the counts. The diff from
+`73272666` touches that one docs file; the gitlinks stay `1616fc8f` / `801ef228`; `git diff --check` over the train is
+empty.
+
+| Check (run on the regenerated tree, then the docs set again at `b1f1161b`) | Result |
+|---|---|
+| Every `python3` command of `.github/workflows/docs.yml` (103, `receipts/step11/docs/q-docswf-pre/`) | all pass but the environment-bound ones. Seven need `wavedrom` or the pinned HDL parser and pass under the tools environment that has both, below. `act_ci` and three `ci_fail_fast` steps need the hosted CI's event and checkout. `docs_inventory --check` now passes; it failed at `73272666` |
+| The same with the pinned packages, plus the other generated-table `--check`s found (`receipts/step11/docs/q-docsx-pre/`) | **all PASS**: the HDL reference self-test, the wavedrom self-test and its three diagrams, the register reference check and self-test, the memory map, `ci_events`, the one-valued table, the mailbox contract (`gen_mailbox --check`), `pp_srcs`, the publication census, the firmware coverage ratchet. `ci_tool_inventory --check` refuses outside the CI image (`CI_IMAGE_SHFMT`); it is the CI image's inventory, not a docs table |
+| `docs_inventory`, `docs_check`, `doc_style`, `doc_paths`, `check_em_dash`, `hygiene`, `py_idiom`, `gen_toc --check` and `--verify-anchors` at `b1f1161b` | **all 9 PASS**, clean tree (`receipts/step11/gates/q-b1f1161b/`) |
+| The 12 split firmware images at `b1f1161b` | **all EQUAL** to `3e908539`'s (`receipts/step11/images/hashes-b1f1161b.txt`) |
+
+The PR body has the new row in its composition fixes table, the new head in its status, and `docs_inventory.py
+--check` in its validation commands.
+
+**Before (15:16): `73272666` on `flip-train-1117-p11`, ready for the composition review.** RULING-1118f (#665
 issuecomment-6981065172) resolves the CDC stop below. CDC-15 on the gray-pointer LUTRAM FIFO is the expected report,
 accepted with no waiver. So the record-only re-baseline is made: `73272666`, on `05dc1791`. Nothing is pushed; the
 manager pushes.
@@ -151,9 +656,9 @@ item 2b at 8x8/1if over every arm (arm A, answering-every-port, answering-ports,
 `load_grade`'s two own-record controls re-anchored to read the measurement's figure from `OWN_MEASURED` rather than a
 literal 130 (28 of 28 refused, before and after). The images are unchanged. Its quick list passes but for `flip_check`, which reports exactly 8x8/2if's base eleven and, at 8x8/1if, only THE TRANSMIT's HELD line (76.81 of 77). `run.py --self-test` has 0 failures and `load_grade` 28 of 28.
 
-**Step 11 (RULING-1118c): `flip-train-1117-p11`, final head `73272666`**: #939's `0297a19a` merged on the candidate
+**Step 11 (RULING-1118c): `flip-train-1117-p11`, final head `b1f1161b`**: #939's `0297a19a` merged on the candidate
 (`3e908539`), then `4374cc27` carried (`74481d2e`), then the preflight fix (`05dc1791`), then the record-only
-re-baseline (`73272666`). Its RTL and images are `3e908539`'s. Nothing is pushed; the manager pushes.
+re-baseline (`73272666`), then the regenerated documentation audit (`b1f1161b`). Its RTL and images are `3e908539`'s. Nothing is pushed; the manager pushes.
 
 | Step 11 item | State | Lands (estimate) |
 |---|---|---|
@@ -460,7 +965,8 @@ other points are within their entries.
 |---|---|---|
 | `112ab9b1` | `flip-train-1117`, the step-9 branch with the cuts | `ed5855fe` (round 4); the notice cut `067c319d` and its include fix `0bc158a7`; the listener cut `7b3c1c94`; the DMA driver's T8 test `112ab9b1` |
 | **`4374cc27`** | `flip-train-1117-p10`, the step-10 candidate (the CPU pass) | rebuilt from `ed5855fe` (round 4's tip kept as `refs/ref/p10-r4`): #944's frozen head `d1aa4c44` merged (`49f005b9`); the idiom fix `082d0037`; the filtered relearn `b5802de9`; the cuts carried and re-traced (`26f30fea`, `3e1c3dd9`, `68c97849`, `08c28218`, `41d2bc2b` = B); T8 (`6448e431`); the ledger (`bf2c1184`); a control re-anchored (`7a536fc5`); B's restatements (`0cfe1ddc`); 8x8/1if's TX 77 and SRP unit 375 (`3cdc613b`); the prose (`0b054867`); a self-test check re-anchored (`c8ff391a`); ADP's restatement (`4374cc27`). From `41d2bc2b`'s cuts on, its 8x8/1if images are U's measured ones and its other images B's |
-| **`73272666`** | `flip-train-1117-p11`, step 11 (RULING-1118c), the final head (`05dc1791` plus the record-only re-baseline, RULING-1118f) | #939's frozen `0297a19a` merged on `c8ff391a` (`3e908539`), then `4374cc27` carried (`74481d2e`), then the preflight fix: `plat_mutants.py`'s blank line at the end dropped. Built in a scratch clone and fetched into the lane repo. No re-baseline commit (the STOP at RULING-1118d item 2) |
+| `b1f1161b` | `flip-train-1117-p11`, step 11 (RULING-1118c), the step-11 head (`05dc1791`, the record-only re-baseline `73272666` (RULING-1118f), then the documentation audit regenerated) | #939's frozen `0297a19a` merged on `c8ff391a` (`3e908539`), then `4374cc27` carried (`74481d2e`), then the preflight fix: `plat_mutants.py`'s blank line at the end dropped. Built in a scratch clone and fetched into the lane repo. No re-baseline commit (the STOP at RULING-1118d item 2) |
+| **`967b1ca9`** | `flip-train-1117-p11`, step 12: `b1f1161b`, then #947's `66c6edf3` merged (`d09c7118`), then the ROM ledger at 63.0 (`967b1ca9`) |
 
 Nothing is pushed. The scratch variants (`b4f9f26c` old list, `21486e00` N, `dd5f60e0` NU, `40a6c1a5` U, `b1a8424f` U+1)
 exist only in their clones.

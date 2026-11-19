@@ -1,4 +1,4 @@
-[A794] The flip train, composed: eleven frozen PRs merged in train order onto dev-soft-core, each conflict resolved keeping both sides, and the composed images measured at the final head
+[A794] The flip train, composed: twelve frozen PRs merged in train order onto dev-soft-core, each conflict resolved keeping both sides, and the composed images measured at the final head
 
 ## Contents
 
@@ -13,11 +13,42 @@
 
 ## Status
 
-**Ready for the composition review at the final head `73272666`** on `flip-train-1117-p11`. All eleven steps are
-composed. The CPU service budget passes at every point by its rule:
-8x8/2if carries the base's same eleven findings, reported and not held. The split routes meet #818's floor at
-1x1/1if and 8x8/1if. Every split firmware image is hash-equal to the measured one, and the confirmation run on the
-final RTL is byte-identical.
+**Final head `0839453f` on `flip-train-1117-p11`: ready for the train candidate and merge.** The manager pushes it.
+The composition review of steps 1 to 11 is complete: R865-1 POSITIVE at `73272666` (#945 issuecomment-6986847711),
+R866-1 POSITIVE at `73272666` and R866-2 POSITIVE at `b1f1161b`.
+
+**Step 12 is #947 (#946) at its frozen head `fe297847`.**
+- **Its reviews:**
+  - R867-3 POSITIVE at `fe297847` (#947 issuecomment-6996096094);
+  - R868-2 POSITIVE at `9f4f3de0` (#947 issuecomment-6993952183). Round 3 is tests and docs only, so R867-3 covers it
+    by the single-reviewer rule for trivial deltas.
+- **What it does:** the split platform writes each AAF Stream Input's current format into its receive-monitor
+  context, so 8x8/1if's inputs 1 to 7 take their PDUs. It is merged in three rounds:
+  - **Round 1** (`66c6edf3`) merges clean (`d09c7118`). One composition fix raises the platform's 8x8 two-interface
+    ROM entry to 63.0 (`967b1ca9`, S14 debt).
+  - **Round 2** (`9f4f3de0`, merged as `7650a02d`) writes each kept change's contexts in the face's change port, and
+    refuses a waiting change whose input was bound meanwhile. Its ledger conflicts take the train's side, which
+    already holds 63.0.
+  - **Round 3** (`fe297847`, merged as `0839453f`) adds the receive monitor's change-gate tests and their defects.
+    Its one ledger-prose conflict takes the train's side.
+
+At the final head:
+
+- the CPU service budget passes at every point by its rule, 8x8/2if carrying the base's same eleven findings,
+  reported and not held. Its twelve images are hash-equal to step 11's, so its rows carry;
+- the split gateware is unchanged against `967b1ca9`: only the ROM's firmware contents differ, so step 12's split
+  routes stand;
+- the gating bench builds are of `7650a02d`, and meet #818's floor at both points. The final head's 1x1/1if and
+  8x8/1if platform images carry the same loaded sections, so the gating run's images are the final head's;
+- the release image is byte-identical to step 11's.
+
+**F-G4, from the gating bench run, is WITHDRAWN as a bench-topology finding.** The test machine saw every mode
+offered, and got a link with 10BASE-T half alone.
+- **The cause was the bench, not the DUT.** A second diagnostic read the DUT's own PHY: it advertises 1000BASE-T full
+  alone, as #840 requires, and makes no link with a 10BASE-T-half-only partner. The test machine was negotiating with
+  the inline capture tap, which advertises every speed.
+- **Nothing goes into the train for it.** The diagnostic and candidate branches stay as scratch, and one gap they found
+  is #495 residue (see the known limitations).
 
 The release record is re-baselined by one record-only commit, as #665's three rulings of 2026-11-18 decide:
 
@@ -43,6 +74,7 @@ Closes #930
 Closes #925
 Closes #936
 Closes #927
+Closes #946
 
 Executor: `[A794]`
 Internal cleared-context reviewer: the composition review, by both reviewers (#665 issuecomment-6939574513, item 3)
@@ -70,6 +102,9 @@ candidate by #665's ruling of 2026-11-18 (issuecomment-6975966775). The gitlinks
 | 9 | #934 (dev `6b66f66d` synced into dev-soft-core) | `544fd72c` | R853-4 at the head; R854-3 at its ancestor `9aa55d3b` | `8f6fbb84` | 8 |
 | 10 | #944 (#936, the GET_STREAM_INFO notice on a Talker's declaration) | `d1aa4c44` | R861 (issuecomment-6961585565) and R862 (issuecomment-6960786467) at the head | `49f005b9` | 13 |
 | 11 | #939 (#927, the timing cut: the EDIT claim search registered in the split build; the meter reference and the render FIFO's distributed storage in every image that carries them, the release image included) | `0297a19a` | R863 (issuecomment-6978630716) and R864 (issuecomment-6976209927) at the head | `3e908539` | 1 (two hunks of a README) |
+| 12 | #947 (#946, each AAF Stream Input's current format written into its receive-monitor context on the split platform) | `66c6edf3` | R867 and R868 (round 1) | `d09c7118` | 0 (four files auto-merged, hunks apart) |
+| 12, round 2 | #947's round 2 (each kept change's contexts written in the face's change port; a waiting change whose input was bound meanwhile refused) | `9f4f3de0` | R868-2 POSITIVE (#947 issuecomment-6993952183) | `7650a02d` | 7 (the ROM ledger and its prose: each the train's side, the plat README's two ROM hunks the train's text) |
+| 12, round 3 (frozen) | #947's round 3 (the receive monitor's change gate tested at a bound input's own index, a STREAM_OUTPUT's waiting format and the input's SET_NAME; tests and docs only) | `fe297847` | R867-3 POSITIVE at the frozen head (#947 issuecomment-6996096094) | `0839453f` | 1 (`ctrl_memory.py`'s ledger comment: the train's side) |
 
 Every conflicted file has a resolution row in the lane's RESOLUTIONS tables, attached to the composition review: both
 sides' intent, the resolution and why.
@@ -99,6 +134,8 @@ own change, and no test or plant is removed.
 | `74481d2e` | `4374cc27` carried onto step 11 | it landed on the step-10 candidate after step 11 was merged |
 | `05dc1791` | The blank line at the end of `plat_mutants.py` dropped | `git diff --check` over the train |
 | `73272666` | The resource gate's release record (`route-1x1`) re-recorded by `pp_resource_gate.py record --write`, and its provenance note restated; the record only, no RTL or firmware | the release image's +541 LUT, accepted as #640 debt (#665 issuecomment-6979461559, issuecomment-6979996755 and issuecomment-6981065172) |
+| `b1f1161b` | `docs/DOCUMENTATION_AUDIT.md` regenerated by `docs_inventory.py --write`, docs only: the step-1 README `tb/verilator/ctrl_reboot/README.md` (#881) listed, six pages' cited paths restated (`MAILBOX_SPLIT`, `REBOOT_RESET`, `FR_NFR`, the plat, srp and split-boot READMEs), and the counts | #934 (step 9) brings the inventory, fresh at its own head `544fd72c`; the steps composed around it were never inventoried, so the step-9 merge `8f6fbb84` left the page stale (122 lines at its check) and step 10's merge `49f005b9` one line more |
+| `967b1ca9` | The platform's 8x8 two-interface ROM entry 62.5 to 63.0 (refused at 63.5), the ledger's cases and planted ledgers with it, the debt in SPLIT_CONTROL_MEMORY.md section 5's S14 list (7.0 RAMB36, 28,672 B), and the ledger's case writer re-anchored to reach half a tile past 63.0; no case or plant removed | the union broke the ledger: #947's writes add 960 B of `rom`, so the 8x8 two-interface platform image needs 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its `sram`; S14 debt by the owner's rule of 2026-11-15. Every other point holds its entry |
 
 **The rule for figures.** A figure that two PRs both restate is carried at the side that moved it, the larger where
 both did. It is restated from the composed image after the last merge, by its tool or by the rule: stated cost =
@@ -121,23 +158,67 @@ measurement + 5 %, rounded up to 5 us, never below the measurement.
   - the SRP record 375, with `CTRL_LOOP_SRP_UNIT_US` 375 (the unit follows its record);
   - `CTRL_LOOP_TX_MS` 77, which is at most 80, so `SRP_REDECLARE_CS` stays 8 cs.
 - 8x8/2if: the MAAP record 160, a pass's events' fixed part 45 and AECP's timer event 120.
-- The ROM: the size fixture 60.5 (S14 debt 4.5) and the 8x8/1if platform image 58.0 (S14 debt 2.0).
+- The ROM: the size fixture 60.5 (S14 debt 4.5), the 8x8/1if platform image 58.0 (S14 debt 2.0) and, at step 12,
+  the 8x8/2if platform image 63.0 (S14 debt 7.0).
 
-**The split routes on the final RTL** (the AX7101 split route, three placement directives; #818's floor is WNS >=
-+0.030 ns and WHS >= 0 at every signoff corner):
+**The split routes** (the AX7101 split route, three placement directives; #818's floor is WNS >= +0.030 ns and WHS
+>= 0 at every signoff corner), at step 12 `967b1ca9` and at step 11:
 
-| Point | ExtraPostPlacementOpt | ExtraTimingOpt | AltSpreadLogic_high | Floor |
-|---|---|---|---|---|
-| 1x1/1if | **+0.141 / +0.033** | +0.054 / +0.036 | +0.031 / +0.036 | met on all three |
-| 8x8/1if | **+0.073 / +0.034** | +0.064 / +0.027 | +0.006 / +0.036 | met on its best of three |
+| Point | Head | ExtraPostPlacementOpt | ExtraTimingOpt | AltSpreadLogic_high | Floor |
+|---|---|---|---|---|---|
+| 1x1/1if | step 12 | **+0.334 / +0.034** | +0.231 / +0.028 | +0.179 / +0.025 | met on all three |
+| 1x1/1if | step 11 | **+0.141 / +0.033** | +0.054 / +0.036 | +0.031 / +0.036 | met on all three |
+| 8x8/1if | step 12 | **+0.073 / +0.034** | +0.064 / +0.027 | +0.006 / +0.036 | met on its best of three |
+| 8x8/1if | step 11 | **+0.073 / +0.034** | +0.064 / +0.027 | +0.006 / +0.036 | met on its best of three |
+
+At `7650a02d` (#947's round 2) the split gateware is unchanged against `967b1ca9`, at both points. The rom banks keep
+their depths, the exported Verilog is equal outside its comments, and the constraints are equal. Only the banks'
+initial contents, the firmware, differ. So the three-directive routes above stand. The two gating bench builds of
+`7650a02d` (the gating lane's recipe, `--eth-port e2`, ExtraPostPlacementOpt) sign off:
+- 1x1/1if: Slow +0.276 / +0.102, Fast +1.641 / +0.036;
+- 8x8/1if: Slow +0.176 / +0.102, Fast +1.523 / +0.036.
+
+Both meet the floor and the ruling's WHS >= +0.030, with 0 routing errors.
 
 Before step 11, 8x8/1if missed on all three directives (best +0.005 ns). The worst path ran from the EDIT window's
 request to the AAF map's claim enables, and #927 cuts it: the datapath clock's worst is now +0.835 to +0.989 ns. The
 1x1/1if image falls from 83 to 80 block RAM tiles. The render master's crossing is shared, not split-only, so the
 release image takes the distributed storage too (74 to 71 RAMB36).
 
-**The images and the confirmation.** Every split firmware image of the final head is hash-equal to the measured one
-(`ctrl_app.elf`, sha256 prefix):
+**Why step 12 re-routes.** The split firmware lives in the control memory's block RAM: `rom` is initialised with
+the image the build links, and its banks are sized from that image (SPLIT_CONTROL_MEMORY.md section 2). So the
+firmware is an input of the routed design, and the bench's image is that build's bitstream.
+
+- At 1x1/1if #947's code takes `rom` from 124,832 to 125,792 B, past a granule. The last bank grows from 512 to
+  1,024 words, which changes 5 lines of the exported Verilog outside its comments (the bank, its address and the
+  decode). The routed design moves by +104 LUTs; the block RAM totals are unchanged.
+- At 8x8/1if the banks keep their depths, the Verilog is equal outside its comments, and the constraints are equal.
+  Only the banks' initial contents differ, and the placed utilisation is identical to step 11's in every line.
+
+**The images at step 12** (`ctrl_app.elf`, sha256 prefix):
+
+| Image | Step 11 | Step 12, round 1 (`967b1ca9`) | Step 12, round 2 (`7650a02d`) |
+|---|---|---|---|
+| The platform's split image, 1x1/1if (the shipping image the bench runs) | `a00828fe` | `f04caf59` | **`e937ca14`** |
+| The platform's split image, 8x8/1if (shipping, the bench's) | `5edbba3a` | `22ada381` | **`4818bec6`** |
+| The platform's split image, 1x1 with two interfaces | `76eae358` | `0a9a8201` | **`3e67aaea`** |
+| The platform's split image, 8x8 with two interfaces | `d090b8d6` | `dcec0148` | **`9c67031d`** |
+| The CPU budget harness's twelve images (3 points x 4 arms, below) | | equal, every one | equal, every one |
+| The release (all-fabric) image | | byte-identical: `bios.bin`, the AEM blob and the ROM, SRAM and memory init files equal, `bios.elf` equal with debug sections stripped, the gateware Verilog equal outside its comments | byte-identical where loaded: `bios.bin` and the AEM blob equal, the Verilog equal outside its comments |
+
+The final head `0839453f` (#947's round 3, tests and docs only) leaves every image above as at `7650a02d`:
+- the four platform images, byte for byte;
+- the twelve CPU budget images, equal to step 11's;
+- the release, byte-identical where loaded.
+
+The gating bench bitstreams of `7650a02d` are `550e2d8d…` (1x1/1if) and `b449f2ca…` (8x8/1if). Their firmware's
+loaded sections equal the ledger's links above: `ff21e091…` and `f2f81d5f…`.
+
+A split ELF's whole-file sha256 also follows the stand-in export it is linked against (symbol order). A bench build
+compares its loaded sections, as the gating lane does.
+
+**The CPU budget harness's images and the confirmation.** Every CPU budget harness image of the final head is
+hash-equal to the measured one (`ctrl_app.elf`, sha256 prefix):
 
 | Point | Arm A | answering-every-port | answering-ports | valid-destinations |
 |---|---|---|---|---|
@@ -277,7 +358,7 @@ git fetch origin flip-train-1117-p11 dev-soft-core
 git checkout --detach origin/flip-train-1117-p11
 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack third_party/lwSRP
 # each frozen head is an ancestor:
-for h in d3e61e37 e1ecce20 394612c5 37255683 1a1e6665 81c9a1a0 d06ded5a 0fdfdba7 544fd72c d1aa4c44 0297a19a; do
+for h in d3e61e37 e1ecce20 394612c5 37255683 1a1e6665 81c9a1a0 d06ded5a 0fdfdba7 544fd72c d1aa4c44 0297a19a 66c6edf3; do
   git merge-base --is-ancestor $h HEAD && echo "$h in"; done
 git diff --check origin/dev-soft-core...HEAD   # prints nothing
 ```
@@ -287,6 +368,7 @@ git diff --check origin/dev-soft-core...HEAD   # prints nothing
 ```sh
 python3 scripts/docs_check.py && python3 scripts/check_py_idiom.py && python3 scripts/check_hygiene.py --check
 python3 scripts/gen_toc.py --check && python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/docs_inventory.py --check
 python3 -B tb/verilator/ctrl_service_budget/run.py --self-test
 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/1if
@@ -296,6 +378,8 @@ python3 sw/firmware/gtest/fw_coverage.py --check
 make -C tb/verilator/milan_dp split split-mutants split-cdc dynmap maprec8 maprec4
 make -C tb/verilator/milan_dp_render tdm8render tdm8render-mutants
 make -C tb/verilator/aaf_clock_meter all mutants && make -C tb/verilator/mbx all dma-mutants
+make -C tb/verilator/avtp_rxmon run
+python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --self-test
 ```
 
 Expected result / pass criteria:
@@ -304,7 +388,7 @@ Expected result / pass criteria:
 - `flip_grade.py --check` at 8x8/1if prints THE TRANSMIT's row as HELD (76.81 of 77);
 - without `--point`, it fails only on 8x8/2if's rows, the base `cb96336d`'s same eleven findings, reported and not
   held by the owner's decision of 2026-11-12;
-- the firmware shards catch 797 of 797 plants.
+- the firmware shards catch 825 of 825 plants (797 before step 12, and #947's 28 at its frozen head).
 
 The resource gate: `python3 syn/ooc/pp_resource_gate.py check-baseline` and `--selftest` exit 0. Its
 `check --endpoint route-1x1` exits 0 on the final head's release route set, which is the record (see
@@ -312,10 +396,23 @@ The resource gate: `python3 syn/ooc/pp_resource_gate.py check-baseline` and `--s
 
 ## Known limitations / out of scope
 
+- **The gating bench run is on `7650a02d`'s bitstreams.** The final head `0839453f` adds #947's round 3, tests and
+  docs only, and its 1x1/1if and 8x8/1if platform images carry the same loaded sections.
+- **#946's cause is in the release (all-fabric) image too.** Its AECP is the fabric's, so the fix there is RTL; #947
+  leaves the release image byte-identical and hands it to its own ticket.
+- **One stream bound to two inputs** (#946's second bench finding) is a different cause: the parser classifies a PDU
+  to one context. It needs RTL and its own ticket; #947 does not change it.
 - **No CDC waiver.** The render crossing's CDC-15 x192, like the capture crossing's x50, is neither waived nor
   repaired (#665 issuecomment-6981065172, item 3).
 - **#495 residue.** The timing findings document is to list the render crossing beside the capture crossing, and
   whether both get a waiver that carries the argument is decided after the flip.
+- **#495 residue, for a later ticket (not this train): a link loss published only after a save.** Through a 600 ms
+  erase under input that leaves no pass empty, the split's PHY poll publishes a loss only once the save ends.
+  - **Why:** every call then owes the store a centisecond's step, and a call whose store took a save's step leaves the
+    PHY no room.
+  - **Where it is staged:** F-G4 work found it. Its failing test, `Phy.B13APollAPeriodLateTakesItsFrameThroughASave`,
+    and a candidate fix are staged as scratch (`round5/fg4/candidate-b.diff`). That fix would change THE STEP's
+    order, which #665 ruled on 2026-11-17.
 - `AREA_BUDGET.md`'s utilisation table and the #234 findings page still quote the previous record's 53,461 LUT and
   54,971 FF. The re-baseline is record-only, by ruling.
 - At 8x8/2if, the base's eleven rows stay over their bounds, by the owner's decision of 2026-11-12.

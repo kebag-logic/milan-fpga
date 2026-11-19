@@ -1,0 +1,101 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 113560,
+    ".rodata": 13614,
+    ".data": 176,
+    ".bss": 48416,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    },
+    {
+      "symbol": "values",
+      "bytes": 4527
+    },
+    {
+      "symbol": "ctrl_plat.aecp",
+      "bytes": 3584
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 3552,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 127352,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096,
+        2048
+      ],
+      "RAMB36": 31,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 56800,
+      "banks": [
+        32768,
+        16384,
+        8192
+      ],
+      "RAMB36": 14,
+      "RAMB18": 0
+    },
+    "tiles": 45.5,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "a22f75d998ac461bcf0fec26bd621f22a620124ec394383d3f8a5be273be6302"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "25afe24b856753055f3c4cf8e219a81bc4c5114040da50ec2efc0f7c192cb026"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 163804,
+      "sha256": "9de5397ae0b221296167c45a5ea1ca176e08e1e0cfa79fb6837132c7ab84e7a0"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 147056,
+      "sha256": "effc6f7f7bf18dddef70e4247eb2929d7e31307262a8342c9f7e1269d5dded47"
+    }
+  ]
+}

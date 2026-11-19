@@ -222,3 +222,148 @@ the gray-pointer LUTRAM FIFO, and no waiver goes into the train. `73272666` is t
 The gate check exits 0, `check-baseline` and the self-tests pass, the docs, idiom and hygiene checks pass, `git diff
 --check` is empty, and the 12 split images are hash-equal. `AREA_BUDGET.md`'s utilisation table and the #234 findings
 page still quote the previous record; the ruling keeps the commit record-only.
+
+## The documentation audit: `b1f1161b`
+
+The train candidate's builder found `docs/DOCUMENTATION_AUDIT.md` stale (`docs_inventory.py --check`). #934 (step 9)
+brings the inventory and its page, fresh at its own head `544fd72c`. The step-9 merge `8f6fbb84` unites it with steps
+1 to 8, whose pages it never inventoried, so it is the first stale commit; step 10's merge adds one line more
+(`receipts/step11/docs/audit-bisect.txt`). The page is generated, so it changes only through its generator:
+`docs_inventory.py --write`, one file, docs only. It lists #881's `tb/verilator/ctrl_reboot/README.md`, restates six
+pages' cited paths, and updates the counts. The docs workflow's every command and the other generated-table checks
+pass on the result, and the split images are hash-equal.
+
+## Step 12: #947 (#946) on the step-11 head, `d09c7118`, then the ledger, `967b1ca9`
+
+#947's head `66c6edf3` is fetched from origin's `946-ctx-fmt` and checked equal to its lane's checkout. It is merged
+`--no-ff` onto `b1f1161b` (`d09c7118`), merge base `cb96336d`. #947's delta is 15 files, all firmware, tests, the
+receive monitor's testbench and one evidence script: no RTL, no gitlink. **No conflict.** Git auto-merged four files
+that the train also changed (`ctrl_plat.c`, `ctrl_mutants.py`, `plat_arms.py`, `test_ctrl_firmware.py`), each in
+hunks apart, as the lane's scratch merge-tree found. The gitlinks stay the train's, `1616fc8f` / `801ef228` (#947
+carries the base's, which it does not move).
+
+| File | Resolution | Why |
+|---|---|---|
+| `sw/litex/ctrl_memory.py`, `ctrl_memory_ledger.py`, `test_ctrl_memory.py`, SPLIT_CONTROL_MEMORY.md, the plat and split-boot READMEs (`967b1ca9`) | the platform's 8x8 two-interface entry 62.5 to 63.0, its refusal 63.0 to 63.5, the ledger's cases and planted ledgers with it, and the debt 6.5 to 7.0 RAMB36 (28,672 B) in section 5's S14 list. The ledger's case writer moves five tiles of `.bss` into `.text` instead of four, so a case reaches 63.5; four reached 63.0 alone, past which `.bss` runs out of `sram`. No case or plant removed | the union broke the ledger: #947's writes add 960 B of `rom` to the 8x8 two-interface image, 140,008 B, 744 B past the 139,264 B 62.5 holds beside its `sram`. That is S14 debt by the owner's rule of 2026-11-15, as the lane found. Every other point holds its entry (1x1 45.0 and 46.0 within 56, 8x8/1if 58.0 at its 58.0, the size fixture unchanged within 60.5). Two of section 5's sentences and one README bullet still gave the one-interface and fixture entries before the step-10 cut (57.5, 60.0); they are brought to 58.0 and 60.5 |
+
+## F-G4 (the split's PHY advertising every mode): STOP, no commit
+
+The gating bench run found it on step 11's split images at both points. The analysis is
+`receipts/step12/fg4/fg4-analysis.txt`.
+
+- The split's write frames, values, pins and probe equal the release's.
+- The host PHY model and the split boot simulation land every write. The simulation is the real image on the real
+  split SoC logic, with a PHY at address 1.
+- ~~#590's hardware probe puts the board's PHY at address 1.~~ **Corrected 2026-11-19:** that was wrong. #590's
+  `mdio-phase.log` is a reviewer probe run against a simulated peer, and its `phy_address=1` is the model's. No
+  record gives a board PHY address. On the board, address 0 answers, holds the writes and reports the e2 link (the
+  bench reading of 2026-11-19).
+- Neither premise of a known-good comparison holds: the release's advertisement was never measured on hardware
+  (#840, no hardware used), and the bench's LINK counts come from the hardware link guard, not the poll.
+
+So the cause is not found in software. The candidates need one boot reading the poll's state. No fix and no
+diagnostic were committed; the head stays `967b1ca9`.
+
+## F-G4: the diagnostic images and the fix candidates (no train commit)
+
+The manager's decision of 23:1x: build the diagnostic as a bench image, not a train commit.
+
+- **The diagnostic** is on the scratch branch `fg4-diag-967b1ca9` (`fcdb9f6c`) and adds the console command
+  `milan_phy`. The 8x8 one-interface entry is raised to 58.5 for that image only.
+- **Its bitstreams** were built by S9's recipe with the bench override `--eth-port e2`. Both pass the boot
+  simulation, the identity gate and #818's floor; the status gives their paths and sha256.
+- **The three fix candidates** are each a scratch branch off `967b1ca9` and a diff in `round5/fg4/` that applies to
+  the train head. Each has a test that fails on the old code by name and passes with the fix, in the `platboot`
+  arm, 53 of 53:
+  - A: the advertisement re-verified by each poll's own register 9 read;
+  - B: a poll a whole period late takes THE STEP's call ahead of the store's centisecond step;
+  - C: the release's bit, with the PHY frame's stated cost restated by the rule.
+- None is committed to `flip-train-1117-p11` until the manager names the cause.
+
+## F-G4: WITHDRAWN (the manager's resume of 2026-11-19 01:2x)
+
+The bench's second reading (`fg4-board-reading2.md`) read the second diagnostic's `milan_mdio` beside the test
+machine.
+
+- **The DUT's own PHY advertises 1000BASE-T full alone,** as #840 requires: R4 `0401`, R9 `0200`.
+- **With the test machine at 10BASE-T half alone, the DUT's PHY has no link:** R1 `7949`, no partner page. The test
+  machine meanwhile holds a 10 Mb/s link.
+- **Its partner offers every mode with no pause** (R5 `c1e1`, R10 `3c00`) while the test machine offers 1000BASE-T
+  full alone. So the test machine was negotiating with the bench's inline capture tap, which advertises every speed
+  on each side.
+- **The address question is closed.** `MDIO_ACK=00000003`: addresses 0 and 1 are one RTL8211E, address 0 the broadcast
+  alias of its strap address 1, on e2's own bus.
+
+So F-G4 is a bench-topology finding, not a defect of the train, the split or the release. Nothing goes into the train
+for it, and it leaves the known limitations.
+
+- The diagnostic branches (`fg4-diag-967b1ca9`, `fg4-diag2-967b1ca9`) and the candidate branches (`fg4-fix-a`, `-b`,
+  `-c`) stay as scratch, never train commits. Their diffs stay in `round5/fg4/` as the record.
+- Candidate B's gap goes to #495 as a residue for a later ticket, not into the train: through a 600 ms erase under
+  input that leaves no pass empty, the poll publishes a link loss only after the save. Its failing test is
+  `Phy.B13APollAPeriodLateTakesItsFrameThroughASave`; its fix would change THE STEP's order, ruled by #665 on
+  2026-11-17.
+- Candidates A and C answered causes the reading rules out, and are not carried.
+
+## Step 12 with #947's round 2: `7650a02d`
+
+#947's round-2 head `9f4f3de0` (R868-2 POSITIVE) is fetched from origin's `946-ctx-fmt`. It descends from round 1's
+`66c6edf3`, which the train merged at `d09c7118`. It is merged `--no-ff` onto `967b1ca9` as `7650a02d`.
+
+Round 2's delta (`66c6edf3..9f4f3de0`) is 13 files. In order:
+- `ctrl_plat.c`: each kept format change writes its inputs' contexts in the face's change port, and a waiting change
+  whose input was bound meanwhile is refused.
+- its tests and mutants: `test_plat_sinks.cpp`, `sink_mutants.py`, now 26 defects;
+- `ctrl_plat_image.py`;
+- the receive monitor's `sim_ctxfmt.cpp`;
+- the split boot simulation's `boot_soc.py`;
+- the ROM ledger and its prose.
+
+There is no RTL and no gitlink change; the gitlinks stay `1616fc8f` / `801ef228`.
+
+**Conflicts:** the same seven files the #946 lane's composition found on `b1f1161b` (its
+`round2/receipts/merge/composition.txt`), all the ROM ledger's or its prose:
+- `SPLIT_CONTROL_MEMORY.md`;
+- `sw/firmware/ctrl/plat/README.md`;
+- `ctrl_memory.py`, `ctrl_memory_ledger.py` and `test_ctrl_memory.py`;
+- `ctrl_split_boot/README.md` and `plat_ledger.py`.
+
+| File | Resolution | Why |
+|---|---|---|
+| the six ledger files | the train's side, whole (`git checkout --ours`) | The #946 lane's resolution is "take the train's side of each, then raise the train's 8x8/2if entry from 62.5 to 63.0". On `967b1ca9` the train's side already holds 63.0: step 12's own ledger commit raised it. So no raise is owed, and its patch (`composition-ledger-raise.patch`) is not applied. #947's own entries (8x8/2if 61.0, 8x8/1if 56.5 as debt) are its base's and give way to the train's 63.0 and 58.0. |
+| `sw/firmware/ctrl/plat/README.md` | its two conflict hunks, both the ROM paragraphs, the train's text; every other hunk as Git merged it | as the #946 lane did; round 2's prose on the formats (the change port, the waiting change's refusal, `platsinks` with 26 defects) merges whole |
+
+**Checks:**
+- **Round 2's delta is carried whole outside the ledger.** For each of its six other files, the merge's diff against
+  `967b1ca9` equals round 2's own diff (`66c6edf3..9f4f3de0`), line for line:
+  - `ctrl_plat.c`, `ctrl_plat_image.py`, `sink_mutants.py`, `test_plat_sinks.cpp`, `sim_ctxfmt.cpp`, `boot_soc.py`.
+- **The ledger at `7650a02d`:** `plat_ledger.py --self-test` PASS, controls 9 of 9 as required.
+  - 1x1/1if 45 and 1x1/2if 46 RAMB36, within 56.
+  - 8x8/1if 58 at `platform-8x8-one-interface` (rom 138,624 B).
+  - 8x8/2if 63 at `platform-8x8-two-interfaces` (rom 140,200 B).
+  - `test_ctrl_memory.py` 0 failures. The size fixture's six arms build.
+  - (`receipts/step12b/ledger/`)
+
+## Step 12 at #947's frozen head: `0839453f`
+
+#947 is frozen at `fe297847`.
+- **Its reviews:** R867-3 POSITIVE at `fe297847` (#947 issuecomment-6996096094) and R868-2 POSITIVE at `9f4f3de0`
+  (issuecomment-6993952183).
+- **Why one review covers round 3:** round 3 is tests and docs only, so by the single-reviewer rule for trivial deltas
+  R867-3 covers it.
+- **The merge:** `fe297847` is fetched from origin's `946-ctx-fmt`. It descends from round 2's `9f4f3de0`, and is
+  merged `--no-ff` onto `7650a02d` as `0839453f`.
+
+Round 3's delta (`9f4f3de0..fe297847`) is 4 files:
+- `test_plat_sinks.cpp` (+64): the receive monitor's change gate at a bound input's own index, a STREAM_OUTPUT's
+  waiting format and the input's SET_NAME;
+- `sink_mutants.py`: its defects, 28;
+- the platform README's `platsinks` line;
+- one sentence of `ctrl_memory.py`'s ledger comment.
+
+There is no firmware source, no RTL and no gitlink change; the gitlinks stay `1616fc8f` / `801ef228`.
+
+| File | Resolution | Why |
+|---|---|---|
+| `sw/litex/ctrl_memory.py` (the one conflict) | the train's side, whole | Round 3 renames the ROM debt's owner in one sentence of #947's own ledger comment: "S14" becomes "the hybrid XIP work, the cold-code and descriptor flash migration (#665 decision D3)". That comment gave way to the train's at round 2, and the train's block does not hold the sentence, so as before the ledger prose is the train's. The train's ledger text keeps its "S14" names, as at `7650a02d`. |
+| the other three files | as Git merged them | each carries round 3's own diff, line for line |
