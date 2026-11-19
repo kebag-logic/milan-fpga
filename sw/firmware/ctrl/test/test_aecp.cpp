@@ -818,7 +818,7 @@ namespace {
 struct AppOutputs : App {
     static constexpr uint64_t BASE=0x91e0f0000100;
     static constexpr unsigned OUTPUTS=CTRL_AEM_STREAM_OUTPUTS;
-    std::array<bool,CTRL_SRP_SOURCES+1u> declaring{};
+    std::array<bool,CTRL_SRP_SOURCES+2u> declaring{};
     bool allocated=true;
     static uint64_t sid(unsigned n) { return MAC<<16|n; }
     void connecting() override {
@@ -939,6 +939,7 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
     ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v))<<"a source past SRP's shape is answered";
     EXPECT_EQ(v.dest_mac,BASE+CTRL_SRP_SOURCES)<<"a source past SRP's shape has its Talker's address";
     EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"a source past SRP's shape registers no Listener";
+    declaring[connection.n_sources]=true;
     EXPECT_FALSE(bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v))
         <<"an output ACMP holds no source for is not answered";
 }

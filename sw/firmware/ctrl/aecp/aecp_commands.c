@@ -115,7 +115,9 @@ static bool observe(struct aecp *a, uint16_t type, uint16_t index, struct aecp_s
 
 bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
+	bool brief = out->brief;
 	memset(out, 0, sizeof *out);
+	out->brief = brief;
 	return observe(a, type, index, out);
 }
 
@@ -127,13 +129,6 @@ static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 	struct aecp_stream_info info = {.brief = true};
 	if (!observe(a, type, index, &info)) return AECP_ENTITY_MISBEHAVING;
 	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
-}
-
-// A map edit's check of its output port's stream (aecp_maps.c, idle): a running check, so its observation is brief and
-// the ports read for bound and running alone (#943).
-bool aecp_stream_idle(struct aecp *a, uint16_t type, uint16_t index)
-{
-	return running(a, type, index) == AECP_SUCCESS;
 }
 
 static unsigned any_running(struct aecp *a)
@@ -382,7 +377,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	if (d == NULL) {
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}
-	struct aecp_stream_info info;
+	struct aecp_stream_info info = {.brief = false};
 	if (!aecp_stream_read(a, type, index, &info)) {
 		return AECP_ENTITY_MISBEHAVING;
 	}
