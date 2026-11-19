@@ -4,8 +4,9 @@
 
 ctrl_mutants.py plants each into a copy of sw/firmware/ctrl and requires the named GoogleTest test of the named
 arm to fail on the check's own words (ctrl_mutants.campaign). The arms are plat_arms.py's: `plat` (the CSR
-window's C5 and C6) and `platsinks8`, the sink suite (test_plat_sinks.cpp) at 8x8/1if, whose AAF inputs 1 to 7
-each have a receive-monitor context.
+window's C5 and C6), `platsinks8`, the sink suite (test_plat_sinks.cpp) at 8x8/1if, whose AAF inputs 1 to 7
+each have a receive-monitor context, and `platsinks1`, the same suite at the shipping 1x1/1if, whose reset set
+maps input 0's channels.
 
 Each defect is one the platform's formats exist to exclude: the shipped firmware's state (nothing written after
 the open, or no change followed), in which every PDU of an input above 0 is UNSUPPORTED_FORMAT; a format written
@@ -17,7 +18,9 @@ it moves, or one of another kind or a pass with no change writing any; a change 
 input's index (a STREAM_OUTPUT's format, an input's SET_NAME) taken for that input's format change; the wrong
 descriptors taken for a context (input 0, a CRF input, another type, interface or configuration, a descriptor too
 short); the window's words wrong (halves swapped, the talker selection, the selection not read or not written
-back); and the AECP refusal the race argument rests on, a bound input accepting SET_STREAM_FORMAT.
+back); the AECP refusal the race argument rests on, a bound input accepting SET_STREAM_FORMAT; and the saved
+state's format restore reading the verdict's survival bit against the map store's reset set, which loses a
+narrowed input at every boot where that set maps its channels (REQUIREMENTS.md, the persisted inventory).
 """
 from __future__ import annotations
 
@@ -36,6 +39,9 @@ S8 = "Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce"
 S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
 S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
 S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
+S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
+#: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
+VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
 C6 = "Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero"
 #: The open's write, the wrapped ports' tests and the loop's step, as ctrl_plat.c holds them.
@@ -147,4 +153,8 @@ def mutants(mutant: type) -> tuple:
           "return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;",
           "return (type == 5u ? false : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;",
           "platsinks8", S2, "S2 a bound input refuses SET_STREAM_FORMAT"),
+        # a narrowed input kept across a cut: at 1x1/1if the reset set maps input 0's channels, so a restore that
+        # reads the verdict's bit 1 against it refuses the saved format
+        m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
+          "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
     )

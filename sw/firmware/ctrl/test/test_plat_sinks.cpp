@@ -49,6 +49,13 @@
 //   S11 at an input's index, with that input bound and its stream published, a
 //       change of another type (STREAM_OUTPUT n's SET_STREAM_FORMAT, which waits)
 //       or of another kind (SET_NAME of input n) is taken and writes no context
+//   S12 STREAM_INPUT 0 narrowed to one channel, the mappings naming its
+//       channels removed first, is kept across a power cut: the boot's restore
+//       takes it while the datapath's map store still holds its reset set, whose
+//       rows the narrowed format would leave unmapped (REQUIREMENTS.md, the
+//       persisted inventory; Milan v1.2 5.3.8.1, 5.3.13). At 1x1/1if that set
+//       maps input 0's channels; at 8x8/1if it maps none. The far model keeps
+//       the store and judges the verdict from it, as the datapath does
 
 #include <gtest/gtest.h>
 
@@ -118,12 +125,68 @@ std::vector<Mbx> mailbox;
 struct Far {
     bool ack = true;
     std::vector<std::size_t> commits;   // mailbox.size() at each F_COMMIT
-    // SET_STREAM_FORMAT's verdict (GSI kind 0, selector 15) is 3, supported and every mapped channel kept; the
-    // other GET_STREAM_INFO words are 0; every other window is silent
-    static mbx_model_reply answer(void*, unsigned, unsigned w, const std::uint32_t* r, std::uint64_t* data) {
+    // The datapath's map store, kept when `store` is set (S12): the configuration's reset set from power-on, moved
+    // only by the EDIT window's committed records, as milan_datapath.sv's transaction server keeps it; each beat
+    // accepted. SET_STREAM_FORMAT's verdict is then the datapath's from that store (its sfv_verdict_w): bit 0
+    // supported, which this model takes as so (the family decode is the datapath's), and bit 1 every channel the
+    // store's rows reference for the stream still in the proposal (its channels_per_frame, bits 31:22). Unset, the
+    // verdict is 3 and every window but GSI's is silent.
+    bool store = false;
+    bool seeded = false;
+    std::map<std::pair<unsigned, unsigned>, std::vector<aecp_mapping>> live;   // port (type, index): its rows
+    void power_on() {
+        live.clear();
+        seeded = false;
+    }
+    // the store's reset set, the generated maps' defaults, once the image has composed them
+    void seed() {
+        if (seeded) return;
+        const aecp_config& cfg = ctrl_plat.aecp.core.cfg;
+        for (std::size_t k = 0; k < cfg.map_count; ++k) {
+            const aecp_map& m = cfg.maps[k];
+            live[{m.type, m.index}].assign(m.defaults, m.defaults + m.default_count);
+        }
+        seeded = true;
+    }
+    std::uint64_t verdict(const std::uint32_t* r) {
+        if (!store) return 3u;
+        seed();
+        const unsigned type = r[0] & 0xffffu, index = r[0] >> 16;
+        const unsigned channels = static_cast<unsigned>(r[2] >> 22) & 0x3ffu;
+        const unsigned port = type == kStreamInput ? 14u : 15u;   // STREAM_PORT_INPUT, STREAM_PORT_OUTPUT
+        unsigned need = 0;
+        for (const auto& [key, rows] : live) {
+            for (const aecp_mapping& m : rows) {
+                if (key.first == port && m.stream == index) need = std::max(need, m.channel + 1u);
+            }
+        }
+        return 1u | (need <= channels ? 2u : 0u);
+    }
+    std::uint64_t edit(const std::uint32_t* r) {
+        seed();
+        const aecp_mapping m{static_cast<std::uint16_t>(r[3] >> 16), static_cast<std::uint16_t>(r[3]),
+                             static_cast<std::uint16_t>(r[2] >> 16), static_cast<std::uint16_t>(r[2])};
+        auto& rows = live[{r[0] & 0xffffu, r[0] >> 16}];
+        if ((r[1] & 7u) == 5u) {   // a committed record
+            const auto at = std::find_if(rows.begin(), rows.end(), [&](const aecp_mapping& x) {
+                return x.stream == m.stream && x.channel == m.channel && x.cluster == m.cluster &&
+                       x.cluster_channel == m.cluster_channel;
+            });
+            if (((r[1] >> 4) & 1u) != 0u && at != rows.end()) rows.erase(at);
+            if (((r[1] >> 4) & 1u) == 0u && at == rows.end()) rows.push_back(m);
+        }
+        return 1u;
+    }
+    // SET_STREAM_FORMAT's verdict (GSI kind 0, selector 15) as above; the other GET_STREAM_INFO words are 0
+    static mbx_model_reply answer(void* p, unsigned, unsigned w, const std::uint32_t* r, std::uint64_t* data) {
+        auto& f = *static_cast<Far*>(p);
         *data = 0;
+        if (w == MBX_WIN_EDIT && f.store) {
+            *data = f.edit(r);
+            return MBX_MODEL_ANSWER;
+        }
         if (w != MBX_WIN_GSI || (r[1] & 3u) != 0u) return MBX_MODEL_SILENT;
-        if (((r[1] >> 4) & 15u) == 15u) *data = 3u;
+        if (((r[1] >> 4) & 15u) == 15u) *data = f.verdict(r);
         return MBX_MODEL_ANSWER;
     }
     static bool commit(void* p, unsigned, const std::uint32_t*) {
@@ -919,6 +982,80 @@ TEST_F(Sinks, S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoCon
     EXPECT_TRUE(sink(n).settled) << "S11 input " << n << "'s binding stays settled";
     EXPECT_GT(seen.checks, 0u) << "S11 watched while its stream is published";
     coherent("S11");
+}
+
+// The rows of STREAM_PORT_INPUT maps in force that name stream `n`, by port index.
+std::map<unsigned, std::vector<aecp_mapping>> input_rows(unsigned n) {
+    std::map<unsigned, std::vector<aecp_mapping>> out;
+    const aecp_config& cfg = ctrl_plat.aecp.core.cfg;
+    for (std::size_t k = 0; k < cfg.map_count; ++k) {
+        const aecp_map& m = cfg.maps[k];
+        if (m.type != 14u || m.configuration != ctrl_plat.aecp.core.configuration) continue;
+        for (std::size_t r = 0; r < m.count; ++r) {
+            if (m.rows[r].stream == n) out[m.index].push_back(m.rows[r]);
+        }
+    }
+    return out;
+}
+
+TEST_F(Sinks, S12ANarrowedInputFormatIsKeptAcrossAPowerCut) {
+    far.store = true;
+    ASSERT_TRUE(ready());
+    // a controller narrows STREAM_INPUT 0 to one channel of its family, removing first the mappings that name its
+    // channels, which the narrowed format would leave unmapped (Milan v1.2 5.4.2.7)
+    const std::uint64_t wide = inputs().at(0).format;
+    const std::uint64_t narrow = (wide & ~(0x3ffull << 22)) | (1ull << 22);
+    ASSERT_NE(narrow, wide) << "S12 input 0's format is wider than one channel";
+    std::uint16_t seq = 0x0c01u;
+    for (const auto& [port, rows] : input_rows(0)) {
+        std::vector<std::uint8_t> payload(8 + 8 * rows.size(), 0);
+        payload[1] = 14u;   // STREAM_PORT_INPUT
+        payload[2] = static_cast<std::uint8_t>(port >> 8);
+        payload[3] = static_cast<std::uint8_t>(port);
+        payload[5] = static_cast<std::uint8_t>(rows.size());
+        for (std::size_t k = 0; k < rows.size(); ++k) {
+            const std::uint16_t w[4] = {rows[k].stream, rows[k].channel, rows[k].cluster, rows[k].cluster_channel};
+            for (unsigned q = 0; q < 4; ++q) {
+                payload[8 + 8 * k + 2 * q] = static_cast<std::uint8_t>(w[q] >> 8);
+                payload[9 + 8 * k + 2 * q] = static_cast<std::uint8_t>(w[q]);
+            }
+        }
+        ASSERT_TRUE(send(0x002du, payload, seq)) << "S12 REMOVE_AUDIO_MAPPINGS reaches the mailbox";
+        ASSERT_EQ(final_status(0x002du, seq), static_cast<int>(kSuccess))
+            << "S12 input 0's mappings at input port " << port << " are removed";
+        ++seq;
+        mbx_model_advance_ms(&fabric, AECP_PACE_MS);
+    }
+    ASSERT_TRUE(input_rows(0).empty()) << "S12 no mapping names input 0's channels";
+    ASSERT_EQ(set_format(0, narrow, seq), static_cast<int>(kSuccess)) << "S12 input 0 is narrowed to one channel";
+    ASSERT_EQ(inputs().at(0).format, narrow);
+    // the saved state written back by the store's service on the loop's tick: both clocks 10 ms a pass
+    const unsigned commits = nvm_store_status()->commits_ok;
+    for (unsigned k = 0; k < 3000u && (nvm_store_status()->commits_ok == commits ||
+                                       ctrl_plat.state.pending_count != 0u ||
+                                       nvm_store_status()->phase != NVM_P_IDLE); ++k) {
+        mbx_model_advance_ms(&fabric, 10u);
+        nvm_fmodel_advance_us(10000u);
+        ctrl_plat_step();
+        ctrl_plat_step();
+    }
+    ASSERT_GT(nvm_store_status()->commits_ok, commits) << "S12 the change is written back";
+    ASSERT_EQ(ctrl_plat.state.pending_count, 0u) << "S12 no record is still owed";
+    // the cut: the fabric, the CPU and its memory from power-on; the flash keeps its contents, and the datapath's
+    // map store holds its reset set again
+    seen.on = false;
+    srp_mbx_destroy(&ctrl_plat.srp);
+    bus().reset();
+    bus().csr[CTRL_PLAT_CSR_STRM_SEL] = kOtherSelection;
+    mailbox.clear();
+    mbx_model_reset(&fabric);
+    mbx_model_far_bind(&fabric, &side);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_link(&fabric, i, true);
+    nvm_fmodel_power_on();
+    far.power_on();
+    ASSERT_TRUE(ready()) << "S12 the boot after the cut reaches READY";
+    EXPECT_EQ(inputs().at(0).format, narrow) << "S12 input 0's narrowed format is restored after the cut";
+    EXPECT_TRUE(input_rows(0).empty()) << "S12 the mappings removed before the cut stay removed";
 }
 
 }  // namespace

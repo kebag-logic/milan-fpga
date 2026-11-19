@@ -32,7 +32,9 @@
 //             ordinal, through the GSI window (kind 2), at most the core's
 //             capacity (AECP_PATH_ITEMS): a count past it fails the port
 //             (IEEE 1722.1-2021 7.4.41.2; #897)
-//   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
+//   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15):
+//             exactly 3 from the open on; before it, the saved state's restore,
+//             supported alone (bit 1 reads the map store's reset set)
 //   edit      an accepted ADD or REMOVE_AUDIO_MAPPINGS, and the restored maps,
 //             into the datapath's map store through interface 0's EDIT window,
 //             the transaction the release's processor ran: begin, validate

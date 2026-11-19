@@ -1551,7 +1551,14 @@ Every window read is bounded too (`mbx_win_read`): a request that finds no answe
 fails its port, and the core answers as for an unavailable observation.
 GET_COUNTERS reads 33 quadlets through `CTR`, GET_STREAM_INFO six words and
 GET_AVB_INFO three through `GSI`, and SET_STREAM_FORMAT one verdict, whose
-low byte must be exactly 3, as the processor's argument check reads it.
+low byte must be exactly 3 from the open on, as the processor's argument check
+reads it: bit 0 supported, bit 1 every channel the datapath's map store
+references still in the format. Before the open, while the saved state is
+applied, bit 0 alone decides. The store then still holds its reset set, which
+bit 1 reads, and the restored maps are checked against the restored formats
+instead (`aecp_restore_settle`). Otherwise an input narrowed under a reset set
+that maps its channels would be refused at every boot, and its saved format
+lost ([REQUIREMENTS.md](../../REQUIREMENTS.md), the persisted inventory; Milan v1.2 5.3.8.1).
 GET_AS_PATH reads kind 2 through `GSI`: the count at selector 0, then each
 path_sequence ClockIdentity at selector 8 by its ordinal, the processor's
 word table. The datapath answers the entries from the path it held at the

@@ -398,7 +398,10 @@ exclusion. The face's 59 defects each fail a named `Core`, `Face`,
 - the store's status after open, or `CLOSED` not a failure;
 - a full sink table ignored;
 - an owed commit that lets the loop sleep;
-- a counter-change event missed.
+- a counter-change event missed;
+- the saved state's format restore reading the verdict's survival bit
+  against the map store's reset set before the open, or not reading it once
+  open ([REQUIREMENTS.md](../../../../REQUIREMENTS.md), the persisted inventory).
 
 The rest cover the acknowledgement:
 

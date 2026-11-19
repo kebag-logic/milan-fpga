@@ -5194,6 +5194,24 @@ TEST_F(Face, BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed)
     EXPECT_EQ(far.commits.size(),count)<<"nothing moved, nothing published";
 }
 
+// Before the face opens the saved state is being applied, and the datapath's map store still holds its reset set,
+// not the maps the restore applies (aecp_restore_commit moves it after the open's acknowledged publication); its
+// verdict's bit 1, every mapped channel kept, reads that set. So a saved format is judged supported alone (bit 0),
+// and the restored maps are checked against the restored formats (aecp_restore_settle, #658). From the open on the
+// low byte must be exactly 3 again (REQUIREMENTS.md, the persisted inventory; Milan v1.2 5.3.8.1).
+TEST_F(Face, BeforeOpenAFormatVerdictJudgesSupportAlone)
+{
+    aecp_face early{};aecp_face_init(&early,&ports);aecp_face_attach(&early,&adapter.core);
+    const uint64_t proposed=get(desc(5).defaults+74,8);
+    far.verdict=1;EXPECT_TRUE(early.ports.format(&early,5,0,proposed))<<"supported, before the open";
+    far.verdict=0;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"not supported, before the open";
+    far.verdict=2;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"kept but not supported, before the open";
+    far.verdict=5;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"a bit past 1 in the low byte, before the open";
+    far.verdict=0x103;EXPECT_TRUE(early.ports.format(&early,5,0,proposed))<<"the low byte alone, before the open";
+    far.verdict=1;EXPECT_FALSE(face.ports.format(&face,5,0,proposed))<<"supported alone refuses once open";
+    far.verdict=3;EXPECT_TRUE(face.ports.format(&face,5,0,proposed))<<"3 passes once open";
+}
+
 namespace {
 struct FaceLatency : Face {};
 }

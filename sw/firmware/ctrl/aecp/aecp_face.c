@@ -208,16 +208,24 @@ static bool avb(void *ctx, unsigned interface, uint16_t index, struct aecp_avb_i
 	return true;
 }
 
-// SET_STREAM_FORMAT's verdict (kind 0, selector 15): the low byte must be
-// exactly 3, supported and every mapped channel surviving, as the processor's
-// CHECK_ARG reads it.
+// SET_STREAM_FORMAT's verdict (kind 0, selector 15): bit 0 supported, bit 1
+// every channel the datapath's map store references still in the format. From
+// the open on the low byte must be exactly 3, as the processor's CHECK_ARG
+// reads it. Before the open the saved state is being applied and the store
+// still holds its reset set, not the maps the restore applies
+// (aecp_restore_commit moves it after the open's publication), so bit 1 is not
+// read: a saved format is judged supported alone, and the restored maps are
+// checked against the restored formats (aecp_restore_settle, #658). Read, a
+// format narrowed under a reset set that maps its channels would be refused at
+// every boot (REQUIREMENTS.md, the persisted inventory; Milan v1.2 5.3.8.1).
 static bool format(void *ctx, uint16_t type, uint16_t index, uint64_t proposed)
 {
 	struct aecp_face *f = ctx;
 	const struct aecp_descriptor *d = current(f, type, index);
 	uint64_t verdict = 0;
 	return d != NULL && interface_of(f, d) < MBX_N_IF &&
-	       gsi(f, interface_of(f, d), 0u, type, index, 15u, 0u, proposed, &verdict) && (verdict & 0xFFu) == 3u;
+	       gsi(f, interface_of(f, d), 0u, type, index, 15u, 0u, proposed, &verdict) &&
+	       ((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;
 }
 
 // GET_COUNTERS (IEEE 1722.1-2021 7.4.42): quadlets 0 to 31 of the block, then
