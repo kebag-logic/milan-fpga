@@ -42,6 +42,8 @@ _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held"
 // every source later (hold, CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by
 // flip_grade.py --check: rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
 #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+// Each source's count (srp_mbx.h, held_cs) holds the whole hold-off.
+_Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
 
