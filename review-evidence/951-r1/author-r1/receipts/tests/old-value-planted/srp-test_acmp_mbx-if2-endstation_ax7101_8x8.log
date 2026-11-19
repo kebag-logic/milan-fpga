@@ -1,0 +1,41 @@
+Note: Google Test filter = SrpGate.*
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from SrpGate
+[ RUN      ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens
+[       OK ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens (1 ms)
+[ RUN      ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens
+[       OK ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens (10 ms)
+[ RUN      ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain (2 ms)
+[ RUN      ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain (3 ms)
+[ RUN      ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt
+[       OK ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt (8 ms)
+[ RUN      ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow
+[       OK ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow (11 ms)
+[ RUN      ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_gate.hpp:339: Failure
+Value of: declared(interface)
+  Actual: true
+Expected: false
+a changed destination waits two of the longest LeaveAll periods after the Leave
+
+  [FAIL] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff: a changed destination waits two of the longest LeaveAll periods after the Leave
+[  FAILED  ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff (15 ms)
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (11 ms)
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[       OK ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (39 ms)
+[----------] 9 tests from SrpGate (103 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (103 ms total)
+[  PASSED  ] 8 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 9   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 9 checks, exit 1)

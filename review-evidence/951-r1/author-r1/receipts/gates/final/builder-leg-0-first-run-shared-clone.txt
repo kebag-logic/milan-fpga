@@ -1,0 +1,8 @@
+# leg 0's first run at 0d1eb8e4, in the clone the docs steps ran in: refused at its end while check_entity_shape.py --self-test held a planted control in tb/verilator/csr/Makefile; re-run in its own clone: builder-leg-0.txt
+HEAD 0d1eb8e4 dirty 0 leg 0 start 14:32:16
+  [gate 1b] 5 product configs and 11 refusal arms pass
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+ALL GATES PASS EXCEPT 1 NOT RUN
+builder legs refused: source bytes differ: <scratch>/clones/final/tb/verilator/csr/Makefile
+END rc=1 14:49:19

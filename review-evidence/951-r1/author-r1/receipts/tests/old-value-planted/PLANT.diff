@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 2a85d443c7..7cb0d9c060 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -41,7 +41,7 @@ _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held"
+ // longest (#951). The count starts at the Leave's request, which leaves at most a JoinTime and THE TRANSMIT's MRPDU by
+ // every source later (hold, CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by
+ // flip_grade.py --check: rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
+-#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
++#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+ // A participant's slot: MSRP then MVRP of each interface.
+ #define SRP_SLOTS (2u * MBX_N_IF)
+ 

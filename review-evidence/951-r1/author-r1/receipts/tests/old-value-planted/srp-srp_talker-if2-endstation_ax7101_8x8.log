@@ -1,0 +1,116 @@
+[==========] Running 16 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 16 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (0 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (5 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (0 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:306: Failure
+Expected equality of these values:
+  declared(ds,1,lv->time_ms+1u)
+    Which is: 0x558639ad7370
+  nullptr
+    Which is: (nullptr)
+no Talker of a changed destination is declared before the hold-off ends
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods: no Talker of a changed destination is declared before the hold-off ends
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:306: Failure
+Expected equality of these values:
+  declared(ds,1,lv->time_ms+1u)
+    Which is: 0x558639ad7370
+  nullptr
+    Which is: (nullptr)
+no Talker of a changed destination is declared before the hold-off ends
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods: no Talker of a changed destination is declared before the hold-off ends
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:317: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30570
+the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods: the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:317: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30570
+the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods: the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods (12 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:362: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30695
+the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave: the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:362: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30695
+the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave: the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave (6 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:385: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30570
+the new destination comes no sooner than two of the longest LeaveAll periods after the Leave
+
+  [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two of the longest LeaveAll periods after the Leave
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:385: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 20700 vs 30570
+the new destination comes no sooner than two of the longest LeaveAll periods after the Leave
+
+  [FAIL] Talker.DestinationChangeWhileValidWithdrawsTheOld: the new destination comes no sooner than two of the longest LeaveAll periods after the Leave
+[  FAILED  ] Talker.DestinationChangeWhileValidWithdrawsTheOld (6 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (0 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:482: Failure
+Expected equality of these values:
+  declared(talker(last,0,first),1)
+    Which is: 0x558639ad7330
+  nullptr
+    Which is: (nullptr)
+the new participants hold a source that moved before the reset
+
+  [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: the new participants hold a source that moved before the reset
+<scratch>/clones/oldvalue/sw/firmware/ctrl/test/srp_talker.cpp:484: Failure
+Expected equality of these values:
+  pub_of(model,last).talker_decl&1u
+    Which is: 1
+  0u
+    Which is: 0
+TALKER_DECL holds it withdrawn while it waits
+
+  [FAIL] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne: TALKER_DECL holds it withdrawn while it waits
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (6 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[ RUN      ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin
+[       OK ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin (0 ms)
+[ RUN      ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+[       OK ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt (0 ms)
+[ RUN      ] Talker.DeclarationAndWithdrawalAreNoticed
+[       OK ] Talker.DeclarationAndWithdrawalAreNoticed (0 ms)
+[ RUN      ] Talker.TypeSwapIsNoticed
+[       OK ] Talker.TypeSwapIsNoticed (0 ms)
+[ RUN      ] Talker.AdoptedDomainVidIsNoticed
+[       OK ] Talker.AdoptedDomainVidIsNoticed (0 ms)
+[ RUN      ] Talker.ResetNoticesNothingUnchanged
+[       OK ] Talker.ResetNoticesNothingUnchanged (0 ms)
+[----------] 16 tests from Talker (41 ms total)
+
+[----------] Global test environment tear-down
+[==========] 16 tests from 1 test suite ran. (41 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave
+[  FAILED  ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+
+ 4 FAILED TESTS
+== ctrl SRP Talker declarations: checks: 16   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 16 checks, exit 1)

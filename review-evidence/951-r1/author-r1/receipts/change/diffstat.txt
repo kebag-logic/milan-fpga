@@ -1,0 +1,10 @@
+ docs/design/MAILBOX_SPLIT.md                |  5 +--
+ docs/design/SPLIT_CONTROL_MEMORY.md         | 18 ++++++++--
+ sw/firmware/ctrl/srp/README.md              | 34 +++++++++++--------
+ sw/firmware/ctrl/srp/srp_mbx.c              | 22 ++++++++----
+ sw/firmware/ctrl/test/srp_gate.hpp          | 19 +++++++----
+ sw/firmware/ctrl/test/srp_mutants.py        | 12 +++----
+ sw/firmware/ctrl/test/srp_talker.cpp        | 52 ++++++++++++++++-------------
+ sw/firmware/ctrl/test/srp_talker_mutants.py | 47 +++++++++++++++-----------
+ tb/verilator/ctrl_service_budget/README.md  |  2 +-
+ 9 files changed, 129 insertions(+), 82 deletions(-)

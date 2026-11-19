@@ -1,0 +1,12 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 14a0c4ce3b..cfaf0c87bb 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -345,6 +345,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
+             } else {
+                 i->talkers &= ~bit;
+                 m->held_cs[n] = SRP_REDECLARE_CS;
++                __asm__ volatile ("nop");
+             }
+         }
+         if (!admitted) {

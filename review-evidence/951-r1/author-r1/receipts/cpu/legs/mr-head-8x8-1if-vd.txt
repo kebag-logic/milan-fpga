@@ -1,0 +1,11 @@
+HEAD e5dee83b point 8x8-1if variant valid-destinations groups srp-talker,srp-talker-loss,srp-talker-held jobs 3 start 12:42:16
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 4889 passes carry the store's step; the longest 109,708 CPU cycles (1.097 ms), srp-talker-held; the longest step 78,351 (0.784 ms), srp-talker-held
+SLICES 172171 tier-2 slices; the longest SRP's records 129,184, THE TRANSMIT's build 132,253, THE RETRY's round 12,172 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker: 20 join interval(s), the shortest 187.140 ms and the longest 190.366 ms, against 181.0 to 239.0; MRP timers' run-outs: 67 released, 41 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS srp-talker-loss: 10 join interval(s), the shortest 187.140 ms and the longest 190.242 ms, against 181.0 to 239.0; MRP timers' run-outs: 25 released, 16 empty
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.140 ms and the longest 192.554 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1517.007 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.621 ms) within
+3 groups graded, 0 refusals, 0 budget misses (0 of 45 probe instances, 0 of 25 paths), 0 of 67475 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 13:58:19

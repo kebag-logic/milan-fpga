@@ -1,0 +1,126 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 5db96847d5..c809b382cf 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -1287,8 +1287,9 @@ them:
+   as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
+   lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
+   bit set and the withdrawal owed until lwSRP takes it. A
+-  changed destination is declared two LeaveAllTime periods after the Leave
+-  (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
++  changed destination is declared two of the longest LeaveAll periods, 1.5
++  LeaveAllTime each, after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
++  #951). The CRF talker's C-TAG reads this level. Its
+   frames leave under the licence, which needs a declaration in both
+   placements; with policing off (the AAF bypass or lwSRP disabled) both
+   placements tag them only while the gate is open.
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 1317a8eaca..f94b47382a 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -2852,7 +2852,7 @@ So at this head every 1x1/1if row holds by every source at the built slice, the
+ [#895's ruling of 2026-11-15 on round 8's stop](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865) takes the rule's figure at 8x8/2if:
+ 
+ - **The figure** (item 1). `CTRL_LOOP_TX_MS` at two interfaces is the built design's tx row by every source rounded up to the ms, 105 ms for its 104.25 at the restated costs ([above](#the-bound-and-the-slice-at-140-ms-895)), so `rows_tiers.tx_statements` holds both interface counts' figures at or over their rows. #894's head keeps 99.
+-- **The hold-off follows it** (items 1 and 2). `SRP_REDECLARE_CS` (`srp_mbx.c`) is two LeaveAllTime periods, a JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10, the latest the Leave departs after its request: 2,030 cs at two interfaces, 2,029 at 99 ms, and 2,023 at one, unchanged. IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, so the terms above it must follow the tx row, and a withdrawn Talker's changed destination is declared 10 ms later at two interfaces, on the safe side.
++- **The hold-off follows it** (items 1 and 2). `SRP_REDECLARE_CS` (`srp_mbx.c`) is two LeaveAllTime periods, a JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10, the latest the Leave departs after its request: 2,030 cs at two interfaces, 2,029 at 99 ms, and 2,023 at one, unchanged. IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, so the terms above it must follow the tx row, and a withdrawn Talker's changed destination is declared 10 ms later at two interfaces, on the safe side. Since #951 the two periods are the longest a LeaveAll can run, 3,000 cs, and the hold-off is 3,030, 3,027 and 3,023 cs ([below](#the-re-declare-hold-off-over-two-of-the-longest-leaveall-periods-951)).
+ - **Refused** (item 3): a statement under its row, and a second source for the hold-off's term.
+ - **The term held** ([R835-4's review of #901](https://github.com/kebag-logic/milan-fpga/pull/901#issuecomment-6900107977)). `Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave` (`srp_talker.cpp`) requests the Leave on a centisecond and holds the loop a JoinTime and `CTRL_LOOP_TX_MS` after it, the latest the Leave can leave, and requires the changed destination no sooner than two LeaveAllTime periods after the Leave on the wire: 20,005 ms at two interfaces and 20,006 at one. The Talker campaign plants the hold-off without THE TRANSMIT's term (19,895 and 19,966 ms), with it rounded down (19,995 and 19,996) and without the JoinTime's either, each caught by name at 1x1/1if and at 8x8/2if.
+ - **The images** (item 5). By sha256 of every image `ledger.sh` links, each ELF's loadable bytes and every linked object (552 files), no one-interface image changes. At each of the six two-interface images, the platform's and the size fixture's at 1x1 and 8x8 and the CPU budget harness's two 8x8/2if arms, only `srp_mbx.o` and the ELF differ, each in the one instruction that loads the hold-off, `li a3,2029` to `li a3,2030`; every other instruction and every other section byte is equal (`objdump -d` and `objdump -s`). So every leg measured on the image before carries.
+@@ -3000,7 +3000,7 @@ The source comments name these three by their subject, with the item they rest o
+ **The composition with #895's Talker declarations at 8x8/1if** (#901, merged into dev-soft-core as `70f4056f`). 1x1/1if takes #901's figures: its slice 900 us, `AECP_QUEUED_MS` 140 ms, its polls' base 225 us and its records' and events' restatements. 8x8/1if keeps its own, each stated for its shape (the table above), never one shape's figure applied to the other:
+ - **The last queued notice's bound** at 8x8/1if is its own 130 ms (`CTRL_LOOP_QUEUED_MS`, which `AECP_QUEUED_MS` is), which the CPU budget harness holds its measured queues to; keyed on the interface count it would have taken 1x1/1if's 140.
+ - **THE TRANSMIT's figure** there, `CTRL_LOOP_TX_MS`, is its own tx row by every source rounded up: 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; at most 80 ms, so a withdrawn Talker's hold-off stays 8 cs past its JoinTime), and before them 75 ms for 74.26 at the head's costs, its polls as restated with `srp-talker-held` (the Listener copies, below). It was 70 ms for 69.84 at the costs restated on the composed image (68 ms for 67.84 at the merge's statements, the same hold-off), where the interface count gave it 1x1/1if's 34.
+-  - #901 makes it a term of a withdrawn Talker's hold-off (`SRP_REDECLARE_CS`, the latest the Leave departs after its request), so the hold-off follows 8x8/1if's own row: 2,027 cs there (2,026 at 70 ms), 2,023 at 1x1/1if and 2,030 at two interfaces. Each keeps 802.1Q-2018 35.2.2.8's two LeaveAllTime periods, 2,000 cs, after the Leave's latest departure: at 8x8/1if 20,005.74 ms remain after a JoinTime and 74.26 ms.
++  - #901 makes it a term of a withdrawn Talker's hold-off (`SRP_REDECLARE_CS`, the latest the Leave departs after its request), so the hold-off follows 8x8/1if's own row: 2,027 cs there (2,026 at 70 ms), 2,023 at 1x1/1if and 2,030 at two interfaces. Each keeps 802.1Q-2018 35.2.2.8's two LeaveAllTime periods, 2,000 cs, after the Leave's latest departure: at 8x8/1if 20,005.74 ms remain after a JoinTime and 74.26 ms. Since #951 they are two of the longest LeaveAll periods, 3,000 cs, so 3,027 cs there, 3,023 at 1x1/1if and 3,030 at two interfaces ([below](#the-re-declare-hold-off-over-two-of-the-longest-leaveall-periods-951)).
+   - `flip_grade.py --check` holds the figure at 8x8/1if to that row (`tx_held`, `rows_tiers.tx_statements` at 8x8/1if's own polls, notices and builds), apart from that point's reported rows, and its self-test refuses the figure planted at 60, 69 and 74 ms by name. A 70 ms figure is refused against the head's tx row, 74.26 ms.
+   - `ctrl_loop.c` holds 1x1/1if alone to THE TRANSMIT's bound, keyed on its shape: 8x8/1if's rows by every source are reported, as 8x8/2if's are.
+ - **The pace,** one figure at every shape on both sides, is #901's 9 ms, and 8x8/1if's records and events stay 8x8/2if's (`load_grade.NEAREST`), at #901's restatements there.
+@@ -3168,6 +3168,20 @@ Two changes take work out of every mapping of every edit, whatever the mappings
+ By function, `legal` goes from 16,127 cycles to 11,469, `wire_be32` from 7,721 to 3,941 and `wire_be64` from 2,036 to none; `aecp_map_command` and `aecp_find` are unchanged.
+ No statement moves: `LONG_RECORD_US` stays 975, 1,650 and 1,715 us. The train measures the record again at every point at the head the changes ship with, its hot list relearned on them ([section 11](#11-the-firmwares-work-on-the-record-paths)).
+ 
++### The re-declare hold-off over two of the longest LeaveAll periods (#951)
++
++[#665's ruling of 2026-11-19](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447), item 2. A LeaveAll period runs up to 1.5 times LeaveAllTime (IEEE 802.1Q-2018 10.7.4.3; Milan v1.2 Table 4.3), so a withdrawn Talker's changed destination now waits two of the longest periods.
++
++- **The constant.** `SRP_REDECLARE_CS` (`srp_mbx.c`) is twice `SRP_LEAVEALL_LONGEST_CS`, plus the JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10 as before. `SRP_LEAVEALL_LONGEST_CS` is 1.5 times `SRP_LEAVEALL_CS`, the LeaveAllTime `create_participants` configures, 1000 cs. The hold-off is 3,023 cs at 1x1/1if, 3,027 at 8x8/1if and 3,030 at two interfaces; it was 2,023, 2,027 and 2,030. A compile-time check refuses a hold-off past `held_cs`'s 16 bits, and adds no code. No figure, bound or statement moves.
++- **The images.** Twenty images were linked at base and head: the target platform's four, the size fixture's four and the CPU budget harness's twelve. In each, `srp_mbx.o` is the only linked input that differs. The hold-off no longer fits an `addi` immediate, so `li a3,2023` becomes `lui a3,0x1; addi a3,a3,-1073`, 4 bytes more in `declare_sources`. What the map places after it moves 4 bytes (`.rodata` 8, by its alignment), and sram does not move. Each image was linked again with its relocations kept, and its loadable bytes equal the built image's. Listed with every address field named by its relocation's symbol, each head image differs from its base in that instruction alone.
++- **The rows.** No code path changes: the listings above differ in the hold-off's own encoding alone. The code does move: `declare_sources` is on the hot list, so the hot code after it fetches 4 bytes later. The legs were measured on both images at 1x1/1if and 8x8/1if: the `valid-destinations` arm's three groups, `srp-talker`, `srp-talker-loss` and `srp-talker-held`, the legs the hold-off reaches, and arm A's `srp`, `backlog-owed`, `datapath-events` and `aecp`, with `aecp-largest-notice` at 1x1/1if.
++  - Every leg exits 0 on both images, with no STATED line and no pass over the share.
++  - No probe changes its verdict, of 156 (50 and 16 at 1x1/1if, 45 and 45 at 8x8/1if). Each image has arm A's seven `backlog-owed` misses ([tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26)) and no other.
++  - In arm A the largest difference is 0.171 ms, on a 20 ms row: `backlog-owed.service.srp.last`, 7.150 ms on the base image and 7.321 on the head's, at 1x1/1if. A group whose passes fall the same way runs the same instructions on both images: `srp` runs 860,482 at 1x1/1if.
++  - In the `valid-destinations` arm at 8x8/1if a row that waits on a timer's phase moves further: `srp.talker_loss` 184.154 to 177.088 ms, of 220, and `srp-talker-held`'s MRPDU join row 1.663 to 3.392 ms, of 49. The passes cost the same, their medians within 0.4 %. From its withdrawals on, each group's loop falls out of step with the base's by about one pass a centisecond, ahead in `srp-talker` and behind in `srp-talker-loss`. A control image was built for `srp-talker-loss`, in scratch only: the base's value, with one `nop` after its store, so that it has the head's placement. It gives `srp.talker_loss` 176.954 ms, and every declaration row of the group equals the head's to the microsecond. So the rows follow the code's placement, not the hold-off's value.
++  - `flip_grade.py --check`, at either point, `load_grade.py --check` and `shape_costs.py --check` read the same tables and print the same output on both trees.
++  - No group runs a hold-off to its end on either image, so no measured row includes one.
++
+ ### What is left
+ 
+ - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 9210e8242c..fb67e8cf3b 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -222,20 +222,26 @@ its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
+ Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
+ 802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
+ declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
+-the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
++the Leave's request: two of the longest LeaveAll periods, with a JoinTime and
+ THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
+-departs: 2,023 cs at 1x1/1if, 2,027 at 8x8/1if, whose figure is its own tx row's
+-74.26 ms rounded up, 75 ms, and 2,030 at two, where the figure is 105 ms for the
+-tx row's 104.25, each stated for its shape (THE SHAPES, `ctrl_loop.h`) and held
+-to its row by `flip_grade.py --check` (`rows_tiers.tx_statements`, and at 8x8/1if
+-`tx_held`, apart from that point's reported rows);
++departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (77 ms) and 3,030
++at two interfaces (105 ms), each figure stated for its shape (THE SHAPES,
++`ctrl_loop.h`) and held to its row by `flip_grade.py --check`
++(`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
++reported rows;
+ [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
+-items 1 and 2; 35.2.2.8 sets only the least, 2,000 cs); a destination that
+-changes while valid withdraws the old one first. Two LeaveAllTime periods are
+-read as twice the LeaveAllTime the participants are configured with, 1000 cs (Table 10-7), not as two drawn
+-LeaveAll periods (10.7.4.3 draws each between LeaveAllTime and 1.5 times it):
+-the hold-off is the 20 s floor of the 20 to 30 s two drawn periods span, as
+-acceptance 2 of #895 words it. An admission change swaps the type in place, the new type joined
++items 1 and 2). A destination that changes while valid withdraws the old one
++first. 35.2.2.8 asks for at least two LeaveAllTime periods, and 10.7.4.3 draws
++each LeaveAll period between LeaveAllTime and 1.5 times it, so two periods
++span 20 to 30 s. The hold-off covers the longest two, 1.5 times the
++LeaveAllTime the participants are configured with (`SRP_LEAVEALL_CS`, 1000 cs,
++Table 10-7 and Milan v1.2 Table 4.3) each, 3,000 cs
++([#665's ruling of 2026-11-19](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447),
++item 2; #951). Before #951 it covered the shortest two, 2,000 cs, as acceptance
++2 of #895 words it; a longer hold still meets 35.2.2.8, which sets only the
++least. Each source counts its hold-off down in `held_cs`, 16 bits, and the
++adapter does not compile with a hold-off the count cannot hold. An admission
++change swaps the type in place, the new type joined
+ before the old leaves, so a refused join keeps the old. A link reset destroys
+ the participants with no Leave sent, so the new ones hold a source whose
+ destination changed before it as its Leave would; an unchanged source declares
+@@ -520,7 +526,9 @@ against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
+ `SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
+ and the 15 s expiry withdraws it, a registered Listener keeps it declared past
+ the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
+-range's destination declared only after the hold-off. A named test refuses each
++range's destination declared only after the hold-off, two of the longest
++LeaveAll periods after the Leave and not the two LeaveAllTime periods it was
++before #951. A named test refuses each
+ allocation of a link restart's re-creation in turn, a source's join among
+ them, so a creation that fails part way and still shows a declaration fails
+ it too.
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 8b53b5e7c7..f7c214ab43 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -326,7 +326,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+ - `valid-destinations` (#895) makes the fixture's ACMP source port report each source's destination as the target platform's does: valid once MAAP holds its interface's range, at base + n (Milan v1.2 5.5.4.1).
+   Its first group, `srp-talker` ([`talker_window.py`](talker_window.py)), sends a PROBE_TX for every source once MAAP holds the ranges: each is answered SUCCESS, its DA gate opens, and SRP declares its Talker Advertise at once, the row `srp.talker_declare.s<n>` on the source's interface, from the command's commit to SRP's next frame, with a JoinTime's wait (200 ms, IEEE 802.1Q-2018 10.7.4.1), since a declaration leaves at its participant's next transmit opportunity, as the `srp` group's Domain row states. With no Listener the 15 s probe window then closes every gate, and SRP withdraws every Talker.
+   Its second group, `srp-talker-loss`, probes every source the same way, then makes each interface lose its range: a peer ANNOUNCEs it from a MAC for which `compare_MAC` is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), so MAAP restarts on a new range, its DA gate closes, and SRP withdraws that interface's Talkers, the row `srp.talker_loss` from the ANNOUNCE's commit to MAAP's new PROBE and SRP's Leave, with the same wait.
+-  The new range waits two LeaveAllTime periods, so no Advertise follows within the group.
++  The new range waits two of the longest LeaveAll periods, about 30 s (#951), so no Advertise follows within the group.
+   Its third group, `srp-talker-held`, probes every source the same way, then sends a bridge's Listener Ready for each source's stream (the row `srp.listener_ready.s<n>`), so SRP licenses every source and each build carries every Talker declaration beside a registered Listener, the build THE SHAPES state THE TRANSMIT's costs at (#894's ruling of 2026-11-16 on its round-8 stop, item 3). It then holds a save under every receive channel at its refill rate (`save_window.loaded`), long enough that a LeaveAll timer runs out under the load at 8x8/1if (`mrpdu_grade.py`'s `leaveall` row).
+   Those declaration and withdrawal passes are given whole to THE TRANSMIT, so `whole_grade.py` holds them to its stated build cost and `share.py` to the share; arm A's fixture reports no destination, so no arm A group declares a Talker.
+ - `talker-notices` (#936) is `valid-destinations` with the face block's stream observation answering zeroed values at every attempt, as `answering-ports`' does, so a STREAM_OUTPUT's GET_STREAM_INFO notice is built at its first attempt.

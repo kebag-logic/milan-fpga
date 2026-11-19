@@ -1,0 +1,6 @@
+# ctrl_srp_image.py at 1x1/1if on a scratch copy of 4224df63 with held_cs planted uint8_t: refused at compile time
+REFUSED: <scratch>/clones/narrow/sw/firmware/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+<scratch>/clones/narrow/sw/firmware/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3023’ to ‘207’ [-Werror=overflow]
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+cc1: all warnings being treated as errors

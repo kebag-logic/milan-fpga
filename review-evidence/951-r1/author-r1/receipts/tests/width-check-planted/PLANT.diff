@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index d3750aa278..3f9ff4d7f0 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -164,7 +164,7 @@ struct srp_mbx {
+     bool retry_spent;
+     // The centiseconds each source's withdrawal still holds a changed
+     // destination back (#895, declare_sources).
+-    uint16_t held_cs[CTRL_SRP_SOURCES];
++    uint8_t held_cs[CTRL_SRP_SOURCES];
+     // The StreamIDs held, the first held_count of held (#925, srp_held).
+     uint8_t held_count;
+     // The two frame buffers last, so every other field sits within a load's

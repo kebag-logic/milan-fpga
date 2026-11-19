@@ -1,0 +1,18 @@
+# relink_cmp.py: the head image (labelled base) against the control image (labelled head) at 8x8/1if, valid-destinations: the control is the base value 2027 with a nop after its store
+base: relinked with -Wl,-q, loadable bytes EQUAL to the built image (237eb75ec5ffb6f7)
+head: relinked with -Wl,-q, loadable bytes EQUAL to the built image (196b81a9d410753a)
+canonical listings: 35036 base lines, 35036 head lines, 4 differ
+--- base
++++ head
+@@ -9539,9 +9539,9 @@
+ 	xori	a2,s5,-1
+ 	and	a3,a3,a2
+ 	sw	a3,644(s6)
+-	lui	a3,0x1
+-	addi	a3,a3,-1069
++	addi	a3,zero,2027
+ 	sh	a3,0(s11)
++	addi	zero,zero,0
+ <.L102>:
+ 	bne s7,zero  R_RISCV_BRANCH .L104+0x0
+ 	lw	a1,8(s6)
