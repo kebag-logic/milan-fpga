@@ -871,10 +871,13 @@ struct AppOutputs : App {
 TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration)
 {
     settle(200);
+    //! every other output, each read while it declares, shows no Listener: n's is not its own
     auto quiet=[&](unsigned n,const char *step){
         for(unsigned m=0;m<OUTPUTS;++m){
             if(m==n)continue;
+            declaring[m]=true;
             const Info o=info(m);
+            declaring[m]=false;
             EXPECT_EQ(o.flags_ex,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
             EXPECT_EQ(o.flags&0x40u,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
         }
@@ -923,12 +926,13 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
     allocated=true;
     aecp_stream_info v{};
     srp_mbx *srp=application.srp;application.srp=nullptr;
-    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,0,&v));
+    const bool answered=bridge.ports.stream(&bridge,0,6,0,&v);
     application.srp=srp;
+    ASSERT_TRUE(answered)<<"without SRP, an output is still answered";
     EXPECT_EQ(v.dest_mac,BASE)<<"without SRP, an output's address is still its Talker's";
     EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"without SRP, no Listener is registered";
     declaring[CTRL_SRP_SOURCES]=true;
-    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v));
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v))<<"a source past SRP's shape is answered";
     EXPECT_EQ(v.dest_mac,BASE+CTRL_SRP_SOURCES)<<"a source past SRP's shape has its Talker's address";
     EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"a source past SRP's shape registers no Listener";
     EXPECT_FALSE(bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v))
