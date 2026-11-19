@@ -1,0 +1,14 @@
+# the CPU budget harness's own self-tests at the final harness (211c1ede, tb/verilator/ctrl_service_budget): run.py --self-test, record_classes.py --selftest, flip_grade.py --selftest; each log's sha256 and size, then its last lines (run.py's log is over 200 KB)
+## run: 3021f72aa4a895aacf140815dde7427cb2a624c2f41b11e6499a5e0a79fc3636 966209 bytes, 5872 lines
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)
+self-test: 0 failures
+rc=0
+## record_classes: c5301106f5fe1ca7440589a1fd46b0f0f89a38420900cacdf83df0efe55735b0 109 bytes, 2 lines
+record classes: 20 of 20 planted controls refused; the answering-ports arm's path port is arm_path.py's
+rc=0
+## flip_grade: ba3b3329f2059aeb8238f9ff1ea76827692a9c1db7818dcd14a04c38f3b0dded 53 bytes, 2 lines
+flip check: 616 of 616 planted controls refused
+rc=0

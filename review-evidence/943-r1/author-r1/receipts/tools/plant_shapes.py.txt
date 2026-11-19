@@ -1,0 +1,33 @@
+"""Plant each aecp_output_mutants row and run the AppOutputs test at one shape and interface count; report the
+named words' verdict (aecp_mutants.caught) and every distinct failure the run made."""
+import sys, re, shutil
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import aecp_mutants as am, aecp_arms, fw_gtest
+import aecp_output_mutants as om
+from ctrl_build import CTRL, ROOT, STACK, Tree, Refusal
+out, config, interfaces = Path(sys.argv[2]), ROOT / sys.argv[3], int(sys.argv[4])
+out.mkdir(parents=True, exist_ok=True)
+src = out / "work/ctrl"
+shutil.copytree(CTRL, src, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+shutil.copytree(CTRL.parent / "ctrl_nvm", src.parent / "ctrl_nvm", dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns("test", "__pycache__", "*.pyc"))
+tree = Tree(src, out / "work/build", out / "work/reuse", fw_gtest.Build(jobs=8), STACK)
+bad = 0
+for d in (am.defect(*r) for r in om.ROWS):
+    target = src / d.path
+    original = target.read_text()
+    assert original.count(d.old) == 1, d.name
+    target.write_text(original.replace(d.old, d.new))
+    try:
+        r = aecp_arms.core_arm(tree, config, interfaces, "app", om.TEST)
+    finally:
+        target.write_text(original)
+    ok = all(am.caught(t, w, r) for t, w in d.checks)
+    words = sorted({re.sub(r"(: output [0-9]+.*|: [0-9]+)$", "", m) for m in
+                    re.findall(r"\[FAIL\] " + re.escape(om.TEST) + r": ([^\n]*)", r.log)})
+    bad += not ok
+    print(f"[{'ok' if ok else 'ESCAPED'}] {d.name} rc={r.rc} named={[w for _, w in d.checks]}")
+    for w in words:
+        print(f"      fails: {w}")
+print(f"{config.stem} if{interfaces}: {len(om.ROWS) - bad} of {len(om.ROWS)} caught by their named words")

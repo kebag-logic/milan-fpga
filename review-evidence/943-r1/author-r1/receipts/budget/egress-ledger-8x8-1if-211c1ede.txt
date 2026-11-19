@@ -1,0 +1,12 @@
+# egress_ledger.py --point 8x8-1if over arm A's merged results at 211c1ede
+# 8x8-1if: the rows the egress decides against their ledger; 963 instance(s) read (963 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.13222 | 63.86 | -0.72778 | yes |
+| `backlog.owed_behind0.if0` | 63.34977 | 64.1 | -0.75023 | yes |
+| `backlog.owed_behind1.if0` | 63.56660 | 64.36 | -0.79340 | yes |
+| `backlog.owed_behind2.if0` | 63.78403 | 64.61 | -0.82597 | yes |
+| `backlog.owed_behind3.if0` | 63.99968 | 64.86 | -0.86032 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.10562 | 62.62 | -0.51438 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.78408 | 62.16 | -0.37592 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss

@@ -1,0 +1,11 @@
+"""record_calls.py <group.log> <cycles>: the functions called inside the AECP record span of that many CPU cycles, in
+order (CALL lines: sys, cpu, function)."""
+import sys
+log, want = sys.argv[1], int(sys.argv[2])
+lines = open(log, errors="replace").read().splitlines()
+rec = next(l.split() for l in lines if l.startswith("SPAN") and l.split()[5] == "aecp_mbx:frame" and int(l.split()[3]) == want)
+start, end = int(rec[2]), int(rec[2]) + int(rec[3])
+for l in lines:
+    f = l.split()
+    if len(f) >= 4 and f[0] == "CALL" and start <= int(f[2]) <= end:
+        print(int(f[2]) - start, f[3])

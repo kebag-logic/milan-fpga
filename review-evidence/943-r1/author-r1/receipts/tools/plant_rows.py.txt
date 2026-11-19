@@ -1,0 +1,14 @@
+"""Plant only the named AECP rows (aecp_output_mutants) through aecp_mutants' own planting and grading."""
+import sys, json
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import aecp_mutants as am
+import aecp_output_mutants as om
+out = Path(sys.argv[2])
+rows = tuple(am.defect(*r) for r in om.ROWS)
+am.DEFECTS = rows
+am.controls = lambda: None   # the full table's drift control runs in the gate itself
+escaped = am.campaign(out, jobs=8)
+res = json.loads((out / "results.json").read_text())
+print(f"caught {sum(r['caught'] for r in res)} of {len(res)}")
+sys.exit(1 if escaped else 0)

@@ -1,0 +1,21 @@
+# the rest of rtl-fast's firmware jobs on a clean clone of 211c1ede (the final code): firmware-unit's tally and RV32 self-tests, the coverage self-test and the saved-state store's suites; each command's last lines
+## HEAD 211c1ede start 14:44:34: python3 sw/firmware/gtest/tally_selftest.py
+[ok] no test selected: exit 0, tally 0/0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+tally self-test: 18 of 18 planted cases read as planted
+rc=0 end 14:44:38
+## HEAD 211c1ede start 14:53:52: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects restored stack-protector dependency
+RV32 build self-test: 25 checks PASS
+rc=0 end 14:53:59
+## HEAD 211c1ede start 14:44:38: python3 sw/firmware/gtest/fw_coverage.py --selftest
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+coverage self-test: 29 of 29 planted cases read as planted
+rc=0 end 14:44:38
+## HEAD 211c1ede start 14:53:59: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+  rv32 at 100000000 Hz: text=13936 data=24 bss=15010 stage=13594 payload=576 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): OK across 5 shape(s), 566 tests
+rc=0 end 14:56:19

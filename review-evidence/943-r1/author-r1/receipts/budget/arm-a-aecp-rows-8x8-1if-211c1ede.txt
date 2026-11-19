@@ -1,0 +1,35 @@
+# arm A at 8x8-1if, head 211c1ede: every path row whose worst instance is an AECP group's (aecp, aecp-fanout, aecp-largest-notice, aecp-reboot, aecp-held, notice-*), ms (the bound its pass gives) and verdict, from the merged run's table.md
+MVU GET_MILAN_INFO                                                     if0 aecp                      0.184 (0.537) fits
+READ_DESCRIPTOR (102 B)                                                if0 aecp                      0.246 (0.602) fits
+READ_DESCRIPTOR (106 B)                                                if0 aecp                      0.216 (0.573) fits
+READ_DESCRIPTOR (113 B)                                                if0 aecp                      0.252 (0.609) fits
+READ_DESCRIPTOR (146 B)                                                if0 aecp                      0.217 (0.574) fits
+READ_DESCRIPTOR (146 B)                                                if0 aecp                      0.249 (0.608) fits
+READ_DESCRIPTOR (148 B)                                                if0 aecp                      0.246 (0.602) fits
+READ_DESCRIPTOR (20 B)                                                 if0 aecp                      0.207 (0.563) fits
+READ_DESCRIPTOR (20 B)                                                 if0 aecp                      0.242 (0.599) fits
+READ_DESCRIPTOR (312 B)                                                if0 aecp                      0.282 (0.642) fits
+READ_DESCRIPTOR (452 B)                                                if0 aecp                      0.296 (0.657) fits
+READ_DESCRIPTOR (72 B)                                                 if0 aecp                      0.246 (0.603) fits
+READ_DESCRIPTOR (86 B)                                                 if0 aecp                      0.207 (0.561) fits
+READ_DESCRIPTOR (90 B)                                                 if0 aecp                      0.208 (0.563) fits
+READ_DESCRIPTOR (96 B)                                                 if0 aecp                      0.236 (0.469) fits
+READ_DESCRIPTOR held for a token (#917)                                if0 aecp-held                 5.235 (5.595) fits
+entity_available                                                       if0 aecp                      0.224 (0.574) fits
+get_as_path, refused ENTITY_MISBEHAVING                                if0 aecp                      0.121 (0.469) fits
+get_avb_info, refused ENTITY_MISBEHAVING                               if0 aecp                      0.220 (0.578) fits
+get_configuration                                                      if0 aecp                      0.192 (0.556) fits
+get_counters, refused ENTITY_MISBEHAVING                               if0 aecp                      0.264 (0.625) fits
+get_name                                                               if0 aecp                      0.214 (0.570) fits
+lock_entity                                                            if0 aecp                      0.241 (0.684) fits
+lock_entity                                                            if0 aecp-fanout               0.510 (0.826) fits
+register_unsolicited                                                   if0 aecp                      0.181 (0.538) fits
+set_clock_source                                                       if0 aecp-fanout               0.497 (0.890) fits
+set_control_identify_on                                                if0 aecp-fanout               0.519 (0.830) fits
+set_name                                                               if0 aecp                      0.318 (0.780) fits
+set_name                                                               if0 aecp-fanout               0.559 (0.922) fits
+set_sampling_rate                                                      if0 aecp-fanout               0.479 (0.815) fits
+unknown_command, refused NOT_IMPLEMENTED                               if0 aecp                      0.234 (0.592) fits
+unlock_entity                                                          if0 aecp                      0.250 (0.650) fits
+unlock_entity                                                          if0 aecp-fanout               0.466 (0.788) fits
+rows 33; not 'fits': 0

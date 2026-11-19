@@ -1,0 +1,24 @@
+# CPU budget harness, --variant talker-notices, 1x1/1if, head 211c1ede: a declared and a withdrawn Talker's STREAM_OUTPUT GET_STREAM_INFO notice, event to the last of 16 recipients, bound 20 ms
+HEAD 5d431cc3 DIRTY 0 point 1x1 jobs 8 args --variant talker-notices start 14:28:32
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 3576 passes carry the store's step; the longest 93,923 CPU cycles (0.939 ms), talker-notice-0; the longest step 78,095 (0.781 ms), talker-notice-0
+SLICES 189569 tier-2 slices; the longest SRP's records 68,256, THE TRANSMIT's build 40,405, THE RETRY's round 23,086 CPU cycles, against the stated slice 90,000 (THE TIERS)
+NOTICE talker-notice-0.declared.if0: committed 4.996 ms after its event's commit at sys 300000965, the last of 16 recipients at sys 300500560 (bound 20 ms) within
+NOTICE talker-notice-0.withdrawn.if0: committed 5.222 ms after its event's commit at sys 360000955, the last of 16 recipients at sys 360523200 (bound 20 ms) within
+NOTICE talker-notice-1.declared.if0: committed 6.125 ms after its event's commit at sys 300100141, the last of 16 recipients at sys 300712681 (bound 20 ms) within
+NOTICE talker-notice-1.withdrawn.if0: committed 4.281 ms after its event's commit at sys 360100131, the last of 16 recipients at sys 360528252 (bound 20 ms) within
+NOTICE talker-notice-2.declared.if0: committed 5.125 ms after its event's commit at sys 300200141, the last of 16 recipients at sys 300712681 (bound 20 ms) within
+NOTICE talker-notice-2.withdrawn.if0: committed 4.722 ms after its event's commit at sys 360200131, the last of 16 recipients at sys 360672331 (bound 20 ms) within
+NOTICE talker-notice-3.declared.if0: committed 4.209 ms after its event's commit at sys 300300141, the last of 16 recipients at sys 300721013 (bound 20 ms) within
+NOTICE talker-notice-3.withdrawn.if0: committed 3.758 ms after its event's commit at sys 360300131, the last of 16 recipients at sys 360675914 (bound 20 ms) within
+NOTICE talker-notice-4.declared.if0: committed 3.413 ms after its event's commit at sys 300400141, the last of 16 recipients at sys 300741394 (bound 20 ms) within
+NOTICE talker-notice-4.withdrawn.if0: committed 3.754 ms after its event's commit at sys 360400131, the last of 16 recipients at sys 360775539 (bound 20 ms) within
+NOTICE talker-notice-5.declared.if0: committed 2.711 ms after its event's commit at sys 300500141, the last of 16 recipients at sys 300771230 (bound 20 ms) within
+NOTICE talker-notice-5.withdrawn.if0: committed 2.912 ms after its event's commit at sys 360500131, the last of 16 recipients at sys 360791345 (bound 20 ms) within
+NOTICE talker-notice-6.declared.if0: committed 1.802 ms after its event's commit at sys 300600141, the last of 16 recipients at sys 300780337 (bound 20 ms) within
+NOTICE talker-notice-6.withdrawn.if0: committed 2.174 ms after its event's commit at sys 360600131, the last of 16 recipients at sys 360817573 (bound 20 ms) within
+NOTICE talker-notice-7.declared.if0: committed 1.473 ms after its event's commit at sys 300700141, the last of 16 recipients at sys 300847478 (bound 20 ms) within
+NOTICE talker-notice-7.withdrawn.if0: committed 1.499 ms after its event's commit at sys 360700131, the last of 16 recipients at sys 360850078 (bound 20 ms) within
+8 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 2 paths), 0 of 16364 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1569s rc=0 end 14:54:41 DIRTY-after 0

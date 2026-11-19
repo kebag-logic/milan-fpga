@@ -1,0 +1,22 @@
+# the new App test on the unfixed bridge (the tree as 0839453f plus the test only), 1x1/1if: aecp_arms.py --app --interfaces 1 --filter 'AppOutputs.*'
+# failure kinds (count, words):
+     10 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address
+      1 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: an output ACMP holds no source for is not answered
+      1 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: a source past SRP's shape has its Talker's address
+      2 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED again as the Talker declares again
+      2 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+      6 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      1 [FAIL] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration: without SRP, an output's address is still its Talker's
+# tail of the run:
+[----------] 1 test from AppOutputs (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

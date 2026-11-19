@@ -1,0 +1,42 @@
+# arm A at 1x1, head 211c1ede: every path row whose worst instance is an AECP group's (aecp, aecp-fanout, aecp-largest-notice, aecp-reboot, aecp-held, notice-*), ms (the bound its pass gives) and verdict, from the merged run's table.md
+ADD_AUDIO_MAPPINGS of 63 (550 B notice)                                if0 aecp-largest-notice       3.083 (3.369) fits
+COLLISION_INDICES of 63, refused BAD_ARGUMENTS                         if0 aecp-largest-notice       2.445 (2.776) fits
+COLLISION_VALUES of 63, refused BAD_ARGUMENTS                          if0 aecp-largest-notice       3.692 (4.019) fits
+CONFLICT_LAST of 63, refused BAD_ARGUMENTS                             if0 aecp-largest-notice       3.548 (3.867) fits
+MVU GET_MILAN_INFO                                                     if0 aecp                      0.082 (0.226) fits
+READ_DESCRIPTOR (102 B)                                                if0 aecp                      0.177 (0.456) fits
+READ_DESCRIPTOR (106 B)                                                if0 aecp                      0.164 (0.450) fits
+READ_DESCRIPTOR (113 B)                                                if0 aecp                      0.185 (0.467) fits
+READ_DESCRIPTOR (146 B)                                                if0 aecp                      0.161 (0.457) fits
+READ_DESCRIPTOR (146 B)                                                if0 aecp                      0.177 (0.418) fits
+READ_DESCRIPTOR (148 B)                                                if0 aecp                      0.178 (0.461) fits
+READ_DESCRIPTOR (20 B)                                                 if0 aecp                      0.163 (0.401) fits
+READ_DESCRIPTOR (20 B)                                                 if0 aecp                      0.172 (0.453) fits
+READ_DESCRIPTOR (312 B)                                                if0 aecp                      0.218 (0.501) fits
+READ_DESCRIPTOR (452 B)                                                if0 aecp                      0.179 (0.462) fits
+READ_DESCRIPTOR (72 B)                                                 if0 aecp                      0.176 (0.457) fits
+READ_DESCRIPTOR (82 B)                                                 if0 aecp                      0.153 (0.439) fits
+READ_DESCRIPTOR (86 B)                                                 if0 aecp                      0.157 (0.441) fits
+READ_DESCRIPTOR (90 B)                                                 if0 aecp                      0.152 (0.447) fits
+READ_DESCRIPTOR held for a token (#917)                                if0 aecp-held                 5.180 (5.461) fits
+REMOVE_AUDIO_MAPPINGS of 63 (550 B notice)                             if0 aecp-largest-notice       1.399 (1.702) fits
+add_audio_mappings                                                     if0 aecp-fanout               2.561 (2.862) fits
+entity_available                                                       if0 aecp                      0.123 (0.399) fits
+get_as_path, refused ENTITY_MISBEHAVING                                if0 aecp                      0.193 (0.475) fits
+get_avb_info, refused ENTITY_MISBEHAVING                               if0 aecp                      0.168 (0.464) fits
+get_configuration                                                      if0 aecp                      0.149 (0.426) fits
+get_counters, refused ENTITY_MISBEHAVING                               if0 aecp                      0.203 (0.491) fits
+get_name                                                               if0 aecp                      0.183 (0.463) fits
+lock_entity                                                            if0 aecp                      0.232 (0.566) fits
+lock_entity                                                            if0 aecp-fanout               0.452 (0.718) fits
+register_unsolicited                                                   if0 aecp                      0.109 (0.254) fits
+remove_audio_mappings                                                  if0 aecp-fanout               0.618 (0.903) fits
+set_clock_source                                                       if0 aecp-fanout               0.484 (0.759) fits
+set_control_identify_on                                                if0 aecp-fanout               0.490 (0.743) fits
+set_name                                                               if0 aecp                      0.221 (0.602) fits
+set_name                                                               if0 aecp-fanout               0.516 (0.814) fits
+set_sampling_rate                                                      if0 aecp-fanout               3.286 (3.578) fits
+unknown_command, refused NOT_IMPLEMENTED                               if0 aecp                      0.132 (0.409) fits
+unlock_entity                                                          if0 aecp                      0.236 (0.570) fits
+unlock_entity                                                          if0 aecp-fanout               0.500 (0.756) fits
+rows 40; not 'fits': 0

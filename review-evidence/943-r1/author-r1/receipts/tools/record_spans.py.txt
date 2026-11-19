@@ -1,0 +1,20 @@
+"""record_spans.py <group.log> <cycles>: the AECP record span (aecp_mbx:frame) of that many CPU cycles, and every
+span and call inside it, summed by function (the harness's SPAN lines: end, start, cycles, pc, function)."""
+import sys, collections
+log, want = sys.argv[1], int(sys.argv[2])
+spans = []
+for line in open(log, errors="replace"):
+    f = line.split()
+    if len(f) > 4 and f[0] == "SPAN":
+        spans.append((int(f[2]), int(f[2]) + int(f[3]), int(f[3]), f[5]))
+rec = [s for s in spans if s[3] == "aecp_mbx:frame" and s[2] == want]
+if not rec:
+    sys.exit(f"no aecp_mbx:frame span of {want} cycles")
+start, end = rec[0][0], rec[0][1]
+inner = collections.defaultdict(lambda: [0, 0])
+for s in spans:
+    if start <= s[0] and s[1] <= end and s is not rec[0]:
+        inner[s[3]][0] += s[2]; inner[s[3]][1] += 1
+print(f"record {want} cycles, cpu {start}..{end}")
+for fn, (cyc, n) in sorted(inner.items(), key=lambda kv: -kv[1][0])[:40]:
+    print(f"{cyc:8d} {n:4d}  {fn}")

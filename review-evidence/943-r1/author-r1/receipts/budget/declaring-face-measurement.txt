@@ -1,0 +1,25 @@
+# measurement only, never committed: the answering-ports arm with its face stub reporting every STREAM_OUTPUT declaring (STREAM_DEST_MAC_VALID; declaring-face.patch.txt, applied to build.py's fixture edit on a scratch clone of 211c1ede), groups aecp, aecp-fanout, aecp-largest-notice. It is another image: the stub's own code moves the code after it.
+# The completion runs where a whole read of a declaring output is made: SET_STREAM_INFO (0x000e) of STREAM_OUTPUT 0 in aecp-fanout, held 'other'. The paced edit and the largest legal command's record take brief checks, which never run it; their figures here are that image's placement (see aecp-record-classes-by-image.txt for the same work across images).
+## wip-decl-1x1
+HEAD 5d431cc3 DIRTY 1 point 1x1 jobs 8 args --variant answering-ports --groups aecp,aecp-fanout,aecp-largest-notice start 14:28:31
+3 groups graded, 0 refusals, 0 budget misses (0 of 45 probe instances, 0 of 44 paths), 0 of 343 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=220s rc=0 end 14:32:11 DIRTY-after 1
+1x1/1if held long: the dearest 91,766 CPU cycles, 965 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 19,788 CPU cycles, 210 us by the rule, stated 245 us (answering-ports aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 22,739 CPU cycles, 240 us by the rule, stated 245 us (answering-ports aecp-fanout: command 0x000e)
+1x1/1if held paced: the dearest 30,719 CPU cycles, 325 us by the rule, stated 310 us (answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+REFUSED 1x1/1if answering-ports aecp-fanout: a record of 30,719 CPU cycles, 325 us by the rule, over the paced record's 310 us (REMOVE_AUDIO_MAPPINGS, paced)
+REFUSED 1x1/1if answering-ports aecp-fanout: a record of 29,780 CPU cycles, 315 us by the rule, over the paced record's 310 us (ADD_AUDIO_MAPPINGS, paced)
+REFUSED 1x1/1if answering-ports aecp-fanout: a record of 29,590 CPU cycles, 315 us by the rule, over the paced record's 310 us (SET_CONFIGURATION, paced)
+## wip-decl-8x8
+HEAD 5d431cc3 DIRTY 1 point 8x8-1if jobs 8 args --variant answering-ports --groups aecp,aecp-fanout,aecp-largest-notice start 14:28:32
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 240,964 (2.410 ms)
+3 groups graded, 0 refusals, 0 budget misses (0 of 43 probe instances, 0 of 42 paths), 2 of 338 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+elapsed=222s rc=0 end 14:32:14 DIRTY-after 1
+8x8/1if held long: the dearest 182,622 CPU cycles, 1920 us by the rule, stated 1720 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if reported other: the dearest 18,321 CPU cycles, 195 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x0010)
+8x8/1if held other: the dearest 19,707 CPU cycles, 210 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/1if held paced: the dearest 60,075 CPU cycles, 635 us by the rule, stated 685 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 182,622 CPU cycles, 1920 us by the rule, over the long record's 1720 us (the largest legal command's)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 178,132 CPU cycles, 1875 us by the rule, over the long record's 1720 us (the largest legal command's)
+REFUSED 8x8/1if answering-ports aecp-largest-notice: a record of 167,656 CPU cycles, 1765 us by the rule, over the long record's 1720 us (the largest legal command's)

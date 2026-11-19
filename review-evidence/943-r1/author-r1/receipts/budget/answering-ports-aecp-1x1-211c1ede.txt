@@ -1,0 +1,56 @@
+# CPU budget harness, --variant answering-ports --groups aecp,aecp-fanout,aecp-largest-notice,aecp-reboot, 1x1, head 211c1ede, against the train's recorded confirmation run of the same arm
+# head rows 44 (every one's verdict below), train rows 18; ms (bound), the bound the instance's pass gives
+path                                                       if | train ms (bound)  | head ms (bound)   | head verdict | change
+ADD_AUDIO_MAPPINGS of 63 (550 B notice)                    0  | 3.286 (3.575)     | 2.812 (3.104) | fits         | -0.474
+BIND_RX -> GET_STREAM_INFO notice                          0  | 0.850 (1.044)     | 0.851 (1.046) | fits         | +0.001
+COLLISION_INDICES of 63, refused BAD_ARGUMENTS             0  | 2.435 (2.763)     | 2.481 (2.818) | fits         | +0.046
+COLLISION_VALUES of 63, refused BAD_ARGUMENTS              0  | 3.683 (4.006)     | 3.597 (3.930) | fits         | -0.086
+CONFLICT_LAST of 63, refused BAD_ARGUMENTS                 0  | 3.452 (3.767)     | 3.596 (3.920) | fits         | +0.144
+MVU GET_MILAN_INFO                                         0  | -                 | 0.091 (0.229) | fits         | 
+READ_DESCRIPTOR (102 B)                                    0  | -                 | 0.192 (0.476) | fits         | 
+READ_DESCRIPTOR (106 B)                                    0  | -                 | 0.186 (0.476) | fits         | 
+READ_DESCRIPTOR (113 B)                                    0  | -                 | 0.203 (0.490) | fits         | 
+READ_DESCRIPTOR (146 B)                                    0  | -                 | 0.181 (0.483) | fits         | 
+READ_DESCRIPTOR (148 B)                                    0  | -                 | 0.195 (0.482) | fits         | 
+READ_DESCRIPTOR (20 B)                                     0  | -                 | 0.189 (0.474) | fits         | 
+READ_DESCRIPTOR (312 B)                                    0  | -                 | 0.233 (0.521) | fits         | 
+READ_DESCRIPTOR (452 B)                                    0  | -                 | 0.199 (0.486) | fits         | 
+READ_DESCRIPTOR (72 B)                                     0  | -                 | 0.192 (0.478) | fits         | 
+READ_DESCRIPTOR (82 B)                                     0  | -                 | 0.177 (0.466) | fits         | 
+READ_DESCRIPTOR (86 B)                                     0  | -                 | 0.177 (0.465) | fits         | 
+READ_DESCRIPTOR (90 B)                                     0  | -                 | 0.170 (0.457) | fits         | 
+REBOOT                                                     0  | -                 | 0.454 (0.683) | fits         | 
+REBOOT, refused BAD_ARGUMENTS                              0  | -                 | 0.167 (0.488) | fits         | 
+REBOOT, refused ENTITY_LOCKED                              0  | -                 | 0.212 (0.537) | fits         | 
+REBOOT, refused NOT_SUPPORTED                              0  | -                 | 0.183 (0.506) | fits         | 
+REBOOT, refused NO_SUCH_DESCRIPTOR                         0  | -                 | 0.183 (0.505) | fits         | 
+REMOVE_AUDIO_MAPPINGS of 63 (550 B notice)                 0  | 1.294 (1.594)     | 1.377 (1.679) | fits         | +0.083
+add_audio_mappings                                         0  | 3.147 (3.454)     | 3.489 (3.794) | fits         | +0.342
+add_audio_mappings_output                                  0  | 3.414 (3.721)     | 3.312 (3.616) | fits         | -0.102
+entity_available                                           0  | -                 | 0.145 (0.426) | fits         | 
+get_as_path                                                0  | -                 | 0.257 (0.543) | fits         | 
+get_avb_info                                               0  | -                 | 0.180 (0.464) | fits         | 
+get_configuration                                          0  | -                 | 0.168 (0.449) | fits         | 
+get_counters                                               0  | -                 | 0.219 (0.508) | fits         | 
+get_name                                                   0  | -                 | 0.197 (0.483) | fits         | 
+lock_entity                                                0  | 0.469 (0.625)     | 0.468 (0.725) | fits         | -0.001
+register_unsolicited                                       0  | -                 | 0.132 (0.416) | fits         | 
+remove_audio_mappings                                      0  | 0.601 (0.887)     | 0.594 (0.882) | fits         | -0.007
+remove_audio_mappings_output                               0  | 3.409 (3.723)     | 3.474 (3.783) | fits         | +0.065
+set_clock_source                                           0  | 0.497 (0.771)     | 0.465 (0.741) | fits         | -0.032
+set_configuration                                          0  | 0.619 (0.890)     | 0.574 (0.874) | fits         | -0.045
+set_control_identify_on                                    0  | 0.477 (0.731)     | 0.467 (0.722) | fits         | -0.010
+set_name                                                   0  | 0.500 (0.795)     | 0.493 (0.786) | fits         | -0.007
+set_sampling_rate                                          0  | 3.250 (3.558)     | 3.326 (3.618) | fits         | +0.076
+set_stream_info                                            0  | 3.188 (3.467)     | 3.250 (3.533) | fits         | +0.062
+unknown_command, refused NOT_IMPLEMENTED                   0  | -                 | 0.153 (0.436) | fits         | 
+unlock_entity                                              0  | 0.454 (0.734)     | 0.436 (0.706) | fits         | -0.018
+misses in the head's rows: 0
+## the run's last lines
+HEAD 211c1ede DIRTY 0 point 1x1 jobs 8 args --variant answering-ports --groups aecp,aecp-fanout,aecp-largest-notice,aecp-reboot start 14:23:45
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 320 passes carry the store's step; the longest 22,003 CPU cycles (0.220 ms), aecp-fanout; the longest step 2,840 (0.028 ms), aecp-fanout
+SLICES 23321 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 29,962, THE RETRY's round 23,622 CPU cycles, against the stated slice 90,000 (THE TIERS)
+4 groups graded, 0 refusals, 0 budget misses (0 of 50 probe instances, 0 of 49 paths), 0 of 453 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=223s rc=0 end 14:27:28 DIRTY-after 0

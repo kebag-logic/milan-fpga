@@ -1,0 +1,18 @@
+"""rows_vs.py <train table.md> <head table.md>: each path row of the head's table (worst instance, ms and its bound,
+verdict) beside the train's recorded row of the same path and interface, and the change."""
+import re, sys
+def rows(path):
+    out = {}
+    for line in open(path):
+        m = re.match(r"\| (.+?) \| (\d+) \| `([^`]+)` \(([^)]+)\) \| ([\d.]+) \(([\d.]+)\) \| (\w[\w ]*?) \|", line)
+        if m:
+            out[(m[1], m[2])] = (float(m[5]), float(m[6]), m[7])
+    return out
+t, h = rows(sys.argv[1]), rows(sys.argv[2])
+print(f"# head rows {len(h)} (every one's verdict below), train rows {len(t)}; ms (bound), the bound the instance's pass gives")
+print(f"{'path':58} if | train ms (bound)  | head ms (bound)   | head verdict | change")
+for k in sorted(h):
+    hv, tv = h[k], t.get(k)
+    ts = f"{tv[0]:.3f} ({tv[1]:.3f})" if tv else "-"
+    print(f"{k[0][:58]:58} {k[1]}  | {ts:17} | {hv[0]:.3f} ({hv[1]:.3f}) | {hv[2]:12} | {f'{hv[0]-tv[0]:+.3f}' if tv else ''}")
+print("misses in the head's rows:", sum(1 for v in h.values() if v[2] != 'fits'))

@@ -1,0 +1,30 @@
+"""merge_arm.py <main>: every group of the main run's list, its script and log copied into <main>/results-merged from the
+main run where its log is complete, else from the first part (pB to pE) whose log is; refuses a missing group and a
+script that differs between the runs."""
+import os, shutil, sys
+from pathlib import Path
+S = "<scratch>/budget"
+main = sys.argv[1]
+names = open(f"{S}/{main}.groups").read().split()
+out = f"{S}/{main}/results-merged"
+shutil.rmtree(out, ignore_errors=True); os.makedirs(out)
+src = {}
+for g in names:
+    for d in (main, *(f"{main}-{p}" for p in ("pB", "pC", "pD", "pE"))):
+        log, txt = f"{S}/{d}/results/{g}.log", f"{S}/{d}/results/{g}.txt"
+        if os.path.isfile(log) and "RESULT" in open(log, errors="replace").read()[-4000:]:
+            src[g] = d
+            shutil.copy(txt, out); shutil.copy(log, out)
+            for extra in Path(f"{S}/{d}/results").glob(f"{g}.*"):
+                if extra.suffix not in (".txt", ".log"):
+                    shutil.copy(extra, out)
+            break
+    else:
+        sys.exit(f"REFUSED: {g} finished nowhere")
+for g, d in src.items():
+    for p in (main, *(f"{main}-{x}" for x in ("pB", "pC", "pD", "pE"))):
+        t = f"{S}/{p}/results/{g}.txt"
+        if os.path.isfile(t) and open(t).read() != open(f"{out}/{g}.txt").read():
+            sys.exit(f"REFUSED: {g}'s script differs in {p}")
+from collections import Counter
+print(f"{main}: {len(src)} groups merged; from", dict(Counter(src.values())))

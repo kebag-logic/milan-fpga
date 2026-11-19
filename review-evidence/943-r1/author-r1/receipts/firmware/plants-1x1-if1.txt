@@ -1,0 +1,46 @@
+# the 14 output plants (aecp_output_mutants.py) at 1x1-if1, each planted alone and the AppOutputs test run (driver: aecp_mutants.defect and aecp_mutants.caught over aecp_arms.core_arm, mode app); the campaign's own arm is 1x1 at two interfaces
+[ok] output-dest-mac-the-faces rc=1 named=["a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address"]
+      fails: a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address
+      fails: a source past SRP's shape has its Talker's address
+      fails: without SRP, an output's address is still its Talker's
+[ok] output-listener-unread rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)', 'REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+[ok] output-dest-mac-undeclared rc=1 named=["an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers"]
+      fails: an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers
+[ok] output-dest-mac-unallocated rc=1 named=['no address MAAP does not hold']
+      fails: no address MAAP does not hold
+[ok] output-registering-ready-only rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+[ok] output-registering-failed-any-listener rc=1 named=['REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)']
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+[ok] output-registering-failed-without-a-listener rc=1 named=["the face's flags, and no REGISTERING_FAILED with no Listener"]
+      fails: a source past SRP's shape registers no Listener
+      fails: both clear once the Listener leaves
+      fails: no other output shows its Listener
+      fails: the face's flags, and no REGISTERING_FAILED with no Listener
+      fails: without SRP, no Listener is registered
+[ok] output-registering-without-a-listener rc=1 named=['no REGISTERING with no Listener', 'both clear once the Listener leaves']
+      fails: a source past SRP's shape registers no Listener
+      fails: both clear once the Listener leaves
+      fails: no REGISTERING with no Listener
+      fails: no other output shows its Listener
+      fails: without SRP, no Listener is registered
+[ok] output-registering-undeclared rc=1 named=['both clear once the Talker withdraws']
+      fails: both clear once the Talker withdraws
+[ESCAPED] output-listener-on-the-descriptors-interface rc=0 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)']
+[ok] output-listener-of-output-zero rc=1 named=['REGISTERING while declaring and registering a matching Listener (Table 5.8)']
+      fails: REGISTERING while declaring and registering a matching Listener (Table 5.8)
+      fails: REGISTERING_FAILED again as the Talker declares again
+      fails: REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)
+      fails: no other output shows its Listener
+[ok] output-answered-past-acmps-sources rc=1 named=['an output ACMP holds no source for is not answered']
+      fails: an output ACMP holds no source for is not answered
+[ok] output-unanswered-without-srp rc=1 named=['without SRP, an output is still answered']
+      fails: without SRP, an output is still answered
+[ok] output-unanswered-past-srps-shape rc=1 named=["a source past SRP's shape is answered"]
+      fails: a source past SRP's shape is answered
+endstation_ax7101_1x1_tdm8 if1: 13 of 14 caught by their named words
