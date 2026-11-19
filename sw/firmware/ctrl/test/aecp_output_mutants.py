@@ -39,19 +39,31 @@ ROWS = (
      (TEST, 'REGISTERING while declaring and registering a matching Listener (Table 5.8)')),
     ('output-registering-failed-any-listener', APP, FAILED, '\tv->flags |= listening ? 0x40u : 0u;\n',
      (TEST, 'REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11)')),
+    # the STREAM_INPUT's failure constant copied: MSRP_FAILURE_VALID beside REGISTERING_FAILED, so a controller reads
+    # the zero failure code and bridge ID as a Talker Failed's (Table 5.11)
+    ('output-registering-failed-msrp-failure-valid', APP, FAILED,
+     '\tv->flags |= listening && !i->registered[index] ? 0x08000040u : 0u;\n',
+     (TEST, 'never MSRP_FAILURE_VALID')),
     ('output-registering-failed-without-a-listener', APP, FAILED,
      '\tv->flags |= i == NULL || !i->registered[index] ? 0x40u : 0u;\n',
      (TEST, 'the face\'s flags, and no REGISTERING_FAILED with no Listener')),
     ('output-registering-without-a-listener', APP, EX, '\tv->flags_ex = 1u;\n',
      (TEST, 'no REGISTERING with no Listener'),
      (TEST, 'both clear once the Listener leaves')),
-    # interface 0, as the descriptor's AVB interface is at every shape, for the one the output's Talker is declared on
+    # interface 0, as the descriptor's AVB interface is at every shape, for the one the output's Talker is declared on:
+    # at two interfaces output 1 reads interface 0's copy, where its stream's Listener on the other interface is
+    # registered (one interface is the output's own, the same defect's equivalent)
     ('output-listener-on-interface-zero', APP, INTERFACE, '? &c->app->srp->ifs[0] : NULL;',
-     (TEST, 'REGISTERING while declaring and registering a matching Listener (Table 5.8)')),
-    # another output's Listener: at two interfaces output 1 reads its interface's copy of output 0's, which is not
-    # registered there, so REGISTERING fails; where outputs share an interface, 'no other output shows its Listener'
+     (TEST, "another interface's Listener is not its own")),
+    # another output's Listener: output 0's, which every other output then shows
     ('output-listener-of-output-zero', APP, LISTENING, '\tbool listening = i != NULL && i->listener_present[0];\n',
-     (TEST, 'REGISTERING while declaring and registering a matching Listener (Table 5.8)')),
+     (TEST, 'no other output shows its Listener')),
+    # either interface's copy of its stream's Listener, not its own interface's: at two interfaces a Listener
+    # registered on the other one raises both flags (one interface is the output's own, the defect's equivalent)
+    ('output-listener-any-interface', APP, LISTENING,
+     '\tbool listening = i != NULL && (c->app->srp->ifs[0].listener_present[index] ||\n'
+     '\t\tc->app->srp->ifs[MBX_N_IF - 1u].listener_present[index]);\n',
+     (TEST, "another interface's Listener is not its own")),
     ('output-answered-past-acmps-sources', APP, GUARD, '\tif (index > a->n_sources) return false;\n',
      (TEST, 'an output ACMP holds no source for is not answered')),
     ('output-unanswered-without-srp', APP, GUARD,

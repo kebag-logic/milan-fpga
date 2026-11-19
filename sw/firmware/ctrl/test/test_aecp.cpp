@@ -866,8 +866,9 @@ struct AppOutputs : App {
 // #943 (Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12; IEEE 1722.1-2021 7.4.16): at every STREAM_OUTPUT, while
 // the face reports it declaring, its GET_STREAM_INFO carries its Talker's MAAP address as stream_dest_mac and follows
 // the Listener registered for its stream_id on its own interface: REGISTERING for Ready, Ready Failed and Asking
-// Failed, REGISTERING_FAILED for Asking Failed alone; both clear when the Talker withdraws and when the Listener
-// leaves, and no other output shows them.
+// Failed, REGISTERING_FAILED for Asking Failed alone, the face's flags otherwise (MSRP_FAILURE_VALID is a Talker
+// Failed's, never a Listener's); both clear when the Talker withdraws and when the Listener leaves, and neither
+// another output nor a Listener on another interface shows them.
 TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration)
 {
     settle(200);
@@ -892,15 +893,22 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
         EXPECT_EQ(declared.flags,0xf2000000u)<<"the face's flags, and no REGISTERING_FAILED with no Listener: "<<n;
         EXPECT_EQ(declared.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
         EXPECT_EQ(declared.flags_ex,0u)<<"no REGISTERING with no Listener: "<<n;
+        if(MBX_N_IF>1u){
+            // its stream's Listener, Asking Failed, on the interface its Talker is not declared on, kept registered
+            listener((interface+1u)%MBX_N_IF,sid(n),1u,1u);
+            const Info other=info(n);
+            EXPECT_EQ(other.flags_ex,0u)<<"another interface's Listener is not its own: output "<<n;
+            EXPECT_EQ(other.flags,0xf2000000u)<<"another interface's Listener is not its own: output "<<n;
+        }
         for(auto [declaration,failed]:{std::pair{2u,false},std::pair{3u,false},std::pair{1u,true}}){
             listener(interface,sid(n),1u,declaration);
             const Info r=info(n);
             EXPECT_EQ(r.flags_ex,1u)
                 <<"REGISTERING while declaring and registering a matching Listener (Table 5.8): output "<<n
                 <<", declaration "<<declaration;
-            EXPECT_EQ(r.flags&0x40u,failed?0x40u:0u)
-                <<"REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11): output "<<n<<", declaration "
-                <<declaration;
+            EXPECT_EQ(r.flags,failed?0xf2000040u:0xf2000000u)
+                <<"REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never "
+                <<"MSRP_FAILURE_VALID, a Talker Failed's: output "<<n<<", declaration "<<declaration;
             EXPECT_EQ(r.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
             quiet(n,"its Listener registered");
         }
