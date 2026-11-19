@@ -3,10 +3,10 @@
 // 5.3.7.4): a source declares nothing until MAAP holds its range and a PROBE_TX_COMMAND for it was answered in the last
 // 15 s or a matching Listener is registered; then at once, on its own interface, at MAAP's base + n; it withdraws when
 // neither holds or MAAP loses the range, a re-probe with the same destination declares it again at once, and the new
-// range's destination waits two LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8). The source's frames
-// carry the stream_id its Talker declares (#905): the MAAP adapter, the DA gate's owner, writes each source's
-// SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, at its start before the bit first opens, and again before each
-// reopening, read from the source port (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
+// range's destination waits two nominal longest LeaveAll periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+// #951). The source's frames carry the stream_id its Talker declares (#905): the MAAP adapter, the DA gate's owner,
+// writes each source's SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, at its start before the bit first opens,
+// and again before each reopening, read from the source port (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
 namespace {
 
 // The publication block's writes from the model's reset, in order (#905).
@@ -326,13 +326,18 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
     EXPECT_NE(app.maap.ifs[interface].core.base, first) << "MAAP restarts on a new range";
     EXPECT_FALSE(declared(interface)) << "a range lost withdraws the Talker";
     EXPECT_EQ(talker_decl(interface) >> source & 1u, 0u) << "a range lost withdraws the Talker";
-    // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1)
-    for (unsigned s = 0; s < 19u; ++s) {
+    // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1);
+    // its new destination waits two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE 802.1Q-2018
+    // 10.7.4.3) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30 s after the Leave, so it is still held a second before
+    constexpr unsigned kLeaveAllTimeS = 10u;
+    constexpr unsigned kTwoLongestLeaveAllS = 2u * (kLeaveAllTimeS + kLeaveAllTimeS / 2u);
+    for (unsigned s = 0; s + 1u < kTwoLongestLeaveAllS; ++s) {
         run(1000u);
         listener(1u);
     }
     EXPECT_TRUE(app.maap.ifs[interface].core.valid) << "MAAP holds the new range";
-    EXPECT_FALSE(declared(interface)) << "a changed destination waits two LeaveAllTime periods after the Leave";
+    EXPECT_FALSE(declared(interface))
+        << "a changed destination waits two of the longest LeaveAll periods after the Leave";
     for (unsigned s = 0; s < 2u; ++s) {
         run(1000u);
         listener(1u);

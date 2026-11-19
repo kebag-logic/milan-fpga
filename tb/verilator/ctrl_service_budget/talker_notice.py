@@ -20,7 +20,7 @@ then times two events, each a row on source 0's interface:
 - the withdrawal: a peer ANNOUNCEs the interface's range from a MAC for which compare_MAC is FALSE (talker_window), so
   MAAP restarts on a new range, its DA gate closes and SRP withdraws the Talker, recorded and noticed the same way. The
   row runs from the ANNOUNCE's commit to the last recipient's notice (path notice.withdrawn). The new range waits two
-  LeaveAllTime periods, so no Advertise follows within the group.
+  nominal longest LeaveAll periods, about 30 s (#951), so no Advertise follows within the group.
 Each event comes k ms into a load of RUN_MS, group talker-notice-<k>: every receive channel at its contract refill rate
 with its bursts (save_window.arrivals), the event's own channel from one refill period after the event, so its bucket
 admits the burst whole, and a grandmaster change as every pass starts (sim_main.cpp's flood), as notice_window's load.

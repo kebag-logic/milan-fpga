@@ -29,13 +29,21 @@ _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held"
 // The JoinTime every participant is configured with, in centiseconds (create_participants): the loop's, whose
 // THE TRANSMIT bound is derived from it (ctrl_loop.h, CTRL_LOOP_JOIN_CS).
 #define SRP_JOIN_CS CTRL_LOOP_JOIN_CS
+// The LeaveAllTime every participant is configured with, in centiseconds (create_participants): 10 s (IEEE 802.1Q-2018
+// Table 10-7; Milan v1.2 Table 4.3).
+#define SRP_LEAVEALL_CS 1000u
+// The nominal longest LeaveAll period, in centiseconds: IEEE 802.1Q-2018 10.7.4.3 draws each leavealltimer, a peer's
+// too, below 1.5 x LeaveAllTime; Milan v1.2 Table 4.3's tolerance, to 15.5 s, is not covered (#951).
+#define SRP_LEAVEALL_LONGEST_CS (SRP_LEAVEALL_CS + SRP_LEAVEALL_CS / 2u)
 // A withdrawn Talker's hold-off, in centiseconds, before its StreamID declares another FirstValue (#895). MSRP does not
 // support a changed FirstValue on a StreamID: at least two LeaveAllTime periods pass between the Leave and the new
-// declaration (IEEE 802.1Q-2018 35.2.2.8; Table 10-7, the 1000 cs create_participants configures). The count starts
-// at the Leave's request, which leaves at most a JoinTime and THE TRANSMIT's MRPDU by every source later (hold,
-// CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by flip_grade.py --check:
-// rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
-#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+// declaration (IEEE 802.1Q-2018 35.2.2.8). The hold-off covers two nominal longest periods, 30 s; two at Milan's
+// tolerance edge reach 31 s (#951). The count starts at the Leave's request, which leaves at most a JoinTime and
+// THE TRANSMIT's MRPDU by every source later (hold, CTRL_LOOP_TX_MS, the built design's, held at or over its tx row
+// at every shape by flip_grade.py --check: rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
+#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+// Each source's count (srp_mbx.h, held_cs) holds the whole hold-off.
+_Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
 
@@ -515,8 +523,8 @@ static bool create_participants(struct srp_interface *i)
     i->stale = true;
     i->reclaim = true;
     // These valid constants are installed before creating any attribute.
-    (void)mrp_port_configure(i->msrp,0,SRP_JOIN_CS,500,1000,(uint32_t)i->mac,true);
-    (void)mrp_port_configure(i->mvrp,0,SRP_JOIN_CS,500,1000,(uint32_t)i->mac ^ 0x91u,true);
+    (void)mrp_port_configure(i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS,(uint32_t)i->mac,true);
+    (void)mrp_port_configure(i->mvrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS,(uint32_t)i->mac ^ 0x91u,true);
     mrp_set_rx_filter(i->msrp,interested_msrp,i);
     mrp_set_rx_filter(i->mvrp,interested_mvrp,i);
     i->vlan_sent = false;

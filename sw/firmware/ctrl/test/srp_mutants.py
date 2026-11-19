@@ -84,8 +84,8 @@ DEFECTS = (
     Defect(
         name='short-leave',
         test='LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -418,8 +418,8 @@ DEFECTS = (
     Defect(
         name='latency-leave-origin',
         test='SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         suite='srp_latency.cpp',
     ),
@@ -451,8 +451,8 @@ DEFECTS = (
     Defect(
         name='walk-leave-shortened',
         test='SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         suite='srp_walk.cpp',
     ),
