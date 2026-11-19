@@ -1,0 +1,207 @@
+Archive f9f1e85d91749fbba4506b54236e63f3eeba7ca6, review-evidence/943-r1.
+Verbatim selected receipt lines; these are author execution evidence, not reviewer reruns.
+
+Source: author-r2/receipts/budget/arm-b-8x8-1if-share-round1.txt
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 222,352 (2.224 ms)
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 232,149 (2.321 ms)
+
+Source: author-r2/receipts/budget/brief-probe.txt
+brief: answered=1 input_brief=1 returned_brief=1 source_calls=0 dest=000000000000 flags=f2000000
+whole: answered=1 input_brief=0 returned_brief=0 source_calls=1 dest=91e0f0000100 flags=f2000000
+rc=0
+
+Source: author-r2/receipts/budget/declaring-outputs-1x1-console.txt
+5 groups graded, 0 refusals, 0 budget misses (0 of 57 probe instances, 0 of 54 paths), 0 of 839 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+DECLARING aecp-outputs: 6 completion(s) in 6 record(s), 1 in rounds of THE RETRY, 19 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+elapsed=1023s rc=0 end 18:50:27 DIRTY-after 0
+
+Source: author-r2/receipts/budget/declaring-outputs-8x8-1if-console.txt
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 228,374 (2.284 ms)
+5 groups graded, 0 refusals, 0 budget misses (0 of 62 probe instances, 0 of 52 paths), 2 of 845 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+DECLARING aecp-outputs: 13 completion(s) in 13 record(s), 1 in rounds of THE RETRY, 26 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+elapsed=1180s rc=0 end 19:02:23 DIRTY-after 0
+
+Source: author-r2/receipts/budget/flip-grade-1x1.txt
+RESULT: PASS
+rc=0
+
+Source: author-r2/receipts/budget/flip-grade-8x8.txt
+RESULT: PASS
+rc=0
+
+Source: author-r2/receipts/budget/harness-selftest.txt
+self-test: 0 failures
+
+Source: author-r2/receipts/budget/plant-brief-completed-1x1.txt
+DECLARING aecp-outputs: 6 completion(s) in 6 record(s), 1 in rounds of THE RETRY, 19 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+CONTROL brief-completed caught: 3 finding(s) 'a brief observation completed' (aecp-fanout: a brief observation completed: a record of command 0x002d ran 1 completion(s); aecp-fanout: a brief observation completed: a record of command 0x002c ran 1 completion(s); aecp-fanout: a brief observation completed: a record of command 0x0006 ran 2 completion(s)), 0 refusal(s)
+elapsed=964s rc=0 end 18:42:47 DIRTY-after 7
+
+Source: author-r2/receipts/budget/plant-brief-completed-8x8.txt
+DECLARING aecp-outputs: 13 completion(s) in 13 record(s), 1 in rounds of THE RETRY, 26 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+CONTROL brief-completed caught: 3 finding(s) 'a brief observation completed' (aecp-fanout: a brief observation completed: a record of command 0x002d ran 1 completion(s); aecp-fanout: a brief observation completed: a record of command 0x002c ran 1 completion(s); aecp-fanout: a brief observation completed: a record of command 0x0006 ran 9 completion(s)), 0 refusal(s)
+elapsed=1139s rc=0 end 18:45:44 DIRTY-after 7
+
+Source: author-r2/receipts/budget/plant-completion-dearer-1x1.txt
+DECLARING aecp-outputs: 6 completion(s) in 6 record(s), 1 in rounds of THE RETRY, 19 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+CONTROL completion-dearer caught: 7 finding(s) 'over the other record' (1x1/1if declaring-outputs aecp-fanout: a record of 49,658 CPU cycles, 525 us by the rule, over the other record's 245 us (command 0x000e); 1x1/1if declaring-outputs aecp-outputs: a record of 42,346 CPU cycles, 445 us by the rule, over the other record's 245 us (command 0x000f); 1x1/1if declaring-outputs aecp-outputs: a record of 39,847 CPU cycles, 420 us by the rule, over the other record's 245 us (command 0x000f)), 0 refusal(s)
+elapsed=958s rc=0 end 18:42:42 DIRTY-after 7
+
+Source: author-r2/receipts/budget/plant-completion-dearer-8x8.txt
+DECLARING aecp-outputs: 13 completion(s) in 13 record(s), 1 in rounds of THE RETRY, 26 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+CONTROL completion-dearer caught: 14 finding(s) 'over the other record' (8x8/1if declaring-outputs aecp-fanout: a record of 46,660 CPU cycles, 490 us by the rule, over the other record's 265 us (command 0x000e); 8x8/1if declaring-outputs aecp-outputs: a record of 40,547 CPU cycles, 430 us by the rule, over the other record's 265 us (command 0x000f); 8x8/1if declaring-outputs aecp-outputs: a record of 39,785 CPU cycles, 420 us by the rule, over the other record's 265 us (command 0x000f)), 0 refusal(s)
+elapsed=1164s rc=0 end 18:46:10 DIRTY-after 7
+
+Source: author-r2/receipts/budget/plant-completion-unexecuted-1x1.txt
+DECLARING aecp-outputs: 0 completion(s) in 0 record(s), 0 in rounds of THE RETRY, 19 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 11) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 3) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: no record of a GET_STREAM_INFO answered SUCCESS ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO answered SUCCESS ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO refused ENTITY_LOCKED ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO refused NOT_SUPPORTED ran the completion
+DECLARING aecp-outputs: no round of THE RETRY ran the completion (the declared Talker's notice)
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: flags_ex 00000000, flags f2000000: REGISTERING expected, REGISTERING_FAILED never
+DECLARING aecp-outputs: output 1's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: flags_ex 00000000, flags f2000000: REGISTERING expected, REGISTERING_FAILED never
+CONTROL completion-unexecuted caught: 7 finding(s) ' ran 0 completion(s), not one' (aecp-fanout: a SET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one; aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one; aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one), 0 refusal(s)
+elapsed=942s rc=0 end 18:42:25 DIRTY-after 7
+
+Source: author-r2/receipts/budget/plant-completion-unexecuted-8x8.txt
+DECLARING aecp-outputs: 0 completion(s) in 0 record(s), 0 in rounds of THE RETRY, 26 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 11) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 3) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a SET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one
+DECLARING aecp-outputs: no record of a GET_STREAM_INFO answered SUCCESS ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO answered SUCCESS ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO refused ENTITY_LOCKED ran the completion
+DECLARING aecp-outputs: no record of a SET_STREAM_INFO refused NOT_SUPPORTED ran the completion
+DECLARING aecp-outputs: no round of THE RETRY ran the completion (the declared Talker's notice)
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's notice on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: flags_ex 00000000, flags f2000000: REGISTERING expected, REGISTERING_FAILED never
+DECLARING aecp-outputs: output 1's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 2's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 3's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 4's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 5's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 6's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 7's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 8's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: stream_dest_mac 000000000000, flags f2000000: not a MAAP address the completion answers
+DECLARING aecp-outputs: output 0's response on if0: flags_ex 00000000, flags f2000000: REGISTERING expected, REGISTERING_FAILED never
+CONTROL completion-unexecuted caught: 14 finding(s) ' ran 0 completion(s), not one' (aecp-fanout: a SET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one; aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one; aecp-outputs: a GET_STREAM_INFO of a STREAM_OUTPUT (status 0) whose record ran 0 completion(s), not one), 0 refusal(s)
+elapsed=1169s rc=0 end 18:46:13 DIRTY-after 7
+
+Source: author-r2/receipts/budget/record-classes-1x1-without-declaring.txt
+RESULT: FAIL
+rc=1
+
+Source: author-r2/receipts/budget/record-classes-1x1.txt
+RESULT: PASS
+rc=0
+
+Source: author-r2/receipts/budget/record-classes-8x8-1if.txt
+RESULT: PASS
+rc=0
+
+Source: author-r2/receipts/budget/record-classes-8x8-without-declaring.txt
+RESULT: FAIL
+rc=1
+
+Source: author-r2/receipts/docs/docs-gate-steps-a16899b1.txt
+30-docs-gates-0-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+67-docs-gates-1-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+68-docs-gates-1-End_station_builder_gates_leg_0_of_2	rc=0	ALL GATES PASS EXCEPT 1 NOT RUN
+78-docs-gates-2-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+79-docs-gates-2-End_station_builder_gates_leg_1_of_2	rc=0	ALL GATES PASS EXCEPT 1 NOT RUN
+
+Source: author-r2/receipts/firmware/boundary-without-verilator-a16899b1.txt
+REFUSED: sw/firmware/ctrl/test/sink_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES); tb/verilator/ctrl_service_budget/talker_notice.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+
+Source: author-r2/receipts/firmware/firmware-gate-a16899b1-shard0.txt
+test_ctrl_firmware: PASS
+
+Source: author-r2/receipts/firmware/firmware-gate-a16899b1-shard1.txt
+test_ctrl_firmware: PASS
+
+Source: author-r2/receipts/firmware/firmware-gate-a16899b1-shard2.txt
+[ok] output-registering-failed-msrp-failure-valid: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-listener-any-interface: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+test_ctrl_firmware: PASS
+
+Source: author-r2/receipts/firmware/firmware-gate-a16899b1-shard3.txt
+test_ctrl_firmware: PASS
+
+Source: author-r2/receipts/firmware/fw-coverage-a16899b1.txt
+firmware coverage: PASS (40 files)
+
+Source: author-r2/receipts/firmware/plants-1x1-if1.txt
+[ok] output-registering-failed-msrp-failure-valid rc=1 named=['never MSRP_FAILURE_VALID']
+[ESCAPED] output-listener-any-interface rc=0 named=["another interface's Listener is not its own"]
+endstation_ax7101_1x1_tdm8 if1 rows shard 0/1: 17 planted, 2 escaped of named words
+
+Source: author-r2/receipts/firmware/plants-1x1-if2-before-renaming.txt
+[ok] output-registering-failed-msrp-failure-valid rc=1 named=['never MSRP_FAILURE_VALID']
+[ok] output-listener-any-interface rc=1 named=["another interface's Listener is not its own"]
+endstation_ax7101_1x1_tdm8 if2 rows shard 0/1: 17 planted, 2 escaped of named words
+
+Source: author-r2/receipts/firmware/plants-1x1-if2.txt
+[ok] output-registering-failed-msrp-failure-valid rc=1 named=['never MSRP_FAILURE_VALID']
+[ok] output-listener-any-interface rc=1 named=["another interface's Listener is not its own"]
+endstation_ax7101_1x1_tdm8 if2 rows shard 0/1: 17 planted, 0 escaped of named words
+
+Source: author-r2/receipts/firmware/plants-8x8-if1.txt
+[ok] output-registering-failed-msrp-failure-valid rc=1 named=['never MSRP_FAILURE_VALID']
+[ESCAPED] output-listener-any-interface rc=0 named=["another interface's Listener is not its own"]
+endstation_ax7101_8x8 if1 rows shard 0/1: 17 planted, 2 escaped of named words
+
+Source: author-r2/receipts/tests/app-1x1-if2.txt
+RESULT: PASS
