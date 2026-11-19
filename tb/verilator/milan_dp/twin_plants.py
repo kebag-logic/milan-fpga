@@ -9,9 +9,10 @@ and between the placements (make twin-plants). SPLIT_PLANTS plant the split half
 the all-fabric half's: an owed defect of the fabric gone is planted where the fix would land.
 
 Each plant names the grade or row it is the plant of:
-  * uncovered-field, vanished-owed: a difference no row covers, and an owed difference gone (OWED);
-  * output-notice-dropped: the split's STREAM_OUTPUT 0 notices dropped (#936), which the owed row's exact values
-    refuse;
+  * uncovered-field: a difference no row covers; OWED holds no row at this head, so none plants one gone;
+  * output-dest-mac-zero: #943's defect back, the split's declared STREAM_OUTPUT 0 notices with stream_dest_mac 0,
+    which the notice comparison refuses since its owed row went;
+  * output-notice-dropped: the split's STREAM_OUTPUT 0 notices dropped (#936), which the notice comparison refuses;
   * command-byte: the entity's own commands are still byte-compared, sequence_id aside;
   * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
   * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
@@ -96,15 +97,23 @@ def output_notices(doc: dict) -> list[dict]:
             and (f.command, f.descriptor) == (0x000F, (6, 0))]
 
 
-def plant_vanished_owed(fabric: dict, split: dict) -> dict:
-    """An owed difference gone: the split capture's GET_STREAM_INFO notices of STREAM_OUTPUT 0 replaced by the
-    fabric's, each at its own millisecond, as the lane that fixes the split's stream_dest_mac would send them."""
-    owed = output_notices(fabric)
-    if not owed or not output_notices(split):
-        raise SystemExit("plant vanished-owed: a capture has no STREAM_OUTPUT 0 notice to replace")
-    kept = [e for e in split["frames"] if not any(e is x for x in output_notices(split))]
-    split["frames"] = sorted(kept + owed, key=lambda e: e["ms"])
-    return planted(split, "vanished-owed")
+#: a GET_STREAM_INFO notice's frame octets: the first of its flags (STREAM_DEST_MAC_VALID, 0x10, in it) and its
+#: stream_dest_mac (Milan v1.2 Figure 5.1, after the AECPDU's 38 octets through command_type)
+FLAGS_AT, DEST_MAC_AT = 42, 66
+
+
+def plant_output_dest_mac_zero(fabric: dict, split: dict) -> dict:
+    """#943's defect back: the split capture's declared GET_STREAM_INFO notices of STREAM_OUTPUT 0 with
+    stream_dest_mac 0 and STREAM_DEST_MAC_VALID kept, as the split sent them before its firmware answered the
+    Talker's MAAP address."""
+    del fabric
+    declared = [e for e in output_notices(split) if bytes.fromhex(e["hex"])[FLAGS_AT] & 0x10]
+    if not declared:
+        raise SystemExit("plant output-dest-mac-zero: the split capture has no declared STREAM_OUTPUT 0 notice")
+    for entry in declared:
+        for at in range(DEST_MAC_AT, DEST_MAC_AT + 6):
+            set_byte(entry, at, 0)
+    return planted(split, "output-dest-mac-zero")
 
 
 def plant_output_notice_dropped(fabric: dict, split: dict) -> dict:
@@ -346,7 +355,7 @@ def plant_mvrp_received_join(fabric: dict, split: dict) -> dict:
 Plant = Callable[[dict, dict], dict]
 #: the plants of the split half's capture (--make-plant writes the planted split capture)
 SPLIT_PLANTS: dict[str, Plant] = {
-    "uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed,
+    "uncovered-field": plant_uncovered_field, "output-dest-mac-zero": plant_output_dest_mac_zero,
     "output-notice-dropped": plant_output_notice_dropped,
     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
