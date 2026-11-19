@@ -1,0 +1,75 @@
+Published manifest: 145 files match
+budget-1x1-answering-every-port.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+budget-1x1-answering-ports.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+budget-1x1-none.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+budget-1x1-valid-destinations.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+budget-8x8-1if-answering-every-port.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+budget-8x8-1if-answering-ports.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+budget-8x8-1if-none.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+budget-8x8-1if-valid-destinations.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+budget-8x8-answering-every-port.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+budget-8x8-answering-ports.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+budget-8x8-none.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+budget-8x8-valid-destinations.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+fixture-1x1-if1.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+fixture-1x1-if2.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+fixture-8x8-if1.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+fixture-8x8-if2.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+platform-1x1-if1.relink.txt -	addi	a3,zero,2023; +	lui	a3,0x1; +	addi	a3,a3,-1073
+platform-1x1-if2.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+platform-8x8-if1.relink.txt -	addi	a3,zero,2027; +	lui	a3,0x1; +	addi	a3,a3,-1069
+platform-8x8-if2.relink.txt -	addi	a3,zero,2030; +	lui	a3,0x1; +	addi	a3,a3,-1066
+budget-1x1-answering-every-port.imgdiff.txt .rodata placement delta 0 bytes
+budget-1x1-answering-ports.imgdiff.txt .rodata placement delta 0 bytes
+budget-1x1-none.imgdiff.txt .rodata placement delta 8 bytes
+budget-1x1-valid-destinations.imgdiff.txt .rodata placement delta 0 bytes
+budget-8x8-1if-answering-every-port.imgdiff.txt .rodata placement delta 0 bytes
+budget-8x8-1if-answering-ports.imgdiff.txt .rodata placement delta 0 bytes
+budget-8x8-1if-none.imgdiff.txt .rodata placement delta 8 bytes
+budget-8x8-1if-valid-destinations.imgdiff.txt .rodata placement delta 0 bytes
+budget-8x8-answering-every-port.imgdiff.txt .rodata placement delta 8 bytes
+budget-8x8-answering-ports.imgdiff.txt .rodata placement delta 8 bytes
+budget-8x8-none.imgdiff.txt .rodata placement delta 0 bytes
+budget-8x8-valid-destinations.imgdiff.txt .rodata placement delta 0 bytes
+fixture-1x1-if1.imgdiff.txt .rodata placement delta 8 bytes
+fixture-1x1-if2.imgdiff.txt .rodata placement delta 8 bytes
+fixture-8x8-if1.imgdiff.txt .rodata placement delta 8 bytes
+fixture-8x8-if2.imgdiff.txt .rodata placement delta 0 bytes
+platform-1x1-if1.imgdiff.txt .rodata placement delta 0 bytes
+platform-1x1-if2.imgdiff.txt .rodata placement delta 0 bytes
+platform-8x8-if1.imgdiff.txt .rodata placement delta 0 bytes
+platform-8x8-if2.imgdiff.txt .rodata placement delta 0 bytes
+rodata placement distribution: {0: 13, 8: 7}
+e5dee83b to 4224df63: all 20 image hashes equal
+release ./ax7101/gateware/alinx_ax7101.v DIFFERENT
+release ./ax7101/gateware/alinx_ax7101_mem.init EQUAL
+release ./ax7101/gateware/alinx_ax7101_rom.init EQUAL
+release ./ax7101/gateware/alinx_ax7101_sram.init EQUAL
+release ./ax7101/software/bios/bios.bin EQUAL
+release ./ax7101/software/bios/bios.elf EQUAL
+release ./ax7101/software/libmilan_baremetal/libmilan_baremetal.a DIFFERENT
+release ./ax7101/software/bios/bios.elf (disassembly) EQUAL
+release ./ax7101/gateware/alinx_ax7101.v (outside its // comment lines) EQUAL
+release ./ax7101/software/libmilan_baremetal/libmilan_baremetal.a member milan_baremetal.o EQUAL
+1x1-none-probes.txt 50 unchanged verdicts; 7 misses per image
+1x1-valid-destinations-probes.txt 16 unchanged verdicts; 0 misses per image
+8x8-1if-none-probes.txt 45 unchanged verdicts; 7 misses per image
+8x8-1if-valid-destinations-probes.txt 45 unchanged verdicts; 0 misses per image
+Total paired probes: 156 largest change: 8x8-1if-valid-destinations-probes.txt `srp-talker-loss/srp.talker_loss.if0` -7.065 ms
+firmware shard 0 ok lines 87 test verdicts 74 talker plants 0
+firmware shard 1 ok lines 825 test verdicts 0 talker plants 0
+firmware shard 2 ok lines 366 test verdicts 0 talker plants 0
+firmware shard 3 ok lines 513 test verdicts 0 talker plants 106
+docs: 104 rc=0 rows
+gates/4224df63/twin.txt == twin rc=0 14:23:31
+== twin-plants rc=0 14:29:12
+== twin-maps rc=0 14:29:17
+== twin-maps-plants rc=0 14:29:22
+END rc=0 14:29:22
+gates/final/builder-leg-0.txt 1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+ALL GATES PASS EXCEPT 1 NOT RUN
+END rc=0 15:06:40
+gates/final/builder-leg-1.txt 1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+ALL GATES PASS EXCEPT 1 NOT RUN
+END rc=0 14:42:42
+RESULT PASS; this audits published receipts, not new image builds or CPU simulations

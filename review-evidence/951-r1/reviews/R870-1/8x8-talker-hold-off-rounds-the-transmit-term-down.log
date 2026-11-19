@@ -1,0 +1,28 @@
+Note: Google Test filter = Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave
+<checkout>/sw/firmware/ctrl/test/srp_talker.cpp:362: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 30690 vs 30695
+the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave: the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+<checkout>/sw/firmware/ctrl/test/srp_talker.cpp:362: Failure
+Expected: (adv->time_ms) >= (lv->time_ms+kTwoLongestLeaveAllMs), actual: 30690 vs 30695
+the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+
+  [FAIL] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave: the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave (6 ms)
+[----------] 1 test from Talker (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (6 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

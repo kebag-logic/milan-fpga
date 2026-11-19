@@ -1,0 +1,231 @@
+1x1-if1 normal host rc 0 PASS
+1x1-if1 normal target rc 0 PASS
+1x1-if1 max16 host rc 0 PASS
+1x1-if1 max16 target rc 0 PASS
+1x1-if1 overflow16 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if1 overflow16 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if1 narrow8 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3023’ to ‘207’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if1 narrow8 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3023’ to ‘207’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+wrote <packet>/scratch/width/1x1-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/width/1x1-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/width/1x1-if2/contract/mbx_contract.h (2 interfaces)
+1x1-if2 normal host rc 0 PASS
+1x1-if2 normal target rc 0 PASS
+1x1-if2 max16 host rc 0 PASS
+1x1-if2 max16 target rc 0 PASS
+1x1-if2 overflow16 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if2 overflow16 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if2 narrow8 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3030’ to ‘214’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+1x1-if2 narrow8 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3030’ to ‘214’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if1 normal host rc 0 PASS
+8x8-if1 normal target rc 0 PASS
+8x8-if1 max16 host rc 0 PASS
+8x8-if1 max16 target rc 0 PASS
+8x8-if1 overflow16 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if1 overflow16 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if1 narrow8 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3027’ to ‘211’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if1 narrow8 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3027’ to ‘211’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+wrote <packet>/scratch/width/8x8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/width/8x8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/width/8x8-if2/contract/mbx_contract.h (2 interfaces)
+8x8-if2 normal host rc 0 PASS
+8x8-if2 normal target rc 0 PASS
+8x8-if2 max16 host rc 0 PASS
+8x8-if2 max16 target rc 0 PASS
+8x8-if2 overflow16 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if2 overflow16 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint16_t’ {aka ‘short unsigned int’} changes value from ‘65536’ to ‘0’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS 65536u
+      |                          ^~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if2 narrow8 host rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3030’ to ‘214’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+8x8-if2 narrow8 target rc 1 PASS
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:46:1: error: static assertion failed: "held_cs holds the hold-off"
+   46 | _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
+      | ^~~~~~~~~~~~~~
+<packet>/scratch/width/ctrl/srp/srp_mbx.c: In function ‘declare_sources’:
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:44:26: error: conversion from ‘unsigned int’ to ‘uint8_t’ {aka ‘unsigned char’} changes value from ‘3030’ to ‘214’ [-Werror=overflow]
+   44 | #define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+      |                          ^
+<packet>/scratch/width/ctrl/srp/srp_mbx.c:355:33: note: in expansion of macro ‘SRP_REDECLARE_CS’
+  355 |                 m->held_cs[n] = SRP_REDECLARE_CS;
+      |                                 ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+RESULT PASS

@@ -1,0 +1,4908 @@
+{
+  "head": "0d1eb8e4c5821e9431097950882659f2083d96ba",
+  "note": "One read-only snapshot; executed steps and skipped/cancelled steps are distinct. Manager owns acceptance.",
+  "records": [
+    {
+      "run": {
+        "id": 44542486022,
+        "name": "rtl-fast",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "run_number": 1842,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486022/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486022/logs",
+        "workflow_id": 339150340
+      },
+      "jobs": [
+        {
+          "id": 135624240893,
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Classify the change conservatively",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 135624241065,
+          "name": "Fail fast across this head",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 135624241195,
+          "name": "bdd-conformance",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch the processor model inputs",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install behave",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run the specification-facing suite",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135624917606,
+          "name": "firmware-unit",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install GoogleTest and GoogleMock and print the versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Prove the tally reads a failing and a crashing test as failures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Run the control-plane firmware suites and RV32 builds",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 12
+            },
+            {
+              "name": "Run the saved-state store suites and its RV32 build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Hold the firmware coverage ratchet",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            }
+          ]
+        },
+        {
+          "id": 135624917777,
+          "name": "firmware-control-mutants",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install GoogleTest and GoogleMock and print the versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run the control mutation campaign",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 11
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        },
+        {
+          "id": 135624917888,
+          "name": "firmware-srp-mutants",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install GoogleTest and GoogleMock and print the versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run both SRP mutation campaigns and pin controls",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 11
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        },
+        {
+          "id": 135624917924,
+          "name": "verilator-lint",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135624917938,
+          "name": "publication-census",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set memory-derived census workers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Resolve exact package downloads 3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache exact package downloads 3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 10
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Run the publication census in every shape the builder builds",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Cache exact package downloads 3",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Post Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            }
+          ]
+        },
+        {
+          "id": 135624917948,
+          "name": "firmware-boundary",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install GoogleTest and GoogleMock and print the versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Hold the TSN stack boundary over the firmware builders' compiles",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 11
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        },
+        {
+          "id": 135624917964,
+          "name": "Prepare pinned Yosys",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135624918002,
+          "name": "firmware-verilator",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135624918025,
+          "name": "split-cdc",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 8
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Prove every split crossing goes through an approved primitive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Cache exact package downloads 3",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Post Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        },
+        {
+          "id": 135624918028,
+          "name": "firmware-aecp-mutants",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install GoogleTest and GoogleMock and print the versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run the AECP mutation campaign",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 11
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        },
+        {
+          "id": 135625375407,
+          "name": "yosys-elaboration",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135627253784,
+          "name": "Collect CI manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install the pinned evidence reader",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Download completed execution artifacts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Collect actual runtime evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload canonical CI manifest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627254890,
+          "name": "rtl-fast",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135627890085,
+          "name": "Cancel late CI failures",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486022,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cancel confirmed terminal failures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 44542486016,
+        "name": "rtl-full",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 2295,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486016/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486016/logs",
+        "workflow_id": 320750503
+      },
+      "jobs": [
+        {
+          "id": 135624240989,
+          "name": "Fail fast across this head",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 135624242672,
+          "name": "full-ci-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Print the event and pin the one SHA this run validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Assert the repository default branch is dev",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Hold every workflow file to its contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Decide whether this exact head needs the exhaustive gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 135625262794,
+          "name": "Prepare pinned Yosys",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 7
+            },
+            {
+              "name": "Package the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Upload the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Post Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 135625263108,
+          "name": "Verilator shard 3/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263115,
+          "name": "Verilator shard 5/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263126,
+          "name": "Verilator shard 4/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 52
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            }
+          ]
+        },
+        {
+          "id": 135625263197,
+          "name": "Verilator shard 8/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263207,
+          "name": "Verilator shard 2/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263215,
+          "name": "Verilator shard 9/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263219,
+          "name": "Verilator shard 6/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263247,
+          "name": "Verilator shard 11/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263251,
+          "name": "Verilator shard 14/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263252,
+          "name": "Verilator shard 18/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263257,
+          "name": "Verilator shard 13/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263265,
+          "name": "Verilator shard 1/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263378,
+          "name": "Verilator shard 7/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263410,
+          "name": "Verilator shard 12/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263414,
+          "name": "Verilator shard 16/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263451,
+          "name": "Verilator shard 0/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263472,
+          "name": "Verilator shard 10/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263487,
+          "name": "Verilator shard 15/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625263534,
+          "name": "Verilator shard 17/19",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135625266951,
+          "name": "Physical gPTP (nightly and manual)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        },
+        {
+          "id": 135627146144,
+          "name": "Union maap",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627146175,
+          "name": "Union milan_dp_render",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627146248,
+          "name": "Union milan_dp_mclk",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627146266,
+          "name": "Union capture_coherence",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627146299,
+          "name": "Union milan_dp",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627146367,
+          "name": "Union pp_shadow",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Download executed case evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Require successful owners and every case exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 6
+            },
+            {
+              "name": "Upload verified suite union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627259203,
+          "name": "Yosys shard ${{ matrix.shard }}/${{ matrix.total }}",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486016,
+          "logs_url": null,
+          "steps": null
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 44542486064,
+        "name": "elaborate",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "run_number": 1718,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486064/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542486064/logs",
+        "workflow_id": 339283801
+      },
+      "jobs": [
+        {
+          "id": 135624241814,
+          "name": "elaborate-gates-4",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 2 of 3",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            }
+          ]
+        },
+        {
+          "id": 135624241888,
+          "name": "elaborate-gates-0",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Elaboration gates, leg 0 of 2",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 19
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 40
+            },
+            {
+              "name": "Post Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 41
+            },
+            {
+              "name": "Post Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 42
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 43
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 44
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 46
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 47
+            }
+          ]
+        },
+        {
+          "id": 135624241891,
+          "name": "elaborate-gates-2",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 0 of 3",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            }
+          ]
+        },
+        {
+          "id": 135624241940,
+          "name": "elaborate-gates-1",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the generated CPU metadata",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Elaboration gates, leg 1 of 2",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 20
+            },
+            {
+              "name": "Keep the generated CPU netlist arguments for the next run",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 43
+            },
+            {
+              "name": "Post Cache the generated CPU metadata",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 44
+            },
+            {
+              "name": "Post Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 46
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 47
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            }
+          ]
+        },
+        {
+          "id": 135624242098,
+          "name": "Fail fast across this head",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 135624242996,
+          "name": "elaborate-gates-3",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 1 of 3",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            }
+          ]
+        },
+        {
+          "id": 135627278267,
+          "name": "elaborate",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install the pinned evidence reader",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Download executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Require every gate exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 8
+            },
+            {
+              "name": "Upload verified gate union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 135627383430,
+          "name": "Collect CI manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install the pinned evidence reader",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Download completed execution artifacts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Collect actual runtime evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload canonical CI manifest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 135627868609,
+          "name": "Cancel late CI failures",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542486064,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cancel confirmed terminal failures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 44542485963,
+        "name": "docs",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 2093,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542485963/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/44542485963/logs",
+        "workflow_id": 320168027
+      },
+      "jobs": [
+        {
+          "id": 135624239538,
+          "name": "wire-accountability",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch the engine authority the builder derives from",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 135624239788,
+          "name": "Fail fast across this head",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 135624239823,
+          "name": "docs-gates-2",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "End-station builder gates, leg 1 of 2",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 16
+            },
+            {
+              "name": "CI event and SHA contract gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Local act runner contract gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 19
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 20
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 39
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 40
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 41
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 42
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 43
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 44
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 45
+            }
+          ]
+        },
+        {
+          "id": 135624239866,
+          "name": "docs-check-no-git",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Retain checkout identity before removing metadata",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Strip git metadata, then run the docs gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 135624239903,
+          "name": "docs-gates-0",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Build the validated HDL reference",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload the HDL reference HTML",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Resolve exact package downloads 6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache exact package downloads 6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Link health, wording, dead-reference and local-info gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Added-line em-dash gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Concise audience documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Audience diagram no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Product solution source-fact gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Verified submodule documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "HDL timing diagram no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Published diagram PNG gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Milan feature-status consistency gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Traceability matrix no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Imported gPTP documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Code-quality measurement self-tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Bare-metal scope gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Compiler-absent firmware controls",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 31
+            },
+            {
+              "name": "NVM record-space gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 32
+            },
+            {
+              "name": "Capture measurement census and clock gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 33
+            },
+            {
+              "name": "Saved-state writer gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 34
+            },
+            {
+              "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "RTL source-list drift gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Boundary-unit naming ratchet",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Port contract gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 38
+            },
+            {
+              "name": "Fail-fast ratchet",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 39
+            },
+            {
+              "name": "TODO ownership gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 40
+            },
+            {
+              "name": "Test-evidence ratchet",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 41
+            },
+            {
+              "name": "Mechanical hygiene ratchet",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 42
+            },
+            {
+              "name": "SystemVerilog idiom gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 43
+            },
+            {
+              "name": "C and C++ idiom gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 44
+            },
+            {
+              "name": "Python idiom gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Shell idiom gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 46
+            },
+            {
+              "name": "Doc cited-path gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 47
+            },
+            {
+              "name": "Archive integrity gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 48
+            },
+            {
+              "name": "Per-page contents gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 49
+            },
+            {
+              "name": "Documentation inventory freshness gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 50
+            },
+            {
+              "name": "AEM store generator self-test",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 51
+            },
+            {
+              "name": "Sweep/build shape gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 52
+            },
+            {
+              "name": "Deploy shape gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 53
+            },
+            {
+              "name": "Entity shape gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 54
+            },
+            {
+              "name": "Register reference freshness gate",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 55
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 56
+            },
+            {
+              "name": "CI scheduling and evidence controls",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 57
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 58
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 59
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 60
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 61
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 117
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 118
+            },
+            {
+              "name": "Post Cache exact package downloads 6",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 119
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 120
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 121
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 122
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 123
+            }
+          ]
+        },
+        {
+          "id": 135624239906,
+          "name": "docs-gates-1",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "End-station builder gates, leg 0 of 2",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "number": 16
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 38
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 39
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 41
+            }
+          ]
+        },
+        {
+          "id": 135627254682,
+          "name": "docs-check",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install the pinned evidence reader",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Download executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Require every gate exactly once",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 8
+            },
+            {
+              "name": "Upload verified gate union",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Cache pinned evidence reader downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 135627890546,
+          "name": "Collect CI manifest",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_id": 44542485963,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "pending",
+              "conclusion": null,
+              "number": 3
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "pending",
+              "conclusion": null,
+              "number": 4
+            },
+            {
+              "name": "Cache pinned evidence reader downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5
+            },
+            {
+              "name": "Install the pinned evidence reader",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6
+            },
+            {
+              "name": "Download completed execution artifacts",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Collect actual runtime evidence",
+              "status": "pending",
+              "conclusion": null,
+              "number": 8
+            },
+            {
+              "name": "Upload canonical CI manifest",
+              "status": "pending",
+              "conclusion": null,
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 18
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
