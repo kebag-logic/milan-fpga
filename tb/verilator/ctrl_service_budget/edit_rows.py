@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 1x1/1if a
 #: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
 #: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
-#: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665 issuecomment-7044585511).
+#: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
 PACED = {'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}

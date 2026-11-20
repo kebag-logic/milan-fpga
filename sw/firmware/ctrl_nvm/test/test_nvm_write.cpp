@@ -152,7 +152,7 @@ TEST_P(NvmBoth, debounce) {
         << " us after the first commit, want under 100 ms, no window: " << r.text();
 }
 
-// #920 (#665, the ruling of issuecomment-6899740728, item 1): a change marked
+// #920 (#665's ruling of 2026-11-15, item 1): a change marked
 // during a running capture joins it. One to a record no capture holds, marked
 // once the capture has passed it, has the capture walk again for it, so one
 // save holds every change; the walk again also takes a new record ahead of it.

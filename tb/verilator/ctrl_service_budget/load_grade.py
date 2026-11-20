@@ -216,7 +216,7 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
 #: On the SRP cut's head (#665's ruling of 2026-11-20, item 3), measured over every arm and group, each 1x1/1if cost
 #: it exceeds raised by the rule and the AECP notice item restated from its measurement by ruling item 4, as the owner
-#: decided on 2026-11-20 (#665 issuecomment-7044585511), in both columns: an AECP record 250 us (23,726 CPU cycles, a
+#: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
 #: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
 #: arm's aecp-fanout; 210 before).
@@ -270,7 +270,7 @@ STATED_US = {
 #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
 #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
-#: cut's head, as STATED_US states (the owner's decision of 2026-11-20, #665 issuecomment-7044585511), and ADP's record
+#: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
 #: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,

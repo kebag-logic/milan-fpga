@@ -215,7 +215,7 @@
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
 // 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; the queued
 // rule's figure for its row at the slice rule's 950 us, the owner's decision
-// of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms).
+// of 2026-11-20 on #665, ruling item 4, under the owner's 140 ms).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -280,7 +280,7 @@ extern "C" {
 // queued notice's bound follows its row to 140 ms (#895's ruling of 2026-11-15
 // on that composition, items 1 and 4), and 950 us again on the SRP cut's head
 // once its notice-path statements were restated from their measurement there,
-// as the owner decided on 2026-11-20 (#665 issuecomment-7044585511, ruling
+// as the owner decided on 2026-11-20 (#665, ruling
 // item 4), the last queued notice's bound following its row to 130 ms.
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
@@ -340,8 +340,8 @@ extern "C" {
 // every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
 // bound): 1x1/1if's, 130 and 35 ms, are the queued rule's figure for its row
 // of 127.31 ms at the slice rule's 950 us on the SRP cut's head, its
-// notice-path statements restated as the owner decided on 2026-11-20 (#665
-// issuecomment-7044585511, ruling item 4; the owner's bound stays 140 ms), and
+// notice-path statements restated as the owner decided on 2026-11-20 (#665,
+// ruling item 4; the owner's bound stays 140 ms), and
 // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded

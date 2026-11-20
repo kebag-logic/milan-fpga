@@ -293,7 +293,7 @@ def findings(spec: dict, out: Path, groups: list) -> list[str]:
 
 def fixture_findings(edits: tuple[tuple[str, str], ...] = FIXTURE_EDITS) -> list[str]:
     """What is wrong with the arm's fixture: its stream observation must keep the caller's brief across its memset
-    (a brief observation that leaves it cleared is completed, R872-1-F2), answer a STREAM_OUTPUT declaring, and the
+    (a brief observation that leaves it cleared is completed), answer a STREAM_OUTPUT declaring, and the
     bridge's ACMP owner must enter the source port through ENTRY."""
     stream = next((new for old, new in edits if old == ANSWERING_STREAM), '')
     out = []
@@ -320,7 +320,7 @@ def checks() -> list[tuple[str, bool, str]]:
     check("the declaring arm's fixture keeps brief and enters the source port through its entry", fixture_findings(),
           False)
     cleared = tuple((old, new.replace('    v->brief = brief;\n', '')) for old, new in FIXTURE_EDITS)
-    check("the declaring arm refuses a fixture that clears brief (R872-1-F2's)", fixture_findings(cleared), True)
+    check("the declaring arm refuses a fixture that clears brief", fixture_findings(cleared), True)
     base = 0x91E0F0000100
     sound = [(0, 0, True, DECLARING, base, 0), (0, 0, False, DECLARING, base, REGISTERING),
              (0, 1, False, DECLARING, base + 1, 0)]

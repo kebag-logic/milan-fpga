@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """A burst of name changes, and a change marked while a save is in flight, under the contract's held load (#920).
 
-THE TARGET (#665, the ruling of issuecomment-6899740728, item 1): at 1x1/1if and 8x8/1if, under the contract's held
+THE TARGET (#665's ruling of 2026-11-15, item 1): at 1x1/1if and 8x8/1if, under the contract's held
 load, every acknowledged change is durable within TARGET_MS of its response, a burst marking every name and a change
 marked during a save in flight included. Milan v1.2 5.3.13 requires the names saved in non-volatile memory and
 restored after a power cycle; the 5 s is the ruling's, and the cut CUT_MS after the last response the in-house

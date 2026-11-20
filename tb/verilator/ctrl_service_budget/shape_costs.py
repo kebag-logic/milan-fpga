@@ -404,8 +404,8 @@ def planted_at(text: str, s: Shape, name: str, value: int | str) -> str:
 def one_under(stated: int, row: float | None) -> int:
     """One under the least whole figure at or over a row, the least a statement may be (rows_tiers.tx_statements), or
     one under the stated figure where there is no row: a statement is never lowered, so it may stand over its row
-    (1x1/1if's THE TRANSMIT 35 ms over 33.44 once ruling item 4 restated its notice path, #665
-    issuecomment-7044585511), and one under it is then not under the row."""
+    (1x1/1if's THE TRANSMIT 35 ms over 33.44 once #665's ruling item 4 of 2026-11-20
+    restated its notice path), and one under it is then not under the row."""
     return (stated if row is None else math.ceil(row - 1e-9)) - 1
 
 
@@ -510,7 +510,7 @@ def retry_controls(root: Path = ROOT) -> list[str]:
     mine = listed(text_of(root))[s]
     # the round costs planted at the tree's own figures, which must be apart; the last queued notice's bound is planted
     # below in a table of its own where the tree states one figure at both (130 ms at 1x1/1if and 8x8/1if once ruling
-    # item 4 restated 1x1/1if's notice path, #665 issuecomment-7044585511)
+    # item 4 restated 1x1/1if's notice path, #665's owner decision of 2026-11-20)
     for name, (path, shaped) in RETRY.items():
         if mine[shaped] == listed(text_of(root))[shape(s.interfaces, root)][shaped]:
             escaped.append(f'{point}\'s {name} not apart from the interface count\'s, so no plant can tell them')

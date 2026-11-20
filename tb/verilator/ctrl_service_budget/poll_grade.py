@@ -105,7 +105,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: At 1x1/1if on the SRP cut's head, measured over every arm and group, the AECP notice item 150 us (14,084 CPU cycles
 #: in the declaring-outputs arm's aecp-fanout; 210 before) and a notice longer than AECP_FAN_BYTES 315 (29,652 in arm
 #: A's aecp-largest-notice; 365 before), each restated from its measurement by the rule by ruling item 4 of 2026-11-20,
-#: as the owner decided (#665 issuecomment-7044585511).
+#: as the owner decided (#665).
 ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,

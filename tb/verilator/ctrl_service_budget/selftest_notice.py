@@ -112,7 +112,7 @@ def queue_checks() -> list[Check]:
                       (19.5, float(notice_window.queued_ms(1) + 1), 1)))
     return [("a queued notice's bound is the constants' for each shape, the last queued notice's 130 ms at 1x1/1if "
              "(its row rounded up by the queued rule at the slice rule's 950 us once its notice path was restated, "
-             "the owner's decision of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms; 140 by "
+             "#665's owner decision of 2026-11-20 (item 4), under the owner's 140 ms; 140 by "
              "#895's ruling of 2026-11-15, item 1, before), 8x8/1if's own 130 and 62 ms at two",
              got == (130, 130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",

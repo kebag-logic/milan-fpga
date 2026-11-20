@@ -459,8 +459,8 @@ def burst_table(results: list[dict]) -> list[str]:
     rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
     if not rows:
         return []
-    lines = ['', 'Names from their response to durable (save_burst.py; #920, the ruling of #665 '
-             'issuecomment-6899740728, item 1):', '',
+    lines = ['', "Names from their response to durable (save_burst.py; #920, #665's ruling of "
+             '2026-11-15, item 1):', '',
              '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
              'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
     for group, b in rows:
