@@ -1,0 +1,8 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r8cut/dev5-vd/native/Vsim <scratch>/r8cut/m4/results/srp-talker-held.txt -
+STEPS 2117 passes carry the store's step; the longest 109,385 CPU cycles (1.094 ms), srp-talker-held; the longest step 78,157 (0.782 ms), srp-talker-held
+SLICES 64218 tier-2 slices; the longest SRP's records 129,225, THE TRANSMIT's build 120,509, THE RETRY's round 12,831 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.236 ms and the longest 190.308 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1502.816 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 42.067 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25867 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz

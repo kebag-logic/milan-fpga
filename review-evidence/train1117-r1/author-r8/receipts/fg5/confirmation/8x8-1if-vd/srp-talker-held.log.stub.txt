@@ -1,0 +1,61 @@
+srp-talker-held.log: 86942102 bytes, sha256 c3d8043b804689684cdff8378316423e48928067eac766d42f53205ca493377d; over 200 KB, kept in scratch. Its last 60 lines:
+SPAN 1796440012 1796439948 1861 000003a4 ctrl_app_srp:deliver
+PASS 71889 1796420000 1796419936 22301 instr=4907 fetch_rom=47/3840 load_mbx=22 store_mbx=1 wait_mbx=271 load_csr=2 store_csr=2 wait_csr=28 code_words=18720 mods=aecp_mbx:315,ctrl_app_aecp:1939,ctrl_loop:3338,nvm_store:96,nvm_flash_litespi:258,aecp:1796,mbx:1260,srp_mbx:2003,acmp_mbx:640,adp_mbx:60,adp:193,acmp:2645,maap_mbx:1836,ctrl_mem:1342,ctrl_app_srp:3379,ctrl_aecp_image:720,maap:340,aecp_nvm:16,aecp_face:125, W 1796421280:19:a7e8
+SPAN 1796442924 1796442860 68 000003dc ctrl_loop:dispatch_ticks
+CALL 1796443004 1796442940 mbx_event_take
+CALL 1796443119 1796443055 ctrl_loop:service_rx
+CALL 1796443600 1796443536 ctrl_loop:service_rx
+CALL 1796443905 1796443841 ctrl_loop:service_rx
+CALL 1796444167 1796444103 ctrl_loop:service_rx
+CALL 1796444721 1796444657 ctrl_loop:service_rx
+SPAN 1796445341 1796445277 81 000003a4 adp_mbx:on_poll
+SPAN 1796445456 1796445392 245 000003a4 acmp_mbx:on_poll
+SPAN 1796445735 1796445671 8426 000003a4 maap_mbx:poll
+SPAN 1796454739 1796454675 72 00002224 aecp:transmit
+SPAN 1796454483 1796454419 1688 000003a4 aecp_mbx:poll
+SPAN 1796456205 1796456141 1656 000003a4 ctrl_app_aecp:deliver
+SPAN 1796457974 1796457910 1228 000003a4 srp_mbx:poll
+SPAN 1796459236 1796459172 1743 000003a4 ctrl_app_srp:deliver
+SPAN 1796461439 1796461375 4262 00000574 ctrl_loop:round_of
+SPAN 1796466731 1796466667 68 000003dc ctrl_loop:dispatch_ticks
+CALL 1796466811 1796466747 mbx_event_take
+CALL 1796466926 1796466862 ctrl_loop:service_rx
+CALL 1796467359 1796467295 ctrl_loop:service_rx
+CALL 1796467664 1796467600 ctrl_loop:service_rx
+CALL 1796467926 1796467862 ctrl_loop:service_rx
+CALL 1796468528 1796468464 ctrl_loop:service_rx
+SPAN 1796469148 1796469084 81 000003a4 adp_mbx:on_poll
+SPAN 1796469263 1796469199 245 000003a4 acmp_mbx:on_poll
+SPAN 1796469542 1796469478 8426 000003a4 maap_mbx:poll
+SPAN 1796478467 1796478403 151 00002224 aecp:transmit
+SPAN 1796478290 1796478226 1414 000003a4 aecp_mbx:poll
+SPAN 1796479738 1796479674 1656 000003a4 ctrl_app_aecp:deliver
+SPAN 1796481507 1796481443 1228 000003a4 srp_mbx:poll
+SPAN 1796482769 1796482705 1743 000003a4 ctrl_app_srp:deliver
+SPAN 1796484972 1796484908 4262 00000574 ctrl_loop:round_of
+SPAN 1796490264 1796490200 68 000003dc ctrl_loop:dispatch_ticks
+CALL 1796490344 1796490280 mbx_event_take
+CALL 1796490459 1796490395 ctrl_loop:service_rx
+CALL 1796490935 1796490871 ctrl_loop:service_rx
+CALL 1796491197 1796491133 ctrl_loop:service_rx
+CALL 1796491768 1796491704 ctrl_loop:service_rx
+CALL 1796492061 1796491997 ctrl_loop:service_rx
+SPAN 1796492681 1796492617 81 000003a4 adp_mbx:on_poll
+SPAN 1796492796 1796492732 245 000003a4 acmp_mbx:on_poll
+MS 1796500065 17965 00001d50 417962956
+SPAN 1796493075 1796493011 8426 000003a4 maap_mbx:poll
+SPAN 1796502000 1796501936 151 00002224 aecp:transmit
+SPAN 1796501823 1796501759 1414 000003a4 aecp_mbx:poll
+SPAN 1796503271 1796503207 1656 000003a4 ctrl_app_aecp:deliver
+SPAN 1796505040 1796504976 1228 000003a4 srp_mbx:poll
+SPAN 1796506302 1796506238 1743 000003a4 ctrl_app_srp:deliver
+SPAN 1796508505 1796508441 4262 00000574 ctrl_loop:round_of
+STEP 1796513318 14586 wait quiet
+IDLE 4 0 23951
+FLASHRD 649407700 649852268 e43380 400
+SUMMARY sys=1796513318 cpu=1796513254 passes=71893 instr=417966106 bus_errors=0 traps=0 mbx_read=1221112/11732717/7/70 mbx_write=143528/1470353/7/67 host_cycles=1866533/3017297/1/2 fetch_rom=1653924/134614069/80/209 load_rom=0/0/0/0 store_rom=0/0/0/0 fetch_sram=0/0/0/0 load_sram=0/0/0/0 store_sram=0/0/0/0 fetch_mbx=0/0/0/0 load_mbx=1221112/11732717/7/70 store_mbx=143528/1470353/7/67 fetch_flash=0/0/0/0 load_flash=27408/14282785/267/629 store_flash=0/0/0/0 fetch_csr=0/0/0/0 load_csr=479322/5770944/7/118 store_csr=353935/2596237/7/71 fetch_other=0/0/0/0 load_other=0/0/0/0 store_other=0/0/0/0
+MODULES ctrl_split_start:370458 aecp_mbx:25092882 ctrl_app_aecp:124914819 ctrl_loop:198880364 nvm_store:38785884 nvm_flash_litespi:55423429 aecp:299486849 mbx:87962770 mbx_plat_mmio:313378 srp_mbx:122633753 acmp_mbx:27535132 adp_mbx:1090519 adp:6438585 acmp:165343715 maap_mbx:115297183 ctrl_mem:138450733 ctrl_app_srp:208445571 ctrl_aecp_image:48334788 maap:24451666 aecp_nvm:1132636 aecp_face:13340771 timer:3298415 mrp_mad:39863529 aecp_commands:18871049 msrp:10911087 shlan_port:1736 ctrl_pool:34232 mvrp:11592 nvm_klj2:2740395 aecp_maps:39477 ctrl_debug:18 acmp_nvm:358 ctrl_app:2645 aecp_image:4062145 aecp_state:1493 mrp_pdu:12948848 unmapped:350
+FLASH erases=1 programs=54 bytes=13584
+CODE boot_bytes=15872 service_bytes=63104 service_only_bytes=59008 aecp_mbx=1212 ctrl_app_aecp=1688 ctrl_loop=2420 nvm_store=3144 nvm_flash_litespi=1260 aecp=7136 mbx=3092 mbx_plat_mmio=20 srp_mbx=7564 acmp_mbx=552 adp_mbx=432 adp=2256 acmp=4644 maap_mbx=1732 ctrl_mem=1016 ctrl_app_srp=1032 ctrl_aecp_image=596 maap=2832 aecp_nvm=1008 aecp_face=2396 timer=144 mrp_mad=7284 aecp_commands=2388 msrp=1784 shlan_port=84 ctrl_pool=548 mvrp=508 nvm_klj2=1328 aecp_maps=1020 ctrl_debug=20 acmp_nvm=128 ctrl_app=116 aecp_state=512 mrp_pdu=1208
+== ctrl_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

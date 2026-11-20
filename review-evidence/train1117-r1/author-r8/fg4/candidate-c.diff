@@ -1,0 +1,89 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.c b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+index e9524b89f4..fe9599d3a2 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+@@ -46,8 +46,9 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
+ 	}
+ }
+ 
+-// One bit period (THE BIT): the pins with MDC low (the bit before's falling edge), a half period, the sample, MDC
+-// high, a half period; the next bit's first write, or the frame's release, lowers MDC.
++// One bit period (THE BIT), the release's phy_mdio_bit: the pins with MDC low, a half period, the sample, MDC high,
++// a half period, then MDC lowered with the pins unchanged (F-G4: the data and the output enable are held through
++// the falling edge, and only the next bit's first write changes them).
+ static uint32_t bit(const struct ctrl_plat_phy *phy, bool drive, uint32_t out)
+ {
+ 	const uint32_t pins = (drive ? CTRL_PLAT_PHY_OE : 0u) | (out != 0u ? CTRL_PLAT_PHY_OUT : 0u);
+@@ -56,6 +57,7 @@ static uint32_t bit(const struct ctrl_plat_phy *phy, bool drive, uint32_t out)
+ 	const uint32_t in = ctrl_plat_io_read32(phy->bus.mdio_r) & 1u;
+ 	ctrl_plat_io_write32(phy->bus.mdio_w, pins | CTRL_PLAT_PHY_MDC);
+ 	spin(phy->spin);
++	ctrl_plat_io_write32(phy->bus.mdio_w, pins);
+ 	return in;
+ }
+ 
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.h b/sw/firmware/ctrl/plat/ctrl_plat_phy.h
+index f7c6ad468b..f7a3d6ec04 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.h
+@@ -214,12 +214,13 @@ struct ctrl_plat_phy_bus {
+ // One frame's stated cost in microseconds on the split CPU (THE STEP): the most measured, plus 5 %, rounded up to
+ // 5 us, the margin holding the call's few instructions around the frame's pins. Measured by the split boot
+ // simulation on the platform image, from a frame's first pin write to its release (tb/verilator/ctrl_split_boot,
+-// the PHY grade, which fails a frame over this figure), reads and the advertisement's writes alike: 14,537 CPU
+-// cycles at 1x1/1if, 145.37 us, and 14,545 at 8x8/1if, 145.45 us (14,537 and 14,512 before the advertisement). A
++// the PHY grade, which fails a frame over this figure), reads and the advertisement's writes alike: 15,792 CPU
++// cycles at 1x1/1if, 157.92 us, and 15,757 at 8x8/1if, 157.57 us, with the release's bit (F-G4: MDC lowered with
++// the pins unchanged, one more write a bit); 14,537 and 14,545 before it. A
+ // frame is taken only while this much of the pass's share is left. It is under a fifth of a store's
+ // read-back step (0.77 ms, nvm_store.h), so a step call that carries a frame and an idle store step is lighter than
+ // one that carries a save's flash step, which the CPU budget harness measures in every pass class THE STEP enters.
+-#define CTRL_PLAT_PHY_STEP_US 155u
++#define CTRL_PLAT_PHY_STEP_US 170u
+ 
+ // Where a poll is: idle, or the frame it takes next.
+ enum ctrl_plat_phy_stage {
+diff --git a/sw/firmware/ctrl/test/phy_peer.hpp b/sw/firmware/ctrl/test/phy_peer.hpp
+index 465d308bfc..1d09a5b65d 100644
+--- a/sw/firmware/ctrl/test/phy_peer.hpp
++++ b/sw/firmware/ctrl/test/phy_peer.hpp
+@@ -72,6 +72,9 @@ struct Peer {
+     std::vector<Publication> published;
+     std::string fault;
+     unsigned edge = 0, previous = 0, command = 0, reply = 1, input = 0, data = 0;
++    // MDC's falling edges on which the STA also changed the data or the output enable, in the same bus write
++    // (the release's bit, milan_baremetal.c phy_mdio_bit, never does: it lowers MDC with the pins unchanged)
++    unsigned changed_on_fall = 0;
+ 
+     bool owns(std::uintptr_t a) const { return a != 0u && (a == w || a == r || a == status); }
+     void violate(const char* what) {
+@@ -105,6 +108,7 @@ struct Peer {
+         }
+         if (a != w) return;
+         if ((v & 1u) != 0u && (previous & 1u) == 0u) rise(v);
++        if ((v & 1u) == 0u && (previous & 1u) != 0u && (v & 6u) != (previous & 6u)) ++changed_on_fall;
+         if ((v & 1u) == 0u && edge == 64u) {
+             const bool write = (command >> 10) == 5u;
+             frames.push_back({(command >> 5) & 31u, command & 31u, at, write, static_cast<std::uint16_t>(data)});
+diff --git a/sw/firmware/ctrl/test/test_plat_phy.cpp b/sw/firmware/ctrl/test/test_plat_phy.cpp
+index 745eec8b0f..b7714b25f6 100644
+--- a/sw/firmware/ctrl/test/test_plat_phy.cpp
++++ b/sw/firmware/ctrl/test/test_plat_phy.cpp
+@@ -590,6 +590,17 @@ TEST_F(PlatPhy, P14AResetPhyIsAdvertisedAgain) {
+     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+ }
+ 
++TEST_F(PlatPhy, P19TheDataIsHeldThroughMdcsFallingEdge) {
++    // F-G4: the release's bit (milan_baremetal.c phy_mdio_bit) lowers MDC with the data and the output enable as they
++    // were, and only the next bit's first write changes them, so no pin changes on MDC's falling edge; reads and the
++    // advertisement's writes alike
++    peer.negotiates = true;
++    found();
++    ASSERT_GE(writes_since(0).size(), 3u) << "the boot's advertisement written";
++    EXPECT_EQ(peer.changed_on_fall, 0u) << "P19 no data or output enable change on MDC's falling edge";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
+ TEST_F(PlatPhy, P15AnUnverifiedAdvertisementStaysOwed) {
+     // a PHY that drops its writes to register 4, then one that drops them to register 9: each try writes and
+     // restarts again, the registers as read not holding the advertisement, until it reads back

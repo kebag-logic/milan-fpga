@@ -1,0 +1,16 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part18 --groups backlog-adp@blank-aged1-4,backlog-adp@program-4,backlog-adp@verify-1,backlog-adp@verify-aged2-6 --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 23:22:28
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part18/backlog-adp@program-4.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part18/backlog-adp@verify-1.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part18/backlog-adp@blank-aged1-4.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part18/backlog-adp@verify-aged2-6.txt -
+STEPS 2068 passes carry the store's step; the longest 95,613 CPU cycles (0.956 ms), backlog-adp@verify-1; the longest step 77,837 (0.778 ms), backlog-adp@program-4
+SLICES 77835 tier-2 slices; the longest SRP's records 126,981, THE TRANSMIT's build 27,127, THE RETRY's round 12,483 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS backlog-adp@program-4: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-1: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@blank-aged1-4: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-aged2-6: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+AGED 2 windows opened with the step's age at its limit or one short of it, 1 aged steps among their records; the least margin 10.960 ms, backlog-adp@verify-aged2-6.service.srp.last.if0 at 9.040 ms
+4 groups graded, 0 refusals, 0 budget misses (0 of 44 probe instances, 0 of 11 paths), 0 of 1998 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 00:51:44

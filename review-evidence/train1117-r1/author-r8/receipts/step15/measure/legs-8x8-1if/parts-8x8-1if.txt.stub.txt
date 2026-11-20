@@ -1,0 +1,61 @@
+parts-8x8-1if.txt: 274616 bytes, sha256 d076aa6001a8c073774958067432b8a3a0b6859a178f9a278f92c152eb47129e; over 200 KB, kept in scratch. Its last 60 lines:
+NOTICE talker-notice-6.declared.if0: committed 2.157 ms after its event's commit at sys 300600141, the last of 16 recipients at sys 300815849 (bound 20 ms) within
+NOTICE talker-notice-6.withdrawn.if0: committed 2.232 ms after its event's commit at sys 360600131, the last of 16 recipients at sys 360823286 (bound 20 ms) within
+4 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 2 paths), 0 of 6521 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 14:34:39
+==== talker-notices.part1.log
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-92de01f756299c7d83bd6945dbf62d4b311a683e-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices --reuse-build --out <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/part1 --groups talker-notice-1,talker-notice-3,talker-notice-5,talker-notice-7 --record-budget-findings --record-share-findings --jobs 1 --variant talker-notices start 13:40:05
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/part1/talker-notice-1.txt -
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/part1/talker-notice-3.txt -
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/part1/talker-notice-5.txt -
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/talker-notices/part1/talker-notice-7.txt -
+STEPS 2804 passes carry the store's step; the longest 98,385 CPU cycles (0.984 ms), talker-notice-1; the longest step 77,701 (0.777 ms), talker-notice-1
+SLICES 66989 tier-2 slices; the longest SRP's records 116,880, THE TRANSMIT's build 37,578, THE RETRY's round 22,896 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS talker-notice-1: 4 join interval(s), the shortest 188.031 ms and the longest 190.028 ms, against 181.0 to 239.0; MRP timers' run-outs: 11 released, 8 empty
+JOINS talker-notice-3: 4 join interval(s), the shortest 188.031 ms and the longest 190.063 ms, against 181.0 to 239.0; MRP timers' run-outs: 11 released, 8 empty
+JOINS talker-notice-5: 4 join interval(s), the shortest 188.031 ms and the longest 190.028 ms, against 181.0 to 239.0; MRP timers' run-outs: 11 released, 8 empty
+JOINS talker-notice-7: 4 join interval(s), the shortest 188.031 ms and the longest 190.063 ms, against 181.0 to 239.0; MRP timers' run-outs: 11 released, 8 empty
+NOTICE talker-notice-1.declared.if0: committed 7.669 ms after its event's commit at sys 300100141, the last of 16 recipients at sys 300867085 (bound 20 ms) within
+NOTICE talker-notice-1.withdrawn.if0: committed 6.532 ms after its event's commit at sys 360100131, the last of 16 recipients at sys 360753371 (bound 20 ms) within
+NOTICE talker-notice-3.declared.if0: committed 4.580 ms after its event's commit at sys 300300141, the last of 16 recipients at sys 300758131 (bound 20 ms) within
+NOTICE talker-notice-3.withdrawn.if0: committed 4.626 ms after its event's commit at sys 360300131, the last of 16 recipients at sys 360762743 (bound 20 ms) within
+NOTICE talker-notice-5.declared.if0: committed 2.970 ms after its event's commit at sys 300500141, the last of 16 recipients at sys 300797123 (bound 20 ms) within
+NOTICE talker-notice-5.withdrawn.if0: committed 2.954 ms after its event's commit at sys 360500131, the last of 16 recipients at sys 360795482 (bound 20 ms) within
+NOTICE talker-notice-7.declared.if0: committed 1.713 ms after its event's commit at sys 300700141, the last of 16 recipients at sys 300871426 (bound 20 ms) within
+NOTICE talker-notice-7.withdrawn.if0: committed 1.836 ms after its event's commit at sys 360700131, the last of 16 recipients at sys 360883771 (bound 20 ms) within
+4 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 2 paths), 0 of 6521 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 15:20:00
+==== valid-destinations.part0.log
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-92de01f756299c7d83bd6945dbf62d4b311a683e-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations --reuse-build --out <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part0 --groups srp-talker --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 13:39:58
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part0/srp-talker.txt -
+STEPS 2058 passes carry the store's step; the longest 38,199 CPU cycles (0.382 ms), srp-talker; the longest step 2,699 (0.027 ms), srp-talker
+SLICES 81490 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 95,600, THE RETRY's round 12,243 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker: 20 join interval(s), the shortest 187.320 ms and the longest 190.264 ms, against 181.0 to 239.0; MRP timers' run-outs: 67 released, 41 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+1 groups graded, 0 refusals, 0 budget misses (0 of 9 probe instances, 0 of 9 paths), 0 of 33258 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 15:29:06
+==== valid-destinations.part1.log
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-92de01f756299c7d83bd6945dbf62d4b311a683e-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations --reuse-build --out <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part1 --groups srp-talker-held --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 13:39:58
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part1/srp-talker-held.txt -
+STEPS 2115 passes carry the store's step; the longest 111,415 CPU cycles (1.114 ms), srp-talker-held; the longest step 78,092 (0.781 ms), srp-talker-held
+SLICES 64650 tier-2 slices; the longest SRP's records 130,353, THE TRANSMIT's build 124,099, THE RETRY's round 12,457 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.320 ms and the longest 190.264 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1506.726 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.66 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25377 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 15:18:55
+==== valid-destinations.part2.log
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-92de01f756299c7d83bd6945dbf62d4b311a683e-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations --reuse-build --out <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part2 --groups srp-talker-loss --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 13:39:58
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/native/Vsim <scratch>/r6meas/92de01f756299c7d83bd6945dbf62d4b311a683e/8x8-1if/valid-destinations/part2/srp-talker-loss.txt -
+STEPS 727 passes carry the store's step; the longest 37,812 CPU cycles (0.378 ms), srp-talker-loss; the longest step 2,699 (0.027 ms), srp-talker-loss
+SLICES 33640 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 85,697, THE RETRY's round 12,243 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker-loss: 10 join interval(s), the shortest 187.320 ms and the longest 190.358 ms, against 181.0 to 239.0; MRP timers' run-outs: 25 released, 16 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 10 probe instances, 0 of 10 paths), 0 of 7947 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 14:45:31

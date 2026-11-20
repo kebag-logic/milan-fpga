@@ -1,0 +1,53 @@
+==== control-mutations.log
+tree: rows_tiers [] flip []
+TX check admitting one under the row: rows_tiers ["THE TRANSMIT's stated figure under its row"] flip ["THE TRANSMIT's stated figure under its row"]
+queued value check blind: ["the last queued notice's bound keyed on the interface count (earlier rule)"]
+tree queued: []
+==== flip_selftest.log
+CMD python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+HEAD fb083864 START 17:46:41
+flip check: 616 of 616 planted controls refused
+rc=0
+==== py_idiom.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_py_idiom.py
+HEAD fb083864 START 17:46:41
+py idiom: 678 first-party modules, 331431 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+==== rows_tiers.log
+CMD python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+HEAD fb083864 START 17:46:41
+rows_tiers: 1033 of 1033 planted controls refused
+rc=0
+==== shape_costs_check.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check
+HEAD fb083864 START 17:46:41
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+==== shape_costs_selftest.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --selftest
+HEAD fb083864 START 17:46:41
+the table of shapes: 25 of 25 planted controls refused
+rc=0

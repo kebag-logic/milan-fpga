@@ -1,0 +1,1124 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov 18 15:07:21 2026
+| Host         : <host>
+| Command      : report_methodology -file methodology-full-candidate-release-c8ff391a.rpt
+| Design       : alinx_ax7101
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Methodology
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: checkpoint_alinx_ax7101_route
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 170
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| Rule      | Severity | Description                                                                                           | Checks |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| LUTAR-1   | Warning  | LUT drives async reset alert                                                                          | 8      |
+| SYNTH-4   | Warning  | Shallow depth for a dedicated block RAM                                                               | 2      |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal                                                            | 75     |
+| SYNTH-10  | Warning  | Wide multiplier                                                                                       | 4      |
+| TIMING-10 | Warning  | Missing property on synchronizer                                                                      | 1      |
+| TIMING-18 | Warning  | Missing input or output delay                                                                         | 10     |
+| TIMING-24 | Warning  | Overridden Max delay datapath only                                                                    | 2      |
+| TIMING-46 | Warning  | Multicycle path with tied CE pins                                                                     | 1      |
+| TIMING-47 | Warning  | False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks | 2      |
+| ULMTCS-1  | Warning  | Control Sets use limits recommend reduction                                                           | 1      |
+| REQP-1959 | Advisory | connects_SERDES_RST_driver_not_FF                                                                     | 32     |
+| RTGT-1    | Advisory | RAM retargeting possibility                                                                           | 32     |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+LUTAR-1#1 Warning
+LUT drives async reset alert  
+LUT cell OSERDESE2_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) ISERDESE2/RST, ISERDESE2_1/RST, ISERDESE2_10/RST, ISERDESE2_11/RST,
+ISERDESE2_12/RST, ISERDESE2_13/RST, ISERDESE2_14/RST, ISERDESE2_15/RST,
+ISERDESE2_16/RST, ISERDESE2_17/RST, ISERDESE2_18/RST, ISERDESE2_19/RST,
+ISERDESE2_2/RST, ISERDESE2_20/RST, ISERDESE2_21/RST
+ (the first 15 of 32 listed). The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#2 Warning
+LUT drives async reset alert  
+LUT cell VexiiRiscvLitex_f5f08b170311db53220574624f819159/VexiiRiscvLitex_LUT4_57, with 2 or more inputs, drives asynchronous preset/clear pin(s) VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_buffer/buffers_0_reg/PRE
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_buffer/buffers_1_reg/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#3 Warning
+LUT drives async reset alert  
+LUT cell VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_thread_logic/outHitSignal_buffercc_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/buffers_0_reg/PRE,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/buffers_1_reg/PRE,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/io_output_tracker_beat_reg[0]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/io_output_tracker_beat_reg[1]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/io_output_tracker_beat_reg[2]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/io_output_tracker_beat_reg[3]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/locked_reg/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/maskLocked_0_reg/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/maskLocked_1_reg/PRE,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[0]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[1]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[2]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[3]/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/frontend_allocateSlot_valid_reg/CLR,
+VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/frontend_split_spliter_blockCounter_reg[0]/CLR
+ (the first 15 of 350 listed). The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#4 Warning
+LUT drives async reset alert  
+LUT cell milan_datapath/g_gptp_plane.u_gptp_shadow/u_txret/FDPE_16_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) FDPE_16/PRE, FDPE_17/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#5 Warning
+LUT drives async reset alert  
+LUT cell milan_datapath/g_gptp_plane.u_gptp_shadow/u_txret/FDPE_22_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) FDPE_22/PRE, FDPE_23/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#6 Warning
+LUT drives async reset alert  
+LUT cell milan_datapath/link_guard/FDPE_12_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) FDPE_12/PRE, FDPE_13/PRE, FDPE_14/PRE, FDPE_15/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#7 Warning
+LUT drives async reset alert  
+LUT cell milan_datapath/link_guard/FDPE_18_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) FDPE_18/PRE, FDPE_19/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#8 Warning
+LUT drives async reset alert  
+LUT cell milan_datapath/link_guard/FDPE_20_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) FDPE_20/PRE, FDPE_21/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+SYNTH-4#1 Warning
+Shallow depth for a dedicated block RAM  
+The instance storage_32_reg is implemented as block RAM but is better mapped onto distributed LUT RAM for the following reason: The depth (2 address bits) is shallow. Please use attribute (* ram_style = "distributed" *)  to instruct Vivado to infer distributed LUT RAM.
+Related violations: <none>
+
+SYNTH-4#2 Warning
+Shallow depth for a dedicated block RAM  
+The instance storage_34_reg is implemented as block RAM but is better mapped onto distributed LUT RAM for the following reason: The depth (2 address bits) is shallow. Please use attribute (* ram_style = "distributed" *)  to instruct Vivado to infer distributed LUT RAM.
+Related violations: <none>
+
+SYNTH-6#1 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#2 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#3 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#4 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#5 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#6 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#7 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance mem_dat0_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#8 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/aaf_packetizer/stg_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#9 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/aaf_packetizer/tctx_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#10 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/avtp_rx_monitor/lctx_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#11 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/chan_map_capture/lb_q_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#12 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/crf_rx/ts_hist_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#13 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/g_rx_pool[0].u_rx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#14 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/g_rx_pool[1].u_rx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#15 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/g_rx_pool[2].u_rx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#16 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/g_rx_pool[4].u_rx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#17 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/g_rx_pool[5].u_rx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#18 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/amap_stage_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#19 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_store/line_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#20 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_store/name_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#21 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_mrp_strip/ram_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#22 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_rx_validator/mrp_mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#23 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_srp/u_decoder/tp_ram_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#24 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_timer/slot_ram_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#25 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_trace/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#26 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_af_pp.pp_shadow/u_pp/u_tx_slots/mem_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#27 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#28 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#29 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#30 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/render_queue/bank0_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#31 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance milan_datapath/render_queue/bank1_r_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#32 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#33 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#34 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_10, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#35 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_11, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#36 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_12, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#37 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_13, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#38 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_14, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#39 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_15, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#40 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#41 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#42 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_4, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#43 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_5, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#44 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_6, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#45 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_7, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#46 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_8, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#47 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance rom_dat0_reg_9, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#48 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance sram_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#49 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance sram_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#50 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_11_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#51 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_11_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#52 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_11_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#53 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_11_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#54 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_11_reg_4, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#55 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_14_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#56 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_14_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#57 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_14_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#58 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_14_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#59 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_15_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#60 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_15_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#61 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_15_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#62 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_15_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#63 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_15_reg_4, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#64 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_18_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#65 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_18_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#66 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_18_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#67 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_18_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#68 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_20_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#69 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_20_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#70 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_22_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#71 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_22_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#72 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_23_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#73 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_23_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#74 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_32_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#75 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance storage_34_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-10#1 Warning
+Wide multiplier  
+Detected multiplier at milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0 of size 15x18, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#2 Warning
+Wide multiplier  
+Detected multiplier at milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0__0 of size 18x18, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#3 Warning
+Wide multiplier  
+Detected multiplier at milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg of size 15x15, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#4 Warning
+Wide multiplier  
+Detected multiplier at milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg__0 of size 18x15, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+TIMING-10#1 Warning
+Missing property on synchronizer  
+One or more logic synchronizer has been detected between 2 clock domains but the synchronizer does not have the property ASYNC_REG defined on one or both registers. It is recommended to run report_cdc for a complete and detailed CDC coverage
+Related violations: <none>
+
+TIMING-18#1 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[0] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#2 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[1] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#3 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[2] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#4 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[3] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#5 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[4] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#6 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[5] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#7 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[6] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#8 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_data[7] relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#9 Warning
+Missing input or output delay  
+An output delay is missing on eth0_tx_en relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-18#10 Warning
+Missing input or output delay  
+An output delay is missing on eth_clocks0_gtx relative to the rising and/or falling clock edge(s) of eth_clocks0_rx.
+Related violations: <none>
+
+TIMING-24#1 Warning
+Overridden Max delay datapath only  
+An asynchronous set_clock_groups or a set_false path (see constraint position 19 in the Timing Constraints window in Vivado IDE) between clocks milansoc_crg_clkout0 and eth_clocks0_rx overrides a set_max_delay -datapath_only (position 20). It is not recommended to override a set_max_delay -datapath_only constraint. Replace the set_clock_groups or set_false_path between clocks with point-to-point set_false_path constraints
+Related violations: <none>
+
+TIMING-24#2 Warning
+Overridden Max delay datapath only  
+An asynchronous set_clock_groups or a set_false path (see constraint position 23 in the Timing Constraints window in Vivado IDE) between clocks milansoc_crg_clkout1 and eth_clocks0_rx overrides a set_max_delay -datapath_only (position 24). It is not recommended to override a set_max_delay -datapath_only constraint. Replace the set_clock_groups or set_false_path between clocks with point-to-point set_false_path constraints
+Related violations: <none>
+
+TIMING-46#1 Warning
+Multicycle path with tied CE pins  
+One or more multicycle paths are defined between registers FDPE_1/Q and milansoc_sdram_dfi_p0_cs_n_reg/D with a direct connection and the CE pins connected to VCC (see constraint position 1 in the Timing Constraint window in Vivado IDE).  This may result in an inaccurate path requirement.
+Related violations: <none>
+
+TIMING-47#1 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks  
+A Clock Group timing constraint is set between synchronous clocks milansoc_crg_clkout0 and milansoc_crg_clkout1 (see constraint position 7 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+
+TIMING-47#2 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks  
+A Clock Group timing constraint is set between synchronous clocks milansoc_crg_clkout1 and milansoc_crg_clkout0 (see constraint position 7 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+
+ULMTCS-1#1 Warning
+Control Sets use limits recommend reduction  
+This design uses 2203 control sets (vs. available limit of 15850, determined by 1 control set per CLB). This exceeds the control set use guideline of 7.5 percent. This is at a level where reduction is RECOMMENDED (see UG949). Use report_control_sets to get more details.
+Related violations: <none>
+
+REQP-1959#1 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#2 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_10: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#3 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_11: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#4 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_12: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#5 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_13: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#6 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_14: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#7 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_15: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#8 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_16: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#9 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_17: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#10 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_18: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#11 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_19: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#12 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_1: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#13 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_20: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#14 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_21: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#15 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_22: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#16 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_23: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#17 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_24: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#18 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_25: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#19 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_26: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#20 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_27: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#21 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_28: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#22 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_29: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#23 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_2: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#24 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_30: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#25 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_31: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#26 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_3: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#27 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_4: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#28 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_5: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#29 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_6: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#30 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_7: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#31 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_8: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#32 Advisory
+connects_SERDES_RST_driver_not_FF  
+ISERDESE2_9: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+RTGT-1#1 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#2 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#3 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#4 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#5 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#6 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#7 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#8 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#9 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#10 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#11 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#12 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#13 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#14 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#15 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#16 Advisory
+RAM retargeting possibility  
+Identified 6 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 4 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[0].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[1].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[2].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[3].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[4].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[5].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#17 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[0].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#18 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[10].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#19 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[11].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#20 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[12].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#21 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[13].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#22 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[14].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#23 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[15].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#24 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[1].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#25 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[2].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#26 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[3].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#27 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[4].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#28 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[5].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#29 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[6].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#30 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[7].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#31 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[8].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+RTGT-1#32 Advisory
+RAM retargeting possibility  
+Identified 9 RAM64X1D primitives that could be retargeted to RAM64M. Retargeting will save approximately 6 memory LUTs and improve routability. These can usually be achieved using synthesis inference or XPMs. The memories are milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[10].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[11].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[12].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[13].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[14].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[15].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[16].mem_r_reg_0_63_0_0,
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[17].mem_r_reg_0_63_0_0
+milan_datapath/g_af_pp.pp_shadow/u_pp/u_notify/g_ix_row[9].g_ix_chunk[8].mem_r_reg_0_63_0_0
+Related violations: <none>
+
+

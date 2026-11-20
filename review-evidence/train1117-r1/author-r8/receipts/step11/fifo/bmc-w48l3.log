@@ -1,0 +1,811 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Executing script file `<scratch>/r5fifo/bmc-w48l3.ys' --
+
+1. Executing Verilog-2005 frontend: <scratch>/r5fifo/gold.sv
+Parsing SystemVerilog input from `<scratch>/r5fifo/gold.sv' to AST representation.
+Generating RTLIL representation for module `\gold_fifo'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: <scratch>/r5fifo/gate.sv
+Parsing SystemVerilog input from `<scratch>/r5fifo/gate.sv' to AST representation.
+Generating RTLIL representation for module `\gate_fifo'.
+Successfully finished Verilog frontend.
+Parameter \WIDTH = 48
+Parameter \LOG2D = 3
+
+3. Executing AST frontend in derive mode using pre-parsed AST for module `\gold_fifo'.
+Parameter \WIDTH = 48
+Parameter \LOG2D = 3
+Generating RTLIL representation for module `$paramod$3617e363ab3deb5555771d5ff27b99e08d70d21b\gold_fifo'.
+Parameter \WIDTH = 48
+Parameter \LOG2D = 3
+
+4. Executing AST frontend in derive mode using pre-parsed AST for module `\gate_fifo'.
+Parameter \WIDTH = 48
+Parameter \LOG2D = 3
+Generating RTLIL representation for module `$paramod$3617e363ab3deb5555771d5ff27b99e08d70d21b\gate_fifo'.
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$<scratch>/r5fifo/gate.sv:65$142 in module gate_fifo.
+Marked 1 switch rules as full_case in process $proc$<scratch>/r5fifo/gate.sv:87$149 in module gate_fifo.
+Marked 1 switch rules as full_case in process $proc$<scratch>/r5fifo/gate.sv:121$164 in module gate_fifo.
+Marked 1 switch rules as full_case in process $proc$<scratch>/r5fifo/gate.sv:125$174 in module gate_fifo.
+Marked 2 switch rules as full_case in process $proc$<scratch>/r5fifo/gold.sv:64$98 in module gold_fifo.
+Marked 1 switch rules as full_case in process $proc$<scratch>/r5fifo/gold.sv:88$116 in module gold_fifo.
+Removed a total of 0 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 20 redundant assignments.
+Promoted 18 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~9 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+     1/5: $0\rgray_w2_r[3:0]
+     2/5: $0\rgray_w1_r[3:0]
+     3/5: $0\wfull_o[0:0]
+     4/5: $0\wptr_gray_r[3:0]
+     5/5: $0\wptr_bin_r[3:0]
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+     1/5: $0\wgray_r2_r[3:0]
+     2/5: $0\wgray_r1_r[3:0]
+     3/5: $0\rempty_o[0:0]
+     4/5: $0\rptr_gray_r[3:0]
+     5/5: $0\rptr_bin_r[3:0]
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:63$152'.
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:85$158'.
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+     1/3: $1$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$173
+     2/3: $1$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_DATA[47:0]$172
+     3/3: $1$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_ADDR[2:0]$171
+Creating decoders for process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:125$174'.
+     1/1: $0\rdata_o[47:0]
+Creating decoders for process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+     1/11: $2$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$110
+     2/11: $2$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_DATA[47:0]$109
+     3/11: $2$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_ADDR[2:0]$108
+     4/11: $0\rgray_w2_r[3:0]
+     5/11: $0\rgray_w1_r[3:0]
+     6/11: $0\wfull_o[0:0]
+     7/11: $0\wptr_gray_r[3:0]
+     8/11: $0\wptr_bin_r[3:0]
+     9/11: $1$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$105
+    10/11: $1$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_DATA[47:0]$104
+    11/11: $1$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_ADDR[2:0]$103
+Creating decoders for process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+     1/6: $0\wgray_r2_r[3:0]
+     2/6: $0\wgray_r1_r[3:0]
+     3/6: $0\rempty_o[0:0]
+     4/6: $0\rptr_gray_r[3:0]
+     5/6: $0\rptr_bin_r[3:0]
+     6/6: $0\rdata_o[47:0]
+Creating decoders for process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:62$122'.
+Creating decoders for process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:86$128'.
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\gate_fifo.\bin2gray$func$<scratch>/r5fifo/gate.sv:63$134.$result' from process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:63$152'.
+No latch inferred for signal `\gate_fifo.\bin2gray$func$<scratch>/r5fifo/gate.sv:85$135.$result' from process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:85$158'.
+No latch inferred for signal `\gold_fifo.\bin2gray$func$<scratch>/r5fifo/gold.sv:62$90.$result' from process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:62$122'.
+No latch inferred for signal `\gold_fifo.\bin2gray$func$<scratch>/r5fifo/gold.sv:86$91.$result' from process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:86$128'.
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\gate_fifo.\wfull_o' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+  created $dff cell `$procdff$285' with positive edge clock.
+Creating register for signal `\gate_fifo.\wptr_bin_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+  created $dff cell `$procdff$286' with positive edge clock.
+Creating register for signal `\gate_fifo.\wptr_gray_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+  created $dff cell `$procdff$287' with positive edge clock.
+Creating register for signal `\gate_fifo.\rgray_w1_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+  created $dff cell `$procdff$288' with positive edge clock.
+Creating register for signal `\gate_fifo.\rgray_w2_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+  created $dff cell `$procdff$289' with positive edge clock.
+Creating register for signal `\gate_fifo.\rempty_o' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+  created $dff cell `$procdff$290' with positive edge clock.
+Creating register for signal `\gate_fifo.\rptr_bin_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+  created $dff cell `$procdff$291' with positive edge clock.
+Creating register for signal `\gate_fifo.\rptr_gray_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+  created $dff cell `$procdff$292' with positive edge clock.
+Creating register for signal `\gate_fifo.\wgray_r1_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+  created $dff cell `$procdff$293' with positive edge clock.
+Creating register for signal `\gate_fifo.\wgray_r2_r' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+  created $dff cell `$procdff$294' with positive edge clock.
+Creating register for signal `\gate_fifo.$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_ADDR' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+  created $dff cell `$procdff$295' with positive edge clock.
+Creating register for signal `\gate_fifo.$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_DATA' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+  created $dff cell `$procdff$296' with positive edge clock.
+Creating register for signal `\gate_fifo.$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+  created $dff cell `$procdff$297' with positive edge clock.
+Creating register for signal `\gate_fifo.\rdata_o' using process `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:125$174'.
+  created $dff cell `$procdff$298' with positive edge clock.
+Creating register for signal `\gold_fifo.\wfull_o' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$299' with positive edge clock.
+Creating register for signal `\gold_fifo.\wptr_bin_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$300' with positive edge clock.
+Creating register for signal `\gold_fifo.\wptr_gray_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$301' with positive edge clock.
+Creating register for signal `\gold_fifo.\rgray_w1_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$302' with positive edge clock.
+Creating register for signal `\gold_fifo.\rgray_w2_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$303' with positive edge clock.
+Creating register for signal `\gold_fifo.$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_ADDR' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$304' with positive edge clock.
+Creating register for signal `\gold_fifo.$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_DATA' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$305' with positive edge clock.
+Creating register for signal `\gold_fifo.$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+  created $dff cell `$procdff$306' with positive edge clock.
+Creating register for signal `\gold_fifo.\rdata_o' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$307' with positive edge clock.
+Creating register for signal `\gold_fifo.\rempty_o' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$308' with positive edge clock.
+Creating register for signal `\gold_fifo.\rptr_bin_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$309' with positive edge clock.
+Creating register for signal `\gold_fifo.\rptr_gray_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$310' with positive edge clock.
+Creating register for signal `\gold_fifo.\wgray_r1_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$311' with positive edge clock.
+Creating register for signal `\gold_fifo.\wgray_r2_r' using process `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+  created $dff cell `$procdff$312' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:65$142'.
+Found and cleaned up 1 empty switch in `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:87$149'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:63$152'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:85$158'.
+Found and cleaned up 1 empty switch in `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:121$164'.
+Found and cleaned up 2 empty switches in `\gate_fifo.$proc$<scratch>/r5fifo/gate.sv:125$174'.
+Removing empty process `gate_fifo.$proc$<scratch>/r5fifo/gate.sv:125$174'.
+Found and cleaned up 2 empty switches in `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+Removing empty process `gold_fifo.$proc$<scratch>/r5fifo/gold.sv:64$98'.
+Found and cleaned up 2 empty switches in `\gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+Removing empty process `gold_fifo.$proc$<scratch>/r5fifo/gold.sv:88$116'.
+Removing empty process `gold_fifo.$proc$<scratch>/r5fifo/gold.sv:62$122'.
+Removing empty process `gold_fifo.$proc$<scratch>/r5fifo/gold.sv:86$128'.
+Cleaned up 9 empty switches.
+
+5.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate_fifo.
+<suppressed ~13 debug messages>
+Optimizing module gold_fifo.
+<suppressed ~19 debug messages>
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+Removed 11 unused cells and 112 unused wires.
+<suppressed ~13 debug messages>
+
+7. Executing MEMORY pass.
+
+7.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+7.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+7.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+  Analyzing gate_fifo.g_mem.mem_r write port 0.
+  Analyzing gold_fifo.mem_r write port 0.
+
+7.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+7.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+Checking read port `\g_mem.mem_r'[0] in module `\gate_fifo': FF found, but with a mux select that doesn't seem to correspond to transparency logic.
+Checking read port address `\g_mem.mem_r'[0] in module `\gate_fifo': address FF clock is not compatible with write clock.
+Checking read port `\mem_r'[0] in module `\gold_fifo': FF found, but with a mux select that doesn't seem to correspond to transparency logic.
+Checking read port address `\mem_r'[0] in module `\gold_fifo': address FF clock is not compatible with write clock.
+
+7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+
+7.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+7.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+7.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+
+7.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+8. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+Mapping memory \g_mem.mem_r in module \gate_fifo:
+  created 8 $dff cells and 0 static cells of width 48.
+  read interface: 0 $dff and 7 $mux cells.
+  write interface: 384 write mux blocks.
+Mapping memory \mem_r in module \gold_fifo:
+  created 8 $dff cells and 0 static cells of width 48.
+  read interface: 0 $dff and 7 $mux cells.
+  write interface: 384 write mux blocks.
+
+9. Executing OPT pass (performing simple optimizations).
+
+9.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate_fifo.
+<suppressed ~19 debug messages>
+Optimizing module gold_fifo.
+<suppressed ~24 debug messages>
+
+9.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\gate_fifo'.
+Computing hashes of 838 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+Computing hashes of 836 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+<suppressed ~6 debug messages>
+Finding identical cells in module `\gold_fifo'.
+Computing hashes of 838 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+Computing hashes of 836 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+<suppressed ~6 debug messages>
+Removed a total of 4 cells.
+
+9.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \gate_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \gold_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~1597 debug messages>
+
+9.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \gate_fifo.
+    Consolidated identical input bits for $mux cell $procmux$210:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167
+      New ports: A=1'0, B=1'1, Y=$0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0]
+      New connections: $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [47:1] = { $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] $0$memwr$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:123$138_EN[47:0]$167 [0] }
+  Optimizing cells in module \gate_fifo.
+  Optimizing cells in module \gold_fifo.
+    Consolidated identical input bits for $mux cell $procmux$224:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$224_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$224_Y [0]
+      New connections: $procmux$224_Y [47:1] = { $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] $procmux$224_Y [0] }
+  Optimizing cells in module \gold_fifo.
+    Consolidated identical input bits for $mux cell $procmux$257:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=$2$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$110, Y=$0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101
+      New ports: A=1'0, B=$procmux$224_Y [0], Y=$0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0]
+      New connections: $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [47:1] = { $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] $0$memwr$\mem_r$<scratch>/r5fifo/gold.sv:74$94_EN[47:0]$101 [0] }
+  Optimizing cells in module \gold_fifo.
+Performed a total of 3 changes.
+
+9.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\gate_fifo'.
+Computing hashes of 836 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+Computing hashes of 460 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+<suppressed ~1128 debug messages>
+Finding identical cells in module `\gold_fifo'.
+Computing hashes of 836 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+Computing hashes of 460 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+<suppressed ~1128 debug messages>
+Removed a total of 752 cells.
+
+9.6. Executing OPT_SHARE pass.
+
+9.7. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$294 ($dff) from module gate_fifo (D = \wgray_r1_r, Q = \wgray_r2_r, rval = 4'0000).
+Adding SRST signal on $procdff$298 ($dff) from module gate_fifo (D = $procmux$218_Y, Q = \rdata_o, rval = 48'000000000000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$3550 ($sdff) from module gate_fifo (D = $memrd$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:128$178_DATA, Q = \rdata_o).
+Adding SRST signal on $procdff$291 ($dff) from module gate_fifo (D = \rptr_bin_n, Q = \rptr_bin_r, rval = 4'0000).
+Adding SRST signal on $procdff$293 ($dff) from module gate_fifo (D = \wptr_gray_r, Q = \wgray_r1_r, rval = 4'0000).
+Adding SRST signal on $procdff$292 ($dff) from module gate_fifo (D = \bin2gray$func$<scratch>/r5fifo/gate.sv:85$135.$result, Q = \rptr_gray_r, rval = 4'0000).
+Adding SRST signal on $procdff$286 ($dff) from module gate_fifo (D = \wptr_bin_n, Q = \wptr_bin_r, rval = 4'0000).
+Adding SRST signal on $procdff$287 ($dff) from module gate_fifo (D = \bin2gray$func$<scratch>/r5fifo/gate.sv:63$134.$result, Q = \wptr_gray_r, rval = 4'0000).
+Adding SRST signal on $procdff$288 ($dff) from module gate_fifo (D = \rptr_gray_r, Q = \rgray_w1_r, rval = 4'0000).
+Adding SRST signal on $procdff$289 ($dff) from module gate_fifo (D = \rgray_w1_r, Q = \rgray_w2_r, rval = 4'0000).
+Adding SRST signal on $procdff$290 ($dff) from module gate_fifo (D = $eq$<scratch>/r5fifo/gate.sv:99$151_Y, Q = \rempty_o, rval = 1'1).
+Adding SRST signal on $procdff$312 ($dff) from module gold_fifo (D = \wgray_r1_r, Q = \wgray_r2_r, rval = 4'0000).
+Adding SRST signal on $procdff$307 ($dff) from module gold_fifo (D = $procmux$280_Y, Q = \rdata_o, rval = 48'000000000000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$3561 ($sdff) from module gold_fifo (D = $memrd$\mem_r$<scratch>/r5fifo/gold.sv:99$120_DATA, Q = \rdata_o).
+Adding SRST signal on $procdff$310 ($dff) from module gold_fifo (D = \bin2gray$func$<scratch>/r5fifo/gold.sv:86$91.$result, Q = \rptr_gray_r, rval = 4'0000).
+Adding SRST signal on $procdff$311 ($dff) from module gold_fifo (D = \wptr_gray_r, Q = \wgray_r1_r, rval = 4'0000).
+Adding SRST signal on $procdff$300 ($dff) from module gold_fifo (D = \wptr_bin_n, Q = \wptr_bin_r, rval = 4'0000).
+Adding SRST signal on $procdff$301 ($dff) from module gold_fifo (D = \bin2gray$func$<scratch>/r5fifo/gold.sv:62$90.$result, Q = \wptr_gray_r, rval = 4'0000).
+Adding SRST signal on $procdff$302 ($dff) from module gold_fifo (D = \rptr_gray_r, Q = \rgray_w1_r, rval = 4'0000).
+Adding SRST signal on $procdff$303 ($dff) from module gold_fifo (D = \rgray_w1_r, Q = \rgray_w2_r, rval = 4'0000).
+Adding SRST signal on $procdff$309 ($dff) from module gold_fifo (D = \rptr_bin_n, Q = \rptr_bin_r, rval = 4'0000).
+Adding SRST signal on $procdff$308 ($dff) from module gold_fifo (D = $eq$<scratch>/r5fifo/gold.sv:103$121_Y, Q = \rempty_o, rval = 1'1).
+
+9.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+Removed 22 unused cells and 833 unused wires.
+<suppressed ~24 debug messages>
+
+9.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate_fifo.
+<suppressed ~1 debug messages>
+Optimizing module gold_fifo.
+<suppressed ~2 debug messages>
+
+9.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+9.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \gate_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \gold_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~1552 debug messages>
+
+9.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \gate_fifo.
+  Optimizing cells in module \gold_fifo.
+Performed a total of 0 changes.
+
+9.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\gate_fifo'.
+Computing hashes of 448 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+Finding identical cells in module `\gold_fifo'.
+Computing hashes of 448 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+Removed a total of 0 cells.
+
+9.14. Executing OPT_SHARE pass.
+
+9.15. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $memory\g_mem.mem_r[0]$319 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[0]).
+Adding EN signal on $memory\g_mem.mem_r[1]$321 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[1]).
+Adding EN signal on $memory\g_mem.mem_r[2]$323 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[2]).
+Adding EN signal on $memory\g_mem.mem_r[3]$325 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[3]).
+Adding EN signal on $memory\g_mem.mem_r[4]$327 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[4]).
+Adding EN signal on $memory\g_mem.mem_r[5]$329 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[5]).
+Adding EN signal on $memory\g_mem.mem_r[6]$331 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[6]).
+Adding EN signal on $memory\g_mem.mem_r[7]$333 ($dff) from module gate_fifo (D = \wdata_i, Q = \g_mem.mem_r[7]).
+Adding EN signal on $memory\mem_r[0]$1928 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[0]).
+Adding EN signal on $memory\mem_r[1]$1930 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[1]).
+Adding EN signal on $memory\mem_r[2]$1932 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[2]).
+Adding EN signal on $memory\mem_r[3]$1934 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[3]).
+Adding EN signal on $memory\mem_r[4]$1936 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[4]).
+Adding EN signal on $memory\mem_r[5]$1938 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[5]).
+Adding EN signal on $memory\mem_r[6]$1940 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[6]).
+Adding EN signal on $memory\mem_r[7]$1942 ($dff) from module gold_fifo (D = \wdata_i, Q = \mem_r[7]).
+
+9.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+Removed 768 unused cells and 770 unused wires.
+<suppressed ~770 debug messages>
+
+9.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate_fifo.
+Optimizing module gold_fifo.
+
+9.18. Rerunning OPT passes. (Maybe there is more to do..)
+
+9.19. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \gate_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \gold_fifo..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+9.20. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \gate_fifo.
+  Optimizing cells in module \gold_fifo.
+Performed a total of 0 changes.
+
+9.21. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\gate_fifo'.
+Computing hashes of 64 cells of `\gate_fifo'.
+Finding duplicate cells in `\gate_fifo'.
+Finding identical cells in module `\gold_fifo'.
+Computing hashes of 64 cells of `\gold_fifo'.
+Finding duplicate cells in `\gold_fifo'.
+Removed a total of 0 cells.
+
+9.22. Executing OPT_SHARE pass.
+
+9.23. Executing OPT_DFF pass (perform DFF optimizations).
+
+9.24. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate_fifo..
+Finding unused cells or wires in module \gold_fifo..
+
+9.25. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate_fifo.
+Optimizing module gold_fifo.
+
+9.26. Finished fast OPT passes. (There is nothing left to do.)
+
+10. Executing MITER pass (creating miter circuit).
+Creating miter cell "miter" with gold cell "gold_fifo" and gate cell "gate_fifo".
+
+10.1. Executing FLATTEN pass (flatten design).
+<suppressed ~2 debug messages>
+
+10.2. Executing OPT_EXPR pass (perform const folding).
+Optimizing module miter.
+
+11. Executing HIERARCHY pass (managing design hierarchy).
+
+11.1. Analyzing design hierarchy..
+Top module:  \miter
+
+11.2. Analyzing design hierarchy..
+Top module:  \miter
+Removing unused module `\gate_fifo'.
+Removing unused module `\gold_fifo'.
+Removed 2 unused modules.
+Module miter directly or indirectly contains formal properties -> setting "keep" attribute.
+
+12. Executing CLK2FFLOGIC pass (convert clocked FFs to generic $ff cells).
+
+12.1. Executing PEEPOPT pass (run peephole optimizers).
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3549 ($sdff): CLK=\in_rclk_i, D=\gate.wgray_r1_r, Q=\gate.wgray_r2_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3551 ($sdffe): CLK=\in_rclk_i, D=$flatten\gate.$memrd$\g_mem.mem_r$<scratch>/r5fifo/gate.sv:128$178_DATA, Q=\gate.rdata_o
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3552 ($sdff): CLK=\in_rclk_i, D=\gate.rptr_bin_n, Q=\gate.rptr_bin_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3553 ($sdff): CLK=\in_rclk_i, D=\gate.wptr_gray_r, Q=\gate.wgray_r1_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3554 ($sdff): CLK=\in_rclk_i, D={ \gate.rptr_bin_n [3] \gate.bin2gray$func$<scratch>/r5fifo/gate.sv:85$135.$result [2:0] }, Q=\gate.rptr_gray_r
+Replacing miter.$flatten\gate.$procdff$285 ($dff): CLK=\in_wclk_i, D=$flatten\gate.$0\wfull_o[0:0], Q=\gate.wfull_o
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3555 ($sdff): CLK=\in_wclk_i, D=\gate.wptr_bin_n, Q=\gate.wptr_bin_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3556 ($sdff): CLK=\in_wclk_i, D={ \gate.wptr_bin_n [3] \gate.bin2gray$func$<scratch>/r5fifo/gate.sv:63$134.$result [2:0] }, Q=\gate.wptr_gray_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3557 ($sdff): CLK=\in_wclk_i, D=\gate.rptr_gray_r, Q=\gate.rgray_w1_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3558 ($sdff): CLK=\in_wclk_i, D=\gate.rgray_w1_r, Q=\gate.rgray_w2_r
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3559 ($sdff): CLK=\in_rclk_i, D=$flatten\gate.$eq$<scratch>/r5fifo/gate.sv:99$151_Y, Q=\gate.rempty_o
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3571 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[0]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3572 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[1]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3573 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[2]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3574 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[3]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3575 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[4]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3576 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[5]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3577 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[6]
+Replacing miter.$flatten\gate.$auto$ff.cc:337:slice$3578 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gate.g_mem.mem_r[7]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3560 ($sdff): CLK=\in_rclk_i, D=\gold.wgray_r1_r, Q=\gold.wgray_r2_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3562 ($sdffe): CLK=\in_rclk_i, D=$flatten\gold.$memrd$\mem_r$<scratch>/r5fifo/gold.sv:99$120_DATA, Q=\gold.rdata_o
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3563 ($sdff): CLK=\in_rclk_i, D={ \gold.rptr_bin_n [3] \gold.bin2gray$func$<scratch>/r5fifo/gold.sv:86$91.$result [2:0] }, Q=\gold.rptr_gray_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3564 ($sdff): CLK=\in_rclk_i, D=\gold.wptr_gray_r, Q=\gold.wgray_r1_r
+Replacing miter.$flatten\gold.$procdff$299 ($dff): CLK=\in_wclk_i, D=$flatten\gold.$0\wfull_o[0:0], Q=\gold.wfull_o
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3565 ($sdff): CLK=\in_wclk_i, D=\gold.wptr_bin_n, Q=\gold.wptr_bin_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3566 ($sdff): CLK=\in_wclk_i, D={ \gold.wptr_bin_n [3] \gold.bin2gray$func$<scratch>/r5fifo/gold.sv:62$90.$result [2:0] }, Q=\gold.wptr_gray_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3567 ($sdff): CLK=\in_wclk_i, D=\gold.rptr_gray_r, Q=\gold.rgray_w1_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3568 ($sdff): CLK=\in_wclk_i, D=\gold.rgray_w1_r, Q=\gold.rgray_w2_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3569 ($sdff): CLK=\in_rclk_i, D=\gold.rptr_bin_n, Q=\gold.rptr_bin_r
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3570 ($sdff): CLK=\in_rclk_i, D=$flatten\gold.$eq$<scratch>/r5fifo/gold.sv:103$121_Y, Q=\gold.rempty_o
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3579 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[0]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3580 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[1]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3581 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[2]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3582 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[3]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3583 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[4]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3584 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[5]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3585 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[6]
+Replacing miter.$flatten\gold.$auto$ff.cc:337:slice$3586 ($dffe): CLK=\in_wclk_i, D=\in_wdata_i, Q=\gold.mem_r[7]
+
+13. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \miter..
+Removed 0 unused cells and 38 unused wires.
+<suppressed ~1 debug messages>
+
+14. Executing SAT pass (solving SAT problems in the circuit).
+Using SAT solver `minisat`.
+
+Setting up time step 1:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4042 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4037#sampled$4040 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4054 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4030 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4025#sampled$4028 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$4018 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4013#sampled$4016 = 1'0
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$4006 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4001#sampled$4004 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4061#sampled$4064 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3994 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3989#sampled$3992 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4066 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3982 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3977#sampled$3980 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3970 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3965#sampled$3968 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4049#sampled$4052 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3958 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3953#sampled$3956 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3946 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$flatten\gold.$0\wfull_o[0:0]#sampled$3944 = 1'0
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3936 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3931#sampled$3934 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4073#sampled$4076 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3924 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3919#sampled$3922 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4078 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3912 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3907#sampled$3910 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3898 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3893#sampled$3896 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3886 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3881#sampled$3884 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3874 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3869#sampled$3872 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3862 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3857#sampled$3860 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4085#sampled$4088 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3850 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3845#sampled$3848 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4090 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3838 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3833#sampled$3836 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3826 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3821#sampled$3824 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3814 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3809#sampled$3812 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3802 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3797#sampled$3800 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3790 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3785#sampled$3788 = 1'0
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4097#sampled$4100 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3778 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3773#sampled$3776 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4102 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3766 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3761#sampled$3764 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3754 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3749#sampled$3752 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3742 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3737#sampled$3740 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3730 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$flatten\gate.$0\wfull_o[0:0]#sampled$3728 = 1'0
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3720 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3715#sampled$3718 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4109#sampled$4112 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3708 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3703#sampled$3706 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4114 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3696 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3691#sampled$3694 = 4'0000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3684 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3679#sampled$3682 = 48'000000000000000000000000000000000000000000000000
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3670 = 1'1
+Import set-constraint from init attribute: $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3665#sampled$3668 = 4'0000
+Final init constraint equation: { $auto$clk2fflogic.cc:101:sample_data$\gate.wgray_r2_r#sampled$3666 $auto$clk2fflogic.cc:101:sample_data$\gate.rdata_o#sampled$3680 $auto$clk2fflogic.cc:101:sample_data$\gate.rptr_bin_r#sampled$3692 $auto$clk2fflogic.cc:101:sample_data$\gate.wgray_r1_r#sampled$3704 $auto$clk2fflogic.cc:101:sample_data$\gate.rptr_gray_r#sampled$3716 $auto$clk2fflogic.cc:101:sample_data$\gate.wfull_o#sampled$3726 $auto$clk2fflogic.cc:101:sample_data$\gate.wptr_bin_r#sampled$3738 $auto$clk2fflogic.cc:101:sample_data$\gate.wptr_gray_r#sampled$3750 $auto$clk2fflogic.cc:101:sample_data$\gate.rgray_w1_r#sampled$3762 $auto$clk2fflogic.cc:101:sample_data$\gate.rgray_w2_r#sampled$3774 $auto$clk2fflogic.cc:101:sample_data$\gate.rempty_o#sampled$3786 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[0]#sampled$3798 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[1]#sampled$3810 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[2]#sampled$3822 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[3]#sampled$3834 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[4]#sampled$3846 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[5]#sampled$3858 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[6]#sampled$3870 $auto$clk2fflogic.cc:101:sample_data$\gate.g_mem.mem_r[7]#sampled$3882 $auto$clk2fflogic.cc:101:sample_data$\gold.wgray_r2_r#sampled$3894 $auto$clk2fflogic.cc:101:sample_data$\gold.rdata_o#sampled$3908 $auto$clk2fflogic.cc:101:sample_data$\gold.rptr_gray_r#sampled$3920 $auto$clk2fflogic.cc:101:sample_data$\gold.wgray_r1_r#sampled$3932 $auto$clk2fflogic.cc:101:sample_data$\gold.wfull_o#sampled$3942 $auto$clk2fflogic.cc:101:sample_data$\gold.wptr_bin_r#sampled$3954 $auto$clk2fflogic.cc:101:sample_data$\gold.wptr_gray_r#sampled$3966 $auto$clk2fflogic.cc:101:sample_data$\gold.rgray_w1_r#sampled$3978 $auto$clk2fflogic.cc:101:sample_data$\gold.rgray_w2_r#sampled$3990 $auto$clk2fflogic.cc:101:sample_data$\gold.rptr_bin_r#sampled$4002 $auto$clk2fflogic.cc:101:sample_data$\gold.rempty_o#sampled$4014 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[0]#sampled$4026 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[1]#sampled$4038 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[2]#sampled$4050 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[3]#sampled$4062 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[4]#sampled$4074 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[5]#sampled$4086 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[6]#sampled$4098 $auto$clk2fflogic.cc:101:sample_data$\gold.mem_r[7]#sampled$4110 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3665#sampled$3668 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3670 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3679#sampled$3682 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3684 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3691#sampled$3694 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3696 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4114 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3703#sampled$3706 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3708 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4109#sampled$4112 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3715#sampled$3718 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3720 $auto$clk2fflogic.cc:101:sample_data$$flatten\gate.$0\wfull_o[0:0]#sampled$3728 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3730 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3737#sampled$3740 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3742 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3749#sampled$3752 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3754 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3761#sampled$3764 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3766 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4102 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3773#sampled$3776 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3778 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4097#sampled$4100 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3785#sampled$3788 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3790 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3797#sampled$3800 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3802 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3809#sampled$3812 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3814 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3821#sampled$3824 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3826 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3833#sampled$3836 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3838 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4090 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3845#sampled$3848 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3850 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4085#sampled$4088 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3857#sampled$3860 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3862 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3869#sampled$3872 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3874 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3881#sampled$3884 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3886 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3893#sampled$3896 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3898 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3907#sampled$3910 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3912 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4078 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3919#sampled$3922 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3924 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4073#sampled$4076 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3931#sampled$3934 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$3936 $auto$clk2fflogic.cc:101:sample_data$$flatten\gold.$0\wfull_o[0:0]#sampled$3944 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3946 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3953#sampled$3956 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3958 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4049#sampled$4052 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3965#sampled$3968 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3970 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3977#sampled$3980 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3982 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4066 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$3989#sampled$3992 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$3994 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4061#sampled$4064 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4001#sampled$4004 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$4006 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4013#sampled$4016 $auto$clk2fflogic.cc:87:sample_control_edge$\in_rclk_i#sampled$4018 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4025#sampled$4028 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4030 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4054 $auto$clk2fflogic.cc:101:sample_data$$auto$rtlil.cc:3390:Mux$4037#sampled$4040 $auto$clk2fflogic.cc:87:sample_control_edge$\in_wclk_i#sampled$4042 } = 1902'000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000010000110000100000000000000000000000000000000000000000000000000001010000100001000011000010000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000011000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000100001000000000000000000000000000000000000000000000000110000100000000000000000000000000000000000000000000000000001010000100000000000000000000000000000000000000000000000000001000011000010000000000000000000000000000000000000000000000000000101000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000001
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 2:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 3:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 4:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 5:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 6:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 7:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 8:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 9:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 10:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 11:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 12:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 13:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 14:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 15:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 16:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 17:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 18:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 19:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 20:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 21:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 22:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 23:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 24:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 25:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 26:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 27:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 28:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 29:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 30:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 31:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 32:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 33:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 34:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 35:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 36:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 37:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 38:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 39:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Setting up time step 40:
+Final constraint equation: { } = { }
+Imported 382 cells to SAT database.
+Import proof for assert: $auto$miter.cc:268:create_miter_equiv$3659 when 1'1.
+
+Solving problem with 1111341 variables and 2943018 clauses..
+Interrupted SAT solver: TIMEOUT!
+
+        _____  _  _      _____ ____  _     _____
+       /__ __\/ \/ \__/|/  __//  _ \/ \ /\/__ __\
+         / \  | || |\/|||  \  | / \|| | ||  / \
+         | |  | || |  |||  /_ | \_/|| \_/|  | |
+         \_/  \_/\_/  \|\____\\____/\____/  \_/
+
+ERROR: Called with -verify and proof did time out!

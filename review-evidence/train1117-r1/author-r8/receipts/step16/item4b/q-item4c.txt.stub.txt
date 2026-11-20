@@ -1,0 +1,61 @@
+q-item4c.txt: 508373 bytes, sha256 7cb4f720b0314425c18da63f241e62a1e457d44866890cb8b4285ff5ba765492; over 200 KB, kept in scratch. Its last 60 lines:
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: share: a pass with no mailbox write is not held to it: a pass that writes nothing to the mailbox is held to the share too: a run of them whose longest is a cycle over it is a pass over it, and named (({'ms': 2.0, 'cycles': 100000, 'passes': 2, 'over': 0, 'over_passes': [], 'idle_over': 0, 'idle_longest': 0}, []))
+MUTANT caught: load: any window may hold the flood's last change: refused: fixture: no pass carried the store's step before its window, so it has no age
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: load: an aged window may hold no more than its row's: an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly ((True, False, False, False, False))
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: stated: no pass is held to its cost: a build pass at its stated cost fits it and one a cycle over it does not (({'heaviest': {'step': 0, 'build': 99750, 'build-one': 0}, 'limits': {'step': 51500, 'build': 99750, 'build-one': 60750}, 'over': []}, {'heaviest': {'step': 0, )
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)Terminated                 bash -c "$cmd"
+rc=143
+==== shape_costs_check.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check
+HEAD fb083864 START 17:31:50
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+==== shape_costs_selftest.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --selftest
+HEAD fb083864 START 17:31:50
+the table of shapes: 25 of 25 planted controls refused
+rc=0

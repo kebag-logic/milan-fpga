@@ -1,0 +1,38 @@
+# p11's 8x8/1if split image, ExtraPostPlacementOpt, its best of three
+# report_methodology summary:
+             Checks found: 157
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| Rule      | Severity | Description                                                                                           | Checks |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| LUTAR-1   | Warning  | LUT drives async reset alert                                                                          | 7      |
+| SYNTH-4   | Warning  | Shallow depth for a dedicated block RAM                                                               | 2      |
+| SYNTH-5   | Warning  | Mapped onto distributed RAM because of timing constraints                                             | 4      |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal                                                            | 98     |
+| SYNTH-9   | Warning  | Small multiplier                                                                                      | 2      |
+| SYNTH-10  | Warning  | Wide multiplier                                                                                       | 4      |
+| SYNTH-15  | Warning  | Byte wide write enable not inferred                                                                   | 24     |
+| TIMING-10 | Warning  | Missing property on synchronizer                                                                      | 1      |
+| TIMING-18 | Warning  | Missing input or output delay                                                                         | 10     |
+| TIMING-24 | Warning  | Overridden Max delay datapath only                                                                    | 2      |
+| TIMING-47 | Warning  | False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks | 2      |
+| ULMTCS-2  | Warning  | Control Sets use limits require reduction                                                             | 1      |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+
+# lines naming u_fcdc: 0
+
+# TIMING-47 and TIMING-10 details:
+TIMING-10#1 Warning
+Missing property on synchronizer  
+One or more logic synchronizer has been detected between 2 clock domains but the synchronizer does not have the property ASYNC_REG defined on one or both registers. It is recommended to run report_cdc for a complete and detailed CDC coverage
+Related violations: <none>
+
+TIMING-47#1 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks  
+A Clock Group timing constraint is set between synchronous clocks milansoc_crg_clkout0 and milansoc_crg_clkout1 (see constraint position 7 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+
+TIMING-47#2 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks  
+A Clock Group timing constraint is set between synchronous clocks milansoc_crg_clkout1 and milansoc_crg_clkout0 (see constraint position 7 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+

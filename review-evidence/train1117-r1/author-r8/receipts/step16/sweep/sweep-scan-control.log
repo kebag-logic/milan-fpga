@@ -1,0 +1,26 @@
+sweep_scan.py cb96336d..8dc85884: 24 added line(s) with an issue-comment or review ID in code-type files
+DATA (kept) scripts/register_descriptions.json:2847: "CRFT_COUNT": "Raw CRF PDUs emitted since reset. GET_COUNTERS FRAMES_TX counts the same transmitted AVTPDUs but resets at every talker start; both wrap at 32 bits. IEEE 1722.1-2021 7.4.42.2.5 Table 7.
+SOURCE sw/firmware/ctrl/aecp/aecp_mbx.h:77: // (#665 issuecomment-7044585511, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
+SOURCE sw/firmware/ctrl/loop/ctrl_loop.h:218: // of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms).
+SOURCE sw/firmware/ctrl/loop/ctrl_loop.h:283: // as the owner decided on 2026-11-20 (#665 issuecomment-7044585511, ruling
+SOURCE sw/firmware/ctrl/loop/ctrl_loop.h:344: // issuecomment-7044585511, ruling item 4; the owner's bound stays 140 ms), and
+SOURCE sw/firmware/ctrl/plat/ctrl_split_hot.txt:14: # issuecomment-6959600243, item 1). Every function the windows ran stands where
+SOURCE sw/firmware/ctrl/plat/ctrl_split_hot.txt:19: # list serves (#665's ruling of 2026-11-18, issuecomment-6967930396, item 1);
+SOURCE sw/firmware/ctrl_nvm/test/test_nvm_write.cpp:155: // #920 (#665, the ruling of issuecomment-6899740728, item 1): a change marked
+SOURCE sw/litex/ctrl_memory.py:305: "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; the "
+SOURCE sw/litex/ctrl_memory.py:334: "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
+DATA (kept) syn/ooc/pp_resource_baseline.json:451: "measured": "2026-11-18, #665 (rulings issuecomment-6979461559, issuecomment-6979996755 and issuecomment-6981065172; the growth is area debt on #640, not a floor exception): the flip train's final hea
+SOURCE tb/verilator/ctrl_service_budget/declaring_outputs.py:296: (a brief observation that leaves it cleared is completed, R872-1-F2), answer a STREAM_OUTPUT declaring, and the
+SOURCE tb/verilator/ctrl_service_budget/declaring_outputs.py:323: check("the declaring arm refuses a fixture that clears brief (R872-1-F2's)", fixture_findings(cleared), True)
+SOURCE tb/verilator/ctrl_service_budget/edit_rows.py:51: #: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665 issuecomment-7044585511).
+SOURCE tb/verilator/ctrl_service_budget/load_grade.py:219: #: decided on 2026-11-20 (#665 issuecomment-7044585511), in both columns: an AECP record 250 us (23,726 CPU cycles, a
+SOURCE tb/verilator/ctrl_service_budget/load_grade.py:273: #: cut's head, as STATED_US states (the owner's decision of 2026-11-20, #665 issuecomment-7044585511), and ADP's record
+SOURCE tb/verilator/ctrl_service_budget/notice_window.py:69: the owner's decision of 2026-11-20 restated the notice path, #665 issuecomment-7044585511), 8x8/1if's own 130 ms
+SOURCE tb/verilator/ctrl_service_budget/poll_grade.py:108: #: as the owner decided (#665 issuecomment-7044585511).
+SOURCE tb/verilator/ctrl_service_budget/run.py:463: 'issuecomment-6899740728, item 1):', '',
+SOURCE tb/verilator/ctrl_service_budget/save_burst.py:5: THE TARGET (#665, the ruling of issuecomment-6899740728, item 1): at 1x1/1if and 8x8/1if, under the contract's held
+SOURCE tb/verilator/ctrl_service_budget/selftest_notice.py:115: "the owner's decision of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms; 140 by "
+SOURCE tb/verilator/ctrl_service_budget/shape_costs.py:408: issuecomment-7044585511), and one under it is then not under the row."""
+SOURCE tb/verilator/ctrl_service_budget/shape_costs.py:513: # item 4 restated 1x1/1if's notice path, #665 issuecomment-7044585511)
+DATA (kept) tb/verilator/nvm_capture_cpu/measurements.json:1360: "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/840#issuecomment-6670627857",
+RESULT: FAIL

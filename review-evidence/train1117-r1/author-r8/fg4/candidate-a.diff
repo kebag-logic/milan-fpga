@@ -1,0 +1,57 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.c b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+index e9524b89f4..1901ffcdda 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+@@ -247,6 +247,17 @@ static void take(struct ctrl_plat_phy *phy)
+ 		// 1000BASE-T (40.5.1.1): GCTRL's advertisement two bits below GSTAT's partner ability; a fault is no link
+ 		const uint32_t common = (uint32_t)phy->local << 2 & u;
+ 		next = CTRL_PLAT_PHY_IDLE;
++		// THE CANARY (F-G4): the advertisement verified, and register 9 as this poll read it not holding it, is a
++		// PHY that returned to its defaults with no loss the poll published (its own init completing after the
++		// boot's write, a reset the poll did not see): owed again with its restart, counted
++		if (phy->adv == 0u && phy->local >= 0 &&
++		    ((uint32_t)phy->local & (CTRL_PLAT_PHY_GCTRL_1000_FULL | CTRL_PLAT_PHY_GCTRL_1000_HALF)) !=
++			    CTRL_PLAT_PHY_GCTRL_1000_FULL) {
++			phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
++			if (phy->renegotiations != 0xffffu) {
++				++phy->renegotiations;
++			}
++		}
+ 		if (phy->local >= 0 && v >= 0 && (u & CTRL_PLAT_PHY_GSTAT_FAULT) == 0u) {
+ 			next = (common & (CTRL_PLAT_PHY_G_1000_FULL | CTRL_PLAT_PHY_G_1000_HALF)) != 0u ? CTRL_PLAT_PHY_IDLE :
+ 			       CTRL_PLAT_PHY_LOCAL;
+diff --git a/sw/firmware/ctrl/test/test_plat_phy.cpp b/sw/firmware/ctrl/test/test_plat_phy.cpp
+index 745eec8b0f..d8d8a3f93f 100644
+--- a/sw/firmware/ctrl/test/test_plat_phy.cpp
++++ b/sw/firmware/ctrl/test/test_plat_phy.cpp
+@@ -590,6 +590,30 @@ TEST_F(PlatPhy, P14AResetPhyIsAdvertisedAgain) {
+     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+ }
+ 
++TEST_F(PlatPhy, P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain) {
++    // F-G4: the boot's advertisement written and verified, then the PHY back at its defaults with no loss the poll
++    // published (its own init completing after the boot's write, as after the fabric's reset pulse), negotiating on
++    // them: the link up at 1000 Mb/s, every mode advertised. The next poll's register 9 read owes the advertisement
++    // again with its restart, so the abilities in force become 1000BASE-T full duplex alone.
++    peer.negotiates = true;
++    found();
++    ASSERT_EQ(peer.regs[9], 0x0200u) << "the boot's advertisement";
++    const unsigned restarts = peer.restarts;
++    peer.regs[4] = 0x01e1u;
++    peer.regs[9] = 0x0300u;
++    peer.negotiate();
++    ASSERT_EQ(peer.active_speed, 1000u) << "the defaults negotiated at 1000 Mb/s, no loss latched";
++    next();
++    next();
++    EXPECT_EQ(peer.regs[9], 0x0200u) << "P14B register 9 holds 1000BASE-T full duplex alone again";
++    EXPECT_EQ(peer.regs[4] & 0x03e0u, 0u) << "P14B register 4 holds no 10/100 mode again";
++    EXPECT_EQ(peer.restarts, restarts + 1u) << "P14B negotiation restarted once on the advertisement written again";
++    EXPECT_EQ(peer.active_gctrl & 0x0300u, 0x0200u) << "P14B the abilities in force are the advertisement";
++    EXPECT_EQ(peer.active_anar & 0x03e0u, 0u) << "P14B the abilities in force are the advertisement";
++    EXPECT_EQ(phy.renegotiations, 1u) << "P14B the repair counted";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
+ TEST_F(PlatPhy, P15AnUnverifiedAdvertisementStaysOwed) {
+     // a PHY that drops its writes to register 4, then one that drops them to register 9: each try writes and
+     // restarts again, the registers as read not holding the advertisement, until it reads back

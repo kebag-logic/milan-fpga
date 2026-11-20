@@ -1,0 +1,61 @@
+fw3.log: 249216 bytes, sha256 96cae253664e4807ed57b64e3b2901e7cc71b1c9f9275756772b0c506074e6d0; over 200 KB, kept in scratch. Its last 60 lines:
+[ok] talker-notice-reset-forgets-what-was-shown: Talker.ResetNoticesNothingUnchanged / a source a reset declares again unchanged is not noticed
+[ok] talker-notice-not-taken: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / a probe's declaration notices its source
+[ok] talker-notice-kept-across-a-recomposition: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / an attached SRP instance starts with no record
+[ok] talker-notice-record-kept: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / the SRP delivery takes SRP's record
+[ok] talker-notice-owed-unreported: SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice / owes its notice
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-renew-not-recorded: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+[ok] feedback-latest-unknown-withdraws: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+[ok] feedback-latest-not-carried-in-place: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+[ok] feedback-latest-filter-holds-nothing: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+[ok] feedback-latest-filter-holds-nothing-acmp: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+[ok] feedback-latest-not-held: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-not-taken: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-for-another-stream: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+[ok] feedback-latest-held-with-one-kind: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+[ok] feedback-latest-held-past-a-leave: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-held-past-a-reset: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-stream-kinds-kept: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] feedback-latest-filter-failed-first: Listeners.RandomRecordsMatchTheReferenceReclaim / the copied run makes the reference run's mailbox writes and licence calls, in order, and holds its state
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+END rc=0 18:25:51

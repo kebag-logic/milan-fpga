@@ -1,0 +1,10 @@
+read_verilog -sv <scratch>/r5fifo/gold.sv
+read_verilog -sv <scratch>/r5fifo/gate.sv
+chparam -set WIDTH 4 -set LOG2D 2 gold_fifo
+chparam -set WIDTH 4 -set LOG2D 2 gate_fifo
+proc; opt_clean; memory -nomap; memory_map; opt -full
+miter -equiv -flatten -make_assert -ignore_gold_x gold_fifo gate_fifo miter
+hierarchy -top miter
+clk2fflogic
+opt_clean
+sat -verify -prove-asserts -set-init-zero -seq 30 -timeout 3000 miter

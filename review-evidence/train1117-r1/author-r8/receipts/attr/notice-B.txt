@@ -1,0 +1,203 @@
+# image B, leg notice-B: head c1e95dc1c10bf85415af2cf923145fb8221a8108, 0 file(s) edited
+## build
+BUILD 8x8-1if answering-ports at c1e95dc1c10bf85415af2cf923145fb8221a8108 start 02:38:59
+BUILT 2 groups in 1 parts; end 02:39:33
+ctrl_app.elf sha256 a38e4a0e36afabf2cbf7d97a7e309723422e0ee8b595e4e67745b5db80983aa9
+## repeat 1: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 222,312 (2.223 ms)
+STEPS 160 passes carry the store's step; the longest 25,847 CPU cycles (0.258 ms), aecp-fanout; the longest step 2,708 (0.027 ms), aecp-fanout
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 17 probe instances, 0 of 16 paths), 2 of 225 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   20,643 CPU cycles, stated   220 us; rep1/aecp-fanout
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep1/aecp-fanout
+8x8/1if centisecond    most    3,128 CPU cycles, stated    35 us; rep1/aecp-fanout.log
+8x8/1if event.ADP      most    6,816 CPU cycles, stated    75 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    2,005 CPU cycles, stated    25 us; TICK, 82 taken
+8x8/1if events_none    most    1,058 CPU cycles, stated    15 us; rep1/aecp-fanout.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.aecp      most   13,497 CPU cycles, stated   145 us; rep1/aecp-fanout
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep1/aecp-fanout
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep1/aecp-fanout
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+8x8/1if record.acmp    most   20,613 CPU cycles, stated   220 us; rep1/aecp-fanout.log
+8x8/1if record.aecp    most   56,871 CPU cycles, stated   600 us; rep1/aecp-fanout.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep1/aecp-fanout
+### aecp.txt
+notice    most  13,497 CPU cycles over     11 instance(s), at most 16 recipient(s); rep1/aecp-fanout (16 frame(s))
+### survey, long view: costs.txt
+8x8/1if base           most   22,293 CPU cycles, stated   235 us; rep1/aecp-largest-notice
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep1/aecp-largest-notice
+8x8/1if centisecond    most    3,147 CPU cycles, stated    35 us; rep1/aecp-largest-notice.log
+8x8/1if event.ADP      most    6,292 CPU cycles, stated    70 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    1,940 CPU cycles, stated    25 us; TICK, 78 taken
+8x8/1if events_none    most      606 CPU cycles, stated    10 us; rep1/aecp-largest-notice.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.aecp_long most   29,498 CPU cycles, stated   310 us; rep1/aecp-largest-notice
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep1/aecp-largest-notice
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep1/aecp-largest-notice
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+8x8/1if record.aecp    most  163,497 CPU cycles, stated  1720 us; rep1/aecp-largest-notice.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep1/aecp-largest-notice
+### aecp.txt
+notice    most  29,498 CPU cycles over      2 instance(s), at most 15 recipient(s); rep1/aecp-largest-notice (15 frame(s))
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+item.aecp_long (the polls): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep1/aecp-largest-notice
+the notice kind (aecp_kinds.py): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep1/aecp-largest-notice (15 frame(s))
+# 0 exceeded
+## repeat 2: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 222,312 (2.223 ms)
+STEPS 160 passes carry the store's step; the longest 25,847 CPU cycles (0.258 ms), aecp-fanout; the longest step 2,708 (0.027 ms), aecp-fanout
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 17 probe instances, 0 of 16 paths), 2 of 225 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   20,643 CPU cycles, stated   220 us; rep2/aecp-fanout
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep2/aecp-fanout
+8x8/1if centisecond    most    3,128 CPU cycles, stated    35 us; rep2/aecp-fanout.log
+8x8/1if event.ADP      most    6,816 CPU cycles, stated    75 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    2,005 CPU cycles, stated    25 us; TICK, 82 taken
+8x8/1if events_none    most    1,058 CPU cycles, stated    15 us; rep2/aecp-fanout.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.aecp      most   13,497 CPU cycles, stated   145 us; rep2/aecp-fanout
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep2/aecp-fanout
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep2/aecp-fanout
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+8x8/1if record.acmp    most   20,613 CPU cycles, stated   220 us; rep2/aecp-fanout.log
+8x8/1if record.aecp    most   56,871 CPU cycles, stated   600 us; rep2/aecp-fanout.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep2/aecp-fanout
+### aecp.txt
+notice    most  13,497 CPU cycles over     11 instance(s), at most 16 recipient(s); rep2/aecp-fanout (16 frame(s))
+### survey, long view: costs.txt
+8x8/1if base           most   22,293 CPU cycles, stated   235 us; rep2/aecp-largest-notice
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep2/aecp-largest-notice
+8x8/1if centisecond    most    3,147 CPU cycles, stated    35 us; rep2/aecp-largest-notice.log
+8x8/1if event.ADP      most    6,292 CPU cycles, stated    70 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    1,940 CPU cycles, stated    25 us; TICK, 78 taken
+8x8/1if events_none    most      606 CPU cycles, stated    10 us; rep2/aecp-largest-notice.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.aecp_long most   29,498 CPU cycles, stated   310 us; rep2/aecp-largest-notice
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep2/aecp-largest-notice
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep2/aecp-largest-notice
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+8x8/1if record.aecp    most  163,497 CPU cycles, stated  1720 us; rep2/aecp-largest-notice.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep2/aecp-largest-notice
+### aecp.txt
+notice    most  29,498 CPU cycles over      2 instance(s), at most 15 recipient(s); rep2/aecp-largest-notice (15 frame(s))
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+item.aecp_long (the polls): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep2/aecp-largest-notice
+the notice kind (aecp_kinds.py): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep2/aecp-largest-notice (15 frame(s))
+# 0 exceeded
+## repeat 3: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 222,312 (2.223 ms)
+STEPS 160 passes carry the store's step; the longest 25,847 CPU cycles (0.258 ms), aecp-fanout; the longest step 2,708 (0.027 ms), aecp-fanout
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 17 probe instances, 0 of 16 paths), 2 of 225 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   20,643 CPU cycles, stated   220 us; rep3/aecp-fanout
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep3/aecp-fanout
+8x8/1if centisecond    most    3,128 CPU cycles, stated    35 us; rep3/aecp-fanout.log
+8x8/1if event.ADP      most    6,816 CPU cycles, stated    75 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    2,005 CPU cycles, stated    25 us; TICK, 82 taken
+8x8/1if events_none    most    1,058 CPU cycles, stated    15 us; rep3/aecp-fanout.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.aecp      most   13,497 CPU cycles, stated   145 us; rep3/aecp-fanout
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep3/aecp-fanout
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep3/aecp-fanout
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+8x8/1if record.acmp    most   20,613 CPU cycles, stated   220 us; rep3/aecp-fanout.log
+8x8/1if record.aecp    most   56,871 CPU cycles, stated   600 us; rep3/aecp-fanout.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep3/aecp-fanout
+### aecp.txt
+notice    most  13,497 CPU cycles over     11 instance(s), at most 16 recipient(s); rep3/aecp-fanout (16 frame(s))
+### survey, long view: costs.txt
+8x8/1if base           most   22,293 CPU cycles, stated   235 us; rep3/aecp-largest-notice
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if build_one      most   27,127 CPU cycles, stated   285 us; rep3/aecp-largest-notice
+8x8/1if centisecond    most    3,147 CPU cycles, stated    35 us; rep3/aecp-largest-notice.log
+8x8/1if event.ADP      most    6,292 CPU cycles, stated    70 us; TIMER#0, 1 taken
+8x8/1if event.LINK     most   14,613 CPU cycles, stated   155 us; LINK, 1 taken
+8x8/1if event.MAAP     most   11,834 CPU cycles, stated   125 us; TIMER#2, 1 taken
+8x8/1if event.TICK     most    1,940 CPU cycles, stated    25 us; TICK, 78 taken
+8x8/1if events_none    most      606 CPU cycles, stated    10 us; rep3/aecp-largest-notice.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.aecp_long most   29,498 CPU cycles, stated   310 us; rep3/aecp-largest-notice
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.reclaim   most      474 CPU cycles, stated     5 us; rep3/aecp-largest-notice
+8x8/1if item.record    most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if item.walk      most      767 CPU cycles, stated    10 us; rep3/aecp-largest-notice
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+8x8/1if record.aecp    most  163,497 CPU cycles, stated  1720 us; rep3/aecp-largest-notice.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep3/aecp-largest-notice
+### aecp.txt
+notice    most  29,498 CPU cycles over      2 instance(s), at most 15 recipient(s); rep3/aecp-largest-notice (15 frame(s))
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+item.aecp_long (the polls): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep3/aecp-largest-notice
+the notice kind (aecp_kinds.py): 29,498 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; rep3/aecp-largest-notice (15 frame(s))
+# 0 exceeded

@@ -1,0 +1,9 @@
+checkpoint: work/ax7101-ExtraPostPlacementOpt/alinx_ax7101_route.dcp
+census: milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo / cdc_pair_fifo)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render (KL_tdm_render_master / KL_tdm_render_master)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo / cdc_pair_fifo__parameterized0)
+primitives named for u_fcdc: 705
+storage leaf cells: 3 (RAMB36E1), e.g. milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0
+read register cells: 0
+storage write clock(s): milansoc_crg_audio_mclk_raw milansoc_crg_clkout1
+read register clock(s): 

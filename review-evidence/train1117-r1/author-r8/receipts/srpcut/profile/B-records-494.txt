@@ -1,0 +1,48 @@
+span at cpu 494176886: 22157 cycles; 3707 instructions traced, 22157 cycles charged; trace covers 490699939..497118794
+     4036 cyc    286 instr     1 calls cpi 14.11 cold mrp_mad rx_on_attr
+     3354 cyc    967 instr    19 calls cpi  3.47 cold ctrl_mem memcmp
+     2769 cyc    506 instr     2 calls cpi  5.47 cold mrp_pdu parse_pass
+     2218 cyc    230 instr     2 calls cpi  9.64 hot  mrp_mad find_attr.isra.0
+     1156 cyc    172 instr     1 calls cpi  6.72 cold srp_mbx interested_msrp
+     1104 cyc    333 instr     5 calls cpi  3.32 hot  ctrl_mem forward
+      924 cyc     78 instr     1 calls cpi 11.85 hot  mrp_mad reg_event
+      863 cyc     92 instr     1 calls cpi  9.38 cold srp_mbx apply_receive
+      840 cyc    162 instr    27 calls cpi  5.19 hot  srp_mbx capture
+      634 cyc     51 instr     1 calls cpi 12.43 hot  mrp_mad deliver_event_changed
+      622 cyc    134 instr     2 calls cpi  4.64 hot  srp_mbx snapshot
+      573 cyc     44 instr     1 calls cpi 13.02 cold mrp_mad mrp_rx
+      512 cyc     74 instr     2 calls cpi  6.92 cold msrp msrp_decode_attr
+      417 cyc    108 instr     2 calls cpi  3.86 hot  ctrl_mem memset
+      369 cyc    144 instr    18 calls cpi  2.56 cold msrp msrp_attr_cmp
+      347 cyc     58 instr     1 calls cpi  5.98 cold srp_mbx same
+      228 cyc     34 instr     1 calls cpi  6.71 cold mrp_pdu mrpdu_parse
+      228 cyc     80 instr     8 calls cpi  2.85 cold msrp msrp_attr_replaces
+      216 cyc     18 instr     2 calls cpi 12.00 cold msrp msrp_attr_len
+      197 cyc     40 instr     1 calls cpi  4.92 hot  mrp_mad get_or_create_attr
+      167 cyc     24 instr     2 calls cpi  6.96 hot  mrp_mad attr_store_len
+      129 cyc     36 instr     2 calls cpi  3.58 cold msrp increment_stream
+cold: 14804 cycles, 2517 instructions
+span at cpu 494295932: 14787 cycles; 3707 instructions traced, 14787 cycles charged; trace covers 490699939..497118794
+     3255 cyc    967 instr    19 calls cpi  3.37 cold ctrl_mem memcmp
+     2286 cyc    286 instr     1 calls cpi  7.99 cold mrp_mad rx_on_attr
+     1666 cyc    506 instr     2 calls cpi  3.29 cold mrp_pdu parse_pass
+     1032 cyc    333 instr     5 calls cpi  3.10 hot  ctrl_mem forward
+      987 cyc    172 instr     1 calls cpi  5.74 cold srp_mbx interested_msrp
+      938 cyc    230 instr     2 calls cpi  4.08 hot  mrp_mad find_attr.isra.0
+      798 cyc    162 instr    27 calls cpi  4.93 hot  srp_mbx capture
+      468 cyc    134 instr     2 calls cpi  3.49 hot  srp_mbx snapshot
+      417 cyc    108 instr     2 calls cpi  3.86 hot  ctrl_mem memset
+      386 cyc     44 instr     1 calls cpi  8.77 cold mrp_mad mrp_rx
+      371 cyc     92 instr     1 calls cpi  4.03 cold srp_mbx apply_receive
+      368 cyc     51 instr     1 calls cpi  7.22 hot  mrp_mad deliver_event_changed
+      328 cyc     78 instr     1 calls cpi  4.21 hot  mrp_mad reg_event
+      252 cyc    144 instr    18 calls cpi  1.75 cold msrp msrp_attr_cmp
+      228 cyc     80 instr     8 calls cpi  2.85 cold msrp msrp_attr_replaces
+      178 cyc     58 instr     1 calls cpi  3.07 cold srp_mbx same
+      149 cyc     18 instr     2 calls cpi  8.28 cold msrp msrp_attr_len
+      138 cyc     74 instr     2 calls cpi  1.86 cold msrp msrp_decode_attr
+      122 cyc     36 instr     2 calls cpi  3.39 cold msrp increment_stream
+      109 cyc      7 instr     1 calls cpi 15.57 hot  mrp_mad observe.isra.0
+       82 cyc     24 instr     2 calls cpi  3.42 hot  mrp_mad attr_store_len
+       66 cyc     18 instr     2 calls cpi  3.67 hot  msrp msrp_attr_mem_len
+cold: 10089 cycles, 2517 instructions

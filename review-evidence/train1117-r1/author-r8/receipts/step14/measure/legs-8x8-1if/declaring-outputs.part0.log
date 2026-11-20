@@ -1,0 +1,10 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/part0 --groups aecp-outputs --record-budget-findings --record-share-findings --jobs 1 --variant declaring-outputs start 23:22:55
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/part0/aecp-outputs.txt -
+STEPS 347 passes carry the store's step; the longest 27,751 CPU cycles (0.278 ms), aecp-outputs; the longest step 2,073 (0.021 ms), aecp-outputs
+SLICES 18109 tier-2 slices; the longest SRP's records 25,453, THE TRANSMIT's build 36,730, THE RETRY's round 23,400 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS aecp-outputs: 3 join interval(s), the shortest 187.941 ms and the longest 189.952 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 5 paths), 0 of 397 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+DECLARING aecp-outputs: 13 completion(s) in 13 record(s), 1 in rounds of THE RETRY, 26 GET_STREAM_INFO(s) of a STREAM_OUTPUT left
+END rc=0 23:44:48

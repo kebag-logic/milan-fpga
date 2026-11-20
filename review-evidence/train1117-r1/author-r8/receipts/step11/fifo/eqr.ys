@@ -1,0 +1,16 @@
+read_verilog -sv <scratch>/r5fifo/gold.sv
+read_verilog -sv <scratch>/r5fifo/gate.sv
+chparam -set WIDTH 48 -set LOG2D 3 gold_fifo
+chparam -set WIDTH 48 -set LOG2D 3 gate_fifo
+proc; opt_clean; memory -nomap
+cd gate_fifo
+rename g_mem.mem_r mem_r
+cd ..
+memory_map; opt -full; flatten
+rename gold_fifo gold
+rename gate_fifo gate
+equiv_make gold gate equiv
+hierarchy -top equiv
+equiv_simple -seq 5
+equiv_induct -seq 5
+equiv_status -assert

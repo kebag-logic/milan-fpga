@@ -1,0 +1,61 @@
+gate-8x8.log: 674197 bytes, sha256 03fec28345204d4b987262b3e4c9b0c0ffbf3421937f7c5e1f7dbbe970dfcf3b; over 200 KB, kept in scratch. Its last 60 lines:
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:36 ; elapsed = 00:00:06 . Memory (MB): peak = 6566.457 ; gain = 0.000 ; free physical = 27227 ; free virtual = 105383
+# write_bitstream -force alinx_ax7101.bit 
+Command: write_bitstream -force alinx_ax7101.bit
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+Running DRC as a precondition to command write_bitstream
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado 12-3199] DRC finished with 0 Errors
+INFO: [Vivado 12-3200] Please refer to the DRC report (report_drc) for more information.
+Integrating Hard IP ELF/MEM with the PDI.
+INFO: [Designutils 20-2272] Running write_bitstream with 8 threads.
+Initializing bitstream generation complete. Time (s): cpu = 00:00:00.61 ; elapsed = 00:00:00.62 . Memory (MB): peak = 6566.457 ; gain = 0.000 ; free physical = 27096 ; free virtual = 105327
+Loading data files...
+Loading site data...
+Loading route data...
+Processing options...
+Creating bitmap...
+Creating bitstream...
+Writing bitstream ./alinx_ax7101.bit...
+Generate Bitstream complete. Time (s): cpu = 00:00:54 ; elapsed = 00:00:09 . Memory (MB): peak = 6566.457 ; gain = 0.000 ; free physical = 27203 ; free virtual = 105230
+INFO: [Vivado 12-1842] Bitgen Completed Successfully.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+8 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+write_bitstream completed successfully
+write_bitstream: Time (s): cpu = 00:01:12 ; elapsed = 00:00:42 . Memory (MB): peak = 6566.457 ; gain = 0.000 ; free physical = 27376 ; free virtual = 105407
+# quit
+INFO: [Common 17-206] Exiting Vivado at Thu Nov 19 01:52:19 2026...
+[constraints] <scratch>/gate13/work/g8x8/build_ExtraPostPlacementOpt/gateware/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[milan] entity model (19520 B) -> <scratch>/gate13/work/g8x8/build_ExtraPostPlacementOpt/aem_desc.bin @ 0x7f700000
+[milan] flash-boot layout (baremetal) -> <scratch>/gate13/work/g8x8/build_ExtraPostPlacementOpt/flashboot_layout.json
+[milan] split image manifest -> <scratch>/gate13/work/g8x8/build_ExtraPostPlacementOpt/image_manifest.json
+== END-OF-BUILD rc=0 2026-11-19T01:52:20+01:00
+=== rc=0 <management>/2026-09-23/vivado-slot.sh 2026-11-19T01:52:20+01:00
+identity: image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+b449f2caa3675d2a70a536e5dcd379bdef100da9240d0679dff4b71d796f730b  gateware/alinx_ax7101.bit
+723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38  aem_desc.bin
+487a42051b8a6af4ac684bf33b1a4ff19aaf164285a86899fa47e60628955475  csr.csv
+904447ff67f7ddf5aa56d05f46bbf2a8baaf81d85e6a66bffa75714be470247b  flashboot_layout.json
+9cf4c4ed3f8edc29c665ff058dcba9c699e248a0c2614e50fa7f8d59216ed7bc  image_manifest.json
+a2862a30900691c51323a9ca3de003fcf908c3746143053fe5cf32bd33a28a03  <scratch>/gate13/clones/g8x8/sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+signoff rc=0
+Slow_85C: WNS +0.176 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.176 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.523 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.523 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner

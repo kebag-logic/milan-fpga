@@ -1,0 +1,25 @@
+# verdict of unit375 at 8x8/1if, unit 375 us, 09:07:00
+leg none: 0 of 8 parts done
+leg aep: 0 of 2 parts done
+leg ap: 2 of 2 parts done
+leg vd: 1 of 3 parts done
+== survey (the candidate's statements)
+{"ordinary costs": 0, "long costs": 0, "datapath": 0, "compare ordinary": 0} | long: item.aecp_long (the polls): 29,199 CPU cycles, 310 us by the rule, against aecp_long 320 us at 8x8/1if: within; ap-part1/aecp-largest-n
+0 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+
+# 0 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+== record classes
+8x8/1if held long: the dearest 152,504 CPU cycles, 1605 us by the rule, stated 1715 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if held other: the dearest 18,654 CPU cycles, 200 us by the rule, stated 265 us (answering-ports aecp-fanout: command 0x000e)
+8x8/1if held paced: the dearest 55,977 CPU cycles, 590 us by the rule, stated 685 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+REFUSED the pass runs no arm A leg at 8x8/1if
+== the SRP record against its unit
+record.srp 35,547 cycles (vd/part1/srp-talker-held.log), 375 us by the rule, unit 375: WITHIN; margin +167 cycles
+== budget misses (BUDGET findings)
+0
+== join intervals
+4 JOINS line(s); shortest 187.15 ms, longest 190.4 ms; out of range: 0
+== the load and THE TRANSMIT with unit375's own restated costs (scratch copy of the candidate's tables)
+no 8x8/1if statement to restate
+restated 0 statements in 
+  git submodule update --init protocol-processor

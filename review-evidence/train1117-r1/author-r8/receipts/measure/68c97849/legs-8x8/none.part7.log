@@ -1,0 +1,5 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-68c97849-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/68c97849/8x8/none --reuse-build --out <scratch>/r4meas/68c97849/8x8/none/part7 --groups backlog-adp@blank-3,backlog-adp@blank-7,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-5,backlog-adp@program-5,backlog-adp@program-aged1-5,backlog-adp@program-aged2-5,backlog-adp@verify-5,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-5,backlog,backlog-owed,aecp --record-budget-findings --record-share-findings --jobs 1 start 05:19:06
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/68c97849/8x8/none/native/Vsim <scratch>/r4meas/68c97849/8x8/none/part7/backlog-adp@blank-3.txt -
+COMMAND <scratch>/r4meas/68c97849/8x8/none/native/Vsim <scratch>/r4meas/68c97849/8x8/none/part7/backlog-adp@blank-7.txt -
+COMMAND <scratch>/r4meas/68c97849/8x8/none/native/Vsim <scratch>/r4meas/68c97849/8x8/none/part7/backlog-adp@program-5.txt -

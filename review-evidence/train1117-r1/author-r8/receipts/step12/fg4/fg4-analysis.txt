@@ -1,0 +1,81 @@
+# F-G4 (the split's PHY advertising every mode): the analysis at 967b1ca9, read only. No commit, no image built.
+
+## 1. The split's write path against the release's (which shares #840's design)
+- Frame: identical. Read: 32 ones, then ST 01, OP 10, PHYAD, REGAD (14 bits), released for TA and 16 data bits.
+  Write: 32 ones, then ST 01, OP 01, PHYAD, REGAD, TA 10 and 16 data bits, all 64 driven.
+  - Split: sw/firmware/ctrl/plat/ctrl_plat_phy.c take() and frame(); ctrl_plat_phy.h WRITE_OP 0x5, WRITE_TA 0x2.
+  - Release: sw/firmware/milan_baremetal/milan_baremetal.c phy_mdio_write(): (5 << 28) | (addr << 23) | (reg << 18) | (2 << 16) | data.
+- Pins: identical. The CSR is LiteEth's LiteEthPHYMDIO, with MDC in bit 0, OE in bit 1 and the driven bit in bit 2,
+  as both firmwares use. The image's addresses are 0xF0001004 (w), 0xF0001008 (r) and 0xF000101C (link status), from
+  the export's csr.csv (route image ctrl_plat_map_gen.h). The AX7101 pads have each port's own MDIO: e1 is J17/L16,
+  e2 is AB21/AB22 (sw/litex/platforms/alinx_ax7101.py).
+- Address: identical. Both probe PHYID1 from address 0 upward, one address per opportunity.
+- The advertisement: identical values. Register 9 is written with its MASTER-SLAVE bits and 1000BASE-T full duplex.
+  Register 4 is written without bits 5 to 9 and 14. Register 0 is written with (BMCR | AN enable | restart), reset and
+  isolate cleared. Both are gated on BMSR bit 8 and ESTAT bit 13.
+- Differences:
+  - the bit: the split folds the release's third write (MDC low, the same data) into the next bit's first write, so
+    MDC falls and the data changes in one CSR write. Data is still set a half period before each rising edge and held
+    a half period after it;
+  - the half period: the split uses a calibrated spin, the release cdelay(32);
+  - pacing: the split takes one frame per step call (THE STEP) rather than three writes back to back;
+  - re-verification: the split's advertisement is owed again after a published link loss and after THE OUTCOME.
+
+## 2. The models: the writes land in every one
+- The host test (sw/firmware/ctrl/test/phy_peer.hpp, test_plat_phy.cpp) is a pin-level Clause-22 PHY that sets a
+  register only when a well-formed write reaches its address. Its arms pass at the head.
+- The split boot simulation (tb/verilator/ctrl_split_boot) runs the real platform image on the real split CPU and bus.
+  - Its MDIO stand-in (boot_soc.py) is the same logic as LiteEth's LiteEthPHYMDIO: storage straight to the pins, the
+    input through a MultiReg. The PHY is at address 1.
+  - At 967b1ca9, both shapes: 59 frames, and 7 writes landed. The boot's are (9, 0x200), (4, 0x1), (0, 0x1200), and
+    after each of 2 losses (9, 0x200), (4, 0x1).
+  - MDC's shortest high is 950 ns and low 1120 ns, with a period of 2260 ns (22.2.2.13: 160, 160, 400).
+  - (receipts/step12/gates/splitboot/)
+- So the pin sequence the split CPU puts out is a correct Clause-22 write frame, at its address, with conservative
+  timing.
+
+## 3. What the board is known to do
+- CORRECTED 2026-11-19: this bullet first said that #590's hardware probe found the board's RTL8211E at address 1.
+  That was wrong. #590's `mdio-phase.log` is the reviewer probe `probe_mdio_phase.py` run against a simulated peer:
+  its `true=` values (PHYID1 0x001c, BMSR 0x796d) and `phy_address=1` are the model's, not the board's (#590's
+  HANDOFF, "Each sample follows..." and the probe's PHASE=0/1 peer conventions). No record in the repository or
+  #590 gives a board PHY address. The board's own reading of 2026-11-19 has address 0 answering, holding the
+  writes, and reporting the e2 link.
+- #840 (the advertisement's design, merged by #842) states "No hardware was used". No record found of the release
+  image's advertisement measured on hardware after #840:
+  - an 11-07 log predates the merge;
+  - the bench's 11-15 rehearsal ran an image without #919's poll.
+  So the release's advertisement is also unproven on this board.
+- LiteEth's PHY CRG (with_hw_init_reset=True, liteeth/phy/gmii.py and common.py LiteEthPHYHWReset) holds the PHY's
+  reset pin low for 256 sys cycles at FPGA start, 2.56 us at 100 MHz. The RTL8211E's datasheet minimum is in
+  milliseconds.
+  - The split's first frames follow within milliseconds: its boot is ready at about 28 ms at 1x1/1if.
+  - The release's follow the LiteX BIOS's boot, much later.
+
+## 4. What the bench's evidence does and does not show
+- The partner's view (registers 5 and 10 at the test machine) holds every mode, after the cold boot and at later
+  negotiations. A 10BASE-T-half-only partner got a 10 Mb/s link, 5 of 5. No renegotiation storm was seen. So no
+  write and no restart took effect on the wire, at boot or later.
+- The DUT's LINK counters follow eff_link = i_link_up & cfg_sw_link & (cfg_linkg_dis | linkg_est). The "+2 per flap"
+  the bench counted is the hardware link guard's pair (hdl/milan/milan_datapath.sv:3404-3414). A link never
+  established at 10 Mb/s by the GMII guard reads as no LINK_UP whatever the poll publishes.
+- The bench never read MAC_STATUS (0x110) or the published link word. So it is not known whether the poll publishes,
+  or is past its probe, on the board.
+
+## 5. Candidates, and what tells them apart
+- (a) The poll's writes reach the PHY and it does not apply them, while its reads work. One mechanism is boot timing:
+  frames within milliseconds of LiteEth's 2.56 us reset pulse, against the release's BIOS-delayed start. That alone
+  does not explain why the writes after a later link loss do not take either.
+- (b) The poll is not running, or not publishing, on the board after boot. i_link_up would then sit at its reset
+  value (up, 1000 Mb/s, full) and the guard alone gate the link. That fits every bench observation, but nothing in
+  the models reproduces it.
+- (c) The PHY's handling of a write frame differs from IEEE 802.3 22.2.4.5's model in a way that spares reads, for
+  example the folded MDC-low write, or the restart's value. Code reading finds no such defect, and the RTL
+  simulation lands every write.
+- One boot reading the poll's state would tell them apart:
+  - its address and found flag;
+  - its stage, `adv` and `renegotiations`;
+  - a count of polls started;
+  - the last published word;
+  - the last read-back of registers 4 and 9.
+  The bench has no tool for it. A small console field on milan_status would carry it, with no mailbox contract change.

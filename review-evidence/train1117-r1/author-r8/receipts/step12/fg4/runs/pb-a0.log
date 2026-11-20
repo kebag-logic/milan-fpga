@@ -1,0 +1,133 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+ce (0 ms)
+[----------] 24 tests from Boot (15 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (8 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (7 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (4 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (15 ms)
+[----------] 8 tests from Phy (39 ms total)
+
+[----------] 21 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:608: Failure
+Expected equality of these values:
+  peer.regs[9]
+    Which is: 768
+  0x0200u
+    Which is: 512
+P14B register 9 holds 1000BASE-T full duplex alone again
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B register 9 holds 1000BASE-T full duplex alone again
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:609: Failure
+Expected equality of these values:
+  peer.regs[4] & 0x03e0u
+    Which is: 480
+  0u
+    Which is: 0
+P14B register 4 holds no 10/100 mode again
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B register 4 holds no 10/100 mode again
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:610: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 1
+  restarts + 1u
+    Which is: 2
+P14B negotiation restarted once on the advertisement written again
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B negotiation restarted once on the advertisement written again
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:611: Failure
+Expected equality of these values:
+  peer.active_gctrl & 0x0300u
+    Which is: 768
+  0x0200u
+    Which is: 512
+P14B the abilities in force are the advertisement
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B the abilities in force are the advertisement
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:612: Failure
+Expected equality of these values:
+  peer.active_anar & 0x03e0u
+    Which is: 480
+  0u
+    Which is: 0
+P14B the abilities in force are the advertisement
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B the abilities in force are the advertisement
+<scratch>/fa/sw/firmware/ctrl/test/test_plat_phy.cpp:613: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P14B the repair counted
+
+  [FAIL] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain: P14B the repair counted
+[  FAILED  ] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[----------] 21 tests from PlatPhy (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 3 test suites ran. (58 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] PlatPhy.P14BDefaultsReturnedWithNoPublishedLossAreAdvertisedAgain
+
+ 1 FAILED TEST
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 53   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 53 checks, exit 1)
+platboot rc=1

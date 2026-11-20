@@ -1,0 +1,69 @@
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 0d536e5d9c..987f99def8 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -356,7 +356,7 @@ extern "C" {
+ #define CTRL_LOOP_SRP_UNIT_US 285u
+ #define CTRL_LOOP_RETRY_COLD_US 85u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+-#define CTRL_LOOP_QUEUED_MS 140u
++#define CTRL_LOOP_QUEUED_MS 135u
+ #define CTRL_LOOP_TX_MS 35u
+ #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
+ #define CTRL_LOOP_SLICE_US 1475u
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+index a2227744a9..6eea2e3833 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -48,7 +48,7 @@ if TYPE_CHECKING:
+ #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 1x1/1if a
+ #: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
+ #: each by the rule.
+-PACED = {'1x1/1if': {'a one-row edit': 310, 'an accepted SET_CONFIGURATION': 305},
++PACED = {'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
+          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
+ #: The paced class's record at each point: the dearest of its members'.
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index 20b6291228..a020891eee 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -215,9 +215,9 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
+ #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
+ #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+ STATED_US = {
+-    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
+-                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
++                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 160,
+                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 55,
+@@ -265,9 +265,9 @@ STATED_US = {
+ #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
+ #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
+ STATED_US_DONOR = {
+-    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
++    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
+-                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
++                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
+                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
+                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
+     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index c880317681..fc2efaf6ae 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -102,8 +102,8 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: traced, the code's placement (#909); on that image with the 140 ms bound and the slice rule's 900 us (#895), at
+ #: 8x8/2if the polls' base 345 us, 32,705 cycles in the answering-every-port arm's notice-every-4, and a notice longer
+ #: than AECP_FAN_BYTES 700 us, 66,481 cycles in the answering-ports arm's aecp-largest-notice (#909, reported).
+-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=210,
+-           aecp_long=365, acmp_declined=20)
++ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
++           aecp_long=315, acmp_declined=20)
+ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
+            aecp_long=700, acmp_declined=20)
+ #: 8x8/1if's, one interface's 8x8 streams, each the most measured over every group of arm A on its built image, the

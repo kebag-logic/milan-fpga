@@ -1,0 +1,70 @@
+# 8x8/1if: the gating bench image's firmware against the ledger's product image
+gating  ELF d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4 172164 bytes
+product ELF c635596216d95671d9308f9f31b12db98c9f65747f5834b69f0df683756729b4 172164 bytes
+
+CHECK elf-header: PASS
+  type: 0x2 / 0x2
+  machine: 0xf3 / 0xf3
+  version: 0x1 / 0x1
+  entry: 0x0 / 0x0
+  flags: 0x0 / 0x0
+  ident: b'\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00' / b'\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+CHECK segments: PASS
+  | # | type | offset | vaddr | paddr | filesz | memsz | flags | sha256 of the file bytes, gating | product | equal |
+  |---:|---|---:|---|---|---:|---:|---|---|---|---|
+  | 0 | RISCV_ATTRIBUTES | 143880 | 0x00000000 | 0x00000000 | 42 | 0 | 0x4 | c76c7db6c4aa3ed497749805ff4db1721b1cdd383f84b6f76cfd92939c43d831 | c76c7db6c4aa3ed497749805ff4db1721b1cdd383f84b6f76cfd92939c43d831 | yes |
+  | 1 | LOAD | 4096 | 0x00000000 | 0x00000000 | 138686 | 138686 | 0x5 | 5af7108de2066ea4308a29d35e0c3a80d71c1a2f67504d6d49af25dbaf127935 | 5af7108de2066ea4308a29d35e0c3a80d71c1a2f67504d6d49af25dbaf127935 | yes |
+  | 2 | LOAD | 143360 | 0x10000000 | 0x00021dc0 | 520 | 520 | 0x6 | 841ac9b250965c16c9dbac2911543b88ad2a70fb6e9640eb7de6b0df301681d4 | 841ac9b250965c16c9dbac2911543b88ad2a70fb6e9640eb7de6b0df301681d4 | yes |
+  | 3 | LOAD | 576 | 0x10000240 | 0x00021fc8 | 0 | 89392 | 0x6 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | yes |
+  | 4 | LOAD | 3952 | 0x10015f70 | 0x00021fd0 | 0 | 8192 | 0x6 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | yes |
+  | 5 | GNU_STACK | 0 | 0x00000000 | 0x00000000 | 0 | 0 | 0x6 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | yes |
+CHECK loaded: PASS
+  | section | type | flags | VMA | LMA | bytes | sha256 gating | sha256 product | equal |
+  |---|---|---|---|---|---:|---|---|---|
+  | .text | PROGBITS | 0x6 | 0x00000000 | 0x00000000 | 113020 | 61ca0eec6a355cf37eed4d51a81086883c501b6e7fbd1fbac2947f8d9ece631e | 61ca0eec6a355cf37eed4d51a81086883c501b6e7fbd1fbac2947f8d9ece631e | yes |
+  | .rodata | PROGBITS | 0x2 | 0x0001b980 | 0x0001b980 | 25662 | 70aca09828eb5d8dc2b6d3a628eea670492fad8548adde4a8da2924f58b19e46 | 70aca09828eb5d8dc2b6d3a628eea670492fad8548adde4a8da2924f58b19e46 | yes |
+  | .data | PROGBITS | 0x3 | 0x10000000 | 0x00021dc0 | 520 | 841ac9b250965c16c9dbac2911543b88ad2a70fb6e9640eb7de6b0df301681d4 | 841ac9b250965c16c9dbac2911543b88ad2a70fb6e9640eb7de6b0df301681d4 | yes |
+  | .bss | NOBITS | 0x3 | 0x10000240 | 0x00021fc8 | 89392 | (NOBITS: no file bytes) | (NOBITS: no file bytes) | yes |
+  | .stack | NOBITS | 0x3 | 0x10015f70 | 0x00021fd0 | 8192 | (NOBITS: no file bytes) | (NOBITS: no file bytes) | yes |
+CHECK not-loaded: PASS
+  | section | type | flags | VMA | LMA | bytes | sha256 gating | sha256 product | equal |
+  |---|---|---|---|---|---:|---|---|---|
+  | .riscv.attributes | RISCV_ATTRIBUTES | 0x0 | 0x00000000 | - | 42 | c76c7db6c4aa3ed497749805ff4db1721b1cdd383f84b6f76cfd92939c43d831 | c76c7db6c4aa3ed497749805ff4db1721b1cdd383f84b6f76cfd92939c43d831 | yes |
+  | .symtab | SYMTAB | 0x0 | 0x00000000 | - | 20272 | 64f02de0e594348bf68151ce4996c5b689b442e924a78689b7c69e6f8a922b20 | b9cc8500726e2caa518f167420325ac589b666e9c0f238986c208fa65a34d45c | NO |
+  | .strtab | STRTAB | 0x0 | 0x00000000 | - | 7489 | b70873878ff12671e7b3bc55d5618b7584b2248f564fc0dafa1be0be0f265b6b | b70873878ff12671e7b3bc55d5618b7584b2248f564fc0dafa1be0be0f265b6b | yes |
+  | .shstrtab | STRTAB | 0x0 | 0x00000000 | - | 77 | 47c853a6a3119fde47e58b190d6ba7b56f5d1e5659ba48bcd664a3e830e54a47 | 47c853a6a3119fde47e58b190d6ba7b56f5d1e5659ba48bcd664a3e830e54a47 | yes |
+  
+  whole files: 2474 differing bytes of 172164, by section: {'.symtab': 2474}
+  section header tables: equal
+CHECK symtab: PASS
+  entries: 1267 / 1267; the same entries on both sides: True
+  positions holding another entry: 612, from 10 to 997; each at the address of the entry it replaces: True
+  #10: gating 'random_value' @ 0xc164 / product '$xrv32i2p1_m2p0_zmmul1p0' @ 0xc164
+  #11: gating '$xrv32i2p1_m2p0_zmmul1p0' @ 0xc164 / product 'random_value' @ 0xc164
+  #12: gating 'stream' @ 0xb77c / product '$xrv32i2p1_m2p0_zmmul1p0' @ 0xb77c
+  #13: gating '$xrv32i2p1_m2p0_zmmul1p0' @ 0xb77c / product 'stream' @ 0xb77c
+  #14: gating 'avb' @ 0x157ec / product '$xrv32i2p1_m2p0_zmmul1p0' @ 0x157ec
+  #15: gating '$xrv32i2p1_m2p0_zmmul1p0' @ 0x157ec / product 'avb' @ 0x157ec
+CHECK rom-words: PASS
+  gating ELF: 34802 rom words, sha256 ac014c6ab2c2dccac74d839d13a0444f3d5bafeb983a47d8af5f354c91f4ea78
+  product ELF: 34802 rom words, sha256 ac014c6ab2c2dccac74d839d13a0444f3d5bafeb983a47d8af5f354c91f4ea78
+  rom bank init files of the build: 34802 words, sha256 ac014c6ab2c2dccac74d839d13a0444f3d5bafeb983a47d8af5f354c91f4ea78
+CHECK manifest: PASS
+  alinx_ax7101.bit: listed 7d90341299cc65e8c0da249139471a61019255132b66d5207ef9ffb4a5d0b773, file 7d90341299cc65e8c0da249139471a61019255132b66d5207ef9ffb4a5d0b773: equal
+  aem_desc.bin: listed 723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38, file 723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38: equal
+  csr.csv: listed 3183da5c4ad102855ee125bc64524868db79a323b80c04378e78513333e4f680, file 3183da5c4ad102855ee125bc64524868db79a323b80c04378e78513333e4f680: equal
+  flashboot_layout.json: listed 8fc94181c04386db6c41a39b60f2e1c265cdd989d731baf52cf35ca267952462, file 8fc94181c04386db6c41a39b60f2e1c265cdd989d731baf52cf35ca267952462: equal
+  image_manifest.json: listed 3c9d7128b652beaa5749cce86d6b143ff76cd1a943a67147559a3b532e034dfa, file 3c9d7128b652beaa5749cce86d6b143ff76cd1a943a67147559a3b532e034dfa: equal
+  ctrl_app.elf: listed d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4, file d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4: equal
+  manifest binds the firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf: sha256 d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4 (the gating ELF), 172164 bytes
+  manifest binds the bitstream: {'bitstream_payload_sha256': '88797768dbe54d39e254aa9b4daaf2d08ec60f355c248c1901b3a852a43a95df', 'bitstream_fpga_part': '7a100tfgg484'}
+  recomputed from the .bit (sha256 7d90341299cc65e8c0da249139471a61019255132b66d5207ef9ffb4a5d0b773): {'bitstream_payload_sha256': '88797768dbe54d39e254aa9b4daaf2d08ec60f355c248c1901b3a852a43a95df', 'bitstream_fpga_part': '7a100tfgg484'}: equal
+CHECK identity-gate: PASS
+  findings: none
+CHECK objects: PASS
+  43 input objects compared; SHF_ALLOC sections differing: none
+  differing sections, by kind (objects): {'.comment': 42, '.rela.*': 263, '.symtab': 41, '.strtab': 41}
+  gating compiler identification (.comment): ['GCC: (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0']
+  product compiler identification (.comment): ['GCC: (Buildroot 2026.05) 14.3.0']
+
+RESULT 8x8/1if: PASS: elf-header pass, segments pass, loaded pass, not-loaded pass, symtab pass, rom-words pass, manifest pass, identity-gate pass, objects pass

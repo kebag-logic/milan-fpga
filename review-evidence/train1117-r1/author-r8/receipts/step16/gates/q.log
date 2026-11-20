@@ -1,0 +1,41 @@
+docs_check                   rc=0  docs_check: 0 finding(s) across 223 md files + 1910 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style                    rc=0  documentation style: OK (25 current documents)
+doc_paths                    rc=0  doc path gate: OK (1755 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+toc                          rc=0  TOC selftest: PASS (1501/1501 arm(s))
+emdash                       rc=0  check_em_dash: 0 finding(s) over 12720 added line(s) in 74 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cb96336d..HEAD]
+hygiene                      rc=0  HYGIENE RATCHET: PASS (3 population(s), 1515 file(s))
+py_idiom                     rc=0    over-long line: 0 <= 0
+cpp_idiom                    rc=0    build without warnings: 0 <= 0
+run_selftest                 rc=0  self-test: 0 failures
+rows_tiers                   rc=0  rows_tiers: 1033 of 1033 planted controls refused
+record_classes               rc=0  record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's
+load_check                   rc=0  RESULT: PASS
+load_selftest                rc=0  load gate: 28 of 28 planted controls refused
+flip_check                   rc=1  RESULT: FAIL
+flip_check_1x1               rc=0  RESULT: PASS
+flip_selftest                rc=0  flip check: 616 of 616 planted controls refused
+ctrl_memory                  rc=0  RESULT: PASS
+shape_costs_check            rc=0  RESULT: PASS
+shape_costs_selftest         rc=0  the table of shapes: 25 of 25 planted controls refused
+egress_ledger_selftest       rc=0  RESULT: PASS: 15 mutants, 0 failure(s)
+mailbox_margins              rc=0  HEAD 8c5e2b4f START 17:53:29
+fw_coverage_check            rc=0  firmware coverage: PASS (40 files)
+toc_check                    rc=0  TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+toc_anchors                  rc=0  anchor check: 755 existing cross-page fragment links reproduced
+docs_inventory               rc=0  documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+hdl_reference_selftest       rc=0  HDL reference self-test: 44/44 arms passed
+wavedrom_selftest            rc=0  gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+wavedrom_axis                rc=0  WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+wavedrom_cdc                 rc=0  WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+wavedrom_gptp                rc=0  WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+register_reference_check     rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+register_reference_selftest  rc=0  register reference selftest: OK (61/61 controls)
+memory_map_check             rc=0  memory map diagram: fresh
+ci_events_check              rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_tool_inventory_check      rc=2  REFUSED: CI_IMAGE_SHFMT must name the checksum-pinned Bash parser
+one_valued_table_check       rc=0  README.md: the one-valued table is current
+mailbox_contract_check       rc=0  gen_mailbox: 0 finding(s)
+pp_srcs_check                rc=0    prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+publication_census_check     rc=0  mutations: 0 of 57 rule(s) no arm proves
+fw_coverage_check            rc=0  firmware coverage: PASS (40 files)
+tree porcelain: 2

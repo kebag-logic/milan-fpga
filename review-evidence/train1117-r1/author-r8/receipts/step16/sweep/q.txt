@@ -1,0 +1,1095 @@
+==== ci_events_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/ci_events.py --check
+HEAD 15168e14 START 21:11:07
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+==== ci_tool_inventory_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/ci_tool_inventory.py --check
+HEAD 15168e14 START 21:11:09
+REFUSED: CI_IMAGE_SHFMT must name the checksum-pinned Bash parser
+rc=2
+==== cpp_idiom.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_cpp_idiom.py
+HEAD 15168e14 START 21:10:40
+cpp idiom: 399 first-party translation units, 199 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+==== ctrl_hot_check.log
+CMD python3 -B sw/firmware/ctrl/test/ctrl_hot.py --check
+HEAD 15168e14 START 21:12:43
+hot list: 266 entries, in the recorded order
+rc=0
+==== ctrl_hot_selftest.log
+CMD python3 -B sw/firmware/ctrl/test/ctrl_hot.py --self-test
+HEAD 15168e14 START 21:12:43
+control: the tree's script and order, linked: PASS
+[caught] stale-name: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service_old) is no section of the linked image
+[caught] absent-from-image: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+[caught] only-discarded: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+[caught] reordered: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 1 is *-nvm_store.o(.text.nvm_store_clock), recorded *-ctrl_loop.o(.text.ctrl_loop_service)
+[caught] dropped: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_now), recorded *-nvm_store.o(.text.nvm_store_clock)
+[caught] unrecorded: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 267 is *-mbx.o(.text.mbx_open), recorded the end
+[caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_store_clock), recorded *-nvm_store.o(.text.nvm_now)
+[caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;
+self-test: 0 failure(s)
+rc=0
+==== ctrl_memory.log
+CMD <home>/litex-milan/venv/bin/python3 sw/litex/test_ctrl_memory.py
+HEAD 15168e14 START 21:10:45
+test_ctrl_memory: the split placement's firmware memory (#640 M8a)
+-- banks
+  [ok  ] 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [])
+  [ok  ] a zero need builds no bank
+  [ok  ] a plan counts a 2 KiB bank as one RAMB18, half a tile
+-- rules
+  [ok  ] the good image is planned
+  [ok  ] the plan's needs are rom to the end of .data's initial bytes, sram to the stack's top (12068, 48256)
+  [ok  ] rom holds .text at the reset address, .rodata after it and .data's initial bytes at their load address
+  [ok  ] a staging buffer of the shape's size is accepted
+  [ok  ] an allocation of exactly 56 RAMB36 is accepted
+  [ok  ] that allocation plans 56.0 RAMB36 (56.0)
+  [ok  ] the ledger holds the ruled points, the size fixture's and the target platform's 8x8 images with two interfaces at 60.5 and 63.0 and the platform's 8x8 image with one at 58.0 ({'8x8-two-interfaces': ((('nvm_stage', 13594), ('image_allocation', 16)), 60.5), 'platform-8x8-two-interfaces': ((('nvm_stage', 13594), ('ctrl_plat', 21568)), 63.0), 'platform-8x8-one-interface': ((('nvm_stage', 13594), ('ctrl_plat', 18944)), 58.0)})
+  [ok  ] the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 60.5))
+  [ok  ] `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2])
+  [ok  ] the platform-8x8-two-interfaces override plans its own point's image: 63.0 RAMB36, against the 56-RAMB36 budget and its ledgered 63.0 ((63.0, 56, 'platform-8x8-two-interfaces', 63.0))
+  [ok  ] `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2, 2])
+  [ok  ] the platform-8x8-one-interface override plans its own point's image: 58.0 RAMB36, against the 56-RAMB36 budget and its ledgered 58.0 ((58.0, 56, 'platform-8x8-one-interface', 58.0))
+  [ok  ] `plan --ledgered-point platform-8x8-one-interface` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2])
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-196544-268435456-None-None-13594-243-None-18944-29480.elf: {"rom": {"bytes": 32548, "banks": [32768], "RAMB36": 8, "RAMB18": 0}, "sram": {"bytes": 204800, "banks": [131072, 65536, 8192], "RAMB36": 50, "RAMB18": 0}, "tiles": 58.0, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.0}
+  [ok  ] the product SoC build plans the platform-8x8-one-interface point's image at its 58.0 RAMB36 by its symbols (Plan(rom_bytes=32548, ram_bytes=204800, rom_banks=(32768,), ram_banks=(131072, 65536, 8192), budget=58.0, ledgered='platform-8x8-one-interface'))
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image half a tile past (allocation over budget: 58.5 RAMB36 (rom 32548 bytes in 32768, sram 206848 bytes in 206848) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image with a ctrl_plat of another size (allocation over budget: 58 RAMB36 (rom 32548 bytes in 32768, sram 204800 bytes in 204800) exceeds the 56-RAMB36 budget)
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-206784-268435456-None-None-13594-243-2-None-29480.elf: {"rom": {"bytes": 32548, "banks": [32768], "RAMB36": 8, "RAMB18": 0}, "sram": {"bytes": 215040, "banks": [131072, 65536, 16384, 2048], "RAMB36": 52, "RAMB18": 1}, "tiles": 60.5, "budget_tiles": 56, "ledgered": "8x8-two-interfaces", "ledgered_tiles": 60.5}
+  [ok  ] the SoC build's add_ctrl_memory builds the 8x8-two-interfaces point's image
+  [ok  ] the SoC build plans the 8x8-two-interfaces point's image at its own entry, 60.5 RAMB36 ((60.5, '8x8-two-interfaces'))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-217024-268435456-None-None-13594-243-None-21568-29480.elf: {"rom": {"bytes": 32548, "banks": [32768], "RAMB36": 8, "RAMB18": 0}, "sram": {"bytes": 225280, "banks": [131072, 65536, 16384, 8192, 4096], "RAMB36": 55, "RAMB18": 0}, "tiles": 63.0, "budget_tiles": 56, "ledgered": "platform-8x8-two-interfaces", "ledgered_tiles": 63.0}
+  [ok  ] the SoC build's add_ctrl_memory builds the platform-8x8-two-interfaces point's image
+  [ok  ] the SoC build plans the platform-8x8-two-interfaces point's image at its own entry, 63.0 RAMB36 ((63.0, 'platform-8x8-two-interfaces'))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-196544-268435456-None-None-13594-243-None-18944-29480.elf: {"rom": {"bytes": 32548, "banks": [32768], "RAMB36": 8, "RAMB18": 0}, "sram": {"bytes": 204800, "banks": [131072, 65536, 8192], "RAMB36": 50, "RAMB18": 0}, "tiles": 58.0, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.0}
+  [ok  ] the SoC build's add_ctrl_memory builds the platform-8x8-one-interface point's image
+  [ok  ] the SoC build plans the platform-8x8-one-interface point's image at its own entry, 58.0 RAMB36 ((58.0, 'platform-8x8-one-interface'))
+  [ok  ] a plan without the override names no ledgered point (['budget_tiles', 'rom', 'sram', 'tiles'])
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-40000-268435456-None-None-3454-243-None-None-9000.elf: {"rom": {"bytes": 12068, "banks": [8192, 4096], "RAMB36": 3, "RAMB18": 0}, "sram": {"bytes": 48256, "banks": [32768, 16384], "RAMB36": 12, "RAMB18": 0}, "tiles": 15.0, "budget_tiles": 56}
+  [ok  ] add_ctrl_memory builds the image
+  [ok  ] add_ctrl_memory adds rom (rx) and sram (rwx) as CtrlMemory, each the whole 224 KiB ({'rom': (0, 229376, 'rx'), 'sram': (268435456, 229376, 'rwx')})
+  [ok  ] add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS
+  [ok  ] an image entering away from the reset address: refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x00000100, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] an image with no initial bytes at the reset address: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] the reset segment's file bytes emptied, its section kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] the reset section moved to 0x100 in the section table, its segment kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] a CPU resetting away from rom's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000100 with sram at 0x10000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a CPU whose sram is not at sram's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000000 with sram at 0x20000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a file that is not an ELF: refused by 'memory map' rule 'elf class' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/not-elf.elf is not a little-endian ELF32 file)
+  [ok  ] an empty file: refused by 'memory map' rule 'elf class' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/empty.elf is not a little-endian ELF32 file)
+  [ok  ] an ELF64 file: refused by 'memory map' rule 'elf class' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/elf64.elf is not a little-endian ELF32 file)
+  [ok  ] a big-endian ELF32 file: refused by 'memory map' rule 'elf class' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/big-endian.elf is not a little-endian ELF32 file)
+  [ok  ] an x86 ELF32 file: refused by 'memory map' rule 'elf machine' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/image-0-0-40000-268435456-None-None-3454-3-None-None-9000.elf is not a RISC-V image)
+  [ok  ] an ELF cut inside its header: refused by 'memory map' rule 'elf truncated' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/cut-40.elf: the ELF header at byte 16 runs past the end of the 40-byte file)
+  [ok  ] an ELF cut to half: refused by 'memory map' rule 'elf truncated' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/cut-half.elf: the section header 0 at byte 12406 runs past the end of the 6383-byte file)
+  [ok  ] a load segment past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/segment.elf: the 1048576 initial bytes at byte 212 run past the end of the 12766-byte file)
+  [ok  ] a section name past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: <scratch>/tmp/ctrl-memory-q7blyuu3/name.elf: the name at byte 1073754170 runs past the end of the 12766-byte file)
+  [ok  ] a section outside rom and sram: refused by 'memory map' rule 'outside regions' (memory map: .bss [0x40000000, 0x40009c40) is outside rom and sram)
+  [ok  ] initial bytes of .data left in sram, which nothing initialises: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] the reset segment's file bytes cut to its first word, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .text's 9000 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .data's load segment emptied, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .data's 64 initial bytes at 0x00002ee4 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .bss reserved in rom: refused by 'memory map' rule 'nobits in rom' (memory map: .bss reserves rom, which the firmware cannot write)
+  [ok  ] .data linked to run in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory-map overlap' rule 'regions' (memory-map overlap: sram at 0x00020000 lies inside rom [0x00000000, 0x00038000) (regions))
+  [ok  ] PLANTED: a memory-map overlap (.bss over .data): refused by 'memory-map overlap' rule 'addresses' (memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] .data's initial bytes loading over .rodata's: refused by 'memory-map overlap' rule 'initial bytes' (memory-map overlap: .rodata at 0x00002328 lies inside .data [0x00002328, 0x00002368) (initial bytes))
+  [ok  ] PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own): refused by 'allocation over budget' rule 'budget' (allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] an allocation of 56.5 RAMB36, half a tile over: refused by 'allocation over budget' rule 'budget' (allocation over budget: 56.5 RAMB36 (rom 12068 bytes in 12288, sram 219136 bytes in 219136) exceeds the 56-RAMB36 budget)
+  [ok  ] the 8x8-two-interfaces point's image, 60.5 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 60.5 RAMB36 (rom 32548 bytes in 32768, sram 215040 bytes in 215040) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-two-interfaces point's image, 63.0 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 63 RAMB36 (rom 32548 bytes in 32768, sram 225280 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image, 58.0 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58 RAMB36 (rom 32548 bytes in 32768, sram 204800 bytes in 204800) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image with a ctrl_plat of another size, planned without an override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58 RAMB36 (rom 32548 bytes in 32768, sram 204800 bytes in 204800) exceeds the 56-RAMB36 budget)
+  [ok  ] the 8x8-two-interfaces override on its own image at 61.0 RAMB36, half a tile past its 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 61 RAMB36 (rom 32548 bytes in 32768, sram 217088 bytes in 217088) exceeds the 60.5-RAMB36 budget ledgered for 8x8, two interfaces)
+  [ok  ] the 8x8-two-interfaces override on the size fixture's 1x1 one-interface image at 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 3454, 'image_allocation': 8})
+  [ok  ] the 8x8-two-interfaces override on the size fixture's 1x1 two-interface image at 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 3454, 'image_allocation': 16})
+  [ok  ] the 8x8-two-interfaces override on the size fixture's 8x8 one-interface image at 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': 8})
+  [ok  ] the 8x8-two-interfaces override on an 8x8 image with no image_allocation at 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': None})
+  [ok  ] the 8x8-two-interfaces override on the size fixture's 1x1 one-interface image within the budget: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 3454, 'image_allocation': 8})
+  [ok  ] the 8x8-two-interfaces override on the platform's 8x8 two-interface image at 60.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': None})
+  [ok  ] the platform-8x8-two-interfaces override on its own image at 63.5 RAMB36, half a tile past its 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: 63.5 RAMB36 (rom 32548 bytes in 32768, sram 227328 bytes in 227328) exceeds the 63-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 one-interface image at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 two-interface image at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19712})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 8x8 one-interface image at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 18944})
+  [ok  ] the platform-8x8-two-interfaces override on an image with the point's ctrl_plat and the 1x1 stage at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 21568})
+  [ok  ] the platform-8x8-two-interfaces override on an 8x8 image with no ctrl_plat at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 one-interface image within the budget: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-two-interfaces override on the size fixture's 8x8 two-interface image at 63.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on its own image at 58.5 RAMB36, half a tile past its 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 32548 bytes in 32768, sram 206848 bytes in 206848) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 one-interface image at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 two-interface image at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19712})
+  [ok  ] the platform-8x8-one-interface override on the platform's 8x8 two-interface image at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21568})
+  [ok  ] the platform-8x8-one-interface override on an image with the point's ctrl_plat and the 1x1 stage at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18944})
+  [ok  ] the platform-8x8-one-interface override on an 8x8 image with no ctrl_plat at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on the size fixture's 8x8 one-interface image at 58.0: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the 8x8-one-interface override on the size fixture's 8x8 two-interface image, a name the ledger does not hold: refused by 'allocation over budget' rule 'budget' (allocation over budget: no ledgered point is named '8x8-one-interface'; the ledger holds ['8x8-two-interfaces', 'platform-8x8-one-interface', 'platform-8x8-two-interfaces'])
+  [ok  ] the 8x8-one-interface override on the image of the point it names, a name the ledger does not hold: refused by 'allocation over budget' rule 'budget' (allocation over budget: no ledgered point is named '8x8-one-interface'; the ledger holds ['8x8-two-interfaces', 'platform-8x8-one-interface', 'platform-8x8-two-interfaces'])
+  [ok  ] the platform-1x1-one-interface override on the platform's 8x8 two-interface image, a name the ledger does not hold: refused by 'allocation over budget' rule 'budget' (allocation over budget: no ledgered point is named 'platform-1x1-one-interface'; the ledger holds ['8x8-two-interfaces', 'platform-8x8-one-interface', 'platform-8x8-two-interfaces'])
+  [ok  ] the platform-1x1-one-interface override on the platform's 1x1 one-interface image, a name the ledger does not hold: refused by 'allocation over budget' rule 'budget' (allocation over budget: no ledgered point is named 'platform-1x1-one-interface'; the ledger holds ['8x8-two-interfaces', 'platform-8x8-one-interface', 'platform-8x8-two-interfaces'])
+  [ok  ] the SoC build's add_ctrl_memory given the 8x8-two-interfaces point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 61 RAMB36 (rom 32548 bytes in 32768, sram 217088 bytes in 217088) exceeds the 60.5-RAMB36 budget ledgered for 8x8, two interfaces)
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-two-interfaces point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 63.5 RAMB36 (rom 32548 bytes in 32768, sram 227328 bytes in 227328) exceeds the 63-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-one-interface point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 32548 bytes in 32768, sram 206848 bytes in 206848) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the SoC build's add_ctrl_memory given an unledgered 8x8 image at 56.5, its ctrl_plat another's: refused by 'allocation over budget' rule 'budget' (allocation over budget: 56.5 RAMB36 (rom 32548 bytes in 32768, sram 198656 bytes in 198656) exceeds the 56-RAMB36 budget)
+  [ok  ] the SoC build's add_ctrl_memory given an 8x8 image with no ctrl_plat at 56.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 56.5 RAMB36 (rom 32548 bytes in 32768, sram 198656 bytes in 198656) exceeds the 56-RAMB36 budget)
+  [ok  ] an image with no nvm_stage: refused by 'staging buffer' rule 'stage symbol' (staging buffer: the image has no nvm_stage)
+  [ok  ] PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 3454 bytes; the planted shape stages 13594)
+  [ok  ] PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 13594 bytes; the planted shape stages 3454)
+  [ok  ] regions.ld states both regions at the CPU's origins, each the whole 224 KiB budget
+-- simulation
+  [ok  ] rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+  [ok  ] a write to rom changes nothing
+  [ok  ] rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [])
+  [ok  ] ram answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [])
+  [ok  ] sram keeps each byte lane written at every bank's edges, the other lanes intact
+  [ok  ] a write past the last bank lands in none of the 215 cells it would alias
+  [ok  ] rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('ack', 2671344821)))
+  [ok  ] sram: a read presented on the cycle after an err acks with its own data ((('err', 0), ('ack', 4277994405)))
+-- link
+  [ok  ] the probe enters at the reset address, whose first word is the reset entry's auipc sp
+  [ok  ] .data runs in sram and its initial value 7 loads from rom
+  [ok  ] the stack tops the sram need
+  [ok  ] the probe's rom words are its load image as the toolchain's objcopy -O binary writes it (32 words, 128 bytes)
+  [ok  ] the probe's nvm_stage passes as the shape's stage
+  [ok  ] PLANTED link script: no AT > rom on .data: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+<home>/br-milan-rv32/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: <scratch>/tmp/ctrl-memory-q7blyuu3/-data-in-rom/probe.elf has a LOAD segment with RWX permissions
+  [ok  ] PLANTED link script: .data in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00000070 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED link script: ENTRY(main): refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x0000005c, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] PLANTED linked image: the reset segment's file bytes emptied: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] PLANTED linked image: the reset segment's file bytes cut to its first word: refused by 'memory map' rule 'load coverage' (memory map: .text's 124 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] PLANTED linked image: .data's load segment emptied: refused by 'memory map' rule 'load coverage' (memory map: .data's 4 initial bytes at 0x0000007c are not all in the load segments' file bytes, the only bytes that program rom)
+-- SoC build
+  [ok  ] SoC build: an allocation over budget is refused by rule 'budget' before any Verilog or init file is written (rc 1: allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] SoC build: a memory-map overlap is refused by rule 'addresses' before any Verilog or init file is written (rc 1: memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: staging buffer: nvm_stage is 13594 bytes; the endstation_ax7101_1x1_tdm8 shape stages 3454)
+  [ok  ] SoC build: the reset segment's file bytes emptied is refused by rule 'entry bytes' before any Verilog or init file is written (rc 1: reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] SoC build: --ctrl-mailbox alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 2: )
+  [ok  ] SoC build: --ctrl-firmware alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 2: )
+  [ok  ] the split build exports (rc 0, no error)
+  [ok  ] the split export's memories are the image's banks (['rom_bank0', 'rom_bank1', 'sram_bank0', 'sram_bank1'])
+  [ok  ] the split export holds no BIOS ROM and no BIOS SRAM
+  [ok  ] the rom banks' init files hold the image word for word
+  [ok  ] csr.csv maps rom and sram at the CPU's origins, each 224 KiB (('0x00000000', '229376'), ('0x10000000', '229376'))
+  [ok  ] the Builder is handed no BIOS ROM or SRAM and a rom that holds its contents, so builds no BIOS ({'rom': 0, 'sram': 0, 'initialized': True, 'packages': ['libc', 'libcompiler_rt', 'libbase', 'libfatfs', 'liblitespi', 'liblitedram', 'libliteeth', 'liblitesdcard', 'liblitesata']})
+  [ok  ] the Builder writes the SoC headers once, without the firmware make inputs ([True])
+  [ok  ] the split build adds no shipping firmware
+  [ok  ] the split export hands the CPU generator rom and sram as their decode pieces, and every row it hands it is an aligned power of two (#791) ([(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'r', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')])
+-- CPU decode
+  [ok  ] decode_pieces gives rom and sram as 128, 64 and 32 KiB at their origins ({'rom': ((0, 131072), (131072, 65536), (196608, 32768)), 'sram': ((268435456, 131072), (268566528, 65536), (268632064, 32768))})
+  [ok  ] decode_pieces gives every region of up to 64 units at every origin below 64 as aligned power-of-two pieces, exactly the region and as few as any split (0 wrong; first: [])
+  [ok  ] cpu_regions hands the split SoC's list over as rom's and sram's pieces, each in its row's mode and on its bus, and every aligned power-of-two row as itself ([(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')])
+  [ok  ] exact_cpu_decode hands the CPU's naming step the pieces, before it names the netlist ([[(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]], None)
+  [ok  ] exact_cpu_decode refuses a CPU whose finalize never names its netlist (the split CPU named its netlist without its exact region pieces: LiteX's VexiiRiscv no longer names it through generate_netlist_name (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected after naming (the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: kept on the instance (the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['the instance.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: kept on the instance under another name (the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['the instance.generator_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected in place after naming (the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: a row appended in place after naming (the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] exact_cpu_decode refuses a CPU whose naming step's list is not aligned powers of two (the split CPU's generator may not read its exact region pieces [(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: the naming step's list is not aligned powers of two (#791))
+  [ok  ] exact_cpu_decode leaves a CPU that is not a VexiiRiscv as it is ({})
+-- register
+  [ok  ] SPLIT_CONTROL_MEMORY.md section 3 lists the 17 rules of ctrl_memory.RULES in order (17 rows; first difference: None)
+  [ok  ] every rule has a refusal arm (none: [])
+  [ok  ] every rule has a mutant that removes or weakens it (none: [])
+  [ok  ] every mutant targets a rule or a named property (stray: [])
+-- mutants
+  [ok  ] MUTANT 'elf class weakened' (elf class) is caught by the checks arm: an ELF64 file: accepted, expected 'memory map' rule 'elf class'
+  [ok  ] MUTANT 'elf machine off' (elf machine) is caught by the checks arm: an x86 ELF32 file: accepted, expected 'memory map' rule 'elf machine'
+  [ok  ] MUTANT 'truncated fields read' (elf truncated) is caught by the checks arm: an ELF cut inside its header: raised error (unpack_from requires a buffer of at least 52 bytes for unpacking 36 bytes at offset 16 (actual buffer size is 40)), expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'truncated segments read' (elf truncated) is caught by the checks arm: a load segment past the end of the file: accepted, expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'unterminated names read' (elf truncated) is caught by the checks arm: a section name past the end of the file: accepted, expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'load address read as the run address' (load address) is caught by the checks arm: the good image is planned: raised Refusal (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] MUTANT 'entry address off' (entry address) is caught by the checks arm: an image entering away from the reset address: accepted, expected 'reset entry' rule 'entry address'
+  [ok  ] MUTANT 'entry bytes off' (entry bytes) is caught by the checks arm: the reset section moved to 0x100 in the section table, its segment kept: refused by 'memory-map overlap' rule 'addresses' (memory-map overlap: .rodata at 0x00002328 lies inside .text [0x00000100, 0x00002428) (addresses))
+  [ok  ] MUTANT 'outside regions off' (outside regions) is caught by the checks arm: a section outside rom and sram: accepted, expected 'memory map' rule 'outside regions'
+  [ok  ] MUTANT 'entry bytes read the sections only' (entry bytes) is caught by the checks arm: the reset segment's file bytes emptied, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .text's 9000 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] MUTANT 'loads outside rom off' (loads outside rom) is caught by the checks arm: initial bytes of .data left in sram, which nothing initialises: refused by 'allocation over budget' rule 'budget' (allocation over budget: 65548.5 RAMB36 (rom 268435520 bytes in 268437504, sram 48256 bytes in 49152) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'load coverage off' (load coverage) is caught by the checks arm: the reset segment's file bytes cut to its first word, its section kept: accepted, expected 'memory map' rule 'load coverage'
+  [ok  ] MUTANT 'load coverage reads the first byte only' (load coverage) is caught by the checks arm: the reset segment's file bytes cut to its first word, its section kept: accepted, expected 'memory map' rule 'load coverage'
+  [ok  ] MUTANT 'a segment carries bytes below its start' (load coverage) is caught by the checks arm: the reset segment's file bytes emptied, its section kept: accepted, expected 'reset entry' rule 'entry bytes'
+  [ok  ] MUTANT 'nobits in rom off' (nobits in rom) is caught by the checks arm: .bss reserved in rom: refused by 'memory map' rule 'writable in rom' (memory map: .bss is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] MUTANT 'writable in rom off' (writable in rom) is caught by the checks arm: .data linked to run in rom: accepted, expected 'memory map' rule 'writable in rom'
+  [ok  ] MUTANT 'region overlap off' (regions) is caught by the checks arm: PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory map' rule 'outside regions' (memory map: .data [0x10000000, 0x10000040) is outside rom and sram)
+  [ok  ] MUTANT 'address overlap off' (addresses) is caught by the checks arm: PLANTED: a memory-map overlap (.bss over .data): accepted, expected 'memory-map overlap' rule 'addresses'
+  [ok  ] MUTANT 'load-address overlap off' (initial bytes) is caught by the checks arm: .data's initial bytes loading over .rodata's: accepted, expected 'memory-map overlap' rule 'initial bytes'
+  [ok  ] MUTANT 'budget off' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 0, 2, 2, 2, 2, 2, 2])
+  [ok  ] MUTANT 'budget refuses exactly 56' (budget) is caught by the checks arm: an allocation of exactly 56 RAMB36 is accepted: raised Refusal (allocation over budget: 56 RAMB36 (rom 12068 bytes in 12288, sram 217088 bytes in 217088) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'budget half a tile slack' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 0, 2, 2, 2, 2, 2, 2])
+  [ok  ] MUTANT 'budget 1.5 tiles slack' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 0, 2, 2, 2, 2, 2, 2])
+  [ok  ] MUTANT 'an override on any image' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 0, 0, 0, 0, 0, 0])
+  [ok  ] MUTANT 'an override on any image carrying its symbols' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 0, 0, 0, 2, 0, 2])
+  [ok  ] MUTANT 'an override on any image with its staging buffer' (budget) is caught by the checks arm: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 0, 0, 2, 0])
+  [ok  ] MUTANT 'stage symbol off' (stage symbol) is caught by the checks arm: an image with no nvm_stage: raised KeyError ('nvm_stage'), expected 'staging buffer' rule 'stage symbol'
+  [ok  ] MUTANT 'stage size off' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'stage accepts a larger buffer' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'stage accepts a smaller buffer' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'banks smallest first' (bank order) is caught by the banks arm: 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [4097, 4581, 5090])
+  [ok  ] MUTANT 'cpu origins off' (cpu origins) is caught by the checks arm: a CPU resetting away from rom's origin: accepted, expected 'reset entry' rule 'cpu origins'
+  [ok  ] MUTANT 'cpu origins read the reset address only' (cpu origins) is caught by the checks arm: a CPU whose sram is not at sram's origin: accepted, expected 'reset entry' rule 'cpu origins'
+  [ok  ] MUTANT 'the SoC build plans no image at its entry' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.0 RAMB36 by its symbols (allocation over budget: 58 RAMB36 (rom 32548 bytes in 32768, sram 204800 bytes in 204800) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'an image's entry found by its staging buffer alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.0 RAMB36 by its symbols (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': None})
+  [ok  ] MUTANT 'an image's entry found by its symbols' names alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.0 RAMB36 by its symbols (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 18944})
+  [ok  ] MUTANT 'rom left uninitialised for the Builder' (no BIOS build) is caught by the checks arm: add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS
+  [ok  ] MUTANT 'decode one bit short' (decode width) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'ack'), ('0x8001', 'ack'), ('0x81f1', 'ack')])
+  [ok  ] MUTANT 'hole compares one bit short' (hole width) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'none'), ('0x8001', 'none'), ('0x81f1', 'none')])
+  [ok  ] MUTANT 'hole starts a word late' (hole start) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none')])
+  [ok  ] MUTANT 'hole answers nothing' (hole answer) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none'), ('0x6e01', 'none'), ('0x71fd', 'none')])
+  [ok  ] MUTANT 'err held a second cycle' (err pulse) is caught by the sim arm: rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('err', 4175417604)))
+  [ok  ] MUTANT 'rom banks from the image start' (rom contents) is caught by the sim arm: rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+  [ok  ] MUTANT 'a writable rom' (read-only rom) is caught by the sim arm: a write to rom changes nothing
+  [ok  ] MUTANT 'BIOS ROM built' (no BIOS memory) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: AssertionError: )
+  [ok  ] MUTANT 'BIOS SRAM built' (no BIOS memory) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: AssertionError: )
+  [ok  ] MUTANT 'control memory not added' (memory hookup) is caught by the soc arm: SoC build: an allocation over budget is refused by rule 'budget' before any Verilog or init file is written (rc 1: AttributeError: 'MilanSoC' object has no attribute 'ctrl_image')
+  [ok  ] MUTANT 'main() staging check removed' (stage in main) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 0: None)
+  [ok  ] MUTANT 'flag pairing off' (pairing) is caught by the soc arm: SoC build: --ctrl-mailbox alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 1: ValueError: --ctrl-mailbox needs --ctrl-firmware: the split placement runs no BIOS, so its block RAM is sized from the firmware)
+  [ok  ] MUTANT 'shipping firmware linked' (no shipping firmware) is caught by the soc arm: the split build adds no shipping firmware
+  [ok  ] MUTANT 'pieces unaligned' (decode pieces) is caught by the decode arm: decode_pieces gives every region of up to 64 units at every origin below 64 as aligned power-of-two pieces, exactly the region and as few as any split (3711 wrong; first: ['[1, 3): (0x1, 0x2) is not an aligned power of two at 0x1'])
+  [ok  ] MUTANT 'the last piece dropped' (decode pieces) is caught by the decode arm: decode_pieces gives rom and sram as 128, 64 and 32 KiB at their origins ({'rom': ((0, 131072), (131072, 65536)), 'sram': ((268435456, 131072), (268566528, 65536))})
+  [ok  ] MUTANT 'regions handed whole' (exact decode) is caught by the decode arm: cpu_regions hands the split SoC's list over as rom's and sram's pieces, each in its row's mode and on its bus, and every aligned power-of-two row as itself ([(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')])
+  [ok  ] MUTANT 'pieces handed after the name' (exact decode) is caught by the decode arm: exact_cpu_decode hands the CPU's naming step the pieces, before it names the netlist ([[(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]], None)
+  [ok  ] MUTANT 'naming guard off' (decode guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose finalize never names its netlist (the split CPU's generator may not read its exact region pieces []: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] MUTANT 'decode hookup removed' (exact decode) is caught by the soc arm: the split export hands the CPU generator rom and sram as their decode pieces, and every row it hands it is an aligned power of two (#791) ([(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'r', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')])
+  [ok  ] MUTANT 'region list check off' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected after naming (None)
+  [ok  ] MUTANT 'unaligned pieces let through' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose naming step's list is not aligned powers of two (None)
+  [ok  ] MUTANT 'the pieces themselves refused' (region list guard) is caught by the decode arm: exact_cpu_decode hands the CPU's naming step the pieces, before it names the netlist ([[(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]], the split CPU's generator may not read its exact region pieces [(0, 131072, 'rxc', 'p'), (131072, 65536, 'rxc', 'p'), (196608, 32768, 'rxc', 'p'), (268435456, 131072, 'rwxc', 'p'), (268566528, 65536, 'rwxc', 'p'), (268632064, 32768, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], so a netlist (unnamed) this build generated decodes other than its name says: remove it from the generator's cache (#791))
+  [ok  ] MUTANT 'the instance not searched' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: kept on the instance (None)
+  [ok  ] MUTANT 'the classes not searched' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected after naming (None)
+  [ok  ] MUTANT 'the named list not copied' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected in place after naming (the split CPU's generator may not read its exact region pieces [(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: the naming step's list is not aligned powers of two (#791))
+-- planted ledgers
+  [ok  ] PLANTED ledger 'the platform's entry without its staging buffer' is caught: `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 2, 0, 2, 2, 2])
+  [ok  ] PLANTED ledger 'the platform's entry without ctrl_plat' is caught: `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 0, 2, 0, 2, 0])
+  [ok  ] PLANTED ledger 'the platform's entry at the 8x8 one-interface ctrl_plat' is caught: the platform-8x8-two-interfaces override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 18944}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21568})
+  [ok  ] PLANTED ledger 'the platform's entry at 63.5 RAMB36' is caught: the platform-8x8-two-interfaces override plans its own point's image: 63.0 RAMB36, against the 56-RAMB36 budget and its ledgered 63.0 ((63.0, 56, 'platform-8x8-two-interfaces', 63.5))
+  [ok  ] PLANTED ledger 'the size fixture's entry without image_allocation' is caught: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 0, 0, 2, 0])
+  [ok  ] PLANTED ledger 'the size fixture's entry at the platform's 63.0' is caught: the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 63.0))
+  [ok  ] PLANTED ledger 'the product entry without ctrl_plat' is caught: `plan --ledgered-point platform-8x8-one-interface` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 0, 2, 0, 0])
+  [ok  ] PLANTED ledger 'the product entry at the 1x1 one-interface ctrl_plat and stage' is caught: the platform-8x8-one-interface override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 3454, 'ctrl_plat': 18048}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 18944})
+  [ok  ] PLANTED ledger 'the product entry at 58.5 RAMB36' is caught: the platform-8x8-one-interface override plans its own point's image: 58.0 RAMB36, against the 56-RAMB36 budget and its ledgered 58.0 ((58.0, 56, 'platform-8x8-one-interface', 58.5))
+  [ok  ] PLANTED ledger 'the product entry at the two-interface ctrl_plat' is caught: the platform-8x8-one-interface override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 18944})
+-- out-of-context mapper
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces image without --ledgered (exit 2)
+  [ok  ] --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 0, {'w': (56.0, None), 'p': (63.0, 'platform-8x8-two-interfaces')})
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces override on another image (exit 2)
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 2)
+  [ok  ] MUTANT 'the mapper's override ignored' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's override on every image' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's stray override accepted' (ooc override) is caught by the mapper's facts: the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 0)
+test_ctrl_memory: 0 failure(s)
+RESULT: PASS
+rc=0
+==== doc_paths.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_doc_paths.py
+HEAD 15168e14 START 21:10:40
+doc path gate: OK (1755 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0
+==== doc_style.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_doc_style.py
+HEAD 15168e14 START 21:10:40
+documentation style: OK (25 current documents)
+rc=0
+==== docs_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/docs_check.py
+HEAD 15168e14 START 21:10:40
+docs_check: 0 finding(s) across 223 md files + 1910 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+==== docs_inventory.log
+CMD <scratch>/gates/venv/bin/python3 scripts/docs_inventory.py --check
+HEAD 15168e14 START 21:10:50
+documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+==== egress_ledger_selftest.log
+CMD python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --selftest
+HEAD 15168e14 START 21:10:46
+PASS [in process] the ledger is section 13's table, row for row and figure for figure: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [in process] section 13's measurement is the one the ledger derives from: {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 62.04905}
+PASS [in process] section 13's three measurements are the three images': ({'backlog.owed.if0': 63.2371, 'backlog.owed_behind0.if0': 63.45889, 'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746, 'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386, 'backlog-owed.service.aecp.last.if0': 61.84625}, {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 61.75319}, {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681, 'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987, 'backlog-owed.service.acmp.last.if0': 62.4008, 'backlog-owed.service.aecp.last.if0': 62.04905})
+PASS [in process] each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [in process] the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it: 60
+PASS [in process] the unchanged ledger, every row at its figure, passes: rc 0
+PASS [in process] section 13's measurement passes: rc 0
+PASS [in process] backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed.if0 a large increase over its figure (100.62000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind0.if0 one cycle over its figure (64.10001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind0.if0 a large increase over its figure (100.86000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind1.if0 one cycle over its figure (64.36001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind1.if0 a large increase over its figure (101.12000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind2.if0 one cycle over its figure (64.61001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind2.if0 a large increase over its figure (101.37000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind3.if0 one cycle over its figure (64.86001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog.owed_behind3.if0 a large increase over its figure (101.62000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.acmp.last.if0 one cycle over its figure (62.62001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.acmp.last.if0 a large increase over its figure (99.38000 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.aecp.last.if0 one cycle over its figure (62.16001 ms) exits nonzero naming it: rc 1
+PASS [in process] backlog-owed.service.aecp.last.if0 a large increase over its figure (98.92000 ms) exits nonzero naming it: rc 1
+PASS [in process] a miss of another row is new and fails, named: rc 1
+PASS [in process] another row within its budget passes: rc 0
+PASS [in process] a ledger row with no instance fails, named: rc 1
+PASS [in process] a ledger row not measured fails, named: rc 1
+PASS [in process] a ledger row never answered, within its figure, fails: rc 1
+PASS [in process] a ledger row's name in another group is a new miss: rc 1
+PASS [in process] a log's rows a printed microsecond under their figures pass: rc 0
+PASS [in process] a log of section 13's measurement passes: rc 0
+PASS [in process] a log's row printed at its figure fails: its log does not show it within: rc 1
+PASS [in process] a log with no summary fails: rc 1
+PASS [in process] a log with a refusal fails: rc 1
+PASS [in process] a log with a BUDGET line short of the summary fails: rc 1
+PASS [in process] a results directory whose run refused a group fails: rc 1
+PASS [in process] a results directory with no results.json fails: rc 1
+PASS [in process] a point with no ledger is refused: rc 2
+PASS [as a process] the ledger is section 13's table, row for row and figure for figure: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [as a process] section 13's measurement is the one the ledger derives from: {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 62.04905}
+PASS [as a process] section 13's three measurements are the three images': ({'backlog.owed.if0': 63.2371, 'backlog.owed_behind0.if0': 63.45889, 'backlog.owed_behind1.if0': 63.73898, 'backlog.owed_behind2.if0': 63.95746, 'backlog.owed_behind3.if0': 64.19076, 'backlog-owed.service.acmp.last.if0': 62.18386, 'backlog-owed.service.aecp.last.if0': 61.84625}, {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 'backlog.owed_behind1.if0': 64.14858, 'backlog.owed_behind2.if0': 64.38819, 'backlog.owed_behind3.if0': 64.62511, 'backlog-owed.service.acmp.last.if0': 62.49045, 'backlog-owed.service.aecp.last.if0': 61.75319}, {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681, 'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987, 'backlog-owed.service.acmp.last.if0': 62.4008, 'backlog-owed.service.aecp.last.if0': 62.04905})
+PASS [as a process] each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms: {'backlog.owed.if0': 63.86, 'backlog.owed_behind0.if0': 64.1, 'backlog.owed_behind1.if0': 64.36, 'backlog.owed_behind2.if0': 64.61, 'backlog.owed_behind3.if0': 64.86, 'backlog-owed.service.acmp.last.if0': 62.62, 'backlog-owed.service.aecp.last.if0': 62.16}
+PASS [as a process] the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it: 60
+PASS [as a process] the unchanged ledger, every row at its figure, passes: rc 0
+PASS [as a process] section 13's measurement passes: rc 0
+PASS [as a process] backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed.if0 a large increase over its figure (100.62000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind0.if0 one cycle over its figure (64.10001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind0.if0 a large increase over its figure (100.86000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind1.if0 one cycle over its figure (64.36001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind1.if0 a large increase over its figure (101.12000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 one cycle over its figure (64.61001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind2.if0 a large increase over its figure (101.37000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 one cycle over its figure (64.86001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog.owed_behind3.if0 a large increase over its figure (101.62000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 one cycle over its figure (62.62001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.acmp.last.if0 a large increase over its figure (99.38000 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 one cycle over its figure (62.16001 ms) exits nonzero naming it: rc 1
+PASS [as a process] backlog-owed.service.aecp.last.if0 a large increase over its figure (98.92000 ms) exits nonzero naming it: rc 1
+PASS [as a process] a miss of another row is new and fails, named: rc 1
+PASS [as a process] another row within its budget passes: rc 0
+PASS [as a process] a ledger row with no instance fails, named: rc 1
+PASS [as a process] a ledger row not measured fails, named: rc 1
+PASS [as a process] a ledger row never answered, within its figure, fails: rc 1
+PASS [as a process] a ledger row's name in another group is a new miss: rc 1
+PASS [as a process] a log's rows a printed microsecond under their figures pass: rc 0
+PASS [as a process] a log of section 13's measurement passes: rc 0
+PASS [as a process] a log's row printed at its figure fails: its log does not show it within: rc 1
+PASS [as a process] a log with no summary fails: rc 1
+PASS [as a process] a log with a refusal fails: rc 1
+PASS [as a process] a log with a BUDGET line short of the summary fails: rc 1
+PASS [as a process] a results directory whose run refused a group fails: rc 1
+PASS [as a process] a results directory with no results.json fails: rc 1
+PASS [as a process] a point with no ledger is refused: rc 2
+caught mutant 'a ledger row waived by its name whatever its size': backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant "a grade's figure read at its log's microsecond": backlog.owed.if0 one cycle over its figure (63.86001 ms) exits nonzero naming it
+caught mutant 'a ledger row at its figure failing': the unchanged ledger, every row at its figure, passes
+caught mutant 'a new miss waived': a miss of another row is new and fails, named
+caught mutant 'a ledger row with no instance passing': a ledger row with no instance fails, named
+caught mutant "a log's figure read as exact": a log's row printed at its figure fails: its log does not show it within
+caught mutant "a ledger figure a hundredth over section 13's": the ledger is section 13's table, row for row and figure for figure
+caught mutant 'a ledger figure with no 5 % on its service': the ledger is section 13's table, row for row and figure for figure
+caught mutant 'the 5 % on the whole row, the hold too': the ledger is section 13's table, row for row and figure for figure
+caught mutant "the hold not the scenario's": each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms
+caught mutant 'a measurement the ledger does not derive from': section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the merged image's measurement where the composed one is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a figure at the composed image's measurement where the Listener copies' is larger": section 13's measurement is the one the ledger derives from
+caught mutant "a run's refusals not read": a results directory whose run refused a group fails
+caught mutant "a ledger row's name taken in any group": a ledger row's name in another group is a new miss
+RESULT: PASS: 15 mutants, 0 failure(s)
+rc=0
+==== emdash.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_em_dash.py --base cb96336d
+HEAD 15168e14 START 21:10:40
+check_em_dash: 0 finding(s) over 12726 added line(s) in 74 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cb96336d..HEAD]
+rc=0
+==== flip_check.log
+CMD python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
+HEAD 15168e14 START 21:10:43
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/2if | 0.799 | 0.70 | 1.14x | srp 0.219, rec.acmp 0.088, timers 0.072, item.aecp 0.063, ticks 0.057, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.036, steps 0.034, item.acmp 0.027, builds 0.026, rec.adp 0.024, item.acmp_declined 0.015, item.walk 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.744 | 0.75 | 1.00x | srp 0.225, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.26 | 20 | -6.74 | 5 | aecp 4.000, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 73.88 | 90 | -16.12 | 39 | others 11.240, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 69.75 | 90 | -20.25 | 36 | others 10.855, passes 9.540, srp 9.120 |
+| 1x1/1if | first | 14.69 | 20 | -5.31 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 127.31 | 130 | -2.69 | 66 | srp 25.935, passes 17.490, others 14.410 |
+| 1x1/1if | R4L | 203.48 | 238 | -34.52 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.06 | 30 | -0.94 | 17 | aecp 5.250, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.51 | 30 | -2.49 | 13 | others 6.915, aecp 5.250, passes 3.445 |
+| 1x1/1if | MAAP | 27.61 | 30 | -2.39 | 13 | others 6.930, aecp 5.250, passes 3.445 |
+| 1x1/1if | tx | 33.44 | 49 | -15.56 | 17 | others 8.350, aecp 5.500, passes 4.505 |
+| 1x1/1if | txL | 47.88 | 49 | -1.12 | 23 | aecp 10.600, others 9.410, item.aecp 7.245 |
+| 8x8/2if | R4 | 45.24 | 20 | +25.24 | 17 | timers 11.450, passes 6.630, item.aecp 4.675 |
+| 8x8/2if | R5 | 209.68 | 90 | +119.68 | 63 | others 34.680, passes 24.570, timers 19.730 |
+| 8x8/2if | R6 | 199.36 | 90 | +109.36 | 59 | others 33.400, passes 23.010, timers 19.490 |
+| 8x8/2if | first | 21.13 | 20 | +1.13 | 2 | spacing 8.000, timers 2.570, others 1.680 |
+| 8x8/2if | last | 867.89 | 125 | +742.89 | 310 | srp 168.265, passes 120.900, others 112.600 |
+| 8x8/2if | R4L | 211.12 | 238 | -26.88 | 2 | pace 195.000, others 3.360, timers 2.570 |
+| 8x8/2if | ACMP | 69.22 | 30 | +39.22 | 23 | timers 12.650, passes 8.970, aecp 7.685 |
+| 8x8/2if | ADP | 69.16 | 30 | +39.16 | 19 | others 14.520, timers 12.170, aecp 7.685 |
+| 8x8/2if | MAAP | 73.41 | 30 | +43.41 | 20 | others 16.800, timers 12.530, aecp 7.950 |
+| 8x8/2if | tx | 104.69 | 49 | +55.69 | 38 | others 22.240, timers 15.410, passes 14.820 |
+| 8x8/2if | txL | 474.19 | 49 | +425.19 | 181 | aecp 102.555, item.aecp 99.400, passes 70.590 |
+| 8x8/2if | | the other tier-1 channels' caps are over the pass's tier-1 time, so the channel rows credit a take a pass may cut: each a lower bound | | | | |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.81 ms (tx_held; the hold-off adds the figure)
+OVER 8x8/2if: the load 0.799 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 45.24 ms, over its bound 20 ms; the largest term timers 11.45 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 209.68 ms, over its bound 90 ms; the largest term others 34.68 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 199.36 ms, over its bound 90 ms; the largest term others 33.40 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 21.13 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 867.89 ms, over its bound 125 ms; the largest term srp 168.26 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.22 ms, over its bound 30 ms; the largest term timers 12.65 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.16 ms, over its bound 30 ms; the largest term others 14.52 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 73.41 ms, over its bound 30 ms; the largest term others 16.80 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 104.69 ms, over its bound 49 ms; the largest term others 22.24 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 474.19 ms, over its bound 49 ms; the largest term aecp 102.56 ms
+RESULT: FAIL
+rc=1
+==== flip_check_1x1.log
+CMD python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+HEAD 15168e14 START 21:10:44
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.26 | 20 | -6.74 | 5 | aecp 4.000, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 73.88 | 90 | -16.12 | 39 | others 11.240, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 69.75 | 90 | -20.25 | 36 | others 10.855, passes 9.540, srp 9.120 |
+| 1x1/1if | first | 14.69 | 20 | -5.31 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 127.31 | 130 | -2.69 | 66 | srp 25.935, passes 17.490, others 14.410 |
+| 1x1/1if | R4L | 203.48 | 238 | -34.52 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.06 | 30 | -0.94 | 17 | aecp 5.250, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.51 | 30 | -2.49 | 13 | others 6.915, aecp 5.250, passes 3.445 |
+| 1x1/1if | MAAP | 27.61 | 30 | -2.39 | 13 | others 6.930, aecp 5.250, passes 3.445 |
+| 1x1/1if | tx | 33.44 | 49 | -15.56 | 17 | others 8.350, aecp 5.500, passes 4.505 |
+| 1x1/1if | txL | 47.88 | 49 | -1.12 | 23 | aecp 10.600, others 9.410, item.aecp 7.245 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+==== flip_check_8x8_1if.log
+CMD python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/1if
+HEAD 15168e14 START 21:12:43
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.744 | 0.75 | 1.00x | srp 0.225, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.81 ms (tx_held; the hold-off adds the figure)
+RESULT: PASS
+rc=0
+==== flip_selftest.log
+CMD python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+HEAD 15168e14 START 21:10:44
+flip check: 616 of 616 planted controls refused
+rc=0
+==== fw_coverage_check.log
+CMD <scratch>/gates/venv/bin/python3 sw/firmware/gtest/fw_coverage.ptoolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+[ok] ctrl coverage run
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] ctrl_nvm coverage run
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+file                                                 lines    branches   after exclusions
+sw/firmware/ctrl/acmp/acmp_mbx.c                 106/106      42/42      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/acmp/acmp_nvm.c                  38/38       10/10      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp.c                     642/642     562/562     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_commands.c            497/497     415/415     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_face.c                220/220     198/198     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_image.c                77/77       80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_maps.c                344/344     421/422     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_mbx.c                 140/140      76/76      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_nvm.c                 118/119      93/94      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_state.c                63/63       69/69      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app.c                   54/55       43/46      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_aecp.c             190/190     154/154     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_srp.c               96/96       80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/loop/ctrl_loop.c                203/203     216/216     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_csr.c                  39/39       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_mbx.c                 161/161      94/94      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx.c                       368/368     194/194     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx_wire.h                   22/22       12/12      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_cc.h                    5/5         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_mem.c                 167/167      80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat.c                224/226     109/116     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_console.c        119/119      68/68      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_csr.c             69/69       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_mmio.c             5/5         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_phy.c            182/182     174/174     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_dma.h                   14/14        8/8       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_mmio.h                   7/7         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_plat_mmio.c              8/8         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_pool.c                114/114      68/68      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/srp/srp_mbx.c                   801/801     725/728     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_klj2.c                  212/213     120/124     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 510/510     311/320     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    108/108      63/64      lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/include/wire.h            14/14        2/2       lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/acmp.c               847/847     436/436     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+rc=0
+00.00 %
+firmware coverage: PASS (40 files)
+rc=0
+==== hdl_reference_selftest.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_hdl_reference.py --selftest
+HEAD 15168e14 START 21:10:52
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: <scratch>/tmp/hdl-reference-selftest-qsxzx3wf/positive/index.html
+HDL reference self-test: 44/44 arms passed
+rc=0
+==== hygiene.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_hygiene.py --check
+HEAD 15168e14 START 21:10:40
+
+1515 first-party file(s) scanned: superproject 1241, protocol-processor 223, gptp-processor 51
+22 generated file(s) skipped, their fix is in their generator:
+  .github/workflows/docs.yml
+  .github/workflows/elaborate.yml
+  .github/workflows/rtl-fast.yml
+  .github/workflows/rtl.yml
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  configs/generated/sweep_opts_arty.sh
+  configs/generated/sweep_opts_ax7101.sh
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  hdl/common/gen/adp_shape_defaults.svh
+  hdl/milan/mailbox/KL_mbx.sv
+  hdl/milan/mailbox/KL_mbx_pkg.sv
+  sw/firmware/ctrl/mbx/mbx_contract.h
+  sw/litex/milan_soc.py
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1515 file(s))
+rc=0
+==== load_check.log
+CMD python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+HEAD 15168e14 START 21:10:42
+| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.511 | 0.508 | 0.70, both columns | 1.00x | 265 | srp 0.171, rec.acmp 0.053, rec.aecp 0.050, ticks 0.049, item.aecp 0.034, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.011, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.799 | 0.757 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 390 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.061, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.744 | 0.703 | the flip check, 0.75 at the pin (flip_grade.py) | 1.00x | 345 | srp 0.225, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.032, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, rec.adp 0.013, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.511, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.508, its ceiling 0.70
+RESULT: PASS
+rc=0
+==== load_selftest.log
+CMD python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest
+HEAD 15168e14 START 21:10:43
+load gate: 28 of 28 planted controls refused
+rc=0
+==== mailbox_contract_check.log
+CMD <scratch>/gates/venv/bin/python3 sw/mailbox/gen_mailbox.py --check
+HEAD 15168e14 START 21:11:10
+gen_mailbox: 0 finding(s)
+rc=0
+==== mailbox_margins.log
+CMD python3 -B sw/mailbox/mailbox_margins.py --check
+HEAD 15168e14 START 21:10:47
+rc=0
+==== memory_map_check.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 docs/diagrams/memory_map.gen.py --check
+HEAD 15168e14 START 21:11:07
+memory map diagram: fresh
+rc=0
+==== one_valued_table_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_one_valued_table.py --check
+HEAD 15168e14 START 21:11:09
+README.md: the one-valued table is current
+rc=0
+==== pp_srcs_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/pp_srcs.py --check --selftest
+HEAD 15168e14 START 21:11:11
+pp source list: 46 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+rc=0
+==== publication_census_check.log
+CMD <scratch>/gates/venv/bin/python3 sw/mailbox/publication_census.py --check --selftest --jobs 8
+HEAD 15168e14 START 21:11:12
+publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+shape recipe: 114502 cells, 1434 named nets; 41 read(s), 4 unread net(s); the module's defaults
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 860 live bit(s) consumed, 4 port(s) read in neither placement
+shape endstation_arty_4x4: 268955 cells, 1465 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=4
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1916 live bit(s) consumed, 4 port(s) read in neither placement
+shape endstation_arty_8ch: 312651 cells, 1465 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1916 live bit(s) consumed, 4 port(s) read in neither placement
+shape endstation_arty_current: 114501 cells, 1434 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 860 live bit(s) consumed, 4 port(s) read in neither placement
+shape endstation_ax7101_1x1_tdm8: 118694 cells, 1439 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1025 live bit(s) consumed, 4 port(s) read in neither placement
+shape endstation_ax7101_8x8: 546514 cells, 1484 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+  split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 3104 live bit(s) consumed, 4 port(s) read in neither placement
+== publication census: 6 shape(s), checks: 246   failures: 0 ==
+26 class-D net(s) from the wrapper cell's ports, 4 unread; 41 read(s) of 22 class-D net(s) in each shape; RESULT: PASS
+publication census: 6 shape(s) elaborated and classified in 217 s at --jobs 8
+[ok] planted R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-5 S2: a read inside a generate loop with no iteration at one stream: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_v reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-5 S3: a read inside a generate branch only LOOPBACK_P != 0 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-5 arm B: a read inside if (N_STREAMS > 1) begin ... end: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-5 arm E: a status consumer added to the g_aaf_stream_en loop's gate: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at aaf_packetizer.stream_en_i; chan_map_capture.map_wr_addr_i; chan_map_capture.map_wr_data_i; chan_map_capture.map_wr_en_i; chan_map_render.map_wr_addr_i; chan_map_render.map_wr_data_i; chan_map_render.map_wr_en_i; csr.i_pp_nvm_blank; csr.i_pp_restore_busy; csr.i_pp_restore_done; csr.i_pp_restore_fail; csr.i_tlk_gate_v; media_clock_restart.streaming_i; pp_shadow.amap_alarm_i; pp_shadow.amap_data_i; pp_shadow.amap_edit_data_i; pp_shadow.amap_edit_wait_i; pp_shadow.amap_live_wr_i; pp_shadow.amap_unflushed_i; pp_shadow.amap_wait_i; pp_shadow.enable_i; pp_shadow.mrec_abort_i; pp_shadow.mrec_len_i; pp_shadow.mrec_op_i; pp_shadow.mrec_region_i; pp_shadow.mrec_req_i; pp_shadow.mrec_rready_i; pp_shadow.mrec_wdata_i; pp_shadow.mrec_wvalid_i; talker_diag.streaming_i)
+[ok] planted a read inside a generate branch only a multi-stream shape's header builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted a field read that reaches CSR read-back only in the multi-stream shapes: refused (the reads differ between the shapes: pp_aecp_strm_started_w -> acmpl_stopped_v_w reaching csr, wire only in endstation_arty_4x4)
+[ok] positive control, the tracked sources: 0 finding(s)
+[ok] planted port census: a port no class names: refused (unmapped port: aecp_identify_o (output) of pp_shadow is in no class; name its disposition)
+[ok] planted port census: a class C row the class-D census does not hold: refused (class C names aecp_identify_o, which is not the class-D census's population)
+[ok] planted port census: an F carrier narrower than its port: refused (F port aecp_cur_config_o is 16 bits in the shape recipe; its carrier F_ENTITY.IDENTIFY holds 8 for 1 value(s), of at most 1)
+[ok] planted port census: the exclusion naming a net no G cone reaches: refused (the exclusion names amr_probe_r, which no G cone of this shape reaches: drop it)
+[ok] planted port census: a CSR terminal's net also read past it: refused (G port host_rdata_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+[ok] planted port census: the REBOOT request read past its terminal: refused (G port reboot_req_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+[ok] planted port census: a G output on a datapath output outside the memory masters: refused (G port maap_state_o reaches the wire at the datapath output probe_o: a value the split placement removes still has a consumer)
+[ok] positive control, the tracked sources in both placements: 0 finding(s)
+[ok] planted split census: a ctl port two classes name: refused (split port o_ctl_gm_id is named in classes E and M: one port, one class)
+[ok] planted split census: a split row naming a port the datapath does not declare: refused (stale split row: class F names i_ctl_probe_gone, which the split datapath does not declare)
+[ok] planted split census: a split carrier the contract does not define: refused (split F port i_ctl_identify: its carrier F_ENTITY.IDENT is not a field of contract 2.3's face block)
+[ok] planted split census: a split carrier narrower than its port: refused (split F port i_ctl_cur_config is 16 bits; its carrier F_ENTITY.IDENTIFY holds 8)
+[ok] planted split census: a face event no row carries: refused (the face event AMAP_LIVE_WRITE is carried by no port of the split datapath)
+[ok] planted split census: a split row standing for another setting: refused (split port i_ctl_identify stands for aecp_cur_config_o, whose carrier F_ENTITY.CUR_CONFIG is not its own, F_ENTITY.IDENTIFY)
+[ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: the census names TALKER_DECL.DECLARE, which the publication block does not define)
+[ok] planted port census: a port two classes name: refused (port gm_id_i is named in classes G and M: one port, one class)
+[ok] planted port census: an F carrier contract 2.3 does not define: refused (F port aecp_identify_o: its carrier F_ENTITY.IDENT is not defined by contract 2.3)
+[ok] planted port census: a per-sink carrier counted once: refused (F port aecp_fmt_in_o is 128 bits in the shape recipe; its carrier F_FMT_IN_LO.FMT + F_FMT_IN_HI.FMT holds 64 for 1 value(s), of at most 1)
+[ok] planted port census: the exclusion naming a net outside the map writer: refused (the exclusion names pp_amap_edit_req_w, which is not a net of the map writer and restore (amr_*))
+[ok] planted port census: a memory-master terminal's net also read past it: refused (G port desc_mem_req_valid_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+[ok] planted port census: a MAAP shim output read past pp_shadow: refused (G port maap_req_valid_o reaches the wire at pp_maap_shim.req_valid_i: a value the split placement removes still has a consumer)
+[ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+[ok] planted port census: a row naming a port the wrapper does not declare: refused (stale port row: class G names probe_gone_o, which KL_pp_shadow does not declare)
+[ok] planted port census: an M carrier KL_mbx does not declare: refused (M port link_up_i: its carrier link_i is not a port of KL_mbx)
+[ok] planted port census: the exclusion emptied: the map writer's cones reach the wire: refused (G port mrec_gnt_o reaches the wire at chan_map_capture.map_wr_addr_i: a value the split placement removes still has a consumer)
+[ok] planted port census: a G output read by another module's input: refused (G port maap_state_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+[ok] planted port census: a map-record output read past the exclusion: refused (G port mrec_gnt_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+[ok] planted port census: a G output on a CSR input outside the processor-status face: refused (G port rx_frames_o reaches the wire at csr.i_probe_g: a value the split placement removes still has a consumer)
+[ok] negative control, a class-D wire named in a comment: 0 finding(s)
+[ok] planted an unmapped read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in a declaration's initialiser: refused (unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in an always block's condition: refused (unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted a status read on the wire: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a GET_STREAM_INFO read on the wire: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted the started level dropped from the accept: refused (unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: a class-D output wired off the pp_cd_ prefix and read on the wire: refused (unmapped read: probe_dom_chg_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: an alias wire read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_alias_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: a case selector in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted R582-2: a case item label in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted R582-2: a function body called on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a plain assign on the wire (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a case item label in an always_comb: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a positional port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_pos.a reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: an implicit .name port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_dot.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a function body's return: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_dot.lwsrp_talker_declared)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R583-3: lwsrp_talker_declared as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: lwsrp_talker_declared on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_pos.a)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_dot.gsi_tkdcl_w)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R583-3: gsi_tkdcl_w as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: gsi_tkdcl_w on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted R582-3 part 2: a positional port naming a status consumer, its output unused: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+[ok] planted R583-3: a plain assign from the status consumer (its control): refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: a case item label naming the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: a function body returning the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: the status consumer as a register's event control: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: the status consumer on an input port whose name ends in _o: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted a relational <= in a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a function's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a task's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a macro call's argument, the macro defined in an included file: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted the second assignment of a continuous assign list: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a read carried to another target of its block: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a struct member carrying the status consumer: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a status consumer written into a memory and read out of it: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted a status consumer printed: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at $display$0x55b244cf4670:4874$32172.ARGS ($print, which has no output))
+[ok] planted a CSR block input outside the read-back face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at csr.i_tlk_gate_v)
+[ok] planted a read-back port of another milan_csr cell: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_csr.i_lwsrp_status)
+[ok] planted a wrapper input outside its answer face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at pp_shadow.cfg_maap_internal_i)
+[ok] planted R582-4: lwsrp_talker_declared, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E1: lwsrp_talker_declared, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E2: lwsrp_talker_declared, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E3: lwsrp_talker_declared, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E4: lwsrp_talker_declared, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:32: Parse error: unexpected token 'iff' (KW_iff))
+[ok] planted R582-4: lwsrp_talker_declared, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E5: lwsrp_talker_declared, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4: lwsrp_talker_declared, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4 E6: lwsrp_talker_declared, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4: gsi_tkdcl_w, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E1: gsi_tkdcl_w, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E2: gsi_tkdcl_w, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E3: gsi_tkdcl_w, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E4: gsi_tkdcl_w, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:32: Parse error: unexpected token 'iff' (KW_iff))
+[ok] planted R582-4: gsi_tkdcl_w, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E5: gsi_tkdcl_w, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4: gsi_tkdcl_w, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4 E6: gsi_tkdcl_w, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7220:3: Parse error: missing expected `endmodule`)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: a token-paste macro defined in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: the token-paste macro defined in the datapath (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: a macro in an included file holding a hierarchical reference into the wrapper: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+[ok] planted R583-4: a hierarchical reference into the wrapper (its control): refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+[ok] planted R583-4: an escaped name holding // hides a read: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7219: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted an escaped name holding // drops a declaration's initialiser without an error: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7219: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted an escaped name holding /*: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7219: an escaped name holds a comment opener, `\probe/*`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted R583-4: escaped names holding a double quote around a read: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: a second driver as the population net's declaration initialiser: refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+[ok] planted R583-4: a second driver as a continuous assign (its control): refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+[ok] planted a class-D port left unconnected: refused (class-D port srp_over_limit_o is not connected)
+[ok] planted a class-D port the instance omits: refused (class-D port srp_over_limit_o is not connected)
+[ok] planted a class-D port driving more than one net: refused (class-D port srp_class_a_prio_o drives pp_cd_srp_class_a_prio_w, probe_p_w, not one whole named net)
+[ok] planted a class-D port connected by an implicit .name, no net of its name: refused (the census cannot read it: the front end (sv2v) refused the datapath: sv2v: implicit declaration of "srp_over_limit_o" but default_nettype is none)
+[ok] planted a class-D output the census does not list: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+[ok] planted a class-D output declared beside another, on one line: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+[ok] planted a class-D output moved out of the face: refused (CLASS_D_PORTS lists acmp_bound_eid_o, which the wrapper's class-D face does not declare)
+[ok] planted a wildcard port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_all.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted a hierarchical reference into the CSR block: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+[ok] planted a hierarchical reference through a generate scope: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\g_probe[0].csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+[ok] planted a read written in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_inc_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an include the front end cannot find: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7219:71: Lexical error: Could not find file "probe_missing.svh", included from "hdl/milan/milan_datapath.sv")
+[ok] planted R583-5 R1: a status consumer driven to a new datapath output: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o)
+[ok] planted R583-5 R2: a status consumer ORed into the answer face's change strobe: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper)
+[ok] planted a field read whose only wire is cut: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: mapped to TALKER_DECL.DECLARED as read on the wire, but it reaches no wire)
+[ok] planted a second driver of a net outside the population: refused (crft_class_a_w has two drivers, an assignment of an expression, an assignment of the constant 0: the census cannot tell which its readers see)
+[ok] planted two class-D ports driving one net: refused (class-D ports srp_domain_change_o and srp_over_limit_o drive one net, pp_cd_srp_over_limit_w)
+[ok] planted the wrapper's cell renamed: refused (the census cannot read it: the datapath holds KL_pp_shadow cell(s) ['probe_shadow']; the census reads one, pp_shadow)
+[ok] planted the CSR block's cell renamed: refused (the census cannot read it: the datapath holds no milan_csr cell named csr)
+[ok] planted a class-D output named again in a block comment of the port list: refused (the wrapper's port list declares output srp_active_o 2 times, or never: the census cannot tell its section)
+[ok] planted the started level's port renamed: refused (the wrapper declares no output aecp_strm_started_o)
+[ok] planted an sv2v other than the pinned release: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.13` and `Yosys 0.66`: set SV2V and YOSYS to the pinned tools)
+[ok] planted a Yosys other than the pinned version: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.12` and `Yosys 0.67`: set SV2V and YOSYS to the pinned tools)
+[ok] planted the processor left in the split: refused (the split datapath holds KL_pp_shadow cell pp_shadow: the split builds no KL_pp_shadow)
+[ok] planted the fabric MAAP engine left in the split: refused (the split datapath holds KL_maap cell g_maap.maap_engine: the split builds no KL_maap)
+[ok] planted the map writer left in the split: refused (the map writer's net amr_abort_r, which the all-fabric exclusion names, comes from axis_clk, axis_resetn, chan_map_capture.map_flat_o, csr.o_aaf_bypass, csr.o_aaf_enable, csr.o_chmap_wr_addr, csr.o_chmap_wr_data, csr.o_chmap_wr_en, csr.o_chmap_wr_side, csr.o_lwsrp_enable, csr.o_maap_enable, csr.o_pp_restore_go, i_ctl_edit_count, i_ctl_edit_index, i_ctl_edit_phase, i_ctl_edit_rec, i_ctl_edit_record, i_ctl_edit_remove, i_ctl_edit_req, i_ctl_edit_type, i_ctl_fmt_in, i_ctl_fmt_in_v, i_ctl_fmt_out, i_ctl_fmt_out_v, i_ctl_lock_held, i_ctl_pub_da_gate, i_ctl_pub_licence, i_ctl_restore, i_ctl_rs_cause in the split, not a constant: the split builds no map writer)
+[ok] planted a class-D consumer on a G tie-off: refused (pp_cd_acmp_declaring_w, the net of the wrapper's acmp_declaring_o, is driven by a constant in the split, not by i_ctl_pub_da_gate)
+[ok] planted a class-D consumer that reads the port around its net in the split: refused (the field read pp_cd_acmp_declaring_w -> acmp_talker_active_v does not hold in the split datapath)
+[ok] planted a stream_id taken without SID_VALID: refused (pp_cd_acmp_bound_sid_w, the net of the wrapper's acmp_bound_sid_o, is driven by i_ctl_pub_sid in the split, not by i_ctl_pub_sid, i_ctl_pub_sid_valid)
+[ok] planted a stream_id taken without SID_VALID, SID_VALID unread: refused (split port i_ctl_pub_sid_valid bit 0 reaches no cone end: the split datapath does not consume BINDING.SID_VALID)
+[ok] planted half a publication field dropped: refused (split port i_ctl_pub_dom_vid bit 8 reaches no cone end: the split datapath does not consume SR_DOMAIN.VID)
+[ok] planted a setting from another setting's port: refused (pp_aecp_clk_src_index_w, the net of the wrapper's aecp_clk_src_index_o, is driven by i_ctl_cur_config in the split, not by i_ctl_clk_src_index)
+[ok] planted two bits of a packed setting swapped: refused (pp_restore_busy_w[0], the net of the wrapper's restore_busy_o, is driven by i_ctl_restore[1], not i_ctl_restore[0])
+[ok] planted an answer from another window: refused (o_ctl_ctr_data is driven by pp_amap_data_w in the split, not by pp_ctr_data_w, which the wrapper's ctr_data_i read)
+[ok] planted a face notification never raised: refused (o_ctl_avb_chg_p is driven by a constant in the split, not by gsi_avb_chg_w, which the wrapper's gsi_avb_chg_i read)
+[ok] planted the REBOOT request from another port in the split: refused (pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by i_ctl_lock_held in the split, not by i_reboot_req)
+[ok] planted the REBOOT request tied off in the split: refused (pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by a constant in the split, not by i_reboot_req)
+[ok] planted a class-D value the block does not carry, driven in the split: refused (pp_cd_srp_over_limit_w, the net of the wrapper's class-D value the block does not carry srp_over_limit_o, is driven by i_ctl_dyn_dirty in the split, not a constant)
+[ok] planted the frame block on another net: refused (g_sp_ctrl.ctrl_split.rx_tlast_i carries rx_axis_fabric.tvalid, not rx_axis_fabric.tlast, which the wrapper's rx_tlast_i carried)
+[ok] planted an entry past the shape's own read: refused (split port i_ctl_pub_da_gate bit 1 is read, past the shape's 1 source(s))
+[ok] planted a ctl port no row names: refused (unmapped split port: i_ctl_probe (input) is in no class; name what it carries and stands for)
+selftest: 0 of 164 arm(s) failed; 164 arm(s) and their rules' removals in 520 s at --jobs 8
+[ok] rule shapes: removed, it lets through every one of its 2 arm(s), e.g. R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds
+[ok] rule shape-params: removed, it lets through every one of its 3 arm(s), e.g. R583-5 S2: a read inside a generate loop with no iteration at one stream
+[ok] rule shape-header: removed, it lets through every one of its 1 arm(s), e.g. a read inside a generate branch only a multi-stream shape's header builds
+[ok] rule same-across-shapes: removed, it lets through every one of its 1 arm(s), e.g. a field read that reaches CSR read-back only in the multi-stream shapes
+[ok] rule pins: removed, it lets through every one of its 2 arm(s), e.g. an sv2v other than the pinned release
+[ok] rule opener-guard: removed, it lets through every one of its 3 arm(s), e.g. R583-4: an escaped name holding // hides a read
+[ok] rule keep-names: removed, it lets through every one of its 1 arm(s), e.g. positive control, the tracked sources
+[ok] rule one-wrapper: removed, it lets through every one of its 1 arm(s), e.g. the wrapper's cell renamed
+[ok] rule csr-cell: removed, it lets through every one of its 1 arm(s), e.g. the CSR block's cell renamed
+[ok] rule face-listed: removed, it lets through every one of its 2 arm(s), e.g. a class-D output the census does not list
+[ok] rule face-declared: removed, it lets through every one of its 1 arm(s), e.g. a class-D output moved out of the face
+[ok] rule face-placed: removed, it lets through every one of its 1 arm(s), e.g. a class-D output named again in a block comment of the port list
+[ok] rule started-port: removed, it lets through every one of its 1 arm(s), e.g. the started level's port renamed
+[ok] rule port-connected: removed, it lets through every one of its 2 arm(s), e.g. a class-D port left unconnected
+[ok] rule port-one-net: removed, it lets through every one of its 1 arm(s), e.g. a class-D port driving more than one net
+[ok] rule ports-distinct: removed, it lets through every one of its 1 arm(s), e.g. two class-D ports driving one net
+[ok] rule sole-driver: removed, it lets through every one of its 2 arm(s), e.g. R583-4: a second driver as the population net's declaration initialiser
+[ok] rule two-drivers: removed, it lets through every one of its 1 arm(s), e.g. a second driver of a net outside the population
+[ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+[ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+[ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+[ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+[ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+[ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+[ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+[ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+[ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+[ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+[ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+[ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+[ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+[ok] rule port-unmapped: removed, it lets through every one of its 1 arm(s), e.g. port census: a port no class names
+[ok] rule port-one-class: removed, it lets through every one of its 1 arm(s), e.g. port census: a port two classes name
+[ok] rule port-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: a row naming a port the wrapper does not declare
+[ok] rule port-class-d: removed, it lets through every one of its 1 arm(s), e.g. port census: a class C row the class-D census does not hold
+[ok] rule port-contract: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier contract 2.3 does not define
+[ok] rule port-width: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier narrower than its port
+[ok] rule g-on-wire: removed, it lets through every one of its 6 arm(s), e.g. port census: a CSR terminal's net also read past it
+[ok] rule g-csr-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a CSR input outside the processor-status face
+[ok] rule g-memory-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a datapath output outside the memory masters
+[ok] rule g-shim-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a MAAP shim output read past pp_shadow
+[ok] rule g-exclusion-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net no G cone reaches
+[ok] rule g-exclusion-amr: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net outside the map writer
+[ok] rule split-placement: removed, it lets through every one of its 3 arm(s), e.g. the processor left in the split
+[ok] rule split-unmapped: removed, it lets through every one of its 1 arm(s), e.g. a ctl port no row names
+[ok] rule split-one-class: removed, it lets through every one of its 1 arm(s), e.g. split census: a ctl port two classes name
+[ok] rule split-stale: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row naming a port the datapath does not declare
+[ok] rule split-contract: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier the contract does not define
+[ok] rule split-width: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier narrower than its port
+[ok] rule split-every-field: removed, it lets through every one of its 1 arm(s), e.g. split census: a face event no row carries
+[ok] rule split-face: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row standing for another setting
+[ok] rule split-drives: removed, it lets through every one of its 6 arm(s), e.g. a class-D consumer on a G tie-off
+[ok] rule split-tied: removed, it lets through every one of its 3 arm(s), e.g. the REBOOT request from another port in the split
+[ok] rule split-frame-block: removed, it lets through every one of its 1 arm(s), e.g. the frame block on another net
+[ok] rule split-field-reads: removed, it lets through every one of its 1 arm(s), e.g. a class-D consumer that reads the port around its net in the split
+[ok] rule split-consumed: removed, it lets through every one of its 2 arm(s), e.g. a stream_id taken without SID_VALID, SID_VALID unread
+[ok] rule split-beyond: removed, it lets through every one of its 1 arm(s), e.g. an entry past the shape's own read
+mutations: 0 of 57 rule(s) no arm proves
+rc=0
+==== py_idiom.log
+CMD <scratch>/gates/venv/bin/python3 scripts/check_py_idiom.py
+HEAD 15168e14 START 21:10:40
+py idiom: 678 first-party modules, 331431 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+==== queued_bound.log
+CMD python3 -B tb/verilator/ctrl_service_budget/queued_bound.py --selftest
+HEAD 15168e14 START 21:12:43
+rc=0
+==== record_classes.log
+CMD python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest
+HEAD 15168e14 START 21:10:42
+record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's
+rc=0
+==== register_reference_check.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --check
+HEAD 15168e14 START 21:10:54
+register reference: fresh (203 registers, 34 modules, 240 files)
+rc=0
+==== register_reference_selftest.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --selftest
+HEAD 15168e14 START 21:11:05
+  ok   fresh copy: rc 0 (want 0)
+  ok   reset change in the ROM alone: rc 2 (want 2)
+  ok   reset change in both the ROM and the flop: rc 1 (want 1)
+  ok   reset change on the flop of a shadow-served word: mac_ifg: rc 2 (want 2)
+  ok   reset change on the flop of a shadow-served word: mac_ctrl: rc 2 (want 2)
+  ok   reset change on the flop of a shadow-served word: scratch: rc 2 (want 2)
+  ok   reset change on the flop of a shadow-served word: tcam_ctrl: rc 2 (want 2)
+  ok   reset change on a flop through its generated header: rc 2 (want 2)
+  ok   reset change on a live-read flop: rc 1 (want 1)
+  ok   reset change the ETH_GUARD diagram draws: rc 2 (want 2)
+  ok   reset change behind a window read: the snapshot store: rc 1 (want 1)
+  ok   poison constant behind CHMAP_LOOP: rc 1 (want 1)
+  ok   CHMAP_LOOP subfield order swapped: rc 2 (want 2)
+  ok   PPS_WIDTH read expression changed: rc 1 (want 1)
+  ok   value of the 0x86C window hole changed: rc 1 (want 1)
+  ok   STRMW_SRP's live alias removed: rc 2 (want 2)
+  ok   new range window with a live read term: rc 2 (want 2)
+  ok   new register whose label ends in _END, with a live read arm: rc 2 (want 2)
+  ok   literal-address read arm: rc 2 (want 2)
+  ok   literal-address write arm: rc 2 (want 2)
+  ok   read arm whose label lacks the A_ prefix: rc 2 (want 2)
+  ok   literal-address test in a read decode: rc 2 (want 2)
+  ok   new address nothing decodes: rc 2 (want 2)
+  ok   new register with a read arm and no description: rc 2 (want 2)
+  ok   read arm removed from rd_in_window's reach: rc 2 (want 2)
+  ok   write decoded in a new block outside the parsed ones: rc 2 (want 2)
+  ok   clear on read added outside the parsed blocks: rc 2 (want 2)
+  ok   doorbell added to a write arm: rc 1 (want 1)
+  ok   write arm stores through a mask: rc 2 (want 2)
+  ok   write arm stores part of a register: rc 2 (want 2)
+  ok   write arm increments the written value: rc 2 (want 2)
+  ok   read expression outside the grammar: rc 2 (want 2)
+  ok   read masked by a constant: rc 1 (want 1)
+  ok   reserved stored bit consumed by logic: rc 2 (want 2)
+  ok   CBS word moved in the shadow decode: rc 2 (want 2)
+  ok   RTL field rename of a described field: rc 2 (want 2)
+  ok   RTL field rename, with its description following: rc 1 (want 1)
+  ok   unlock key change in the ETH_GUARD write decode: rc 1 (want 1)
+  ok   code change no page text shows: rc 1 (want 1)
+  ok   comment-only RTL edit stays fresh: rc 0 (want 0)
+  ok   mechanism diagram's state gone from its source: rc 2 (want 2)
+  ok   mechanism diagram's bit no longer a strobe: rc 2 (want 2)
+  ok   hand edit of the page: rc 1 (want 1)
+  ok   edited WaveDrom source: rc 1 (want 1)
+  ok   edited SoC extract: rc 1 (want 1)
+  ok   design-note link to a heading that is gone: rc 2 (want 2)
+  ok   register without a purpose: rc 2 (want 2)
+  ok   description of a register the RTL lacks: rc 2 (want 2)
+  ok   description of a field the RTL lacks: rc 2 (want 2)
+  ok   note breaking the prose rules: rc 2 (want 2)
+  ok   prose wrapped in a one-column table: rc 2 (want 2)
+  ok   prose wrapped in a Markdown table inside a note: rc 2 (want 2)
+  ok   prose wrapped in a field's table cell: rc 2 (want 2)
+  ok   condition without wording: rc 2 (want 2)
+  ok   literal word the RTL does not test: rc 2 (want 2)
+  ok   rename of a field the RTL lacks: rc 2 (want 2)
+  ok   reserved bits on a word whose write leaves the block: rc 2 (want 2)
+  ok   deleted register diagram: rc 1 (want 1)
+  ok   extra stale diagram: rc 1 (want 1)
+  ok   memory-map label check
+  ok   read-table rows are single conjunctions
+register reference selftest: OK (61/61 controls)
+rc=0
+==== rows_tiers.log
+CMD python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+HEAD 15168e14 START 21:10:41
+rows_tiers: 1033 of 1033 planted controls refused
+rc=0
+==== shape_costs_check.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check
+HEAD 15168e14 START 21:10:45
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+==== shape_costs_selftest.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --selftest
+HEAD 15168e14 START 21:10:46
+the table of shapes: 25 of 25 planted controls refused
+rc=0
+==== toc.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --selftest
+HEAD 15168e14 START 21:10:40
+TOC selftest: PASS (1501/1501 arm(s))
+rc=0
+==== toc_anchors.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --verify-anchors
+HEAD 15168e14 START 21:10:50
+anchor check: 755 existing cross-page fragment links reproduced
+rc=0
+==== toc_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --check
+HEAD 15168e14 START 21:10:48
+TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+==== wavedrom_axis.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+HEAD 15168e14 START 21:10:53
+WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+rc=0
+==== wavedrom_cdc.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+HEAD 15168e14 START 21:10:53
+WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+rc=0
+==== wavedrom_gptp.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+HEAD 15168e14 START 21:10:54
+WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+rc=0
+==== wavedrom_selftest.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py --selftest
+HEAD 15168e14 START 21:10:53
+gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+rc=0

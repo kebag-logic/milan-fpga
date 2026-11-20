@@ -1,0 +1,49 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-1x1/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/part3 --groups notice-burst-3,notice-every-1,notice-every-7 --record-budget-findings --record-share-findings --jobs 1 --variant answering-every-port start 21:08:13
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/part3/notice-every-1.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/part3/notice-every-7.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-every-port/part3/notice-burst-3.txt -
+STEPS 1216 passes carry the store's step; the longest 94,506 CPU cycles (0.945 ms), notice-every-1; the longest step 78,012 (0.780 ms), notice-every-1
+SLICES 58111 tier-2 slices; the longest SRP's records 70,637, THE TRANSMIT's build 30,095, THE RETRY's round 42,176 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-every-1: 3 join interval(s), the shortest 187.945 ms and the longest 189.962 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-every-7: 3 join interval(s), the shortest 187.945 ms and the longest 189.962 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-burst-3: 3 join interval(s), the shortest 187.945 ms and the longest 189.962 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+NOTICE notice-every-1: committed 2.101 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 2.275 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 3.965 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 4.134 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 5.959 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 6.130 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 7.936 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 8.103 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 9.868 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 9.987 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 11.907 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-1: committed 12.074 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 8.015 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 8.186 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 2.155 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 2.330 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 4.017 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 4.192 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 6.019 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 6.191 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 9.962 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 10.081 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 12.002 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-every-7: committed 12.169 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 11.128 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 11.302 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 12.991 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 13.163 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 3.459 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 14.986 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 15.142 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 16.944 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 17.077 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 18.969 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 19.140 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+NOTICE notice-burst-3: committed 20.953 ms after its port's answer to the last of 16 recipients (bound 140 ms) within
+3 groups graded, 0 refusals, 0 budget misses (0 of 53 probe instances, 0 of 7 paths), 0 of 5069 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 22:14:06

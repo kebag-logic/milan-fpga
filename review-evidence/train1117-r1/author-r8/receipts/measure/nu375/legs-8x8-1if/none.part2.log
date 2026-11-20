@@ -1,0 +1,3 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r5-nu-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r4meas/nu375/8x8-1if/none --reuse-build --out <scratch>/r4meas/nu375/8x8-1if/none/part2 --groups save-held,backlog-adp@blank-6,backlog-adp@blank-aged1-5,backlog-adp@blank-aged2-5,backlog-adp@program-5,backlog-adp@program-aged1-5,backlog-adp@program-aged2-5,backlog-adp@verify-5,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-5,backlog-adp-refill,fixture --record-budget-findings --record-share-findings --jobs 1 start 07:28:10
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/nu375/8x8-1if/none/native/Vsim <scratch>/r4meas/nu375/8x8-1if/none/part2/save-held.txt -

@@ -1,0 +1,250 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_mbx.h b/sw/firmware/ctrl/aecp/aecp_mbx.h
+index 6ee7e86cf8..9c19f8d681 100644
+--- a/sw/firmware/ctrl/aecp/aecp_mbx.h
++++ b/sw/firmware/ctrl/aecp/aecp_mbx.h
+@@ -74,7 +74,7 @@ extern "C" {
+ // composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
+ // composition, item 1), and 130 ms on the SRP cut's head, its row 127.31 ms at the slice rule's 950 us once the AECP
+ // notice item and the long notice were restated from their measurement there, as the owner decided on 2026-11-20
+-// (#665 issuecomment-7044585511, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
++// (#665, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
+ // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
+ // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
+ // source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872). The last
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index ab96c3fe7d..95152026a6 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -215,7 +215,7 @@
+ // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
+ // 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; the queued
+ // rule's figure for its row at the slice rule's 950 us, the owner's decision
+-// of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms).
++// of 2026-11-20 on #665, ruling item 4, under the owner's 140 ms).
+ //
+ // THE TICK. A TICK event carries the centiseconds the fabric counted since
+ // the previous one; the loop calls every registered centisecond consumer
+@@ -280,7 +280,7 @@ extern "C" {
+ // queued notice's bound follows its row to 140 ms (#895's ruling of 2026-11-15
+ // on that composition, items 1 and 4), and 950 us again on the SRP cut's head
+ // once its notice-path statements were restated from their measurement there,
+-// as the owner decided on 2026-11-20 (#665 issuecomment-7044585511, ruling
++// as the owner decided on 2026-11-20 (#665, ruling
+ // item 4), the last queued notice's bound following its row to 130 ms.
+ // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
+ // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
+@@ -340,8 +340,8 @@ extern "C" {
+ // every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
+ // bound): 1x1/1if's, 130 and 35 ms, are the queued rule's figure for its row
+ // of 127.31 ms at the slice rule's 950 us on the SRP cut's head, its
+-// notice-path statements restated as the owner decided on 2026-11-20 (#665
+-// issuecomment-7044585511, ruling item 4; the owner's bound stays 140 ms), and
++// notice-path statements restated as the owner decided on 2026-11-20 (#665,
++// ruling item 4; the owner's bound stays 140 ms), and
+ // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
+ // at that head, the figure not lowered),
+ // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index b3aaf6d443..647675b85f 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -11,12 +11,12 @@
+ # largest legal AECP command's group, aecp-largest-notice, from its first record's
+ # commit after its load's mark (aecp_long.*), its functions appended after the
+ # other two windows' in the order it first ran them (#665's ruling of 2026-11-17,
+-# issuecomment-6959600243, item 1). Every function the windows ran stands where
++# as amended, item 1). Every function the windows ran stands where
+ # they first ran it, and none is placed by hand. Each list is learned so at the
+ # head it ships with; a fourth window, or a window chosen for one head, needs a
+ # ruling of its own.
+ # The list keeps a traced entry only if its section links in every image the
+-# list serves (#665's ruling of 2026-11-18, issuecomment-6967930396, item 1);
++# list serves (#665's ruling of 2026-11-18, item 1);
+ # nothing else is dropped, added or reordered. The images it serves are the
+ # split images ctrl_srp_image.py links and holds to this list: the size fixture
+ # at 1x1/1if, 8x8/1if and 8x8/2if in each of the CPU budget harness's six arms,
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_write.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
+index b95f9aa84b..d06d68ef05 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
+@@ -152,7 +152,7 @@ TEST_P(NvmBoth, debounce) {
+         << " us after the first commit, want under 100 ms, no window: " << r.text();
+ }
+ 
+-// #920 (#665, the ruling of issuecomment-6899740728, item 1): a change marked
++// #920 (#665's ruling of 2026-11-15, item 1): a change marked
+ // during a running capture joins it. One to a record no capture holds, marked
+ // once the capture has passed it, has the capture walk again for it, so one
+ // save holds every change; the walk again also takes a new record ahead of it.
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 7e31ea3f0c..f8a2e0a91f 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -301,8 +301,8 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "of 2026-11-15; 61.0 with the PHY "
+                                             "poll and its 1000BASE-T-only advertisement on that image (#919, "
+                                             "#840), 652 B of rom past 60.5 and ctrl_plat 64 B more, by the "
+-                                            "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16, "
+-                                            "issuecomment-6906679024): ROM debt of 5.0 RAMB36 owed to S14; the "
++                                            "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): ROM debt "
++                                            "of 5.0 RAMB36 owed to S14; the "
+                                             "saved-state store's name marks over layout 3's id space and its step "
+                                             "a pass (#920), 296 B more rom; 61.5 measured on the composed flip train "
+                                             "before the commit below (#665), 135,720 B of rom; and 62.0 with "
+@@ -331,7 +331,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+                                            "rom past 56.0, by the owner's rule of 2026-11-15 (#923's ruling of "
+-                                           "2026-11-16, issuecomment-6906679024): ROM debt of half a tile owed to "
++                                           "2026-11-16): ROM debt of half a tile owed to "
+                                            "S14; 57.0 measured on the composed flip train before the commit below "
+                                            "(#665), 134,136 B of rom; and 57.5 with "
+                                            "the map edits' commit through the EDIT window (#923) on that train, "
+diff --git a/tb/verilator/ctrl_service_budget/declaring_outputs.py b/tb/verilator/ctrl_service_budget/declaring_outputs.py
+index 54852812ab..c65bcecc84 100644
+--- a/tb/verilator/ctrl_service_budget/declaring_outputs.py
++++ b/tb/verilator/ctrl_service_budget/declaring_outputs.py
+@@ -293,7 +293,7 @@ def findings(spec: dict, out: Path, groups: list) -> list[str]:
+ 
+ def fixture_findings(edits: tuple[tuple[str, str], ...] = FIXTURE_EDITS) -> list[str]:
+     """What is wrong with the arm's fixture: its stream observation must keep the caller's brief across its memset
+-    (a brief observation that leaves it cleared is completed, R872-1-F2), answer a STREAM_OUTPUT declaring, and the
++    (a brief observation that leaves it cleared is completed), answer a STREAM_OUTPUT declaring, and the
+     bridge's ACMP owner must enter the source port through ENTRY."""
+     stream = next((new for old, new in edits if old == ANSWERING_STREAM), '')
+     out = []
+@@ -320,7 +320,7 @@ def checks() -> list[tuple[str, bool, str]]:
+     check("the declaring arm's fixture keeps brief and enters the source port through its entry", fixture_findings(),
+           False)
+     cleared = tuple((old, new.replace('    v->brief = brief;\n', '')) for old, new in FIXTURE_EDITS)
+-    check("the declaring arm refuses a fixture that clears brief (R872-1-F2's)", fixture_findings(cleared), True)
++    check("the declaring arm refuses a fixture that clears brief", fixture_findings(cleared), True)
+     base = 0x91E0F0000100
+     sound = [(0, 0, True, DECLARING, base, 0), (0, 0, False, DECLARING, base, REGISTERING),
+              (0, 1, False, DECLARING, base + 1, 0)]
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+index e3f720d88d..4b3093decb 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -48,7 +48,7 @@ if TYPE_CHECKING:
+ #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 1x1/1if a
+ #: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
+ #: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
+-#: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665 issuecomment-7044585511).
++#: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
+ PACED = {'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
+          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index d52dffe8de..79b30618f5 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -216,7 +216,7 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
+ #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+ #: On the SRP cut's head (#665's ruling of 2026-11-20, item 3), measured over every arm and group, each 1x1/1if cost
+ #: it exceeds raised by the rule and the AECP notice item restated from its measurement by ruling item 4, as the owner
+-#: decided on 2026-11-20 (#665 issuecomment-7044585511), in both columns: an AECP record 250 us (23,726 CPU cycles, a
++#: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
+ #: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
+ #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
+ #: arm's aecp-fanout; 210 before).
+@@ -270,7 +270,7 @@ STATED_US = {
+ #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
+ #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
+ #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
+-#: cut's head, as STATED_US states (the owner's decision of 2026-11-20, #665 issuecomment-7044585511), and ADP's record
++#: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
+ #: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
+ STATED_US_DONOR = {
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+diff --git a/tb/verilator/ctrl_service_budget/notice_window.py b/tb/verilator/ctrl_service_budget/notice_window.py
+index d81a4c8d20..112196859f 100644
+--- a/tb/verilator/ctrl_service_budget/notice_window.py
++++ b/tb/verilator/ctrl_service_budget/notice_window.py
+@@ -66,7 +66,7 @@ def queued_ms(at: 'int | scenario.Point | object') -> int:
+     (aecp_mbx.h, CTRL_LOOP_QUEUED_MS as THE SHAPES state it for each shape, never by the interface count): the bound
+     every queued notice meets, the last queued notice's tier bound at 1x1/1if (#665 decision D's 125 ms, 130 by
+     #894's amendment of 2026-11-13, 135 with AECP's REBOOT, #871, 140 by queued_bound.py's rule, and 130 by it once
+-    the owner's decision of 2026-11-20 restated the notice path, #665 issuecomment-7044585511), 8x8/1if's own 130 ms
++    #665's owner decision of 2026-11-20 restated the notice path, ruling item 4), 8x8/1if's own 130 ms
+     and the stated 62 ms at two interfaces."""
+     import shape_costs
+     if isinstance(at, scenario.Point):
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index b8961240ee..ca23500f92 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -105,7 +105,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
+ #: At 1x1/1if on the SRP cut's head, measured over every arm and group, the AECP notice item 150 us (14,084 CPU cycles
+ #: in the declaring-outputs arm's aecp-fanout; 210 before) and a notice longer than AECP_FAN_BYTES 315 (29,652 in arm
+ #: A's aecp-largest-notice; 365 before), each restated from its measurement by the rule by ruling item 4 of 2026-11-20,
+-#: as the owner decided (#665 issuecomment-7044585511).
++#: as the owner decided (#665).
+ ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
+            aecp_long=315, acmp_declined=20)
+ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 30630bac21..27741519fe 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -459,8 +459,8 @@ def burst_table(results: list[dict]) -> list[str]:
+     rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
+     if not rows:
+         return []
+-    lines = ['', 'Names from their response to durable (save_burst.py; #920, the ruling of #665 '
+-             'issuecomment-6899740728, item 1):', '',
++    lines = ['', "Names from their response to durable (save_burst.py; #920, #665's ruling of "
++             '2026-11-15, item 1):', '',
+              '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
+              'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
+     for group, b in rows:
+diff --git a/tb/verilator/ctrl_service_budget/save_burst.py b/tb/verilator/ctrl_service_budget/save_burst.py
+index cabe2f0f14..b4e5a98e82 100644
+--- a/tb/verilator/ctrl_service_budget/save_burst.py
++++ b/tb/verilator/ctrl_service_budget/save_burst.py
+@@ -2,7 +2,7 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """A burst of name changes, and a change marked while a save is in flight, under the contract's held load (#920).
+ 
+-THE TARGET (#665, the ruling of issuecomment-6899740728, item 1): at 1x1/1if and 8x8/1if, under the contract's held
++THE TARGET (#665's ruling of 2026-11-15, item 1): at 1x1/1if and 8x8/1if, under the contract's held
+ load, every acknowledged change is durable within TARGET_MS of its response, a burst marking every name and a change
+ marked during a save in flight included. Milan v1.2 5.3.13 requires the names saved in non-volatile memory and
+ restored after a power cycle; the 5 s is the ruling's, and the cut CUT_MS after the last response the in-house
+diff --git a/tb/verilator/ctrl_service_budget/selftest_notice.py b/tb/verilator/ctrl_service_budget/selftest_notice.py
+index 350f8e6d84..574f998b43 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_notice.py
++++ b/tb/verilator/ctrl_service_budget/selftest_notice.py
+@@ -112,7 +112,7 @@ def queue_checks() -> list[Check]:
+                       (19.5, float(notice_window.queued_ms(1) + 1), 1)))
+     return [("a queued notice's bound is the constants' for each shape, the last queued notice's 130 ms at 1x1/1if "
+              "(its row rounded up by the queued rule at the slice rule's 950 us once its notice path was restated, "
+-             "the owner's decision of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms; 140 by "
++             "#665's owner decision of 2026-11-20 (item 4), under the owner's 140 ms; 140 by "
+              "#895's ruling of 2026-11-15, item 1, before), 8x8/1if's own 130 and 62 ms at two",
+              got == (130, 130, 62), str(got)),
+             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
+diff --git a/tb/verilator/ctrl_service_budget/shape_costs.py b/tb/verilator/ctrl_service_budget/shape_costs.py
+index d9ae60406f..556a6bd428 100644
+--- a/tb/verilator/ctrl_service_budget/shape_costs.py
++++ b/tb/verilator/ctrl_service_budget/shape_costs.py
+@@ -404,8 +404,8 @@ def planted_at(text: str, s: Shape, name: str, value: int | str) -> str:
+ def one_under(stated: int, row: float | None) -> int:
+     """One under the least whole figure at or over a row, the least a statement may be (rows_tiers.tx_statements), or
+     one under the stated figure where there is no row: a statement is never lowered, so it may stand over its row
+-    (1x1/1if's THE TRANSMIT 35 ms over 33.44 once ruling item 4 restated its notice path, #665
+-    issuecomment-7044585511), and one under it is then not under the row."""
++    (1x1/1if's THE TRANSMIT 35 ms over 33.44 once #665's ruling item 4 of 2026-11-20
++    restated its notice path), and one under it is then not under the row."""
+     return (stated if row is None else math.ceil(row - 1e-9)) - 1
+ 
+ 
+@@ -510,7 +510,7 @@ def retry_controls(root: Path = ROOT) -> list[str]:
+     mine = listed(text_of(root))[s]
+     # the round costs planted at the tree's own figures, which must be apart; the last queued notice's bound is planted
+     # below in a table of its own where the tree states one figure at both (130 ms at 1x1/1if and 8x8/1if once ruling
+-    # item 4 restated 1x1/1if's notice path, #665 issuecomment-7044585511)
++    # item 4 restated 1x1/1if's notice path, #665's owner decision of 2026-11-20)
+     for name, (path, shaped) in RETRY.items():
+         if mine[shaped] == listed(text_of(root))[shape(s.interfaces, root)][shaped]:
+             escaped.append(f'{point}\'s {name} not apart from the interface count\'s, so no plant can tell them')
