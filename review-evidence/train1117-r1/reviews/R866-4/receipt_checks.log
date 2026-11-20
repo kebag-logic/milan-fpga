@@ -1,0 +1,24 @@
+step16 1x1 64/64 measurement parts rc=0
+step15 8x8-1if 64/64 measurement parts rc=0
+All-points flip refusal: exactly the prior eleven 8x8/2if lines, unchanged
+Eight 8x8 budget images unchanged; four 8x8/1if measured-hash comparison rows agree
+All twelve budget image digests agree between image and gate receipts
+1x1 four corners meet setup >= .030 ns and hold >= 0 ns: [('Slow_85C', '+0.131', '+0.102'), ('Slow_0C', '+0.131', '+0.102'), ('Fast_85C', '+1.636', '+0.036'), ('Fast_0C', '+1.636', '+0.036')]
+1x1 published manifest present: False
+8x8 four corners meet setup >= .030 ns and hold >= 0 ns: [('Slow_85C', '+0.176', '+0.102'), ('Slow_0C', '+0.176', '+0.102'), ('Fast_85C', '+1.523', '+0.036'), ('Fast_0C', '+1.523', '+0.036')]
+8x8 published manifest present: False
+F1: referenced fg4-bench-images.txt is absent from the entire public archive
+c7189218a128b71d632edc82157ea6f31b303383a6fe302d50265ad816332a28  gateware/alinx_ax7101.bit
+bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180  aem_desc.bin
+e7fbeaa11134774274e3b763d6dfd7f9717519e4bbc8eec8d0c8e26dfa505324  csr.csv
+87ca9ff51af47ab1edb17842f99cbc52a9c77f9abffad02bc126b83ca5d24b2d  flashboot_layout.json
+407d35b39b8754bb3ef303efa33d831caaf7080f25473e64aebff6021a7a90d4  image_manifest.json
+c873a0aa8b9c39a003d7a78616c83d6469935debb5bb1107ad477b900ee607fb  <scratch>/gate15/clones/g1x1/sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf
+7d90341299cc65e8c0da249139471a61019255132b66d5207ef9ffb4a5d0b773  gateware/alinx_ax7101.bit
+723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38  aem_desc.bin
+3183da5c4ad102855ee125bc64524868db79a323b80c04378e78513333e4f680  csr.csv
+8fc94181c04386db6c41a39b60f2e1c265cdd989d731baf52cf35ca267952462  flashboot_layout.json
+3c9d7128b652beaa5749cce86d6b143ff76cd1a943a67147559a3b532e034dfa  image_manifest.json
+d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4  <scratch>/gate15/clones/g8x8/sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+Public identity gate checks internal image consistency; it has no product-link comparison input
+No ELF or bitstream binaries were rebuilt or independently hashed by this audit

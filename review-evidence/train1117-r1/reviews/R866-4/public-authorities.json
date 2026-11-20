@@ -1,0 +1,54 @@
+{
+  "decisions": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745",
+      "body": "[A10] **Owner decision, 2026-11-15:** block-RAM usage is kept loose for now; an image may go past its ROM ledger entry.\n\n- The ledger caps (56 per point; the 8x8/2if size fixture's 58.5, and its 59.0 entry, now ratified; the platform's 60.5) are no longer stop conditions for the flip lanes.\n- An image past its entry raises the entry to its measured size, at the next half tile, as named debt owed to S14 (cold code and descriptors to QSPI, decision D3). Each round and the flip PR report every image's ROM.\n- Still gating: the image fits the device and the build meets timing at every corner.\n- Revisited at S14, the first lane after the flip.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007832552",
+      "body": "[A783] S12b GATING REPORT (final images, step-12 head `7650a02d`, the bench images built with `--eth-port e2`)\n\n**Outcome: one new DUT blocker on 1x1/1if; 8x8/1if complete with no new blocker.**\n\n**8x8/1if: all items PASS or are triaged.**\n- Flash and cold boot, identity, enumeration (124 descriptors, 123 identical, one runtime field) and gPTP (661 s, one grandmaster).\n- #946's acceptance on hardware: inputs 1 to 7 receive, with UNSUPPORTED_FORMAT 0.\n- 40 cold power cycles, every one clean, the saved binding flowing after each.\n- The 1 h soak.\n- **Concurrency:** 8 AAF inputs, 8 AAF outputs and CRF both ways at once for 313 s, with every DUT error counter at 0. The test machine was rebuilt for it: isolated cores, AF_XDP stream tools.\n- The qualification replay: no new DUT blocker. The features that failed in the rehearsals for #917, #919, #920, #923, #924, #925 and #901 now pass. The open items are named in #665's ruling of 2026-11-19: the outputs' GET_STREAM_INFO status (#943) and the MAAP re-declare hold-off (#951).\n\n**1x1/1if:**\n- Flash, identity, enumeration, gPTP and streams: PASS.\n- Cold cycles: 17, PASS. The soak: 25 min, PASS. The owner set 5 cycles and 15 min for this re-run.\n- The replay ran to about two thirds of its features.\n- **NEW DUT BLOCKER:** a STREAM_INPUT's format change (8 channels to 1, answered SUCCESS) is not kept across a power cycle: after a cold boot the input reads 8 channels again. Every other saved item survives. 8x8/1if keeps the change in the same check, and the release passed it.\n  - Requirement: the saved items every power cycle must restore (REQUIREMENTS.md, the saved-state list).\n  - Likely place: the boot-time restore of the saved state in the split firmware (`sw/firmware/ctrl/aecp/aecp_nvm.c`).\n  - It is fixed in the train's composition lane, then re-checked on the bench.\n\n**Bench:** the DUT's e2 port through the inline capture tap to the test machine. The tap's control host is down, so two features that need it were not run. The test machine's own advertisement check cannot be judged through the tap; the DUT's own PHY registers read 1000BASE-T full only.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7018568112",
+      "body": "**Ruling: CPU margin before the flip train's final measurement.** Decided for the owner under the delegation of 2026-11-11. No owner bound or date moves.\n\n1. **The trigger.** Several AECP records sit at their statements, and code placement alone moves them across: the 1x1/1if paced map edit measures 310 us on one image and 320 us on another, against 310. A restatement by the rule (measured + 5 %, up to 5 us) would push 1x1/1if's last-queued-notice row past its 140 ms bound, which never moves.\n2. **A projection now, with no build.** Take each thin record at its worse measured value plus the rule: the map edit at 340 us, 8x8/1if's largest legal command at 1,850 us, and the held SET_STREAM_INFO past 245 us. Run the row rules and list every held row or owner bound that breaks. Only those are cut; the rest restate by the rule.\n3. **A margin-recovery logic cut starts now.**\n   - It targets 1x1/1if's last-queued-notice row, sized so the row holds 140 ms with the map edit at 340 us.\n   - A structural saving (per-notice cycles, or the edit split across passes) is preferred to shaving the edit back to its statement.\n   - It is based on the train head with #943's current round, and joins the train as step 15 with ordinary reviews, before the final measurement.\n4. **Pinning link order or alignment is rejected for the train.** It hides a zero-margin statement and breaks on the next change. It may be raised after the flip.\n5. **The final head's image rules.** No statement is taken from a luckier image.\n6. **Owner trigger:** if the cut cannot give the 140 ms row real margin by the weekend, the choice between the bound and the date is the owner's.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7029526172",
+      "body": "**Ruling: the flip train's final CPU measurement.** Decided for the owner under the delegation of 2026-11-11. No owner bound or date moves.\n\n1. **The finding.** At the composed head, two 8x8/1if SRP costs in the valid-destinations talker-held group exceed their statements by the rule: the SRP record (380 us against 375) and the reclaim item (45 against 40). With both restated, 8x8/1if's load is 0.7512, over the owner's 0.75 ceiling. Everything else holds: 1x1/1if's last notice 137.97 of 140 ms, ACMP 29.93 of 30, txL 48.89 of 49, and none of its statements exceeded.\n2. **Attribution (repeats agree to the cycle).**\n   - #951's change moves only the layout and adds no cost.\n   - The step that adds #943's fix (280 bytes, AECP path only) takes the reclaim and retained items over, and the load from 0.7461 to 0.7517.\n   - Layout alone moves these SRP figures by about +-300 cycles, more than their margin.\n3. **A logic cut, as a composition fix.** The SRP reclaim, retained and record path is made cheaper, sized so 8x8/1if holds 0.75 with every exceeded cost restated by the rule and with margin against layout movement. Tests and planted defects as usual, then the full re-measure.\n4. **Margin recovery at 1x1/1if, narrow exception to round 29.** The rows already hold, so the two stale notice-path statements (the AECP notice item, the long notice) are restated from this fresh every-source measurement at the final head, by the usual rule, and named in the record. This gives 1x1/1if's 140 ms, 30 ms and 49 ms rows real margin. It is not used to pass a missed bound: 8x8/1if must meet 0.75 by the cut. Round 29's rule otherwise stands.\n5. **#951 stays in the train.** It adds no cost.\n6. **Owner:** the 0.75 ceiling and the weekend date. Raised only if the cut cannot land in time.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7044585511",
+      "body": "**Owner decision (2026-11-20 17:1x): the flip train's 1x1/1if margins.**\n\n- **The situation:** the SRP cut (#665's ruling of 2026-11-20, item 3) brings 8x8/1if within its 0.75 load ceiling: 0.7436, with no statement exceeded. Its code-layout and cache effects move four 1x1/1if costs past their statements: the paced map edit, the held SET_STREAM_INFO, the ADP record and the centisecond tick. Restated by the usual rule, they put 1x1/1if's last queued notice at 141.53 ms (bound 140) and ACMP at 32.74 ms (bound 30).\n- **Decided by the owner:** item 4 of that ruling applies at 1x1/1if here too. The two stale notice-path statements are restated from the fresh every-source measurement of the final image, by the usual rule: the AECP notice item 210 to 150 us, and the long notice 365 to 315 us. The four moved costs are restated by the rule.\n  - The 1x1/1if rows are then: last queued notice 132.93 ms (bound 140), ACMP 29.01 ms (bound 30), txL 47.83 ms (bound 49).\n  - No owner bound moves.\n- **Records:** the exception is named in the train's record and in each restated statement's comment. Round 29's rule otherwise stands.\n"
+    }
+  ],
+  "source_verdict_headers": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/952#issuecomment-7012143102",
+      "header": "[R870] NEGATIVE - exact head 0d1eb8e4c5821e9431097950882659f2083d96ba"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/952#issuecomment-7012716515",
+      "header": "[R869] POSITIVE - exact head 0d1eb8e4c5821e9431097950882659f2083d96ba"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/952#issuecomment-7014748818",
+      "header": "[R870] NEGATIVE - exact head f09d82e05270bdd77e07f7fc2e14d064c1123be8"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/953#issuecomment-7015793435",
+      "header": "[R872] NEGATIVE - exact head 502b041cc0bd0e4ea230b8a3a65f553ab69df3ff"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/953#issuecomment-7016282332",
+      "header": "[R871] NEGATIVE - exact head 502b041cc0bd0e4ea230b8a3a65f553ab69df3ff"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/953#issuecomment-7018882584",
+      "header": "[R872] POSITIVE - exact head a16899b1fb2a0c731ebf18476d1a38627254ea4e"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/953#issuecomment-7019514213",
+      "header": "[R871] POSITIVE - exact head a16899b1fb2a0c731ebf18476d1a38627254ea4e"
+    }
+  ]
+}

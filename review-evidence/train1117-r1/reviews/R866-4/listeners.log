@@ -1,0 +1,56 @@
+srp-srp_listeners-if1-endstation_ax7101_1x1_tdm8 rc 0
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Listeners
+[ RUN      ] Listeners.RandomRecordsMatchTheReferenceWalk
+[       OK ] Listeners.RandomRecordsMatchTheReferenceWalk (37 ms)
+[ RUN      ] Listeners.ASecondSequenceMatchesTheReferenceWalk
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceWalk (31 ms)
+[ RUN      ] Listeners.RandomRecordsMatchTheReferenceReclaim
+[       OK ] Listeners.RandomRecordsMatchTheReferenceReclaim (54 ms)
+[ RUN      ] Listeners.ASecondSequenceMatchesTheReferenceReclaim
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceReclaim (49 ms)
+[ RUN      ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes
+[       OK ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes (2 ms)
+[ RUN      ] Listeners.AListenerLeftAsCreatedIsReclaimed
+[       OK ] Listeners.AListenerLeftAsCreatedIsReclaimed (0 ms)
+[ RUN      ] Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed
+[       OK ] Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed (0 ms)
+[ RUN      ] Listeners.ALeavingListenerIsReclaimed
+[       OK ] Listeners.ALeavingListenerIsReclaimed (0 ms)
+[----------] 8 tests from Listeners (176 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (176 ms total)
+[  PASSED  ] 8 tests.
+== ctrl SRP Listener copies: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
+srp-srp_listeners-if1-endstation_ax7101_8x8 rc 0
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Listeners
+[ RUN      ] Listeners.RandomRecordsMatchTheReferenceWalk
+[       OK ] Listeners.RandomRecordsMatchTheReferenceWalk (58 ms)
+[ RUN      ] Listeners.ASecondSequenceMatchesTheReferenceWalk
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceWalk (47 ms)
+[ RUN      ] Listeners.RandomRecordsMatchTheReferenceReclaim
+[       OK ] Listeners.RandomRecordsMatchTheReferenceReclaim (103 ms)
+[ RUN      ] Listeners.ASecondSequenceMatchesTheReferenceReclaim
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceReclaim (86 ms)
+[ RUN      ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes
+[       OK ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes (2 ms)
+[ RUN      ] Listeners.AListenerLeftAsCreatedIsReclaimed
+[       OK ] Listeners.AListenerLeftAsCreatedIsReclaimed (0 ms)
+[ RUN      ] Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed
+[       OK ] Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed (0 ms)
+[ RUN      ] Listeners.ALeavingListenerIsReclaimed
+[       OK ] Listeners.ALeavingListenerIsReclaimed (0 ms)
+[----------] 8 tests from Listeners (299 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (299 ms total)
+[  PASSED  ] 8 tests.
+== ctrl SRP Listener copies: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
