@@ -113,10 +113,14 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "another interface's reset leaves it"),
         kind("feedback-latest-stream-kinds-kept", "HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep",
              "        i->sinks[k].stream_kinds = 0;\n    }\n", "    }\n", "holds what a walk copies"),
-        kind("feedback-latest-filter-failed-first", "SrpFeedback.AWithdrawalInsideOneMrpduRetainsTheLatestKind",
+        # the receive filter recomputes the sinks only from a Talker's indication in the MRPDU on (#665's ruling of
+        # 2026-11-20, item 3), so this copy is held by the cut's differential: its reference recomputes every sink at
+        # every filter call, as the adapter before the cut did, which a copy other than listener_kind's makes differ
+        kind("feedback-latest-filter-failed-first", "Listeners.RandomRecordsMatchTheReferenceReclaim",
              "        s->desired = listener_kind(s);",
              "        s->desired = (s->registered_kinds & 1u) ? 1u : s->registered_kinds;",
-             "the latest kind precedes the withdrawal", suite=COMPOSED),
+             "the copied run makes the reference run's mailbox writes and licence calls, in order, and holds its state",
+             suite="srp_listeners.cpp"),
         kind("feedback-latest-acmp-failed-first",
              "SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView",
              LATEST, "const uint8_t kinds = s->registered_kinds;", "current kind reaches ACMP", suite=COMPOSED),
