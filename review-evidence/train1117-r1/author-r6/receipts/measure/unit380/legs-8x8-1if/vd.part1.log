@@ -1,0 +1,12 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r5-unit380-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r4meas/unit380/8x8-1if/vd --reuse-build --out <scratch>/r4meas/unit380/8x8-1if/vd/part1 --groups srp-talker-held --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 08:40:26
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/unit380/8x8-1if/vd/native/Vsim <scratch>/r4meas/unit380/8x8-1if/vd/part1/srp-talker-held.txt -
+STEPS 2122 passes carry the store's step; the longest 109,204 CPU cycles (1.092 ms), srp-talker-held; the longest step 78,319 (0.783 ms), srp-talker-held
+SLICES 62612 tier-2 slices; the longest SRP's records 132,593, THE TRANSMIT's build 132,085, THE RETRY's round 12,021 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.150 ms and the longest 190.350 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1518.987 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.325 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25372 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp-talker-held: a pass's polls base of 28,417 CPU cycles, over its stated 28,000
+STATED srp-talker-held: an SRP record's apply of 35,350 CPU cycles, over its stated 34,500
+END rc=1 09:57:13

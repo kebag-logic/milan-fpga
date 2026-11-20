@@ -1,0 +1,46 @@
+# The attribution images (8x8/1if, valid-destinations arm, legs.py build: CPU regions cover, split L1, no XIP)
+# A c05d5acb (step 13); B c1e95dc1 (the head); C B with SRP_REDECLARE_CS at step 12's expression (2,027 cs);
+# D 01765bb0 (step 13's first parent, before #953); E B with SRP_REDECLARE_CS 2048u
+A sha256 8b319d57eac48cd9a8bd99c6b041eb98f4d493b57dd12698740d3e0833b496a4 .text 0x0198ec .rodata 0x00609e .data 0x0001c0 .bss 0x0158e8 
+B sha256 ed5857d33591c64ed6b03469a1800b8c330611c346bed24d14908eac47439d1c .text 0x0198f0 .rodata 0x00609e .data 0x0001c0 .bss 0x0158e8 
+C sha256 8b319d57eac48cd9a8bd99c6b041eb98f4d493b57dd12698740d3e0833b496a4 .text 0x0198ec .rodata 0x00609e .data 0x0001c0 .bss 0x0158e8 
+D sha256 ebf4d51bd31740abfa5e895747427265d780825863d4358c83437ca75489be8a .text 0x0197d4 .rodata 0x00609e .data 0x0001c0 .bss 0x0158e8 
+E sha256 15c27a842628fc02ffdccbf43b3421878f50dfb915348d0fb2c576e7c303d3c0 .text 0x0198f0 .rodata 0x00609e .data 0x0001c0 .bss 0x0158e8 
+A vs C: 0 loaded bytes differ; symbols at another address: 0 of 614
+cmp: EOF on ‘<scratch>/tmp/r7img/D.bin’ after byte 129592
+D vs A: 82435 loaded bytes differ; symbols at another address: 455 of 614
+A vs B: 59858 loaded bytes differ; symbols at another address: 358 of 614
+B vs E: 2 loaded bytes differ; symbols at another address: 0 of 614
+A vs E: 59858 loaded bytes differ; symbols at another address: 358 of 614
+## A: the hold-off's assignment
+    8660:	28db2223          	sw	a3,644(s6)
+    8664:	7eb00693          	li	a3,2027
+    8668:	00dd9023          	sh	a3,0(s11)
+    866c:	020b9263          	bnez	s7,8690 <declare_sources+0x22c>
+    8670:	008b2583          	lw	a1,8(s6)
+## B: the hold-off's assignment
+    8660:	28db2223          	sw	a3,644(s6)
+    8664:	000016b7          	lui	a3,0x1
+    8668:	bd368693          	addi	a3,a3,-1069 # bd3 <scan+0x1ff>
+    866c:	00dd9023          	sh	a3,0(s11)
+    8670:	020b9263          	bnez	s7,8694 <declare_sources+0x230>
+    8674:	008b2583          	lw	a1,8(s6)
+## C: the hold-off's assignment
+    8660:	28db2223          	sw	a3,644(s6)
+    8664:	7eb00693          	li	a3,2027
+    8668:	00dd9023          	sh	a3,0(s11)
+    866c:	020b9263          	bnez	s7,8690 <declare_sources+0x22c>
+    8670:	008b2583          	lw	a1,8(s6)
+## D: the hold-off's assignment
+    8650:	28db2223          	sw	a3,644(s6)
+    8654:	7eb00693          	li	a3,2027
+    8658:	00dd9023          	sh	a3,0(s11)
+    865c:	020b9263          	bnez	s7,8680 <declare_sources+0x22c>
+    8660:	008b2583          	lw	a1,8(s6)
+## E: the hold-off's assignment
+    8660:	28db2223          	sw	a3,644(s6)
+    8664:	000016b7          	lui	a3,0x1
+    8668:	80068693          	addi	a3,a3,-2048 # 800 <retry+0xdc>
+    866c:	00dd9023          	sh	a3,0(s11)
+    8670:	020b9263          	bnez	s7,8694 <declare_sources+0x230>
+    8674:	008b2583          	lw	a1,8(s6)

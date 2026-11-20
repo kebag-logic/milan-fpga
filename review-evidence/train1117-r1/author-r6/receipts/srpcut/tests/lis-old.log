@@ -1,0 +1,58 @@
+== srp-srp_listeners-if1-endstation_ax7101_1x1_tdm8 rc=1
+[       OK ] Listeners.RandomRecordsMatchTheReferenceWalk (36 ms)
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceWalk (30 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:406: Failure
+Expected: (walked) < (full_walked), actual: 5162 vs 5162
+the cut walks the attributes only where one may be freed
+  [FAIL] Listeners.RandomRecordsMatchTheReferenceReclaim: the cut walks the attributes only where one may be freed
+[  FAILED  ] Listeners.RandomRecordsMatchTheReferenceReclaim (53 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:406: Failure
+Expected: (walked) < (full_walked), actual: 5200 vs 5200
+the cut walks the attributes only where one may be freed
+  [FAIL] Listeners.ASecondSequenceMatchesTheReferenceReclaim: the cut walks the attributes only where one may be freed
+[  FAILED  ] Listeners.ASecondSequenceMatchesTheReferenceReclaim (47 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:452: Failure
+Expected equality of these values:
+    Which is: 5570
+    Which is: 5214
+  [FAIL] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes: a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[  FAILED  ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes (2 ms)
+[       OK ] Listeners.AListenerLeftAsCreatedIsReclaimed (0 ms)
+[       OK ] Listeners.ALeavingListenerIsReclaimed (0 ms)
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Listeners.RandomRecordsMatchTheReferenceReclaim
+[  FAILED  ] Listeners.ASecondSequenceMatchesTheReferenceReclaim
+[  FAILED  ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes
+ 3 FAILED TESTS
+== ctrl SRP Listener copies: checks: 7   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 7 checks, exit 1)
+== srp-srp_listeners-if1-endstation_ax7101_8x8 rc=1
+[       OK ] Listeners.RandomRecordsMatchTheReferenceWalk (57 ms)
+[       OK ] Listeners.ASecondSequenceMatchesTheReferenceWalk (46 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:406: Failure
+Expected: (walked) < (full_walked), actual: 5404 vs 5404
+the cut walks the attributes only where one may be freed
+  [FAIL] Listeners.RandomRecordsMatchTheReferenceReclaim: the cut walks the attributes only where one may be freed
+[  FAILED  ] Listeners.RandomRecordsMatchTheReferenceReclaim (105 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:406: Failure
+Expected: (walked) < (full_walked), actual: 5216 vs 5216
+the cut walks the attributes only where one may be freed
+  [FAIL] Listeners.ASecondSequenceMatchesTheReferenceReclaim: the cut walks the attributes only where one may be freed
+[  FAILED  ] Listeners.ASecondSequenceMatchesTheReferenceReclaim (85 ms)
+<scratch>/clones/r8-old/sw/firmware/ctrl/test/srp_listeners.cpp:452: Failure
+Expected equality of these values:
+    Which is: 5586
+    Which is: 5230
+  [FAIL] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes: a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[  FAILED  ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes (2 ms)
+[       OK ] Listeners.AListenerLeftAsCreatedIsReclaimed (0 ms)
+[       OK ] Listeners.ALeavingListenerIsReclaimed (0 ms)
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Listeners.RandomRecordsMatchTheReferenceReclaim
+[  FAILED  ] Listeners.ASecondSequenceMatchesTheReferenceReclaim
+[  FAILED  ] Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes
+ 3 FAILED TESTS
+== ctrl SRP Listener copies: checks: 7   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 7 checks, exit 1)

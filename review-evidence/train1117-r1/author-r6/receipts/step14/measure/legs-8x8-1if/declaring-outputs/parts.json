@@ -1,0 +1,32 @@
+{
+ "point": "8x8-1if",
+ "variant": "declaring-outputs",
+ "groups": 5,
+ "parts": [
+  {
+   "sim_ms": 5000,
+   "groups": [
+    "aecp-outputs"
+   ]
+  },
+  {
+   "sim_ms": 2600,
+   "groups": [
+    "aecp-fanout"
+   ]
+  },
+  {
+   "sim_ms": 2500,
+   "groups": [
+    "aecp"
+   ]
+  },
+  {
+   "sim_ms": 3000,
+   "groups": [
+    "aecp-largest-notice",
+    "aecp-reboot"
+   ]
+  }
+ ]
+}

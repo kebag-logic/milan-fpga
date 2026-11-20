@@ -1,0 +1,61 @@
+q-92de01f7.txt: 1115088 bytes, sha256 eb946bf3049f8bfd656f59a3efeec1ee13e57ad3f6f52bf7d64c2d5961e21612; over 200 KB, kept in scratch. Its last 60 lines:
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)
+self-test: 0 failures
+rc=0
+==== shape_costs_check.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check
+HEAD 92de01f7 START 10:35:54
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 900 | 1010 | 735 | 285 | 85 | 34 | 140 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+==== shape_costs_selftest.log
+CMD python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --selftest
+HEAD 92de01f7 START 10:35:54
+the table of shapes: 25 of 25 planted controls refused
+rc=0
+==== toc.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --selftest
+HEAD 92de01f7 START 10:35:49
+TOC selftest: PASS (1501/1501 arm(s))
+rc=0
+==== toc_anchors.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --verify-anchors
+HEAD 92de01f7 START 10:35:58
+anchor check: 755 existing cross-page fragment links reproduced
+rc=0
+==== toc_check.log
+CMD <scratch>/gates/venv/bin/python3 scripts/gen_toc.py --check
+HEAD 92de01f7 START 10:35:56
+TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+==== wavedrom_axis.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+HEAD 92de01f7 START 10:36:01
+WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+rc=0
+==== wavedrom_cdc.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+HEAD 92de01f7 START 10:36:01
+WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+rc=0
+==== wavedrom_gptp.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+HEAD 92de01f7 START 10:36:01
+WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+rc=0
+==== wavedrom_selftest.log
+CMD <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py --selftest
+HEAD 92de01f7 START 10:36:01
+gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+rc=0

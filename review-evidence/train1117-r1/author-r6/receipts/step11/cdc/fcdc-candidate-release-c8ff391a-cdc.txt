@@ -1,0 +1,24 @@
+# the candidate c8ff391a's release image (before #927, block RAM), ExtraPostPlacementOpt, for comparison
+# report_cdc -summary:
+CDC Report
+Severity  Source Clock                 Destination Clock            CDC Type                 Exceptions           Endpoints  Safe  Unsafe  Unknown  No ASYNC_REG  
+--------  ---------------------------  ---------------------------  -----------------------  -------------------  ---------  ----  ------  -------  ------------  
+Critical  milansoc_crg_clkout0         eth_clocks0_rx               No Common Primary Clock  False Path                   2     0       2        0             0  
+Critical  milansoc_crg_clkout1         eth_clocks0_rx               No Common Primary Clock  False Path                   4     0       4        0             0  
+Critical  milansoc_crg_clkout1         milansoc_crg_clkout0         User Ignored             Asynch Clock Groups        237   236       1        0             0  
+Critical  milansoc_crg_clkout0         milansoc_crg_clkout1         User Ignored             Asynch Clock Groups        264   261       3        0             0  
+Warning   milansoc_crg_clkout1         milansoc_crg_audio_mclk_raw  No Common Period         Asynch Clock Groups          9     9       0        0             9  
+Warning   milansoc_crg_audio_mclk_raw  milansoc_crg_clkout1         No Common Period         Asynch Clock Groups         60    60       0        0             9  
+Info      input port clock             milansoc_crg_clkout0         No Common Primary Clock  False Path                   2     2       0        0             0  
+Info      milansoc_crg_clkout4         milansoc_crg_clkout1         Safely Timed             None                         3     3       0        0             0  
+Info      milansoc_crg_clkout1         milansoc_crg_clkout4         Safely Timed             None                        17    17       0        0             0  
+
+# report_cdc -details: the 4 row(s) naming u_fcdc (the whole design's report, filtered)
+Row  ID      Severity  Description                                         Depth  Exception   Source (From)                           Destination (To)
+---  ------  --------  --------------------------------------------------  -----  ----------  --------------------------------------  ----------------
+  5  CDC-5  Warning   Multi-bit synchronized with missing ASYNC_REG property      2  Asynch Clock Groups  milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/wptr_gray_r_reg[1:0]/C  milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/wgray_r1_r_reg[1:0]/D
+  6  CDC-2  Warning   1-bit synchronized with missing ASYNC_REG property          2  Asynch Clock Groups  milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/wptr_bin_r_reg[2]/C     milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/wgray_r1_r_reg[2]/D
+ 56  CDC-5   Warning   Multi-bit synchronized with missing ASYNC_REG property      2  Asynch Clock Groups  milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/rptr_gray_r_reg[1:0]/C    milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/rgray_w1_r_reg[1:0]/D
+ 57  CDC-2   Warning   1-bit synchronized with missing ASYNC_REG property          2  Asynch Clock Groups  milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/rptr_bin_r_reg[2]/C       milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/rgray_w1_r_reg[2]/D
+
+# by rule: u_fcdc CDC-2 Warning x2, CDC-5 Warning x2; u_tcdc (the TDM capture's, default branch, unchanged) CDC-15 Warning x50, CDC-2 Warning x2, CDC-5 Warning x2

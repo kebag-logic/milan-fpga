@@ -1,0 +1,21 @@
+item at cpu 306501852: 11381 cycles, 1770 instructions traced, 11381 cycles charged; hot region 57512 B
+     975 instr    3790 cyc  hot   aecp arm
+     398 instr    3683 cyc  hot   aecp aecp_poll
+      65 instr     808 cyc  hot   ctrl_loop ctrl_loop_service
+      81 instr     652 cyc  hot   mbx mbx_event_take
+      27 instr     357 cyc  hot   aecp transmit
+       9 instr     249 cyc  hot   aecp aecp_enter
+      30 instr     232 cyc  hot   ctrl_app_aecp face_event
+      47 instr     215 cyc  hot   ctrl_mem memset
+      21 instr     199 cyc  hot   aecp now
+      23 instr     197 cyc  hot   maap_mbx event
+      10 instr     189 cyc  hot   mbx mbx_timer_arm
+      11 instr     173 cyc  hot   adp_mbx on_event
+      13 instr     153 cyc  hot   acmp_mbx on_event
+      15 instr     146 cyc  hot   aecp_mbx timer
+      19 instr     131 cyc  hot   srp_mbx on_event
+      16 instr     127 cyc  hot   aecp_mbx event
+       3 instr      52 cyc  hot   mbx mbx_now_ms
+       6 instr      23 cyc  hot   srp_mbx enter
+       1 instr       5 cyc  hot   aecp_mbx now
+in cold code: 0 cycles, 0 instructions

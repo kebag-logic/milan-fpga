@@ -1,0 +1,13 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part2 --groups notice-retried-2,notice-retried-5 --record-budget-findings --record-share-findings --jobs 1 --variant answering-later start 23:22:49
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part2/notice-retried-2.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part2/notice-retried-5.txt -
+STEPS 1312 passes carry the store's step; the longest 97,728 CPU cycles (0.977 ms), notice-retried-2; the longest step 77,574 (0.776 ms), notice-retried-2
+SLICES 29897 tier-2 slices; the longest SRP's records 115,106, THE TRANSMIT's build 27,817, THE RETRY's round 22,463 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS notice-retried-2: 3 join interval(s), the shortest 188.113 ms and the longest 190.073 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-retried-5: 3 join interval(s), the shortest 188.113 ms and the longest 190.073 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+NOTICE notice-retried-2: committed 8.132 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+NOTICE notice-retried-5: committed 7.973 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+2 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 7 paths), 0 of 3321 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 00:21:21

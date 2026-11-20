@@ -1,0 +1,13 @@
+HEAD c1e95dc1 dirty 2 start 05:59:03
+run rc=0 07:03:57
+survey rc=1
+{"ordinary costs": 0, "datapath": 0, "compare ordinary": 1} | long: 
+2 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+record.srp                                    35,824   358.24   380    375 OVER     load_grade.stated(8x8/1if) GRADED record.srp; m1/srp-talker-held.log
+record.srp                                    35,824   358.24   380    375 OVER     load_grade.stated(8x8/1if) STATED_US record.srp; m1/srp-talker-held.log
+
+8x8/1if base           most   27,571 CPU cycles, stated   290 us; m1/srp-talker-held
+8x8/1if item.reclaim   most        0 CPU cycles, stated     0 us; m1/srp-talker-held
+8x8/1if item.record    most   35,466 CPU cycles, stated   375 us; m1/srp-talker-held
+8x8/1if record.srp     most   35,824 CPU cycles, stated   380 us; m1/srp-talker-held.log
+END 07:04:23

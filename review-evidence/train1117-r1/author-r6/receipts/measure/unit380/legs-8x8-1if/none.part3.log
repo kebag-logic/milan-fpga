@@ -1,0 +1,40 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r5-unit380-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r4meas/unit380/8x8-1if/none --reuse-build --out <scratch>/r4meas/unit380/8x8-1if/none/part3 --groups save-starved,backlog-adp@blank-7,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-6,backlog-adp@program-6,backlog-adp@program-aged1-6,backlog-adp@program-aged2-6,backlog-adp@verify-6,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-6,backlog-owed,aecp-held --record-budget-findings --record-share-findings --jobs 1 start 08:40:18
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/save-starved.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@blank-7.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@program-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@verify-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@blank-aged2-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@blank-aged1-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@program-aged2-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@program-aged1-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@verify-aged2-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-adp@verify-aged1-6.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/backlog-owed.txt -
+COMMAND <scratch>/r4meas/unit380/8x8-1if/none/native/Vsim <scratch>/r4meas/unit380/8x8-1if/none/part3/aecp-held.txt -
+BUDGET backlog.owed.if0: 63.281 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.498 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.714 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.931 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.192 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.260 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.589 ms over its budget 20 ms
+STEPS 5484 passes carry the store's step; the longest 101,591 CPU cycles (1.016 ms), backlog-adp@verify-6; the longest step 78,786 (0.788 ms), backlog-adp@program-aged1-6
+SLICES 208387 tier-2 slices; the longest SRP's records 129,763, THE TRANSMIT's build 36,736, THE RETRY's round 9,013 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS save-starved: 6 join interval(s), the shortest 187.983 ms and the longest 190.086 ms, against 181.0 to 239.0; MRP timers' run-outs: 40 released, 32 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS backlog-adp@blank-7: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@program-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@blank-aged2-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@blank-aged1-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@program-aged2-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@program-aged1-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-aged2-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-aged1-6: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS aecp-held: 3 join interval(s), the shortest 187.983 ms and the longest 189.986 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+AGED 6 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 9.703 ms, backlog-adp@program-aged2-6.service.srp.last.if0 at 10.297 ms
+SAVE save-starved: durable 12447.712 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 34.551 ms) within
+12 groups graded, 0 refusals, 7 budget misses (7 of 123 probe instances, 4 of 20 paths), 0 of 74755 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 11:55:33

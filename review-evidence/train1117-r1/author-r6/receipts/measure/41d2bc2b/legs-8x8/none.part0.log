@@ -1,0 +1,29 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-41d2bc2b-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/41d2bc2b/8x8/none --reuse-build --out <scratch>/r4meas/41d2bc2b/8x8/none/part0 --groups save-second,backlog-adp@blank-aged2-6,backlog-adp@program-6,backlog-adp@program-aged1-6,backlog-adp@program-aged2-6,backlog-adp@verify-6,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-6,backlog-adp,control --record-budget-findings --record-share-findings --jobs 1 start 05:53:52
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/save-second.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@program-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@verify-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@blank-aged2-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@program-aged2-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@program-aged1-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@verify-aged2-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp@verify-aged1-6.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/backlog-adp.txt -
+COMMAND <scratch>/r4meas/41d2bc2b/8x8/none/native/Vsim <scratch>/r4meas/41d2bc2b/8x8/none/part0/control.txt -
+STEPS 5084 passes carry the store's step; the longest 108,292 CPU cycles (1.083 ms), backlog-adp@verify-6; the longest step 79,639 (0.796 ms), backlog-adp@program-6
+SLICES 126661 tier-2 slices; the longest SRP's records 104,373, THE TRANSMIT's build 32,485, THE RETRY's round 9,564 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS save-second: 14 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 134 released, 108 empty; LeaveAll timers' run-outs by their LeaveAll: 6 sent
+JOINS backlog-adp@program-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@blank-aged2-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@program-aged2-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@program-aged1-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-aged2-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp@verify-aged1-6: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 18 released, 16 empty
+JOINS backlog-adp: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 12 empty
+JOINS control: 6 join interval(s), the shortest 187.247 ms and the longest 190.003 ms, against 181.0 to 239.0; MRP timers' run-outs: 6 released, 4 empty
+AGED 5 windows opened with the step's age at its limit or one short of it, 3 aged steps among their records; the least margin 9.271 ms, backlog-adp@program-aged2-6.service.srp.last.if1 at 10.729 ms
+SAVE save-second: durable 22829.625 ms after its change (stated worst case 22,870 ms, 382 steps, longest gap between flash steps 32.239 ms) within
+10 groups graded, 0 refusals, 0 budget misses (0 of 93 probe instances, 0 of 16 paths), 0 of 116964 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 10:04:43

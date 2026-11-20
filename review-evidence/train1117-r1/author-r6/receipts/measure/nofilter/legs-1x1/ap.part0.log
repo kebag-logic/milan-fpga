@@ -1,0 +1,11 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r5-nofilter-1x1/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/r4meas/nofilter/1x1/ap --reuse-build --out <scratch>/r4meas/nofilter/1x1/ap/part0 --groups aecp-fanout,aecp-reboot --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 07:28:38
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/nofilter/1x1/ap/native/Vsim <scratch>/r4meas/nofilter/1x1/ap/part0/aecp-fanout.txt -
+COMMAND <scratch>/r4meas/nofilter/1x1/ap/native/Vsim <scratch>/r4meas/nofilter/1x1/ap/part0/aecp-reboot.txt -
+STEPS 162 passes carry the store's step; the longest 21,706 CPU cycles (0.217 ms), aecp-fanout; the longest step 2,624 (0.026 ms), aecp-fanout
+SLICES 12090 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 29,811, THE RETRY's round 23,666 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.002 ms and the longest 189.944 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-reboot: 3 join interval(s), the shortest 188.002 ms and the longest 189.944 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 19 probe instances, 0 of 18 paths), 0 of 226 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 07:41:57

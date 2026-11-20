@@ -1,0 +1,125 @@
+# image D, leg D: head 01765bb0efba5a109f2a09f34a2d97e9b30cd583, 0 file(s) edited
+## build
+BUILD 8x8-1if valid-destinations at 01765bb0efba5a109f2a09f34a2d97e9b30cd583 start 02:42:01
+BUILT 1 groups in 1 parts; end 02:42:34
+ctrl_app.elf sha256 ebf4d51bd31740abfa5e895747427265d780825863d4358c83437ca75489be8a
+## repeat 1: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2079 passes carry the store's step; the longest 109,457 CPU cycles (1.095 ms), srp-talker-held; the longest step 78,271 (0.783 ms), srp-talker-held
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.239 ms and the longest 191.599 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1507.488 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.434 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25010 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   28,114 CPU cycles, stated   300 us; rep1/srp-talker-held
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if build_one      most  132,171 CPU cycles, stated  1390 us; rep1/srp-talker-held
+8x8/1if centisecond    most   25,500 CPU cycles, stated   270 us; rep1/srp-talker-held.log
+8x8/1if event.ADP      most    6,311 CPU cycles, stated    70 us; TIMER#0, 7 taken
+8x8/1if event.AECP     most    5,937 CPU cycles, stated    65 us; TIMER#3, 8945 taken
+8x8/1if event.LINK     most   16,111 CPU cycles, stated   170 us; LINK, 1 taken
+8x8/1if event.MAAP     most   18,377 CPU cycles, stated   195 us; TIMER#2, 3 taken
+8x8/1if event.TICK     most    2,208 CPU cycles, stated    25 us; TICK, 1790 taken
+8x8/1if events_none    most    2,867 CPU cycles, stated    35 us; rep1/srp-talker-held.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.reclaim   most    3,418 CPU cycles, stated    40 us; rep1/srp-talker-held
+8x8/1if item.record    most   35,634 CPU cycles, stated   375 us; rep1/srp-talker-held
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if item.walk      most    2,871 CPU cycles, stated    35 us; rep1/srp-talker-held
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+8x8/1if record.acmp    most   11,191 CPU cycles, stated   120 us; rep1/srp-talker-held.log
+8x8/1if record.adp     most    1,694 CPU cycles, stated    20 us; rep1/srp-talker-held.log
+8x8/1if record.aecp    most   18,254 CPU cycles, stated   195 us; rep1/srp-talker-held.log
+8x8/1if record.maap    most   13,718 CPU cycles, stated   145 us; rep1/srp-talker-held.log
+8x8/1if record.srp     most   35,831 CPU cycles, stated   380 us; rep1/srp-talker-held.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep1/srp-talker-held
+### aecp.txt
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+# 0 exceeded
+## repeat 2: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2079 passes carry the store's step; the longest 109,457 CPU cycles (1.095 ms), srp-talker-held; the longest step 78,271 (0.783 ms), srp-talker-held
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.239 ms and the longest 191.599 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1507.488 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.434 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25010 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   28,114 CPU cycles, stated   300 us; rep2/srp-talker-held
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if build_one      most  132,171 CPU cycles, stated  1390 us; rep2/srp-talker-held
+8x8/1if centisecond    most   25,500 CPU cycles, stated   270 us; rep2/srp-talker-held.log
+8x8/1if event.ADP      most    6,311 CPU cycles, stated    70 us; TIMER#0, 7 taken
+8x8/1if event.AECP     most    5,937 CPU cycles, stated    65 us; TIMER#3, 8945 taken
+8x8/1if event.LINK     most   16,111 CPU cycles, stated   170 us; LINK, 1 taken
+8x8/1if event.MAAP     most   18,377 CPU cycles, stated   195 us; TIMER#2, 3 taken
+8x8/1if event.TICK     most    2,208 CPU cycles, stated    25 us; TICK, 1790 taken
+8x8/1if events_none    most    2,867 CPU cycles, stated    35 us; rep2/srp-talker-held.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.reclaim   most    3,418 CPU cycles, stated    40 us; rep2/srp-talker-held
+8x8/1if item.record    most   35,634 CPU cycles, stated   375 us; rep2/srp-talker-held
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if item.walk      most    2,871 CPU cycles, stated    35 us; rep2/srp-talker-held
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+8x8/1if record.acmp    most   11,191 CPU cycles, stated   120 us; rep2/srp-talker-held.log
+8x8/1if record.adp     most    1,694 CPU cycles, stated    20 us; rep2/srp-talker-held.log
+8x8/1if record.aecp    most   18,254 CPU cycles, stated   195 us; rep2/srp-talker-held.log
+8x8/1if record.maap    most   13,718 CPU cycles, stated   145 us; rep2/srp-talker-held.log
+8x8/1if record.srp     most   35,831 CPU cycles, stated   380 us; rep2/srp-talker-held.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep2/srp-talker-held
+### aecp.txt
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+# 0 exceeded
+## repeat 3: run.py rc 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2079 passes carry the store's step; the longest 109,457 CPU cycles (1.095 ms), srp-talker-held; the longest step 78,271 (0.783 ms), srp-talker-held
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.239 ms and the longest 191.599 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1507.488 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 40.434 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25010 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+### survey, ordinary view: costs.txt
+8x8/1if base           most   28,114 CPU cycles, stated   300 us; rep3/srp-talker-held
+8x8/1if build          most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if build_one      most  132,171 CPU cycles, stated  1390 us; rep3/srp-talker-held
+8x8/1if centisecond    most   25,500 CPU cycles, stated   270 us; rep3/srp-talker-held.log
+8x8/1if event.ADP      most    6,311 CPU cycles, stated    70 us; TIMER#0, 7 taken
+8x8/1if event.AECP     most    5,937 CPU cycles, stated    65 us; TIMER#3, 8945 taken
+8x8/1if event.LINK     most   16,111 CPU cycles, stated   170 us; LINK, 1 taken
+8x8/1if event.MAAP     most   18,377 CPU cycles, stated   195 us; TIMER#2, 3 taken
+8x8/1if event.TICK     most    2,208 CPU cycles, stated    25 us; TICK, 1790 taken
+8x8/1if events_none    most    2,867 CPU cycles, stated    35 us; rep3/srp-talker-held.log
+8x8/1if item.acmp      most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.acmp_declined most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.acmp_kept most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.aecp      most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.aecp_long most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.mrpdu     most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.rebuild   most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.reclaim   most    3,418 CPU cycles, stated    40 us; rep3/srp-talker-held
+8x8/1if item.record    most   35,634 CPU cycles, stated   375 us; rep3/srp-talker-held
+8x8/1if item.retained  most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if item.walk      most    2,871 CPU cycles, stated    35 us; rep3/srp-talker-held
+8x8/1if item.withdraw  most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+8x8/1if record.acmp    most   11,191 CPU cycles, stated   120 us; rep3/srp-talker-held.log
+8x8/1if record.adp     most    1,694 CPU cycles, stated    20 us; rep3/srp-talker-held.log
+8x8/1if record.aecp    most   18,254 CPU cycles, stated   195 us; rep3/srp-talker-held.log
+8x8/1if record.maap    most   13,718 CPU cycles, stated   145 us; rep3/srp-talker-held.log
+8x8/1if record.srp     most   35,831 CPU cycles, stated   380 us; rep3/srp-talker-held.log
+8x8/1if step           most        0 CPU cycles, stated     0 us; rep3/srp-talker-held
+### aecp.txt
+### compare-long.txt
+# aecp-largest-notice: its notices against the largest legal notice's statement at 8x8/1if (poll_grade aecp_long)
+# 0 exceeded

@@ -1,0 +1,7 @@
+load_check	python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+flip_check	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
+flip_check_1x1	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+load_selftest	python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest
+flip_selftest	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+rows_tiers	python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+shape_costs_check	python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check

@@ -1,0 +1,9 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/shutdown-entry --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/shutdown-entry/part1 --groups control-shutdown --record-budget-findings --record-share-findings --jobs 1 --variant shutdown-entry start 23:23:00
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/shutdown-entry/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/shutdown-entry/part1/control-shutdown.txt -
+STEPS 248 passes carry the store's step; the longest 25,549 CPU cycles (0.255 ms), control-shutdown; the longest step 2,482 (0.025 ms), control-shutdown
+SLICES 14754 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 28,309, THE RETRY's round 2,080 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS control-shutdown: 3 join interval(s), the shortest 188.197 ms and the longest 189.871 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 1 probe instances, 0 of 1 paths), 0 of 263 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 23:39:58

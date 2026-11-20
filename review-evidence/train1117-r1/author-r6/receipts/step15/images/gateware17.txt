@@ -1,0 +1,24 @@
+gateware17.py: does the SRP cut's head (92de01f7) change the split GATEWARE against the step-14 head (c1e95dc1), or only its firmware payload? For each point (1x1/1if, 8x8/1if), the step-14 head's export (r5fit16) against the new head's export (r8fit): the firmware each carries, the control memory's rom banks (their depths in the Verilog, their init files), the Verilog outside its comments, the constraints (as written and as a set), and the placed utilisation of the integrated route (ExtraPostPlacementOpt).
+
+== 1x1/1if
+firmware (ctrl_app.elf): c1e95dc1 ace8644e0fb5e4e2, new head f6a575ae752cc376
+rom banks: c1e95dc1 rom_bank0[0:16383] rom_bank1[0:8191] rom_bank2[0:4095] rom_bank3[0:2047] rom_bank4[0:1023]; new head rom_bank0[0:16383] rom_bank1[0:8191] rom_bank2[0:4095] rom_bank3[0:2047] rom_bank4[0:1023] -> SAME depths
+Verilog outside comments: EQUAL
+init alinx_ax7101_mem.init: EQUAL (55 words written at the new head)
+init alinx_ax7101_rom_bank0.init: DIFFERS (16384 words written at the new head)
+init alinx_ax7101_rom_bank1.init: DIFFERS (8192 words written at the new head)
+init alinx_ax7101_rom_bank2.init: DIFFERS (4096 words written at the new head)
+init alinx_ax7101_rom_bank3.init: DIFFERS (2048 words written at the new head)
+init alinx_ax7101_rom_bank4.init: DIFFERS (888 words written at the new head)
+constraints: EQUAL
+placed utilisation: not routed at the new head (export only)
+
+== 8x8/1if
+firmware (ctrl_app.elf): c1e95dc1 cf14a5f649f2d6c4, new head c635596216d95671
+rom banks: c1e95dc1 rom_bank0[0:32767] rom_bank1[0:2047]; new head rom_bank0[0:32767] rom_bank1[0:2047] -> SAME depths
+Verilog outside comments: EQUAL
+init alinx_ax7101_mem.init: EQUAL (55 words written at the new head)
+init alinx_ax7101_rom_bank0.init: DIFFERS (32768 words written at the new head)
+init alinx_ax7101_rom_bank1.init: DIFFERS (2034 words written at the new head)
+constraints: EQUAL
+placed utilisation: not routed at the new head (export only)

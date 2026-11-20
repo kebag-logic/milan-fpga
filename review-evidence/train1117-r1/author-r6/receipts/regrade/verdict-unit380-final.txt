@@ -1,0 +1,29 @@
+# verdict of unit380 at 8x8/1if, unit 380 us, 13:08:26
+leg none: 8 of 8 parts done
+leg aep: 2 of 2 parts done
+leg ap: 2 of 2 parts done
+leg vd: 3 of 3 parts done
+== survey (the candidate's statements)
+1 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+record.adp                                    12,779   127.79   135    130 OVER     load_grade.stated(8x8/1if) GRADED record.adp; none-part2/backlog-adp-refill.log
+
+# 1 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+record.adp                                    12,779   127.79   135    130 OVER     load_grade.stated(8x8/1if) GRADED record.adp; none-part2/backlog-adp-refill.log
+== record classes
+8x8/1if held long: the dearest 152,504 CPU cycles, 1605 us by the rule, stated 1715 us (answering-ports aecp-largest-notice: the largest legal command's)
+8x8/1if held other: the dearest 18,927 CPU cycles, 200 us by the rule, stated 265 us (answering-every-port notice-burst-0: command 0x0010)
+8x8/1if held paced: the dearest 55,977 CPU cycles, 590 us by the rule, stated 685 us (answering-ports aecp-fanout: SET_CONFIGURATION, paced)
+== the SRP record against its unit
+record.srp 35,547 cycles (vd/part1/srp-talker-held.log), 375 us by the rule, unit 380: WITHIN; margin +643 cycles
+== budget misses (BUDGET findings); the backlog-owed group's seven egress-hold rows (backlog.owed*, backlog-owed.*) are the scenario's 60 ms hold, ledgered (README: they miss at every point; egress_ledger.py)
+egress-hold rows: 7
+any other: 0
+== join intervals
+119 JOINS line(s); shortest 187.15 ms, longest 190.4 ms; out of range: 0
+== the load and THE TRANSMIT with unit380's own restated costs (scratch copy of the candidate's tables)
+restate 8x8/1if own81.record.adp 135 us (12,779 cycles, backlog-adp-refill.log)
+restated 1 statements in load_grade.py
+RESULT: PASS
+| 8x8/1if | 0.744 | 0.75 | 1.00x | srp 0.225, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.81 ms (tx_held; the hold-off adds the figure)
+RESULT: PASS

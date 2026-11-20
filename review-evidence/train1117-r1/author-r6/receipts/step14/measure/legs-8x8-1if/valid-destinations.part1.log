@@ -1,0 +1,10 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/valid-destinations --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/valid-destinations/part1 --groups srp-talker-held --record-budget-findings --record-share-findings --jobs 1 --variant valid-destinations start 23:22:45
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/valid-destinations/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/valid-destinations/part1/srp-talker-held.txt -
+STEPS 2114 passes carry the store's step; the longest 109,249 CPU cycles (1.092 ms), srp-talker-held; the longest step 78,282 (0.783 ms), srp-talker-held
+SLICES 64385 tier-2 slices; the longest SRP's records 130,921, THE TRANSMIT's build 122,913, THE RETRY's round 12,219 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-talker-held: 14 join interval(s), the shortest 187.311 ms and the longest 190.171 ms, against 181.0 to 239.0; MRP timers' run-outs: 54 released, 35 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+SAVE srp-talker-held: durable 1505.219 ms after its change (stated worst case 12,470 ms, 382 steps, longest gap between flash steps 41.852 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 26 probe instances, 0 of 24 paths), 0 of 25254 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 00:56:58

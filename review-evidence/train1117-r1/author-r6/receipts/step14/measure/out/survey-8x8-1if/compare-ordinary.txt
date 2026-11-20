@@ -1,0 +1,78 @@
+# 8x8/1if at shape (1, 9, 9); its records and events NEAREST 8x8/2if's; record.aecp by class in record_classes.py (long 1720, paced 685, other 265 us)
+cost                                     most cycles       us  rule stated verdict  statement; where
+base                                          27,482   274.82   290    300 within   load_grade.stated(8x8/1if) GRADED base; valid-destinations-part1/srp-talker-held
+base                                          27,482   274.82   290    300 within   load_grade.stated(8x8/1if) STATED_US base; valid-destinations-part1/srp-talker-held
+base                                          27,482   274.82   290    300 within   poll_grade.STATED_US[(1, 9, 9)] base; valid-destinations-part1/srp-talker-held
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) GRADED build; answering-every-port-part0/notice-every-4
+build                                              0     0.00     0   1795 within   load_grade.stated(8x8/1if) STATED_US build; answering-every-port-part0/notice-every-4
+build                                              0     0.00     0   1795 within   whole_grade.stated_us((1, 9, 9)) build (ctrl_loop.h); answering-every-port-part0/notice-every-4
+build_one                                    122,913  1229.13  1295   1475 within   load_grade.stated(8x8/1if) GRADED build_one; valid-destinations-part1/srp-talker-held
+build_one                                    122,913  1229.13  1295   1475 within   load_grade.stated(8x8/1if) STATED_US build_one; valid-destinations-part1/srp-talker-held
+build_one                                    122,913  1229.13  1295   1475 within   whole_grade.stated_us((1, 9, 9)) build-one (ctrl_loop.h); valid-destinations-part1/srp-talker-held
+centisecond                                   27,008   270.08   285    510 within   load_grade.stated(8x8/1if) GRADED centisecond; valid-destinations-part1/srp-talker-held.log
+centisecond                                   27,008   270.08   285    510 within   load_grade.stated(8x8/1if) STATED_US centisecond; valid-destinations-part1/srp-talker-held.log
+event.ACMP                                    16,264   162.64   175    210 within   load_grade.stated(8x8/1if) GRADED event.ACMP; TIMER#1, 46 taken
+event.ACMP                                    16,264   162.64   175    350 within   load_grade.stated(8x8/1if) STATED_US event.ACMP; TIMER#1, 46 taken
+event.ADP                                      7,331    73.31    80    120 within   load_grade.stated(8x8/1if) GRADED event.ADP; TIMER#0, 331 taken
+event.ADP                                      7,331    73.31    80    120 within   load_grade.stated(8x8/1if) STATED_US event.ADP; TIMER#0, 331 taken
+event.AECP                                     7,417    74.17    80    120 within   load_grade.stated(8x8/1if) GRADED event.AECP; TIMER#3, 34401 taken
+event.AECP                                     7,417    74.17    80    120 within   load_grade.stated(8x8/1if) STATED_US event.AECP; TIMER#3, 34401 taken
+event.GM                                       2,970    29.70    35    320 within   load_grade.stated(8x8/1if) GRADED event.GM; GM, 491251 taken
+event.GM                                       2,970    29.70    35    320 within   load_grade.stated(8x8/1if) STATED_US event.GM; GM, 491251 taken
+event.LINK                                    17,301   173.01   185    300 within   rows_grade.ROW_COSTS[8x8/2if] event.LINK; LINK, 244 taken
+event.MAAP                                    19,766   197.66   210    225 within   load_grade.stated(8x8/1if) GRADED event.MAAP; TIMER#2, 667 taken
+event.MAAP                                    19,766   197.66   210    225 within   load_grade.stated(8x8/1if) STATED_US event.MAAP; TIMER#2, 667 taken
+event.TICK                                     2,518    25.18    30     85 within   load_grade.stated(8x8/1if) GRADED event.TICK; TICK, 92416 taken
+event.TICK                                     2,518    25.18    30     55 within   load_grade.stated(8x8/1if) STATED_US event.TICK; TICK, 92416 taken
+events_none                                    2,919    29.19    35     45 within   load_grade.stated(8x8/1if) GRADED events_none; valid-destinations-part0/srp-talker.log
+events_none                                    2,919    29.19    35     45 within   load_grade.stated(8x8/1if) STATED_US events_none; valid-destinations-part0/srp-talker.log
+item.acmp                                      6,041    60.41    65     80 within   load_grade.stated(8x8/1if) GRADED item.acmp; answering-ports-part3/backlog-owed
+item.acmp                                      6,041    60.41    65     80 within   load_grade.stated(8x8/1if) STATED_US item.acmp; answering-ports-part3/backlog-owed
+item.acmp                                      6,041    60.41    65     80 within   poll_grade.STATED_US[(1, 9, 9)] acmp; answering-ports-part3/backlog-owed
+item.acmp_declined                             2,298    22.98    25     30 within   load_grade.stated(8x8/1if) GRADED item.acmp_declined; none-part3/backlog-owed
+item.acmp_declined                             2,298    22.98    25     30 within   load_grade.stated(8x8/1if) STATED_US item.acmp_declined; none-part3/backlog-owed
+item.acmp_declined                             2,298    22.98    25     30 within   poll_grade.STATED_US[(1, 9, 9)] acmp_declined; none-part3/backlog-owed
+item.acmp_kept                                 8,793    87.93    95    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; none-part3/backlog-owed
+item.aecp                                     13,497   134.97   145    145 within   poll_grade.STATED_US[(1, 9, 9)] aecp; answering-ports-part9/aecp-fanout
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; answering-every-port-part0/notice-every-4
+item.aecp_long                                     0     0.00     0    320 within   poll_grade.STATED_US[(1, 9, 9)] aecp_long; answering-every-port-part0/notice-every-4
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) GRADED item.mrpdu; answering-every-port-part0/notice-every-4
+item.mrpdu                                         0     0.00     0   1475 within   load_grade.stated(8x8/1if) STATED_US item.mrpdu; answering-every-port-part0/notice-every-4
+item.mrpdu                                         0     0.00     0   1475 within   poll_grade.STATED_US[(1, 9, 9)] mrpdu; answering-every-port-part0/notice-every-4
+item.rebuild                                  20,686   206.86   220    590 within   poll_grade.STATED_US[(1, 9, 9)] rebuild; none-part12/fixture
+item.reclaim                                   3,840    38.40    45     40 OVER     load_grade.stated(8x8/1if) GRADED item.reclaim; valid-destinations-part1/srp-talker-held
+item.reclaim                                   3,840    38.40    45     40 OVER     load_grade.stated(8x8/1if) STATED_US item.reclaim; valid-destinations-part1/srp-talker-held
+item.reclaim                                   3,840    38.40    45     40 OVER     poll_grade.STATED_US[(1, 9, 9)] reclaim; valid-destinations-part1/srp-talker-held
+item.record                                   35,536   355.36   375    375 within   poll_grade.STATED_US[(1, 9, 9)] retained; valid-destinations-part1/srp-talker-held
+item.retained                                      0     0.00     0    375 within   load_grade.stated(8x8/1if) GRADED item.retained; answering-every-port-part0/notice-every-4
+item.retained                                      0     0.00     0    375 within   load_grade.stated(8x8/1if) STATED_US item.retained; answering-every-port-part0/notice-every-4
+item.retained                                      0     0.00     0    375 within   poll_grade.STATED_US[(1, 9, 9)] retained; answering-every-port-part0/notice-every-4
+item.walk                                      3,051    30.51    35    120 within   load_grade.stated(8x8/1if) GRADED item.walk; valid-destinations-part0/srp-talker
+item.walk                                      3,051    30.51    35    120 within   load_grade.stated(8x8/1if) STATED_US item.walk; valid-destinations-part0/srp-talker
+item.walk                                      3,051    30.51    35    120 within   poll_grade.STATED_US[(1, 9, 9)] walk; valid-destinations-part0/srp-talker
+item.withdraw                                  6,014    60.14    65    110 within   poll_grade.STATED_US[(1, 9, 9)] withdraw; none-part4/backlog
+record.acmp                                   21,598   215.98   230    305 within   load_grade.stated(8x8/1if) GRADED record.acmp; none-part1/backlog-adp@program-aged1-4.log
+record.acmp                                   21,598   215.98   230    440 within   load_grade.stated(8x8/1if) STATED_US record.acmp; none-part1/backlog-adp@program-aged1-4.log
+record.adp                                    12,285   122.85   130    135 within   load_grade.stated(8x8/1if) GRADED record.adp; none-part2/backlog-adp-refill.log
+record.adp                                    12,285   122.85   130    240 within   load_grade.stated(8x8/1if) STATED_US record.adp; none-part2/backlog-adp-refill.log
+record.maap                                   16,190   161.90   170    180 within   load_grade.stated(8x8/1if) GRADED record.maap; valid-destinations-part2/srp-talker-loss.log
+record.maap                                   16,190   161.90   170    180 within   load_grade.stated(8x8/1if) STATED_US record.maap; valid-destinations-part2/srp-talker-loss.log
+record.srp                                    35,846   358.46   380    375 OVER     load_grade.stated(8x8/1if) GRADED record.srp; valid-destinations-part1/srp-talker-held.log
+record.srp                                    35,846   358.46   380    375 OVER     load_grade.stated(8x8/1if) STATED_US record.srp; valid-destinations-part1/srp-talker-held.log
+step                                          80,917   809.17   850   1030 within   load_grade.stated(8x8/1if) GRADED step; none-part12/backlog-adp@program-aged2-3
+step                                          80,917   809.17   850   1030 within   load_grade.stated(8x8/1if) STATED_US step; none-part12/backlog-adp@program-aged2-3
+step                                          80,917   809.17   850    975 within   whole_grade.stated_us((1, 9, 9)) step (ctrl_loop.h); none-part12/backlog-adp@program-aged2-3
+item.aecp.notice                              13,497   134.97   145    275 within   load_grade.stated(8x8/1if) GRADED item.aecp.notice; answering-ports-part9/aecp-fanout (16 frame(s))
+item.aecp.notice                              13,497   134.97   145    275 within   load_grade.stated(8x8/1if) STATED_US item.aecp.notice; answering-ports-part9/aecp-fanout (16 frame(s))
+item.aecp.response                             2,258    22.58    25     65 within   load_grade.stated(8x8/1if) GRADED item.aecp.response; none-part3/backlog-owed (1 frame(s))
+item.aecp.response                             2,258    22.58    25     65 within   load_grade.stated(8x8/1if) STATED_US item.aecp.response; none-part3/backlog-owed (1 frame(s))
+event.AMAP_LIVE_WRITE                          1,704    17.04    20     30 within   rows_tiers.DATAPATH_US[8x8/2if] AMAP_LIVE_WRITE; datapath-events.log@72440000
+event.AS_PATH_CHANGED                          2,645    26.45    30     40 within   rows_tiers.DATAPATH_US[8x8/2if] AS_PATH_CHANGED; datapath-events.log@71634198
+event.AVB_INFO_CHANGED                         2,261    22.61    25     40 within   rows_tiers.DATAPATH_US[8x8/2if] AVB_INFO_CHANGED; datapath-events.log@71419750
+
+# 5 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)
+item.reclaim                                   3,840    38.40    45     40 OVER     load_grade.stated(8x8/1if) GRADED item.reclaim; valid-destinations-part1/srp-talker-held
+item.reclaim                                   3,840    38.40    45     40 OVER     load_grade.stated(8x8/1if) STATED_US item.reclaim; valid-destinations-part1/srp-talker-held
+item.reclaim                                   3,840    38.40    45     40 OVER     poll_grade.STATED_US[(1, 9, 9)] reclaim; valid-destinations-part1/srp-talker-held
+record.srp                                    35,846   358.46   380    375 OVER     load_grade.stated(8x8/1if) GRADED record.srp; valid-destinations-part1/srp-talker-held.log
+record.srp                                    35,846   358.46   380    375 OVER     load_grade.stated(8x8/1if) STATED_US record.srp; valid-destinations-part1/srp-talker-held.log

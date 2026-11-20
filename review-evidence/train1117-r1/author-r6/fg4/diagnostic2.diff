@@ -1,0 +1,227 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_console.c b/sw/firmware/ctrl/plat/ctrl_plat_console.c
+index 7c938fe8be..7be80d0764 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_console.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_console.c
+@@ -126,6 +126,66 @@ static void status(struct ctrl_plat_console *c)
+ 	tod(c);
+ }
+ 
++// DIAGNOSTIC (F-G4): the PHY poll's state, one line (ctrl_plat_phy.c, ctrl_plat_phy_diag_words). The accessor is
++// weak, so a build without the PHY poll prints PHY=none. Registers read as fffffffe were never read; ffffffff is an
++// unacknowledged read.
++extern unsigned ctrl_plat_phy_diag_words(uint32_t *w) __attribute__((weak));
++
++static void phy_report(struct ctrl_plat_console *c)
++{
++	static const char *const label[] = {"PHY_ARMED=", " FOUND=", " ADDR=", " STAGE=", " ADV=", " RENEG=", " POLLS=",
++					    " WRITES=", " RESTARTS=", " LINK=", " R4_BEFORE=", " R9_BEFORE=", " R4=",
++					    " R9=", " R9_NOW=", " R4_NOW=", " R0=", " SPIN=", " R10_NOW="};
++	uint32_t w[sizeof label / sizeof label[0]];
++	const unsigned n = ctrl_plat_phy_diag_words != NULL ? ctrl_plat_phy_diag_words(w) : 0u;
++	if (n != sizeof label / sizeof label[0]) {
++		ctrl_plat_console_puts(c, "PHY=none\r\n");
++		return;
++	}
++	for (unsigned k = 0; k < n; ++k) {
++		if ((k >= 9u && k <= 16u) || k == 18u) {
++			field(c, label[k], w[k]);
++		} else {
++			count(c, label[k], w[k]);
++		}
++	}
++	ctrl_plat_console_puts(c, "\r\n");
++}
++
++// DIAGNOSTIC (F-G4): which addresses on the poll's MDIO bus answer, and their registers. MDIO_ACK has bit n set where
++// address n acknowledged a PHYID1 read. Then one line each for addresses 0 and 1 and the first two others that
++// answered: registers 0 to 6, 9, 10, 15, 17 and 31, ffffffff unacknowledged. The reads block for about 12 ms; register
++// 1's read clears its latched link-down bit, and register 10's its fault bit.
++extern int32_t ctrl_plat_phy_diag_read(uint32_t address, uint32_t reg) __attribute__((weak));
++
++static void mdio_report(struct ctrl_plat_console *c)
++{
++	static const uint8_t reg[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 9u, 10u, 15u, 17u, 31u};
++	if (ctrl_plat_phy_diag_read == NULL || ctrl_plat_phy_diag_read(0u, 2u) == -2) {
++		ctrl_plat_console_puts(c, "MDIO=none\r\n");
++		return;
++	}
++	uint32_t ack = 0u;
++	for (uint32_t a = 0; a < 32u; ++a) {
++		ack |= ctrl_plat_phy_diag_read(a, 2u) >= 0 ? 1u << a : 0u;
++	}
++	field(c, "MDIO_ACK=", ack);
++	ctrl_plat_console_puts(c, "\r\n");
++	unsigned lines = 0u;
++	for (uint32_t a = 0; a < 32u && lines < 4u; ++a) {
++		if (a > 1u && (ack & 1u << a) == 0u) {
++			continue;
++		}
++		++lines;
++		count(c, "A=", a);
++		for (unsigned k = 0; k < sizeof reg; ++k) {
++			count(c, " R", reg[k]);
++			field(c, "=", (uint32_t)ctrl_plat_phy_diag_read(a, reg[k]));
++		}
++		ctrl_plat_console_puts(c, "\r\n");
++	}
++}
++
+ // the line is exactly command (the runtime has no strcmp); the compare stops
+ // at the command's end, so a received NUL there ends no command and nothing
+ // past the command's terminator is read (#665: a UART yields 0x00 on a break)
+@@ -146,6 +206,12 @@ static void run(struct ctrl_plat_console *c)
+ 	} else if (is(c, "milan_gettime")) {
+ 		tod(c);
+ 		++c->commands;
++	} else if (is(c, "milan_phy")) {
++		phy_report(c);
++		++c->commands;
++	} else if (is(c, "milan_mdio")) {
++		mdio_report(c);
++		++c->commands;
+ 	} else {
+ 		ctrl_plat_console_puts(c, "?\r\n");
+ 		++c->refused;
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.c b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+index e9524b89f4..9a957c5154 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.c
+@@ -19,6 +19,30 @@
+ #define CYCLES_HALF ((CONFIG_CLOCK_FREQUENCY + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)
+ #define TIMED_ONE ((CTRL_PLAT_PHY_CALIBRATION_TURNS * 1000000u + CTRL_PLAT_PHY_HALF_HZ - 1u) / CTRL_PLAT_PHY_HALF_HZ)
+ 
++// DIAGNOSTIC (F-G4): the poll's counters for milan_phy (ctrl_plat_phy.h)
++static struct ctrl_plat_phy_diag diag = {NULL, 0u, 0u, 0u, -2, -2, -2, -2, -2, -2, -2, -2};
++
++const struct ctrl_plat_phy_diag *ctrl_plat_phy_diag(void)
++{
++	return &diag;
++}
++
++// DIAGNOSTIC (F-G4): milan_phy's words, in its order (ctrl_plat_console.c), or 0 words before a poll was armed
++unsigned ctrl_plat_phy_diag_words(uint32_t *w)
++{
++	const struct ctrl_plat_phy *p = diag.phy;
++	if (p == NULL) {
++		return 0u;
++	}
++	const uint32_t words[] = {p->clock != NULL ? 1u : 0u, p->found ? 1u : 0u, p->address, p->stage, p->adv,
++				  p->renegotiations, diag.polls, diag.writes, diag.restarts, p->published,
++				  (uint32_t)diag.before_local, (uint32_t)diag.before_gig, (uint32_t)diag.check_local,
++				  (uint32_t)diag.check_gig, (uint32_t)diag.now_gig, (uint32_t)diag.now_local,
++				  (uint32_t)diag.control, p->spin, (uint32_t)diag.peer_gig};
++	memcpy(w, words, sizeof words);
++	return (unsigned)(sizeof words / sizeof words[0]);
++}
++
+ static void spin(uint32_t turns)
+ {
+ 	for (volatile uint32_t n = turns; n != 0u; n = n - 1u) {
+@@ -29,6 +53,7 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
+ 		       void *ctx)
+ {
+ 	memset(phy, 0, sizeof *phy);
++	diag.phy = phy;
+ 	if (bus->mdio_w == 0u) {
+ 		return;
+ 	}
+@@ -78,6 +103,19 @@ static int32_t frame(const struct ctrl_plat_phy *phy, uint32_t lo, uint32_t driv
+ 	return (value & 1u << CTRL_PLAT_PHY_DATA_BITS) != 0u ? -1 : (int32_t)(value & 0xffffu);
+ }
+ 
++// DIAGNOSTIC (F-G4): one read frame at any address, on the armed poll's bus at its bit period. The console runs
++// between the poll's calls, and a call takes whole frames, so the bus is idle here.
++int32_t ctrl_plat_phy_diag_read(uint32_t address, uint32_t reg)
++{
++	const struct ctrl_plat_phy *p = diag.phy;
++	if (p == NULL || p->clock == NULL) {
++		return -2;
++	}
++	const uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (address & 31u) << 5 | (reg & 31u))
++			    << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
++	return frame(p, lo, CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS);
++}
++
+ static uint32_t up(uint32_t speed, uint32_t full)
+ {
+ 	return CTRL_PLAT_PHY_LINK_UP | speed << CTRL_PLAT_PHY_SPEED_LSB | (full != 0u ? CTRL_PLAT_PHY_FULL_DUPLEX : 0u);
+@@ -145,6 +183,27 @@ static void take(struct ctrl_plat_phy *phy)
+ 		driven = CTRL_PLAT_PHY_FRAME_BITS;
+ 	}
+ 	const int32_t v = frame(phy, lo, driven);
++	if (driven == CTRL_PLAT_PHY_FRAME_BITS) {
++		++diag.writes;
++		diag.restarts += stage == CTRL_PLAT_PHY_ADV_RESTART ? 1u : 0u;
++	}
++	if (stage == CTRL_PLAT_PHY_ADV_LOCAL) {
++		diag.before_local = v;
++	} else if (stage == CTRL_PLAT_PHY_ADV_GIG) {
++		diag.before_gig = v;
++	} else if (stage == CTRL_PLAT_PHY_ADV_CHECK_LOCAL) {
++		diag.check_local = v;
++	} else if (stage == CTRL_PLAT_PHY_ADV_CHECK_GIG) {
++		diag.check_gig = v;
++	} else if (stage == CTRL_PLAT_PHY_GIG_LOCAL) {
++		diag.now_gig = v;
++	} else if (stage == CTRL_PLAT_PHY_LOCAL) {
++		diag.now_local = v;
++	} else if (stage == CTRL_PLAT_PHY_ADV_CONTROL) {
++		diag.control = v;
++	} else if (stage == CTRL_PLAT_PHY_GIG_PEER) {
++		diag.peer_gig = v;
++	}
+ 	const uint32_t u = (uint32_t)v;
+ 	uint32_t next = stage + 1u;
+ 	uint32_t status = 0u;
+@@ -309,6 +368,7 @@ bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room)
+ 	// a frame only with its stated cost left (THE STEP); else it stays owed
+ 	if (room >= (int32_t)CTRL_PLAT_PHY_STEP_US) {
+ 		if (phy->stage == CTRL_PLAT_PHY_IDLE) {
++			++diag.polls;
+ 			phy->polled = true;
+ 			phy->started = now;
+ 			phy->stage = phy->found ? CTRL_PLAT_PHY_STATUS : CTRL_PLAT_PHY_PROBE;
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_phy.h b/sw/firmware/ctrl/plat/ctrl_plat_phy.h
+index f7c6ad468b..349b1f03ab 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_phy.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat_phy.h
+@@ -282,6 +282,26 @@ bool ctrl_plat_phy_step(struct ctrl_plat_phy *phy, int32_t room);
+ // ctx is the struct ctrl_plat_phy. True while either owes one.
+ bool ctrl_plat_phy_store_step(void *ctx, uint32_t deadline);
+ 
++// DIAGNOSTIC (F-G4, a bench image, not the train's): the poll last armed and its counters since then, which the
++// console's milan_phy prints. Registers read as -2 were never read; -1 is an unacknowledged read.
++struct ctrl_plat_phy_diag {
++	const struct ctrl_plat_phy *phy;   // the poll armed last, NULL before
++	uint32_t polls;                    // polls started
++	uint32_t writes;                   // the advertisement's write frames taken (9, 4, 0)
++	uint32_t restarts;                 // of them, register 0's (the restart)
++	int32_t before_local, before_gig;  // registers 4 and 9 as read before the writes
++	int32_t check_local, check_gig;    // registers 4 and 9 as read back after them
++	int32_t now_gig, now_local;        // registers 9 and 4 as the latest poll's resolution read them
++	int32_t control;                   // register 0 as read before the restart
++	int32_t peer_gig;                  // register 10, the partner's 1000BASE-T ability, as the latest poll read it
++};
++const struct ctrl_plat_phy_diag *ctrl_plat_phy_diag(void);
++// milan_phy's 19 words into `w`, in the console's order; 0 before a poll was armed.
++unsigned ctrl_plat_phy_diag_words(uint32_t *w);
++// One Clause-22 read at any address and register on the armed poll's bus, for the console's milan_mdio: the value,
++// -1 unacknowledged, -2 before a poll was armed on a bus.
++int32_t ctrl_plat_phy_diag_read(uint32_t address, uint32_t reg);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 7e31ea3f0c..ebb2a00a44 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -326,7 +326,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
+                                             "S14"),
+     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.0,
++                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.5,   # DIAGNOSTIC (F-G4): milan_phy's 92 B past 58.0
+                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "

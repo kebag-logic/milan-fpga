@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# gbuild.sh <clone> <stem> <directive> <work-dir>: the gating image's Vivado build (build.sh, the shape a parameter):
+# S9's recipe argv from <work-dir>/argv.txt, the recipe's flow flags with <directive> as the placement directive, the
+# bench's --eth-port e2, through milan_soc.py --build into <work-dir>/build_<directive>. Run inside vivado-slot.sh by
+# gviv.sh, which has already booked the CPU range this process inherits; the thread count is that range's width.
+set -u
+L=$1; STEM=$2; D=$3; W=$4; S=<scratch>/gate15; O=$W/build_$D
+mkdir -p "$O"; date -Iseconds > "$O.start"
+C=$(taskset -cp $$ | sed 's/.*: //'); T=$(python3 -c "import sys
+n=0
+for p in sys.argv[1].split(','):
+    a,_,b=p.partition('-'); n+=int(b or a)-int(a)+1
+print(min(n,16))" "$C")
+echo "cpus $C (inherited booking), threads $T"; echo "$C" > "$O.cpus"
+source $S/tools/env.sh
+export HOME=<home>   # Vivado reads its license under the real HOME; the SDK path in PATH is absolute
+source <home>/Xilinx2/2026.1/Vivado/settings64.sh
+command -v vivado || { echo 'no vivado on PATH'; echo 4 > "$O.rc"; exit 4; }
+cd "$L/sw/litex" || { echo 3 > "$O.rc"; exit 3; }
+mapfile -t ARGV < "$W/argv.txt"
+echo "head $(git -C "$L" rev-parse HEAD); status $(git -C "$L" status --porcelain | tr '\n' ' ')"
+sha256sum "$L/configs/$STEM.yaml" "$L/sw/builder/out/$STEM/ctrl_app.elf" "$L/sw/builder/out/$STEM/soc_params.json"
+FLOW=(--synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive "$D")
+echo "python3 milan_soc.py ${ARGV[*]} --eth-port e2 --entity-gen-dir $L/configs/generated/$STEM ${FLOW[*]} --no-compile-software --vivado-max-threads $T --build --output-dir $O"
+python3 milan_soc.py "${ARGV[@]}" --eth-port e2 --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" \
+  --no-compile-software --vivado-max-threads "$T" --build --output-dir "$O"
+rc=$?
+echo "$rc" > "$O.rc"; date -Iseconds > "$O.end"
+echo "== END-OF-BUILD rc=$rc $(date -Iseconds)"
+exit $rc

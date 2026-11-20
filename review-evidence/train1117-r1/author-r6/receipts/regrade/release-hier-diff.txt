@@ -1,0 +1,528 @@
+# the release image (all-fabric), routed, ExtraPostPlacementOpt: cand against p11, report_utilization -hierarchical
+# columns LUT, logic, FF, RAMB36, RAMB18, LUTRAM; each delta is p11 minus cand
+
+## totals
+alinx_ax7101: LUT 53571 -> 53971 (+400), logic 49745 -> 50017 (+272), FF 54944 -> 55206 (+262), RAMB36 74 -> 71 (-3), RAMB18 27 -> 27 (0), LUTRAM 3822 -> 3950 (+128)
+
+## each instance that moved, by its whole total (its own cells and its children), in tree order
+# Vivado counts a LUT that packs logic from two instances (LUT6_2) in each of them, so an instance's children
+# need not sum to it exactly; each row is that instance's own report line in each checkpoint.
+  (alinx_ax7101) [(top)]: LUT 5166->5121 (-45), logic 4912->4867 (-45), FF 6286->6283 (-3)
+  KL_gptp_gmii_launch [KL_gptp_gmii_launch]: LUT 202->197 (-5), logic 202->197 (-5)
+    (KL_gptp_gmii_launch) [KL_gptp_gmii_launch]: LUT 193->190 (-3), logic 193->190 (-3)
+  KL_mac_rmon_events [KL_mac_rmon_events]: LUT 49->51 (+2), logic 49->51 (+2)
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159 [VexiiRiscvLitex_f5f08b170311db53220574624f819159]: LUT 3275->3250 (-25), logic 3151->3126 (-25), FF 4738->4737 (-1)
+    (VexiiRiscvLitex_f5f08b170311db53220574624f819159) [VexiiRiscvLitex_f5f08b170311db53220574624f819159]: LUT 674->665 (-9), logic 674->665 (-9)
+    dma_bridge_write_bridge [Axi4WriteOnlyToTilelinkFull]: LUT 177->178 (+1), logic 175->176 (+1), FF 194->193 (-1)
+    ioBus_to_peripheral_bus_cc [FifoCc_1]: LUT 166->165 (-1), logic 136->135 (-1)
+    peripheral_bus_decoder_core [Decoder_1]: LUT 55->58 (+3), logic 55->58 (+3)
+    peripheral_toAxiLite4_logic_bridge [AxiLite4Bridge]: LUT 243->226 (-17), logic 243->226 (-17)
+      a_buffered_fork2 [StreamFork_3]: LUT 108->72 (-36), logic 108->72 (-36)
+    unified_mBus_arbiter_core [Arbiter_1]: LUT 97->96 (-1), logic 97->96 (-1)
+    vexiis_0_logic_core [VexiiRiscv]: LUT 1153->1149 (-4), logic 1105->1101 (-4)
+  milan_datapath [milan_datapath]: LUT 44916->45379 (+463), logic 41468->41803 (+335), FF 43525->43791 (+266), RAMB36 25->22 (-3), LUTRAM 3448->3576 (+128)
+    (milan_datapath) [milan_datapath]: LUT 984->1097 (+113), logic 984->969 (-15), FF 3212->3252 (+40), LUTRAM 0->128 (+128)
+    aaf_latency_tap_bank [KL_aaf_latency_tap_bank]: LUT 666->670 (+4), logic 666->670 (+4), FF 622->621 (-1)
+    aaf_packetizer [KL_aaf_packetizer]: LUT 634->639 (+5), logic 634->639 (+5)
+    aaf_rx_depkt [KL_aaf_rx_depacketizer]: LUT 267->299 (+32), logic 265->297 (+32)
+      frame_fifo [axis_fifo__parameterized2]: LUT 221->262 (+41), logic 221->262 (+41)
+    adp_tx_mux [adp_tx_arbiter__parameterized1]: LUT 71->114 (+43), logic 71->114 (+43)
+    avtp_rx_monitor [KL_avtp_rx_monitor_ctx]: LUT 792->805 (+13), logic 688->701 (+13), FF 752->743 (-9)
+    avtp_rx_parser [avtp_stream_parser]: LUT 409->473 (+64), logic 409->473 (+64)
+    chan_map_capture [KL_chan_map_capture]: LUT 882->831 (-51), logic 834->783 (-51)
+    chan_map_render [KL_chan_map_render]: LUT 134->204 (+70), logic 134->204 (+70)
+    crf_dp_mux [adp_tx_arbiter]: LUT 66->0 (-66), logic 66->0 (-66), FF 23->0 (-23)
+    crf_rx [KL_crf_rx]: LUT 295->222 (-73), logic 295->222 (-73)
+    crf_tx [KL_crf_tx]: LUT 222->225 (+3), logic 222->225 (+3)
+    csr [milan_csr]: LUT 2861->3199 (+338), logic 2861->3199 (+338), FF 2109->2108 (-1)
+    ctl_tx_mux [adp_tx_arbiter__parameterized0]: LUT 95->57 (-38), logic 95->57 (-38)
+    ethernet_counters [ethernet_events]: LUT 46->40 (-6), logic 46->40 (-6)
+    g_aaf_meter.aaf_clock_meter [KL_aaf_clock_meter]: LUT 482->523 (+41), logic 450->491 (+41), FF 630->612 (-18)
+    g_af_pp.pp_shadow [KL_pp_shadow]: LUT 25250->25367 (+117), logic 22636->22753 (+117)
+      u_pp [protocol_processor_top]: LUT 24544->24650 (+106), logic 21930->22036 (+106)
+        u_aecp [KL_aecp_engine]: LUT 8035->8152 (+117), logic 7773->7890 (+117)
+          (u_aecp) [KL_aecp_engine]: LUT 1786->1831 (+45), logic 1786->1831 (+45)
+          u_dyn [KL_aecp_dyn_state]: LUT 1163->1251 (+88), logic 1163->1251 (+88)
+          u_listener [KL_srp_listener_fsm]: LUT 1093->1052 (-41), logic 1093->1052 (-41)
+          u_talker [KL_srp_talker_fsm]: LUT 777->805 (+28), logic 691->719 (+28)
+    g_aif_tdm_master.g_solo.aaf_capture [KL_tdm_capture_master]: LUT 87->74 (-13), logic 53->40 (-13), FF 243->241 (-2)
+    g_gptp_plane.gptp_ctl_mux [adp_tx_arbiter_0]: LUT 86->0 (-86), logic 86->0 (-86), FF 23->0 (-23)
+    g_gptp_plane.u_gptp_shadow [KL_gptp_shadow]: LUT 5828->5866 (+38), logic 5214->5252 (+38)
+      (g_gptp_plane.u_gptp_shadow) [KL_gptp_shadow]: LUT 1771->1812 (+41), logic 1727->1768 (+41)
+    g_maap.maap_engine [KL_maap]: LUT 442->466 (+24), logic 442->466 (+24)
+    g_mmcm_servo.mmcm_servo [KL_mmcm_drp_servo]: LUT 1276->1277 (+1), logic 1276->1277 (+1)
+    g_pres_crf.pres_round [KL_mtt_round]: LUT 126->115 (-11), logic 126->115 (-11)
+    g_rx_filter.rx_filter [rx_mac_filter]: LUT 512->506 (-6), logic 512->506 (-6)
+    g_tdm_render_live.g_master.chan_tdm_render [KL_tdm_render_master]: LUT 498->493 (-5), logic 498->493 (-5), FF 623->817 (+194), RAMB36 3->0 (-3)
+      u_fcdc [cdc_pair_fifo__parameterized0]: LUT 481->474 (-7), logic 481->474 (-7), FF 24->216 (+192), RAMB36 3->0 (-3)
+    media_grid_align [KL_media_grid_align]: LUT 382->384 (+2), logic 382->384 (+2)
+    ptp_clock_validity [KL_ptp_clock_validity]: LUT 15->51 (+36), logic 15->51 (+36), FF 61->125 (+64)
+    ptp_sync [ptp_csr_sync]: LUT 252->282 (+30), logic 252->282 (+30)
+    render_queue [KL_render_queue]: LUT 556->343 (-213), logic 556->343 (-213), FF 171->170 (-1)
+    talker_diag [KL_talker_diag_ctx]: LUT 219->221 (+2), logic 219->221 (+2)
+    ts_counter [timestamp_counter]: LUT 205->215 (+10), logic 205->215 (+10)
+# 51 deeper instance(s) moved by under 20 LUTs and 20 flops with no RAM change, not listed
+
+## every cdc_pair_fifo instance (the whole instance, its primitives)
+SAME storage and flops: alinx_ax7101/milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc [cdc_pair_fifo] LUT 66->55, logic 32->21, FF 82->82, RAMB36 0->0, RAMB18 0->0, LUTRAM 34->34
+CHANGED storage or flops: alinx_ax7101/milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc [cdc_pair_fifo__parameterized0] LUT 481->474, logic 481->474, FF 24->216, RAMB36 3->0, RAMB18 0->0, LUTRAM 0->0
+  cand primitives (cells inside the instance): milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo) CARRY4:2 FDRE:81 FDSE:1 GND:1 LUT1:1 LUT2:6 LUT3:12 LUT4:12 LUT5:15 LUT6:3 RAM32M:8 RAM32X1D:2 RAMD32:52 RAMS32:16 VCC:1
+  cand primitives (cells inside the instance): milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo__parameterized0) FDRE:23 FDSE:1 GND:1 LUT1:1 LUT2:4 LUT3:195 LUT4:101 LUT5:99 LUT6:201 MUXF7:51 MUXF8:24 RAMB36E1:3 VCC:1
+  p11 primitives (cells inside the instance): milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo) FDRE:81 FDSE:1 GND:1 LUT2:10 LUT3:11 LUT4:5 LUT5:4 LUT6:3 RAM32M:8 RAM32X1D:2 RAMD32:52 RAMS32:16 VCC:1
+  p11 primitives (cells inside the instance): milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo__parameterized0) FDRE:215 FDSE:1 LUT2:4 LUT3:193 LUT4:101 LUT5:101 LUT6:204 MUXF7:51 MUXF8:24 VCC:1
+
+## cand: every primitive named for u_fcdc, wherever synthesis left it in the hierarchy (lutram.tcl; its stem lines match distributed RAM alone, since block RAM's primitive group is BMEM, not the BLOCKRAM it names, so the candidate's three RAMB36E1 are in its by-type list)
+u_fcdc-named primitives by type:
+  FDRE 23
+  FDSE 1
+  GND 1
+  LUT1 1
+  LUT2 4
+  LUT3 195
+  LUT4 101
+  LUT5 99
+  LUT6 201
+  MUXF7 51
+  MUXF8 24
+  RAMB36E1 3
+  VCC 1
+example: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0 parent milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc
+
+## p11: every primitive named for u_fcdc, wherever synthesis left it in the hierarchy (lutram.tcl; its stem lines match distributed RAM alone, since block RAM's primitive group is BMEM, not the BLOCKRAM it names, so the candidate's three RAMB36E1 are in its by-type list)
+RAM32M milan_datapath/u_fcdc/g_mem.mem_r_reg*: 32
+RAMD32 milan_datapath/u_fcdc/g_mem.mem_r_reg*: 192
+RAMS32 milan_datapath/u_fcdc/g_mem.mem_r_reg*: 64
+u_fcdc-named primitives by type:
+  FDRE 215
+  FDSE 1
+  LUT2 4
+  LUT3 193
+  LUT4 101
+  LUT5 101
+  LUT6 204
+  MUXF7 51
+  MUXF8 24
+  RAM32M 32
+  RAMD32 192
+  RAMS32 64
+  VCC 1
+example: milan_datapath/u_fcdc/g_mem.mem_r_reg_0_3_0_5 parent milan_datapath
+
+## cand: flops of the instances whose flop count moved, and the datapath's own (ffs.tcl)
+milan_datapath/ptp_clock_validity: 61 flops, 0 named *replica*
+milan_datapath/avtp_rx_monitor: 752 flops, 0 named *replica*
+milan_datapath/g_aaf_meter.aaf_clock_meter: 630 flops, 0 named *replica*
+milan_datapath/g_tdm_render_live.g_master.chan_tdm_render: 624 flops, 0 named *replica*
+milan_datapath own flops: 3212
+  milan_datapath/aaf_clk_selected_r 1
+  milan_datapath/amap_boot_drain_r 1
+  milan_datapath/amap_boot_k_r 3
+  milan_datapath/amap_boot_last_r 1
+  milan_datapath/amap_boot_r 1
+  milan_datapath/amap_cnt_r 16
+  milan_datapath/amap_data_r 38
+  milan_datapath/amap_done_r 1
+  milan_datapath/amap_edit_changed_r 1
+  milan_datapath/amap_edit_count_r 16
+  milan_datapath/amap_edit_iclaim_expect_r 35
+  milan_datapath/amap_edit_iclaim_v_r 8
+  milan_datapath/amap_edit_iclaim_word_r 35
+  milan_datapath/amap_edit_index_r 16
+  milan_datapath/amap_edit_iwr_addr_r 4
+  milan_datapath/amap_edit_iwr_p_r 1
+  milan_datapath/amap_edit_iwr_word_r 8
+  milan_datapath/amap_edit_oclaim_cluster_r 128
+  milan_datapath/amap_edit_oclaim_expect_r 56
+  milan_datapath/amap_edit_oclaim_v_r 8
+  milan_datapath/amap_edit_oclaim_word_r 56
+  milan_datapath/amap_edit_out_resv_r 1
+  milan_datapath/amap_edit_owr_p_r 1
+  milan_datapath/amap_edit_owr_slot_r 3
+  milan_datapath/amap_edit_owr_word_r 7
+  milan_datapath/amap_edit_remove_r 1
+  milan_datapath/amap_edit_remove_r_reg_rep 1
+  milan_datapath/amap_edit_remove_r_reg_rep__0 1
+  milan_datapath/amap_edit_seen_phase_r 3
+  milan_datapath/amap_edit_seen_r 1
+  milan_datapath/amap_edit_seen_rec_r 8
+  milan_datapath/amap_edit_txn_active_r 1
+  milan_datapath/amap_edit_type_r 16
+  milan_datapath/amap_in_ent_q_r 8
+  milan_datapath/amap_in_store_r 64
+  milan_datapath/amap_out_cluster_q_r 16
+  milan_datapath/amap_out_cluster_r 128
+  milan_datapath/amap_out_owner_q_r 16
+  milan_datapath/amap_out_owner_r 128
+  milan_datapath/amap_out_owner_v_q_r 1
+  milan_datapath/amap_out_owner_v_r 8
+  milan_datapath/amap_rec_r2 22
+  milan_datapath/amap_seen_r 8
+  milan_datapath/amap_srv_r 1
+  milan_datapath/amap_stageb_v_r 1
+  milan_datapath/amap_walk_j_r 4
+  milan_datapath/amap_walk_jq_r 4
+  milan_datapath/amapq_map_r 16
+  milan_datapath/amapq_rec_r 8
+  milan_datapath/amapq_sel_r 2
+  milan_datapath/amr_ms_r 16
+  milan_datapath/amr_tick_r 1
+  milan_datapath/asp_resp_count_r 4
+  milan_datapath/asp_resp_head_r 64
+  milan_datapath/asp_resp_path_r 448
+  milan_datapath/crf_clk_selected_r 1
+  milan_datapath/ctl_sa_idx_r 2
+  milan_datapath/ctr_data_r 32
+  milan_datapath/ctr_gmchg_r 32
+  milan_datapath/ctr_link_q_r 1
+  milan_datapath/ctr_linkdn_r 32
+  milan_datapath/ctr_linkup_r 32
+  milan_datapath/ctr_mclk_q_r 1
+  milan_datapath/ctr_mlock_r 32
+  milan_datapath/ctr_munlock_r 32
+  milan_datapath/ctr_srv1_r 1
+  milan_datapath/ctr_srv2_r 1
+  milan_datapath/ctrq_index_r 16
+  milan_datapath/ctrq_type_r 16
+  milan_datapath/ctrq_word_r 6
+  milan_datapath/evt_link_change 1
+  milan_datapath/follow_sel_r 1
+  milan_datapath/g_af_amr.amr_abort_r 1
+  milan_datapath/g_af_amr.amr_agg_r 10
+  milan_datapath/g_af_amr.amr_agg_x_r 1
+  milan_datapath/g_af_amr.amr_alarm_r 1
+  milan_datapath/g_af_amr.amr_armed_r 1
+  milan_datapath/g_af_amr.amr_bi_r 11
+  milan_datapath/g_af_amr.amr_crc_r 16
+  milan_datapath/g_af_amr.amr_deb_r 1
+  milan_datapath/g_af_amr.amr_dirty_r 2
+  milan_datapath/g_af_amr.amr_e_b1_r 8
+  milan_datapath/g_af_amr.amr_e_b3_r 8
+  milan_datapath/g_af_amr.amr_e_b5_r 8
+  milan_datapath/g_af_amr.amr_e_ff_r 1
+  milan_datapath/g_af_amr.amr_e_z_r 1
+  milan_datapath/g_af_amr.amr_ed_count_r 8
+  milan_datapath/g_af_amr.amr_ed_phase_r 3
+  milan_datapath/g_af_amr.amr_ed_rec_r 8
+  milan_datapath/g_af_amr.amr_ed_record_r 11
+  milan_datapath/g_af_amr.amr_ed_remove_r 1
+  milan_datapath/g_af_amr.amr_ed_req_r 1
+  milan_datapath/g_af_amr.amr_ed_type_r 2
+  milan_datapath/g_af_amr.amr_ek_r 3
+  milan_datapath/g_af_amr.amr_eu_r 1
+  milan_datapath/g_af_amr.amr_fails_r 2
+  milan_datapath/g_af_amr.amr_gk_r 4
+  milan_datapath/g_af_amr.amr_go_r 1
+  milan_datapath/g_af_amr.amr_hcrc_r 16
+  milan_datapath/g_af_amr.amr_hframe_r 1
+  milan_datapath/g_af_amr.amr_hid_r 1
+  milan_datapath/g_af_amr.amr_idx_r 8
+  milan_datapath/g_af_amr.amr_k_r 8
+  milan_datapath/g_af_amr.amr_li_r 56
+  milan_datapath/g_af_amr.amr_lo_r 48
+  milan_datapath/g_af_amr.amr_malformed_r 1
+  milan_datapath/g_af_amr.amr_mscnt_r 10
+  milan_datapath/g_af_amr.amr_ok_r 1
+  milan_datapath/g_af_amr.amr_own_r 1
+  milan_datapath/g_af_amr.amr_own_r_reg_rep 1
+  milan_datapath/g_af_amr.amr_pb_r 2
+  milan_datapath/g_af_amr.amr_ph5_r 1
+  milan_datapath/g_af_amr.amr_r_r 2
+  milan_datapath/g_af_amr.amr_rb_r 1
+  milan_datapath/g_af_amr.amr_refuse_r 1
+  milan_datapath/g_af_amr.amr_req_r 1
+  milan_datapath/g_af_amr.amr_rs_fail_r 1
+  milan_datapath/g_af_amr.amr_rs_hold_r 1
+  milan_datapath/g_af_amr.amr_rs_valid_r 1
+  milan_datapath/g_af_amr.amr_scan_r 2
+  milan_datapath/g_af_amr.amr_src_r 1
+  milan_datapath/g_af_amr.amr_st_r 5
+  milan_datapath/g_af_amr.amr_stage_r 2
+  milan_datapath/g_af_amr.amr_step_r 2
+  milan_datapath/g_af_amr.amr_taint_r 1
+  milan_datapath/g_af_amr.amr_unused_r 1
+  milan_datapath/g_af_amr.amr_wd_r 11
+  milan_datapath/g_af_amr.amr_we_r 1
+  milan_datapath/g_aprb.aprb_hit_r 1
+  milan_datapath/g_aprb.aprb_sid_r 64
+  milan_datapath/g_aprb.aprb_subtype_r 8
+  milan_datapath/g_tdm_render_live.tdmr_busy_r 1
+  milan_datapath/g_tdm_render_live.tdmr_data_r 24
+  milan_datapath/g_tdm_render_live.tdmr_slot_r 3
+  milan_datapath/g_tdm_render_live.tdmr_tick_r 1
+  milan_datapath/g_tdm_render_live.tdmr_wr_en_r 1
+  milan_datapath/gptp_slew_tail_r 4
+  milan_datapath/gsi_ascap_q_r 1
+  milan_datapath/gsi_ascap_snap_r 1
+  milan_datapath/gsi_asp_count_q_r 4
+  milan_datapath/gsi_asp_head_q_r 64
+  milan_datapath/gsi_asp_path_q_r 448
+  milan_datapath/gsi_data_r 64
+  milan_datapath/gsi_gm_q_r 64
+  milan_datapath/gsi_gm_snap_r 64
+  milan_datapath/gsi_link_snap_r 1
+  milan_datapath/gsi_pdelay_snap_r 32
+  milan_datapath/gsi_pdly_q_r 32
+  milan_datapath/gsi_prio_snap_r 3
+  milan_datapath/gsi_req_q_r 1
+  milan_datapath/gsi_snap_v_r 1
+  milan_datapath/gsi_srv1_r 1
+  milan_datapath/gsi_srv2_r 1
+  milan_datapath/gsi_vid_snap_r 12
+  milan_datapath/gsiq_index_r 16
+  milan_datapath/gsiq_kind_r 2
+  milan_datapath/gsiq_ord_r 8
+  milan_datapath/gsiq_sel_r 4
+  milan_datapath/gsiq_type_r 16
+  milan_datapath/int_clk_selected_r 1
+  milan_datapath/mac_ahi_wr_r 1
+  milan_datapath/mac_alo_wr_r 1
+  milan_datapath/media_clk_src_r 16
+  milan_datapath/media_lrclk_r 1
+  milan_datapath/media_tick_q_r 1
+  milan_datapath/mga_engaged_q_r 1
+  milan_datapath/pp_ctr_avb_pend_r 1
+  milan_datapath/pp_ctr_ckd_pend_r 1
+  milan_datapath/pp_ctr_rr_r 3
+  milan_datapath/pp_ctr_sin_pend_r 2
+  milan_datapath/pp_ctr_sout_pend_r 2
+  milan_datapath/pp_gm_change_p_w 1
+  milan_datapath/ref_crf_q_r 1
+  milan_datapath/rmap_rd_valid_r 1
+  milan_datapath/settle_bind_wait_r 1
+  milan_datapath/settle_ceil_ticks_r 21
+  milan_datapath/settle_pend_r 1
+  milan_datapath/settle_recentre_p_r 1
+  milan_datapath/settle_recover_r 1
+  milan_datapath/settle_run_ticks_r 18
+  milan_datapath/sfv_acc_r 4
+  milan_datapath/sfv_cur_r 3
+  milan_datapath/sfv_need_in_r 4
+  milan_datapath/speed_meta 2
+  milan_datapath/speed_q 2
+  milan_datapath/speed_sync 2
+  milan_datapath/tdmr_fresh_r 1
+  milan_datapath/tkd_crf_pend_r 1
+  milan_datapath/tkd_crflk_q_r 1
+  milan_datapath/tkd_crfq_r 32
+  milan_datapath/txarb_abort_sticky_r 4
+  milan_datapath/txarb_stall_sticky_r 4
+  milan_datapath/wing_en_r 1
+  milan_datapath/wing_idx_r 3
+  milan_datapath/wing_route_r 1
+  milan_datapath/wing_route_we_r 1
+  milan_datapath/wing_sid_hi_r 32
+  milan_datapath/wing_sid_lo_r 32
+  milan_datapath/wing_sid_r 64
+  milan_datapath/wing_stg_idx_r 3
+  milan_datapath/wing_stg_vld_r 1
+  milan_datapath/wing_tbl_we_r 1
+
+## p11: flops of the instances whose flop count moved, and the datapath's own (ffs.tcl)
+milan_datapath/ptp_clock_validity: 125 flops, 0 named *replica*
+milan_datapath/avtp_rx_monitor: 743 flops, 0 named *replica*
+milan_datapath/g_aaf_meter.aaf_clock_meter: 612 flops, 0 named *replica*
+milan_datapath/g_tdm_render_live.g_master.chan_tdm_render: 818 flops, 0 named *replica*
+milan_datapath own flops: 3252
+  milan_datapath/aaf_clk_selected_r 1
+  milan_datapath/amap_boot_drain_r 1
+  milan_datapath/amap_boot_k_r 3
+  milan_datapath/amap_boot_last_r 1
+  milan_datapath/amap_boot_r 1
+  milan_datapath/amap_cnt_r 16
+  milan_datapath/amap_data_r 38
+  milan_datapath/amap_done_r 1
+  milan_datapath/amap_edit_changed_r 1
+  milan_datapath/amap_edit_count_r 16
+  milan_datapath/amap_edit_iclaim_expect_r 35
+  milan_datapath/amap_edit_iclaim_v_r 8
+  milan_datapath/amap_edit_iclaim_word_r 35
+  milan_datapath/amap_edit_index_r 16
+  milan_datapath/amap_edit_iwr_addr_r 4
+  milan_datapath/amap_edit_iwr_p_r 1
+  milan_datapath/amap_edit_iwr_word_r 8
+  milan_datapath/amap_edit_oclaim_cluster_r 128
+  milan_datapath/amap_edit_oclaim_expect_r 104
+  milan_datapath/amap_edit_oclaim_v_r 8
+  milan_datapath/amap_edit_oclaim_word_r 104
+  milan_datapath/amap_edit_out_resv_r 1
+  milan_datapath/amap_edit_owr_p_r 1
+  milan_datapath/amap_edit_owr_slot_r 3
+  milan_datapath/amap_edit_owr_word_r 13
+  milan_datapath/amap_edit_remove_r 1
+  milan_datapath/amap_edit_remove_r_reg_rep 1
+  milan_datapath/amap_edit_remove_r_reg_rep__0 1
+  milan_datapath/amap_edit_remove_r_reg_rep__1 1
+  milan_datapath/amap_edit_seen_phase_r 3
+  milan_datapath/amap_edit_seen_r 1
+  milan_datapath/amap_edit_seen_rec_r 8
+  milan_datapath/amap_edit_txn_active_r 1
+  milan_datapath/amap_edit_type_r 16
+  milan_datapath/amap_in_ent_q_r 8
+  milan_datapath/amap_in_store_r 64
+  milan_datapath/amap_out_cluster_q_r 16
+  milan_datapath/amap_out_cluster_r 128
+  milan_datapath/amap_out_owner_q_r 16
+  milan_datapath/amap_out_owner_r 128
+  milan_datapath/amap_out_owner_v_q_r 1
+  milan_datapath/amap_out_owner_v_r 8
+  milan_datapath/amap_rec_r2 22
+  milan_datapath/amap_seen_r 8
+  milan_datapath/amap_srv_r 1
+  milan_datapath/amap_stageb_v_r 1
+  milan_datapath/amap_walk_j_r 4
+  milan_datapath/amap_walk_jq_r 4
+  milan_datapath/amapq_map_r 16
+  milan_datapath/amapq_rec_r 8
+  milan_datapath/amapq_sel_r 2
+  milan_datapath/amr_ms_r 16
+  milan_datapath/amr_tick_r 1
+  milan_datapath/asp_resp_count_r 4
+  milan_datapath/asp_resp_head_r 64
+  milan_datapath/asp_resp_path_r 448
+  milan_datapath/crf_clk_selected_r 1
+  milan_datapath/ctl_sa_idx_r 2
+  milan_datapath/ctr_data_r 32
+  milan_datapath/ctr_gmchg_r 32
+  milan_datapath/ctr_link_q_r 1
+  milan_datapath/ctr_linkdn_r 32
+  milan_datapath/ctr_linkup_r 32
+  milan_datapath/ctr_mclk_q_r 1
+  milan_datapath/ctr_mlock_r 32
+  milan_datapath/ctr_munlock_r 32
+  milan_datapath/ctr_srv1_r 1
+  milan_datapath/ctr_srv2_r 1
+  milan_datapath/ctrq_index_r 16
+  milan_datapath/ctrq_type_r 16
+  milan_datapath/ctrq_word_r 6
+  milan_datapath/evt_link_change 1
+  milan_datapath/follow_sel_r 1
+  milan_datapath/g_af_amr.amr_abort_r 1
+  milan_datapath/g_af_amr.amr_agg_r 10
+  milan_datapath/g_af_amr.amr_agg_x_r 1
+  milan_datapath/g_af_amr.amr_alarm_r 1
+  milan_datapath/g_af_amr.amr_armed_r 1
+  milan_datapath/g_af_amr.amr_bi_r 11
+  milan_datapath/g_af_amr.amr_crc_r 16
+  milan_datapath/g_af_amr.amr_deb_r 1
+  milan_datapath/g_af_amr.amr_dirty_r 2
+  milan_datapath/g_af_amr.amr_e_b1_r 8
+  milan_datapath/g_af_amr.amr_e_b3_r 8
+  milan_datapath/g_af_amr.amr_e_b5_r 8
+  milan_datapath/g_af_amr.amr_e_ff_r 1
+  milan_datapath/g_af_amr.amr_e_z_r 1
+  milan_datapath/g_af_amr.amr_ed_count_r 8
+  milan_datapath/g_af_amr.amr_ed_phase_r 3
+  milan_datapath/g_af_amr.amr_ed_rec_r 8
+  milan_datapath/g_af_amr.amr_ed_record_r 11
+  milan_datapath/g_af_amr.amr_ed_remove_r 1
+  milan_datapath/g_af_amr.amr_ed_req_r 1
+  milan_datapath/g_af_amr.amr_ed_type_r 2
+  milan_datapath/g_af_amr.amr_ek_r 3
+  milan_datapath/g_af_amr.amr_eu_r 1
+  milan_datapath/g_af_amr.amr_fails_r 2
+  milan_datapath/g_af_amr.amr_gk_r 4
+  milan_datapath/g_af_amr.amr_go_r 1
+  milan_datapath/g_af_amr.amr_hcrc_r 16
+  milan_datapath/g_af_amr.amr_hframe_r 1
+  milan_datapath/g_af_amr.amr_hid_r 1
+  milan_datapath/g_af_amr.amr_idx_r 8
+  milan_datapath/g_af_amr.amr_k_r 8
+  milan_datapath/g_af_amr.amr_li_r 56
+  milan_datapath/g_af_amr.amr_lo_r 48
+  milan_datapath/g_af_amr.amr_malformed_r 1
+  milan_datapath/g_af_amr.amr_mscnt_r 10
+  milan_datapath/g_af_amr.amr_ok_r 1
+  milan_datapath/g_af_amr.amr_own_r 1
+  milan_datapath/g_af_amr.amr_own_r_reg_rep 1
+  milan_datapath/g_af_amr.amr_pb_r 2
+  milan_datapath/g_af_amr.amr_ph5_r 1
+  milan_datapath/g_af_amr.amr_r_r 2
+  milan_datapath/g_af_amr.amr_rb_r 1
+  milan_datapath/g_af_amr.amr_refuse_r 1
+  milan_datapath/g_af_amr.amr_req_r 1
+  milan_datapath/g_af_amr.amr_rs_fail_r 1
+  milan_datapath/g_af_amr.amr_rs_hold_r 1
+  milan_datapath/g_af_amr.amr_rs_valid_r 1
+  milan_datapath/g_af_amr.amr_scan_r 2
+  milan_datapath/g_af_amr.amr_src_r 1
+  milan_datapath/g_af_amr.amr_st_r 5
+  milan_datapath/g_af_amr.amr_stage_r 2
+  milan_datapath/g_af_amr.amr_step_r 2
+  milan_datapath/g_af_amr.amr_taint_r 1
+  milan_datapath/g_af_amr.amr_unused_r 1
+  milan_datapath/g_af_amr.amr_wd_r 11
+  milan_datapath/g_af_amr.amr_we_r 1
+  milan_datapath/g_aprb.aprb_hit_r 1
+  milan_datapath/g_aprb.aprb_sid_r 64
+  milan_datapath/g_aprb.aprb_subtype_r 8
+  milan_datapath/g_tdm_render_live.tdmr_busy_r 1
+  milan_datapath/g_tdm_render_live.tdmr_data_r 24
+  milan_datapath/g_tdm_render_live.tdmr_slot_r 3
+  milan_datapath/g_tdm_render_live.tdmr_tick_r 1
+  milan_datapath/gptp_slew_tail_r 4
+  milan_datapath/gsi_ascap_q_r 1
+  milan_datapath/gsi_ascap_snap_r 1
+  milan_datapath/gsi_asp_count_q_r 4
+  milan_datapath/gsi_asp_head_q_r 64
+  milan_datapath/gsi_asp_path_q_r 448
+  milan_datapath/gsi_data_r 64
+  milan_datapath/gsi_gm_snap_r 64
+  milan_datapath/gsi_link_snap_r 1
+  milan_datapath/gsi_pdelay_snap_r 32
+  milan_datapath/gsi_pdly_q_r 32
+  milan_datapath/gsi_prio_snap_r 3
+  milan_datapath/gsi_req_q_r 1
+  milan_datapath/gsi_snap_v_r 1
+  milan_datapath/gsi_srv1_r 1
+  milan_datapath/gsi_srv2_r 1
+  milan_datapath/gsi_vid_snap_r 12
+  milan_datapath/gsiq_index_r 16
+  milan_datapath/gsiq_index_r_reg[0]_rep 1
+  milan_datapath/gsiq_index_r_reg[0]_rep__0 1
+  milan_datapath/gsiq_kind_r 2
+  milan_datapath/gsiq_ord_r 8
+  milan_datapath/gsiq_sel_r 4
+  milan_datapath/gsiq_type_r 16
+  milan_datapath/int_clk_selected_r 1
+  milan_datapath/mac_ahi_wr_r 1
+  milan_datapath/mac_alo_wr_r 1
+  milan_datapath/media_clk_src_r 16
+  milan_datapath/media_lrclk_r 1
+  milan_datapath/media_tick_q_r 1
+  milan_datapath/mga_engaged_q_r 1
+  milan_datapath/pp_ctr_avb_pend_r 1
+  milan_datapath/pp_ctr_ckd_pend_r 1
+  milan_datapath/pp_ctr_rr_r 3
+  milan_datapath/pp_ctr_sin_pend_r 2
+  milan_datapath/pp_ctr_sout_pend_r 2
+  milan_datapath/pp_gm_change_p_w 1
+  milan_datapath/ref_crf_q_r 1
+  milan_datapath/rmap_rd_valid_r 1
+  milan_datapath/settle_bind_wait_r 1
+  milan_datapath/settle_ceil_ticks_r 21
+  milan_datapath/settle_pend_r 1
+  milan_datapath/settle_recentre_p_r 1
+  milan_datapath/settle_recover_r 1
+  milan_datapath/settle_run_ticks_r 18
+  milan_datapath/sfv_acc_r 4
+  milan_datapath/sfv_cur_r 3
+  milan_datapath/sfv_need_in_r 4
+  milan_datapath/speed_meta 2
+  milan_datapath/speed_q 2
+  milan_datapath/speed_sync 2
+  milan_datapath/tdmr_fresh_r 1
+  milan_datapath/tkd_crf_pend_r 1
+  milan_datapath/tkd_crflk_q_r 1
+  milan_datapath/tkd_crfq_r 32
+  milan_datapath/txarb_abort_sticky_r 4
+  milan_datapath/txarb_stall_sticky_r 4
+  milan_datapath/wing_en_r 1
+  milan_datapath/wing_idx_r 3
+  milan_datapath/wing_route_r 1
+  milan_datapath/wing_route_we_r 1
+  milan_datapath/wing_sid_hi_r 32
+  milan_datapath/wing_sid_lo_r 32
+  milan_datapath/wing_sid_r 64
+  milan_datapath/wing_stg_idx_r 3
+  milan_datapath/wing_stg_vld_r 1
+  milan_datapath/wing_tbl_we_r 1

@@ -1,0 +1,123 @@
+## scenario: base (as stated)
+| Point | Row | W, ms | Bound, ms | Margin, ms |
+|---|---|---:|---:|---:|
+| 1x1/1if | R4 | 13.43 | 20 | +6.57 |
+| 1x1/1if | R5 | 76.55 | 90 | +13.45 |
+| 1x1/1if | R6 | 74.05 | 90 | +15.95 |
+| 1x1/1if | first | 14.75 | 20 | +5.25 |
+| 1x1/1if | last | 137.97 | 140 | +2.03 |
+| 1x1/1if | R4L | 203.58 | 238 | +34.42 |
+| 1x1/1if | ACMP | 29.93 | 30 | +0.07 |
+| 1x1/1if | ADP | 28.14 | 30 | +1.86 |
+| 1x1/1if | MAAP | 28.23 | 30 | +1.77 |
+| 1x1/1if | tx | 34.30 | 49 | +14.70 |
+| 1x1/1if | txL | 48.89 | 49 | +0.11 |
+| 8x8/1if | R4 | 21.58 | 20 | -1.58 |
+| 8x8/1if | R5 | 138.55 | 90 | -48.55 |
+| 8x8/1if | R6 | 135.91 | 90 | -45.91 |
+| 8x8/1if | first | 19.05 | 20 | +0.95 |
+| 8x8/1if | last | 425.34 | 130 | -295.34 |
+| 8x8/1if | R4L | 208.65 | 238 | +29.35 |
+| 8x8/1if | ACMP | 53.86 | 30 | -23.86 |
+| 8x8/1if | ADP | 53.62 | 30 | -23.62 |
+| 8x8/1if | MAAP | 54.46 | 30 | -24.46 |
+| 8x8/1if | tx | 76.81 | 49 | -27.81 |
+| 8x8/1if | txL | 168.46 | 49 | -119.46 |
+| 8x8/2if | R4 | 45.24 | 20 | -25.24 |
+| 8x8/2if | R5 | 209.68 | 90 | -119.68 |
+| 8x8/2if | R6 | 199.36 | 90 | -109.36 |
+| 8x8/2if | first | 21.13 | 20 | -1.13 |
+| 8x8/2if | last | 867.89 | 125 | -742.89 |
+| 8x8/2if | R4L | 211.12 | 238 | +26.88 |
+| 8x8/2if | ACMP | 69.22 | 30 | -39.22 |
+| 8x8/2if | ADP | 69.16 | 30 | -39.16 |
+| 8x8/2if | MAAP | 73.41 | 30 | -43.41 |
+| 8x8/2if | tx | 104.69 | 49 | -55.69 |
+| 8x8/2if | txL | 474.19 | 49 | -425.19 |
+loads: 1x1/1if 0.5224, 8x8/2if 0.7988, 8x8/1if 0.7436, 1x1/1if donor 0.5188; the pace the model takes: 9 ms
+BREAKS 8x8/2if: the load 0.799 at the pin is over the flip ceiling 0.70
+RESULT: BREAKS
+
+## scenario: own8:record.srp=380,poll8:reclaim=45,poll8:retained=380
+| Point | Row | W, ms | Bound, ms | Margin, ms |
+|---|---|---:|---:|---:|
+| 1x1/1if | R4 | 13.43 | 20 | +6.57 |
+| 1x1/1if | R5 | 76.55 | 90 | +13.45 |
+| 1x1/1if | R6 | 74.05 | 90 | +15.95 |
+| 1x1/1if | first | 14.75 | 20 | +5.25 |
+| 1x1/1if | last | 137.97 | 140 | +2.03 |
+| 1x1/1if | R4L | 203.58 | 238 | +34.42 |
+| 1x1/1if | ACMP | 29.93 | 30 | +0.07 |
+| 1x1/1if | ADP | 28.14 | 30 | +1.86 |
+| 1x1/1if | MAAP | 28.23 | 30 | +1.77 |
+| 1x1/1if | tx | 34.30 | 49 | +14.70 |
+| 1x1/1if | txL | 48.89 | 49 | +0.11 |
+| 8x8/1if | R4 | 21.61 | 20 | -1.61 |
+| 8x8/1if | R5 | 139.25 | 90 | -49.25 |
+| 8x8/1if | R6 | 136.59 | 90 | -46.59 |
+| 8x8/1if | first | 19.07 | 20 | +0.93 |
+| 8x8/1if | last | 437.41 | 130 | -307.41 |
+| 8x8/1if | R4L | 208.68 | 238 | +29.32 |
+| 8x8/1if | ACMP | 53.89 | 30 | -23.89 |
+| 8x8/1if | ADP | 53.65 | 30 | -23.65 |
+| 8x8/1if | MAAP | 54.49 | 30 | -24.49 |
+| 8x8/1if | tx | 76.84 | 49 | -27.84 |
+| 8x8/1if | txL | 168.49 | 49 | -119.49 |
+| 8x8/2if | R4 | 45.24 | 20 | -25.24 |
+| 8x8/2if | R5 | 209.68 | 90 | -119.68 |
+| 8x8/2if | R6 | 199.36 | 90 | -109.36 |
+| 8x8/2if | first | 21.13 | 20 | -1.13 |
+| 8x8/2if | last | 867.89 | 125 | -742.89 |
+| 8x8/2if | R4L | 211.12 | 238 | +26.88 |
+| 8x8/2if | ACMP | 69.22 | 30 | -39.22 |
+| 8x8/2if | ADP | 69.16 | 30 | -39.16 |
+| 8x8/2if | MAAP | 73.41 | 30 | -43.41 |
+| 8x8/2if | tx | 104.69 | 49 | -55.69 |
+| 8x8/2if | txL | 474.19 | 49 | -425.19 |
+loads: 1x1/1if 0.5224, 8x8/2if 0.7988, 8x8/1if 0.7517, 1x1/1if donor 0.5188; the pace the model takes: 9 ms
+BREAKS 8x8/1if: the load 0.752 at the pin is over the flip ceiling 0.75
+BREAKS 8x8/1if: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US 375 us, not the load gate's record.srp 380 us
+BREAKS 8x8/1if: its own record.srp is stated 380 us, not its measurement's 375 us by the rule (35,547 CPU cycles, the valid-destinations arm, srp-talker-held)
+RESULT: BREAKS
+
+## scenario: own8:record.srp=380,poll8:reclaim=45,poll8:retained=380,8x8/2if:item.aecp.notice=145
+| Point | Row | W, ms | Bound, ms | Margin, ms |
+|---|---|---:|---:|---:|
+| 1x1/1if | R4 | 13.43 | 20 | +6.57 |
+| 1x1/1if | R5 | 76.55 | 90 | +13.45 |
+| 1x1/1if | R6 | 74.05 | 90 | +15.95 |
+| 1x1/1if | first | 14.75 | 20 | +5.25 |
+| 1x1/1if | last | 137.97 | 140 | +2.03 |
+| 1x1/1if | R4L | 203.58 | 238 | +34.42 |
+| 1x1/1if | ACMP | 29.93 | 30 | +0.07 |
+| 1x1/1if | ADP | 28.14 | 30 | +1.86 |
+| 1x1/1if | MAAP | 28.23 | 30 | +1.77 |
+| 1x1/1if | tx | 34.30 | 49 | +14.70 |
+| 1x1/1if | txL | 48.89 | 49 | +0.11 |
+| 8x8/1if | R4 | 21.61 | 20 | -1.61 |
+| 8x8/1if | R5 | 139.25 | 90 | -49.25 |
+| 8x8/1if | R6 | 136.59 | 90 | -46.59 |
+| 8x8/1if | first | 19.07 | 20 | +0.93 |
+| 8x8/1if | last | 437.41 | 130 | -307.41 |
+| 8x8/1if | R4L | 208.68 | 238 | +29.32 |
+| 8x8/1if | ACMP | 53.89 | 30 | -23.89 |
+| 8x8/1if | ADP | 53.65 | 30 | -23.65 |
+| 8x8/1if | MAAP | 54.49 | 30 | -24.49 |
+| 8x8/1if | tx | 76.84 | 49 | -27.84 |
+| 8x8/1if | txL | 168.49 | 49 | -119.49 |
+| 8x8/2if | R4 | 45.24 | 20 | -25.24 |
+| 8x8/2if | R5 | 209.68 | 90 | -119.68 |
+| 8x8/2if | R6 | 199.36 | 90 | -109.36 |
+| 8x8/2if | first | 21.13 | 20 | -1.13 |
+| 8x8/2if | last | 867.89 | 125 | -742.89 |
+| 8x8/2if | R4L | 211.12 | 238 | +26.88 |
+| 8x8/2if | ACMP | 69.22 | 30 | -39.22 |
+| 8x8/2if | ADP | 69.16 | 30 | -39.16 |
+| 8x8/2if | MAAP | 73.41 | 30 | -43.41 |
+| 8x8/2if | tx | 104.69 | 49 | -55.69 |
+| 8x8/2if | txL | 474.19 | 49 | -425.19 |
+loads: 1x1/1if 0.5224, 8x8/2if 0.7728, 8x8/1if 0.7257, 1x1/1if donor 0.5188; the pace the model takes: 9 ms
+BREAKS 8x8/1if: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US 375 us, not the load gate's record.srp 380 us
+BREAKS 8x8/1if: its own record.srp is stated 380 us, not its measurement's 375 us by the rule (35,547 CPU cycles, the valid-destinations arm, srp-talker-held)
+RESULT: BREAKS
+
