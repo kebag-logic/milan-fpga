@@ -75,7 +75,9 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            Talker declarations as their validity moves them (#895,
            srp_talker.cpp) at 1x1/1if and 8x8/2if; the Listener copies
            against the reference walk over random record sequences (#930,
-           srp_listeners.cpp) at 1x1/1if and 8x8/1if;
+           srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
+           reclaim and receive filter against the adapter before it
+           (#665's ruling of 2026-11-20, item 3) in the same suite;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
@@ -156,6 +158,7 @@ import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
 import srp_pub_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
+import srp_reclaim_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import plat_arms  # noqa: E402
@@ -222,10 +225,12 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
                                   if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                         "p11-", "srp-bound-", "srp-term-",
                                                         "srp-poll-extra", "srp-send-extra", "talker-",
-                                                        srp_listener_mutants.PREFIX, *srp_pub_mutants.ROUND5)))
+                                                        srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+                                                        *srp_pub_mutants.ROUND5)))
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
-        # the Listener copies at 8x8/1if too (#930)
-        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table if d.name.startswith(srp_listener_mutants.PREFIX))
+        # the Listener copies at 8x8/1if too (#930), and the SRP cut (#665's ruling of 2026-11-20, item 3)
+        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX)))
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

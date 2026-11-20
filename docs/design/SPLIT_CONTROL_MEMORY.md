@@ -1091,6 +1091,7 @@ At 100 MHz, before the changes:
   Otherwise it keeps the copies and runs each sink's capture, as a walk would.
   A record that changes no registration walks nothing; of the composed load's 32 Listener Ready records, only the first changes one.
   `mrp_reclaim` runs only after a transition or a receive, and stays owed while the participant holds the owed frame, which lwSRP never reclaims.
+  Since [#665's ruling of 2026-11-20](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7029526172) (item 3) it is owed only after a change into a state it frees (Registrar MT, Applicant VO, AO or QO) or a receive that created an attribute and left it as created; see [lwSRP's receive path](#lwsrps-receive-path-as-a-change-to-lwsrp).
   lwSRP itself is unchanged.
   Since [#930](https://github.com/kebag-logic/milan-fpga/issues/930) a Listener's change is copied where lwSRP reports it, so it walks nothing.
   Its indication copies its declaration and the transition observer its presence.
@@ -1407,6 +1408,8 @@ Two exact changes, drafted for lwSRP's own review and measured staged; the paren
 - `parse_pass` clears a decoded value only on the pass that delivers it; the validation pass cleared 64 bytes an attribute for nothing.
 
 The adapter needs no change: its reclaim flag still saves the call.
+Since #665's ruling of 2026-11-20 (item 3) the adapter owes its reclaim by the first change's rule itself, lwSRP's pin unchanged: lwSRP reports every Applicant and Registrar change to its observer but an attribute's creation, and a receive's created attributes are the room for attributes it took from the pool, so the adapter calls `mrp_reclaim` only where it frees an attribute.
+At 8x8/1if, valid-destinations' `srp-talker-held` walked MSRP's attributes in every poll after its records and builds, about 3,000 cycles a walk and 3,840 at most (`item.reclaim`), the walk's mean flat from 5 s to its end, so no attribute was freed then.
 Moving the pin is the gitlink and `ctrl_arms.LWSRP_REV` together.
 
 ### The rows

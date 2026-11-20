@@ -82,7 +82,11 @@ A Registrar state change owes no walk (#930): each change of what the walk copie
 A Listener's change is copied where lwSRP reports it, as the walk copies that Listener, so it owes no walk either: its indication copies its declaration, and lwSRP's transition observer its presence.
 Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
 The receive filter, the indications and the walk compare each StreamID and destination MAC with `same`, an equality test that stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2), so a record's comparisons no longer pay `memcmp`'s alignment checks and the byte loop that orders a difference (#665).
-The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.
+A Listener is looked up among the sources once a use (`sources_of`), its StreamID compared with a source's only where their last bytes agree, so each other source of the shape costs that one compare and no call ([#665's ruling of 2026-11-20](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7029526172), item 3).
+The receive filter recomputes each sink's declaration from the first Talker indication of the receive on, the only change it reads, which marks the interface stale; before it every sink holds what the snapshot before the receive left (same ruling).
+The reclaim of freeable attributes is owed only where one may arise, and stays owed while the participant holds the owed frame (same ruling).
+lwSRP frees an attribute whose Registrar is MT and whose Applicant is VO, AO or QO, and reports every change of either state to the adapter's observer but an attribute's creation, at VO and MT.
+So a change into such a state owes it, and a receive owes it when it created more attributes than left that state, counted by the room for attributes `mrp_rx` took from the pool (an attribute takes a medium or a large block); any other change and receive frees nothing, and makes no walk of the participant's attributes.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.

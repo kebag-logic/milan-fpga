@@ -72,7 +72,10 @@ struct srp_interface {
     // coming with an indication (#930).
     bool stale;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
-    // only then (#665).
+    // only then (#665). It is set where one may arise: an attribute's change
+    // into a state mrp_reclaim frees, or one a receive created and left in the
+    // state of its creation (srp_mbx.c, moved and apply_receive; #665's
+    // ruling of 2026-11-20, item 3).
     bool reclaim;
     // Polls left until a reset's new participants are built, the first of them
     // the reset's own pass; receive waits until then (#665, srp_bounds.h).
@@ -103,6 +106,12 @@ struct srp_interface {
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
     // sources' destinations, and init clears both fields.
     bool gate_seen;
+    // The changes out of the state an attribute is created in that lwSRP
+    // reported in the receive now applying, one for each attribute it
+    // created that changed (moved, apply_receive; #665's ruling of
+    // 2026-11-20, item 3): at most the attribute blocks of the pool, under
+    // 256. Here, in the room before gate_base's alignment.
+    uint8_t fresh;
     uint64_t gate_base;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);

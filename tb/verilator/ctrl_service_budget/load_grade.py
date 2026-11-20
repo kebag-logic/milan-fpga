@@ -319,8 +319,10 @@ RETRY_RULE = {
     'what a refusal saw': ('sw/firmware/ctrl/srp/srp_mbx.c', '++m->refused; // What the refusal saw, after every '
                            'change of its own (poll). i->moved = false; m->pending_freed = ctrl_pool_returned; '
                            'return false;'),
+    # the observer marks every change, after the SRP cut's reclaim test and creation count (#665's ruling of
+    # 2026-11-20, item 3)
     'each Applicant or Registrar change marked': ('sw/firmware/ctrl/srp/srp_mbx.c',
-                                                  'i->reclaim = true; i->moved = true;'),
+                                                  '++i->fresh; } i->moved = true;'),
     'each returned block counted': ('sw/firmware/ctrl/port/ctrl_pool.c', 'bin->free_count++; ctrl_pool_returned++;'),
 }
 

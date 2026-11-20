@@ -89,6 +89,22 @@ static CTRL_CC_NOINLINE bool same(const uint8_t *a, const uint8_t *b, unsigned n
     return true;
 }
 
+// The sources whose StreamID is the Listener's at id, bit n source n (#665's ruling of 2026-11-20, item 3): the receive
+// filter, a Listener's indication, its Registrar change and the walk each look a Listener up here, once, where each
+// had matched it against every source with a call of same. same is entered only where the last bytes agree: one
+// talker's StreamIDs differ in their unique ID, so every other source of the shape is told apart by that one compare.
+static CTRL_CC_NOINLINE uint32_t sources_of(const struct srp_interface *i, const uint8_t *id)
+{
+    uint32_t of = 0u;
+    for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+        const uint8_t *s = i->sources[n].value.stream_id.bytes;
+        if (s[7] == id[7] && same(s,id,8)) {
+            of |= 1u << n;
+        }
+    }
+    return of;
+}
+
 // A slot's participant: each interface's MSRP, then its MVRP.
 static struct mrp_app *participant(const struct srp_interface *i, unsigned slot)
 {
@@ -191,8 +207,9 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
 {
     (void)port; (void)is_new;
     struct srp_interface *i = from_ctx(ctx);
+    const uint32_t of = sources_of(i,identity->bytes);
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-        if (same(i->sources[n].value.stream_id.bytes,identity->bytes,8)) {
+        if ((of >> n & 1u) != 0u) {
             i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||
                                declaration == MSRP_LISTENER_DECL_READY_FAILED;
             if (!i->registered[n] && i->active[n]) {
@@ -417,7 +434,12 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     // lwSRP doc/integrator.md:321-323 and mrp.h:288-290 forbid reentry.
     // Observe the previous complete event from copied indication data only.
     // Atomic replacement stays continuous; Lv then New remains two events.
-    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+    // Only a Talker's indication changes what listener_kind reads, and it marks the interface stale (talker_changed),
+    // which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with its capture made, so
+    // while the interface is not stale the previous event changed no sink and this pass would change nothing: it runs
+    // from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3).
+    const unsigned sinks = i->stale ? CTRL_SRP_SINKS : 0u;
+    for (unsigned k = 0; k < sinks; ++k) {
         struct srp_sink *s = &i->sinks[k];
         uint8_t previous = s->desired;
         s->desired = listener_kind(s);
@@ -433,11 +455,7 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
         return d->class_id == 6 && d->vid > 0 && d->vid < 4095;
     }
     if (type == MSRP_ATTR_TYPE_LISTENER) {
-        for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-            if (same(i->sources[n].value.stream_id.bytes,value,8)) {
-                return true;
-            }
-        }
+        return sources_of(i,value) != 0u;
     } else {
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
             if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {
@@ -468,8 +486,9 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
 // it registers (#930). Whether what it registers is Ready is its indication's (listener).
 static void listener_moved(struct srp_interface *i, const struct mrp_transition *t)
 {
+    const uint32_t of = sources_of(i,t->attr_val);
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-        if (same(i->sources[n].value.stream_id.bytes,t->attr_val,8)) {
+        if ((of >> n & 1u) != 0u) {
             i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;
         }
     }
@@ -480,16 +499,28 @@ static void listener_moved(struct srp_interface *i, const struct mrp_transition 
 // The walk copies whether each MSRP Talker and Listener registers and what it registers. Each change of that comes
 // with an indication: every Registrar change into or out of MT (IEEE 802.1Q-2018 Table 10-4) and, in lwSRP, a value
 // changed while it registers. A Talker's indication marks the walk owed (talker_changed) and a Listener's copies its
-// declaration (listener), so a Registrar change owes no walk; a Listener's is copied here for its presence (#930). Any
-// change can leave an attribute mrp_reclaim frees (#665).
+// declaration (listener), so a Registrar change owes no walk; a Listener's is copied here for its presence (#930).
+// mrp_reclaim frees an attribute whose Registrar is MT and whose Applicant observes or has left (VO, AO, QO), and lwSRP
+// reports every change of either state here, the one exception an attribute's creation, at VO and MT (mrp_mad.c,
+// get_or_create_attr): a change into such a state owes the reclaim, and one out of creation's is counted, so a receive
+// tells the attributes it created and left there (apply_receive). Any other change leaves nothing mrp_reclaim frees, and
+// owes no walk of the participant's attributes (#665's ruling of 2026-11-20, item 3).
 // An Applicant that moves may request a transmit (Table 10-3 note 6), owed now when its participant's join timer is
 // idle: a build arms that timer, so this owes a participant one pass a JoinTime, and one that moves in the build that
 // sent it owes nothing past that pass, whose end clears its interface. A function of its own, both participants'
 // observers calling it, as the split link script's hot list places it (plat/ctrl_split_hot.txt).
+// The Applicant states mrp_reclaim frees an attribute in, a bit each: it observes or has left, declaring nothing.
+#define SRP_FREED_APPL ((1u << MRP_APPL_STATE_VO) | (1u << MRP_APPL_STATE_AO) | (1u << MRP_APPL_STATE_QO))
+_Static_assert(MRP_APPL_STATE_COUNT <= 32u, "SRP_FREED_APPL holds a bit for each Applicant state");
 static CTRL_CC_NOINLINE void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
 {
     struct srp_mbx *m = i->owner;
-    i->reclaim = true;
+    if (t->reg_to == MRP_REG_STATE_MT && (SRP_FREED_APPL >> t->appl_to & 1u) != 0u) {
+        i->reclaim = true;
+    }
+    if (t->appl_from == MRP_APPL_STATE_VO && t->reg_from == MRP_REG_STATE_MT) {
+        ++i->fresh;
+    }
     i->moved = true;
     if (slot == 0u && t->attr_type == MSRP_ATTR_TYPE_LISTENER && t->reg_from != t->reg_to) {
         listener_moved(i,t);
@@ -809,6 +840,14 @@ static bool rx_ready(void *ctx)
     return m->pending_rx.len == 0 && rx_order_ready(m) && mbx_rx_waiting(MBX_CH_SRP,m->loop->rx_order);
 }
 
+// The blocks the pool can still give an attribute: lwSRP's attribute is over the small class's 64 bytes, so it takes a
+// medium or a large block, the pool's second and third classes, carved from srp_pool_classes smallest first
+// (ctrl_pool_init) (#665's ruling of 2026-11-20, item 3).
+static CTRL_CC_INLINE unsigned attribute_room(const struct ctrl_pool *pool)
+{
+    return (unsigned)pool->bins[1].free_count + pool->bins[2].free_count;
+}
+
 // Return false only for local storage refusal. Earlier events
 // may already have applied; lwSRP requires replay of the identical payload.
 static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
@@ -829,9 +868,20 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
         // Seed copied kinds from the registrar before entering any callback.
         snapshot(i);
     }
+    // A received attribute can be created with no state change (#665), at VO and MT, which mrp_reclaim frees: the
+    // receive owes the reclaim when it created more attributes than left that state (moved). lwSRP takes a medium or a
+    // large block for each attribute it creates, and a small one for each map work, a larger one only once the small
+    // class is spent; it frees an attribute only in mrp_reclaim and destroy, and a map work in the event that took it,
+    // an end station's map_join and map_leave propagating to no port (mrp_mad.c: map_reserve, map_publish). So the
+    // room for attributes mrp_rx takes is the attributes it created, and a map work in a larger block owes a reclaim
+    // it need not (#665's ruling of 2026-11-20, item 3).
+    const struct ctrl_pool *pool = shlan_port_pool();
+    const unsigned room = attribute_room(pool);
+    i->fresh = 0u;
     int result = app ? mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) : -SHLAN_ERROR_NO_MEMORY;
-    // A received attribute can be created with no state change (#665).
-    i->reclaim = true;
+    if (room > attribute_room(pool) + i->fresh) {
+        i->reclaim = true;
+    }
     if (i->msrp) {
         // Include the last event, also when an earlier event applied before
         // allocation refusal. Identical receive retries remain idempotent.
@@ -943,8 +993,9 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
     }
     if (status->attr_type == MSRP_ATTR_TYPE_LISTENER) {
         const uint8_t *v = status->attr_val;
+        const uint32_t of = sources_of(i,v);
         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-            if (same(i->sources[n].value.stream_id.bytes,v,8)) {
+            if ((of >> n & 1u) != 0u) {
                 // One value per StreamID; Ignore occupies no registrar (35.2.2.7.2).
                 i->listener_present[n] = true;
                 i->registered[n] = v[8] == 2 || v[8] == 3;
@@ -983,9 +1034,14 @@ static void snapshot(struct srp_interface *i)
     uint8_t previous[CTRL_SRP_SINKS];
     if (!i->stale) {
         // Nothing the walk reads changed since it last ran, so it would copy
-        // the values held: only each sink's capture runs (#665).
+        // the values held: only each sink's capture runs (#665), with its
+        // declaration unchanged, so only its copy of a continuing kind
+        // (capture, with previous the declaration; #665's ruling of
+        // 2026-11-20, item 3).
         for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
-            capture(&i->sinks[k],i->sinks[k].desired);
+            if (!i->sinks[k].withdrawn && i->sinks[k].desired) {
+                i->sinks[k].feedback_kind = i->sinks[k].desired;
+            }
         }
         return;
     }

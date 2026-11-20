@@ -8,6 +8,13 @@
 // seed: every mailbox write and every licence call, in order, and the state the loop, ACMP and THE TRANSMIT read must
 // be the same after every step, and each settled step of the copied run holds what a walk of the registrar copies,
 // each sink's declaration by the latest Talker registration while both kinds are registered (#925).
+// The SRP cut (#665's ruling of 2026-11-20, item 3) has a reference of its own, the adapter as it stood before it:
+// every Applicant or Registrar change and every receive owed lwSRP's reclaim, and the receive filter recomputed every
+// sink's declaration at every attribute. srp_mbx.c's calls of mrp_rx, mrp_reclaim and mrp_set_rx_filter are renamed
+// to seams below as well, which restore that schedule in the reference run. The same random records run through both:
+// the same calls, writes and state, the reclaim's flag apart, and after every step each participant's attributes, in
+// order, with their states and values, so every reclaim the reference ran that freed an attribute the cut ran too,
+// at the same step; and the cut walks the attributes fewer times.
 // Run at 1x1/1if and 8x8/1if (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
 #include <array>
@@ -18,6 +25,12 @@ FW_TALLY_LABEL("ctrl SRP Listener copies");
 namespace {
 // The run whose Listener indications and Registrar changes owe the walk (the reference).
 bool reference_walk = false;
+// The run whose every change and receive owe the reclaim and whose filter recomputes every sink (the cut's
+// reference), the adapter it runs, and every reclaim walk the firmware made and what each freed.
+bool reference_reclaim = false;
+srp_mbx *reclaiming = nullptr;
+unsigned reclaim_walks = 0;
+unsigned reclaim_frees = 0;
 
 srp_interface *owner_of(msrp_ctx *ctx) {
     return reinterpret_cast<srp_interface *>(reinterpret_cast<uint8_t *>(ctx) - offsetof(srp_interface,msrp_ctx));
@@ -41,6 +54,22 @@ void observed(void *ctx, const mrp_transition *t) {
     const auto *o=static_cast<const Observer *>(ctx);
     o->fn(o->ctx,t);
     if(reference_walk && t->reg_from!=t->reg_to) static_cast<srp_interface *>(o->ctx)->stale=true;
+    if(reference_reclaim) static_cast<srp_interface *>(o->ctx)->reclaim=true;
+}
+struct Filter {
+    mrp_rx_filter_fn fn;
+    void *ctx;
+};
+std::list<Filter> filters;
+// The reference's filter recomputes every sink, as a stale interface's does, and leaves the walk's mark as it found it.
+bool filtered(void *ctx, uint8_t port, uint8_t type, const void *value) {
+    const auto *f=static_cast<const Filter *>(ctx);
+    auto *i=static_cast<srp_interface *>(f->ctx);
+    const bool stale=i->stale;
+    if(reference_reclaim) i->stale=true;
+    const bool interested=f->fn(f->ctx,port,type,value);
+    i->stale=stale;
+    return interested;
 }
 } // namespace
 
@@ -53,6 +82,24 @@ extern "C" mrp_app *srp_test_msrp_app_create(uint8_t n_ports, msrp_ctx *ctx) {
 extern "C" void srp_test_set_observer(mrp_app *app, void (*fn)(void *, const mrp_transition *), void *ctx) {
     observers.push_back({fn,ctx});
     mrp_set_observer(app,observed,&observers.back());
+}
+// srp_mbx.c's calls of mrp_rx, mrp_reclaim and mrp_set_rx_filter, renamed to these for this suite (srp_arms.py).
+extern "C" int srp_test_mrp_rx(mrp_app *app, uint8_t port, const uint8_t *pdu, size_t len) {
+    const int result=mrp_rx(app,port,pdu,len);
+    if(reference_reclaim && reclaiming) {
+        for(auto &i:reclaiming->ifs) if(i.msrp==app || i.mvrp==app) i.reclaim=true;
+    }
+    return result;
+}
+extern "C" unsigned srp_test_mrp_reclaim(mrp_app *app, uint8_t port) {
+    const unsigned freed=mrp_reclaim(app,port);
+    ++reclaim_walks;
+    reclaim_frees+=freed;
+    return freed;
+}
+extern "C" void srp_test_set_rx_filter(mrp_app *app, mrp_rx_filter_fn fn, void *ctx) {
+    filters.push_back({fn,ctx});
+    mrp_set_rx_filter(app,filtered,&filters.back());
 }
 
 namespace {
@@ -115,6 +162,21 @@ protected:
     unsigned licensed=0;
     unsigned present=0;
     unsigned walks=0;
+    // The differential against the cut's reference: its state holds the participants' attributes, not the flag.
+    bool reclaim_mode=false;
+    unsigned walked=0;
+    unsigned freed=0;
+
+    // Each participant's attributes, newest first, with their states and whole stored values (mrp_attr_visit; lwSRP
+    // stores each in 48 bytes, cleared at its creation).
+    static void attributes(Step &s, const mrp_app *app) {
+        s.push_back(mrp_attr_visit(app,0,[](void *p,const mrp_attr_status *a) {
+            auto &into=*static_cast<Step *>(p);
+            const auto *v=static_cast<const uint8_t *>(a->attr_val);
+            into.insert(into.end(),{a->attr_type,uint64_t(a->appl),uint64_t(a->reg)});
+            into.insert(into.end(),v,v+48);
+        },&s));
+    }
 
     // Every write but those of the SRP transmit ring, whose records carry the driver's commit count since its start
     // (mbx_contract.h, TX record word 1), which the second run starts later: the frames are the model's (state).
@@ -129,6 +191,7 @@ protected:
     }
     // Most sources admitted, every third declared Talker Failed: several licences can open at once.
     void SetUp() override {
+        reclaiming=&adapter;
         Srp::SetUp();
         srp_mbx_destroy(&adapter);
         for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) sources[i][n].allocated=n%3u!=2u;
@@ -141,6 +204,7 @@ protected:
     void TearDown() override {
         mbx_host_trace(nullptr,nullptr);
         Srp::TearDown();
+        reclaiming=nullptr;
     }
     // A second run on a fresh adapter, model, loop and pool.
     void again() {
@@ -286,7 +350,13 @@ protected:
                 s.insert(s.end(),{q.bound,q.desired,q.declared,q.registered_kinds,q.feedback_kind,q.withdrawn,
                                   q.vlan_requested,q.vlan_sent});
             }
-            s.insert(s.end(),{f.link,f.vlan_sent,f.domain.vid,f.talkers,f.reclaim,f.moved,f.msrp!=nullptr});
+            // against the cut's reference the reclaim's flag differs by design: what it frees is compared instead
+            s.insert(s.end(),{f.link,f.vlan_sent,f.domain.vid,f.talkers,reclaim_mode ? 0u : f.reclaim,f.moved,
+                              f.msrp!=nullptr});
+            if(reclaim_mode && f.msrp) {
+                attributes(s,f.msrp);
+                attributes(s,f.mvrp);
+            }
         }
         s.insert(s.end(),{adapter.tx_due,adapter.refused,adapter.malformed,adapter.received,adapter.transmitted,
                           adapter.stops,adapter.rx_discarded,adapter.pending_rx.len,adapter.owed_len,
@@ -294,7 +364,9 @@ protected:
     }
     // One run of `count` steps from `seed`; the copied run's settled steps also hold what a walk copies.
     std::vector<Step> run(bool reference, uint32_t seed, unsigned count) {
-        reference_walk=reference;
+        reference_walk=reference && !reclaim_mode;
+        reference_reclaim=reference && reclaim_mode;
+        reclaim_walks=0; reclaim_frees=0;
         x=seed; framed=0; licensed=0; present=0;
         said.assign(1,"start");
         settle(); advance(400); state();
@@ -307,14 +379,17 @@ protected:
             }
         }
         walks=adapter.walks;
+        walked=reclaim_walks; freed=reclaim_frees;
         reference_walk=false;
+        reference_reclaim=false;
         auto made=steps;
         steps.assign(1,Step{});
         return made;
     }
     void differential(uint32_t seed, unsigned count) {
         const auto full=run(true,seed,count);
-        const unsigned full_walks=walks, full_licensed=licensed, full_present=present;
+        const unsigned full_walks=walks, full_walked=walked, full_freed=freed, full_licensed=licensed,
+                       full_present=present;
         const auto full_said=said;
         again();
         const auto copied=run(false,seed,count);
@@ -325,9 +400,21 @@ protected:
                                              full_said[n]<<"; "<<first_difference(full[n],copied[n]);
         }
         EXPECT_EQ(said,full_said);
-        EXPECT_LT(walks,full_walks)<<"a Listener's change walks no registrar";
+        if(reclaim_mode) {
+            EXPECT_EQ(freed,full_freed)<<"the cut's reclaims free what the reference's freed";
+            EXPECT_NE(full_freed,0u)<<"the random records leave attributes the reclaim frees";
+            EXPECT_LT(walked,full_walked)<<"the cut walks the attributes only where one may be freed";
+        } else {
+            EXPECT_LT(walks,full_walks)<<"a Listener's change walks no registrar";
+        }
         EXPECT_NE(full_licensed,0u)<<"the random records license a source";
         EXPECT_NE(full_present,0u)<<"the random records register a Listener";
+    }
+    // A Listener record of one value, source `n`'s StreamID, its event (802.1Q-2018 10.8.2.6: 0 New, 1 JoinIn,
+    // 3 JoinMt, 4 Mt, 5 Lv) and declaration (2 Ready), settled.
+    void listener(unsigned n, unsigned event, unsigned declaration=2) {
+        const unsigned events[2]={event,0}, subtypes[2]={declaration,0};
+        record(listeners(n,1,events,subtypes,false),false);
     }
 };
 
@@ -337,5 +424,72 @@ TEST_F(Listeners, RandomRecordsMatchTheReferenceWalk) {
 
 TEST_F(Listeners, ASecondSequenceMatchesTheReferenceWalk) {
     differential(0x2545F491u,3000);
+}
+
+// The SRP cut (#665's ruling of 2026-11-20, item 3) against the adapter before it, on the same records.
+TEST_F(Listeners, RandomRecordsMatchTheReferenceReclaim) {
+    reclaim_mode=true;
+    differential(0x9E3779B9u,3000);
+}
+
+TEST_F(Listeners, ASecondSequenceMatchesTheReferenceReclaim) {
+    reclaim_mode=true;
+    differential(0x2545F491u,3000);
+}
+
+// A registered Listener's JoinIn changes no state, and THE TRANSMIT's builds, a LeaveAll's among them, move Applicants
+// and Registrars but leave nothing mrp_reclaim frees, while the Listener stays declared: none owes the reclaim's walk of
+// the participants' attributes, which the adapter before the cut made after every receive and every change.
+TEST_F(Listeners, SteadyListenerRecordsAndBuildsWalkNoAttributes) {
+    settle(); advance(400);
+    listener(0,1); advance(300);
+    const unsigned walked=reclaim_walks, held=ctrl_pool_in_use(&pool), sent=model.tx_sent;
+    for(unsigned k=0;k<120;++k) {
+        listener(0,1); advance(150);
+    }
+    EXPECT_GT(model.tx_sent,sent)<<"THE TRANSMIT built and sent MRPDUs meanwhile";
+    EXPECT_EQ(ctrl_pool_in_use(&pool),held);
+    EXPECT_EQ(reclaim_walks,walked)<<"a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes";
+}
+
+// An Mt of a Listener never registered: lwSRP creates its attribute at VO and MT and changes no state, so only the
+// receive's own count owes the reclaim, which frees it by the next poll.
+TEST_F(Listeners, AListenerLeftAsCreatedIsReclaimed) {
+    settle(); advance(400);
+    const unsigned held=ctrl_pool_in_use(&pool), walked=reclaim_walks;
+    listener(1,4);
+    EXPECT_GT(reclaim_walks,walked);
+    EXPECT_EQ(ctrl_pool_in_use(&pool),held)<<"an attribute a receive created and left as created is reclaimed";
+}
+
+// The same in an MRPDU that also changes an attribute it did not create: its LeaveAll takes a registered Listener's
+// Registrar from IN to LV, its Applicant from VO to LO, and that Listener's JoinIn its Registrar back (IEEE 802.1Q-2018
+// Tables 10-3 and 10-4), changes out of no creation, which count for none. The Mt rides a second vector, after the
+// LeaveAll's, so the LeaveAll leaves the attribute it creates as created.
+TEST_F(Listeners, AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed) {
+    settle(); advance(400);
+    listener(0,1); advance(300);
+    const unsigned held=ctrl_pool_in_use(&pool);
+    const unsigned joined[2]={1,0}, ready[2]={2,0}, mt[2]={4,0};
+    auto f=listeners(0,1,joined,ready,true);
+    const auto second=listeners(1,1,mt,ready,false);
+    // the second's vector (header, FirstValue, its two packed events) before the first's EndMarks
+    const size_t vector=2+8+1+1;
+    f.insert(f.end()-4,second.begin()+14+5,second.begin()+14+5+vector);
+    wire_put_be(f.data()+14+3,wire_be16(f.data()+14+3)+vector,2);
+    record(f,false);
+    EXPECT_EQ(ctrl_pool_in_use(&pool),held)<<"an attribute a receive created and left as created beside another "
+                                              "change is reclaimed";
+}
+
+// A Listener's leave takes its Registrar to MT (Milan v1.2 4.2.7.2.2) with its Applicant observing: the change into
+// that state owes the reclaim, which frees the attribute.
+TEST_F(Listeners, ALeavingListenerIsReclaimed) {
+    settle(); advance(400);
+    const unsigned held=ctrl_pool_in_use(&pool);
+    listener(1,1); advance(300);
+    ASSERT_EQ(ctrl_pool_in_use(&pool),held+1u);
+    listener(1,5); advance(1000);
+    EXPECT_EQ(ctrl_pool_in_use(&pool),held)<<"an attribute changed into a state mrp_reclaim frees is reclaimed";
 }
 } // namespace

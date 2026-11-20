@@ -17,8 +17,12 @@ LWSRP_SOURCES = ("core/mrp_mad.c", "core/mrp_pdu.c", "ports/timer.c", "modules/m
 SRP_SOURCES = PORTABLE + ("srp/srp_mbx.c", "app/ctrl_app_srp.c")
 DEFAULT_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 #: srp_listeners.cpp's seams (#930): the firmware's calls of lwSRP's msrp_app_create and mrp_set_observer, which only
-#: srp_mbx.c makes, renamed to the suite's, which restore the reference walk's schedule in its reference run.
-LISTENER_SEAMS = ("-Dmsrp_app_create=srp_test_msrp_app_create", "-Dmrp_set_observer=srp_test_set_observer")
+#: srp_mbx.c makes, renamed to the suite's, which restore the reference walk's schedule in its reference run; and its
+#: calls of mrp_rx, mrp_reclaim and mrp_set_rx_filter, which restore the reclaim's and the filter's as they stood
+#: before the SRP cut (#665's ruling of 2026-11-20, item 3) in the suite's other reference run.
+LISTENER_SEAMS = ("-Dmsrp_app_create=srp_test_msrp_app_create", "-Dmrp_set_observer=srp_test_set_observer",
+                  "-Dmrp_rx=srp_test_mrp_rx", "-Dmrp_reclaim=srp_test_mrp_reclaim",
+                  "-Dmrp_set_rx_filter=srp_test_set_rx_filter")
 #: The 8x8 entity, whose one-interface shape srp_listeners.cpp runs at beside 1x1/1if (#930).
 ENTITY_8X8 = ROOT / "configs/endstation_ax7101_8x8.yaml"
 
