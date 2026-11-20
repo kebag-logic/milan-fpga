@@ -1,0 +1,13 @@
+CMD python3 -B sw/firmware/ctrl/test/ctrl_hot.py --self-test
+HEAD 15168e14a1fe709b9ab5336acd6daf54e4d6e0a4 START 2026-11-20T21:47:58+01:00
+control: the tree's script and order, linked: PASS
+[caught] stale-name: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service_old) is no section of the linked image
+[caught] absent-from-image: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+[caught] only-discarded: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+[caught] reordered: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 1 is *-nvm_store.o(.text.nvm_store_clock), recorded *-ctrl_loop.o(.text.ctrl_loop_service)
+[caught] dropped: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_now), recorded *-nvm_store.o(.text.nvm_store_clock)
+[caught] unrecorded: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 267 is *-mbx.o(.text.mbx_open), recorded the end
+[caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_store_clock), recorded *-nvm_store.o(.text.nvm_now)
+[caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;
+self-test: 0 failure(s)
+rc=0
