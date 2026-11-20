@@ -214,10 +214,16 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: an owed MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build
 #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
 #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+#: On the SRP cut's head (#665's ruling of 2026-11-20, item 3), measured over every arm and group, each 1x1/1if cost
+#: it exceeds raised by the rule and the AECP notice item restated from its measurement by ruling item 4, as the owner
+#: decided on 2026-11-20 (#665 issuecomment-7044585511), in both columns: an AECP record 250 us (23,726 CPU cycles, a
+#: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
+#: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
+#: arm's aecp-fanout; 210 before).
 STATED_US = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 160,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 55,
@@ -263,11 +269,13 @@ STATED_US = {
 #: with srp_mbx_gate's repeat call cut, the polls' base 215 to 225 at 1x1/1if (poll_grade.py; #895); on that image
 #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
-#: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
+#: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
+#: cut's head, as STATED_US states (the owner's decision of 2026-11-20, #665 issuecomment-7044585511), and ADP's record
+#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,

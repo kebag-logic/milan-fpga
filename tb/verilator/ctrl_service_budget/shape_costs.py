@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import math
 import re
 import sys
 from pathlib import Path
@@ -400,10 +401,19 @@ def planted_at(text: str, s: Shape, name: str, value: int | str) -> str:
         + text[end.start():]
 
 
-def planted_under(text: str, shapes: list[Shape], name: str) -> str:
-    """ctrl_loop.h's text with one name stated one under its figure at each of the shapes (planted_at)."""
+def one_under(stated: int, row: float | None) -> int:
+    """One under the least whole figure at or over a row, the least a statement may be (rows_tiers.tx_statements), or
+    one under the stated figure where there is no row: a statement is never lowered, so it may stand over its row
+    (1x1/1if's THE TRANSMIT 35 ms over 33.44 once ruling item 4 restated its notice path, #665
+    issuecomment-7044585511), and one under it is then not under the row."""
+    return (stated if row is None else math.ceil(row - 1e-9)) - 1
+
+
+def planted_under(text: str, shapes: list[Shape], name: str, rows: dict[Shape, float | None] | None = None) -> str:
+    """ctrl_loop.h's text with one name stated one under its row at each of the shapes where `rows` gives one, else one
+    under its stated figure (one_under, planted_at)."""
     for s in shapes:
-        text = planted_at(text, s, name, listed(text)[s][name] - 1)
+        text = planted_at(text, s, name, one_under(listed(text)[s][name], (rows or {}).get(s)))
     return text
 
 
@@ -498,7 +508,10 @@ def retry_controls(root: Path = ROOT) -> list[str]:
     point = '8x8/1if'
     s = of_point(point, root)
     mine = listed(text_of(root))[s]
-    for name, (path, shaped) in SHAPED.items():
+    # the round costs planted at the tree's own figures, which must be apart; the last queued notice's bound is planted
+    # below in a table of its own where the tree states one figure at both (130 ms at 1x1/1if and 8x8/1if once ruling
+    # item 4 restated 1x1/1if's notice path, #665 issuecomment-7044585511)
+    for name, (path, shaped) in RETRY.items():
         if mine[shaped] == listed(text_of(root))[shape(s.interfaces, root)][shaped]:
             escaped.append(f'{point}\'s {name} not apart from the interface count\'s, so no plant can tell them')
     text = {path: (root / path).read_text() for path, _ in RETRY.values()}
@@ -515,6 +528,12 @@ def retry_controls(root: Path = ROOT) -> list[str]:
     cold, attempt = RETRY['AECP_ROUND_COLD_US'][0], RETRY['AECP_ATTEMPT_US'][0]
     queued = listed(loop)
     q_one, q_two = (queued[shape(n, root)][QUEUED] for n in (1, 2))
+    # the interface count's shape stated 5 ms over the point's (the queued rule's step) where the tree states the same
+    # figure at both, so the fallback to it is a figure the point does not state and the check must name it
+    table = {}
+    if s.interfaces == 1 and q_one == mine[QUEUED]:
+        q_one = mine[QUEUED] + 5
+        table = {HEADER: planted_at(loop, shape(1, root), QUEUED, q_one)}
     plants = {
         'a round\'s cold start keyed on the interface count (earlier rule)': (planted(
             cold, f'#define AECP_ROUND_COLD_US {RETRY_COLD}\n',
@@ -527,9 +546,9 @@ def retry_controls(root: Path = ROOT) -> list[str]:
             HEADER, block, block.replace(f'#define {RETRY_COLD} {mine[RETRY_COLD]}u\n',
                                          f'#define {RETRY_COLD} (MBX_N_IF == 1u ? {one}u : {two}u)\n')),
             f'for the shape {tuple(s)} ({point})'),
-        'the last queued notice\'s bound keyed on the interface count (earlier rule)': (planted(
+        'the last queued notice\'s bound keyed on the interface count (earlier rule)': ({**planted(
             SHAPED['AECP_QUEUED_MS'][0], f'#define AECP_QUEUED_MS {QUEUED}\n',
-            f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {q_one}u : {q_two}u)\n'),
+            f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {q_one}u : {q_two}u)\n'), **table},
             f'{point}: AECP_QUEUED_MS is {q_one} ms at its shape {tuple(s)}, not the {mine[QUEUED]} ms'),
     }
     for name, (texts, words) in plants.items():

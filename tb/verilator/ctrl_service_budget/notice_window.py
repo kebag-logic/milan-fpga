@@ -65,8 +65,9 @@ def queued_ms(at: 'int | scenario.Point | object') -> int:
     """AECP_QUEUED_MS at a point's shape, a shape, or that many interfaces at the shipping shape's streams
     (aecp_mbx.h, CTRL_LOOP_QUEUED_MS as THE SHAPES state it for each shape, never by the interface count): the bound
     every queued notice meets, the last queued notice's tier bound at 1x1/1if (#665 decision D's 125 ms, 130 by
-    #894's amendment of 2026-11-13, 135 with AECP's REBOOT, #871, and 140 by queued_bound.py's rule), 8x8/1if's own
-    130 ms and the stated 62 ms at two interfaces."""
+    #894's amendment of 2026-11-13, 135 with AECP's REBOOT, #871, 140 by queued_bound.py's rule, and 130 by it once
+    the owner's decision of 2026-11-20 restated the notice path, #665 issuecomment-7044585511), 8x8/1if's own 130 ms
+    and the stated 62 ms at two interfaces."""
     import shape_costs
     if isinstance(at, scenario.Point):
         at = shape_costs.of_config(scenario.ROOT / 'configs' / f'{at.shape}.yaml', at.interfaces, scenario.ROOT)

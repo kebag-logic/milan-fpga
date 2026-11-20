@@ -240,9 +240,11 @@ def channel_controls(root: Path) -> list[str]:
     held = []
     # each point's figure, stated for its shape (THE SHAPES), planted one under its row's alone and refused at its own
     # point (8x8/2if's rows are reported, so its flip check exits 1 by design and only this control holds its statement)
+    # (one under the row rounded up to the ms, shape_costs.one_under, not under the statement, which may stand over it)
     for point in ('1x1/1if', '8x8/2if'):
         at = shape_costs.of_point(point, root)
-        said = table[at][shape_costs.TX] - 1
+        row = rows_tiers.solve('tx', rows_tiers.point_inputs(root, point), rows_tiers.BUILT)[0]
+        said = shape_costs.one_under(table[at][shape_costs.TX], row)
         under = {loop: shape_costs.planted_at(text, at, shape_costs.TX, said)}
         with mock.patch.object(rows_tiers, 'tx_statements', lambda r, p, texts=None, f=rows_tiers.tx_statements,
                                u=under: f(r, p, u)):

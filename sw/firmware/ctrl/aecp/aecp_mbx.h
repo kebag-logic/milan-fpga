@@ -72,12 +72,15 @@ extern "C" {
 // 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, 135 ms on
 // AECP's REBOOT's merge on the tiers (#871), its row 134.74 ms, and 140 ms at SRP's Talker declarations'
 // composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
-// composition, item 1). The rows by every source hold both at
+// composition, item 1), and 130 ms on the SRP cut's head, its row 127.31 ms at the slice rule's 950 us once the AECP
+// notice item and the long notice were restated from their measurement there, as the owner decided on 2026-11-20
+// (#665 issuecomment-7044585511, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
 // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
 // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
 // source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872). The last
 // queued notice's bound is stated for each shape (THE SHAPES, ctrl_loop.h, CTRL_LOOP_QUEUED_MS), never by the
-// interface count, so 1x1/1if's is never another shape's: 8x8/1if's is its own 130 ms, which the CPU budget harness
+// interface count, so 1x1/1if's is never another shape's, even where the two state the same figure, as 1x1/1if's
+// 130 ms on the SRP cut's head does: 8x8/1if's is its own 130 ms, which the CPU budget harness
 // holds its measured queues to; its rows by every source are reported, not held (#894's shape ruling, item (b)).
 #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
 #define AECP_QUEUED_MS CTRL_LOOP_QUEUED_MS

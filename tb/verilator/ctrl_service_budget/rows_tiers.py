@@ -928,10 +928,10 @@ def channel_controls(root: Path) -> list[str]:
     if moved[srp] == (root / srp).read_text() or not unrowed(root, BUILT, one, moved):
         escaped.append("the tier-1 channels not the loop's")
     # ctrl_loop.h states THE TRANSMIT's figure at or over its row at each point, and its bound at the timer budget's
-    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    header = (root / loop).read_text()
+    loop, header = shape_costs.HEADER, shape_costs.text_of(root)
     bound = '#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)'
-    under = {loop: shape_costs.planted_under(header, [shape_costs.of_point(p, root) for p in POINTS], shape_costs.TX)}
+    tx = {shape_costs.of_point(p, root): solve('tx', point_inputs(root, p), BUILT)[0] for p in POINTS}
+    under = {loop: shape_costs.planted_under(header, list(tx), shape_costs.TX, tx)}
     if tx_statements(root) or len(tx_statements(root, texts=under)) != len(POINTS):
         escaped.append("THE TRANSMIT's stated figure under its row")
     # typed, or derived with the egress allowance left out (#894's egress ruling of 2026-11-13, item 1)

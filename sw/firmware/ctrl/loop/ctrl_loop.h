@@ -213,8 +213,9 @@
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 140 ms (aecp_mbx.h; the queued
-// rule's figure for its row, #895's ruling of 2026-11-15, item 1).
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; the queued
+// rule's figure for its row at the slice rule's 950 us, the owner's decision
+// of 2026-11-20, #665 issuecomment-7044585511, under the owner's 140 ms).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -277,11 +278,14 @@ extern "C" {
 // 2026-11-15): 950 us at the costs restated under the SET_CONFIGURATION cut,
 // and 900 us at SRP's Talker declarations' composition with it once the last
 // queued notice's bound follows its row to 140 ms (#895's ruling of 2026-11-15
-// on that composition, items 1 and 4).
+// on that composition, items 1 and 4), and 950 us again on the SRP cut's head
+// once its notice-path statements were restated from their measurement there,
+// as the owner decided on 2026-11-20 (#665 issuecomment-7044585511, ruling
+// item 4), the last queued notice's bound following its row to 130 ms.
 // The rule takes, of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a
 // 50 us grid, the one whose decision D rows and THE TRANSMIT's MRPDU with every
 // AECP notice the largest legal one have the largest least margin relative to
-// their bounds (slice_choice). A 900 us slice holds one MRPDU's build, not both,
+// their bounds (slice_choice). A 950 us slice holds one MRPDU's build, not both,
 // CTRL_LOOP_BUILD_PASS_US being longer (CTRL_LOOP_BUILD_MOST). The rulings choose no slice at 8x8/2if, whose rows miss
 // at every slice: 1,300 us there, which also holds one MRPDU's build,
 // CTRL_LOOP_BUILD_ONE_PASS_US. At 8x8/1if the slice is one MRPDU's build measured
@@ -334,8 +338,12 @@ extern "C" {
 // is never another's: the last queued notice's, CTRL_LOOP_QUEUED_MS (aecp_mbx.h,
 // AECP_QUEUED_MS, its comment says how each is set), and THE TRANSMIT's MRPDU by
 // every source at the built design, CTRL_LOOP_TX_MS (below, at the transmit's
-// bound): 1x1/1if's, 140 and 35 ms, are #895's (its rulings of 2026-11-15) and
-// #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them),
+// bound): 1x1/1if's, 130 and 35 ms, are the queued rule's figure for its row
+// of 127.31 ms at the slice rule's 950 us on the SRP cut's head, its
+// notice-path statements restated as the owner decided on 2026-11-20 (#665
+// issuecomment-7044585511, ruling item 4; the owner's bound stays 140 ms), and
+// #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
+// at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
 // up, 77 ms for the 76.81 ms of #665's final head (#665's ruling of 2026-11-18,
 // item 2a; 75 for #894's 74.26), at most 80 so a withdrawn Talker's hold-off
@@ -350,13 +358,13 @@ extern "C" {
 #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
-#define CTRL_LOOP_SLICE_US 900u
+#define CTRL_LOOP_SLICE_US 950u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
 #define CTRL_LOOP_BUILD_ONE_PASS_US 735u
 #define CTRL_LOOP_SRP_UNIT_US 285u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
-#define CTRL_LOOP_QUEUED_MS 140u
+#define CTRL_LOOP_QUEUED_MS 130u
 #define CTRL_LOOP_TX_MS 35u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
