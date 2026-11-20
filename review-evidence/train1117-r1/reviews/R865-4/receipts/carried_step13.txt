@@ -1,0 +1,22 @@
+EQUAL  docs/DOCUMENTATION_AUDIT.md
+EQUAL  docs/design/SPLIT_CONTROL_MEMORY.md
+SHARED sw/firmware/ctrl/aecp/README.md missing=0
+EQUAL  sw/firmware/ctrl/aecp/aecp_commands.c
+EQUAL  sw/firmware/ctrl/aecp/aecp_internal.h
+EQUAL  sw/firmware/ctrl/aecp/aecp_maps.c
+EQUAL  sw/firmware/ctrl/app/ctrl_app_aecp.c
+EQUAL  sw/firmware/ctrl/test/aecp_arms.py
+EQUAL  sw/firmware/ctrl/test/aecp_configuration_mutants.py
+EQUAL  sw/firmware/ctrl/test/aecp_mutants.py
+EQUAL  sw/firmware/ctrl/test/aecp_output_mutants.py
+SHARED sw/firmware/ctrl/test/test_aecp.cpp missing=0
+EQUAL  tb/verilator/ctrl_service_budget/README.md
+EQUAL  tb/verilator/ctrl_service_budget/build.py
+EQUAL  tb/verilator/ctrl_service_budget/declaring_outputs.py
+EQUAL  tb/verilator/ctrl_service_budget/record_classes.py
+EQUAL  tb/verilator/ctrl_service_budget/rows_tiers.py
+EQUAL  tb/verilator/ctrl_service_budget/run.py
+EQUAL  tb/verilator/milan_dp/Makefile
+EQUAL  tb/verilator/milan_dp/README.md
+EQUAL  tb/verilator/milan_dp/twin_compare.py
+EQUAL  tb/verilator/milan_dp/twin_plants.py
