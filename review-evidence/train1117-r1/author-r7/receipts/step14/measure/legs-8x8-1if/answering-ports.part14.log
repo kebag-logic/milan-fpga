@@ -1,0 +1,18 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14 --groups backlog-adp@blank-aged1-0,backlog-adp@program-0,backlog-adp@program-aged2-5,backlog-adp@verify-aged2-2,aecp-reboot --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 23:22:28
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14/backlog-adp@program-0.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14/backlog-adp@blank-aged1-0.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14/backlog-adp@program-aged2-5.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14/backlog-adp@verify-aged2-2.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-ports/part14/aecp-reboot.txt -
+STEPS 2036 passes carry the store's step; the longest 95,613 CPU cycles (0.956 ms), backlog-adp@verify-aged2-2; the longest step 78,652 (0.787 ms), backlog-adp@program-aged2-5
+SLICES 82429 tier-2 slices; the longest SRP's records 127,848, THE TRANSMIT's build 27,127, THE RETRY's round 12,569 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS backlog-adp@program-0: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@blank-aged1-0: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@program-aged2-5: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-aged2-2: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS aecp-reboot: 3 join interval(s), the shortest 188.019 ms and the longest 189.988 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+AGED 3 windows opened with the step's age at its limit or one short of it, 0 aged steps among their records; the least margin 10.966 ms, backlog-adp@program-aged2-5.service.srp.last.if0 at 9.034 ms
+5 groups graded, 0 refusals, 0 budget misses (0 of 49 probe instances, 0 of 16 paths), 0 of 2373 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 00:57:03

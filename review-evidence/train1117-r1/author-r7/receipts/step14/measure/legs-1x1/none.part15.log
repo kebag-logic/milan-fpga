@@ -1,0 +1,19 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-1x1/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15 --groups backlog-adp@blank-aged1-3,backlog-adp@program-5,backlog-adp@verify-3,save-held,aecp --record-budget-findings --record-share-findings --jobs 1 start 21:08:02
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15/backlog-adp@program-5.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15/backlog-adp@verify-3.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15/backlog-adp@blank-aged1-3.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15/save-held.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/none/part15/aecp.txt -
+STEPS 2009 passes carry the store's step; the longest 94,909 CPU cycles (0.949 ms), backlog-adp@program-5; the longest step 78,189 (0.782 ms), backlog-adp@program-5
+SLICES 129491 tier-2 slices; the longest SRP's records 70,955, THE TRANSMIT's build 30,141, THE RETRY's round 10,092 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS backlog-adp@program-5: 3 join interval(s), the shortest 187.907 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@verify-3: 3 join interval(s), the shortest 187.907 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS backlog-adp@blank-aged1-3: 3 join interval(s), the shortest 187.907 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-held: 3 join interval(s), the shortest 187.907 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 17 released, 16 empty
+JOINS aecp: 3 join interval(s), the shortest 187.907 ms and the longest 190.104 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+AGED 1 windows opened with the step's age at its limit or one short of it, 0 aged steps among their records; the least margin 11.481 ms, backlog-adp@blank-aged1-3.service.srp.last.if0 at 8.519 ms
+SAVE save-held: durable 1085.422 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 21.56 ms) within
+5 groups graded, 0 refusals, 0 budget misses (0 of 65 probe instances, 0 of 43 paths), 0 of 3244 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 22:53:42

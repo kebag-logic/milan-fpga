@@ -1,0 +1,32 @@
+item at cpu 92127598: 28596 cycles, 6932 instructions traced, 28596 cycles charged; hot region 57524 B
+    2310 instr    8104 cyc  hot   mbx mbx_tx_begin
+    1730 instr    7931 cyc  hot   aecp fan_out
+     863 instr    3510 cyc  hot   mbx mbx_tx_commit
+     405 instr    1206 cyc  hot   ctrl_mem memset
+     369 instr    1178 cyc  hot   acmp acmp_declaring
+     177 instr     772 cyc  hot   maap_mbx declaring
+     226 instr     728 cyc  cold  aecp_mbx fan
+      30 instr     534 cyc  hot   ctrl_loop ctrl_loop_service
+      62 instr     426 cyc  hot   maap pump
+     105 instr     384 cyc  hot   ctrl_mem forward
+      26 instr     367 cyc  hot   maap maap_poll
+      86 instr     342 cyc  hot   maap_mbx refresh_demand
+      26 instr     332 cyc  hot   acmp_mbx on_poll
+      86 instr     328 cyc  hot   maap_mbx poll
+      70 instr     305 cyc  hot   acmp enter
+      29 instr     261 cyc  hot   acmp acmp_poll
+      32 instr     250 cyc  hot   adp adp_poll
+      54 instr     235 cyc  hot   ctrl_app_srp source
+       9 instr     182 cyc  hot   aecp aecp_enter
+      48 instr     173 cyc  hot   aecp transmit
+      36 instr     152 cyc  hot   ctrl_app_aecp source
+      12 instr     152 cyc  hot   aecp sent_frame
+      10 instr     117 cyc  hot   aecp_mbx send
+      16 instr     116 cyc  hot   adp_mbx on_poll
+      17 instr     116 cyc  hot   mbx mbx_tx_send
+      14 instr     112 cyc  hot   aecp_mbx poll
+      18 instr      64 cyc  hot   ctrl_aecp_image source
+      20 instr      52 cyc  hot   aecp aecp_poll
+      12 instr      49 cyc  hot   maap enter
+       8 instr      44 cyc  hot   adp reject_reentry
+in cold code: 728 cycles, 226 instructions

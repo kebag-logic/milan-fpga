@@ -1,0 +1,7 @@
+CMD <scratch>/gates/venv/bin/python3 scripts/docs_inventory.py --check
+HEAD 73272666 START 16:08:13
+docs/DOCUMENTATION_AUDIT.md: STALE (123 lines differ); first difference at line 30:
+  committed: | current | 185 |
+  generated: | current | 186 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1

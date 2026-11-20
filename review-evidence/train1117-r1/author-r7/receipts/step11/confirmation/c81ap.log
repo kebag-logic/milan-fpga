@@ -1,0 +1,13 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r5img/3e908539/8x8-1if/answering-ports/native/Vsim <scratch>/r5conf/8x8-1if-ap/aecp.txt -
+COMMAND <scratch>/r5img/3e908539/8x8-1if/answering-ports/native/Vsim <scratch>/r5conf/8x8-1if-ap/aecp-fanout.txt -
+COMMAND <scratch>/r5img/3e908539/8x8-1if/answering-ports/native/Vsim <scratch>/r5conf/8x8-1if-ap/aecp-largest-notice.txt -
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 211,441 (2.114 ms)
+STEPS 240 passes carry the store's step; the longest 25,282 CPU cycles (0.253 ms), aecp-fanout; the longest step 2,722 (0.027 ms), aecp-fanout
+SLICES 14445 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 27,424, THE RETRY's round 22,940 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS aecp-fanout: 3 join interval(s), the shortest 188.130 ms and the longest 189.931 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp: 3 join interval(s), the shortest 188.130 ms and the longest 189.931 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.130 ms and the longest 189.931 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+3 groups graded, 0 refusals, 0 budget misses (0 of 43 probe instances, 0 of 42 paths), 2 of 338 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 11:44:54

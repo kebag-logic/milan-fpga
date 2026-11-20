@@ -1,0 +1,12 @@
+CMD <scratch>/gates/venv/bin/python3 scripts/ci_fail_fast.py cancel
+HEAD 967b1ca9 START 21:40:20
+Traceback (most recent call last):
+  File "<scratch>/p11/scripts/ci_fail_fast.py", line 237, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/p11/scripts/ci_fail_fast.py", line 216, in main
+    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'GITHUB_EVENT_PATH'
+rc=1

@@ -1,0 +1,17 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+== platsinks endstation_ax7101_8x8 rc=0
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (5 ms)
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 12   failures: 0 ==
+== platsinks endstation_ax7101_1x1_tdm8 rc=0
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (1 ms)
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 12   failures: 0 ==
+== aecp app Face.* rc=0
+[ RUN      ] Face.BeforeOpenAFormatVerdictJudgesSupportAlone
+[       OK ] Face.BeforeOpenAFormatVerdictJudgesSupportAlone (0 ms)
+[  PASSED  ] 27 tests.
+== AECP core: checks: 27   failures: 0 ==
+run_fg5 rc=0

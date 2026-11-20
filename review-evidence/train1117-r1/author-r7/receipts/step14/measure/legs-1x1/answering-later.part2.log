@@ -1,0 +1,13 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-1x1/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later/part2 --groups notice-retried-2,notice-retried-5 --record-budget-findings --record-share-findings --jobs 1 --variant answering-later start 21:08:26
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later/part2/notice-retried-2.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/1x1/answering-later/part2/notice-retried-5.txt -
+STEPS 804 passes carry the store's step; the longest 93,969 CPU cycles (0.940 ms), notice-retried-2; the longest step 77,775 (0.778 ms), notice-retried-2
+SLICES 40013 tier-2 slices; the longest SRP's records 71,131, THE TRANSMIT's build 29,844, THE RETRY's round 23,070 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS notice-retried-2: 3 join interval(s), the shortest 187.900 ms and the longest 190.098 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-retried-5: 3 join interval(s), the shortest 187.900 ms and the longest 190.098 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+NOTICE notice-retried-2: committed 8.282 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+NOTICE notice-retried-5: committed 8.085 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+2 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 7 paths), 0 of 4147 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 21:51:59

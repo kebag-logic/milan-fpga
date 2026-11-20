@@ -1,0 +1,15 @@
+hdl_reference_selftest	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_hdl_reference.py --selftest
+wavedrom_selftest	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py --selftest
+wavedrom_axis	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+wavedrom_cdc	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+wavedrom_gptp	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+register_reference_check	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --check
+register_reference_selftest	<tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --selftest
+memory_map_check	<tools>/md-venv-40cdefe08ebd/bin/python3 docs/diagrams/memory_map.gen.py --check
+ci_events_check	<scratch>/gates/venv/bin/python3 scripts/ci_events.py --check
+ci_tool_inventory_check	<scratch>/gates/venv/bin/python3 scripts/ci_tool_inventory.py --check
+one_valued_table_check	<scratch>/gates/venv/bin/python3 scripts/gen_one_valued_table.py --check
+mailbox_contract_check	<scratch>/gates/venv/bin/python3 sw/mailbox/gen_mailbox.py --check
+pp_srcs_check	<scratch>/gates/venv/bin/python3 scripts/pp_srcs.py --check --selftest
+publication_census_check	<scratch>/gates/venv/bin/python3 sw/mailbox/publication_census.py --check --selftest --jobs 8
+fw_coverage_check	<scratch>/gates/venv/bin/python3 sw/firmware/gtest/fw_coverage.py --check --jobs 8

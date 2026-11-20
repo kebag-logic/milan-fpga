@@ -1,0 +1,61 @@
+alinx_ax7101_signoff_Fast_85C_timing.rpt: 1169498 bytes, sha256 64cd6ba7c27552398e3527b7899108be6d7984549ce5fca00f4734c88d50faa4; over 200 KB, kept in scratch. Its last 60 lines:
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y4        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout1
+    BUFGCTRL_X0Y2        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG_1/O
+                         net (fo=26119, routed)       0.637     2.823    milan_datapath/g_mmcm_servo.mmcm_servo/out
+    SLICE_X29Y47         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/locked_sync_r_reg[0]/C
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack:                    inf
+  Source:                 mmcm_audio/LOCKED
+                            (internal pin)
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/locked_sync_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             (none)
+  Path Type:              Hold (Min at Fast Process Corner)
+  Data Path Delay:        1.296ns  (logic 0.000ns (0.000%)  route 1.296ns (100.000%))
+  Logic Levels:           0  
+  Clock Uncertainty:      0.119ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.050ns
+    Discrete Jitter          (DJ):    0.095ns
+    Phase Error              (PE):    0.066ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    MMCME2_ADV_X0Y0      MMCME2_ADV                   0.000     0.000 r  mmcm_audio/LOCKED
+                         net (fo=1, routed)           1.296     1.296    milan_datapath/g_mmcm_servo.mmcm_servo/locked_sync_r_reg[0]_0[0]
+    SLICE_X29Y47         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/locked_sync_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y4        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout1
+    BUFGCTRL_X0Y2        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG_1/O
+                         net (fo=26119, routed)       0.912     3.508    milan_datapath/g_mmcm_servo.mmcm_servo/out
+    SLICE_X29Y47         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/locked_sync_r_reg[0]/C
+
+
+
+
+

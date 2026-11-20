@@ -1,0 +1,4 @@
+read_verilog -sv <scratch>/r5fifo/gate.sv
+chparam -set WIDTH 48 -set LOG2D 3 gate_fifo
+proc
+ls gate_fifo

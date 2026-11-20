@@ -1,0 +1,27 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-b5802de9-8x8/tb/verilator/ctrl_service_budget/run.py --point 8x8 --build-dir <scratch>/r4meas/b5802de9/8x8/ap --reuse-build --out <scratch>/r4meas/b5802de9/8x8/ap/part0 --groups aecp-fanout --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 04:47:29
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/b5802de9/8x8/ap/native/Vsim <scratch>/r4meas/b5802de9/8x8/ap/part0/aecp-fanout.txt -
+STEPS 101 passes carry the store's step; the longest 36,926 CPU cycles (0.369 ms), aecp-fanout; the longest step 3,278 (0.033 ms), aecp-fanout
+SLICES 4057 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 29,506, THE RETRY's round 39,955 CPU cycles, against the stated slice 130,000 (THE TIERS)
+JOINS aecp-fanout: 6 join interval(s), the shortest 187.151 ms and the longest 189.997 ms, against 181.0 to 239.0; MRP timers' run-outs: 10 released, 4 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 22 probe instances, 0 of 20 paths), 0 of 172 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED aecp-fanout: a aecp item of 28,960 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,965 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,861 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,861 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,806 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,269 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,921 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,111 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,548 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,925 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,666 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,787 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,861 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,861 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,806 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,269 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 28,548 CPU cycles, over its stated 27,500
+STATED aecp-fanout: a aecp item of 27,925 CPU cycles, over its stated 27,500
+END rc=1 04:52:56

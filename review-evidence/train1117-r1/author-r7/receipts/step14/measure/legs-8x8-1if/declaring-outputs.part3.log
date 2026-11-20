@@ -1,0 +1,12 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/part3 --groups aecp-largest-notice,aecp-reboot --record-budget-findings --record-share-findings --jobs 1 --variant declaring-outputs start 23:22:55
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/part3/aecp-largest-notice.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/declaring-outputs/part3/aecp-reboot.txt -
+SHARE aecp-largest-notice: 2 of 106 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 228,932 (2.289 ms)
+STEPS 158 passes carry the store's step; the longest 27,031 CPU cycles (0.270 ms), aecp-largest-notice; the longest step 2,073 (0.021 ms), aecp-largest-notice
+SLICES 8186 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 27,855, THE RETRY's round 2,632 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.941 ms and the longest 189.952 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-reboot: 3 join interval(s), the shortest 187.941 ms and the longest 189.952 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 10 probe instances, 0 of 10 paths), 2 of 215 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 23:33:00

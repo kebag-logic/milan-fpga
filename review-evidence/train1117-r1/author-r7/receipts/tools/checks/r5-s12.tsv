@@ -1,0 +1,25 @@
+docs_check	<scratch>/gates/venv/bin/python3 scripts/docs_check.py
+doc_style	<scratch>/gates/venv/bin/python3 scripts/check_doc_style.py
+doc_paths	<scratch>/gates/venv/bin/python3 scripts/check_doc_paths.py
+toc	<scratch>/gates/venv/bin/python3 scripts/gen_toc.py --selftest
+emdash	<scratch>/gates/venv/bin/python3 scripts/check_em_dash.py --base cb96336d
+hygiene	<scratch>/gates/venv/bin/python3 scripts/check_hygiene.py --check
+py_idiom	<scratch>/gates/venv/bin/python3 scripts/check_py_idiom.py
+cpp_idiom	<scratch>/gates/venv/bin/python3 scripts/check_cpp_idiom.py
+run_selftest	python3 -B tb/verilator/ctrl_service_budget/run.py --self-test
+rows_tiers	python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+record_classes	python3 -I tb/verilator/ctrl_service_budget/record_classes.py --selftest
+load_check	python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+load_selftest	python3 -B tb/verilator/ctrl_service_budget/load_grade.py --selftest
+flip_check	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
+flip_check_1x1	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+flip_selftest	python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --selftest
+ctrl_memory	<home>/litex-milan/venv/bin/python3 sw/litex/test_ctrl_memory.py
+shape_costs_check	python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --check
+shape_costs_selftest	python3 -I tb/verilator/ctrl_service_budget/shape_costs.py --selftest
+egress_ledger_selftest	python3 -I tb/verilator/ctrl_service_budget/egress_ledger.py --selftest
+mailbox_margins	python3 -B sw/mailbox/mailbox_margins.py --check
+fw_coverage_check	python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+toc_check	<scratch>/gates/venv/bin/python3 scripts/gen_toc.py --check
+toc_anchors	<scratch>/gates/venv/bin/python3 scripts/gen_toc.py --verify-anchors
+docs_inventory	<scratch>/gates/venv/bin/python3 scripts/docs_inventory.py --check

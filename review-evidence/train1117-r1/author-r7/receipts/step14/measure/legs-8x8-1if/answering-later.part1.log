@@ -1,0 +1,16 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r6-meas-c1e95dc1c10bf85415af2cf923145fb8221a8108-8x8-1if/tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later --reuse-build --out <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part1 --groups notice-retried-1,notice-retried-4,notice-retried-7 --record-budget-findings --record-share-findings --jobs 1 --variant answering-later start 23:22:49
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part1/notice-retried-1.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part1/notice-retried-4.txt -
+COMMAND <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/native/Vsim <scratch>/r6meas/c1e95dc1c10bf85415af2cf923145fb8221a8108/8x8-1if/answering-later/part1/notice-retried-7.txt -
+STEPS 1968 passes carry the store's step; the longest 97,728 CPU cycles (0.977 ms), notice-retried-1; the longest step 77,574 (0.776 ms), notice-retried-1
+SLICES 44850 tier-2 slices; the longest SRP's records 115,131, THE TRANSMIT's build 27,817, THE RETRY's round 22,463 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS notice-retried-1: 3 join interval(s), the shortest 188.113 ms and the longest 190.073 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-retried-4: 3 join interval(s), the shortest 188.113 ms and the longest 190.073 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS notice-retried-7: 3 join interval(s), the shortest 188.113 ms and the longest 190.073 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+NOTICE notice-retried-1: committed 8.132 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+NOTICE notice-retried-4: committed 8.196 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+NOTICE notice-retried-7: committed 8.244 ms after its port's answer to the last of 16 recipients (bound 20 ms) within
+3 groups graded, 0 refusals, 0 budget misses (0 of 21 probe instances, 0 of 7 paths), 0 of 4977 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 00:27:07

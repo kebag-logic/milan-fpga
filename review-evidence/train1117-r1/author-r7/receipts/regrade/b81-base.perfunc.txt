@@ -1,0 +1,32 @@
+item at cpu 503956598: 28417 cycles, 4550 instructions traced, 28417 cycles charged; hot region 56504 B
+     445 instr    2317 cyc  hot   ctrl_app_srp deliver
+     122 instr    1719 cyc  hot   aecp fan_out
+      54 instr    1674 cyc  hot   ctrl_app_srp source
+     468 instr    1366 cyc  hot   acmp acmp_declaring
+     199 instr    1283 cyc  hot   srp_mbx poll
+     405 instr    1206 cyc  hot   ctrl_mem memset
+     159 instr    1188 cyc  hot   ctrl_app_aecp deliver
+     266 instr    1114 cyc  hot   aecp arm
+     120 instr    1076 cyc  hot   maap_mbx refresh_demand
+     188 instr     981 cyc  hot   aecp_nvm aecp_nvm_poll
+      67 instr     897 cyc  hot   aecp aecp_poll
+      34 instr     857 cyc  hot   nvm_store nvm_mark
+      52 instr     734 cyc  hot   ctrl_app_aecp ctrl_app_aecp_store_words
+     243 instr     720 cyc  hot   ctrl_aecp_image source
+      60 instr     647 cyc  hot   ctrl_loop ctrl_loop_service
+     152 instr     599 cyc  hot   maap_mbx declaring
+     252 instr     567 cyc  hot   acmp now
+      87 instr     537 cyc  hot   nvm_klj2 nvm_rec_id_known
+      36 instr     490 cyc  hot   aecp transmit
+      46 instr     470 cyc  cold  aecp owed_drain
+      95 instr     460 cyc  hot   aecp_face publish
+      16 instr     405 cyc  hot   nvm_store nvm_open_set
+      54 instr     355 cyc  hot   srp_mbx capture
+      42 instr     347 cyc  cold  aecp_mbx fan_end
+     105 instr     344 cyc  hot   ctrl_mem forward
+      67 instr     326 cyc  hot   srp_mbx snapshot
+      17 instr     325 cyc  hot   ctrl_app_aecp publish_store
+      36 instr     319 cyc  hot   mbx mbx_face_write
+      11 instr     318 cyc  hot   nvm_store nvm_publish
+      26 instr     309 cyc  hot   acmp_mbx on_poll
+in cold code: 855 cycles, 92 instructions

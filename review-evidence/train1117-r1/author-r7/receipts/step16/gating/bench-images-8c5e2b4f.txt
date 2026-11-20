@@ -1,0 +1,19 @@
+# GATING bench images of the train at 8c5e2b4f (ruling item 4 at 1x1/1if, #665 issuecomment-7044585511; the slice
+# rule's 950 us at 1x1/1if), the gating lane's own recipe (gprep.sh, gbuild.sh, copied with the scratch path changed),
+# --eth-port e2, ExtraPostPlacementOpt, built 2026-11-20 through vivado-slot.sh, both at once
+
+## 1x1/1if (READY 18:23)
+bitstream: <scratch>/gate15/work/g1x1/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit
+sha256:    c7189218a128b71d632edc82157ea6f31b303383a6fe302d50265ad816332a28
+build dir: <scratch>/gate15/work/g1x1/build_ExtraPostPlacementOpt (aem_desc.bin, csr.csv, flashboot_layout.json, image_manifest.json)
+firmware:  c873a0aa8b9c39a003d7a78616c83d6469935debb5bb1107ad477b900ee607fb  ctrl_app.elf (loaded sections 1fd5bc47..., the ledger's 1x1-if1)
+clone:     <scratch>/gate15/clones/g1x1 (8c5e2b4f0a487690cf0168f08b55e7f7be91a09c)
+signoff:   Slow WNS +0.131 / WHS +0.102 ns, Fast WNS +1.636 / WHS +0.036 ns; both floors met; 0 routing errors
+
+## 8x8/1if (READY 18:28)
+bitstream: <scratch>/gate15/work/g8x8/build_ExtraPostPlacementOpt/gateware/alinx_ax7101.bit
+sha256:    7d90341299cc65e8c0da249139471a61019255132b66d5207ef9ffb4a5d0b773
+build dir: <scratch>/gate15/work/g8x8/build_ExtraPostPlacementOpt (aem_desc.bin, csr.csv, flashboot_layout.json, image_manifest.json)
+firmware:  d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4  ctrl_app.elf (loaded sections ac014c6a..., the ledger's 8x8-if1)
+clone:     <scratch>/gate15/clones/g8x8 (8c5e2b4f0a487690cf0168f08b55e7f7be91a09c)
+signoff:   Slow WNS +0.176 / WHS +0.102 ns, Fast WNS +1.523 / WHS +0.036 ns; both floors met; 0 routing errors

@@ -1,0 +1,11 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/clones/r4-meas-68c97849-1x1/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/r4meas/68c97849/1x1/ap --reuse-build --out <scratch>/r4meas/68c97849/1x1/ap/part1 --groups aecp,aecp-largest-notice --record-budget-findings --record-share-findings --jobs 1 --variant answering-ports start 05:19:02
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/r4meas/68c97849/1x1/ap/native/Vsim <scratch>/r4meas/68c97849/1x1/ap/part1/aecp.txt -
+COMMAND <scratch>/r4meas/68c97849/1x1/ap/native/Vsim <scratch>/r4meas/68c97849/1x1/ap/part1/aecp-largest-notice.txt -
+STEPS 158 passes carry the store's step; the longest 21,554 CPU cycles (0.216 ms), aecp; the longest step 2,708 (0.027 ms), aecp
+SLICES 11771 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 30,413, THE RETRY's round 2,286 CPU cycles, against the stated slice 90,000 (THE TIERS)
+JOINS aecp: 3 join interval(s), the shortest 187.895 ms and the longest 189.989 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.895 ms and the longest 189.989 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 31 probe instances, 0 of 31 paths), 0 of 220 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 05:28:10

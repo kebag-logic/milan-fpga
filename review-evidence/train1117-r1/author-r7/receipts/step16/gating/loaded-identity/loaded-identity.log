@@ -1,0 +1,17 @@
+loaded_identity.sh 2026-11-20T20:52:22+01:00
+== 1x1/1if: head 8c5e2b4f0a487690cf0168f08b55e7f7be91a09c, clone clean: 0 changes
+1x1/1if rc=0: RESULT 1x1/1if: PASS: elf-header pass, segments pass, loaded pass, not-loaded pass, symtab pass, rom-words pass, manifest pass, identity-gate pass, objects pass
+== 8x8/1if: head 8c5e2b4f0a487690cf0168f08b55e7f7be91a09c, clone clean: 0 changes
+8x8/1if rc=0: RESULT 8x8/1if: PASS: elf-header pass, segments pass, loaded pass, not-loaded pass, symtab pass, rom-words pass, manifest pass, identity-gate pass, objects pass
+planted: .rodata byte at file offset 123791 flipped; the bitstream digest zeroed in the list
+PLANT loaded-byte-flipped: refused (rc=1; loaded rom-words FAIL)
+PLANT bitstream-digest-altered: refused (rc=1; manifest FAIL)
+gating SDK <gating-sdk>
+  gcc: riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+  as: GNU assembler (GNU Binutils) 2.43.1
+  ld: GNU ld (GNU Binutils) 2.43.1
+ledger SDK <home>/br-milan-rv32
+  gcc: riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot 2026.05) 14.3.0
+  as: GNU assembler (GNU Binutils) 2.45.1
+  ld: GNU ld (GNU Binutils) 2.45.1
+END rc=0 2026-11-20T20:52:22+01:00

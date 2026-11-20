@@ -1,0 +1,61 @@
+# u_fcdc's storage-to-read-register crossing (RULING-1118e item 3), from existing routed checkpoints;
+# read only: report_cdc, report_timing and report_exceptions on the path, report_methodology. No route made.
+
+== release: p11's release image (all-fabric), ExtraTimingOpt, the selected route
+checkpoint: work/ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp
+census: milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo / cdc_pair_fifo)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render (KL_tdm_render_master / KL_tdm_render_master)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo / cdc_pair_fifo__parameterized0)
+primitives named for u_fcdc: 1183
+storage leaf cells: 256 (RAMD32 RAMS32), e.g. milan_datapath/u_fcdc/g_mem.mem_r_reg_0_3_0_5/RAMA
+read register cells: 192, e.g. milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/g_mem.rdata_o_reg[0]
+storage write clock(s): milansoc_crg_clkout1
+read register clock(s): milansoc_crg_audio_mclk_raw
+report_cdc summary, the two clocks: Warning milansoc_crg_clkout1 milansoc_crg_audio_mclk_raw No Common Period Asynch Clock Groups 201 201 0 0 9 / Warning milansoc_crg_audio_mclk_raw milansoc_crg_clkout1 No Common Period Asynch Clock Groups 60 60 0 0 9
+u_fcdc rows in report_cdc: {'CDC-15 Warning': 192, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}; u_tcdc rows: {'CDC-15 Warning': 50, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}
+report_timing storage -> read register: exception ['Asynchronous Clock Groups'], slack ['inf']
+report_methodology lines naming u_fcdc: 0
+
+== split-1x1: p11's 1x1/1if split image, ExtraPostPlacementOpt, its best of three
+checkpoint: split/gateware/alinx_ax7101_route.dcp
+census: milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo / cdc_pair_fifo)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render (KL_tdm_render_master / KL_tdm_render_master)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo / cdc_pair_fifo__parameterized0)
+primitives named for u_fcdc: 1181
+storage leaf cells: 256 (RAMD32 RAMS32), e.g. milan_datapath/u_fcdc/g_mem.mem_r_reg_0_3_0_5/RAMA
+read register cells: 192, e.g. milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/g_mem.rdata_o_reg[0]
+storage write clock(s): milansoc_crg_clkout1
+read register clock(s): milansoc_crg_audio_mclk_raw
+report_cdc summary, the two clocks: Warning milansoc_crg_clkout1 milansoc_crg_audio_mclk_raw No Common Period Asynch Clock Groups 201 201 0 0 9 / Warning milansoc_crg_audio_mclk_raw milansoc_crg_clkout1 No Common Period Asynch Clock Groups 60 60 0 0 9
+u_fcdc rows in report_cdc: {'CDC-15 Warning': 192, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}; u_tcdc rows: {'CDC-15 Warning': 50, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}
+report_timing storage -> read register: exception ['Asynchronous Clock Groups'], slack ['inf']
+report_methodology lines naming u_fcdc: 0
+
+== split-8x8-1if: p11's 8x8/1if split image, ExtraPostPlacementOpt, its best of three
+checkpoint: split/gateware/alinx_ax7101_route.dcp
+census: milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo / cdc_pair_fifo)
+primitives named for u_fcdc: 0
+storage leaf cells: 0
+read register cells: 0
+storage write clock(s): 
+read register clock(s): 
+report_cdc summary, the two clocks: Warning milansoc_crg_clkout1 milansoc_crg_audio_mclk_raw No Common Period Asynch Clock Groups 1 1 0 0 1 / Warning milansoc_crg_clkout1 milansoc_crg_audio_tdm_raw No Common Period Asynch Clock Groups 5 5 0 0 5 / Warning milansoc_crg_audio_tdm_raw milansoc_crg_clkout1 No Common Period Asynch Clock Groups 56 56 0 0 4 / Info milansoc_crg_audio_mclk_raw milansoc_crg_clkout1 No Common Period Asynch Clock Groups 1 1 0 0 0
+u_fcdc rows in report_cdc: none; u_tcdc rows: {'CDC-15 Warning': 52, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}
+report_timing storage -> read register: exception n/a, slack n/a
+report_methodology lines naming u_fcdc: 0
+
+== candidate-release-c8ff391a: the candidate c8ff391a's release image (before #927, block RAM), ExtraPostPlacementOpt, for comparison
+checkpoint: work/ax7101-ExtraPostPlacementOpt/alinx_ax7101_route.dcp
+census: milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/u_tcdc (cdc_pair_fifo / cdc_pair_fifo)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render (KL_tdm_render_master / KL_tdm_render_master)
+census: milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc (cdc_pair_fifo / cdc_pair_fifo__parameterized0)
+primitives named for u_fcdc: 705
+storage leaf cells: 3 (RAMB36E1), e.g. milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0
+read register cells: 0
+storage write clock(s): milansoc_crg_audio_mclk_raw milansoc_crg_clkout1
+read register clock(s): 
+report_cdc summary, the two clocks: Warning milansoc_crg_clkout1 milansoc_crg_audio_mclk_raw No Common Period Asynch Clock Groups 9 9 0 0 9 / Warning milansoc_crg_audio_mclk_raw milansoc_crg_clkout1 No Common Period Asynch Clock Groups 60 60 0 0 9
+u_fcdc rows in report_cdc: {'CDC-2 Warning': 2, 'CDC-5 Warning': 2}; u_tcdc rows: {'CDC-15 Warning': 50, 'CDC-2 Warning': 2, 'CDC-5 Warning': 2}
+report_timing storage -> read register: exception n/a, slack n/a
+report_methodology lines naming u_fcdc: 3
+

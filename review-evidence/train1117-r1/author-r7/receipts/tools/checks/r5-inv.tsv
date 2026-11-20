@@ -1,0 +1,9 @@
+docs_inventory	<scratch>/gates/venv/bin/python3 scripts/docs_inventory.py --check
+docs_check	<scratch>/gates/venv/bin/python3 scripts/docs_check.py
+doc_style	<scratch>/gates/venv/bin/python3 scripts/check_doc_style.py
+doc_paths	<scratch>/gates/venv/bin/python3 scripts/check_doc_paths.py
+emdash	<scratch>/gates/venv/bin/python3 scripts/check_em_dash.py --base cb96336d
+hygiene	<scratch>/gates/venv/bin/python3 scripts/check_hygiene.py --check
+py_idiom	<scratch>/gates/venv/bin/python3 scripts/check_py_idiom.py
+toc_check	<scratch>/gates/venv/bin/python3 scripts/gen_toc.py --check
+toc_anchors	<scratch>/gates/venv/bin/python3 scripts/gen_toc.py --verify-anchors

@@ -1,0 +1,61 @@
+r5-p11-dp.log: 544135 bytes, sha256 5acf2d2420263471d352cfcafe94624791aa10f08dedfbd40b13bfc2244949a1; over 200 KB, kept in scratch. Its last 60 lines:
+  [i]    inputs, after the power cycle: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    inputs, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] put-back, last port: the codec frames the format alone = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back reference: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back reference: the map restore held the faces 619 clocks after restore_done, 5065 after PP_CTRL[1]
+  [ok]   [MAPREC] put-back, last port: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back, last port: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back, last port: the map restore held the faces 633 clocks after restore_done, 5079 after PP_CTRL[1]
+  [i]    put-back, last port: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 0: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+== milan_dp maprec4 rc=0 11:54:18
+END rc=0 11:54:18

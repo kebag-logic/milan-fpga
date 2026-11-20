@@ -1,0 +1,124 @@
+head 3e9085392b4f9c5cc9a302ee276471d6f5df10cb
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5CD179523AB (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/nvm_split.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+recipe argv names --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf
+WROTE <scratch>/r5fitP11/route/flash-map/generated/csr.h, <scratch>/r5fitP11/route/flash-map/generated/mem.h, <scratch>/r5fitP11/route/flash-map/flash_port.json
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 111484,
+    ".rodata": 13214,
+    ".data": 128,
+    ".bss": 48416,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    },
+    {
+      "symbol": "values",
+      "bytes": 4527
+    },
+    {
+      "symbol": "ctrl_plat.aecp",
+      "bytes": 3584
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 3552,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 124832,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 56736,
+      "banks": [
+        32768,
+        16384,
+        8192
+      ],
+      "RAMB36": 14,
+      "RAMB18": 0
+    },
+    "tiles": 44.5,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "7f39508f6cb0073e7e26820d8d258016f0bf178844a273e25814601a4693aef6"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "3e93adc1e470bb10cdee86985ed52c295e903ad3ead74b3324c6131c6c46a476"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 159148,
+      "sha256": "a00828fe5e1a98bb1b9cb6fb47773138eb11ec60ec419105bdc250840d9799f0"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 145865,
+      "sha256": "be0b64ec7d684c2f0124642f6b06b6a8c5a8474383a654d0ba0abe3e40939daf"
+    }
+  ]
+}
+[milan] flash-boot layout (baremetal) -> <scratch>/r5fitP11/route/split/flashboot_layout.json
+[milan] split image manifest -> <scratch>/r5fitP11/route/split/image_manifest.json
+csr map: the image's equals the stand-in's
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+<scratch>/r5fitP11/route/split/gateware/baseline_integrated.tcl
+done

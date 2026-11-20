@@ -1,0 +1,61 @@
+aecp.log: 4106362 bytes, sha256 6d8ec041d7f17ba0f797542a7e8e91f905550eb9107a29f3d9a5f9e0fec2526c; over 200 KB, kept in scratch. Its last 60 lines:
+SPAN 86705051 86704987 2241 000003a4 ctrl_app_srp:deliver
+IDLE 28 16117 17570
+PASS 4978 86673005 86672941 34871 instr=6284 fetch_rom=184/14909 load_mbx=18 store_mbx=14 wait_mbx=595 load_csr=11 store_csr=11 wait_csr=446 code_words=15712 mods=aecp_mbx:837,ctrl_app_aecp:2631,ctrl_loop:3149,nvm_store:132,nvm_flash_litespi:293,aecp:8453,mbx:3783,mbx_plat_mmio:29,srp_mbx:2301,acmp_mbx:306,adp_mbx:6,adp:75,acmp:1482,maap_mbx:1497,ctrl_mem:2969,ctrl_app_srp:3042,ctrl_aecp_image:63,maap:340,aecp_nvm:87,aecp_face:1499,aecp_commands:1897, W 86674928:51:1c7 86682874:1800:1 86682967:1801:0 86683055:1802:0 86683099:1803:2 86683191:1804:a 86683226:1805:905 86683432:1806:1 86685665:bb0:20000036 86685703:bb1:23 86686103:bb2:d0c0b0a 86686105:bb3:4b02010e 86686107:bb4:14c4b4c 86686109:bb5:1fbf022 86686111:bb6:4b021c00 86686113:bb7:4bfeff4c 86686115:bb8:b0a014c 86686117:bb9:f0e0d0c 86686119:bba:19610200 86686121:bbb:100 86686123:bbc:100 86686125:bbd:0 86686127:bbe:0 86686129:bbf:0 86686266:52:3c0 86698007:bc0:20000036 86698045:bc1:24 86698326:bc2:d0c0b0a 86698328:bc3:4b02010e 86698330:bc4:14c4b4c 86698332:bc5:1fbf022 86698334:bc6:4b021c00 86698336:bc7:4bfeff4c 86698338:bc8:b0a014c 86698340:bc9:f0e0d0c 86698342:bca:2000100 86698344:bcb:180 86698346:bcc:100 86698348:bcd:0 86698350:bce:0 86698352:bcf:0 86698754:52:3d0
+SPAN 86708834 86708770 205 000003dc ctrl_loop:dispatch_ticks
+CALL 86709051 86708987 mbx_event_take
+CALL 86709285 86709221 ctrl_loop:service_rx
+CALL 86709948 86709884 ctrl_loop:service_rx
+CALL 86710253 86710189 ctrl_loop:service_rx
+CALL 86710515 86710451 ctrl_loop:service_rx
+CALL 86711117 86711053 ctrl_loop:service_rx
+SPAN 86711658 86711594 81 000003a4 adp_mbx:on_poll
+SPAN 86711773 86711709 298 000003a4 acmp_mbx:on_poll
+SPAN 86712105 86712041 5563 000003a4 maap_mbx:poll
+SPAN 86718626 86718562 237 000021c0 aecp:transmit
+SPAN 86717925 86717861 1581 000003a4 aecp_mbx:poll
+SPAN 86719540 86719476 1572 000003a4 ctrl_app_aecp:deliver
+SPAN 86721225 86721161 1165 000003a4 srp_mbx:poll
+SPAN 86722424 86722360 1968 000003a4 ctrl_app_srp:deliver
+SPAN 86724708 86724644 1504 00000574 ctrl_loop:round_of
+SPAN 86727271 86727207 68 000003dc ctrl_loop:dispatch_ticks
+CALL 86727351 86727287 mbx_event_take
+CALL 86727466 86727402 ctrl_loop:service_rx
+CALL 86728087 86728023 ctrl_loop:service_rx
+CALL 86728349 86728285 ctrl_loop:service_rx
+CALL 86728920 86728856 ctrl_loop:service_rx
+CALL 86729213 86729149 ctrl_loop:service_rx
+SPAN 86729754 86729690 81 000003a4 adp_mbx:on_poll
+SPAN 86729869 86729805 245 000003a4 acmp_mbx:on_poll
+SPAN 86730148 86730084 5563 000003a4 maap_mbx:poll
+SPAN 86736224 86736160 72 000021c0 aecp:transmit
+SPAN 86735968 86735904 716 000003a4 aecp_mbx:poll
+SPAN 86736718 86736654 1639 000003a4 ctrl_app_aecp:deliver
+SPAN 86738470 86738406 1253 000003a4 srp_mbx:poll
+SPAN 86739757 86739693 1743 000003a4 ctrl_app_srp:deliver
+SPAN 86741816 86741752 1037 00000574 ctrl_loop:round_of
+SPAN 86743804 86743740 68 000003dc ctrl_loop:dispatch_ticks
+CALL 86743884 86743820 mbx_event_take
+CALL 86743999 86743935 ctrl_loop:service_rx
+CALL 86744432 86744368 ctrl_loop:service_rx
+CALL 86744694 86744630 ctrl_loop:service_rx
+CALL 86745265 86745201 ctrl_loop:service_rx
+CALL 86745601 86745537 ctrl_loop:service_rx
+SPAN 86746142 86746078 81 000003a4 adp_mbx:on_poll
+SPAN 86746257 86746193 245 000003a4 acmp_mbx:on_poll
+SPAN 86746536 86746472 5563 000003a4 maap_mbx:poll
+SPAN 86752612 86752548 72 000021c0 aecp:transmit
+SPAN 86752356 86752292 716 000003a4 aecp_mbx:poll
+SPAN 86753106 86753042 1572 000003a4 ctrl_app_aecp:deliver
+SPAN 86754791 86754727 1105 000003a4 srp_mbx:poll
+SPAN 86755930 86755866 1743 000003a4 ctrl_app_srp:deliver
+SPAN 86757989 86757925 953 00000574 ctrl_loop:round_of
+STEP 86759414 137 wait quiet
+IDLE 4 0 18887
+FLASHRD 4804048 4851830 e90000 40
+SUMMARY sys=86759414 cpu=86759350 passes=4982 instr=21942571 bus_errors=0 traps=0 mbx_read=45350/368738/7/71 mbx_write=490/6381/7/70 host_cycles=47220/92186/1/2 fetch_rom=5851/476055/80/665 load_rom=0/0/0/0 store_rom=0/0/0/0 fetch_sram=0/0/0/0 load_sram=0/0/0/0 store_sram=0/0/0/0 fetch_mbx=0/0/0/0 load_mbx=45350/368738/7/71 store_mbx=490/6381/7/70 fetch_flash=0/0/0/0 load_flash=240/126441/267/639 store_flash=0/0/0/0 fetch_csr=0/0/0/0 load_csr=20222/149040/7/102 store_csr=20027/142954/7/72 fetch_other=0/0/0/0 load_other=0/0/0/0 store_other=0/0/0/0
+MODULES ctrl_split_start:370442 aecp_mbx:1564407 ctrl_app_aecp:7790524 ctrl_loop:12260135 nvm_store:2003558 nvm_flash_litespi:2667738 aecp:6430206 mbx:2943562 mbx_plat_mmio:29336 srp_mbx:6252482 acmp_mbx:1526352 adp_mbx:34460 adp:377549 acmp:7056145 maap_mbx:7456103 ctrl_mem:6312593 ctrl_app_srp:13250184 ctrl_aecp_image:320175 maap:1698871 aecp_nvm:85115 aecp_face:645124 timer:38785 mrp_mad:113002 aecp_commands:59604 msrp:2162 shlan_port:292 ctrl_pool:7918 mvrp:1134 nvm_klj2:1351729 aecp_maps:39830 ctrl_debug:18 acmp_nvm:188 ctrl_app:2185 aecp_image:4062508 mrp_pdu:4584 unmapped:350
+FLASH erases=0 programs=0 bytes=0
+CODE boot_bytes=15872 service_bytes=49536 service_only_bytes=46976 aecp_mbx=1336 ctrl_app_aecp=1604 ctrl_loop=2416 nvm_store=1028 nvm_flash_litespi=176 aecp=7520 mbx=2968 mbx_plat_mmio=20 srp_mbx=6228 acmp_mbx=360 adp_mbx=388 adp=1772 acmp=1600 maap_mbx=1552 ctrl_mem=1016 ctrl_app_srp=1064 ctrl_aecp_image=840 maap=1992 aecp_nvm=512 aecp_face=2004 timer=120 mrp_mad=5336 aecp_commands=3548 msrp=616 shlan_port=60 ctrl_pool=348 mvrp=504 nvm_klj2=116 aecp_maps=1108 ctrl_debug=20 ctrl_app=112 aecp_state=52 mrp_pdu=1200
+== ctrl_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

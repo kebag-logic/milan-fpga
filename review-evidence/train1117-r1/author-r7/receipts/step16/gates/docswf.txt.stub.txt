@@ -1,0 +1,61 @@
+docswf.txt: 873050 bytes, sha256 388b932e772bf8d3d435265fec75c8f8132b251858618551620bd0eababe8407; over 200 KB, kept in scratch. Its last 60 lines:
+  ok   candidate that redirects lwSRP is refused before fetch
+  ok   candidate that drops lwSRP gitlink is refused before fetch
+  ok   candidate that adds lwSRP gitlink is refused before fetch
+  ok   candidate that drops tsn-c-stack is refused before fetch
+  ok   candidate that redirects tsn-c-stack is refused before fetch
+  ok   candidate that drops tsn-c-stack gitlink is refused before fetch
+  ok   candidate that adds tsn-c-stack gitlink is refused before fetch
+  ok   candidate submodule URL changes are refused before fetch
+  ok   candidate submodule update commands are refused before fetch
+  ok   candidate gitlink path changes are refused before fetch
+  ok   Git disables every protocol except credential-free HTTPS
+  ok   self-hosted runner authority is refused
+  ok   a missing runner label is refused
+  ok   a nonliteral runner label is refused
+  ok   job container authority is refused
+  ok   service container authority is refused
+  ok   reusable workflow authority is refused
+  ok   step-level action docker://alpine:3.20 is refused before act
+  ok   step-level action example/setup@v1 is refused before act
+  ok   step-level action actions/checkout@v5 is refused before act
+  ok   step-level action ./local-action is refused before act
+  ok   a workflow without a declared name cannot lease act job volumes
+  ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+  ok   either overlapping workflow alone still leases its own volumes
+  ok   workflow reads do not follow a candidate symlink
+  ok   workflow reads reject a FIFO without blocking
+  ok   workflow reads reject a host device before reading it
+  ok   workflow reads reject an oversized regular file before parsing
+  ok   shipping workflows satisfy the sandbox policy
+  ok   shipping workflows lease act job volumes by declared name
+  ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+  ok   a job without a matrix runs one container, with or without a strategy or a max-parallel
+  ok   a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+  ok   a strategy that is not a mapping is refused: the concurrency cannot be derived
+  ok   an expression max-parallel is refused: the concurrency cannot be derived
+  ok   a negative max-parallel is refused: the concurrency cannot be derived
+  ok   a fractional max-parallel is refused: the concurrency cannot be derived
+  ok   a seven-digit max-parallel is refused: the concurrency cannot be derived
+  ok   a list max-parallel is refused: the concurrency cannot be derived
+  ok   all selected workflows share the 1-job limit in every order
+  ok   a single small workflow does not invent 1 jobs
+  ok   all selected workflows share the 2-job limit in every order
+  ok   a single small workflow does not invent 2 jobs
+  ok   all selected workflows share the 3-job limit in every order
+  ok   a single small workflow does not invent 3 jobs
+  ok   all selected workflows share the 4-job limit in every order
+  ok   a single small workflow does not invent 4 jobs
+  ok   nested matrix width 1 shares the global four-job admission gate
+  ok   nested matrix width 4 shares the global four-job admission gate
+  ok   nested matrix width 9 shares the global four-job admission gate
+  ok   an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows share that 8-job limit in every order
+  ok   every shipping workflow derives 1 to 4 concurrent containers, and rtl-full's matrix legs run more than one at once
+  ok   under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and rtl-full more than the default 4
+selftest: PASS
+rc=0
+==== 99-_I-installdiractcipysel.log
+CMD <scratch>/gates/venv/bin/python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"
+HEAD 8c5e2b4f START 17:56:53
+<scratch>/gates/venv/bin/python3: can't open file '/act_ci.py': [Errno 2] No such file or directory
+rc=2

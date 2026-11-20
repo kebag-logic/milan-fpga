@@ -1,0 +1,46 @@
+gateware12.py: does step 12 change the split GATEWARE, or only its firmware payload? For each routed point (1x1/1if, 8x8/1if), step 11's route export (r5fitP11) against step 12's (r5fit12): the firmware each carries, the control memory's rom banks (their depths in the Verilog, their init files), the Verilog outside its comments, the constraints (as written and as a set), and the placed utilisation of the integrated route (ExtraPostPlacementOpt).
+
+== 1x1/1if
+firmware (ctrl_app.elf): step 11 a00828fe5e1a98bb, step 12 f04caf592d2aba27
+rom banks: step 11 rom_bank0[0:16383] rom_bank1[0:8191] rom_bank2[0:4095] rom_bank3[0:2047] rom_bank4[0:511]; step 12 rom_bank0[0:16383] rom_bank1[0:8191] rom_bank2[0:4095] rom_bank3[0:2047] rom_bank4[0:1023] -> DEPTHS CHANGE
+Verilog outside comments: 5 line(s) differ
+  - wire    [8:0] milansoc_ctrlmemory0_sram4_adr;
+  + wire    [9:0] milansoc_ctrlmemory0_sram4_adr;
+  - assign milansoc_ctrlmemory0_sram4_adr = milansoc_ctrlmemory0_sram4_bus_adr[8:0];
+  + assign milansoc_ctrlmemory0_sram4_adr = milansoc_ctrlmemory0_sram4_bus_adr[9:0];
+  - milansoc_ctrlmemory0_slave_sel[4] = (milansoc_ctrlmemory0_bus_adr[15:9] == 6'd60);
+  + milansoc_ctrlmemory0_slave_sel[4] = (milansoc_ctrlmemory0_bus_adr[15:10] == 5'd30);
+  - milansoc_ctrlmemory0_slave_sel[5] = (milansoc_ctrlmemory0_bus_adr[15:0] >= 15'h7a00);
+  + milansoc_ctrlmemory0_slave_sel[5] = (milansoc_ctrlmemory0_bus_adr[15:0] >= 15'h7c00);
+  - reg [31:0] rom_bank4[0:511];
+  + reg [31:0] rom_bank4[0:1023];
+init alinx_ax7101_mem.init: EQUAL (55 words written at step 12)
+init alinx_ax7101_rom_bank0.init: DIFFERS (16384 words written at step 12)
+init alinx_ax7101_rom_bank1.init: DIFFERS (8192 words written at step 12)
+init alinx_ax7101_rom_bank2.init: DIFFERS (4096 words written at step 12)
+init alinx_ax7101_rom_bank3.init: DIFFERS (2048 words written at step 12)
+init alinx_ax7101_rom_bank4.init: DIFFERS (728 words written at step 12)
+constraints: the same set (only clock-group pairs written in another order; set_clock_groups -asynchronous is symmetric)
+placed utilisation (integrated route): differs
+  Slice LUTs: 32610 -> 32714
+  LUT as Memory: 1247 -> 1248
+  Slice Registers: 42626 -> 42636
+  Block RAM Tile: 80 -> 80
+  RAMB36/FIFO: 62 -> 62
+  RAMB18: 36 -> 36
+
+== 8x8/1if
+firmware (ctrl_app.elf): step 11 5edbba3a79a669eb, step 12 22ada381afed261d
+rom banks: step 11 rom_bank0[0:32767] rom_bank1[0:2047]; step 12 rom_bank0[0:32767] rom_bank1[0:2047] -> SAME depths
+Verilog outside comments: EQUAL
+init alinx_ax7101_mem.init: EQUAL (55 words written at step 12)
+init alinx_ax7101_rom_bank0.init: DIFFERS (32768 words written at step 12)
+init alinx_ax7101_rom_bank1.init: DIFFERS (1840 words written at step 12)
+constraints: EQUAL
+placed utilisation (integrated route): IDENTICAL, every line
+  Slice LUTs: 43022 -> 43022
+  LUT as Memory: 1142 -> 1142
+  Slice Registers: 50995 -> 50995
+  Block RAM Tile: 94.5 -> 94.5
+  RAMB36/FIFO: 78 -> 78
+  RAMB18: 33 -> 33
